@@ -8,5 +8,4 @@
 # Generated Stuff
 *.manifest
 
-# Ignore Eclipse stuff
-*.project
+/bin
