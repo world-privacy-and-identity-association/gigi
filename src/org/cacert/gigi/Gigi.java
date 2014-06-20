@@ -33,7 +33,6 @@ public class Gigi extends HttpServlet {
 				hs.setAttribute("loggedin", false);
 				hs.invalidate();
 			}
-			authWithUnpw(req);
 			resp.sendRedirect("/");
 			return;
 		}
