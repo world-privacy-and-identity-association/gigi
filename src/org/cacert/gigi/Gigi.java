@@ -88,7 +88,9 @@ public class Gigi extends HttpServlet {
 			b0 = b0.replaceAll("\\$title\\$", p.getTitle());
 			resp.getWriter().print(b0);
 			p.doGet(req, resp);
-			resp.getWriter().print(baseTemplate[1]);
+			String b1 = baseTemplate[1];
+			b1 = b1.replaceAll("\\$title\\$", p.getTitle());
+			resp.getWriter().print(b1);
 		} else {
 			resp.sendError(404, "Page not found.");
 		}
