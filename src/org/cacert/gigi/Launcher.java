@@ -42,9 +42,10 @@ public class Launcher {
 		connector.setHost("127.0.0.1");
 		connector.setPort(443);
 		s.setConnectors(new Connector[]{connector});
-		ServletContextHandler sh = new ServletContextHandler();
+		ServletContextHandler sh = new ServletContextHandler(
+				ServletContextHandler.SESSIONS);
 		s.setHandler(sh);
-		sh.addServlet(new ServletHolder(new TestServlet()), "/");
+		sh.addServlet(new ServletHolder(new Gigi()), "/*");
 		s.start();
 		if (connector.getPort() <= 1024
 				&& !System.getProperty("os.name").toLowerCase().contains("win")) {
