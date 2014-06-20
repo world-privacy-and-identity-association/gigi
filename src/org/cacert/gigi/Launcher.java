@@ -22,6 +22,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class Launcher {
@@ -42,8 +43,12 @@ public class Launcher {
 		s.setHandler(sh);
 		sh.addServlet(new ServletHolder(new TestServlet()), "/");
 		s.start();
-		SetUID uid = new SetUID();
-		System.out.println(uid.setUid(-2, -2).getMessage());
+		if (connector.getPort() <= 1024) {
+			SetUID uid = new SetUID();
+			if (!uid.setUid(-2, -2).getSuccess()) {
+				Log.getLogger(Launcher.class).warn("Couldn't set uid!");
+			}
+		}
 	}
 
 	private static SslContextFactory generateSSLContextFactory()
