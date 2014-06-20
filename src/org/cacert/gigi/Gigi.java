@@ -15,6 +15,8 @@ import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
 
 public class Gigi extends HttpServlet {
+	private static final long serialVersionUID = -6386785421902852904L;
+
 	private HashMap<String, Page> pages = new HashMap<String, Page>();
 
 	@Override
