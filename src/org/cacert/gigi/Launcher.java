@@ -14,12 +14,16 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.cacert.gigi.natives.SetUID;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Log;
@@ -42,10 +46,11 @@ public class Launcher {
 		connector.setHost("127.0.0.1");
 		connector.setPort(443);
 		s.setConnectors(new Connector[]{connector});
-		ServletContextHandler sh = new ServletContextHandler(
-				ServletContextHandler.SESSIONS);
-		s.setHandler(sh);
-		sh.addServlet(new ServletHolder(new Gigi()), "/*");
+
+		HandlerList hl = new HandlerList();
+		hl.setHandlers(new Handler[]{generateStaticContext(),
+				generateGigiContext()});
+		s.setHandler(hl);
 		s.start();
 		if (connector.getPort() <= 1024
 				&& !System.getProperty("os.name").toLowerCase().contains("win")) {
@@ -54,6 +59,22 @@ public class Launcher {
 				Log.getLogger(Launcher.class).warn("Couldn't set uid!");
 			}
 		}
+	}
+
+	private static ServletContextHandler generateGigiContext() {
+		ServletContextHandler servlet = new ServletContextHandler(
+				ServletContextHandler.SESSIONS);
+		servlet.addServlet(new ServletHolder(new Gigi()), "/*");
+		return servlet;
+	}
+
+	private static ContextHandler generateStaticContext() {
+		ResourceHandler rh = new ResourceHandler();
+		rh.setResourceBase("static");
+		ContextHandler ch = new ContextHandler();
+		ch.setHandler(rh);
+		ch.setContextPath("/static");
+		return ch;
 	}
 
 	private static SslContextFactory generateSSLContextFactory()
