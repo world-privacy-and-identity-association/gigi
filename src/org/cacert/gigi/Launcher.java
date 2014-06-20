@@ -30,6 +30,9 @@ public class Launcher {
 		Server s = new Server();
 		// === SSL HTTP Configuration ===
 		HttpConfiguration https_config = new HttpConfiguration();
+		https_config.setSendServerVersion(false);
+		https_config.setSendXPoweredBy(false);
+
 		// for client-cert auth
 		https_config.addCustomizer(new SecureRequestCustomizer());
 
