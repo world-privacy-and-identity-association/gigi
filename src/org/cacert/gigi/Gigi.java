@@ -1,6 +1,10 @@
 package org.cacert.gigi;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 
@@ -13,17 +17,31 @@ import javax.servlet.http.HttpSession;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
+import org.eclipse.jetty.util.log.Log;
 
 public class Gigi extends HttpServlet {
 	private static final long serialVersionUID = -6386785421902852904L;
-
+	private String[] baseTemplate;
 	private HashMap<String, Page> pages = new HashMap<String, Page>();
 
 	@Override
 	public void init() throws ServletException {
 		pages.put("/login", new LoginPage("CACert - Login"));
 		pages.put("/", new MainPage("CACert - Home"));
+		String templ = "";
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					new FileInputStream(new File("templates/base.html"))));
+			String tmp;
+			while ((tmp = reader.readLine()) != null) {
+				templ += tmp;
+			}
+			baseTemplate = templ.split("\\$content\\$");
+		} catch (Exception e) {
+			Log.getLogger(Gigi.class).warn("Error loading template!", e);
+		}
 		super.init();
+
 	}
 
 	@Override
@@ -65,8 +83,12 @@ public class Gigi extends HttpServlet {
 			return;
 		}
 		if (pages.containsKey(req.getPathInfo())) {
+			String b0 = baseTemplate[0];
 			Page p = pages.get(req.getPathInfo());
+			b0 = b0.replaceAll("\\$title\\$", p.getTitle());
+			resp.getWriter().print(b0);
 			p.doGet(req, resp);
+			resp.getWriter().print(baseTemplate[1]);
 		} else {
 			resp.sendError(404, "Page not found.");
 		}
