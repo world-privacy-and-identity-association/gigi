@@ -85,15 +85,12 @@ public class Gigi extends HttpServlet {
 		}
 		if (pages.containsKey(req.getPathInfo())) {
 			String b0 = baseTemplate[0];
-			int year = Calendar.getInstance().get(Calendar.YEAR);
 			Page p = pages.get(req.getPathInfo());
-			b0 = b0.replaceAll("\\$title\\$", p.getTitle());
-			b0 = b0.replaceAll("\\$year\\$", year + "");
+			b0 = makeDynTempl(b0, p);
 			resp.getWriter().print(b0);
 			p.doGet(req, resp);
 			String b1 = baseTemplate[1];
-			b1 = b1.replaceAll("\\$title\\$", p.getTitle());
-			b1 = b1.replaceAll("\\$year\\$", year + "");
+			b1 = makeDynTempl(b1, p);
 			resp.getWriter().print(b1);
 		} else {
 			resp.sendError(404, "Page not found.");
@@ -101,6 +98,12 @@ public class Gigi extends HttpServlet {
 
 	}
 
+	private String makeDynTempl(String in, Page p) {
+		int year = Calendar.getInstance().get(Calendar.YEAR);
+		in = in.replaceAll("\\$title\\$", p.getTitle());
+		in = in.replaceAll("\\$year\\$", year + "");
+		return in;
+	}
 	private void authWithUnpw(HttpServletRequest req) {
 		String un = req.getParameter("username");
 		String pw = req.getParameter("password");
