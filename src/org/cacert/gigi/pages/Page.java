@@ -1,4 +1,4 @@
-package org.cacert.gigi;
+package org.cacert.gigi.pages;
 
 import java.io.IOException;
 
@@ -6,6 +6,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 public abstract class Page {
+	private String title;
+
+	public Page(String title) {
+		this.title = title;
+	}
+
 	public void doGet(ServletRequest req, ServletResponse resp)
 			throws IOException {
 		resp.setContentType("text/html");
@@ -14,5 +20,13 @@ public abstract class Page {
 	public void doPost(ServletRequest req, ServletResponse resp)
 			throws IOException {
 		doGet(req, resp);
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 }

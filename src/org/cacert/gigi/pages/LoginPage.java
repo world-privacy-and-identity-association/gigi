@@ -5,9 +5,11 @@ import java.io.IOException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.cacert.gigi.Page;
-
 public class LoginPage extends Page {
+	public LoginPage(String title) {
+		super(title);
+	}
+
 	@Override
 	public void doGet(ServletRequest req, ServletResponse resp)
 			throws IOException {

@@ -12,14 +12,15 @@ import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
+import org.cacert.gigi.pages.Page;
 
 public class Gigi extends HttpServlet {
 	private HashMap<String, Page> pages = new HashMap<String, Page>();
 
 	@Override
 	public void init() throws ServletException {
-		pages.put("/login", new LoginPage());
-		pages.put("/", new MainPage());
+		pages.put("/login", new LoginPage("CACert - Login"));
+		pages.put("/", new MainPage("CACert - Home"));
 		super.init();
 	}
 
