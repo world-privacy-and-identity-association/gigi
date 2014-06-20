@@ -19,16 +19,12 @@ jobject getStatus(JNIEnv *env, int successCode, const char * message) {
   
 JNIEXPORT jobject JNICALL Java_org_cacert_gigi_natives_SetUID_setUid  
   (JNIEnv *env, jobject obj, jint uid, jint gid) {  
-if(setgid((int)gid)) {  
-         char str[15];
-	sprintf(str, "%d", gid);
-         return (jobject)getStatus(env, 0, str);  
+	  if(setgid((int)gid)) {  
+         return (jobject)getStatus(env, 0, "Error while setting GID.");  
       } 
   
       if(setuid((int)uid)) {
-	char str[15];
-	sprintf(str, "%d", uid);
-         return (jobject)getStatus(env, 0, str);  
+         return (jobject)getStatus(env, 0, "Error while setting UID.");  
       }  
   
       return (jobject)getStatus(env, 1, "Successfully set uid/gid.");  
