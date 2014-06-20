@@ -12,9 +12,11 @@ import javax.servlet.http.HttpSession;
 
 public class Gigi extends HttpServlet {
 	private HashMap<String, Page> pages = new HashMap<String, Page>();
+
 	@Override
 	public void init() throws ServletException {
-		pages.put("login", new LoginPage());
+		pages.put("/login", new LoginPage());
+		pages.put("/", new MainPage());
 		super.init();
 	}
 
@@ -29,6 +31,11 @@ public class Gigi extends HttpServlet {
 				tryAuthWithCertificate(req, cert[0]);
 				hs = req.getSession(false);
 			}
+		}
+		if (hs != null && ((Boolean) hs.getAttribute("loggedin"))
+				&& req.getPathInfo().equals("/login")) {
+			resp.sendRedirect("/");
+			return;
 		}
 		if (req.getMethod().equals("POST") && req.getPathInfo() != null
 				&& req.getPathInfo().equals("/login")) {
@@ -45,14 +52,22 @@ public class Gigi extends HttpServlet {
 			return;
 		}
 
-		if (hs == null || !((Boolean) hs.getAttribute("loggedin"))) {
-			resp.getWriter().println("Access denied. Sending login form.");
-			pages.get("login").doGet(req, resp);
+		if ((hs == null || !((Boolean) hs.getAttribute("loggedin")))
+				&& !"/login".equals(req.getPathInfo())) {
+			System.out.println(req.getPathInfo());
+			resp.sendRedirect("/login");
 			return;
 		}
-		resp.getWriter().println("Access granted.");
+		System.out.println(req.getPathInfo());
+		if (pages.containsKey(req.getPathInfo())) {
+			Page p = pages.get(req.getPathInfo());
+			p.doGet(req, resp);
+		} else {
+			resp.sendError(404, "Page not found.");
+		}
 
 	}
+
 	private void authWithUnpw(HttpServletRequest req) {
 		String un = req.getParameter("username");
 		String pw = req.getParameter("password");
@@ -60,6 +75,7 @@ public class Gigi extends HttpServlet {
 		HttpSession hs = req.getSession();
 		hs.setAttribute("loggedin", true);
 	}
+
 	private void tryAuthWithCertificate(HttpServletRequest req,
 			X509Certificate x509Certificate) {
 		// TODO ckeck if certificate is valid
