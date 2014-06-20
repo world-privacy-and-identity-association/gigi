@@ -2,6 +2,7 @@ package org.cacert.gigi;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,6 +11,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 public class Gigi extends HttpServlet {
+	private HashMap<String, Page> pages = new HashMap<String, Page>();
+	@Override
+	public void init() throws ServletException {
+		pages.put("login", new LoginPage());
+		super.init();
+	}
+
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -38,13 +46,8 @@ public class Gigi extends HttpServlet {
 		}
 
 		if (hs == null || !((Boolean) hs.getAttribute("loggedin"))) {
-			resp.setContentType("text/html");
 			resp.getWriter().println("Access denied. Sending login form.");
-			resp.getWriter()
-					.println(
-							"<form method='POST' action='/login'>"
-									+ "<input type='text' name='username'>"
-									+ "<input type='password' name='password'> <input type='submit' value='login'></form>");
+			pages.get("login").doGet(req, resp);
 			return;
 		}
 		resp.getWriter().println("Access granted.");
