@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.cacert.gigi.pages.LoginPage;
+import org.cacert.gigi.pages.MainPage;
+
 public class Gigi extends HttpServlet {
 	private HashMap<String, Page> pages = new HashMap<String, Page>();
 
@@ -58,7 +61,6 @@ public class Gigi extends HttpServlet {
 			resp.sendRedirect("/login");
 			return;
 		}
-		System.out.println(req.getPathInfo());
 		if (pages.containsKey(req.getPathInfo())) {
 			Page p = pages.get(req.getPathInfo());
 			p.doGet(req, resp);

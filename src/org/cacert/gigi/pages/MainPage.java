@@ -1,9 +1,11 @@
-package org.cacert.gigi;
+package org.cacert.gigi.pages;
 
 import java.io.IOException;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+
+import org.cacert.gigi.Page;
 
 public class MainPage extends Page {
 	@Override
