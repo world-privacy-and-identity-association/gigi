@@ -22,6 +22,7 @@ import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.util.PasswordHash;
 import org.eclipse.jetty.util.log.Log;
 
@@ -36,6 +37,7 @@ public class Gigi extends HttpServlet {
 	public void init() throws ServletException {
 		pages.put("/login", new LoginPage("CACert - Login"));
 		pages.put("/", new MainPage("CACert - Home"));
+		pages.put(RegisterPage.PATH, new RegisterPage());
 		String templ = "";
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(

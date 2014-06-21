@@ -5,6 +5,8 @@ import java.io.IOException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import org.cacert.gigi.Language;
+
 public abstract class Page {
 	private String title;
 
@@ -27,4 +29,9 @@ public abstract class Page {
 	public void setTitle(String title) {
 		this.title = title;
 	}
+	public static String translate(ServletRequest req, String string) {
+		Language l = Language.getInstance("de");
+		return l.getTranslation(string);
+	}
+
 }

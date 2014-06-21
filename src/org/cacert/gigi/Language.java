@@ -35,6 +35,9 @@ public class Language {
 		}
 		System.out.println(translations.size() + " strings loaded.");
 	}
+	public String getTranslation(String text) {
+		return translations.get(text);
+	}
 	public static Language getInstance(String language) {
 		Language l = langs.get(language);
 		if (l == null) {
@@ -51,7 +54,5 @@ public class Language {
 		}
 		return l;
 	}
-	public static void main(String[] args) {
-		Language.getInstance("de");
-	}
+
 }
