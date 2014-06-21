@@ -6,6 +6,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.cert.X509Certificate;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -15,12 +18,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.PasswordHash;
 import org.eclipse.jetty.util.log.Log;
 
 public class Gigi extends HttpServlet {
+	public static final String LOGGEDIN = "loggedin";
+	public static final String USER = "user";
 	private static final long serialVersionUID = -6386785421902852904L;
 	private String[] baseTemplate;
 	private HashMap<String, Page> pages = new HashMap<String, Page>();
@@ -51,7 +58,7 @@ public class Gigi extends HttpServlet {
 		X509Certificate[] cert = (X509Certificate[]) req
 				.getAttribute("javax.servlet.request.X509Certificate");
 		HttpSession hs = req.getSession(false);
-		if (hs == null || !((Boolean) hs.getAttribute("loggedin"))) {
+		if (hs == null || !((Boolean) hs.getAttribute(LOGGEDIN))) {
 			if (cert != null) {
 				tryAuthWithCertificate(req, cert[0]);
 				hs = req.getSession(false);
@@ -70,7 +77,7 @@ public class Gigi extends HttpServlet {
 		}
 		if (req.getPathInfo() != null && req.getPathInfo().equals("/logout")) {
 			if (hs != null) {
-				hs.setAttribute("loggedin", false);
+				hs.setAttribute(LOGGEDIN, false);
 				hs.invalidate();
 			}
 			resp.sendRedirect("/");
@@ -108,15 +115,27 @@ public class Gigi extends HttpServlet {
 	private void authWithUnpw(HttpServletRequest req) {
 		String un = req.getParameter("username");
 		String pw = req.getParameter("password");
-		// TODO dummy password check if (un.equals(pw)) {
-		HttpSession hs = req.getSession();
-		hs.setAttribute("loggedin", true);
+		try {
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+					"SELECT `password`, `id` FROM `users` WHERE `email`=?");
+			ps.setString(1, un);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				if (PasswordHash.verifyHash(pw, rs.getString(1))) {
+					HttpSession hs = req.getSession();
+					hs.setAttribute(LOGGEDIN, true);
+					hs.setAttribute(USER, new User(rs.getInt(2)));
+				}
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
-
 	private void tryAuthWithCertificate(HttpServletRequest req,
 			X509Certificate x509Certificate) {
 		// TODO ckeck if certificate is valid
 		HttpSession hs = req.getSession();
-		hs.setAttribute("loggedin", true);
+		hs.setAttribute(LOGGEDIN, true);
 	}
 }
