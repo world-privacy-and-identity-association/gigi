@@ -87,6 +87,7 @@ public class Gigi extends HttpServlet {
 			String b0 = baseTemplate[0];
 			Page p = pages.get(req.getPathInfo());
 			b0 = makeDynTempl(b0, p);
+			resp.setContentType("text/html");
 			resp.getWriter().print(b0);
 			p.doGet(req, resp);
 			String b1 = baseTemplate[1];
