@@ -5,14 +5,15 @@ import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CRL;
 import java.security.cert.CertificateException;
-import java.util.Collection;
 
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
 import org.cacert.gigi.natives.SetUID;
+import org.cacert.gigi.util.CipherInfo;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -86,18 +87,34 @@ public class Launcher {
 		final TrustManager[] tm = tmFactory.getTrustManagers();
 
 		SslContextFactory scf = new SslContextFactory() {
+
+			String[] ciphers = null;
+
 			@Override
-			protected TrustManager[] getTrustManagers(KeyStore trustStore,
-					Collection<? extends CRL> crls) throws Exception {
-				return tm;
+			public void customize(SSLEngine sslEngine) {
+				super.customize(sslEngine);
+
+				SSLParameters ssl = sslEngine.getSSLParameters();
+				ssl.setUseCipherSuitesOrder(true);
+				if (ciphers == null) {
+					ciphers = CipherInfo.filter(sslEngine
+							.getSupportedCipherSuites());
+				}
+
+				ssl.setCipherSuites(ciphers);
+				sslEngine.setSSLParameters(ssl);
+
 			}
+
 		};
 		scf.setWantClientAuth(true);
 		KeyStore ks1 = KeyStore.getInstance("pkcs12");
 		ks1.load(new FileInputStream("config/keystore.pkcs12"),
 				"".toCharArray());
+		scf.setTrustStorePath("config/cacerts.jks");
+		scf.setTrustStorePassword("changeit");
+		scf.setProtocol("TLS");
 		scf.setKeyStore(ks1);
-		scf.setProtocol("TLSv1");
 		return scf;
 	}
 }
