@@ -1,7 +1,7 @@
 #!/bin/sh
 JETTY=C:/jars/jetty-distribution-9.1.0.RC0/org.eclipse.jetty.project
 
-pushd ../lib/jetty/org/eclipse/jetty
+pushd ../../lib/jetty/org/eclipse/jetty
 rm -fR *
 
 pushd $JETTY

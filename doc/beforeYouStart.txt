@@ -1,0 +1,9 @@
+Before you start using you might want to:
+
+- create a keypair for the server (scripts/generateKeys.sh)
+- create a truststore for the server (scripts/generateTruststore.sh)
+
+- download locales (util/ org.cacert.gigi.util.FetchLocales)
+- write your sql connection properties: config/sql.properties.template -> config/sql.properties
+- add the corresponding jdbc connector to your path.
+
