@@ -58,7 +58,7 @@ public class Gigi extends HttpServlet {
 		X509Certificate[] cert = (X509Certificate[]) req
 				.getAttribute("javax.servlet.request.X509Certificate");
 		HttpSession hs = req.getSession(false);
-		if (hs == null || !((Boolean) hs.getAttribute(LOGGEDIN))) {
+		if (hs == null || hs.getAttribute(LOGGEDIN) == null) {
 			if (cert != null) {
 				tryAuthWithCertificate(req, cert[0]);
 				hs = req.getSession(false);
@@ -77,7 +77,7 @@ public class Gigi extends HttpServlet {
 		}
 		if (req.getPathInfo() != null && req.getPathInfo().equals("/logout")) {
 			if (hs != null) {
-				hs.setAttribute(LOGGEDIN, false);
+				hs.setAttribute(LOGGEDIN, null);
 				hs.invalidate();
 			}
 			resp.sendRedirect("/");
@@ -96,6 +96,10 @@ public class Gigi extends HttpServlet {
 			b0 = makeDynTempl(b0, p);
 			resp.setContentType("text/html");
 			resp.getWriter().print(b0);
+			if (hs != null && hs.getAttribute(LOGGEDIN) != null) {
+				resp.getWriter().println(
+						"Hi " + ((User) hs.getAttribute(USER)).getFname());
+			}
 			p.doGet(req, resp);
 			String b1 = baseTemplate[1];
 			b1 = makeDynTempl(b1, p);
@@ -105,7 +109,6 @@ public class Gigi extends HttpServlet {
 		}
 
 	}
-
 	private String makeDynTempl(String in, Page p) {
 		int year = Calendar.getInstance().get(Calendar.YEAR);
 		in = in.replaceAll("\\$title\\$", p.getTitle());
@@ -134,8 +137,24 @@ public class Gigi extends HttpServlet {
 	}
 	private void tryAuthWithCertificate(HttpServletRequest req,
 			X509Certificate x509Certificate) {
-		// TODO ckeck if certificate is valid
-		HttpSession hs = req.getSession();
-		hs.setAttribute(LOGGEDIN, true);
+		String serial = x509Certificate.getSerialNumber().toString(16)
+				.toUpperCase();
+		try {
+			PreparedStatement ps = DatabaseConnection
+					.getInstance()
+					.prepare(
+							"SELECT `memid` FROM `emailcerts` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` = "
+									+ "'0000-00-00 00:00:00'");
+			ps.setString(1, serial);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				HttpSession hs = req.getSession();
+				hs.setAttribute(LOGGEDIN, true);
+				hs.setAttribute(USER, new User(rs.getInt(1)));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }
