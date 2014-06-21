@@ -21,6 +21,7 @@ import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SessionManager;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
@@ -65,6 +66,8 @@ public class Launcher {
 	private static ServletContextHandler generateGigiContext() {
 		ServletContextHandler servlet = new ServletContextHandler(
 				ServletContextHandler.SESSIONS);
+		servlet.setInitParameter(SessionManager.__SessionCookieProperty,
+				"CACert-Session");
 		servlet.addServlet(new ServletHolder(new Gigi()), "/*");
 		return servlet;
 	}
