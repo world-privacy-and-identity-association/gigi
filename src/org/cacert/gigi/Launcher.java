@@ -12,6 +12,7 @@ import java.util.Collection;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.cacert.gigi.natives.SetUID;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -21,12 +22,12 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class Launcher {
 	public static void main(String[] args) throws Exception {
 		Server s = new Server();
-
 		// === SSL HTTP Configuration ===
 		HttpConfiguration https_config = new HttpConfiguration();
 		// for client-cert auth
@@ -42,6 +43,13 @@ public class Launcher {
 		s.setHandler(sh);
 		sh.addServlet(new ServletHolder(new TestServlet()), "/");
 		s.start();
+		if (connector.getPort() <= 1024
+				&& !System.getProperty("os.name").toLowerCase().contains("win")) {
+			SetUID uid = new SetUID();
+			if (!uid.setUid(-2, -2).getSuccess()) {
+				Log.getLogger(Launcher.class).warn("Couldn't set uid!");
+			}
+		}
 	}
 
 	private static SslContextFactory generateSSLContextFactory()
