@@ -12,10 +12,8 @@ public abstract class Page {
 		this.title = title;
 	}
 
-	public void doGet(ServletRequest req, ServletResponse resp)
-			throws IOException {
-		resp.setContentType("text/html");
-	}
+	public abstract void doGet(ServletRequest req, ServletResponse resp)
+			throws IOException;
 
 	public void doPost(ServletRequest req, ServletResponse resp)
 			throws IOException {
