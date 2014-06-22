@@ -66,7 +66,7 @@ public class Gigi extends HttpServlet {
 				hs = req.getSession();
 			}
 		}
-		if (((Boolean) hs.getAttribute("loggedin"))
+		if (hs.getAttribute("loggedin") != null
 				&& req.getPathInfo().equals("/login")) {
 			resp.sendRedirect("/");
 			return;
@@ -86,7 +86,7 @@ public class Gigi extends HttpServlet {
 			return;
 		}
 
-		if ((hs == null || !((Boolean) hs.getAttribute("loggedin")))
+		if (hs.getAttribute("loggedin") == null
 				&& !"/login".equals(req.getPathInfo())) {
 			System.out.println(req.getPathInfo());
 			resp.sendRedirect("/login");
