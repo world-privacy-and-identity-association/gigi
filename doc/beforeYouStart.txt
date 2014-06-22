@@ -7,3 +7,6 @@ Before you start using you might want to:
 - write your sql connection properties: config/sql.properties.template -> config/sql.properties
 - add the corresponding jdbc connector to your path.
 
+- on unix-like systems: to securely run on privileged ports <= 1024 build the native setuid library (run the makefile in natives/).
+  This expects JAVA_HOME to be set.
+
