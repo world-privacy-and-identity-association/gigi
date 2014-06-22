@@ -110,6 +110,7 @@ public class Launcher {
 			}
 
 		};
+		scf.setRenegotiationAllowed(false);
 		scf.setWantClientAuth(true);
 		KeyStore ks1 = KeyStore.getInstance("pkcs12");
 		ks1.load(new FileInputStream("config/keystore.pkcs12"),
