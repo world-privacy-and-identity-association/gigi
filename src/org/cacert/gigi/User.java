@@ -3,6 +3,7 @@ package org.cacert.gigi;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 
 import org.cacert.gigi.database.DatabaseConnection;
 
@@ -10,7 +11,11 @@ public class User {
 
 	private int id;
 	String fname;
+	String mname;
 	String lname;
+	String suffix;
+	Date dob;
+	String email;
 
 	public User(int id) {
 		this.id = id;
@@ -28,6 +33,8 @@ public class User {
 			e.printStackTrace();
 		}
 	}
+	public User() {
+	}
 	public int getId() {
 		return id;
 	}
@@ -36,6 +43,39 @@ public class User {
 	}
 	public String getLname() {
 		return lname;
+	}
+	public String getMname() {
+		return mname;
+	}
+	public void setMname(String mname) {
+		this.mname = mname;
+	}
+	public String getSuffix() {
+		return suffix;
+	}
+	public void setSuffix(String suffix) {
+		this.suffix = suffix;
+	}
+	public Date getDob() {
+		return dob;
+	}
+	public void setDob(Date dob) {
+		this.dob = dob;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public void setFname(String fname) {
+		this.fname = fname;
+	}
+	public void setLname(String lname) {
+		this.lname = lname;
 	}
 
 }

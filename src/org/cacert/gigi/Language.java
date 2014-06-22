@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
-
+import java.util.Locale;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,8 +17,16 @@ import org.xml.sax.SAXException;
 public class Language {
 	private static HashMap<String, Language> langs = new HashMap<String, Language>();
 	HashMap<String, String> translations = new HashMap<String, String>();
+	Locale l;
 	private Language(String language) throws ParserConfigurationException,
 			IOException, SAXException {
+		if (language.contains("_")) {
+			String[] parts = language.split("_");
+			l = new Locale(parts[0], parts[1]);
+		} else {
+			l = new Locale(language);
+		}
+
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document d = db.parse(new FileInputStream(new File("locale", language
@@ -36,7 +44,11 @@ public class Language {
 		System.out.println(translations.size() + " strings loaded.");
 	}
 	public String getTranslation(String text) {
-		return translations.get(text);
+		String string = translations.get(text);
+		if (string == null || string.equals("")) {
+			return text;
+		}
+		return string;
 	}
 	public static Language getInstance(String language) {
 		Language l = langs.get(language);
@@ -52,6 +64,9 @@ public class Language {
 				e.printStackTrace();
 			}
 		}
+		return l;
+	}
+	public Locale getLocale() {
 		return l;
 	}
 

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.Language;
 
@@ -14,10 +15,10 @@ public abstract class Page {
 		this.title = title;
 	}
 
-	public abstract void doGet(ServletRequest req, ServletResponse resp)
+	public abstract void doGet(HttpServletRequest req, ServletResponse resp)
 			throws IOException;
 
-	public void doPost(ServletRequest req, ServletResponse resp)
+	public void doPost(HttpServletRequest req, ServletResponse resp)
 			throws IOException {
 		doGet(req, resp);
 	}
@@ -29,9 +30,14 @@ public abstract class Page {
 	public void setTitle(String title) {
 		this.title = title;
 	}
+	public static Language getLanguage(ServletRequest req) {
+		return Language.getInstance("de");
+	}
+
 	public static String translate(ServletRequest req, String string) {
-		Language l = Language.getInstance("de");
+		Language l = getLanguage(req);
 		return l.getTranslation(string);
 	}
+
 
 }

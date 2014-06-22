@@ -2,8 +2,8 @@ package org.cacert.gigi.pages;
 
 import java.io.IOException;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 public class LoginPage extends Page {
 	public LoginPage(String title) {
@@ -11,7 +11,7 @@ public class LoginPage extends Page {
 	}
 
 	@Override
-	public void doGet(ServletRequest req, ServletResponse resp)
+	public void doGet(HttpServletRequest req, ServletResponse resp)
 			throws IOException {
 		resp.getWriter()
 				.println(
