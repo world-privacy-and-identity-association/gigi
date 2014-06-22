@@ -45,7 +45,7 @@ public class Signup {
 		vars.put("email", HTMLEncoder.encodeHTML(buildup.getEmail()));
 		vars.put("general", general ? " checked=\"checked\"" : "");
 		vars.put("country", country ? " checked=\"checked\"" : "");
-		vars.put("region", regional ? " checked=\"checked\"" : "");
+		vars.put("regional", regional ? " checked=\"checked\"" : "");
 		vars.put("radius", radius ? " checked=\"checked\"" : "");
 		vars.put(
 				"helpOnNames",
@@ -57,5 +57,13 @@ public class Signup {
 	}
 	public void update(ServletRequest r) {
 		buildup.setFname(r.getParameter("fname"));
+		buildup.setLname(r.getParameter("lname"));
+		buildup.setMname(r.getParameter("mname"));
+		buildup.setSuffix(r.getParameter("suffix"));
+		buildup.setEmail(r.getParameter("email"));
+		general = "1".equals(r.getParameter("general"));
+		country = "1".equals(r.getParameter("country"));
+		regional = "1".equals(r.getParameter("regional"));
+		radius = "1".equals(r.getParameter("radius"));
 	}
 }

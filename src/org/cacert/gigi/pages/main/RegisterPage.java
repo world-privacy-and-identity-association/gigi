@@ -8,6 +8,8 @@ import java.util.HashMap;
 
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.cacert.gigi.output.Template;
 import org.cacert.gigi.pages.Page;
 
@@ -32,12 +34,24 @@ public class RegisterPage extends Page {
 			throws IOException {
 		PrintWriter out = resp.getWriter();
 		t.output(out, getLanguage(req), new HashMap<String, Object>());
-		Signup s = new Signup();
+		Signup s = getForm(req);
 		s.writeForm(out, req);
+	}
+	public Signup getForm(HttpServletRequest req) {
+		HttpSession hs = req.getSession();
+		Signup s = (Signup) hs.getAttribute("signupProcess");
+		if (s == null) {
+			s = new Signup();
+			hs.setAttribute("signupProcess", s);
+		}
+		return s;
+
 	}
 	@Override
 	public void doPost(HttpServletRequest req, ServletResponse resp)
 			throws IOException {
+		Signup s = getForm(req);
+		s.update(req);
 
 		super.doPost(req, resp);
 	}
