@@ -59,14 +59,14 @@ public class Gigi extends HttpServlet {
 			throws ServletException, IOException {
 		X509Certificate[] cert = (X509Certificate[]) req
 				.getAttribute("javax.servlet.request.X509Certificate");
-		HttpSession hs = req.getSession(false);
-		if (hs == null || hs.getAttribute(LOGGEDIN) == null) {
+		HttpSession hs = req.getSession();
+		if (hs.getAttribute(LOGGEDIN) == null) {
 			if (cert != null) {
 				tryAuthWithCertificate(req, cert[0]);
-				hs = req.getSession(false);
+				hs = req.getSession();
 			}
 		}
-		if (hs != null && ((Boolean) hs.getAttribute("loggedin"))
+		if (((Boolean) hs.getAttribute("loggedin"))
 				&& req.getPathInfo().equals("/login")) {
 			resp.sendRedirect("/");
 			return;
