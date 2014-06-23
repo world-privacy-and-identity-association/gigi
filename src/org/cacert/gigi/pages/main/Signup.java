@@ -21,6 +21,7 @@ import org.cacert.gigi.output.Template;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.EmailChecker;
 import org.cacert.gigi.util.HTMLEncoder;
+import org.cacert.gigi.util.PasswordStrengthChecker;
 
 public class Signup {
 	User buildup = new User();
@@ -117,7 +118,15 @@ public class Signup {
 			outputError(out, req, "Pass Phrases don't match");
 			failed = true;
 		}
-		// TODO check password strength
+		int pwpoints = PasswordStrengthChecker.checkpw(pw1, buildup);
+		if (pwpoints < 3) {
+			outputError(
+					out,
+					req,
+					"The Pass Phrase you submitted failed to contain enough"
+							+ " differing characters and/or contained words from"
+							+ " your name and/or email address.");
+		}
 		if (failed) {
 			out.println("</div>");
 			return false;
