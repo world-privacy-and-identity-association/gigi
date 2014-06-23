@@ -6,11 +6,12 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.security.NoSuchAlgorithmException;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
-import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
+import javax.net.ssl.SSLException;
 
 import org.junit.Test;
 
@@ -44,7 +45,7 @@ public class TestSSL {
 		try {
 			work(se, s);
 			throw new Error(
-					"Client re-negotiation failed (possible DoS vurnability");
+					"Client re-negotiation succeded (possible DoS vulnerability");
 		} catch (EOFException e) {
 			// Cool, server closed connection
 		}

@@ -3,7 +3,7 @@ package org.cacert.gigi.natives;
 import java.io.File;
 
 /**
- * Native to use privileged ports on unixoide hosts.
+ * Native to use privileged ports on unix-like hosts.
  * 
  * @author janis
  * 
