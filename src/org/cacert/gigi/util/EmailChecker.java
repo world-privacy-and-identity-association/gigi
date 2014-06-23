@@ -33,20 +33,21 @@ public class EmailChecker {
 								new InputStreamReader(s.getInputStream()));
 						PrintWriter pw = new PrintWriter(s.getOutputStream())) {
 					String line;
-					while ((line = br.readLine()).startsWith("220-")) {
+					while ((line = br.readLine()) != null
+							&& line.startsWith("220-")) {
 					}
-
-					if (!line.startsWith("220")) {
+					if (line == null || !line.startsWith("220")) {
 						continue;
 					}
 
 					pw.print("HELO www.cacert.org\r\n");
 					pw.flush();
 
-					while ((line = br.readLine()).startsWith("220")) {
+					while ((line = br.readLine()) != null
+							&& line.startsWith("220")) {
 					}
 
-					if (!line.startsWith("250")) {
+					if (line == null || !line.startsWith("250")) {
 						continue;
 					}
 					pw.print("MAIL FROM: <returns@cacert.org>\r\n");
@@ -54,7 +55,7 @@ public class EmailChecker {
 
 					line = br.readLine();
 
-					if (!line.startsWith("250")) {
+					if (line == null || !line.startsWith("250")) {
 						continue;
 					}
 					pw.print("RCPT TO: <" + address + ">\r\n");
@@ -77,7 +78,7 @@ public class EmailChecker {
 						e.printStackTrace();
 					}
 
-					if (!line.startsWith("250")) {
+					if (line == null || !line.startsWith("250")) {
 						return line;
 					} else {
 						return OK;
