@@ -76,11 +76,12 @@
             <classpath refid="cacert-gigi.classpath"/>
         </java>
     </target>
-    <target name="TestSSL">
+    <target name="test">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="org.cacert.gigi.TestSSL" todir="${junit.output.dir}"/>
+            <test name="org.cacert.gigi.pages.main.ResgisterPageTest" todir="${junit.output.dir}"/>
             <classpath refid="cacert-gigi.classpath"/>
         </junit>
     </target>
