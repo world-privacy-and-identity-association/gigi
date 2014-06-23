@@ -16,15 +16,15 @@ import javax.servlet.http.HttpServletRequest;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.email.EmailChecker;
+import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.Template;
 import org.cacert.gigi.pages.Page;
-import org.cacert.gigi.util.EmailChecker;
 import org.cacert.gigi.util.HTMLEncoder;
 import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PasswordStrengthChecker;
 import org.cacert.gigi.util.RandomToken;
-import org.cacert.gigi.util.Sendmail;
 import org.cacert.gigi.util.ServerConstants;
 
 public class Signup {
@@ -265,7 +265,7 @@ public class Signup {
 		body.append("\n");
 		body.append(Page.translate(req, "CAcert.org Support!"));
 		try {
-			Sendmail.sendmail(buildup.getEmail(),
+			EmailProvider.getInstance().sendmail(buildup.getEmail(),
 					"[CAcert.org] " + Page.translate(req, "Mail Probe"),
 					body.toString(), "support@cacert.org", null, null, null,
 					null, false);

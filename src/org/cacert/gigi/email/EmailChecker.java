@@ -1,4 +1,4 @@
-package org.cacert.gigi.util;
+package org.cacert.gigi.email;
 
 import java.io.BufferedReader;
 import java.io.IOException;

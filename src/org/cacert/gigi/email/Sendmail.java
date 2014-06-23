@@ -1,4 +1,4 @@
-package org.cacert.gigi.util;
+package org.cacert.gigi.email;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-public class Sendmail {
+class Sendmail {
 	private Sendmail() {
 	}
 	private static final Pattern NON_ASCII = Pattern
