@@ -17,6 +17,8 @@
     </path>
     <target name="init">
         <mkdir dir="bin"/>
+        <mkdir dir="bintest"/>
+        
         <copy includeemptydirs="false" todir="bin">
             <fileset dir="lib/servlet-api">
                 <exclude name="**/*.launch"/>
@@ -41,7 +43,7 @@
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
-        <copy includeemptydirs="false" todir="bin">
+        <copy includeemptydirs="false" todir="bintest">
             <fileset dir="tests">
                 <exclude name="**/*.launch"/>
                 <exclude name="**/*.java"/>
