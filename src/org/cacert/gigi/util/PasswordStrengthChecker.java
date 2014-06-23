@@ -64,7 +64,7 @@ public class PasswordStrengthChecker {
 		return light;
 	}
 	private static boolean contained(String pw, String check) {
-		if (check == null) {
+		if (check == null || check.equals("")) {
 			return false;
 		}
 		if (pw.contains(check)) {

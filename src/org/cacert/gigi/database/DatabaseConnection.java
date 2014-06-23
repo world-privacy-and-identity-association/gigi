@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Properties;
@@ -42,6 +43,14 @@ public class DatabaseConnection {
 			statements.put(query, statement);
 		}
 		return statement;
+	}
+
+	public static int lastInsertId(PreparedStatement query) throws SQLException {
+		ResultSet rs = query.getGeneratedKeys();
+		rs.next();
+		int id = rs.getInt(1);
+		rs.close();
+		return id;
 	}
 	static ThreadLocal<DatabaseConnection> instances = new ThreadLocal<DatabaseConnection>() {
 		@Override

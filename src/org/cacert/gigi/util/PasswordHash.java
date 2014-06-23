@@ -23,4 +23,8 @@ public class PasswordHash {
 			throw new Error(e);
 		}
 	}
+
+	public static String hash(String password) {
+		return sha1(password);
+	}
 }

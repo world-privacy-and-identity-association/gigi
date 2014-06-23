@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.Date;
 
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.util.PasswordHash;
 
 public class User {
 
@@ -76,6 +77,27 @@ public class User {
 	}
 	public void setLname(String lname) {
 		this.lname = lname;
+	}
+	public void insert(String password) throws SQLException {
+		if (id != 0) {
+			throw new Error("refusing to insert");
+		}
+		PreparedStatement query = DatabaseConnection.getInstance().prepare(
+				"insert into `users` set `email`=?, `password`=?, "
+						+ "`fname`=?, `mname`=?, `lname`=?, "
+						+ "`suffix`=?, `dob`=?, `created`=NOW(),"
+						+ " `orgadmin`=0, `adadmin`=0, `locked`=0,"
+						+ " `uniqueID`=0, `otphash`='', `otppin`=0");
+		query.setString(1, email);
+		query.setString(2, PasswordHash.hash(password));
+		query.setString(3, fname);
+		query.setString(4, mname);
+		query.setString(5, lname);
+		query.setString(6, suffix);
+		query.setDate(7, new java.sql.Date(dob.getTime()));
+		query.execute();
+		id = DatabaseConnection.lastInsertId(query);
+		System.out.println("Inserted: " + id);
 	}
 
 }

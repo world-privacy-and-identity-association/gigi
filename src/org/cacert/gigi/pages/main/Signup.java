@@ -21,12 +21,14 @@ import org.cacert.gigi.output.Template;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.EmailChecker;
 import org.cacert.gigi.util.HTMLEncoder;
+import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PasswordStrengthChecker;
+import org.cacert.gigi.util.RandomToken;
+import org.cacert.gigi.util.Sendmail;
+import org.cacert.gigi.util.ServerConstants;
 
 public class Signup {
 	User buildup = new User();
-	String password;
-	String password2;
 	Template t;
 	boolean general = true, country = true, regional = true, radius = true;
 	public Signup() {
@@ -88,7 +90,7 @@ public class Signup {
 		myDoB.update(r);
 	}
 
-	public boolean submit(PrintWriter out, HttpServletRequest req) {
+	public synchronized boolean submit(PrintWriter out, HttpServletRequest req) {
 		update(req);
 		boolean failed = false;
 		out.println("<div class='formError'>");
@@ -126,6 +128,7 @@ public class Signup {
 					"The Pass Phrase you submitted failed to contain enough"
 							+ " differing characters and/or contained words from"
 							+ " your name and/or email address.");
+			failed = true;
 		}
 		if (failed) {
 			out.println("</div>");
@@ -205,12 +208,70 @@ public class Signup {
 		if (failed) {
 			return false;
 		}
-		// TODO start getting to work
+		try {
+			run(req, pw1);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return true;
 	}
 	private void outputError(PrintWriter out, ServletRequest req, String text) {
 		out.print("<div>");
 		out.print(Page.translate(req, text));
 		out.println("</div>");
+	}
+
+	private void run(HttpServletRequest req, String password)
+			throws SQLException {
+		String hash = RandomToken.generateToken(16);
+
+		buildup.insert(password);
+		int memid = buildup.getId();
+		PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+				"insert into `email` set `email`=?,"
+						+ " `hash`=?, `created`=NOW(),`memid`=?");
+		ps.setString(1, buildup.getEmail());
+		ps.setString(2, hash);
+		ps.setInt(3, memid);
+		ps.execute();
+		int emailid = DatabaseConnection.lastInsertId(ps);
+		ps = DatabaseConnection
+				.getInstance()
+				.prepare(
+						"insert into `alerts` set `memid`=?,"
+								+ " `general`=?, `country`=?, `regional`=?, `radius`=?");
+		ps.setInt(1, memid);
+		ps.setString(2, general ? "1" : "0");
+		ps.setString(3, country ? "1" : "0");
+		ps.setString(4, regional ? "1" : "0");
+		ps.setString(5, radius ? "1" : "0");
+		ps.execute();
+		Notary.writeUserAgreement(memid, "CCA", "account creation", "", true, 0);
+
+		StringBuffer body = new StringBuffer();
+		body.append(Page
+				.translate(
+						req,
+						"Thanks for signing up with CAcert.org, below is the link you need to open to verify your account. Once your account is verified you will be able to start issuing certificates till your hearts' content!"));
+		body.append("\n\n");
+		body.append("http://");
+		body.append(ServerConstants.NORMAL_HOST_NAME);
+		body.append("/verify.php?type=email&emailid=");
+		body.append(emailid);
+		body.append("&hash=");
+		body.append(hash);
+		body.append("\n\n");
+		body.append(Page.translate(req, "Best regards"));
+		body.append("\n");
+		body.append(Page.translate(req, "CAcert.org Support!"));
+		try {
+			Sendmail.sendmail(buildup.getEmail(),
+					"[CAcert.org] " + Page.translate(req, "Mail Probe"),
+					body.toString(), "support@cacert.org", null, null, null,
+					null, false);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 }
