@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
@@ -61,7 +62,7 @@ public class Signup {
 						"</a>"));
 		t.output(out, l, vars);
 	}
-	private void update(ServletRequest r) {
+	private void update(HttpServletRequest r) {
 		if (r.getParameter("fname") != null) {
 			buildup.setFname(r.getParameter("fname"));
 		}
@@ -81,9 +82,10 @@ public class Signup {
 		country = "1".equals(r.getParameter("country"));
 		regional = "1".equals(r.getParameter("regional"));
 		radius = "1".equals(r.getParameter("radius"));
+		myDoB.update(r);
 	}
 
-	public boolean submit(PrintWriter out, ServletRequest req) {
+	public boolean submit(PrintWriter out, HttpServletRequest req) {
 		update(req);
 		boolean failed = false;
 		out.println("<div class='formError'>");

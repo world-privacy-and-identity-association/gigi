@@ -2,8 +2,11 @@ package org.cacert.gigi.output;
 
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.Language;
 
@@ -50,10 +53,42 @@ public class DateSelector implements Outputable {
 		}
 		out.print("\" size=\"4\" autocomplete=\"off\"></nobr>");
 	}
+
+	public void update(HttpServletRequest r) {
+		String dayS = r.getParameter(names[0]);
+		if (dayS != null) {
+			day = parseIntSafe(dayS);
+		}
+
+		String monthS = r.getParameter(names[1]);
+		if (monthS != null) {
+			month = parseIntSafe(monthS);
+		}
+
+		String yearS = r.getParameter(names[2]);
+		if (yearS != null) {
+			year = parseIntSafe(yearS);
+		}
+	}
+	private int parseIntSafe(String dayS) {
+		try {
+			return Integer.parseInt(dayS);
+		} catch (NumberFormatException e) {
+
+		}
+		return 0;
+	}
 	public boolean isValid() {
 		if (!(1900 < year && 1 <= month && month <= 12 && 1 <= day && day <= 32)) {
 			return false;
 		}
 		return true; // TODO checkdate
 	}
+
+	@Override
+	public String toString() {
+		return "DateSelector [names=" + Arrays.toString(names) + ", day=" + day
+				+ ", month=" + month + ", year=" + year + "]";
+	}
+
 }
