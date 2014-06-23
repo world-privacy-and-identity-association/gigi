@@ -12,7 +12,7 @@ public class PasswordStrengthChecker {
 	static Pattern special = Pattern.compile("\\W");
 	private PasswordStrengthChecker() {
 	}
-	public static int checkpwlight(String pw) {
+	private static int checkpwlight(String pw) {
 		int points = 0;
 		if (pw.length() > 15) {
 			points++;
@@ -44,6 +44,9 @@ public class PasswordStrengthChecker {
 		return points;
 	}
 	public static int checkpw(String pw, User u) {
+		if (pw == null) {
+			return 0;
+		}
 		int light = checkpwlight(pw);
 		if (contained(pw, u.getEmail())) {
 			light -= 2;
