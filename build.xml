@@ -61,6 +61,12 @@
             <src path="lib/jetty"/>
             <src path="src"/>
             <src path="util"/>
+            <classpath refid="cacert-gigi.classpath"/>
+        </javac>
+    </target>
+    <target depends="init" name="build-project-test">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bintest" includeantruntime="false" source="${source}" target="${target}">
             <src path="tests"/>
             <classpath refid="cacert-gigi.classpath"/>
         </javac>
@@ -76,7 +82,7 @@
             <classpath refid="cacert-gigi.classpath"/>
         </java>
     </target>
-    <target name="test">
+    <target name="test" depends="build-project-test">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
