@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="cacert-gigi">
+    <property environment="env"/>
+    <property name="junit.output.dir" value="junit"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.8"/>
+    <property name="source" value="1.8"/>
+    <property name="mysqlconnector" value="mysql-connector-java-5.1.31-bin.jar"/>
+    <property name="juintexec" value="junit.jar"/>
+    <path id="JUnit 4.libraryclasspath">
+        <pathelement location="${juintexec}"/>
+    </path>
+    <path id="cacert-gigi.classpath">
+        <pathelement location="bin"/>
+        <path refid="JUnit 4.libraryclasspath"/>
+        <pathelement location="${mysqlconnector}"/>
+    </path>
+    <path id="cacert-gigi.test.classpath">
+        <pathelement location="bintest"/>
+        <path refid="JUnit 4.libraryclasspath"/>
+        <pathelement location="${mysqlconnector}"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <mkdir dir="bintest"/>
+        
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="lib/servlet-api">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="lib/jetty">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="util">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="bintest">
+            <fileset dir="tests">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
+            <src path="lib/servlet-api"/>
+            <src path="lib/jetty"/>
+            <src path="src"/>
+            <src path="util"/>
+            <classpath refid="cacert-gigi.classpath"/>
+        </javac>
+    </target>
+    <target depends="init" name="build-project-test">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bintest" includeantruntime="false" source="${source}" target="${target}">
+            <src path="tests"/>
+            <classpath refid="cacert-gigi.test.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target name="FetchLocales">
+        <java classname="org.cacert.gigi.util.FetchLocales" failonerror="true" fork="yes">
+            <classpath refid="cacert-gigi.classpath"/>
+        </java>
+    </target>
+    <target name="Launcher">
+        <java classname="org.cacert.gigi.Launcher" failonerror="true" fork="yes">
+            <classpath refid="cacert-gigi.classpath"/>
+        </java>
+    </target>
+    <target name="test" depends="build-project-test">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="org.cacert.gigi.TestSSL" todir="${junit.output.dir}"/>
+            <test name="org.cacert.gigi.pages.main.ResgisterPageTest" todir="${junit.output.dir}"/>
+            <classpath refid="cacert-gigi.classpath"/>
+        </junit>
+    </target>
+    <target name="junitreport">
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
+    </target>
+</project>
