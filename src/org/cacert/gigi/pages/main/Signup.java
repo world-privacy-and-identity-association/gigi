@@ -1,5 +1,6 @@
 package org.cacert.gigi.pages.main;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -18,6 +19,7 @@ import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.Template;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.EmailChecker;
 import org.cacert.gigi.util.HTMLEncoder;
 
 public class Signup {
@@ -158,7 +160,37 @@ public class Signup {
 			e.printStackTrace();
 			failed = true;
 		}
-		// TODO fast-check mail
+		String mailResult = EmailChecker.FAIL;
+		try {
+			mailResult = EmailChecker.checkEmailServer(0, buildup.getEmail());
+		} catch (IOException e) {
+		}
+		if (!mailResult.equals(EmailChecker.OK)) {
+			if (mailResult.startsWith("4")) {
+				outputError(
+						out,
+						req,
+						"The mail server responsible for your domain indicated"
+								+ " a temporary failure. This may be due to anti-SPAM measures, such"
+								+ " as greylisting. Please try again in a few minutes.");
+			} else {
+				outputError(
+						out,
+						req,
+						"Email Address given was invalid, or a test connection"
+								+ " couldn't be made to your server, or the server"
+								+ " rejected the email address as invalid");
+			}
+			if (mailResult.equals(EmailChecker.FAIL)) {
+				outputError(out, req,
+						"Failed to make a connection to the mail server");
+			} else {
+				out.print("<div>");
+				out.print(mailResult);
+				out.println("</div>");
+			}
+			failed = true;
+		}
 
 		out.println("</div>");
 		if (failed) {
