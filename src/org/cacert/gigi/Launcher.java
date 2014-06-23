@@ -33,6 +33,13 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class Launcher {
 	public static void main(String[] args) throws Exception {
+		int port = 443;
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("--port")) {
+				port = Integer.parseInt(args[i + 1]);
+			}
+			i++;
+		}
 		Server s = new Server();
 		// === SSL HTTP Configuration ===
 		HttpConfiguration https_config = new HttpConfiguration();
@@ -46,7 +53,7 @@ public class Launcher {
 				new SslConnectionFactory(generateSSLContextFactory(),
 						"http/1.1"), new HttpConnectionFactory(https_config));
 		connector.setHost("127.0.0.1");
-		connector.setPort(443);
+		connector.setPort(port);
 		s.setConnectors(new Connector[]{connector});
 
 		HandlerList hl = new HandlerList();
