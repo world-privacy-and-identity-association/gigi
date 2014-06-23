@@ -97,6 +97,11 @@ public class Signup {
 			outputError(out, req, "Invalid date of birth");
 			failed = true;
 		}
+		if (!"1".equals(req.getParameter("cca_agree"))) {
+			outputError(out, req,
+					"You have to agree to the CAcert Community agreement.");
+			failed = true;
+		}
 		if (buildup.getEmail().equals("")) {
 			outputError(out, req, "Email Address was blank");
 			failed = true;
@@ -111,6 +116,10 @@ public class Signup {
 			failed = true;
 		}
 		// TODO check password strength
+		if (failed) {
+			out.println("</div>");
+			return false;
+		}
 		try {
 			PreparedStatement q1 = DatabaseConnection.getInstance().prepare(
 					"select * from `email` where `email`=? and `deleted`=0");
@@ -149,8 +158,14 @@ public class Signup {
 			e.printStackTrace();
 			failed = true;
 		}
+		// TODO fast-check mail
+
 		out.println("</div>");
-		return failed;
+		if (failed) {
+			return false;
+		}
+		// TODO start getting to work
+		return true;
 	}
 	private void outputError(PrintWriter out, ServletRequest req, String text) {
 		out.print("<div>");
