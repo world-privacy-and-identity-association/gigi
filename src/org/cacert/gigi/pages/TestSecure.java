@@ -5,18 +5,16 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class MainPage extends Page {
-	public MainPage(String title) {
-		super(title);
+public class TestSecure extends Page {
+
+	public TestSecure() {
+		super("Secure testpage");
 	}
 
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		resp.getWriter().println("Access granted.");
+		resp.getWriter().println("This page is secure.");
 	}
-	@Override
-	public boolean needsLogin() {
-		return false;
-	}
+
 }

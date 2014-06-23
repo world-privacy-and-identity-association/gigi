@@ -6,8 +6,8 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.output.Template;
@@ -30,12 +30,12 @@ public class RegisterPage extends Page {
 	}
 
 	@Override
-	public void doGet(HttpServletRequest req, ServletResponse resp)
+	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		PrintWriter out = resp.getWriter();
 		t.output(out, getLanguage(req), new HashMap<String, Object>());
 		Signup s = getForm(req);
-		s.writeForm(out, req);
+		s.writeForm(out, getLanguage(req));
 	}
 	public Signup getForm(HttpServletRequest req) {
 		HttpSession hs = req.getSession();
@@ -48,11 +48,15 @@ public class RegisterPage extends Page {
 
 	}
 	@Override
-	public void doPost(HttpServletRequest req, ServletResponse resp)
+	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		Signup s = getForm(req);
-		s.update(req);
+		s.submit(resp.getWriter(), req);
 
 		super.doPost(req, resp);
+	}
+	@Override
+	public boolean needsLogin() {
+		return false;
 	}
 }

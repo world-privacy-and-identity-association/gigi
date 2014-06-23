@@ -3,12 +3,17 @@ package org.cacert.gigi.pages.main;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 
 import javax.servlet.ServletRequest;
 
+import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
+import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.Template;
 import org.cacert.gigi.pages.Page;
@@ -17,6 +22,7 @@ import org.cacert.gigi.util.HTMLEncoder;
 public class Signup {
 	User buildup = new User();
 	String password;
+	String password2;
 	Template t;
 	boolean general = true, country = true, regional = true, radius = true;
 	public Signup() {
@@ -35,7 +41,7 @@ public class Signup {
 	}
 	DateSelector myDoB = new DateSelector("day", "month", "year");
 
-	public void writeForm(PrintWriter out, ServletRequest req) {
+	public void writeForm(PrintWriter out, Language l) {
 		HashMap<String, Object> vars = new HashMap<String, Object>();
 		vars.put("fname", HTMLEncoder.encodeHTML(buildup.getFname()));
 		vars.put("mname", HTMLEncoder.encodeHTML(buildup.getMname()));
@@ -50,20 +56,103 @@ public class Signup {
 		vars.put(
 				"helpOnNames",
 				String.format(
-						Page.translate(req, "Help on Names %sin the wiki%s"),
+						l.getTranslation("Help on Names %sin the wiki%s"),
 						"<a href=\"//wiki.cacert.org/FAQ/HowToEnterNamesInJoinForm\" target=\"_blank\">",
 						"</a>"));
-		t.output(out, Page.getLanguage(req), vars);
+		t.output(out, l, vars);
 	}
-	public void update(ServletRequest r) {
-		buildup.setFname(r.getParameter("fname"));
-		buildup.setLname(r.getParameter("lname"));
-		buildup.setMname(r.getParameter("mname"));
-		buildup.setSuffix(r.getParameter("suffix"));
-		buildup.setEmail(r.getParameter("email"));
+	private void update(ServletRequest r) {
+		if (r.getParameter("fname") != null) {
+			buildup.setFname(r.getParameter("fname"));
+		}
+		if (r.getParameter("lname") != null) {
+			buildup.setLname(r.getParameter("lname"));
+		}
+		if (r.getParameter("mname") != null) {
+			buildup.setMname(r.getParameter("mname"));
+		}
+		if (r.getParameter("suffix") != null) {
+			buildup.setSuffix(r.getParameter("suffix"));
+		}
+		if (r.getParameter("email") != null) {
+			buildup.setEmail(r.getParameter("email"));
+		}
 		general = "1".equals(r.getParameter("general"));
 		country = "1".equals(r.getParameter("country"));
 		regional = "1".equals(r.getParameter("regional"));
 		radius = "1".equals(r.getParameter("radius"));
+	}
+
+	public boolean submit(PrintWriter out, ServletRequest req) {
+		update(req);
+		boolean failed = false;
+		out.println("<div class='formError'>");
+		if (buildup.getFname().equals("") || buildup.getLname().equals("")) {
+			outputError(out, req, "First and/or last names were blank.");
+			failed = true;
+		}
+		if (!myDoB.isValid()) {
+			outputError(out, req, "Invalid date of birth");
+			failed = true;
+		}
+		if (buildup.getEmail().equals("")) {
+			outputError(out, req, "Email Address was blank");
+			failed = true;
+		}
+		String pw1 = req.getParameter("pword1");
+		String pw2 = req.getParameter("pword2");
+		if (pw1 == null || pw1.equals("")) {
+			outputError(out, req, "Pass Phrases were blank");
+			failed = true;
+		} else if (!pw1.equals(pw2)) {
+			outputError(out, req, "Pass Phrases don't match");
+			failed = true;
+		}
+		// TODO check password strength
+		try {
+			PreparedStatement q1 = DatabaseConnection.getInstance().prepare(
+					"select * from `email` where `email`=? and `deleted`=0");
+			PreparedStatement q2 = DatabaseConnection.getInstance().prepare(
+					"select * from `users` where `email`=? and `deleted`=0");
+			q1.setString(1, buildup.getEmail());
+			q2.setString(1, buildup.getEmail());
+			ResultSet r1 = q1.executeQuery();
+			ResultSet r2 = q2.executeQuery();
+			if (r1.next() || r2.next()) {
+				outputError(out, req,
+						"This email address is currently valid in the system.");
+				failed = true;
+			}
+			r1.close();
+			r2.close();
+			PreparedStatement q3 = DatabaseConnection
+					.getInstance()
+					.prepare(
+							"select `domain` from `baddomains` where `domain`=RIGHT(?, LENGTH(`domain`))");
+			q3.setString(1, buildup.getEmail());
+
+			ResultSet r3 = q3.executeQuery();
+			if (r3.next()) {
+				String domain = r3.getString(1);
+				out.print("<div>");
+				out.print(String.format(
+						Page.translate(req,
+								"We don't allow signups from people using email addresses from %s"),
+						domain));
+				out.println("</div>");
+				failed = true;
+			}
+			r3.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			failed = true;
+		}
+		out.println("</div>");
+		return failed;
+	}
+	private void outputError(PrintWriter out, ServletRequest req, String text) {
+		out.print("<div>");
+		out.print(Page.translate(req, text));
+		out.println("</div>");
 	}
 }

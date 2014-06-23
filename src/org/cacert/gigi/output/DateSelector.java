@@ -50,4 +50,10 @@ public class DateSelector implements Outputable {
 		}
 		out.print("\" size=\"4\" autocomplete=\"off\"></nobr>");
 	}
+	public boolean isValid() {
+		if (!(1900 < year && 1 <= month && month <= 12 && 1 <= day && day <= 32)) {
+			return false;
+		}
+		return true; // TODO checkdate
+	}
 }

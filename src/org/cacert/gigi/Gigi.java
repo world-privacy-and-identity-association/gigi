@@ -5,10 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.security.cert.X509Certificate;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -18,12 +14,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.pages.TestSecure;
 import org.cacert.gigi.pages.main.RegisterPage;
-import org.cacert.gigi.util.PasswordHash;
 import org.eclipse.jetty.util.log.Log;
 
 public class Gigi extends HttpServlet {
@@ -37,6 +32,7 @@ public class Gigi extends HttpServlet {
 	public void init() throws ServletException {
 		pages.put("/login", new LoginPage("CACert - Login"));
 		pages.put("/", new MainPage("CACert - Home"));
+		pages.put("/secure", new TestSecure());
 		pages.put(RegisterPage.PATH, new RegisterPage());
 		String templ = "";
 		try {
@@ -53,30 +49,10 @@ public class Gigi extends HttpServlet {
 		super.init();
 
 	}
-
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		X509Certificate[] cert = (X509Certificate[]) req
-				.getAttribute("javax.servlet.request.X509Certificate");
 		HttpSession hs = req.getSession();
-		if (hs.getAttribute(LOGGEDIN) == null) {
-			if (cert != null) {
-				tryAuthWithCertificate(req, cert[0]);
-				hs = req.getSession();
-			}
-		}
-		if (hs.getAttribute("loggedin") != null
-				&& req.getPathInfo().equals("/login")) {
-			resp.sendRedirect("/");
-			return;
-		}
-		if (req.getMethod().equals("POST") && req.getPathInfo() != null
-				&& req.getPathInfo().equals("/login")) {
-			authWithUnpw(req);
-			resp.sendRedirect("/");
-			return;
-		}
 		if (req.getPathInfo() != null && req.getPathInfo().equals("/logout")) {
 			if (hs != null) {
 				hs.setAttribute(LOGGEDIN, null);
@@ -86,22 +62,17 @@ public class Gigi extends HttpServlet {
 			return;
 		}
 
-		if (hs.getAttribute("loggedin") == null
-				&& !"/login".equals(req.getPathInfo())) {
-			System.out.println(req.getPathInfo());
-			resp.sendRedirect("/login");
-			return;
-		}
 		if (pages.containsKey(req.getPathInfo())) {
-			String b0 = baseTemplate[0];
 			Page p = pages.get(req.getPathInfo());
+			if (p.needsLogin() && hs.getAttribute("loggedin") == null) {
+				resp.sendRedirect("/login");
+				return;
+			}
+
+			String b0 = baseTemplate[0];
 			b0 = makeDynTempl(b0, p);
 			resp.setContentType("text/html; charset=utf-8");
 			resp.getWriter().print(b0);
-			if (hs != null && hs.getAttribute(LOGGEDIN) != null) {
-				resp.getWriter().println(
-						"Hi " + ((User) hs.getAttribute(USER)).getFname());
-			}
 			if (req.getMethod().equals("POST")) {
 				p.doPost(req, resp);
 			} else {
@@ -121,46 +92,5 @@ public class Gigi extends HttpServlet {
 		in = in.replaceAll("\\$year\\$", year + "");
 		return in;
 	}
-	private void authWithUnpw(HttpServletRequest req) {
-		String un = req.getParameter("username");
-		String pw = req.getParameter("password");
-		try {
-			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
-					"SELECT `password`, `id` FROM `users` WHERE `email`=?");
-			ps.setString(1, un);
-			ResultSet rs = ps.executeQuery();
-			if (rs.next()) {
-				if (PasswordHash.verifyHash(pw, rs.getString(1))) {
-					HttpSession hs = req.getSession();
-					hs.setAttribute(LOGGEDIN, true);
-					hs.setAttribute(USER, new User(rs.getInt(2)));
-				}
-			}
-			rs.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-	private void tryAuthWithCertificate(HttpServletRequest req,
-			X509Certificate x509Certificate) {
-		String serial = x509Certificate.getSerialNumber().toString(16)
-				.toUpperCase();
-		try {
-			PreparedStatement ps = DatabaseConnection
-					.getInstance()
-					.prepare(
-							"SELECT `memid` FROM `emailcerts` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` = "
-									+ "'0000-00-00 00:00:00'");
-			ps.setString(1, serial);
-			ResultSet rs = ps.executeQuery();
-			if (rs.next()) {
-				HttpSession hs = req.getSession();
-				hs.setAttribute(LOGGEDIN, true);
-				hs.setAttribute(USER, new User(rs.getInt(1)));
-			}
-			rs.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
+
 }

@@ -3,8 +3,8 @@ package org.cacert.gigi.pages;
 import java.io.IOException;
 
 import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.Language;
 
@@ -15,10 +15,10 @@ public abstract class Page {
 		this.title = title;
 	}
 
-	public abstract void doGet(HttpServletRequest req, ServletResponse resp)
+	public abstract void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException;
 
-	public void doPost(HttpServletRequest req, ServletResponse resp)
+	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		doGet(req, resp);
 	}
@@ -38,6 +38,8 @@ public abstract class Page {
 		Language l = getLanguage(req);
 		return l.getTranslation(string);
 	}
-
+	public boolean needsLogin() {
+		return true;
+	}
 
 }
