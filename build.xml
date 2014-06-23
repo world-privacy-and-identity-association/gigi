@@ -15,6 +15,11 @@
         <path refid="JUnit 4.libraryclasspath"/>
         <pathelement location="${mysqlconnector}"/>
     </path>
+    <path id="cacert-gigi.test.classpath">
+        <pathelement location="bintest"/>
+        <path refid="JUnit 4.libraryclasspath"/>
+        <pathelement location="${mysqlconnector}"/>
+    </path>
     <target name="init">
         <mkdir dir="bin"/>
         <mkdir dir="bintest"/>
@@ -70,7 +75,7 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bintest" includeantruntime="false" source="${source}" target="${target}">
             <src path="tests"/>
-            <classpath refid="cacert-gigi.classpath"/>
+            <classpath refid="cacert-gigi.test.classpath"/>
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
