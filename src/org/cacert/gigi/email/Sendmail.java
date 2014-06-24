@@ -11,13 +11,14 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-class Sendmail {
-	private Sendmail() {
+public class Sendmail extends EmailProvider {
+	protected Sendmail() {
 	}
 	private static final Pattern NON_ASCII = Pattern
 			.compile("[^a-zA-Z0-9 .-\\[\\]!_@]");
 
-	public static void sendmail(String to, String subject, String message,
+	@Override
+	public void sendmail(String to, String subject, String message,
 			String from, String replyto, String toname, String fromname,
 			String errorsto, boolean extra) throws IOException {
 
