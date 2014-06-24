@@ -72,6 +72,9 @@ public class LoginPage extends Page {
 			e.printStackTrace();
 		}
 	}
+	public static User getUser(HttpServletRequest req) {
+		return (User) req.getSession().getAttribute(USER);
+	}
 	private void tryAuthWithCertificate(HttpServletRequest req,
 			X509Certificate x509Certificate) {
 		String serial = x509Certificate.getSerialNumber().toString(16)

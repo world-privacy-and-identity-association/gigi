@@ -18,6 +18,7 @@ import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.TestSecure;
+import org.cacert.gigi.pages.account.MailCertificates;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.main.RegisterPage;
 import org.eclipse.jetty.util.log.Log;
@@ -34,12 +35,12 @@ public class Gigi extends HttpServlet {
 		pages.put("/login", new LoginPage("CACert - Login"));
 		pages.put("/", new MainPage("CACert - Home"));
 		pages.put("/secure", new TestSecure());
+		pages.put(MailCertificates.PATH, new MailCertificates());
 		pages.put(MyDetails.PATH, new MyDetails());
 		pages.put(RegisterPage.PATH, new RegisterPage());
 		String templ = "";
-		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					new FileInputStream(new File("templates/base.html"))));
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+				new FileInputStream(new File("templates/base.html"))))) {
 			String tmp;
 			while ((tmp = reader.readLine()) != null) {
 				templ += tmp;

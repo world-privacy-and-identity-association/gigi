@@ -28,7 +28,8 @@ public class DatabaseConnection {
 			e.printStackTrace();
 		}
 		try {
-			c = DriverManager.getConnection(credentials.getProperty("url"),
+			c = DriverManager.getConnection(credentials.getProperty("url")
+					+ "?zeroDateTimeBehavior=convertToNull",
 					credentials.getProperty("user"),
 					credentials.getProperty("password"));
 		} catch (SQLException e) {
