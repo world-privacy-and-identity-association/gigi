@@ -1,0 +1,40 @@
+<form method="post" action="/account/myDetails">
+<table align="center" valign="middle" border="0" cellspacing="0" cellpadding="0" class="wrapper" width="400">
+  <tr>
+    <td colspan="2" class="title"><?=_My Details?></td>
+  </tr>
+  <tr>
+    <td class="DataTD" width="125"><?=_First Name?>: </td>
+    <td class="DataTD" width="125"><input type="text" name="fname" value="<?=$fname?>"></td>
+  </tr>
+  <tr>
+    <td class="DataTD" valign="top"><?=_Middle Name(s)?><br>
+      (<?=_optional?>)
+    </td>
+    <td class="DataTD"><input type="text" name="mname" value="<?=$mname?>"></td>
+  </tr>
+  <tr>
+    <td class="DataTD"><?=_Last Name?>: </td>
+    <td class="DataTD"><input type="text" name="lname" value="<?=$lname?>"></td>
+  </tr>
+  <tr>
+    <td class="DataTD"><?=_Suffix?><br>
+      (<?=_optional?>)</td>
+    <td class="DataTD"><input type="text" name="suffix" value="<?=$suffix?>"></td>
+  </tr>
+  <tr>
+    <td class="DataTD"><?=_Date of Birth?><br>
+	    (<?=_dd/mm/yyyy?>)</td>
+    <td class="DataTD"><?=$DoB?></td>
+  </tr>
+  <tr>
+    <td colspan="2" class="title"><?=_('Show account history')?></td>
+  </tr>
+  <tr>
+    <td colspan="2" class="title"><?=_View secret question & answers and OTP phrases?></td>
+  </tr>
+  <?=$details?>
+  <tr><td class="DataTD" colspan="2"><input type="submit" name="process" value="<?=_Update?>"></td>
+  </tr>
+</table>
+</form>
