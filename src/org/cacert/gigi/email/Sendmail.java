@@ -9,10 +9,11 @@ import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 public class Sendmail extends EmailProvider {
-	protected Sendmail() {
+	protected Sendmail(Properties props) {
 	}
 	private static final Pattern NON_ASCII = Pattern
 			.compile("[^a-zA-Z0-9 .-\\[\\]!_@]");

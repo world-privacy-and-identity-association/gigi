@@ -1,7 +1,5 @@
 package org.cacert.gigi.database;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -15,18 +13,11 @@ public class DatabaseConnection {
 	public static final int CONNECTION_TIMEOUT = 24 * 60 * 60;
 	Connection c;
 	HashMap<String, PreparedStatement> statements = new HashMap<String, PreparedStatement>();
-	static Properties credentials = new Properties();
-	static {
-		try {
-			credentials.load(new FileInputStream("config/sql.properties"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+	private static Properties credentials = new Properties();
 	Statement adHoc;
 	public DatabaseConnection() {
 		try {
-			Class.forName(credentials.getProperty("driver"));
+			Class.forName(credentials.getProperty("sql.driver"));
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -35,10 +26,10 @@ public class DatabaseConnection {
 	}
 	private void tryConnect() {
 		try {
-			c = DriverManager.getConnection(credentials.getProperty("url")
+			c = DriverManager.getConnection(credentials.getProperty("sql.url")
 					+ "?zeroDateTimeBehavior=convertToNull",
-					credentials.getProperty("user"),
-					credentials.getProperty("password"));
+					credentials.getProperty("sql.user"),
+					credentials.getProperty("sql.password"));
 			PreparedStatement ps = c
 					.prepareStatement("SET SESSION wait_timeout=?;");
 			ps.setInt(1, CONNECTION_TIMEOUT);
@@ -88,5 +79,11 @@ public class DatabaseConnection {
 	};
 	public static DatabaseConnection getInstance() {
 		return instances.get();
+	}
+	public static void init(Properties conf) {
+		if (credentials != null) {
+			throw new Error("Re-initiaizing is forbidden.");
+		}
+		credentials = conf;
 	}
 }

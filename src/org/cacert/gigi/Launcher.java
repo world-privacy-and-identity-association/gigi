@@ -1,15 +1,11 @@
 package org.cacert.gigi;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
+import java.util.Properties;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
-import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
 import org.cacert.gigi.natives.SetUID;
@@ -33,13 +29,8 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class Launcher {
 	public static void main(String[] args) throws Exception {
-		int port = 443;
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("--port")) {
-				port = Integer.parseInt(args[i + 1]);
-			}
-			i++;
-		}
+		GigiConfig conf = GigiConfig.parse(System.in);
+
 		Server s = new Server();
 		// === SSL HTTP Configuration ===
 		HttpConfiguration https_config = new HttpConfiguration();
@@ -50,15 +41,16 @@ public class Launcher {
 		https_config.addCustomizer(new SecureRequestCustomizer());
 
 		ServerConnector connector = new ServerConnector(s,
-				new SslConnectionFactory(generateSSLContextFactory(),
+				new SslConnectionFactory(generateSSLContextFactory(conf),
 						"http/1.1"), new HttpConnectionFactory(https_config));
-		connector.setHost("127.0.0.1");
-		connector.setPort(port);
+		connector.setHost(conf.getMainProps().getProperty("host"));
+		connector.setPort(Integer.parseInt(conf.getMainProps().getProperty(
+				"port")));
 		s.setConnectors(new Connector[]{connector});
 
 		HandlerList hl = new HandlerList();
 		hl.setHandlers(new Handler[]{generateStaticContext(),
-				generateGigiContext()});
+				generateGigiContext(conf.getMainProps())});
 		s.setHandler(hl);
 		s.start();
 		if (connector.getPort() <= 1024
@@ -70,12 +62,12 @@ public class Launcher {
 		}
 	}
 
-	private static ServletContextHandler generateGigiContext() {
+	private static ServletContextHandler generateGigiContext(Properties conf) {
 		ServletContextHandler servlet = new ServletContextHandler(
 				ServletContextHandler.SESSIONS);
 		servlet.setInitParameter(SessionManager.__SessionCookieProperty,
 				"CACert-Session");
-		servlet.addServlet(new ServletHolder(new Gigi()), "/*");
+		servlet.addServlet(new ServletHolder(new Gigi(conf)), "/*");
 		return servlet;
 	}
 
@@ -88,13 +80,10 @@ public class Launcher {
 		return ch;
 	}
 
-	private static SslContextFactory generateSSLContextFactory()
-			throws NoSuchAlgorithmException, KeyStoreException, IOException,
-			CertificateException, FileNotFoundException {
+	private static SslContextFactory generateSSLContextFactory(GigiConfig conf)
+			throws GeneralSecurityException, IOException {
 		TrustManagerFactory tmFactory = TrustManagerFactory.getInstance("PKIX");
 		tmFactory.init((KeyStore) null);
-
-		final TrustManager[] tm = tmFactory.getTrustManagers();
 
 		SslContextFactory scf = new SslContextFactory() {
 
@@ -119,13 +108,10 @@ public class Launcher {
 		};
 		scf.setRenegotiationAllowed(false);
 		scf.setWantClientAuth(true);
-		KeyStore ks1 = KeyStore.getInstance("pkcs12");
-		ks1.load(new FileInputStream("config/keystore.pkcs12"),
-				"".toCharArray());
-		scf.setTrustStorePath("config/cacerts.jks");
-		scf.setTrustStorePassword("changeit");
+
 		scf.setProtocol("TLS");
-		scf.setKeyStore(ks1);
+		scf.setTrustStore(conf.getTrustStore());
+		scf.setKeyStore(conf.getPrivateStore());
 		return scf;
 	}
 }

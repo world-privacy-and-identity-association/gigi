@@ -1,0 +1,9 @@
+type=local
+server=localhost:443
+mail=localhost:8474
+
+==== OR ===
+type=autonomous
+java=java -cp bin;/path/to/mysqlConnector.jar org.cacert.gigi.Launcher
+serverPort=4443
+mailPort=8473

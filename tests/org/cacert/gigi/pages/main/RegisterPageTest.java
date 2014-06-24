@@ -8,36 +8,50 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.cacert.gigi.IOUtils;
 import org.cacert.gigi.InitTruststore;
+import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class RegisterPageTest {
-	private static final URL registerService;
+public class RegisterPageTest extends ManagedTest {
+	private final URL registerService;
 	static {
-		URL u = null;
-		try {
-			u = new URL("https://localhost/register");
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		registerService = u;
 		InitTruststore.run();
 		HttpURLConnection.setFollowRedirects(false);
 	}
 
+	public RegisterPageTest() {
+		URL u = null;
+		try {
+			u = new URL("https://" + getServerName() + "/register");
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		registerService = u;
+	}
 	@Before
 	public void setUp() throws Exception {
 	}
 	@Test
 	public void testSuccess() throws IOException {
-		String startError = fetchStartErrorMessage("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=1910&cca_agree=1");
+		String startError = fetchStartErrorMessage("fname=ab&lname=b&email="
+				+ URLEncoder.encode("felix+" + System.currentTimeMillis()
+						+ "@dogcraft.de", "UTF-8")
+				+ "&pword1=ap12UI.a'&pword2=ap12UI.a'&day=1&month=1&year=1910&cca_agree=1");
 		assertTrue(startError, startError.startsWith("</div>"));
+		TestMail tm = waitForMail();
+		Pattern link = Pattern.compile("http://[^\\s]+(?=\\s)");
+		Matcher m = link.matcher(tm.getMessage());
+		m.find();
+		System.out.println(tm.getSubject());
+		System.out.println(m.group(0));
 	}
-
 	@Test
 	public void testNoFname() throws IOException {
 		testFailedForm("lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=1910&cca_agree=1");
@@ -63,6 +77,7 @@ public class RegisterPageTest {
 
 	@Test
 	public void testNoDay() throws IOException {
+		System.out.println(registerService);
 		testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&month=1&year=1910&cca_agree=1");
 	}
 	@Test
@@ -146,12 +161,11 @@ public class RegisterPageTest {
 		}
 	}
 
-	private static void testFailedForm(String query) throws IOException {
+	private void testFailedForm(String query) throws IOException {
 		String startError = fetchStartErrorMessage(query);
 		assertTrue(startError, !startError.startsWith("</div>"));
 	}
-	private static String fetchStartErrorMessage(String query)
-			throws IOException {
+	private String fetchStartErrorMessage(String query) throws IOException {
 		String d = runRegister(query);
 		String formFail = "<div class='formError'>";
 		int idx = d.indexOf(formFail);
@@ -161,8 +175,8 @@ public class RegisterPageTest {
 		return startError;
 	}
 
-	public static void registerUser(String firstName, String lastName,
-			String email, String password) {
+	public void registerUser(String firstName, String lastName, String email,
+			String password) {
 		try {
 			String query = "fname=" + URLEncoder.encode(firstName, "UTF-8")
 					+ "&lname=" + URLEncoder.encode(lastName, "UTF-8")
@@ -178,7 +192,7 @@ public class RegisterPageTest {
 			throw new Error(e);
 		}
 	}
-	private static String runRegister(String param) throws IOException {
+	private String runRegister(String param) throws IOException {
 		HttpURLConnection uc = (HttpURLConnection) registerService
 				.openConnection();
 		uc.setDoOutput(true);
