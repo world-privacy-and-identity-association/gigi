@@ -13,7 +13,7 @@ public class DatabaseConnection {
 	public static final int CONNECTION_TIMEOUT = 24 * 60 * 60;
 	Connection c;
 	HashMap<String, PreparedStatement> statements = new HashMap<String, PreparedStatement>();
-	private static Properties credentials = new Properties();
+	private static Properties credentials;
 	Statement adHoc;
 	public DatabaseConnection() {
 		try {

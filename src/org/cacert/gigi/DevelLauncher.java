@@ -7,9 +7,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
+
+import org.kamranzafar.jtar.TarEntry;
+import org.kamranzafar.jtar.TarHeader;
+import org.kamranzafar.jtar.TarOutputStream;
 
 public class DevelLauncher {
 	public static void main(String[] args) throws Exception {
@@ -36,18 +41,28 @@ public class DevelLauncher {
 		Launcher.main(args);
 		System.setIn(oldin);
 	}
-	public static void writeGigiConfig(DataOutputStream target,
-			byte[] keystorepw, byte[] truststorepw, Properties mainprop,
-			byte[] cacerts, byte[] keystore) throws IOException {
-		writeChunk(target, GigiConfig.GIGI_CONFIG_VERSION.getBytes());
-		writeChunk(target, keystorepw);
-		writeChunk(target, truststorepw);
-		ByteArrayOutputStream props = new ByteArrayOutputStream();
-		mainprop.store(props, "");
-		writeChunk(target, props.toByteArray());
-		writeChunk(target, cacerts);
-		writeChunk(target, keystore);
+	public static void writeGigiConfig(OutputStream target, byte[] keystorepw,
+			byte[] truststorepw, Properties mainprop, byte[] cacerts,
+			byte[] keystore) throws IOException {
+		TarOutputStream tos = new TarOutputStream(target);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		mainprop.store(baos, "");
 
+		putTarEntry(baos.toByteArray(), tos, "gigi.properties");
+		putTarEntry(keystorepw, tos, "keystorepw");
+		putTarEntry(truststorepw, tos, "truststorepw");
+		putTarEntry(keystore, tos, "keystore.pkcs12");
+		putTarEntry(cacerts, tos, "cacerts.jks");
+		tos.close();
+
+	}
+	private static void putTarEntry(byte[] data, TarOutputStream tos,
+			String name) throws IOException {
+		TarHeader th = new TarHeader();
+		th.name = new StringBuffer(name);
+		th.size = data.length;
+		tos.putNextEntry(new TarEntry(th));
+		tos.write(data);
 	}
 	public static void writeChunk(DataOutputStream dos, byte[] chunk)
 			throws IOException {

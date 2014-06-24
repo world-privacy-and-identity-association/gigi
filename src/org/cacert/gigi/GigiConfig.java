@@ -1,12 +1,15 @@
 package org.cacert.gigi;
 
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.Properties;
+
+import org.kamranzafar.jtar.TarEntry;
+import org.kamranzafar.jtar.TarInputStream;
 
 public class GigiConfig {
 	public static final String GIGI_CONFIG_VERSION = "GigiConfigV1.0";
@@ -29,19 +32,36 @@ public class GigiConfig {
 	}
 
 	public static GigiConfig parse(InputStream input) throws IOException {
-		DataInputStream dis = new DataInputStream(input);
-		String version = new String(readChunk(dis));
-		if (!version.equals(GIGI_CONFIG_VERSION)) {
-			System.out.println("Invalid config format");
-			System.exit(0);
-		}
+		TarInputStream tis = new TarInputStream(input);
+		TarEntry t;
 		GigiConfig gc = new GigiConfig();
-		gc.keystorpw = transformSafe(readChunk(dis));
-		gc.truststorepw = transformSafe(readChunk(dis));
-		gc.mainProps.load(new ByteArrayInputStream(readChunk(dis)));
-		gc.cacerts = readChunk(dis);
-		gc.keystore = readChunk(dis);
+		while ((t = tis.getNextEntry()) != null) {
+			if (t.getName().equals("gigi.properties")) {
+				gc.mainProps.load(tis);
+			} else if (t.getName().equals("cacerts.jks")) {
+				gc.cacerts = readFully(tis);
+			} else if (t.getName().equals("keystore.pkcs12")) {
+				gc.keystore = readFully(tis);
+			} else if (t.getName().equals("keystorepw")) {
+				gc.keystorpw = transformSafe(readFully(tis));
+			} else if (t.getName().equals("truststorepw")) {
+				gc.truststorepw = transformSafe(readFully(tis));
+			} else {
+				System.out.println("Unknown config: " + t.getName());
+			}
+		}
+		tis.close();
 		return gc;
+	}
+	public static byte[] readFully(InputStream is) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		int len = 0;
+		while ((len = is.read(buffer)) > 0) {
+			baos.write(buffer, 0, len);
+		}
+		baos.close();
+		return baos.toByteArray();
 	}
 	private static char[] transformSafe(byte[] readChunk) {
 		char[] res = new char[readChunk.length];
@@ -51,12 +71,7 @@ public class GigiConfig {
 		}
 		return res;
 	}
-	private static byte[] readChunk(DataInputStream dis) throws IOException {
-		int length = dis.readInt();
-		byte[] contents = new byte[length];
-		dis.readFully(contents);
-		return contents;
-	}
+
 	public KeyStore getPrivateStore() throws GeneralSecurityException,
 			IOException {
 		KeyStore ks1 = KeyStore.getInstance("pkcs12");
