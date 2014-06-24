@@ -15,6 +15,7 @@ import org.cacert.gigi.pages.Page;
 
 public class RegisterPage extends Page {
 
+	private static final String SIGNUP_PROCESS = "signupProcess";
 	public static final String PATH = "/register";
 	Template t;
 
@@ -39,10 +40,10 @@ public class RegisterPage extends Page {
 	}
 	public Signup getForm(HttpServletRequest req) {
 		HttpSession hs = req.getSession();
-		Signup s = (Signup) hs.getAttribute("signupProcess");
+		Signup s = (Signup) hs.getAttribute(SIGNUP_PROCESS);
 		if (s == null) {
 			s = new Signup();
-			hs.setAttribute("signupProcess", s);
+			hs.setAttribute(SIGNUP_PROCESS, s);
 		}
 		return s;
 
@@ -51,7 +52,19 @@ public class RegisterPage extends Page {
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		Signup s = getForm(req);
-		s.submit(resp.getWriter(), req);
+		if (s.submit(resp.getWriter(), req)) {
+			HttpSession hs = req.getSession();
+			hs.setAttribute(SIGNUP_PROCESS, null);
+			resp.getWriter()
+					.println(
+							translate(
+									req,
+									"Your information has been submitted"
+											+ " into our system. You will now be sent an email with a web link,"
+											+ " you need to open that link in your web browser within 24 hours"
+											+ " or your information will be removed from our system!"));
+			return;
+		}
 
 		super.doPost(req, resp);
 	}
