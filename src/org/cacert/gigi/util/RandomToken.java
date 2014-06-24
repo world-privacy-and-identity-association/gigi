@@ -9,14 +9,16 @@ public class RandomToken {
 		for (int i = 0; i < length; i++) {
 			int rand = sr.nextInt(26 * 2 + 10);
 			if (rand < 10) {
-				token.append('0' + rand);
+				token.append((char) ('0' + rand));
+				continue;
 			}
 			rand -= 10;
 			if (rand < 26) {
-				token.append('a' + rand);
+				token.append((char) ('a' + rand));
+				continue;
 			}
 			rand -= 26;
-			token.append('A' + rand);
+			token.append((char) ('A' + rand));
 		}
 		return token.toString();
 	}
