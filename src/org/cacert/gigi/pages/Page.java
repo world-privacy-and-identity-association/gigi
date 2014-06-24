@@ -33,6 +33,10 @@ public abstract class Page {
 		return defaultTemplate;
 	}
 
+	public boolean beforeTemplate(HttpServletRequest req,
+			HttpServletResponse resp) throws IOException {
+		return false;
+	}
 	public abstract void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException;
 

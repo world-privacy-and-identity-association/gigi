@@ -68,7 +68,13 @@ public class Gigi extends HttpServlet {
 		if (pages.containsKey(req.getPathInfo())) {
 			Page p = pages.get(req.getPathInfo());
 			if (p.needsLogin() && hs.getAttribute("loggedin") == null) {
+				String request = req.getPathInfo();
+				request = request.split("\\?")[0];
+				hs.setAttribute(LoginPage.LOGIN_RETURNPATH, request);
 				resp.sendRedirect("/login");
+				return;
+			}
+			if (p.beforeTemplate(req, resp)) {
 				return;
 			}
 

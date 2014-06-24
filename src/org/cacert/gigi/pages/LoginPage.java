@@ -18,6 +18,8 @@ import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.util.PasswordHash;
 
 public class LoginPage extends Page {
+	public static final String LOGIN_RETURNPATH = "login-returnpath";
+
 	public LoginPage(String title) {
 		super(title);
 	}
@@ -25,6 +27,16 @@ public class LoginPage extends Page {
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
+		resp.getWriter()
+				.println(
+						"<form method='POST' action='/login'>"
+								+ "<input type='text' name='username'>"
+								+ "<input type='password' name='password'> <input type='submit' value='login'></form>");
+	}
+
+	@Override
+	public boolean beforeTemplate(HttpServletRequest req,
+			HttpServletResponse resp) throws IOException {
 		HttpSession hs = req.getSession();
 		if (hs.getAttribute("loggedin") == null) {
 			X509Certificate[] cert = (X509Certificate[]) req
@@ -37,16 +49,19 @@ public class LoginPage extends Page {
 			}
 		}
 
-		if (hs.getAttribute("loggedin") != null) { // Redir from login
-			resp.sendRedirect("/");
-			return;
+		if (hs.getAttribute("loggedin") != null) {
+			String s = (String) req.getSession().getAttribute(LOGIN_RETURNPATH);
+			if (s != null) {
+				if (!s.startsWith("/")) {
+					s = "/" + s;
+				}
+				resp.sendRedirect(s);
+			} else {
+				resp.sendRedirect("/");
+			}
+			return true;
 		}
-
-		resp.getWriter()
-				.println(
-						"<form method='POST' action='/login'>"
-								+ "<input type='text' name='username'>"
-								+ "<input type='password' name='password'> <input type='submit' value='login'></form>");
+		return false;
 	}
 	@Override
 	public boolean needsLogin() {
