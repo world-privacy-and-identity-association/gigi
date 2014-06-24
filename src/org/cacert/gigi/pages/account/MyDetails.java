@@ -3,9 +3,7 @@ package org.cacert.gigi.pages.account;
 import static org.cacert.gigi.Gigi.USER;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,22 +11,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.User;
 import org.cacert.gigi.output.DateSelector;
-import org.cacert.gigi.output.Template;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.HTMLEncoder;
 
 public class MyDetails extends Page {
-	private Template t;
 
 	public MyDetails() {
 		super("My Details");
-		try {
-			t = new Template(new InputStreamReader(
-					MyDetails.class.getResourceAsStream(MyDetails.class
-							.getSimpleName() + ".templ"), "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public static final String PATH = "/account/myDetails";
@@ -52,7 +41,7 @@ public class MyDetails extends Page {
 		DateSelector ds = new DateSelector("day", "month", "year");
 		map.put("DoB", ds);
 		map.put("details", "");
-		t.output(out, getLanguage(req), map);
+		getDefaultTemplate().output(out, getLanguage(req), map);
 
 	}
 }
