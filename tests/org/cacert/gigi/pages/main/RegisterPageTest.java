@@ -1,6 +1,7 @@
 package org.cacert.gigi.pages.main;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -17,10 +18,11 @@ import org.junit.Test;
 
 public class RegisterPageTest {
 	private static final URL registerService;
+	private static final int PORT = 4431;
 	static {
 		URL u = null;
 		try {
-			u = new URL("https://localhost/register");
+			u = new URL("https://localhost:" + PORT + "/register");
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
