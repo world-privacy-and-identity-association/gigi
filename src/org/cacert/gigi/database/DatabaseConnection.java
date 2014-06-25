@@ -86,4 +86,21 @@ public class DatabaseConnection {
 		}
 		credentials = conf;
 	}
+	public void beginTransaction() throws SQLException {
+		c.setAutoCommit(false);
+	}
+	public void commitTransaction() throws SQLException {
+		c.commit();
+		c.setAutoCommit(true);
+	}
+	public void quitTransaction() {
+		try {
+			if (!c.getAutoCommit()) {
+				c.rollback();
+				c.setAutoCommit(true);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }

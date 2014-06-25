@@ -1,5 +1,6 @@
 package org.cacert.gigi.email;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -11,6 +12,7 @@ class TestEmailProvider extends EmailProvider {
 	ServerSocket servs;
 	Socket client;
 	DataOutputStream out;
+	DataInputStream in;
 	protected TestEmailProvider(Properties props) {
 		try {
 			servs = new ServerSocket(Integer.parseInt(props
@@ -29,8 +31,10 @@ class TestEmailProvider extends EmailProvider {
 			if (client == null || client.isClosed()) {
 				client = servs.accept();
 				out = new DataOutputStream(client.getOutputStream());
+				in = new DataInputStream(client.getInputStream());
 			}
 			try {
+				out.writeUTF("mail");
 				write(to);
 				write(subject);
 				write(message);
@@ -43,6 +47,14 @@ class TestEmailProvider extends EmailProvider {
 			}
 		}
 	}
+	@Override
+	public String checkEmailServer(int forUid, String address)
+			throws IOException {
+		out.writeUTF("challengeAddrBox");
+		out.writeUTF(address);
+		return in.readUTF();
+	}
+
 	private void write(String to) throws IOException {
 		if (to == null) {
 			out.writeUTF("<null>");
