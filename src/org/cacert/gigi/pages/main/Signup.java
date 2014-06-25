@@ -227,6 +227,7 @@ public class Signup {
 			DatabaseConnection.getInstance().beginTransaction();
 			String hash = RandomToken.generateToken(16);
 
+			buildup.setDob(myDoB.getDate());
 			buildup.insert(password);
 			int memid = buildup.getId();
 			PreparedStatement ps = DatabaseConnection.getInstance().prepare(

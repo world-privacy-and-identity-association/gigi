@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -89,6 +91,12 @@ public class DateSelector implements Outputable {
 	public String toString() {
 		return "DateSelector [names=" + Arrays.toString(names) + ", day=" + day
 				+ ", month=" + month + ", year=" + year + "]";
+	}
+
+	public Date getDate() {
+		Calendar gc = GregorianCalendar.getInstance();
+		gc.set(year, month - 1, day);
+		return gc.getTime();
 	}
 
 }
