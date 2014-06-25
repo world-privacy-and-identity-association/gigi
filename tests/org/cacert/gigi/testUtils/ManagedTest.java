@@ -1,22 +1,32 @@
 package org.cacert.gigi.testUtils;
 
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.cacert.gigi.DevelLauncher;
+import org.cacert.gigi.IOUtils;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 public class ManagedTest {
+	private final String registerService = "/register";
+
 	private static TestEmailReciever ter;
 	private static Process gigi;
 	private static String url = "localhost:4443";
@@ -106,13 +116,66 @@ public class ManagedTest {
 
 	@After
 	public void removeMails() {
-		ter.clearMails();
+		ter.reset();
 	}
 
 	public TestMail waitForMail() {
 		try {
 			return ter.recieve();
 		} catch (InterruptedException e) {
+			throw new Error(e);
+		}
+	}
+	public static TestEmailReciever getMailReciever() {
+		return ter;
+	}
+	public String runRegister(String param) throws IOException {
+		HttpURLConnection uc = (HttpURLConnection) new URL("https://"
+				+ getServerName() + registerService).openConnection();
+		uc.setDoOutput(true);
+		uc.getOutputStream().write(param.getBytes());
+		String d = IOUtils.readURL(uc);
+		return d;
+	}
+	public String fetchStartErrorMessage(String query) throws IOException {
+		String d = runRegister(query);
+		String formFail = "<div class='formError'>";
+		int idx = d.indexOf(formFail);
+		assertNotEquals(-1, idx);
+		String startError = d.substring(idx + formFail.length(), idx + 100)
+				.trim();
+		return startError;
+	}
+
+	public void registerUser(String firstName, String lastName, String email,
+			String password) {
+		try {
+			String query = "fname=" + URLEncoder.encode(firstName, "UTF-8")
+					+ "&lname=" + URLEncoder.encode(lastName, "UTF-8")
+					+ "&email=" + URLEncoder.encode(email, "UTF-8")
+					+ "&pword1=" + URLEncoder.encode(password, "UTF-8")
+					+ "&pword2=" + URLEncoder.encode(password, "UTF-8")
+					+ "&day=1&month=1&year=1910&cca_agree=1";
+			String data = fetchStartErrorMessage(query);
+			assertTrue(data, data.startsWith("</div>"));
+		} catch (UnsupportedEncodingException e) {
+			throw new Error(e);
+		} catch (IOException e) {
+			throw new Error(e);
+		}
+	}
+	public void createVerifiedUser(String firstName, String lastName,
+			String email, String password) {
+		registerUser(firstName, lastName, email, password);
+		try {
+			TestMail tm = ter.recieve();
+			String verifyLink = tm.extractLink();
+			String[] parts = verifyLink.split("\\?");
+			URL u = new URL("https://" + getServerName() + "/verify" + parts[1]);
+			u.openStream().close();;
+		} catch (InterruptedException e) {
+			throw new Error(e);
+		} catch (IOException e) {
 			throw new Error(e);
 		}
 	}
