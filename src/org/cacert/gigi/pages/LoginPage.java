@@ -71,8 +71,10 @@ public class LoginPage extends Page {
 		String un = req.getParameter("username");
 		String pw = req.getParameter("password");
 		try {
-			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
-					"SELECT `password`, `id` FROM `users` WHERE `email`=?");
+			PreparedStatement ps = DatabaseConnection
+					.getInstance()
+					.prepare(
+							"SELECT `password`, `id` FROM `users` WHERE `email`=? AND locked='0' AND verified='1'");
 			ps.setString(1, un);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {

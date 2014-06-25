@@ -28,11 +28,7 @@ class TestEmailProvider extends EmailProvider {
 			String fromname, String errorsto, boolean extra) throws IOException {
 		boolean sent = false;
 		while (!sent) {
-			if (client == null || client.isClosed()) {
-				client = servs.accept();
-				out = new DataOutputStream(client.getOutputStream());
-				in = new DataInputStream(client.getInputStream());
-			}
+			assureLocalConnection();
 			try {
 				out.writeUTF("mail");
 				write(to);
@@ -47,9 +43,17 @@ class TestEmailProvider extends EmailProvider {
 			}
 		}
 	}
+	private void assureLocalConnection() throws IOException {
+		if (client == null || client.isClosed()) {
+			client = servs.accept();
+			out = new DataOutputStream(client.getOutputStream());
+			in = new DataInputStream(client.getInputStream());
+		}
+	}
 	@Override
 	public String checkEmailServer(int forUid, String address)
 			throws IOException {
+		assureLocalConnection();
 		out.writeUTF("challengeAddrBox");
 		out.writeUTF(address);
 		return in.readUTF();
