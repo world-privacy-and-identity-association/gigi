@@ -91,7 +91,7 @@
             <classpath refid="cacert-gigi.classpath"/>
         </java>
     </target>
-
+    
     <target name="check-generateKeys">
         <available file="config/keystore.pkcs12" property="keystore.present"/>
     </target>
@@ -101,7 +101,7 @@
             <arg value="-noprompt"/>
         </exec>
     </target>
-    <target name="test" depends="build-project-test,generateKeys">
+    <target name="test" depends="build-project-test,generateKeys,FetchLocales">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
