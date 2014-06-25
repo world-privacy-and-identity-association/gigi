@@ -85,9 +85,7 @@ public class User {
 		PreparedStatement query = DatabaseConnection.getInstance().prepare(
 				"insert into `users` set `email`=?, `password`=?, "
 						+ "`fname`=?, `mname`=?, `lname`=?, "
-						+ "`suffix`=?, `dob`=?, `created`=NOW(),"
-						+ " `orgadmin`=0, `adadmin`=0, `locked`=0,"
-						+ " `uniqueID`=0, `otphash`='', `otppin`=0");
+						+ "`suffix`=?, `dob`=?, `created`=NOW(), locked=0");
 		query.setString(1, email);
 		query.setString(2, PasswordHash.hash(password));
 		query.setString(3, fname);
