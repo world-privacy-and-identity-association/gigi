@@ -6,9 +6,10 @@
     <property name="target" value="1.8"/>
     <property name="source" value="1.8"/>
     <property name="mysqlconnector" value="mysql-connector-java-5.1.31-bin.jar"/>
-    <property name="juintexec" value="junit.jar"/>
+    <property name="juintexec" value="."/>
     <path id="JUnit 4.libraryclasspath">
-        <pathelement location="${juintexec}"/>
+        <pathelement location="${juintexec}/junit.jar"/>
+        <pathelement location="${juintexec}/org.hamcrest.core.jar"/>
     </path>
     <path id="cacert-gigi.classpath">
         <pathelement location="bin"/>
@@ -95,8 +96,9 @@
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
             <test name="org.cacert.gigi.TestSSL" todir="${junit.output.dir}"/>
-            <test name="org.cacert.gigi.pages.main.ResgisterPageTest" todir="${junit.output.dir}"/>
-            <classpath refid="cacert-gigi.classpath"/>
+            <test name="org.cacert.gigi.LoginTest" todir="${junit.output.dir}"/>
+            <test name="org.cacert.gigi.pages.main.RegisterPageTest" todir="${junit.output.dir}"/>
+            <classpath refid="cacert-gigi.test.classpath"/>
         </junit>
     </target>
     <target name="junitreport">
