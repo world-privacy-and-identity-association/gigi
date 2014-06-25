@@ -19,6 +19,7 @@ import java.util.Properties;
 
 import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.IOUtils;
+import org.cacert.gigi.InitTruststore;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -35,6 +36,11 @@ public class ManagedTest {
 		return url;
 	}
 	static Properties testProps = new Properties();
+	static {
+		InitTruststore.run();
+		HttpURLConnection.setFollowRedirects(false);
+	}
+
 	@BeforeClass
 	public static void connectToServer() {
 		try {
@@ -171,7 +177,8 @@ public class ManagedTest {
 			TestMail tm = ter.recieve();
 			String verifyLink = tm.extractLink();
 			String[] parts = verifyLink.split("\\?");
-			URL u = new URL("https://" + getServerName() + "/verify" + parts[1]);
+			URL u = new URL("https://" + getServerName() + "/verify?"
+					+ parts[1]);
 			u.openStream().close();;
 		} catch (InterruptedException e) {
 			throw new Error(e);
