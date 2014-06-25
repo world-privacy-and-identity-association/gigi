@@ -44,7 +44,8 @@ public class DatabaseConnection {
 		ensureOpen();
 		PreparedStatement statement = statements.get(query);
 		if (statement == null) {
-			statement = c.prepareStatement(query);
+			statement = c.prepareStatement(query,
+					Statement.RETURN_GENERATED_KEYS);
 			statements.put(query, statement);
 		}
 		return statement;
