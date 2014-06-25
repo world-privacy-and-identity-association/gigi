@@ -13,9 +13,10 @@ import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLException;
 
+import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
 
-public class TestSSL {
+public class TestSSL extends ManagedTest {
 	private ByteBuffer in;
 	private ByteBuffer inC;
 	private ByteBuffer outC;
@@ -28,8 +29,9 @@ public class TestSSL {
 			throws NoSuchAlgorithmException, IOException {
 		SSLContext sc = SSLContext.getDefault();
 		SSLEngine se = sc.createSSLEngine();
-		SocketChannel s = SocketChannel.open(new InetSocketAddress("localhost",
-				443));
+		String[] serverParts = getServerName().split(":", 2);
+		SocketChannel s = SocketChannel.open(new InetSocketAddress(
+				serverParts[0], Integer.parseInt(serverParts[1])));
 
 		in = ByteBuffer.allocate(se.getSession().getApplicationBufferSize());
 		inC = ByteBuffer.allocate(se.getSession().getPacketBufferSize());
