@@ -580,6 +580,8 @@ td.storyLeft {
 	font-family: verdana, sans-serif;
 	font-size: 11px;
 	text-align: center;
+	margin-left:auto;
+	margin-right:auto;
 }
 
 td.greytxt {
