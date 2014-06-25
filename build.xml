@@ -12,10 +12,10 @@
     </path>
     <path id="cacert-gigi.classpath">
         <pathelement location="bin"/>
-        <path refid="JUnit 4.libraryclasspath"/>
         <pathelement location="${mysqlconnector}"/>
     </path>
     <path id="cacert-gigi.test.classpath">
+        <pathelement location="bin"/>
         <pathelement location="bintest"/>
         <path refid="JUnit 4.libraryclasspath"/>
         <pathelement location="${mysqlconnector}"/>
