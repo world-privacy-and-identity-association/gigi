@@ -91,7 +91,17 @@
             <classpath refid="cacert-gigi.classpath"/>
         </java>
     </target>
-    <target name="test" depends="build-project-test">
+
+    <target name="check-generateKeys">
+        <available file="config/keystore.pkcs12" property="keystore.present"/>
+    </target>
+    <target name="generateKeys" depends="check-generateKeys" unless="keystore.present">
+        <exec executable="./generateKeys.sh" dir="doc/scripts"/>
+        <exec executable="./generateTruststore.sh" dir="doc/scripts">
+            <arg value="-noprompt"/>
+        </exec>
+    </target>
+    <target name="test" depends="build-project-test,generateKeys">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>

@@ -1,3 +1,4 @@
+#!/bin/sh
 # this script generates a simple self-signed keypair
 
 openssl genrsa -out jetty.key 4096
