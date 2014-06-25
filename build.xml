@@ -66,6 +66,7 @@
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
             <src path="lib/servlet-api"/>
             <src path="lib/jetty"/>
+            <src path="lib/jtar"/>
             <src path="src"/>
             <src path="util"/>
             <classpath refid="cacert-gigi.classpath"/>
