@@ -76,8 +76,9 @@ public class Gigi extends HttpServlet {
 			return;
 		}
 
-		if (pages.containsKey(req.getPathInfo())) {
-			Page p = pages.get(req.getPathInfo());
+		Page p = getPage(req.getPathInfo());
+		if (p != null) {
+
 			if (p.needsLogin() && hs.getAttribute("loggedin") == null) {
 				String request = req.getPathInfo();
 				request = request.split("\\?")[0];
@@ -104,6 +105,26 @@ public class Gigi extends HttpServlet {
 		} else {
 			resp.sendError(404, "Page not found.");
 		}
+
+	}
+	private Page getPage(String pathInfo) {
+
+		Page page = pages.get(pathInfo);
+		if (page != null) {
+			return page;
+		}
+		page = pages.get(pathInfo + "/*");
+		if (page != null) {
+			return page;
+		}
+		int idx = pathInfo.lastIndexOf('/');
+		pathInfo = pathInfo.substring(0, idx);
+
+		page = pages.get(pathInfo + "/*");
+		if (page != null) {
+			return page;
+		}
+		return null;
 
 	}
 	private String makeDynTempl(String in, Page p) {
