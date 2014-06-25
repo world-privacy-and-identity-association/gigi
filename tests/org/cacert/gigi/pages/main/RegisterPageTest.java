@@ -1,32 +1,19 @@
 package org.cacert.gigi.pages.main;
 
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
+import java.util.regex.Pattern;
 
-import org.cacert.gigi.IOUtils;
 import org.cacert.gigi.InitTruststore;
+import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-public class RegisterPageTest {
-	private static final URL registerService;
-	private static final int PORT = 4431;
+public class RegisterPageTest extends ManagedTest {
 	static {
-		URL u = null;
-		try {
-			u = new URL("https://localhost:" + PORT + "/register");
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		registerService = u;
 		InitTruststore.run();
 		HttpURLConnection.setFollowRedirects(false);
 	}
@@ -36,10 +23,12 @@ public class RegisterPageTest {
 	}
 	@Test
 	public void testSuccess() throws IOException {
-		String startError = fetchStartErrorMessage("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=1910&cca_agree=1");
-		assertTrue(startError, startError.startsWith("</div>"));
+		long uniq = System.currentTimeMillis();
+		registerUser("ab", "b", "correct" + uniq + "@email.de", "ap12UI.'");
+		TestMail tm = waitForMail();
+		String link = tm.extractLink();
+		assertTrue(link, link.startsWith("http://"));
 	}
-
 	@Test
 	public void testNoFname() throws IOException {
 		testFailedForm("lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=1910&cca_agree=1");
@@ -132,12 +121,11 @@ public class RegisterPageTest {
 				.contains("name=\"radius\" value=\"1\" checked=\"checked\">"));
 	}
 
-	@Ignore
 	@Test
 	public void testDoubleMail() throws IOException {
 		long uniq = System.currentTimeMillis();
 		registerUser("RegisterTest", "User", "testmail" + uniq + "@cacert.org",
-				"registerPW");
+				"registerPW'1");
 		try {
 			registerUser("RegisterTest", "User", "testmail" + uniq
 					+ "@cacert.org", "registerPW");
@@ -147,45 +135,22 @@ public class RegisterPageTest {
 
 		}
 	}
+	@Test
+	public void testInvalidMailbox() {
+		getMailReciever().setApproveRegex(Pattern.compile("a"));
+		long uniq = System.currentTimeMillis();
+		try {
+			registerUser("RegisterTest", "User", "testInvalidMailbox" + uniq
+					+ "@cacert.org", "registerPW");
+			throw new Error(
+					"Registering a user with invalid mailbox must fail.");
+		} catch (AssertionError e) {
 
-	private static void testFailedForm(String query) throws IOException {
+		}
+	}
+	private void testFailedForm(String query) throws IOException {
 		String startError = fetchStartErrorMessage(query);
 		assertTrue(startError, !startError.startsWith("</div>"));
 	}
-	private static String fetchStartErrorMessage(String query)
-			throws IOException {
-		String d = runRegister(query);
-		String formFail = "<div class='formError'>";
-		int idx = d.indexOf(formFail);
-		assertNotEquals(-1, idx);
-		String startError = d.substring(idx + formFail.length(), idx + 100)
-				.trim();
-		return startError;
-	}
 
-	public static void registerUser(String firstName, String lastName,
-			String email, String password) {
-		try {
-			String query = "fname=" + URLEncoder.encode(firstName, "UTF-8")
-					+ "&lname=" + URLEncoder.encode(lastName, "UTF-8")
-					+ "&email=" + URLEncoder.encode(email, "UTF-8")
-					+ "&pword1=" + URLEncoder.encode(password, "UTF-8")
-					+ "&pword2=" + URLEncoder.encode(password, "UTF-8")
-					+ "&day=1&month=1&year=1910&cca_agree=1";
-			String data = fetchStartErrorMessage(query);
-			assertTrue(data, data.startsWith("</div>"));
-		} catch (UnsupportedEncodingException e) {
-			throw new Error(e);
-		} catch (IOException e) {
-			throw new Error(e);
-		}
-	}
-	private static String runRegister(String param) throws IOException {
-		HttpURLConnection uc = (HttpURLConnection) registerService
-				.openConnection();
-		uc.setDoOutput(true);
-		uc.getOutputStream().write(param.getBytes());
-		String d = IOUtils.readURL(uc);
-		return d;
-	}
 }

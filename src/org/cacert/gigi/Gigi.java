@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,10 +15,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.TestSecure;
+import org.cacert.gigi.pages.Verify;
 import org.cacert.gigi.pages.account.MailCertificates;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.main.RegisterPage;
@@ -30,11 +34,16 @@ public class Gigi extends HttpServlet {
 	private String[] baseTemplate;
 	private HashMap<String, Page> pages = new HashMap<String, Page>();
 
+	public Gigi(Properties conf) {
+		EmailProvider.init(conf);
+		DatabaseConnection.init(conf);
+	}
 	@Override
 	public void init() throws ServletException {
 		pages.put("/login", new LoginPage("CACert - Login"));
 		pages.put("/", new MainPage("CACert - Home"));
 		pages.put("/secure", new TestSecure());
+		pages.put(Verify.PATH, new Verify());
 		pages.put(MailCertificates.PATH, new MailCertificates());
 		pages.put(MyDetails.PATH, new MyDetails());
 		pages.put(RegisterPage.PATH, new RegisterPage());

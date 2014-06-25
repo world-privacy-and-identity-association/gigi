@@ -2,3 +2,5 @@
 keystore.pkcs12
 cacerts.jks
 sql.properties
+gigi.properties
+test.properties
