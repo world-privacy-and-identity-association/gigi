@@ -21,6 +21,7 @@ import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.TestSecure;
+import org.cacert.gigi.pages.Verify;
 import org.cacert.gigi.pages.account.MailCertificates;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.main.RegisterPage;
@@ -42,6 +43,7 @@ public class Gigi extends HttpServlet {
 		pages.put("/login", new LoginPage("CACert - Login"));
 		pages.put("/", new MainPage("CACert - Home"));
 		pages.put("/secure", new TestSecure());
+		pages.put(Verify.PATH, new Verify());
 		pages.put(MailCertificates.PATH, new MailCertificates());
 		pages.put(MyDetails.PATH, new MyDetails());
 		pages.put(RegisterPage.PATH, new RegisterPage());

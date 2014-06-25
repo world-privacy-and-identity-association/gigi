@@ -257,9 +257,8 @@ public class Signup {
 							req,
 							"Thanks for signing up with CAcert.org, below is the link you need to open to verify your account. Once your account is verified you will be able to start issuing certificates till your hearts' content!"));
 			body.append("\n\n");
-			body.append("http://");
 			body.append(ServerConstants.NORMAL_HOST_NAME);
-			body.append("/verify.php?type=email&emailid=");
+			body.append("/verify?type=email&id=");
 			body.append(emailid);
 			body.append("&hash=");
 			body.append(hash);
