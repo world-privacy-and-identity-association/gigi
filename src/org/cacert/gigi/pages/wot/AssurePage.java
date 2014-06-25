@@ -17,7 +17,7 @@ import org.cacert.gigi.output.Template;
 import org.cacert.gigi.pages.Page;
 
 public class AssurePage extends Page {
-	public static final String PATH = "/wot/assure";
+	public static final String PATH = "/wot/assure/*";
 	DateSelector ds = new DateSelector("day", "month", "year");
 	Template t;
 
@@ -31,9 +31,16 @@ public class AssurePage extends Page {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		PrintWriter out = resp.getWriter();
-		HashMap<String, Object> vars = new HashMap<String, Object>();
-		vars.put("DoB", ds);
-		t.output(out, getLanguage(req), vars);
+
+		String pi = req.getPathInfo().substring(PATH.length() - 2);
+		if (pi.length() > 1) {
+			out.println("I am a Placeholder for the Assurance form # ");
+			out.println(pi.substring(1));
+		} else {
+			HashMap<String, Object> vars = new HashMap<String, Object>();
+			vars.put("DoB", ds);
+			t.output(out, getLanguage(req), vars);
+		}
 	}
 	@Override
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -55,7 +62,8 @@ public class AssurePage extends Page {
 			if (rs.next()) {
 				out.println("Error, ambigous user. Please contact support@cacert.org");
 			} else {
-				out.println("Found member: " + id);
+				resp.sendRedirect(PATH.substring(0, PATH.length() - 2) + "/"
+						+ id);
 			}
 
 			rs.close();
