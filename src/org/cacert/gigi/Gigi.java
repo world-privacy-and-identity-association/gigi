@@ -25,6 +25,7 @@ import org.cacert.gigi.pages.Verify;
 import org.cacert.gigi.pages.account.MailCertificates;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.main.RegisterPage;
+import org.cacert.gigi.pages.wot.AssurePage;
 import org.eclipse.jetty.util.log.Log;
 
 public class Gigi extends HttpServlet {
@@ -44,6 +45,7 @@ public class Gigi extends HttpServlet {
 		pages.put("/", new MainPage("CACert - Home"));
 		pages.put("/secure", new TestSecure());
 		pages.put(Verify.PATH, new Verify());
+		pages.put(AssurePage.PATH, new AssurePage());
 		pages.put(MailCertificates.PATH, new MailCertificates());
 		pages.put(MyDetails.PATH, new MyDetails());
 		pages.put(RegisterPage.PATH, new RegisterPage());
