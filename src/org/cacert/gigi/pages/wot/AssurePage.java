@@ -36,8 +36,6 @@ public class AssurePage extends Page {
 
 		String pi = req.getPathInfo().substring(PATH.length() - 2);
 		if (pi.length() > 1) {
-			out.println("I am a Placeholder for the Assurance form # ");
-			out.println(pi.substring(1));
 			User myself = LoginPage.getUser(req);
 			int mid = Integer.parseInt(pi.substring(1));
 			if (mid == myself.getId()) {
