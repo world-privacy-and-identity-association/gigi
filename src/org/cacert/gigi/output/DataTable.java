@@ -7,7 +7,7 @@ import java.util.Map;
 import org.cacert.gigi.Language;
 
 public abstract class DataTable implements Outputable {
-	protected abstract String[] getColumns();
+	protected abstract Cell[] getColumns();
 
 	protected abstract LinkedList<Cell> getTableContent();
 
@@ -15,9 +15,10 @@ public abstract class DataTable implements Outputable {
 	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
 		out.println("<table align=\"center\" valign=\"middle\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" class=\"wrapper\">");
 		out.println("<tr>");
-		for (String column : getColumns()) {
-			out.print("<td class=\"DataTD\">");
-			out.print(l.getTranslation(column));
+		for (Cell column : getColumns()) {
+			out.print("<td " + column.getHtmlAttribs() + " class=\"DataTD\">");
+			out.print(column.shouldTranslate() ? l.getTranslation(column
+					.getText()) : column.getText());
 			out.println("</td>");
 		}
 		out.println("</tr>");
@@ -25,8 +26,9 @@ public abstract class DataTable implements Outputable {
 		for (int i = 0; i < tableContnet.size() / getColumns().length; i++) {
 			out.println("<tr>");
 			for (int j = 0; j < getColumns().length; j++) {
-				out.println("<td class=\"DataTD\">");
 				Cell current = tableContnet.get((i * getColumns().length) + j);
+				out.println("<td " + current.getHtmlAttribs()
+						+ " class=\"DataTD\">");
 				out.print(current.shouldTranslate() ? l.getTranslation(current
 						.getText()) : current.getText());
 				out.print("</td>");
@@ -36,13 +38,28 @@ public abstract class DataTable implements Outputable {
 		out.println("</table>");
 	}
 
+	/**
+	 * <b>Note:</b> All cells have the html attribute class="DataTD"!
+	 * 
+	 * @author janis
+	 * 
+	 */
 	public static class Cell {
-		private String text;
+		private String text, htmlAttribs;
 		private boolean translate;
 
-		public Cell(String text, boolean translate) {
+		public Cell() {
+			this("&nbsp;", false);
+		}
+
+		public Cell(String text, boolean translate, String htmlAttribs) {
 			this.text = text;
 			this.translate = translate;
+			this.htmlAttribs = htmlAttribs;
+		}
+
+		public Cell(String text, boolean translate) {
+			this(text, translate, "");
 		}
 
 		public boolean shouldTranslate() {
@@ -53,12 +70,8 @@ public abstract class DataTable implements Outputable {
 			return text;
 		}
 
-	}
-
-	public static class EmptyCell extends Cell {
-
-		public EmptyCell() {
-			super("&nbsp;", false);
+		public String getHtmlAttribs() {
+			return htmlAttribs;
 		}
 
 	}

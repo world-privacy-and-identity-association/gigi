@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.cacert.gigi.Language;
 import org.cacert.gigi.output.DataTable.Cell;
-import org.cacert.gigi.output.DataTable.EmptyCell;
 
 public class CertificateTable implements Outputable {
 	String resultSet;
@@ -25,7 +24,7 @@ public class CertificateTable implements Outputable {
 			rs.beforeFirst();
 			while (rs.next()) {
 				// out.println(rs.getString("id"));
-				cells.add(new EmptyCell());
+				cells.add(new Cell());
 				cells.add(new Cell("State", false));
 				cells.add(new Cell(rs.getString("CN"), false));
 				cells.add(new Cell(rs.getString("serial"), false));
@@ -46,10 +45,14 @@ public class CertificateTable implements Outputable {
 				}
 
 				@Override
-				protected String[] getColumns() {
-					return new String[] { "Renew/Revoke/Delete", "Status",
-							"Email Address", "SerialNumber", "Revoked",
-							"Expires", "Login", "Comment*" };
+				protected Cell[] getColumns() {
+					return new Cell[] { new Cell("Renew/Revoke/Delete", true),
+							new Cell("Status", true),
+							new Cell("Email Address", true),
+							new Cell("SerialNumber", true),
+							new Cell("Revoked", true),
+							new Cell("Expires", true), new Cell("Login", true),
+							new Cell("Comment*", true, "colspan=\"2\"") };
 				}
 			};
 			t.output(out, l, vars);
