@@ -11,9 +11,11 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.Template;
+import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 
 public class AssurePage extends Page {
@@ -36,6 +38,15 @@ public class AssurePage extends Page {
 		if (pi.length() > 1) {
 			out.println("I am a Placeholder for the Assurance form # ");
 			out.println(pi.substring(1));
+			User myself = LoginPage.getUser(req);
+			int mid = Integer.parseInt(pi.substring(1));
+			if (mid == myself.getId()) {
+				out.println("Cannot assure myself.");
+				return;
+			}
+
+			new AssuranceForm(mid).output(out, getLanguage(req),
+					new HashMap<String, Object>());;
 		} else {
 			HashMap<String, Object> vars = new HashMap<String, Object>();
 			vars.put("DoB", ds);

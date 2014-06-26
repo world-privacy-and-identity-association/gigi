@@ -22,12 +22,13 @@ public class User {
 		this.id = id;
 		try {
 			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
-					"SELECT `fname`, `lname` FROM `users` WHERE id=?");
+					"SELECT `fname`, `lname`, `dob` FROM `users` WHERE id=?");
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
 				fname = rs.getString(1);
 				lname = rs.getString(2);
+				dob = rs.getDate(3);
 			}
 			rs.close();
 		} catch (SQLException e) {
