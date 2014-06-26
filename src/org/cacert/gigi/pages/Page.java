@@ -12,6 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.output.Template;
 
+/**
+ * This class encapsulates a sub page of Gigi. A template residing nearby this
+ * class with name &lt;className&gt;.templ will be loaded automatically.
+ */
 public abstract class Page {
 	private String title;
 	private Template defaultTemplate;
@@ -29,20 +33,73 @@ public abstract class Page {
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * Retrives the default template (&lt;className&gt;.templ) which has already
+	 * been loaded.
+	 * 
+	 * @return the default template.
+	 */
 	public Template getDefaultTemplate() {
 		return defaultTemplate;
 	}
 
+	/**
+	 * This method can be overridden to execute code and do stuff before the
+	 * default template is applied.
+	 * 
+	 * @param req
+	 *            the request to handle.
+	 * @param resp
+	 *            the response to write to
+	 * @return true, iff the request is consumed and the default template should
+	 *         not be applied.
+	 * @throws IOException
+	 *             if output goes wrong.
+	 */
 	public boolean beforeTemplate(HttpServletRequest req,
 			HttpServletResponse resp) throws IOException {
 		return false;
 	}
+
+	/**
+	 * This method is called to generate the content inside the default
+	 * template.
+	 * 
+	 * @param req
+	 *            the request to handle.
+	 * @param resp
+	 *            the response to write to
+	 * @throws IOException
+	 *             if output goes wrong.
+	 */
 	public abstract void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException;
 
+	/**
+	 * Same as {@link #doGet(HttpServletRequest, HttpServletResponse)} but for
+	 * POST requests. By default they are redirected to
+	 * {@link #doGet(HttpServletRequest, HttpServletResponse)};
+	 * 
+	 * @param req
+	 *            the request to handle.
+	 * @param resp
+	 *            the response to write to
+	 * @throws IOException
+	 *             if output goes wrong.
+	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		doGet(req, resp);
+	}
+
+	/**
+	 * Returns true, iff this page requires login. Default is <code>true</code>
+	 * 
+	 * @return iff the page needs login.
+	 */
+	public boolean needsLogin() {
+		return true;
 	}
 
 	public String getTitle() {
@@ -59,9 +116,6 @@ public abstract class Page {
 	public static String translate(ServletRequest req, String string) {
 		Language l = getLanguage(req);
 		return l.getTranslation(string);
-	}
-	public boolean needsLogin() {
-		return true;
 	}
 
 }
