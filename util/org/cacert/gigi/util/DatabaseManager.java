@@ -19,6 +19,10 @@ public class DatabaseManager {
 					.println("Usage: com.mysql.jdbc.Driver jdbc:mysql://localhost/cacert user password");
 			return;
 		}
+		run(args);
+	}
+	public static void run(String[] args) throws ClassNotFoundException,
+			SQLException, IOException {
 		Class.forName(args[0]);
 		Connection conn = DriverManager
 				.getConnection(args[1], args[2], args[3]);

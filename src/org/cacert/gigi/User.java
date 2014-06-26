@@ -11,7 +11,7 @@ import org.cacert.gigi.util.PasswordHash;
 public class User {
 
 	private int id;
-	Name name;
+	Name name = new Name(null, null);
 
 	Date dob;
 	String email;

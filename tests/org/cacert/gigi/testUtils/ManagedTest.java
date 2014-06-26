@@ -15,12 +15,15 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.IOUtils;
 import org.cacert.gigi.InitTruststore;
+import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
+import org.cacert.gigi.util.DatabaseManager;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -45,6 +48,16 @@ public class ManagedTest {
 	public static void connectToServer() {
 		try {
 			testProps.load(new FileInputStream("config/test.properties"));
+			if (!DatabaseConnection.isInited()) {
+				DatabaseConnection.init(testProps);
+			}
+			System.out.println("... purging Database");
+			DatabaseManager.run(new String[]{
+					testProps.getProperty("sql.driver"),
+					testProps.getProperty("sql.url"),
+					testProps.getProperty("sql.user"),
+					testProps.getProperty("sql.password")});
+
 			String type = testProps.getProperty("type");
 			if (type.equals("local")) {
 				url = testProps.getProperty("server");
@@ -59,12 +72,18 @@ public class ManagedTest {
 					gigi.getOutputStream());
 			System.out.println("... starting server");
 			Properties mainProps = new Properties();
-			mainProps.load(new FileInputStream("config/gigi.properties"));
 			mainProps.setProperty("host", "127.0.0.1");
 			mainProps.setProperty("port", testProps.getProperty("serverPort"));
 			mainProps.setProperty("emailProvider",
 					"org.cacert.gigi.email.TestEmailProvider");
 			mainProps.setProperty("emailProvider.port", "8473");
+			mainProps.setProperty("sql.driver",
+					testProps.getProperty("sql.driver"));
+			mainProps.setProperty("sql.url", testProps.getProperty("sql.url"));
+			mainProps
+					.setProperty("sql.user", testProps.getProperty("sql.user"));
+			mainProps.setProperty("sql.password",
+					testProps.getProperty("sql.password"));
 
 			byte[] cacerts = Files
 					.readAllBytes(Paths.get("config/cacerts.jks"));
@@ -108,6 +127,10 @@ public class ManagedTest {
 					new InetSocketAddress("localhost", 8473));
 		} catch (IOException e) {
 			throw new Error(e);
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
 		}
 
 	}

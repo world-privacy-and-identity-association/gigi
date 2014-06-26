@@ -2,8 +2,17 @@ type=local
 server=localhost:443
 mail=localhost:8474
 
-==== OR ===
+# ==== OR ===
 type=autonomous
 java=java -cp bin;/path/to/mysqlConnector.jar org.cacert.gigi.Launcher
 serverPort=4443
 mailPort=8473
+
+
+
+
+# ==== ALL ===
+sql.driver=com.mysql.jdbc.Driver
+sql.url=jdbc:mysql://localhost:3306/cacert
+sql.user=cacert
+sql.password=<password>

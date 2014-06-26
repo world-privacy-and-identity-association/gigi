@@ -81,6 +81,9 @@ public class DatabaseConnection {
 	public static DatabaseConnection getInstance() {
 		return instances.get();
 	}
+	public static boolean isInited() {
+		return credentials != null;
+	}
 	public static void init(Properties conf) {
 		if (credentials != null) {
 			throw new Error("Re-initiaizing is forbidden.");
