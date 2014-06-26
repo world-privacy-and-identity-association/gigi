@@ -52,7 +52,7 @@ public class CertificateTable implements Outputable {
 							new Cell("SerialNumber", true),
 							new Cell("Revoked", true),
 							new Cell("Expires", true), new Cell("Login", true),
-							new Cell("Comment*", true, "colspan=\"2\"") };
+							new Cell("Comment *", true, "colspan=\"2\"") };
 				}
 			};
 			t.output(out, l, vars);
