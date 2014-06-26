@@ -23,10 +23,10 @@ public class RegisterPage extends Page {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		PrintWriter out = resp.getWriter();
-		getDefaultTemplate().output(out, getLanguage(req),
-				new HashMap<String, Object>());
+		HashMap<String, Object> vars = new HashMap<String, Object>();
+		getDefaultTemplate().output(out, getLanguage(req), vars);
 		Signup s = getForm(req);
-		s.writeForm(out, getLanguage(req));
+		s.output(out, getLanguage(req), vars);
 	}
 	public Signup getForm(HttpServletRequest req) {
 		HttpSession hs = req.getSession();

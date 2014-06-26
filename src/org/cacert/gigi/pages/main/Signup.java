@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +19,7 @@ import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.output.DateSelector;
+import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.Template;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.HTMLEncoder;
@@ -26,7 +28,7 @@ import org.cacert.gigi.util.PasswordStrengthChecker;
 import org.cacert.gigi.util.RandomToken;
 import org.cacert.gigi.util.ServerConstants;
 
-public class Signup {
+public class Signup implements Form {
 	User buildup = new User();
 	Template t;
 	boolean general = true, country = true, regional = true, radius = true;
@@ -46,7 +48,8 @@ public class Signup {
 	}
 	DateSelector myDoB = new DateSelector("day", "month", "year");
 
-	public void writeForm(PrintWriter out, Language l) {
+	public void output(PrintWriter out, Language l,
+			Map<String, Object> outerVars) {
 		HashMap<String, Object> vars = new HashMap<String, Object>();
 		vars.put("fname", HTMLEncoder.encodeHTML(buildup.getFname()));
 		vars.put("mname", HTMLEncoder.encodeHTML(buildup.getMname()));
