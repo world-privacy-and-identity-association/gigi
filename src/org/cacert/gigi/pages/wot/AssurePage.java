@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
@@ -20,6 +21,7 @@ import org.cacert.gigi.pages.Page;
 
 public class AssurePage extends Page {
 	public static final String PATH = "/wot/assure/*";
+	public static final String SESSION = "/wot/assure/FORM";
 	DateSelector ds = new DateSelector("day", "month", "year");
 	Template t;
 
@@ -32,8 +34,8 @@ public class AssurePage extends Page {
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		PrintWriter out = resp.getWriter();
 
+		PrintWriter out = resp.getWriter();
 		String pi = req.getPathInfo().substring(PATH.length() - 2);
 		if (pi.length() > 1) {
 			User myself = LoginPage.getUser(req);
@@ -43,8 +45,14 @@ public class AssurePage extends Page {
 				return;
 			}
 
-			new AssuranceForm(mid).output(out, getLanguage(req),
-					new HashMap<String, Object>());;
+			HttpSession hs = req.getSession();
+			AssuranceForm form = (AssuranceForm) hs.getAttribute(SESSION);
+			if (form == null || form.assuree.getId() != mid) {
+				form = new AssuranceForm(mid);
+				hs.setAttribute(SESSION, form);
+			}
+
+			form.output(out, getLanguage(req), new HashMap<String, Object>());;
 		} else {
 			HashMap<String, Object> vars = new HashMap<String, Object>();
 			vars.put("DoB", ds);
@@ -55,6 +63,18 @@ public class AssurePage extends Page {
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		PrintWriter out = resp.getWriter();
+		String pi = req.getPathInfo().substring(PATH.length() - 2);
+		if (pi.length() > 1) {
+			AssuranceForm form = (AssuranceForm) req.getSession().getAttribute(
+					SESSION);
+			if (form == null) {
+				out.println("No form found. This is an Error. Fill in the form again.");
+			}
+			form.submit(out, req);
+
+			return;
+		}
+
 		System.out.println("searching for");
 		try {
 			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
