@@ -88,6 +88,7 @@ public class TestEmailReciever implements Runnable {
 						dos.writeUTF("FAIL");
 					}
 					dos.flush();
+				} else if (type.equals("ping")) {
 				} else {
 					System.err.println("Unknown type: " + type);
 				}

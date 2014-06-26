@@ -26,8 +26,7 @@ class TestEmailProvider extends EmailProvider {
 	public synchronized void sendmail(String to, String subject,
 			String message, String from, String replyto, String toname,
 			String fromname, String errorsto, boolean extra) throws IOException {
-		boolean sent = false;
-		while (!sent) {
+		while (true) {
 			assureLocalConnection();
 			try {
 				out.writeUTF("mail");
@@ -37,13 +36,20 @@ class TestEmailProvider extends EmailProvider {
 				write(from);
 				write(replyto);
 				out.flush();
-				sent = true;
+				return;
 			} catch (IOException e) {
 				client = null;
 			}
 		}
 	}
 	private void assureLocalConnection() throws IOException {
+		if (out != null) {
+			try {
+				out.writeUTF("ping");
+			} catch (IOException e) {
+				client = null;
+			}
+		}
 		if (client == null || client.isClosed()) {
 			client = servs.accept();
 			out = new DataOutputStream(client.getOutputStream());
@@ -51,12 +57,18 @@ class TestEmailProvider extends EmailProvider {
 		}
 	}
 	@Override
-	public String checkEmailServer(int forUid, String address)
+	public synchronized String checkEmailServer(int forUid, String address)
 			throws IOException {
-		assureLocalConnection();
-		out.writeUTF("challengeAddrBox");
-		out.writeUTF(address);
-		return in.readUTF();
+		while (true) {
+			assureLocalConnection();
+			try {
+				out.writeUTF("challengeAddrBox");
+				out.writeUTF(address);
+				return in.readUTF();
+			} catch (IOException e) {
+				client = null;
+			}
+		}
 	}
 
 	private void write(String to) throws IOException {
