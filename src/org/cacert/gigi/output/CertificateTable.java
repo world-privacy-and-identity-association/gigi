@@ -21,6 +21,14 @@ public class CertificateTable implements Outputable {
 		try {
 			out.println("<form method=\"post\" action=\"account.php\">");
 			final LinkedList<Cell> cells = new LinkedList<>();
+			cells.add(new Cell("Renew/Revoke/Delete", true));
+			cells.add(new Cell("Status", true));
+			cells.add(new Cell("Email Address", true));
+			cells.add(new Cell("SerialNumber", true));
+			cells.add(new Cell("Revoked", true));
+			cells.add(new Cell("Expires", true));
+			cells.add(new Cell("Login", true));
+			cells.add(new Cell("Comment *", true, "colspan=\"2\""));
 			rs.beforeFirst();
 			while (rs.next()) {
 				// out.println(rs.getString("id"));
@@ -45,14 +53,8 @@ public class CertificateTable implements Outputable {
 				}
 
 				@Override
-				protected Cell[] getColumns() {
-					return new Cell[] { new Cell("Renew/Revoke/Delete", true),
-							new Cell("Status", true),
-							new Cell("Email Address", true),
-							new Cell("SerialNumber", true),
-							new Cell("Revoked", true),
-							new Cell("Expires", true), new Cell("Login", true),
-							new Cell("Comment *", true, "colspan=\"2\"") };
+				protected int getColoumnCount() {
+					return 8;
 				}
 			};
 			t.output(out, l, vars);

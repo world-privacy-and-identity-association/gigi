@@ -7,26 +7,18 @@ import java.util.Map;
 import org.cacert.gigi.Language;
 
 public abstract class DataTable implements Outputable {
-	protected abstract Cell[] getColumns();
+	protected abstract int getColoumnCount();
 
 	protected abstract LinkedList<Cell> getTableContent();
 
 	@Override
 	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
 		out.println("<table align=\"center\" valign=\"middle\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" class=\"wrapper\">");
-		out.println("<tr>");
-		for (Cell column : getColumns()) {
-			out.print("<td " + column.getHtmlAttribs() + " class=\"DataTD\">");
-			out.print(column.shouldTranslate() ? l.getTranslation(column
-					.getText()) : column.getText());
-			out.println("</td>");
-		}
-		out.println("</tr>");
 		LinkedList<Cell> tableContnet = getTableContent();
-		for (int i = 0; i < tableContnet.size() / getColumns().length; i++) {
+		for (int i = 0; i < tableContnet.size() / getColoumnCount(); i++) {
 			out.println("<tr>");
-			for (int j = 0; j < getColumns().length; j++) {
-				Cell current = tableContnet.get((i * getColumns().length) + j);
+			for (int j = 0; j < getColoumnCount(); j++) {
+				Cell current = tableContnet.get((i * getColoumnCount()) + j);
 				out.println("<td " + current.getHtmlAttribs()
 						+ " class=\"DataTD\">");
 				out.print(current.shouldTranslate() ? l.getTranslation(current
