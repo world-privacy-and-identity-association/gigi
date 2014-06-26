@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.Language;
@@ -28,7 +27,7 @@ import org.cacert.gigi.util.PasswordStrengthChecker;
 import org.cacert.gigi.util.RandomToken;
 import org.cacert.gigi.util.ServerConstants;
 
-public class Signup implements Form {
+public class Signup extends Form {
 	User buildup = new User();
 	Template t;
 	boolean general = true, country = true, regional = true, radius = true;
@@ -92,6 +91,7 @@ public class Signup implements Form {
 		myDoB.update(r);
 	}
 
+	@Override
 	public synchronized boolean submit(PrintWriter out, HttpServletRequest req) {
 		update(req);
 		boolean failed = false;
@@ -217,11 +217,6 @@ public class Signup implements Form {
 			e.printStackTrace();
 		}
 		return true;
-	}
-	private void outputError(PrintWriter out, ServletRequest req, String text) {
-		out.print("<div>");
-		out.print(Page.translate(req, text));
-		out.println("</div>");
 	}
 
 	private void run(HttpServletRequest req, String password)
