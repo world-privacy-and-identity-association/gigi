@@ -11,10 +11,8 @@ import org.cacert.gigi.util.PasswordHash;
 public class User {
 
 	private int id;
-	String fname;
-	String mname;
-	String lname;
-	String suffix;
+	Name name;
+
 	Date dob;
 	String email;
 
@@ -26,8 +24,7 @@ public class User {
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
-				fname = rs.getString(1);
-				lname = rs.getString(2);
+				name = new Name(rs.getString(1), rs.getString(2));
 				dob = rs.getDate(3);
 			}
 			rs.close();
@@ -41,22 +38,25 @@ public class User {
 		return id;
 	}
 	public String getFname() {
-		return fname;
+		return name.fname;
 	}
 	public String getLname() {
-		return lname;
+		return name.lname;
 	}
 	public String getMname() {
-		return mname;
+		return name.mname;
+	}
+	public Name getName() {
+		return name;
 	}
 	public void setMname(String mname) {
-		this.mname = mname;
+		this.name.mname = mname;
 	}
 	public String getSuffix() {
-		return suffix;
+		return name.suffix;
 	}
 	public void setSuffix(String suffix) {
-		this.suffix = suffix;
+		this.name.suffix = suffix;
 	}
 	public Date getDob() {
 		return dob;
@@ -74,10 +74,10 @@ public class User {
 		this.id = id;
 	}
 	public void setFname(String fname) {
-		this.fname = fname;
+		this.name.fname = fname;
 	}
 	public void setLname(String lname) {
-		this.lname = lname;
+		this.name.lname = lname;
 	}
 	public void insert(String password) throws SQLException {
 		if (id != 0) {
@@ -89,10 +89,10 @@ public class User {
 						+ "`suffix`=?, `dob`=?, `created`=NOW(), locked=0");
 		query.setString(1, email);
 		query.setString(2, PasswordHash.hash(password));
-		query.setString(3, fname);
-		query.setString(4, mname);
-		query.setString(5, lname);
-		query.setString(6, suffix);
+		query.setString(3, name.fname);
+		query.setString(4, name.mname);
+		query.setString(5, name.lname);
+		query.setString(6, name.suffix);
 		query.setDate(7, new java.sql.Date(dob.getTime()));
 		query.execute();
 		id = DatabaseConnection.lastInsertId(query);

@@ -9,7 +9,6 @@ import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
 import org.cacert.gigi.output.Outputable;
 import org.cacert.gigi.output.Template;
-import org.cacert.gigi.util.HTMLEncoder;
 
 public class AssuranceForm implements Outputable {
 	User assuree;
@@ -27,14 +26,7 @@ public class AssuranceForm implements Outputable {
 	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
 		HashMap<String, Object> res = new HashMap<String, Object>();
 		res.putAll(vars);
-		res.put("fname", HTMLEncoder.encodeHTML(assuree.getFname()));
-		res.put("mname",
-				assuree.getMname() == null ? "" : HTMLEncoder
-						.encodeHTML(assuree.getMname()));
-		res.put("lname", HTMLEncoder.encodeHTML(assuree.getLname()));
-		res.put("suffix",
-				assuree.getSuffix() == null ? "" : HTMLEncoder
-						.encodeHTML(assuree.getSuffix()));
+		res.put("name", assuree.getName());
 		templ.output(out, l, res);
 	}
 }

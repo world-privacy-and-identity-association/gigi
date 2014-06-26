@@ -717,13 +717,13 @@ div.footerbar {
 	font-size: 1.1em;
 }
 
-.accountdetail.fname {
+.accountdetail.fname, .accountdetail .fname {
 }
 
 .accountdetail.mname {
 }
 
-.accountdetail.lname {
+.accountdetail.lname, .accountdetail .lname {
 	font-weight: bold;
 }
 
