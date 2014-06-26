@@ -36,26 +36,46 @@ public class Template implements Outputable {
 		contents = splitted.toArray(new String[splitted.size()]);
 	}
 	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+		LinkedList<String> store = new LinkedList<String>();
 		for (int i = 0; i < contents.length; i++) {
 			if (i % 2 == 0) {
 				out.print(contents[i]);
 			} else if (contents[i].startsWith("=_")) {
 				out.print(l.getTranslation(contents[i].substring(2)));
 			} else if (contents[i].startsWith("=$")) {
-				Object s = vars.get(contents[i].substring(2));
-				if (s == null) {
-					System.out.println("Empty variable: "
-							+ contents[i].substring(2));
+				outputVar(out, l, vars, contents[i].substring(2));
+			} else if (contents[i].startsWith("=s,")) {
+				String command = contents[i].substring(3);
+				store.clear();
+				while (command.startsWith("$")) {
+					int idx = command.indexOf(",");
+					store.add(command.substring(0, idx));
+					command = command.substring(idx + 1);
 				}
-				if (s instanceof Outputable) {
-					((Outputable) s).output(out, l, vars);
-				} else {
-					out.print(s);
+				String[] parts = l.getTranslation(command).split("%s");
+				String[] myvars = store.toArray(new String[store.size()]);
+				out.print(parts[0]);
+				for (int j = 1; j < parts.length; j++) {
+					outputVar(out, l, vars, myvars[j - 1].substring(1));
+					out.print(parts[j]);
 				}
 			} else {
 				System.out.println("Unknown processing instruction: "
 						+ contents[i]);
 			}
+		}
+	}
+	private void outputVar(PrintWriter out, Language l,
+			Map<String, Object> vars, String varname) {
+		Object s = vars.get(varname);
+
+		if (s == null) {
+			System.out.println("Empty variable: " + varname);
+		}
+		if (s instanceof Outputable) {
+			((Outputable) s).output(out, l, vars);
+		} else {
+			out.print(s);
 		}
 	}
 }
