@@ -12,6 +12,47 @@
 		<td class="DataTD"><?=_Date of Birth?>: </td>
 		<td class="DataTD"><span class="accountdetail dob">....</span></td>
 	</tr>
-
+	<tr>
+		<td class="DataTD"><input type="checkbox" name="certify" value="1"></td>
+		<td class="DataTD"><?=s,$name,I certify that %s has appeared in person.?></td>
+	</tr>
+	<tr>
+		<td class="DataTD"><input type="checkbox" name="CCAAgreed" value="1"></td>
+		<td class="DataTD"><?=s,$name,I verify that %s has accepted the CAcert Community Agreement.?></td>
+	</tr>
+	<tr>
+		<td class="DataTD"><?=_Location?></td>
+		<td class="DataTD"><input type="text" name="location"></td>
+	</tr>
+	<tr>
+		<td class="DataTD"><?=_Date?></td>
+		<td class="DataTD"><input type="text" name="date"><br/><?=_The date when the assurance took place. Please adjust the date if you assured the person on a different day (YYYY-MM-DD).?></td>
+	</tr>
+	<tr>
+		<td class="DataTD"><input type="checkbox" name="assertion" value="1"></td>
+		<td class="DataTD"><?=_I believe that the assertion of identity I am making is correct, complete and verifiable. I have seen original documentation attesting to this identity. I accept that the CAcert Arbitrator may call upon me to provide evidence in any dispute, and I may be held responsible.?></td>
+	</tr>
+	<tr>
+		<td class="DataTD"><input type="checkbox" name="rules" value="1"></td>
+		<td class="DataTD"><?=_I have read and understood the CAcert Community Agreement (CCA), Assurance Policy and the Assurance Handbook. I am making this Assurance subject to and in compliance with the CCA, Assurance policy and handbook.?></td>
+	</tr>
+	<tr>
+		<td class="DataTD"><?=_Policy?>: </td>
+		<td class="DataTD">
+			<a href="/policy/CAcertCommunityAgreement.php" target="_blank"><?=_CAcert Community Agreement?></a>
+			 - <a href="/policy/AssurancePolicy.php" target="_blank"><?=_Assurance Policy?></a>
+			 - <a href="http://wiki.cacert.org/AssuranceHandbook2" target="_blank"><?=_Assurance Handbook?></a>
+		</td>
+	</tr>
+	<tr>
+		<td class="DataTD"><?=_Points?></td>
+		<td class="DataTD"><input type="text" name="points"><br/>(Max. 12394)</td>
+	</tr>
+	<tr>
+		<td class="DataTD" colspan="2">
+			<input type="submit" name="process" value="<?=_I confirm this Assurance?>" />
+			<input type="submit" name="cancel" value="<?=_Cancel?>" />
+		</td>
+	</tr>
 </table>
 </form>
