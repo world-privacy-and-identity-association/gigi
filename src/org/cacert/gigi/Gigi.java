@@ -20,6 +20,7 @@ import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.pages.PolicyRedir;
 import org.cacert.gigi.pages.TestSecure;
 import org.cacert.gigi.pages.Verify;
 import org.cacert.gigi.pages.account.MailCertificates;
@@ -49,6 +50,7 @@ public class Gigi extends HttpServlet {
 		pages.put(MailCertificates.PATH, new MailCertificates());
 		pages.put(MyDetails.PATH, new MyDetails());
 		pages.put(RegisterPage.PATH, new RegisterPage());
+		pages.put(PolicyRedir.PATH, new PolicyRedir());
 		String templ = "";
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(
 				new FileInputStream(new File("templates/base.html"))))) {
