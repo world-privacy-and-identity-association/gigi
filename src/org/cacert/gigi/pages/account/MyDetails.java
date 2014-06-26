@@ -20,7 +20,7 @@ public class MyDetails extends Page {
 		super("My Details");
 	}
 
-	public static final String PATH = "/account/myDetails";
+	public static final String PATH = "/account/details";
 
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
