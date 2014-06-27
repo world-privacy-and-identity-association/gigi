@@ -29,8 +29,7 @@ public class DataTable implements Outputable {
 			for (int j = 0; j < columnCount;) {
 				Cell current = cells.get((i * columnCount) + j);
 				j += current.getColSpan();
-				out.println("<td " + current.getHtmlAttribs()
-						+ " class=\"DataTD\">");
+				out.println("<td " + current.getHtmlAttribs() + " >");
 				out.print(current.shouldTranslate() ? l.getTranslation(current
 						.getText()) : current.getText());
 				out.print("</td>");
@@ -40,12 +39,6 @@ public class DataTable implements Outputable {
 		out.println("</table>");
 	}
 
-	/**
-	 * <b>Note:</b> All cells have the html attribute class="DataTD"!
-	 * 
-	 * @author janis
-	 * 
-	 */
 	public static class Cell {
 		private String text, htmlAttribs;
 		private boolean translate;
@@ -64,11 +57,11 @@ public class DataTable implements Outputable {
 		}
 
 		public Cell(String text, boolean translate) {
-			this(text, translate, 1, "");
+			this(text, translate, 1, "class=\"DataTD\"");
 		}
 
 		public Cell(String text, boolean translate, int colSpan) {
-			this(text, translate, colSpan, "");
+			this(text, translate, colSpan, "class=\"DataTD\"");
 		}
 
 		public boolean shouldTranslate() {
