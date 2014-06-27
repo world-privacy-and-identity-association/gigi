@@ -70,7 +70,7 @@ public class TestAssurance extends ManagedTest {
 	}
 	@Test
 	public void testAssureForm() throws IOException {
-		String error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1");
+		String error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
 		assertTrue(error, error.startsWith("</div>"));
 	}
 	@Test
@@ -80,33 +80,33 @@ public class TestAssurance extends ManagedTest {
 				.currentTimeMillis()))) + 2;
 		String error = getError("date="
 				+ year
-				+ "-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1");
+				+ "-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
 		assertTrue(error, !error.startsWith("</div>"));
 	}
 	@Test
 	public void testAssureFormNoLoc() throws IOException {
-		String error = getError("date=2000-01-01&location=a&certify=1&rules=1&CCAAgreed=1&assertion=1");
+		String error = getError("date=2000-01-01&location=a&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
 		assertTrue(error, !error.startsWith("</div>"));
-		error = getError("date=2000-01-01&location=&certify=1&rules=1&CCAAgreed=1&assertion=1");
+		error = getError("date=2000-01-01&location=&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
 		assertTrue(error, !error.startsWith("</div>"));
 	}
 
 	@Test
 	public void testAssureFormInvalDate() throws IOException {
-		String error = getError("date=20000101&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1");
+		String error = getError("date=20000101&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
 		assertTrue(error, !error.startsWith("</div>"));
-		error = getError("date=&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1");
+		error = getError("date=&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
 		assertTrue(error, !error.startsWith("</div>"));
 	}
 	@Test
 	public void testAssureFormBoxes() throws IOException {
-		String error = getError("date=2000-01-01&location=testcase&certify=0&rules=1&CCAAgreed=1&assertion=1");
+		String error = getError("date=2000-01-01&location=testcase&certify=0&rules=1&CCAAgreed=1&assertion=1&points=10");
 		assertTrue(error, !error.startsWith("</div>"));
-		error = getError("date=2000-01-01&location=testcase&certify=1&rules=&CCAAgreed=1&assertion=1");
+		error = getError("date=2000-01-01&location=testcase&certify=1&rules=&CCAAgreed=1&assertion=1&points=10");
 		assertTrue(error, !error.startsWith("</div>"));
-		error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=a&assertion=1");
+		error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=a&assertion=1&points=10");
 		assertTrue(error, !error.startsWith("</div>"));
-		error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=z");
+		error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=z&points=10");
 		assertTrue(error, !error.startsWith("</div>"));
 	}
 	private String getError(String query) throws MalformedURLException,
