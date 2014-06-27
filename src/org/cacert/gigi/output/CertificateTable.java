@@ -28,7 +28,7 @@ public class CertificateTable implements Outputable {
 			cells.add(new Cell("Revoked", true));
 			cells.add(new Cell("Expires", true));
 			cells.add(new Cell("Login", true));
-			cells.add(new Cell("Comment *", true, "colspan=\"2\""));
+			cells.add(new Cell("Comment *", true, 2));
 			rs.beforeFirst();
 			while (rs.next()) {
 				// out.println(rs.getString("id"));
@@ -45,18 +45,7 @@ public class CertificateTable implements Outputable {
 				cells.add(new Cell(rs.getString("a"), false));
 				cells.add(new Cell(rs.getString("a"), false));
 			}
-			DataTable t = new DataTable() {
-
-				@Override
-				protected LinkedList<Cell> getTableContent() {
-					return cells;
-				}
-
-				@Override
-				protected int getColoumnCount() {
-					return 8;
-				}
-			};
+			DataTable t = new DataTable(9, cells);
 			t.output(out, l, vars);
 			out.println("</form>");
 		} catch (SQLException e) {
