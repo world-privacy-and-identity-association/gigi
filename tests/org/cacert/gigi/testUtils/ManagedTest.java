@@ -169,8 +169,7 @@ public class ManagedTest {
 		String d = IOUtils.readURL(uc);
 		return d;
 	}
-	public String fetchStartErrorMessage(String query) throws IOException {
-		String d = runRegister(query);
+	public String fetchStartErrorMessage(String d) throws IOException {
 		String formFail = "<div class='formError'>";
 		int idx = d.indexOf(formFail);
 		assertNotEquals(-1, idx);
@@ -188,7 +187,7 @@ public class ManagedTest {
 					+ "&pword1=" + URLEncoder.encode(password, "UTF-8")
 					+ "&pword2=" + URLEncoder.encode(password, "UTF-8")
 					+ "&day=1&month=1&year=1910&cca_agree=1";
-			String data = fetchStartErrorMessage(query);
+			String data = fetchStartErrorMessage(runRegister(query));
 			assertTrue(data, data.startsWith("</div>"));
 		} catch (UnsupportedEncodingException e) {
 			throw new Error(e);

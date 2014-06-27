@@ -149,7 +149,7 @@ public class RegisterPageTest extends ManagedTest {
 		}
 	}
 	private void testFailedForm(String query) throws IOException {
-		String startError = fetchStartErrorMessage(query);
+		String startError = fetchStartErrorMessage(runRegister(query));
 		assertTrue(startError, !startError.startsWith("</div>"));
 	}
 
