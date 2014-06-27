@@ -20,12 +20,13 @@ public class User {
 		this.id = id;
 		try {
 			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
-					"SELECT `fname`, `lname`, `dob` FROM `users` WHERE id=?");
+							"SELECT `fname`, `lname`, `dob`, `email` FROM `users` WHERE id=?");
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
 				name = new Name(rs.getString(1), rs.getString(2));
 				dob = rs.getDate(3);
+				email = rs.getString(4);
 			}
 			rs.close();
 		} catch (SQLException e) {
