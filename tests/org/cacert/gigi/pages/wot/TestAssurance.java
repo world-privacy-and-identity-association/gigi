@@ -6,10 +6,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.cacert.gigi.IOUtils;
+import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,6 +75,21 @@ public class TestAssurance extends ManagedTest {
 	public void testAssureForm() throws IOException {
 		String error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
 		assertTrue(error, error.startsWith("</div>"));
+	}
+
+	@Test
+	public void testAssureFormRace() throws IOException, SQLException {
+		URLConnection uc = buildupAssureFormConnection();
+		PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+				"UPDATE `users` SET email='changed' WHERE id=?");
+		ps.setInt(1, assuree);
+		ps.execute();
+		uc.getOutputStream()
+				.write(("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10")
+						.getBytes());
+		uc.getOutputStream().flush();
+		String error = fetchStartErrorMessage(IOUtils.readURL(uc));
+		assertTrue(error, !error.startsWith("</div>"));
 	}
 	@Test
 	public void testAssureFormFuture() throws IOException {
