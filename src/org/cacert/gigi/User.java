@@ -19,7 +19,9 @@ public class User {
 	public User(int id) {
 		this.id = id;
 		try {
-			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+			PreparedStatement ps = DatabaseConnection
+					.getInstance()
+					.prepare(
 							"SELECT `fname`, `lname`, `dob`, `email` FROM `users` WHERE id=?");
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
@@ -100,4 +102,58 @@ public class User {
 		System.out.println("Inserted: " + id);
 	}
 
+	public boolean canAssure() throws SQLException {
+		if (getAssurancePoints() < 100) {
+			return false;
+		}
+
+		return hasPassedCATS();
+
+	}
+	public boolean hasPassedCATS() throws SQLException {
+		PreparedStatement query = DatabaseConnection.getInstance().prepare(
+				"SELECT 1 FROM `cats_passed` where `user_id`=?");
+		query.setInt(1, id);
+		ResultSet rs = query.executeQuery();
+		if (rs.next()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	public int getAssurancePoints() throws SQLException {
+		PreparedStatement query = DatabaseConnection
+				.getInstance()
+				.prepare(
+						"SELECT sum(points) FROM `notary` where `to`=? AND `deleted`=0");
+		query.setInt(1, id);
+		ResultSet rs = query.executeQuery();
+		int points = 0;
+		if (rs.next()) {
+			points = rs.getInt(1);
+		}
+		rs.close();
+		return points;
+	}
+	public int getExperiencePoints() throws SQLException {
+		PreparedStatement query = DatabaseConnection.getInstance().prepare(
+				"SELECT count(*) FROM `notary` where `from`=? AND `deleted`=0");
+		query.setInt(1, id);
+		ResultSet rs = query.executeQuery();
+		int points = 0;
+		if (rs.next()) {
+			points = rs.getInt(1) * 2;
+		}
+		rs.close();
+		return points;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof User)) {
+			return false;
+		}
+		User s = (User) obj;
+		return name.equals(s.name) && email.equals(s.email)
+				&& dob.equals(s.dob);
+	}
 }
