@@ -119,3 +119,51 @@ CREATE TABLE `emailcerts` (
   KEY `stats_emailcerts_expire` (`expire`),
   KEY `emailcrt` (`crt_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `notary`;
+CREATE TABLE `notary` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `from` int(11) NOT NULL DEFAULT '0',
+  `to` int(11) NOT NULL DEFAULT '0',
+  `awarded` int(3) NOT NULL DEFAULT '0',
+  `points` int(3) NOT NULL DEFAULT '0',
+  `method` enum('Face to Face Meeting','Trusted Third Parties','Thawte Points Transfer','Administrative Increase','CT Magazine - Germany','Temporary Increase','Unknown','TOPUP','TTP-Assisted') NOT NULL DEFAULT 'Face to Face Meeting',
+  `location` varchar(255) NOT NULL DEFAULT '',
+  `date` varchar(255) NOT NULL DEFAULT '',
+  `when` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `expire` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `sponsor` int(11) NOT NULL DEFAULT '0',
+  `deleted` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`),
+  KEY `from` (`from`),
+  KEY `to` (`to`),
+  KEY `from_2` (`from`),
+  KEY `to_2` (`to`),
+  KEY `stats_notary_when` (`when`),
+  KEY `stats_notary_method` (`method`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+
+
+DROP TABLE IF EXISTS `cats_passed`;
+CREATE TABLE `cats_passed` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `variant_id` int(11) NOT NULL,
+  `pass_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `test_passed` (`user_id`,`variant_id`,`pass_date`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+
+# --------------------------------------------------------
+
+#
+# Table structure for table `cats_type`
+#
+
+DROP TABLE IF EXISTS `cats_type`;
+CREATE TABLE `cats_type` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type_text` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `type_text` (`type_text`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
