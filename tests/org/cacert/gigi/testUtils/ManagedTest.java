@@ -239,7 +239,7 @@ public class ManagedTest {
 			ps.execute();
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new Error(e);
 		}
 		return uid;
 	}
