@@ -156,4 +156,24 @@ public class User {
 		return name.equals(s.name) && email.equals(s.email)
 				&& dob.equals(s.dob);
 	}
+	public int getMaxAssurePoints() throws SQLException {
+		int exp = getExperiencePoints();
+		int points = 10;
+		if (exp >= 10) {
+			points += 5;
+		}
+		if (exp >= 20) {
+			points += 5;
+		}
+		if (exp >= 30) {
+			points += 5;
+		}
+		if (exp >= 40) {
+			points += 5;
+		}
+		if (exp >= 50) {
+			points += 5;
+		}
+		return points;
+	}
 }

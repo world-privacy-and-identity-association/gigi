@@ -27,4 +27,30 @@ public class Name implements Outputable {
 		out.print("</span>");
 		out.println("</span>");
 	}
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Name)) {
+			return false;
+		}
+		Name n = (Name) obj;
+		if (!(n.fname.equals(fname) && n.lname.equals(lname))) {
+			return false;
+		}
+		if (mname == null) {
+			if (n.mname != null) {
+				return false;
+			}
+		} else if (!mname.equals(n.mname)) {
+			return false;
+		}
+		if (suffix == null) {
+			if (n.suffix != null) {
+				return false;
+			}
+		} else if (!suffix.equals(n.suffix)) {
+			return false;
+		}
+		return true;
+
+	}
 }
