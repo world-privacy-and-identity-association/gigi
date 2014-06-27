@@ -16,7 +16,7 @@ public class DataTable implements Outputable {
 	}
 
 	public void output(PrintWriter out, Language l) {
-		int mesCells = cells.size();
+		float mesCells = cells.size();
 		for (Cell c : cells) {
 			if (c.getColSpan() > 1) {
 				mesCells += c.getColSpan();
@@ -24,7 +24,7 @@ public class DataTable implements Outputable {
 		}
 		out.println("<table align=\"center\" valign=\"middle\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" class=\"wrapper\">");
 		int cellsRendered = 0;
-		for (int i = 0; i < (mesCells / columnCount) - 1; i++) {
+		for (int i = 0; i < Math.ceil(mesCells / columnCount) - 1; i++) {
 			out.println("<tr>");
 			for (int j = 0; j < columnCount;) {
 				Cell current = cells.get(cellsRendered++);
