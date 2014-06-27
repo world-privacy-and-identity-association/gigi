@@ -20,7 +20,7 @@ import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 
 public class AssurePage extends Page {
-	public static final String PATH = "/wot/assure/*";
+	public static final String PATH = "/wot/assure";
 	public static final String SESSION = "/wot/assure/FORM";
 	DateSelector ds = new DateSelector("day", "month", "year");
 	Template t;
@@ -36,7 +36,7 @@ public class AssurePage extends Page {
 			throws IOException {
 
 		PrintWriter out = resp.getWriter();
-		String pi = req.getPathInfo().substring(PATH.length() - 2);
+		String pi = req.getPathInfo().substring(PATH.length());
 		if (pi.length() > 1) {
 			User myself = LoginPage.getUser(req);
 			int mid = Integer.parseInt(pi.substring(1));
@@ -63,12 +63,13 @@ public class AssurePage extends Page {
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		PrintWriter out = resp.getWriter();
-		String pi = req.getPathInfo().substring(PATH.length() - 2);
+		String pi = req.getPathInfo().substring(PATH.length());
 		if (pi.length() > 1) {
 			AssuranceForm form = (AssuranceForm) req.getSession().getAttribute(
 					SESSION);
 			if (form == null) {
 				out.println("No form found. This is an Error. Fill in the form again.");
+				return;
 			}
 			form.submit(out, req);
 
@@ -87,12 +88,19 @@ public class AssurePage extends Page {
 			int id = 0;
 			if (rs.next()) {
 				id = rs.getInt(1);
-			}
-			if (rs.next()) {
-				out.println("Error, ambigous user. Please contact support@cacert.org");
+				if (rs.next()) {
+					out.println("Error, ambigous user. Please contact support@cacert.org.");
+				} else {
+					resp.sendRedirect(PATH + "/" + id);
+				}
 			} else {
-				resp.sendRedirect(PATH.substring(0, PATH.length() - 2) + "/"
-						+ id);
+				out.print("<div class='formError'>");
+				out.println(translate(
+						req,
+						"I'm sorry, there was no email and date of birth matching"
+								+ " what you entered in the system. Please double check"
+								+ " your information."));
+				out.print("</div>");
 			}
 
 			rs.close();
