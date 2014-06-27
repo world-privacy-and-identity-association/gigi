@@ -2,6 +2,7 @@ package org.cacert.gigi.pages.wot;
 
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -14,6 +15,8 @@ import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.Template;
+import org.cacert.gigi.pages.LoginPage;
+import org.cacert.gigi.util.Notary;
 
 public class AssuranceForm extends Form {
 	User assuree;
@@ -82,9 +85,22 @@ public class AssuranceForm extends Form {
 			failed = true;
 		}
 		// TODO checkPoints
+		String points = req.getParameter("points");
+		if (points == null || "".equals(points)) {
+			// TODO message
+			failed = true;
+		}
 		out.println("</div>");
 		if (failed) {
 			return false;
+		}
+		try {
+			boolean success = Notary.assure(LoginPage.getUser(req), assuree,
+					Integer.parseInt(req.getParameter("points")),
+					req.getParameter("location"), req.getParameter("date"));
+			return success;
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 
 		return false;
