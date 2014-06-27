@@ -35,18 +35,5 @@ public class LoginTest extends ManagedTest {
 		huc.addRequestProperty("Cookie", cookie);
 		return huc.getResponseCode() == 200;
 	}
-	public String login(String email, String pw) throws IOException {
-		URL u = new URL("https://" + getServerName() + "/login");
-		HttpURLConnection huc = (HttpURLConnection) u.openConnection();
-		huc.setDoOutput(true);
-		OutputStream os = huc.getOutputStream();
-		String data = "username=" + URLEncoder.encode(email, "UTF-8")
-				+ "&password=" + URLEncoder.encode(pw, "UTF-8");
-		os.write(data.getBytes());
-		os.flush();
-		String headerField = huc.getHeaderField("Set-Cookie");
-		headerField = headerField.substring(0, headerField.indexOf(';'));
-		return headerField;
-	}
 
 }

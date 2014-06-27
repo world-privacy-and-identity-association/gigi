@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
@@ -230,5 +231,18 @@ public class ManagedTest {
 	static int count = 0;
 	public String createUniqueName() {
 		return "test" + System.currentTimeMillis() + "a" + (count++);
+	}
+	public String login(String email, String pw) throws IOException {
+		URL u = new URL("https://" + getServerName() + "/login");
+		HttpURLConnection huc = (HttpURLConnection) u.openConnection();
+		huc.setDoOutput(true);
+		OutputStream os = huc.getOutputStream();
+		String data = "username=" + URLEncoder.encode(email, "UTF-8")
+				+ "&password=" + URLEncoder.encode(pw, "UTF-8");
+		os.write(data.getBytes());
+		os.flush();
+		String headerField = huc.getHeaderField("Set-Cookie");
+		headerField = headerField.substring(0, headerField.indexOf(';'));
+		return headerField;
 	}
 }
