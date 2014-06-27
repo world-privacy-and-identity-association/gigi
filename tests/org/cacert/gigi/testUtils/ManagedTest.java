@@ -15,6 +15,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -193,7 +195,7 @@ public class ManagedTest {
 			throw new Error(e);
 		}
 	}
-	public void createVerifiedUser(String firstName, String lastName,
+	public int createVerifiedUser(String firstName, String lastName,
 			String email, String password) {
 		registerUser(firstName, lastName, email, password);
 		try {
@@ -203,10 +205,30 @@ public class ManagedTest {
 			URL u = new URL("https://" + getServerName() + "/verify?"
 					+ parts[1]);
 			u.openStream().close();;
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+					"SELECT id FROM users where email=?");
+			ps.setString(1, email);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				return rs.getInt(1);
+			}
+			throw new Error();
 		} catch (InterruptedException e) {
 			throw new Error(e);
 		} catch (IOException e) {
 			throw new Error(e);
+		} catch (SQLException e) {
+			throw new Error(e);
 		}
+	}
+	public int createAssuranceUser(String firstName, String lastName,
+			String email, String password) {
+		int uid = createVerifiedUser(firstName, lastName, email, password);
+		// TODO make him pass CATS and be assured for 100 points
+		return uid;
+	}
+	static int count = 0;
+	public String createUniqueName() {
+		return "test" + System.currentTimeMillis() + "a" + (count++);
 	}
 }
