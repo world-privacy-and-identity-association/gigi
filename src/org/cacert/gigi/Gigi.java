@@ -24,6 +24,7 @@ import org.cacert.gigi.pages.PolicyRedir;
 import org.cacert.gigi.pages.TestSecure;
 import org.cacert.gigi.pages.Verify;
 import org.cacert.gigi.pages.account.MailCertificates;
+import org.cacert.gigi.pages.account.MailOverview;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.pages.wot.AssurePage;
@@ -51,6 +52,8 @@ public class Gigi extends HttpServlet {
 		pages.put(MyDetails.PATH, new MyDetails());
 		pages.put(RegisterPage.PATH, new RegisterPage());
 		pages.put(PolicyRedir.PATH, new PolicyRedir());
+		pages.put(MailOverview.DEFAULT_PATH, new MailOverview(
+				"My email addresses"));
 		String templ = "";
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(
 				new FileInputStream(new File("templates/base.html"))))) {
