@@ -26,15 +26,16 @@ public class AssuranceForm extends Form {
 	public AssuranceForm(int assuree) {
 		this.assuree = new User(assuree);
 	}
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 	@Override
 	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
 		HashMap<String, Object> res = new HashMap<String, Object>();
 		res.putAll(vars);
 		res.put("name", assuree.getName());
+		res.put("dob", sdf.format(assuree.getDob()));
 		templ.output(out, l, res);
 	}
-	SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
 
 	@Override
 	public boolean submit(PrintWriter out, HttpServletRequest req) {
