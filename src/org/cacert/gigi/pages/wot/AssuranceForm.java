@@ -90,19 +90,25 @@ public class AssuranceForm extends Form {
 			// TODO message
 			failed = true;
 		}
-		out.println("</div>");
 		if (failed) {
+			out.println("</div>");
 			return false;
 		}
 		try {
 			boolean success = Notary.assure(LoginPage.getUser(req), assuree,
 					Integer.parseInt(req.getParameter("points")),
 					req.getParameter("location"), req.getParameter("date"));
+			if (!success) {
+				outputError(out, req,
+						"Assurance failed. Maybe user data changed.");
+			}
+			out.println("</div>");
 			return success;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
+		out.println("</div>");
 		return false;
 	}
 }
