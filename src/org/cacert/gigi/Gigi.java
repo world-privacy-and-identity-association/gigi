@@ -115,7 +115,7 @@ public class Gigi extends HttpServlet {
 
 	}
 	private Page getPage(String pathInfo) {
-		if (pathInfo.endsWith("/")) {
+		if (pathInfo.endsWith("/") && !pathInfo.equals("/")) {
 			pathInfo = pathInfo.substring(0, pathInfo.length() - 1);
 		}
 		Page page = pages.get(pathInfo);
