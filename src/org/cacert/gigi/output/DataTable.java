@@ -22,13 +22,13 @@ public class DataTable implements Outputable {
 				mesCells += c.getColSpan();
 			}
 		}
+		System.out.println(mesCells);
 		out.println("<table align=\"center\" valign=\"middle\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" class=\"wrapper\">");
 		int cellsRendered = 0;
-		for (int i = 0; i < mesCells / columnCount; i++) {
+		for (int i = 0; i < (mesCells / columnCount) - 1; i++) {
 			out.println("<tr>");
 			for (int j = 0; j < columnCount;) {
-				Cell current = cells.get(cellsRendered);
-				cellsRendered++;
+				Cell current = cells.get(cellsRendered++);
 				j += current.getColSpan();
 				out.println("<td " + current.getHtmlAttribs() + " >");
 				out.print(current.shouldTranslate() ? l.getTranslation(current
