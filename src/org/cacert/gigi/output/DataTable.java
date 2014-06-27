@@ -22,7 +22,6 @@ public class DataTable implements Outputable {
 				mesCells += c.getColSpan();
 			}
 		}
-		System.out.println(mesCells);
 		out.println("<table align=\"center\" valign=\"middle\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" class=\"wrapper\">");
 		int cellsRendered = 0;
 		for (int i = 0; i < (mesCells / columnCount) - 1; i++) {
