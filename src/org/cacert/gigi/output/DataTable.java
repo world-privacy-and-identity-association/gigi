@@ -24,10 +24,12 @@ public class DataTable implements Outputable {
 			}
 		}
 		out.println("<table align=\"center\" valign=\"middle\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" class=\"wrapper\">");
+		int cellsRendered = 0;
 		for (int i = 0; i < mesCells / columnCount; i++) {
 			out.println("<tr>");
 			for (int j = 0; j < columnCount;) {
-				Cell current = cells.get((i * columnCount) + j);
+				Cell current = cells.get(cellsRendered);
+				cellsRendered++;
 				j += current.getColSpan();
 				out.println("<td " + current.getHtmlAttribs() + " >");
 				out.print(current.shouldTranslate() ? l.getTranslation(current
@@ -53,6 +55,9 @@ public class DataTable implements Outputable {
 			this.text = text;
 			this.translate = translate;
 			this.htmlAttribs = htmlAttribs;
+			if (colSpan > 1) {
+				this.htmlAttribs += " colspan=\"" + colSpan + "\"";
+			}
 			this.colSpan = colSpan;
 		}
 
