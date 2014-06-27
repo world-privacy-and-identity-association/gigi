@@ -74,7 +74,7 @@ public class TestAssurance extends ManagedTest {
 		assertTrue(error, error.startsWith("</div>"));
 	}
 	@Test
-	public void testAssureFormFufure() throws IOException {
+	public void testAssureFormFuture() throws IOException {
 		SimpleDateFormat sdf = new SimpleDateFormat("YYYY");
 		int year = Integer.parseInt(sdf.format(new Date(System
 				.currentTimeMillis()))) + 2;
