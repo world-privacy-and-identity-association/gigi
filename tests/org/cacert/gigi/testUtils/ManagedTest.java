@@ -224,7 +224,23 @@ public class ManagedTest {
 	public int createAssuranceUser(String firstName, String lastName,
 			String email, String password) {
 		int uid = createVerifiedUser(firstName, lastName, email, password);
-		// TODO make him pass CATS and be assured for 100 points
+		try {
+			PreparedStatement ps = DatabaseConnection
+					.getInstance()
+					.prepare(
+							"INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?");
+			ps.setInt(1, uid);
+			ps.setInt(2, 0);
+			ps.execute();
+			ps = DatabaseConnection.getInstance().prepare(
+					"INSERT INTO `notary` SET `from`=?, `to`=?, points='100'");
+			ps.setInt(1, uid);
+			ps.setInt(2, uid);
+			ps.execute();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return uid;
 	}
 	static int count = 0;
