@@ -11,9 +11,11 @@ import org.cacert.gigi.Language;
 
 public class Template implements Outputable {
 	String[] contents;
+	Outputable[] vars;
 
 	public Template(Reader r) {
 		LinkedList<String> splitted = new LinkedList<String>();
+		LinkedList<Outputable> commands = new LinkedList<Outputable>();
 		Scanner sc = new Scanner(r);
 		Pattern p1 = Pattern.compile("([^<]|<[^?])*<\\?");
 		Pattern p2 = Pattern.compile("([^<]|<[^?])*\\?>");
@@ -26,7 +28,7 @@ public class Template implements Outputable {
 			splitted.add(s1);
 			String s2 = sc.findWithinHorizon(p2, 0);
 			s2 = s2.substring(0, s2.length() - 2);
-			splitted.add(s2);
+			commands.add(parseCommand(s2));
 		}
 		sc.useDelimiter("\0");
 		if (sc.hasNext()) {
@@ -34,34 +36,62 @@ public class Template implements Outputable {
 		}
 		sc.close();
 		contents = splitted.toArray(new String[splitted.size()]);
+		vars = commands.toArray(new Outputable[commands.size()]);
+	}
+	private Outputable parseCommand(String s2) {
+		if (s2.startsWith("=_")) {
+			final String raw = s2.substring(2);
+			return new Outputable() {
+
+				@Override
+				public void output(PrintWriter out, Language l,
+						Map<String, Object> vars) {
+					out.print(l.getTranslation(raw));
+				}
+			};
+		} else if (s2.startsWith("=$")) {
+			final String raw = s2.substring(2);
+			return new Outputable() {
+
+				@Override
+				public void output(PrintWriter out, Language l,
+						Map<String, Object> vars) {
+					outputVar(out, l, vars, raw);
+				}
+			};
+		} else if (s2.startsWith("=s,")) {
+			String command = s2.substring(3);
+			final LinkedList<String> store = new LinkedList<String>();
+			while (command.startsWith("$")) {
+				int idx = command.indexOf(",");
+				store.add(command.substring(0, idx));
+				command = command.substring(idx + 1);
+			}
+			final String text = command;
+			return new Outputable() {
+
+				@Override
+				public void output(PrintWriter out, Language l,
+						Map<String, Object> vars) {
+					String[] parts = l.getTranslation(text).split("%s");
+					String[] myvars = store.toArray(new String[store.size()]);
+					out.print(parts[0]);
+					for (int j = 1; j < parts.length; j++) {
+						outputVar(out, l, vars, myvars[j - 1].substring(1));
+						out.print(parts[j]);
+					}
+				}
+			};
+		} else {
+			System.out.println("Unknown processing instruction: " + s2);
+		}
+		return null;
 	}
 	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-		LinkedList<String> store = new LinkedList<String>();
 		for (int i = 0; i < contents.length; i++) {
-			if (i % 2 == 0) {
-				out.print(contents[i]);
-			} else if (contents[i].startsWith("=_")) {
-				out.print(l.getTranslation(contents[i].substring(2)));
-			} else if (contents[i].startsWith("=$")) {
-				outputVar(out, l, vars, contents[i].substring(2));
-			} else if (contents[i].startsWith("=s,")) {
-				String command = contents[i].substring(3);
-				store.clear();
-				while (command.startsWith("$")) {
-					int idx = command.indexOf(",");
-					store.add(command.substring(0, idx));
-					command = command.substring(idx + 1);
-				}
-				String[] parts = l.getTranslation(command).split("%s");
-				String[] myvars = store.toArray(new String[store.size()]);
-				out.print(parts[0]);
-				for (int j = 1; j < parts.length; j++) {
-					outputVar(out, l, vars, myvars[j - 1].substring(1));
-					out.print(parts[j]);
-				}
-			} else {
-				System.out.println("Unknown processing instruction: "
-						+ contents[i]);
+			out.print(contents[i]);
+			if (i < this.vars.length) {
+				this.vars[i].output(out, l, vars);
 			}
 		}
 	}
