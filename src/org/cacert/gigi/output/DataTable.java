@@ -15,8 +15,7 @@ public class DataTable implements Outputable {
 		this.cells = content;
 	}
 
-	@Override
-	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+	public void output(PrintWriter out, Language l) {
 		int mesCells = cells.size();
 		for (Cell c : cells) {
 			if (c.getColSpan() > 1) {
@@ -85,6 +84,11 @@ public class DataTable implements Outputable {
 			return htmlAttribs;
 		}
 
+	}
+
+	@Override
+	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+		output(out, l);
 	}
 
 }
