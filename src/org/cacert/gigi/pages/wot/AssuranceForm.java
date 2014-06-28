@@ -36,6 +36,11 @@ public class AssuranceForm extends Form {
 		HashMap<String, Object> res = new HashMap<String, Object>();
 		res.putAll(vars);
 		res.put("name", assuree.getName());
+		try {
+			res.put("maxpoints", assuree.getMaxAssurePoints());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		res.put("dob", sdf.format(assuree.getDob()));
 		templ.output(out, l, res);
 	}
