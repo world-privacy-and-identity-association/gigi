@@ -61,7 +61,7 @@ public class Gigi extends HttpServlet {
 				new FileInputStream(new File("templates/base.html"))))) {
 			String tmp;
 			while ((tmp = reader.readLine()) != null) {
-				templ += tmp;
+				templ += tmp + "\n";
 			}
 			baseTemplate = templ.split("\\$content\\$");
 		} catch (Exception e) {
