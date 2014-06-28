@@ -27,14 +27,22 @@ public class DatabaseManager {
 		Connection conn = DriverManager
 				.getConnection(args[1], args[2], args[3]);
 		Statement stmt = conn.createStatement();
-		String sql = readFile(new File("doc/tableStructure.sql"));
+		addFile(stmt, new File("doc/tableStructure.sql"));
+		File localData = new File("doc/sampleData.sql");
+		if (localData.exists()) {
+			addFile(stmt, localData);
+		}
+		stmt.executeBatch();
+		stmt.close();
+	}
+	private static void addFile(Statement stmt, File f) throws IOException,
+			SQLException {
+		String sql = readFile(f);
 		String[] stmts = sql.split(";");
 		for (String string : stmts) {
 			if (!string.trim().equals("")) {
 				stmt.addBatch(string);
 			}
 		}
-		stmt.executeBatch();
-		stmt.close();
 	}
 }
