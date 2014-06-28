@@ -2,16 +2,34 @@
 <html>
 <head>
 <title>$title$</title>
-<link rel="stylesheet" href="/static/default.css"
-	type="text/css">
+<link rel="stylesheet" href="/static/default.css" type="text/css">
+<script language="javascript" type="text/javascript">
+	function explode(e) {
+		if (document.getElementById(e).style.display == 'none') {
+			document.getElementById(e).style.display = 'block';
+		} else {
+			document.getElementById(e).style.display = 'none';
+		}
+	}
+
+	function hideall() {
+		var Nodes = document.getElementsByTagName('ul');
+		var max = Nodes.length;
+		for (var i = 0; i < max; i++) {
+			var nodeObj = Nodes.item(i);
+			if (nodeObj.className == "menu" && nodeObj.id != "recom") {
+				nodeObj.style.display = 'none';
+			}
+		}
+	}
+</script>
 </head>
-<body>
+<body onload="hideall();">
 	<div id="pagecell1">
 		<div id="pageName">
 			<br>
 			<div id="pageLogo">
-				<a href="/"><img
-					src="https://www.cacert.org/images/cacert4.png"
+				<a href="/"><img src="https://www.cacert.org/images/cacert4.png"
 					alt="CAcert.org logo" border="0"></a>
 			</div>
 			<div id="googlead">
