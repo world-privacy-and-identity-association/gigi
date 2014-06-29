@@ -73,6 +73,11 @@ public class Gigi extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
+		addXSSHeaders(resp);
+		if (req.getHeader("Origin") != null) {
+			resp.getWriter().println("No cross domain access allowed.");
+			return;
+		}
 		HttpSession hs = req.getSession();
 		if (req.getPathInfo() != null && req.getPathInfo().equals("/logout")) {
 			if (hs != null) {
@@ -142,5 +147,12 @@ public class Gigi extends HttpServlet {
 		in = in.replaceAll("\\$year\\$", year + "");
 		return in;
 	}
+	public static void addXSSHeaders(HttpServletResponse hsr) {
+		hsr.addHeader("Access-Control-Allow-Origin",
+				"http://cacert.org https://localhost");
+		hsr.addHeader("Access-Control-Max-Age", "60");
+		// hsr.addHeader("Content-Security-Policy",
+		// "default-src 'self'; report-uri https://felix.dogcraft.de/report.php");
 
+	}
 }
