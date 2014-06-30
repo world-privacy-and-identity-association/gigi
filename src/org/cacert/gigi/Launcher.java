@@ -7,7 +7,6 @@ import java.util.Properties;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.TrustManagerFactory;
-
 import org.cacert.gigi.natives.SetUID;
 import org.cacert.gigi.util.CipherInfo;
 import org.eclipse.jetty.server.Connector;
@@ -21,6 +20,7 @@ import org.eclipse.jetty.server.SessionManager;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -71,12 +71,16 @@ public class Launcher {
 		return servlet;
 	}
 
-	private static ContextHandler generateStaticContext() {
-		ResourceHandler rh = new ResourceHandler();
+	private static Handler generateStaticContext() {
+		final ResourceHandler rh = new ResourceHandler();
 		rh.setResourceBase("static");
+		HandlerWrapper hw = new PolicyRedirector();
+		hw.setHandler(rh);
+
 		ContextHandler ch = new ContextHandler();
-		ch.setHandler(rh);
 		ch.setContextPath("/static");
+		ch.setHandler(hw);
+
 		return ch;
 	}
 
