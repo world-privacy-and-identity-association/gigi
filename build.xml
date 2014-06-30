@@ -82,16 +82,16 @@
 	</target>
 
 	<target depends="test,native" name="bundle">
-		<zip destfile="gigi-linux_amd64.zip" basedir="." includes="gigi.jar,native/*.so,doc/tableStructure.sql,static,templates"/>
+		<zip destfile="gigi-linux_amd64.zip" basedir="." includes="gigi.jar,native/*.so,doc/tableStructure.sql,static/**,templates/**"/>
 	</target>
 	<target name="static-bundle">
-		<tar destfile="static.tar.gz" compression="gzip" basedir="." includes="doc/tableStructure.sql,static,templates"/>
+		<tar destfile="static.tar.gz" compression="gzip" basedir="." includes="doc/tableStructure.sql,static/**,templates/**"/>
 	</target>
 	
 	<target name="all" depends="bundle,static-bundle"/>
 
 	
-    <target depends="init" name="build-project-test">
+    <target depends="init,build-project" name="build-project-test">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bintest" includeantruntime="false" source="${source}" target="${target}">
             <src path="tests"/>
