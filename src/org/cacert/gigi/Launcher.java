@@ -56,7 +56,7 @@ public class Launcher {
 		if (connector.getPort() <= 1024
 				&& !System.getProperty("os.name").toLowerCase().contains("win")) {
 			SetUID uid = new SetUID();
-			if (!uid.setUid(-2, -2).getSuccess()) {
+			if (!uid.setUid(65536 - 2, 65536 - 2).getSuccess()) {
 				Log.getLogger(Launcher.class).warn("Couldn't set uid!");
 			}
 		}
