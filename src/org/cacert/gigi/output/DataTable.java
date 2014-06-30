@@ -29,7 +29,9 @@ public class DataTable implements Outputable {
 			for (int j = 0; j < columnCount;) {
 				Cell current = cells.get(cellsRendered++);
 				j += current.getColSpan();
-				out.println("<td " + current.getHtmlAttribs() + " >");
+				out.println("<td ");
+				out.print(current.getHtmlAttribs());
+				out.print(" >");
 				out.print(current.shouldTranslate() ? l.getTranslation(current
 						.getText()) : current.getText());
 				out.print("</td>");
