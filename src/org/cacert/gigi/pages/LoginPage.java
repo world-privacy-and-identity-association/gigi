@@ -37,8 +37,7 @@ public class LoginPage extends Page {
 	@Override
 	public boolean beforeTemplate(HttpServletRequest req,
 			HttpServletResponse resp) throws IOException {
-		HttpSession hs = req.getSession();
-		if (hs.getAttribute("loggedin") == null) {
+		if (req.getSession().getAttribute("loggedin") == null) {
 			X509Certificate[] cert = (X509Certificate[]) req
 					.getAttribute("javax.servlet.request.X509Certificate");
 			if (cert != null && cert[0] != null) {
@@ -49,7 +48,7 @@ public class LoginPage extends Page {
 			}
 		}
 
-		if (hs.getAttribute("loggedin") != null) {
+		if (req.getSession().getAttribute("loggedin") != null) {
 			String s = (String) req.getSession().getAttribute(LOGIN_RETURNPATH);
 			if (s != null) {
 				if (!s.startsWith("/")) {
@@ -79,6 +78,7 @@ public class LoginPage extends Page {
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
 				if (PasswordHash.verifyHash(pw, rs.getString(1))) {
+					req.getSession().invalidate();
 					HttpSession hs = req.getSession();
 					hs.setAttribute(LOGGEDIN, true);
 					hs.setAttribute(USER, new User(rs.getInt(2)));
@@ -105,6 +105,7 @@ public class LoginPage extends Page {
 			ps.setString(1, serial);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
+				req.getSession().invalidate();
 				HttpSession hs = req.getSession();
 				hs.setAttribute(LOGGEDIN, true);
 				hs.setAttribute(USER, new User(rs.getInt(1)));
