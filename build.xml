@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project basedir="." default="build" name="cacert-gigi">
+<project basedir="." default="all" name="cacert-gigi">
     <property environment="env"/>
     <property name="junit.output.dir" value="junit"/>
     <property name="debuglevel" value="source,lines,vars"/>
@@ -60,8 +60,7 @@
         <delete dir="bin"/>
     </target>
     <target depends="clean" name="cleanall"/>
-    <target depends="build-subprojects,build-project" name="build"/>
-    <target name="build-subprojects"/>
+    <target depends="build-project, native" name="build"/>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
@@ -73,6 +72,25 @@
             <classpath refid="cacert-gigi.classpath"/>
         </javac>
     </target>
+	
+	<target name="native">
+		<exec executable="make" dir="natives"/>
+	</target>
+	
+	<target depends="build" name="pack">
+		<jar destfile="gigi.jar" basedir="bin" manifest="Gigi.MF"/>
+	</target>
+
+	<target depends="test,native" name="bundle">
+		<zip destfile="gigi-linux_amd64.zip" basedir="." includes="gigi.jar,native/*.so,doc/tableStructure.sql,static,templates"/>
+	</target>
+	<target name="static-bundle">
+		<tar destfile="static.tar.gz" compression="gzip" basedir="." includes="doc/tableStructure.sql,static,templates"/>
+	</target>
+	
+	<target name="all" depends="bundle,static-bundle"/>
+
+	
     <target depends="init" name="build-project-test">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bintest" includeantruntime="false" source="${source}" target="${target}">
@@ -80,18 +98,11 @@
             <classpath refid="cacert-gigi.test.classpath"/>
         </javac>
     </target>
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target name="FetchLocales">
+	<target name="FetchLocales">
         <java classname="org.cacert.gigi.util.FetchLocales" failonerror="true" fork="yes">
             <classpath refid="cacert-gigi.classpath"/>
         </java>
     </target>
-    <target name="Launcher">
-        <java classname="org.cacert.gigi.Launcher" failonerror="true" fork="yes">
-            <classpath refid="cacert-gigi.classpath"/>
-        </java>
-    </target>
-    
     <target name="check-generateKeys">
         <available file="config/keystore.pkcs12" property="keystore.present"/>
     </target>
@@ -101,7 +112,7 @@
             <arg value="-noprompt"/>
         </exec>
     </target>
-    <target name="test" depends="build-project-test,generateKeys,FetchLocales">
+    <target name="test" depends="build-project-test,generateKeys,FetchLocales,pack">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">
             <formatter type="xml"/>
