@@ -4,7 +4,7 @@ Before you start using you might want to:
 - create a truststore for the server (scripts/generateTruststore.sh)
 
 - download locales (util/ org.cacert.gigi.util.FetchLocales)
-- write your sql connection properties: config/sql.properties.template -> config/sql.properties
+- write your sql connection properties: config/gigi.properties.template -> config/gigi.properties
 - add the corresponding jdbc connector to your path.
 
 - on unix-like systems: to securely run on privileged ports <= 1024 build the native setuid library (run the makefile in natives/).
