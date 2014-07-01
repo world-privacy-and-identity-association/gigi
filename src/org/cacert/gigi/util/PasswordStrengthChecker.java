@@ -9,7 +9,7 @@ public class PasswordStrengthChecker {
 	static Pattern lower = Pattern.compile("[a-z]");
 	static Pattern upper = Pattern.compile("[A-Z]");
 	static Pattern whitespace = Pattern.compile("\\s");
-	static Pattern special = Pattern.compile("\\W");
+	static Pattern special = Pattern.compile("(?!\\s)\\W");
 	private PasswordStrengthChecker() {
 	}
 	private static int checkpwlight(String pw) {
