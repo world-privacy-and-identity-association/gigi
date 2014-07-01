@@ -1,12 +1,14 @@
 package org.cacert.gigi.util;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Properties;
 
 public class DatabaseManager {
 	public static String readFile(File f) throws IOException {
@@ -14,6 +16,13 @@ public class DatabaseManager {
 	}
 	public static void main(String[] args) throws SQLException,
 			ClassNotFoundException, IOException {
+		if (args.length == 0) {
+			Properties p = new Properties();
+			p.load(new FileReader("config/gigi.properties"));
+			args = new String[]{p.getProperty("sql.driver"),
+					p.getProperty("sql.url"), p.getProperty("sql.user"),
+					p.getProperty("sql.password")};
+		}
 		if (args.length < 4) {
 			System.err
 					.println("Usage: com.mysql.jdbc.Driver jdbc:mysql://localhost/cacert user password");
