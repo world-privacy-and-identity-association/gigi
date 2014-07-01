@@ -1,6 +1,7 @@
 host=127.0.0.1
 port=443
-emailProvider=org.cacert.gigi.email.Sendmail
+#emailProvider=org.cacert.gigi.email.Sendmail
+emailProvider=org.cacert.gigi.email.CommandlineEmailProvider
 sql.driver=com.mysql.jdbc.Driver
 sql.url=jdbc:mysql://
 sql.user=
