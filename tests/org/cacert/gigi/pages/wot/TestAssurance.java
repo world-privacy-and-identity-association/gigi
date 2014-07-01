@@ -11,8 +11,8 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.cacert.gigi.IOUtils;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Before;
 import org.junit.Test;

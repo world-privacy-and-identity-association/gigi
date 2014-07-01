@@ -22,8 +22,6 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.cacert.gigi.DevelLauncher;
-import org.cacert.gigi.IOUtils;
-import org.cacert.gigi.InitTruststore;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.cacert.gigi.util.DatabaseManager;

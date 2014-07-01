@@ -13,6 +13,7 @@ import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLException;
 
+import org.cacert.gigi.testUtils.InitTruststore;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
 

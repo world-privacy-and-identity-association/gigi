@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.regex.Pattern;
 
-import org.cacert.gigi.InitTruststore;
+import org.cacert.gigi.testUtils.InitTruststore;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.junit.Before;

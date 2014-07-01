@@ -1,4 +1,4 @@
-package org.cacert.gigi;
+package org.cacert.gigi.testUtils;
 
 import java.io.CharArrayWriter;
 import java.io.IOException;
