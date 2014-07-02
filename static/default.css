@@ -482,17 +482,17 @@ td.storyLeft {
 
 /************* relatedLinks styles **************/
 
-.relatedLinks {
+#pageNav div {
 	margin: 0px;
 	padding: 0px 0px 10px 10px;
 	border-bottom: 1px solid #cccccc;
 }
 
-.relatedLinks h3 {
+#pageNav div h3 {
 	padding: 10px 0px 2px 0px;
 }
 
-.relatedLinks a {
+#pageNav div a {
 	display: block;
 }
 
@@ -728,4 +728,7 @@ div.footerbar {
 }
 
 .accountdetail.suffix {
+}
+ul.menu.hidden{
+	display: none;
 }

@@ -1,30 +1,11 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>$title$</title>
 <link rel="stylesheet" href="/static/default.css" type="text/css">
-<script language="javascript" type="text/javascript">
-	function explode(e) {
-		if (document.getElementById(e).style.display == 'none') {
-			document.getElementById(e).style.display = 'block';
-		} else {
-			document.getElementById(e).style.display = 'none';
-		}
-	}
-
-	function hideall() {
-		var Nodes = document.getElementsByTagName('ul');
-		var max = Nodes.length;
-		for (var i = 0; i < max; i++) {
-			var nodeObj = Nodes.item(i);
-			if (nodeObj.className == "menu" && nodeObj.id != "recom") {
-				nodeObj.style.display = 'none';
-			}
-		}
-	}
-</script>
+<script src="/static/menu.js"></script>
 </head>
-<body onload="hideall();">
+<body>
 	<div id="pagecell1">
 		<div id="pageName">
 			<br>
@@ -37,13 +18,13 @@
 			</div>
 		</div>
 		<div id="pageNav">
-			<div class="relatedLinks">
+			<div>
 				<h3>CAcert.org beitreten</h3>
 				<a href="/register">Beitreten</a> <a
 					href="/policy/CAcertCommunityAgreement.php">Vereinbarung der
 					Gemeinschaft (Community Agreement)</a> <a href="/index.php?id=3">Stammzertifikat</a>
 			</div>
-			<div class="relatedLinks">
+			<div>
 				<h3 class="pointer">Mein Konto</h3>
 				<a href="/login">Anmelden mit
 					Kennwort</a> <a href="">Kennwort
@@ -52,9 +33,9 @@
 					im Net-Cafe</a> <a href="/login">Anmelden
 					mit Zertifikat</a>
 			</div>
-			<div class="relatedLinks">
-				<h3 class="pointer" onclick="explode('misc')">+ Über CAcert.org</h3>
-				<ul class="menu" id="misc" style="display: none;">
+			<div>
+				<h3 class="pointer">+ Über CAcert.org</h3>
+				<ul class="menu hidden" id="misc">
 					<li><a href="http://blog.cacert.org/">CAcert-Nachrichten</a></li>
 					<li><a href="http://wiki.CAcert.org/">Wiki-Dokumentation</a></li>
 					<li><a href="/policy/">Richtlinien</a></li>
@@ -68,9 +49,9 @@
 				</ul>
 			</div>
 
-			<div class="relatedLinks">
-				<h3 class="pointer" onclick="explode('trans')">+ Übersetzungen</h3>
-				<ul class="menu" id="trans" style="display: none;">
+			<div>
+				<h3 class="pointer">+ Übersetzungen</h3>
+				<ul class="menu hidden" id="trans">
 					<li><a href="/index.php?id=0&amp;lang=ar">العربية</a></li>
 					<li><a href="/index.php?id=0&amp;lang=bg">Български</a></li>
 					<li><a href="/index.php?id=0&amp;lang=cs">Čeština</a></li>
@@ -97,9 +78,9 @@
 					<li><a href="/index.php?id=0&amp;lang=zh-tw">中文(臺灣)</a></li>
 				</ul>
 			</div>
-			<div class="relatedLinks">
-				<h3 class="pointer" onclick="explode('recom')">Werbung</h3>
-				<ul class="menu" id="recom"></ul>
+			<div>
+				<h3 class="pointer">Werbung</h3>
+				<ul class="menu hidden" id="recom"></ul>
 			</div>
 		</div>
 		<div id="content">
