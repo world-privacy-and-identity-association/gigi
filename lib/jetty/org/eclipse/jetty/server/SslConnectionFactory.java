@@ -27,10 +27,11 @@ import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.io.Connection;
 import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.ssl.SslConnection;
+import org.eclipse.jetty.io.ssl.SslReconfigurator;
 import org.eclipse.jetty.util.annotation.Name;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-public class SslConnectionFactory extends AbstractConnectionFactory
+public class SslConnectionFactory extends AbstractConnectionFactory implements SslReconfigurator
 {
     private final SslContextFactory _sslContextFactory;
     private final String _nextProtocol;
@@ -91,7 +92,15 @@ public class SslConnectionFactory extends AbstractConnectionFactory
 
     protected SslConnection newSslConnection(Connector connector, EndPoint endPoint, SSLEngine engine)
     {
-        return new SslConnection(connector.getByteBufferPool(), connector.getExecutor(), endPoint, engine);
+        return new SslConnection(connector.getByteBufferPool(), connector.getExecutor(), endPoint, engine, shouldRestartSSL()?this:null);
+    }
+    
+    public boolean shouldRestartSSL(){
+    	return false;
+    }
+    
+    public SSLEngine restartSSL(SSLSession sslSession){
+    	throw new UnsupportedOperationException();
     }
 
     @Override
