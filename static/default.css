@@ -732,3 +732,6 @@ div.footerbar {
 ul.menu.hidden{
 	display: none;
 }
+img{
+	border: 0;
+}
