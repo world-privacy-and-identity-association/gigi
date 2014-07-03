@@ -149,10 +149,14 @@ public class Gigi extends HttpServlet {
 		hsr.addHeader("Access-Control-Allow-Origin",
 				"http://cacert.org https://localhost");
 		hsr.addHeader("Access-Control-Max-Age", "60");
-		hsr.addHeader("Content-Security-Policy", "default-src 'self' https://"
+		hsr.addHeader("Content-Security-Policy", "default-src 'self' "//
+				+ "https://"
 				+ ServerConstants.getStaticHostNamePort()
-				+ ";frame-ancestors 'none'");
-		// ;report-uri https://felix.dogcraft.de/report.php
+				+ ";"
+				+ "frame-ancestors 'none';"//
+				+ "report-uri https://"
+				+ ServerConstants.getApiHostNamePort()
+				+ "/security/csp/report");
 
 	}
 }
