@@ -1,3 +1,5 @@
 *.crt
-jetty.csr
-jetty.key
+*.csr
+*.key
+*.pkcs12
+testca
