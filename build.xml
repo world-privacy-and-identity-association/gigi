@@ -98,7 +98,10 @@
 			<classpath refid="cacert-gigi.test.classpath"/>
 		</javac>
 	</target>
-	<target name="FetchLocales">
+	<target name="check-locale">
+		<available file="locale/de.xml" property="locale.present"/>
+	</target>
+	<target name="FetchLocales" depends="check-locale" unless="locale.present">
 		<java classname="org.cacert.gigi.util.FetchLocales" failonerror="true" fork="yes">
 			<classpath refid="cacert-gigi.classpath"/>
 		</java>

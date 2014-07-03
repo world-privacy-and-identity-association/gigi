@@ -30,6 +30,7 @@ public class FetchLocales {
 			"da", "pl", "zh_CN", "ru", "lv", "cs", "zh_TW", "el", "tr", "ar"};
 	public static void main(String[] args) throws IOException,
 			ParserConfigurationException, TransformerException {
+		System.out.println("downloading locales ...");
 		File locale = new File("locale");
 		locale.mkdir();
 
