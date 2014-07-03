@@ -81,10 +81,8 @@ public class TestEmailReciever implements Runnable {
 				} else if (type.equals("challengeAddrBox")) {
 					String email = dis.readUTF();
 					if (approveRegex.matcher(email).matches()) {
-						System.out.println("approving mbox: " + email);
 						dos.writeUTF("OK");
 					} else {
-						System.out.println("rejecting mbox: " + email);
 						dos.writeUTF("FAIL");
 					}
 					dos.flush();
