@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Map;
 
@@ -93,10 +92,10 @@ public class DateSelector implements Outputable {
 				+ ", month=" + month + ", year=" + year + "]";
 	}
 
-	public Date getDate() {
+	public java.sql.Date getDate() {
 		Calendar gc = GregorianCalendar.getInstance();
 		gc.set(year, month - 1, day);
-		return gc.getTime();
+		return new java.sql.Date(gc.getTime().getTime());
 	}
 
 }

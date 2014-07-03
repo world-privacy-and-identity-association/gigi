@@ -3,7 +3,7 @@ package org.cacert.gigi;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
+import java.sql.Date;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.util.PasswordHash;
@@ -11,7 +11,7 @@ import org.cacert.gigi.util.PasswordHash;
 public class User {
 
 	private int id;
-	Name name = new Name(null, null);
+	Name name = new Name(null, null, null, null);
 
 	Date dob;
 	String email;
@@ -22,13 +22,14 @@ public class User {
 			PreparedStatement ps = DatabaseConnection
 					.getInstance()
 					.prepare(
-							"SELECT `fname`, `lname`, `dob`, `email` FROM `users` WHERE id=?");
+							"SELECT `fname`, `lname`,`mname`, `suffix`, `dob`, `email` FROM `users` WHERE id=?");
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
-				name = new Name(rs.getString(1), rs.getString(2));
-				dob = rs.getDate(3);
-				email = rs.getString(4);
+				name = new Name(rs.getString(1), rs.getString(2),
+						rs.getString(3), rs.getString(4));
+				dob = rs.getDate(5);
+				email = rs.getString(6);
 			}
 			rs.close();
 		} catch (SQLException e) {
@@ -154,7 +155,8 @@ public class User {
 		}
 		User s = (User) obj;
 		return name.equals(s.name) && email.equals(s.email)
-				&& dob.equals(s.dob);
+				&& dob.toString().equals(s.dob.toString()); // This is due to
+															// day cutoff
 	}
 	public int getMaxAssurePoints() throws SQLException {
 		int exp = getExperiencePoints();

@@ -11,9 +11,11 @@ public class Name implements Outputable {
 	String lname;
 	String suffix;
 
-	public Name(String fname, String lname) {
+	public Name(String fname, String lname, String mname, String suffix) {
 		this.fname = fname;
 		this.lname = lname;
+		this.mname = mname;
+		this.suffix = suffix;
 	}
 
 	@Override
