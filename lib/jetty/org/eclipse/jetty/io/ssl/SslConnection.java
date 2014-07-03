@@ -83,7 +83,8 @@ public class SslConnection extends AbstractConnection
     private static final ByteBuffer __FILL_CALLED_FLUSH= BufferUtil.allocate(0);
     private static final ByteBuffer __FLUSH_CALLED_FILL= BufferUtil.allocate(0);
     private final ByteBufferPool _bufferPool;
-    private final SSLEngine _sslEngine;
+    private SSLEngine _sslEngine;
+    private final SslReconfigurator _sslFactory;
     private final DecryptedEndPoint _decryptedEndPoint;
     private ByteBuffer _decryptedInput;
     private ByteBuffer _encryptedInput;
@@ -102,11 +103,16 @@ public class SslConnection extends AbstractConnection
 
     public SslConnection(ByteBufferPool byteBufferPool, Executor executor, EndPoint endPoint, SSLEngine sslEngine)
     {
+    	this(byteBufferPool, executor, endPoint, sslEngine, null);
+    }
+    public SslConnection(ByteBufferPool byteBufferPool, Executor executor, EndPoint endPoint, SSLEngine sslEngine, SslReconfigurator fact)
+    {
         // This connection does not execute calls to onfillable, so they will be called by the selector thread.
         // onfillable does not block and will only wakeup another thread to do the actual reading and handling.
         super(endPoint, executor, !EXECUTE_ONFILLABLE);
         this._bufferPool = byteBufferPool;
         this._sslEngine = sslEngine;
+        this._sslFactory = fact;
         this._decryptedEndPoint = newDecryptedEndPoint();
     }
 
@@ -246,6 +252,7 @@ public class SslConnection extends AbstractConnection
         private boolean _cannotAcceptMoreAppDataToFlush;
         private boolean _handshaken;
         private boolean _underFlown;
+        private boolean _peeking = _sslFactory != null;
 
         private final Callback _writeCallback = new Callback()
         {
@@ -480,7 +487,7 @@ public class SslConnection extends AbstractConnection
                 // We will need a network buffer
                 if (_encryptedInput == null)
                     _encryptedInput = _bufferPool.acquire(_sslEngine.getSession().getPacketBufferSize(), _encryptedDirectBuffers);
-                else
+                else if(!_peeking)
                     BufferUtil.compact(_encryptedInput);
 
                 // We also need an app buffer, but can use the passed buffer if it is big enough
@@ -594,6 +601,13 @@ public class SslConnection extends AbstractConnection
                                     case NEED_TASK:
                                     {
                                         _sslEngine.getDelegatedTask().run();
+                                        if(_peeking)
+                                        {
+                                        	_sslEngine = _sslFactory.restartSSL(_sslEngine.getHandshakeSession());
+                                        	_encryptedInput.position(0);
+                                        	_peeking = false;
+                                        	continue decryption;
+                                        }
                                         continue;
                                     }
                                     case NEED_WRAP:
