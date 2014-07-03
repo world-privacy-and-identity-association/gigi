@@ -12,6 +12,9 @@ mailPort=8473
 
 
 # ==== ALL ===
+name.static=static.cacert.local
+name.secure=secure.cacert.local
+name.www=www.cacert.local
 sql.driver=com.mysql.jdbc.Driver
 sql.url=jdbc:mysql://localhost:3306/cacert
 sql.user=cacert

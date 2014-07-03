@@ -41,7 +41,7 @@ public class TestEmailReciever implements Runnable {
 			return replyto;
 		}
 		public String extractLink() {
-			Pattern link = Pattern.compile("http://[^\\s]+(?=\\s)");
+			Pattern link = Pattern.compile("https?://[^\\s]+(?=\\s)");
 			Matcher m = link.matcher(getMessage());
 			m.find();
 			return m.group(0);

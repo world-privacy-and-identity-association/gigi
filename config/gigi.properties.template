@@ -1,4 +1,7 @@
 host=127.0.0.1
+name.static=static.cacert.local
+name.secure=secure.cacert.local
+name.www=www.cacert.local
 port=443
 #emailProvider=org.cacert.gigi.email.Sendmail
 emailProvider=org.cacert.gigi.email.CommandlineEmailProvider

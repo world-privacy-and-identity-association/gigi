@@ -84,4 +84,7 @@ public class GigiConfig {
 		ks1.load(new ByteArrayInputStream(cacerts), truststorepw);
 		return ks1;
 	}
+	public String getPrivateStorePw() {
+		return new String(keystorpw);
+	}
 }

@@ -27,7 +27,7 @@ public class RegisterPageTest extends ManagedTest {
 		registerUser("ab", "b", "correct" + uniq + "@email.de", "ap12UI.'");
 		TestMail tm = waitForMail();
 		String link = tm.extractLink();
-		assertTrue(link, link.startsWith("http://"));
+		assertTrue(link, link.startsWith("https://"));
 	}
 	@Test
 	public void testNoFname() throws IOException {

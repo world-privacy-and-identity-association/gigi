@@ -28,6 +28,7 @@ import org.cacert.gigi.pages.account.MailOverview;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.pages.wot.AssurePage;
+import org.cacert.gigi.util.ServerConstants;
 import org.eclipse.jetty.util.log.Log;
 
 public class Gigi extends HttpServlet {
@@ -149,8 +150,9 @@ public class Gigi extends HttpServlet {
 		hsr.addHeader("Access-Control-Allow-Origin",
 				"http://cacert.org https://localhost");
 		hsr.addHeader("Access-Control-Max-Age", "60");
-		hsr.addHeader("Content-Security-Policy",
-				"default-src 'self' https://www.cacert.org/*;frame-ancestors 'none'");
+		hsr.addHeader("Content-Security-Policy", "default-src 'self' https://"
+				+ ServerConstants.getStaticHostNamePort()
+				+ " https://www.cacert.org/*;frame-ancestors 'none'");
 		// ;report-uri https://felix.dogcraft.de/report.php
 
 	}

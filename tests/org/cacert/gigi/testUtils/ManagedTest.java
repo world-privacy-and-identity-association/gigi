@@ -67,13 +67,19 @@ public class ManagedTest {
 						Integer.parseInt(parts[1])));
 				return;
 			}
-			url = "localhost:" + testProps.getProperty("serverPort");
+			url = testProps.getProperty("name.www") + ":"
+					+ testProps.getProperty("serverPort");
 			gigi = Runtime.getRuntime().exec(testProps.getProperty("java"));
 			DataOutputStream toGigi = new DataOutputStream(
 					gigi.getOutputStream());
 			System.out.println("... starting server");
 			Properties mainProps = new Properties();
 			mainProps.setProperty("host", "127.0.0.1");
+			mainProps.setProperty("name.secure", "sec");
+			mainProps
+					.setProperty("name.www", testProps.getProperty("name.www"));
+			mainProps.setProperty("name.static", "stat");
+
 			mainProps.setProperty("port", testProps.getProperty("serverPort"));
 			mainProps.setProperty("emailProvider",
 					"org.cacert.gigi.email.TestEmailProvider");
@@ -91,15 +97,10 @@ public class ManagedTest {
 			byte[] keystore = Files.readAllBytes(Paths
 					.get("config/keystore.pkcs12"));
 
-			DevelLauncher.writeGigiConfig(toGigi, new byte[]{},
+			DevelLauncher.writeGigiConfig(toGigi, "changeit".getBytes(),
 					"changeit".getBytes(), mainProps, cacerts, keystore);
 			toGigi.flush();
-			// TODO wait for ready
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+
 			final BufferedReader br = new BufferedReader(new InputStreamReader(
 					gigi.getErrorStream()));
 			String line;

@@ -5,6 +5,9 @@ Before you start using you might want to:
 
 - download locales (util/ org.cacert.gigi.util.FetchLocales)
 - write your sql connection properties: config/gigi.properties.template -> config/gigi.properties
+- install "hosts" entries for the hosts you entered in "gigi.properties"
+   (be aware if you change the default ones you need to change the CN given in the certificates)
+
 - add the corresponding jdbc connector to your path.
 
 - on unix-like systems: to securely run on privileged ports <= 1024 build the native setuid library (run the makefile in natives/).

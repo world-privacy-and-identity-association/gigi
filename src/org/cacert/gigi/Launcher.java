@@ -2,13 +2,20 @@ package org.cacert.gigi;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.util.List;
 import java.util.Properties;
 
+import javax.net.ssl.ExtendedSSLSession;
+import javax.net.ssl.SNIHostName;
+import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
-import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.SSLSession;
+
 import org.cacert.gigi.natives.SetUID;
 import org.cacert.gigi.util.CipherInfo;
+import org.cacert.gigi.util.ServerConstants;
+import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -30,6 +37,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 public class Launcher {
 	public static void main(String[] args) throws Exception {
 		GigiConfig conf = GigiConfig.parse(System.in);
+		ServerConstants.init(conf.getMainProps());
 
 		Server s = new Server();
 		// === SSL HTTP Configuration ===
@@ -41,8 +49,8 @@ public class Launcher {
 		https_config.addCustomizer(new SecureRequestCustomizer());
 
 		ServerConnector connector = new ServerConnector(s,
-				new SslConnectionFactory(generateSSLContextFactory(conf),
-						"http/1.1"), new HttpConnectionFactory(https_config));
+				createConnectionFactory(conf), new HttpConnectionFactory(
+						https_config));
 		connector.setHost(conf.getMainProps().getProperty("host"));
 		connector.setPort(Integer.parseInt(conf.getMainProps().getProperty(
 				"port")));
@@ -62,33 +70,95 @@ public class Launcher {
 		}
 	}
 
-	private static ServletContextHandler generateGigiContext(Properties conf) {
+	private static SslConnectionFactory createConnectionFactory(GigiConfig conf)
+			throws GeneralSecurityException, IOException {
+		final SslContextFactory sslContextFactory = generateSSLContextFactory(
+				conf, "www");
+		final SslContextFactory secureContextFactory = generateSSLContextFactory(
+				conf, "secure");
+		secureContextFactory.setNeedClientAuth(true);
+		final SslContextFactory staticContextFactory = generateSSLContextFactory(
+				conf, "static");
+		try {
+			secureContextFactory.start();
+			staticContextFactory.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new SslConnectionFactory(sslContextFactory,
+				HttpVersion.HTTP_1_1.asString()) {
+			@Override
+			public boolean shouldRestartSSL() {
+				return true;
+			}
+			@Override
+			public SSLEngine restartSSL(SSLSession sslSession) {
+				SSLEngine e2 = null;
+				if (sslSession instanceof ExtendedSSLSession) {
+					ExtendedSSLSession es = (ExtendedSSLSession) sslSession;
+					List<SNIServerName> names = es.getRequestedServerNames();
+					for (SNIServerName sniServerName : names) {
+						if (sniServerName instanceof SNIHostName) {
+							SNIHostName host = (SNIHostName) sniServerName;
+							String hostname = host.getAsciiName();
+							if (hostname.equals("www.cacert.local")) {
+								e2 = sslContextFactory.newSSLEngine();
+							} else if (hostname.equals("static.cacert.local")) {
+								e2 = staticContextFactory.newSSLEngine();
+							} else if (hostname.equals("secure.cacert.local")) {
+								e2 = secureContextFactory.newSSLEngine();
+							}
+							break;
+						}
+					}
+				}
+				if (e2 == null) {
+					e2 = sslContextFactory.newSSLEngine(
+							sslSession.getPeerHost(), sslSession.getPeerPort());
+				}
+				e2.setUseClientMode(false);
+				return e2;
+			}
+		};
+	}
+
+	private static ContextHandler generateGigiContext(Properties conf) {
+		final ResourceHandler rh = new ResourceHandler();
+		rh.setResourceBase("static/www");
+
+		HandlerWrapper hw = new PolicyRedirector();
+		hw.setHandler(rh);
+
 		ServletContextHandler servlet = new ServletContextHandler(
 				ServletContextHandler.SESSIONS);
 		servlet.setInitParameter(SessionManager.__SessionCookieProperty,
 				"CACert-Session");
 		servlet.addServlet(new ServletHolder(new Gigi(conf)), "/*");
-		return servlet;
-	}
 
-	private static Handler generateStaticContext() {
-		final ResourceHandler rh = new ResourceHandler();
-		rh.setResourceBase("static");
-		HandlerWrapper hw = new PolicyRedirector();
-		hw.setHandler(rh);
+		HandlerList hl = new HandlerList();
+		hl.setHandlers(new Handler[]{servlet, hw});
 
 		ContextHandler ch = new ContextHandler();
-		ch.setContextPath("/static");
-		ch.setHandler(hw);
+		ch.setVirtualHosts(new String[]{ServerConstants.getWwwHostName(),
+				ServerConstants.getSecureHostName()});
+		ch.setHandler(hl);
 
 		return ch;
 	}
 
-	private static SslContextFactory generateSSLContextFactory(GigiConfig conf)
-			throws GeneralSecurityException, IOException {
-		TrustManagerFactory tmFactory = TrustManagerFactory.getInstance("PKIX");
-		tmFactory.init((KeyStore) null);
+	private static Handler generateStaticContext() {
+		final ResourceHandler rh = new ResourceHandler();
+		rh.setResourceBase("static/static");
 
+		ContextHandler ch = new ContextHandler();
+		ch.setHandler(rh);
+		ch.setVirtualHosts(new String[]{ServerConstants.getStaticHostName()});
+
+		return ch;
+	}
+
+	private static SslContextFactory generateSSLContextFactory(GigiConfig conf,
+			String alias) throws GeneralSecurityException, IOException {
 		SslContextFactory scf = new SslContextFactory() {
 
 			String[] ciphers = null;
@@ -111,11 +181,13 @@ public class Launcher {
 
 		};
 		scf.setRenegotiationAllowed(false);
-		scf.setWantClientAuth(true);
 
 		scf.setProtocol("TLS");
 		scf.setTrustStore(conf.getTrustStore());
-		scf.setKeyStore(conf.getPrivateStore());
+		KeyStore privateStore = conf.getPrivateStore();
+		scf.setKeyStorePassword(conf.getPrivateStorePw());
+		scf.setKeyStore(privateStore);
+		scf.setCertAlias(alias);
 		return scf;
 	}
 }

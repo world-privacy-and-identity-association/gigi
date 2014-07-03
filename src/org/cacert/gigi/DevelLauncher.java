@@ -33,8 +33,8 @@ public class DevelLauncher {
 		byte[] keystore = Files.readAllBytes(Paths
 				.get("config/keystore.pkcs12"));
 
-		DevelLauncher.writeGigiConfig(dos, new byte[]{}, "changeit".getBytes(),
-				mainProps, cacerts, keystore);
+		DevelLauncher.writeGigiConfig(dos, "changeit".getBytes(),
+				"changeit".getBytes(), mainProps, cacerts, keystore);
 		dos.flush();
 		InputStream oldin = System.in;
 		System.setIn(new ByteArrayInputStream(chunkConfig.toByteArray()));
