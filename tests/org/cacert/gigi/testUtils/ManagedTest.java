@@ -220,6 +220,20 @@ public class ManagedTest {
 			throw new Error(e);
 		}
 	}
+	/**
+	 * Creates a new user with 100 Assurance points given by an (invalid)
+	 * assurance.
+	 * 
+	 * @param firstName
+	 *            the first name
+	 * @param lastName
+	 *            the last name
+	 * @param email
+	 *            the email
+	 * @param password
+	 *            the password
+	 * @return a new userid.
+	 */
 	public int createAssuranceUser(String firstName, String lastName,
 			String email, String password) {
 		int uid = createVerifiedUser(firstName, lastName, email, password);
