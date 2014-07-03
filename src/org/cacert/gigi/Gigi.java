@@ -151,7 +151,7 @@ public class Gigi extends HttpServlet {
 		hsr.addHeader("Access-Control-Max-Age", "60");
 		hsr.addHeader("Content-Security-Policy", "default-src 'self' https://"
 				+ ServerConstants.getStaticHostNamePort()
-				+ " https://www.cacert.org/*;frame-ancestors 'none'");
+				+ ";frame-ancestors 'none'");
 		// ;report-uri https://felix.dogcraft.de/report.php
 
 	}
