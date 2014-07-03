@@ -146,17 +146,34 @@ public class Gigi extends HttpServlet {
 	}
 
 	public static void addXSSHeaders(HttpServletResponse hsr) {
-		hsr.addHeader("Access-Control-Allow-Origin",
-				"http://cacert.org https://localhost");
+		hsr.addHeader("Access-Control-Allow-Origin", "https://"
+				+ ServerConstants.getWwwHostNamePort() + " https://"
+				+ ServerConstants.getSecureHostNamePort());
 		hsr.addHeader("Access-Control-Max-Age", "60");
-		hsr.addHeader("Content-Security-Policy", "default-src 'self' "//
-				+ "https://"
-				+ ServerConstants.getStaticHostNamePort()
-				+ ";"
-				+ "frame-ancestors 'none';"//
-				+ "report-uri https://"
-				+ ServerConstants.getApiHostNamePort()
-				+ "/security/csp/report");
 
+		hsr.addHeader("Content-Security-Policy", getDefaultCSP());
+
+	}
+	private static String defaultCSP = null;
+	private static String getDefaultCSP() {
+		if (defaultCSP == null) {
+			StringBuffer csp = new StringBuffer();
+			csp.append("default-src 'none';");
+			csp.append("font-src https://"
+					+ ServerConstants.getStaticHostNamePort());
+			csp.append(";img-src https://"
+					+ ServerConstants.getStaticHostNamePort());
+			csp.append(";media-src 'none'; object-src 'none';");
+			csp.append("script-src https://"
+					+ ServerConstants.getStaticHostNamePort());
+			csp.append(";style-src https://"
+					+ ServerConstants.getStaticHostNamePort());
+			csp.append(";form-action https://"
+					+ ServerConstants.getSecureHostNamePort() + " https://"
+					+ ServerConstants.getWwwHostNamePort());
+			csp.append("report-url https://api.cacert.org/security/csp/report");
+			defaultCSP = csp.toString();
+		}
+		return defaultCSP;
 	}
 }
