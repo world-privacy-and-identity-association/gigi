@@ -1,11 +1,11 @@
 package org.cacert.gigi.output;
 
+import java.io.EOFException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.regex.Pattern;
 
 import org.cacert.gigi.Language;
 
@@ -14,29 +14,44 @@ public class Template implements Outputable {
 	Outputable[] vars;
 
 	public Template(Reader r) {
-		LinkedList<String> splitted = new LinkedList<String>();
-		LinkedList<Outputable> commands = new LinkedList<Outputable>();
-		Scanner sc = new Scanner(r);
-		Pattern p1 = Pattern.compile("([^<]|<[^?])*<\\?");
-		Pattern p2 = Pattern.compile("[^?]*\\?>");
-		while (true) {
-			String s1 = sc.findWithinHorizon(p1, 0);
-			if (s1 == null) {
-				break;
+		try {
+			LinkedList<String> splitted = new LinkedList<String>();
+			LinkedList<Outputable> commands = new LinkedList<Outputable>();
+			StringBuffer buf = new StringBuffer();
+			int ch = r.read();
+			outer : while (true) {
+				while (!endsWith(buf, "<?")) {
+					if (ch == -1) {
+						break outer;
+					}
+					buf.append((char) ch);
+					ch = r.read();
+				}
+				buf.delete(buf.length() - 2, buf.length());
+				splitted.add(buf.toString());
+				buf.delete(0, buf.length());
+				while (!endsWith(buf, "?>")) {
+					buf.append((char) ch);
+					ch = r.read();
+					if (ch == -1) {
+						throw new EOFException();
+					}
+				}
+				buf.delete(buf.length() - 2, buf.length());
+				commands.add(parseCommand(buf.toString()));
+				buf.delete(0, buf.length());
 			}
-			s1 = s1.substring(0, s1.length() - 2);
-			splitted.add(s1);
-			String s2 = sc.findWithinHorizon(p2, 0);
-			s2 = s2.substring(0, s2.length() - 2);
-			commands.add(parseCommand(s2));
+			splitted.add(buf.toString());
+			contents = splitted.toArray(new String[splitted.size()]);
+			vars = commands.toArray(new Outputable[commands.size()]);
+		} catch (IOException e) {
+			throw new Error(e);
 		}
-		sc.useDelimiter("\0");
-		if (sc.hasNext()) {
-			splitted.add(sc.next());
-		}
-		sc.close();
-		contents = splitted.toArray(new String[splitted.size()]);
-		vars = commands.toArray(new Outputable[commands.size()]);
+	}
+	private boolean endsWith(StringBuffer buf, String string) {
+		return buf.length() >= string.length()
+				&& buf.substring(buf.length() - string.length(), buf.length())
+						.equals(string);
 	}
 	private Outputable parseCommand(String s2) {
 		if (s2.startsWith("=_")) {
