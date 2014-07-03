@@ -18,7 +18,7 @@ public class Template implements Outputable {
 		LinkedList<Outputable> commands = new LinkedList<Outputable>();
 		Scanner sc = new Scanner(r);
 		Pattern p1 = Pattern.compile("([^<]|<[^?])*<\\?");
-		Pattern p2 = Pattern.compile("([^<]|<[^?])*\\?>");
+		Pattern p2 = Pattern.compile("[^?]*\\?>");
 		while (true) {
 			String s1 = sc.findWithinHorizon(p1, 0);
 			if (s1 == null) {

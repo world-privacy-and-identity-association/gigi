@@ -1,12 +1,11 @@
 package org.cacert.gigi;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
@@ -17,6 +16,8 @@ import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.email.EmailProvider;
+import org.cacert.gigi.output.Outputable;
+import org.cacert.gigi.output.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
@@ -29,13 +30,12 @@ import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.pages.wot.AssurePage;
 import org.cacert.gigi.util.ServerConstants;
-import org.eclipse.jetty.util.log.Log;
 
 public class Gigi extends HttpServlet {
 	public static final String LOGGEDIN = "loggedin";
 	public static final String USER = "user";
 	private static final long serialVersionUID = -6386785421902852904L;
-	private String[] baseTemplate;
+	private Template baseTemplate;
 	private HashMap<String, Page> pages = new HashMap<String, Page>();
 
 	public Gigi(Properties conf) {
@@ -55,23 +55,15 @@ public class Gigi extends HttpServlet {
 		pages.put(MailOverview.DEFAULT_PATH, new MailOverview(
 				"My email addresses"));
 		pages.put(MailAdd.DEFAULT_PATH, new MailAdd("Add new email"));
-		String templ = "";
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-				new FileInputStream(new File("templates/base.html"))))) {
-			String tmp;
-			while ((tmp = reader.readLine()) != null) {
-				templ += tmp + "\n";
-			}
-			baseTemplate = templ.split("\\$content\\$");
-		} catch (Exception e) {
-			Log.getLogger(Gigi.class).warn("Error loading template!", e);
-		}
+		baseTemplate = new Template(new InputStreamReader(
+				Gigi.class.getResourceAsStream("Gigi.templ")));
 		super.init();
 
 	}
 	@Override
-	protected void service(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	protected void service(final HttpServletRequest req,
+			final HttpServletResponse resp) throws ServletException,
+			IOException {
 		addXSSHeaders(resp);
 		if (req.getHeader("Origin") != null) {
 			resp.getWriter().println("No cross domain access allowed.");
@@ -87,7 +79,7 @@ public class Gigi extends HttpServlet {
 			return;
 		}
 
-		Page p = getPage(req.getPathInfo());
+		final Page p = getPage(req.getPathInfo());
 		if (p != null) {
 
 			if (p.needsLogin() && hs.getAttribute("loggedin") == null) {
@@ -100,19 +92,31 @@ public class Gigi extends HttpServlet {
 			if (p.beforeTemplate(req, resp)) {
 				return;
 			}
+			HashMap<String, Object> vars = new HashMap<String, Object>();
 
-			String b0 = baseTemplate[0];
-			b0 = makeDynTempl(b0, p);
 			resp.setContentType("text/html; charset=utf-8");
-			resp.getWriter().print(b0);
-			if (req.getMethod().equals("POST")) {
-				p.doPost(req, resp);
-			} else {
-				p.doGet(req, resp);
-			}
-			String b1 = baseTemplate[1];
-			b1 = makeDynTempl(b1, p);
-			resp.getWriter().print(b1);
+			Outputable content = new Outputable() {
+
+				@Override
+				public void output(PrintWriter out, Language l,
+						Map<String, Object> vars) {
+					try {
+						if (req.getMethod().equals("POST")) {
+							p.doPost(req, resp);
+						} else {
+							p.doGet(req, resp);
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+				}
+			};
+			vars.put("title", p.getTitle());
+			vars.put("static", ServerConstants.getStaticHostNamePort());
+			vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
+			vars.put("content", content);
+			baseTemplate.output(resp.getWriter(), Page.getLanguage(req), vars);
 		} else {
 			resp.sendError(404, "Page not found.");
 		}
@@ -140,12 +144,7 @@ public class Gigi extends HttpServlet {
 		return null;
 
 	}
-	private String makeDynTempl(String in, Page p) {
-		int year = Calendar.getInstance().get(Calendar.YEAR);
-		in = in.replaceAll("\\$title\\$", p.getTitle());
-		in = in.replaceAll("\\$year\\$", year + "");
-		return in;
-	}
+
 	public static void addXSSHeaders(HttpServletResponse hsr) {
 		hsr.addHeader("Access-Control-Allow-Origin",
 				"http://cacert.org https://localhost");

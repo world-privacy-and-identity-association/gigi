@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>$title$</title>
-<link rel="stylesheet" href="https://static.cacert.local/default.css" type="text/css">
-<script src="https://static.cacert.local/menu.js"></script>
+<title><?=$title?></title>
+<link rel="stylesheet" href="https://<?=$static?>/default.css" type="text/css">
+<script src="https://<?=$static?>/menu.js"></script>
 </head>
 <body>
 	<div id="pagecell1">
@@ -84,8 +84,8 @@
 			</div>
 		</div>
 		<div id="content">
-			<h1>$title$</h1>
-			<div class="story">$content$</div>
+			<h1><?=$title?></h1>
+			<div class="story"><?=$content?></div>
 		</div>
 		<div class="sponsorinfo">
 			Der CAcert-Betrieb wird gesponsert von
@@ -110,7 +110,7 @@
 			<a href="/policy/PrivacyPolicy.html">Datenschutzrichtlinien</a> |
 			<a href="/index.php?id=51">Unsere Ziele</a> |
 			<a href="/index.php?id=11">Kontakt</a> |
-			©2002-$year$ von CAcert
+			©2002-<?=$year?> von CAcert
 		</div>
 	</div>
 </body>
