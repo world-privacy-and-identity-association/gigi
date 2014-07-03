@@ -15,6 +15,7 @@ mailPort=8473
 name.static=static.cacert.local
 name.secure=secure.cacert.local
 name.www=www.cacert.local
+name.api=api.cacert.local
 sql.driver=com.mysql.jdbc.Driver
 sql.url=jdbc:mysql://localhost:3306/cacert
 sql.user=cacert

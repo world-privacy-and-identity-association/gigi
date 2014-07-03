@@ -12,6 +12,7 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSession;
 
+import org.cacert.gigi.api.GigiAPI;
 import org.cacert.gigi.natives.SetUID;
 import org.cacert.gigi.util.CipherInfo;
 import org.cacert.gigi.util.ServerConstants;
@@ -58,7 +59,7 @@ public class Launcher {
 
 		HandlerList hl = new HandlerList();
 		hl.setHandlers(new Handler[]{generateStaticContext(),
-				generateGigiContext(conf.getMainProps())});
+				generateGigiContext(conf.getMainProps()), generateAPIContext()});
 		s.setHandler(hl);
 		s.start();
 		if (connector.getPort() <= 1024
@@ -79,9 +80,12 @@ public class Launcher {
 		secureContextFactory.setNeedClientAuth(true);
 		final SslContextFactory staticContextFactory = generateSSLContextFactory(
 				conf, "static");
+		final SslContextFactory apiContextFactory = generateSSLContextFactory(
+				conf, "api");
 		try {
 			secureContextFactory.start();
 			staticContextFactory.start();
+			apiContextFactory.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -107,6 +111,8 @@ public class Launcher {
 								e2 = staticContextFactory.newSSLEngine();
 							} else if (hostname.equals("secure.cacert.local")) {
 								e2 = secureContextFactory.newSSLEngine();
+							} else if (hostname.equals("api.cacert.local")) {
+								e2 = apiContextFactory.newSSLEngine();
 							}
 							break;
 						}
@@ -155,6 +161,14 @@ public class Launcher {
 		ch.setVirtualHosts(new String[]{ServerConstants.getStaticHostName()});
 
 		return ch;
+	}
+
+	private static Handler generateAPIContext() {
+		ServletContextHandler sch = new ServletContextHandler();
+
+		sch.addVirtualHosts(new String[]{ServerConstants.getApiHostName()});
+		sch.addServlet(new ServletHolder(new GigiAPI()), "/*");
+		return sch;
 	}
 
 	private static SslContextFactory generateSSLContextFactory(GigiConfig conf,
