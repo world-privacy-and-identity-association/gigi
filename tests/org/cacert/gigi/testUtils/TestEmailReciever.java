@@ -92,7 +92,9 @@ public class TestEmailReciever implements Runnable {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			if (!closed) {
+				e.printStackTrace();
+			}
 		}
 
 	}
@@ -107,6 +109,15 @@ public class TestEmailReciever implements Runnable {
 	public void reset() {
 		clearMails();
 		approveRegex = Pattern.compile(".*");
+	}
+	boolean closed = false;
+	public void destroy() {
+		try {
+			closed = true;
+			s.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

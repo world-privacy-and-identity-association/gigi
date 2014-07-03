@@ -139,12 +139,12 @@ public class ManagedTest {
 	@AfterClass
 	public static void tearDownServer() {
 		String type = testProps.getProperty("type");
+		ter.destroy();
 		if (type.equals("local")) {
 			return;
 		}
 		gigi.destroy();
 	}
-
 	@After
 	public void removeMails() {
 		ter.reset();
