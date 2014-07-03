@@ -152,6 +152,7 @@ public class Gigi extends HttpServlet {
 		hsr.addHeader("Access-Control-Max-Age", "60");
 
 		hsr.addHeader("Content-Security-Policy", getDefaultCSP());
+		hsr.addHeader("Strict-Transport-Security", "max-age=31536000");
 
 	}
 	private static String defaultCSP = null;
