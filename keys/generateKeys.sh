@@ -21,7 +21,7 @@ openssl ca -cert testca.crt -keyfile testca.key -in $1.csr -out $1.crt -days 356
 
 openssl pkcs12 -inkey $1.key -in $1.crt -name $1 -export -passout pass:changeit -out $1.pkcs12
 
-keytool -importkeystore -noprompt -srckeystore $1.pkcs12 -destkeystore ../../config/keystore.pkcs12 -srcstoretype pkcs12 -deststoretype pkcs12 -srcstorepass "changeit" -deststorepass "changeit"
+keytool -importkeystore -noprompt -srckeystore $1.pkcs12 -destkeystore 	../config/keystore.pkcs12 -srcstoretype pkcs12 -deststoretype pkcs12 -srcstorepass "changeit" -deststorepass "changeit"
 
 }
 
@@ -30,4 +30,4 @@ genserver secure
 genserver static
 genserver api
 
-keytool -list -keystore ../../config/keystore.pkcs12 -storetype pkcs12 -storepass "changeit"
+keytool -list -keystore ../config/keystore.pkcs12 -storetype pkcs12 -storepass "changeit"

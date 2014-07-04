@@ -1,0 +1,9 @@
+This directoy will contain keys created to test CAcert-gigi.
+generate them with doc/scripts/generateKeys.sh
+
+It may contain:
+
+testca/*
+testca.crt
+testca.key
+{api,secure,static,www}.{crt,key,csr,pkcs12}
