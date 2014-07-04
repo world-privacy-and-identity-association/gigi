@@ -16,6 +16,8 @@ import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.email.EmailProvider;
+import org.cacert.gigi.output.Menu;
+import org.cacert.gigi.output.MenuItem;
 import org.cacert.gigi.output.Outputable;
 import org.cacert.gigi.output.Template;
 import org.cacert.gigi.pages.LoginPage;
@@ -37,6 +39,7 @@ public class Gigi extends HttpServlet {
 	private static final long serialVersionUID = -6386785421902852904L;
 	private Template baseTemplate;
 	private HashMap<String, Page> pages = new HashMap<String, Page>();
+	Menu m;
 
 	public Gigi(Properties conf) {
 		EmailProvider.init(conf);
@@ -57,6 +60,10 @@ public class Gigi extends HttpServlet {
 		pages.put(MailAdd.DEFAULT_PATH, new MailAdd("Add new email"));
 		baseTemplate = new Template(new InputStreamReader(
 				Gigi.class.getResourceAsStream("Gigi.templ")));
+		m = new Menu("Certificates", "cert", new MenuItem(
+				MailOverview.DEFAULT_PATH, "Emails"), new MenuItem("",
+				"Client Certificates"), new MenuItem("", "Domains"),
+				new MenuItem("", "Server Certificates"));
 		super.init();
 
 	}
@@ -112,6 +119,7 @@ public class Gigi extends HttpServlet {
 
 				}
 			};
+			vars.put("menu", m);
 			vars.put("title", p.getTitle());
 			vars.put("static", ServerConstants.getStaticHostNamePort());
 			vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
