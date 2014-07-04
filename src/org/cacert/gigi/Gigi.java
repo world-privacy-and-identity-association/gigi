@@ -25,6 +25,7 @@ import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.TestSecure;
 import org.cacert.gigi.pages.Verify;
+import org.cacert.gigi.pages.account.ChangePasswordPage;
 import org.cacert.gigi.pages.account.MailAdd;
 import org.cacert.gigi.pages.account.MailCertificates;
 import org.cacert.gigi.pages.account.MailOverview;
@@ -54,6 +55,7 @@ public class Gigi extends HttpServlet {
 		pages.put(AssurePage.PATH + "/*", new AssurePage());
 		pages.put(MailCertificates.PATH, new MailCertificates());
 		pages.put(MyDetails.PATH, new MyDetails());
+		pages.put(ChangePasswordPage.PATH, new ChangePasswordPage());
 		pages.put(RegisterPage.PATH, new RegisterPage());
 		pages.put(MailOverview.DEFAULT_PATH, new MailOverview(
 				"My email addresses"));
