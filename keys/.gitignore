@@ -3,3 +3,5 @@
 *.key
 *.pkcs12
 testca
+csr
+crt
