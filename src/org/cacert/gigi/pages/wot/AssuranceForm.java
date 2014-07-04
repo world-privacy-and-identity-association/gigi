@@ -32,7 +32,8 @@ public class AssuranceForm extends Form {
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 	@Override
-	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+	public void outputContent(PrintWriter out, Language l,
+			Map<String, Object> vars) {
 		HashMap<String, Object> res = new HashMap<String, Object>();
 		res.putAll(vars);
 		res.put("name", assuree.getName());

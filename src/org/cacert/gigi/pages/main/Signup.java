@@ -47,7 +47,8 @@ public class Signup extends Form {
 	}
 	DateSelector myDoB = new DateSelector("day", "month", "year");
 
-	public void output(PrintWriter out, Language l,
+	@Override
+	public void outputContent(PrintWriter out, Language l,
 			Map<String, Object> outerVars) {
 		HashMap<String, Object> vars = new HashMap<String, Object>();
 		vars.put("fname", HTMLEncoder.encodeHTML(buildup.getFname()));
