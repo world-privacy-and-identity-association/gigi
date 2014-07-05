@@ -2,6 +2,7 @@ package org.cacert.gigi.pages.wot;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -78,8 +79,28 @@ public class TestAssurance extends ManagedTest {
 	}
 
 	@Test
+	public void testAssureFormNoCSRF() throws IOException {
+		// override csrf
+		HttpURLConnection uc = (HttpURLConnection) buildupAssureFormConnection(false);
+		uc.getOutputStream()
+				.write(("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10")
+						.getBytes());
+		uc.getOutputStream().flush();
+		assertEquals(500, uc.getResponseCode());
+	}
+	@Test
+	public void testAssureFormWrongCSRF() throws IOException {
+		// override csrf
+		HttpURLConnection uc = (HttpURLConnection) buildupAssureFormConnection(false);
+		uc.getOutputStream()
+				.write(("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10&csrf=aragc")
+						.getBytes());
+		uc.getOutputStream().flush();
+		assertEquals(500, uc.getResponseCode());
+	}
+	@Test
 	public void testAssureFormRace() throws IOException, SQLException {
-		URLConnection uc = buildupAssureFormConnection();
+		URLConnection uc = buildupAssureFormConnection(true);
 		PreparedStatement ps = DatabaseConnection.getInstance().prepare(
 				"UPDATE `users` SET email='changed' WHERE id=?");
 		ps.setInt(1, assuree);
@@ -129,13 +150,13 @@ public class TestAssurance extends ManagedTest {
 	}
 	private String getError(String query) throws MalformedURLException,
 			IOException {
-		URLConnection uc = buildupAssureFormConnection();
+		URLConnection uc = buildupAssureFormConnection(true);
 		uc.getOutputStream().write((query).getBytes());
 		uc.getOutputStream().flush();
 		String error = fetchStartErrorMessage(IOUtils.readURL(uc));
 		return error;
 	}
-	private URLConnection buildupAssureFormConnection()
+	private URLConnection buildupAssureFormConnection(boolean doCSRF)
 			throws MalformedURLException, IOException {
 		URL u = new URL("https://" + getServerName() + AssurePage.PATH + "/"
 				+ assuree);
@@ -145,7 +166,9 @@ public class TestAssurance extends ManagedTest {
 		uc = u.openConnection();
 		uc.addRequestProperty("Cookie", cookie);
 		uc.setDoOutput(true);
-		uc.getOutputStream().write(("csrf=" + csrf + "&").getBytes());
+		if (doCSRF) {
+			uc.getOutputStream().write(("csrf=" + csrf + "&").getBytes());
+		}
 		return uc;
 	}
 
