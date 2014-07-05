@@ -17,7 +17,8 @@ public class MailAdd extends Page {
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-
+		getDefaultTemplate().output(resp.getWriter(), Page.getLanguage(req),
+				null);
 	}
 
 }
