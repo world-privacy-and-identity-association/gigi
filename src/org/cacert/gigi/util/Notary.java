@@ -72,7 +72,7 @@ public class Notary {
 			return false;
 		}
 		System.out.println("Would now assure.");
-		if (awarded > assurer.getMaxAssurePoints()) {
+		if (awarded > assurer.getMaxAssurePoints() || awarded < 0) {
 			return false;
 		}
 

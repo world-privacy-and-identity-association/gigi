@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 public class TestNotary extends ManagedTest {
 	@Test
 	public void testSigning() throws SQLException {
-		User[] users = new User[10];
+		User[] users = new User[30];
 		for (int i = 0; i < users.length; i++) {
 			int id = createVerifiedUser("fn" + i, "ln" + i, createUniqueName()
 					+ "@email.org", "xvXV12°§");
@@ -19,54 +19,26 @@ public class TestNotary extends ManagedTest {
 		}
 		User assurer = new User(createAssuranceUser("fn", "ln",
 				createUniqueName() + "@email.org", "xvXV12°§"));
-		assertEquals(10, assurer.getMaxAssurePoints());
-		assertTrue(Notary.assure(assurer, users[1], 10, "test-notary",
-				"2014-01-01"));
-		assertEquals(10, assurer.getMaxAssurePoints());
-		assertTrue(Notary.assure(assurer, users[2], 10, "test-notary",
-				"2014-01-01"));
-		assertEquals(10, assurer.getMaxAssurePoints());
-		assertTrue(Notary.assure(assurer, users[3], 10, "test-notary",
-				"2014-01-01"));
-		assertEquals(10, assurer.getMaxAssurePoints());
-		assertTrue(Notary.assure(assurer, users[4], 10, "test-notary",
-				"2014-01-01"));
-		assertEquals(15, assurer.getMaxAssurePoints());
-		assertTrue(Notary.assure(assurer, users[5], 15, "test-notary",
-				"2014-01-01"));
-		// Assure someone again
-		assertTrue(!Notary.assure(assurer, users[5], 15, "test-notary",
-				"2014-01-01"));
+		int[] result = new int[]{10, 10, 10, 10, 15, 15, 15, 15, 15, 20, 20,
+				20, 20, 20, 25, 25, 25, 25, 25, 30, 30, 30, 30, 30, 35, 35, 35,
+				35, 35, 35};
 
-		// Assure too much
-		assertTrue(!Notary.assure(assurer, users[6], 20, "test-notary",
+		System.out.println(result.length);
+		assertFalse(Notary.assure(assurer, users[0], -1, "test-notary",
 				"2014-01-01"));
-		assertTrue(!Notary.assure(assurer, users[6], 16, "test-notary",
-				"2014-01-01"));
+		for (int i = 0; i < result.length; i++) {
+			assertEquals(result[i], assurer.getMaxAssurePoints());
+			assertFalse(Notary.assure(assurer, users[i], result[i] + 1,
+					"test-notary", "2014-01-01"));
+			assertTrue(Notary.assure(assurer, users[i], result[i],
+					"test-notary", "2014-01-01"));
+			assertFalse(Notary.assure(assurer, users[i], result[i],
+					"test-notary", "2014-01-01"));
+		}
 
-		assertTrue(Notary.assure(assurer, users[6], 15, "test-notary",
-				"2014-01-01"));
-		assertEquals(15, assurer.getMaxAssurePoints());
+		assertEquals(35, assurer.getMaxAssurePoints());
 
-		// Assure self
-		assertTrue(!Notary.assure(assurer, assurer, 10, "test-notary",
-				"2014-01-01"));
-
-		assertTrue(Notary.assure(assurer, users[7], 15, "test-notary",
-				"2014-01-01"));
-		assertEquals(15, assurer.getMaxAssurePoints());
-		assertTrue(Notary.assure(assurer, users[8], 15, "test-notary",
-				"2014-01-01"));
-		assertEquals(15, assurer.getMaxAssurePoints());
-		assertTrue(Notary.assure(assurer, users[9], 15, "test-notary",
-				"2014-01-01"));
-		assertEquals(20, assurer.getMaxAssurePoints());
-
-		assertTrue(Notary.assure(assurer, users[0], 15, "test-notary",
-				"2014-01-01"));
-		assertEquals(20, assurer.getMaxAssurePoints());
-
-		assertEquals(2 + 20, assurer.getExperiencePoints());
+		assertEquals(2 + 60, assurer.getExperiencePoints());
 
 	}
 }
