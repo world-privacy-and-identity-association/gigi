@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
+import java.util.Calendar;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.util.PasswordHash;
@@ -161,6 +162,16 @@ public class User {
 	public int getMaxAssurePoints() throws SQLException {
 		int exp = getExperiencePoints();
 		int points = 10;
+		Calendar c = Calendar.getInstance();
+		c.setTime(dob);
+		int year = c.get(Calendar.YEAR);
+		int month = c.get(Calendar.MONTH);
+		int day = c.get(Calendar.DAY_OF_MONTH);
+		c.set(year + 18, month, day);
+		if (System.currentTimeMillis() < c.getTime().getTime()) {
+			return points; // not 18 Years old.
+		}
+
 		if (exp >= 10) {
 			points += 5;
 		}
