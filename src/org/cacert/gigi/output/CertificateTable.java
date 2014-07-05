@@ -3,51 +3,53 @@ package org.cacert.gigi.output;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.Map;
 
 import org.cacert.gigi.Language;
-import org.cacert.gigi.output.DataTable.Cell;
 
 public class CertificateTable implements Outputable {
 	String resultSet;
 	public CertificateTable(String resultSet) {
 		this.resultSet = resultSet;
 	}
+	private static final String[] columnNames = new String[]{
+			"Renew/Revoke/Delete", "Status", "Email Address", "SerialNumber",
+			"Revoked", "Expires", "Login"};
 
 	@Override
 	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
 		ResultSet rs = (ResultSet) vars.get(resultSet);
 		try {
 			out.println("<form method=\"post\" action=\"account.php\">");
-			final LinkedList<Cell> cells = new LinkedList<>();
-			cells.add(new Cell("Renew/Revoke/Delete", true));
-			cells.add(new Cell("Status", true));
-			cells.add(new Cell("Email Address", true));
-			cells.add(new Cell("SerialNumber", true));
-			cells.add(new Cell("Revoked", true));
-			cells.add(new Cell("Expires", true));
-			cells.add(new Cell("Login", true));
-			cells.add(new Cell("Comment *", true, 2));
+			out.println("<table align=\"center\" valign=\"middle\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" class=\"wrapper\">");
+			out.println("<tr>");
+			for (String column : columnNames) {
+				out.print("<td class=\"DataTD\">");
+				out.print(l.getTranslation(column));
+				out.println("</td>");
+			}
+			out.print("<td colspan=\"2\" class=\"DataTD\">");
+			out.print(l.getTranslation("Comment *"));
+			out.println("</td></tr>");
+
 			rs.beforeFirst();
 			while (rs.next()) {
 				// out.println(rs.getString("id"));
-				cells.add(new Cell());
-				cells.add(new Cell("State", false));
-				cells.add(new Cell(rs.getString("CN"), false));
-				cells.add(new Cell(rs.getString("serial"), false));
+				out.print("<tr><td class=\"DataTD\">&nbsp;</td><td class=\"DataTD\">State</td><td class=\"DataTD\">");
+				out.println(rs.getString("CN"));
+				out.print("</td><td class=\"DataTD\">");
+				out.println(rs.getString("serial"));
+				out.print("</td><td class=\"DataTD\">");
 				if (rs.getString("revoked") == null) {
-					cells.add(new Cell("N/A", false));
+					out.println("N/A");
 				} else {
-					cells.add(new Cell(rs.getString("revoked"), false));
+					out.println(rs.getString("revoked"));
 				}
-				cells.add(new Cell(rs.getString("expire"), false));
-				cells.add(new Cell(rs.getString("a"), false));
-				cells.add(new Cell(rs.getString("a"), false));
+				out.print("</td><td class=\"DataTD\">");
+				out.println(rs.getString("expire"));
+				out.println("</td><td class=\"DataTD\">a</td><td class=\"DataTD\">a</td></tr>");
 			}
-			DataTable t = new DataTable(9, cells);
-			t.output(out, l, vars);
-			out.println("</form>");
+			out.println("</table>");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
