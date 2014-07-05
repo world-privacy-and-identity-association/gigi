@@ -735,3 +735,6 @@ ul.menu.hidden{
 img{
 	border: 0;
 }
+formMandatory{
+	color: red;
+}
