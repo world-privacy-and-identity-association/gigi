@@ -109,7 +109,6 @@ public class ManagedTest {
 			String line;
 			while ((line = br.readLine()) != null
 					&& !line.contains("Server:main: Started")) {
-				System.err.println(line);
 			}
 			new Thread() {
 				@Override
@@ -124,7 +123,6 @@ public class ManagedTest {
 					}
 				}
 			}.start();
-			System.err.println(line);
 			if (line == null) {
 				throw new Error("Server startup failed");
 			}
