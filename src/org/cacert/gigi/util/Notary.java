@@ -78,7 +78,6 @@ public class Notary {
 		if (!u.equals(target)) {
 			return AssuranceResult.ASSUREE_CHANGED;
 		}
-		System.out.println("Would now assure.");
 		if (awarded > assurer.getMaxAssurePoints() || awarded < 0) {
 			return AssuranceResult.POINTS_OUT_OF_RANGE;
 		}
