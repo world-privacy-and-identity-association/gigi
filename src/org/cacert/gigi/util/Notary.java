@@ -1,6 +1,5 @@
 package org.cacert.gigi.util;
 
-import java.io.PrintWriter;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,13 +25,10 @@ public class Notary {
 		q.execute();
 	}
 
-	public static boolean checkAssuranceIsPossible(User assurer, User target,
-			PrintWriter errOut) {
+	public static AssuranceResult checkAssuranceIsPossible(User assurer,
+			User target) {
 		if (assurer.getId() == target.getId()) {
-			if (errOut != null) {
-				errOut.println("Cannot assure myself.");
-			}
-			return false;
+			return AssuranceResult.CANNOT_ASSURE_SELF;
 		}
 		try {
 			PreparedStatement ps = DatabaseConnection
@@ -43,37 +39,48 @@ public class Notary {
 			ps.setInt(2, assurer.getId());
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
-				if (errOut != null) {
-					errOut.println("You already assured this person.");
-				}
 				rs.close();
-				return false;
+				return AssuranceResult.ALREADY_ASSUREED;
 			}
 			rs.close();
 			if (!assurer.canAssure()) {
-				if (errOut != null) {
-					errOut.println("You cannot assure.");
-				}
-				return false;
+				return AssuranceResult.CANNOT_ASSURE;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return true;
+		return AssuranceResult.ASSURANCE_SUCCEDED;
 	}
 
-	public synchronized static boolean assure(User assurer, User target,
-			int awarded, String location, String date) throws SQLException {
-		if (!checkAssuranceIsPossible(assurer, target, null)) {
-			return false;
+	public enum AssuranceResult {
+		CANNOT_ASSURE("You cannot assure."), ALREADY_ASSUREED(
+				"You already assured this person."), CANNOT_ASSURE_SELF(
+				"Cannot assure myself."), ASSURANCE_SUCCEDED(""), ASSUREE_CHANGED(
+				"Person details changed. Please start over again."), POINTS_OUT_OF_RANGE(
+				"Points out of range.");
+		String message;
+		private AssuranceResult(String message) {
+			this.message = message;
+		}
+		public String getMessage() {
+			return message;
+		}
+	}
+
+	public synchronized static AssuranceResult assure(User assurer,
+			User target, int awarded, String location, String date)
+			throws SQLException {
+		AssuranceResult can = checkAssuranceIsPossible(assurer, target);
+		if (can != AssuranceResult.ASSURANCE_SUCCEDED) {
+			return can;
 		}
 		User u = new User(target.getId());
 		if (!u.equals(target)) {
-			return false;
+			return AssuranceResult.ASSUREE_CHANGED;
 		}
 		System.out.println("Would now assure.");
 		if (awarded > assurer.getMaxAssurePoints() || awarded < 0) {
-			return false;
+			return AssuranceResult.POINTS_OUT_OF_RANGE;
 		}
 
 		PreparedStatement ps = DatabaseConnection
@@ -86,6 +93,6 @@ public class Notary {
 		ps.setString(4, location);
 		ps.setString(5, date);
 		ps.execute();
-		return true;
+		return AssuranceResult.ASSURANCE_SUCCEDED;
 	}
 }

@@ -17,6 +17,7 @@ import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.util.Notary;
+import org.cacert.gigi.util.Notary.AssuranceResult;
 
 public class AssuranceForm extends Form {
 	User assuree;
@@ -103,15 +104,14 @@ public class AssuranceForm extends Form {
 			return false;
 		}
 		try {
-			boolean success = Notary.assure(LoginPage.getUser(req), assuree,
-					Integer.parseInt(req.getParameter("points")),
+			AssuranceResult success = Notary.assure(LoginPage.getUser(req),
+					assuree, Integer.parseInt(req.getParameter("points")),
 					req.getParameter("location"), req.getParameter("date"));
-			if (!success) {
-				outputError(out, req,
-						"Assurance failed. Maybe user data changed.");
+			if (success != AssuranceResult.ASSURANCE_SUCCEDED) {
+				outputError(out, req, success.getMessage());
 			}
 			out.println("</div>");
-			return success;
+			return success == AssuranceResult.ASSURANCE_SUCCEDED;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

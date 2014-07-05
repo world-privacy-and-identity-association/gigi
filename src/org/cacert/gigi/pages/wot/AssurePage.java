@@ -20,6 +20,7 @@ import org.cacert.gigi.output.Form.CSRFError;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.Notary;
+import org.cacert.gigi.util.Notary.AssuranceResult;
 
 public class AssurePage extends Page {
 	public static final String PATH = "/wot/assure";
@@ -43,8 +44,10 @@ public class AssurePage extends Page {
 		if (pi.length() > 1) {
 			User myself = LoginPage.getUser(req);
 			int mid = Integer.parseInt(pi.substring(1));
-
-			if (!Notary.checkAssuranceIsPossible(myself, new User(mid), out)) {
+			AssuranceResult check = Notary.checkAssuranceIsPossible(myself,
+					new User(mid));
+			if (check != AssuranceResult.ASSURANCE_SUCCEDED) {
+				out.println(translate(req, check.getMessage()));
 				return;
 			}
 			HttpSession hs = req.getSession();
