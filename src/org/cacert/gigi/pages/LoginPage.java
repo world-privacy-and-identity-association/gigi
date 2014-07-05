@@ -37,6 +37,7 @@ public class LoginPage extends Page {
 	@Override
 	public boolean beforeTemplate(HttpServletRequest req,
 			HttpServletResponse resp) throws IOException {
+		String redir = (String) req.getSession().getAttribute(LOGIN_RETURNPATH);
 		if (req.getSession().getAttribute("loggedin") == null) {
 			X509Certificate[] cert = (X509Certificate[]) req
 					.getAttribute("javax.servlet.request.X509Certificate");
@@ -49,7 +50,7 @@ public class LoginPage extends Page {
 		}
 
 		if (req.getSession().getAttribute("loggedin") != null) {
-			String s = (String) req.getSession().getAttribute(LOGIN_RETURNPATH);
+			String s = redir;
 			if (s != null) {
 				if (!s.startsWith("/")) {
 					s = "/" + s;
