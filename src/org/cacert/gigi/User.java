@@ -159,6 +159,14 @@ public class User {
 				&& dob.toString().equals(s.dob.toString()); // This is due to
 															// day cutoff
 	}
+
+	/**
+	 * Gets the maximum allowed points NOW. Note that an assurance needs to
+	 * re-check PoJam as it has taken place in the past.
+	 * 
+	 * @return the maximal points
+	 * @throws SQLException
+	 */
 	public int getMaxAssurePoints() throws SQLException {
 		int exp = getExperiencePoints();
 		int points = 10;
