@@ -141,10 +141,11 @@ public class TestAssurance extends ManagedTest {
 				+ assuree);
 		URLConnection uc = u.openConnection();
 		uc.addRequestProperty("Cookie", cookie);
-		uc.getInputStream();// request form
+		String csrf = getCSRF(uc);
 		uc = u.openConnection();
 		uc.addRequestProperty("Cookie", cookie);
 		uc.setDoOutput(true);
+		uc.getOutputStream().write(("csrf=" + csrf + "&").getBytes());
 		return uc;
 	}
 

@@ -48,6 +48,8 @@ public class AssuranceForm extends Form {
 
 	@Override
 	public boolean submit(PrintWriter out, HttpServletRequest req) {
+		checkCSRF(req);
+
 		out.println("<div class='formError'>");
 		boolean failed = false;
 
@@ -117,4 +119,5 @@ public class AssuranceForm extends Form {
 		out.println("</div>");
 		return false;
 	}
+
 }

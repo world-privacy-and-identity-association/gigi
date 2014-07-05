@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,6 +21,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.database.DatabaseConnection;
@@ -272,5 +275,15 @@ public class ManagedTest {
 		String headerField = huc.getHeaderField("Set-Cookie");
 		headerField = headerField.substring(0, headerField.indexOf(';'));
 		return headerField;
+	}
+
+	public String getCSRF(URLConnection u) throws IOException {
+		String content = IOUtils.readURL(u);
+		Pattern p = Pattern.compile("<input type='csrf' value='([^']+)'>");
+		Matcher m = p.matcher(content);
+		if (!m.find()) {
+			throw new Error("New CSRF Token");
+		}
+		return m.group(1);
 	}
 }

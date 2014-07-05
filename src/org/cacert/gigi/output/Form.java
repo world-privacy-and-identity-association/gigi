@@ -22,12 +22,12 @@ public abstract class Form implements Outputable {
 			Map<String, Object> vars) {
 		out.println("<form method='POST' autocomplete='off'>");
 		outputContent(out, l, vars);
-		out.println("<input type='csrf' value='");
+		out.print("<input type='csrf' value='");
 		out.print(getCSRFToken());
 		out.println("'></form>");
 	}
 
-	public abstract void outputContent(PrintWriter out, Language l,
+	protected abstract void outputContent(PrintWriter out, Language l,
 			Map<String, Object> vars);
 
 	protected void outputError(PrintWriter out, ServletRequest req, String text) {
@@ -36,8 +36,16 @@ public abstract class Form implements Outputable {
 		out.println("</div>");
 	}
 
-	public String getCSRFToken() {
+	protected String getCSRFToken() {
 		return csrf;
 	}
+	protected void checkCSRF(HttpServletRequest req) {
+		if (!csrf.equals(req.getParameter("csrf"))) {
+			throw new CSRFError();
+		}
+	}
 
+	public class CSRFError extends Error {
+
+	}
 }

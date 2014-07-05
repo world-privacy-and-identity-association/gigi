@@ -16,6 +16,7 @@ import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.Template;
+import org.cacert.gigi.output.Form.CSRFError;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.Notary;
@@ -79,7 +80,12 @@ public class AssurePage extends Page {
 				out.println("No form found. This is an Error. Fill in the form again.");
 				return;
 			}
-			form.submit(out, req);
+			try {
+				form.submit(out, req);
+			} catch (CSRFError e) {
+				resp.sendError(500, "CSRF Failed");
+				out.println(translate(req, "CSRF Token failed."));
+			}
 
 			return;
 		}
