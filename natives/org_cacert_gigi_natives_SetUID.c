@@ -8,7 +8,7 @@
 extern "C" {  
 #endif  
   
-jobject getStatus(JNIEnv *env, int successCode, const char * message) {  
+static jobject getStatus(JNIEnv *env, int successCode, const char * message) {  
   
    jstring message_str = (*env)->NewStringUTF(env, message);
    jboolean success = successCode;  
