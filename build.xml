@@ -75,10 +75,7 @@
 	</target>
 
 	<target name="native">
-		<exec executable="make" dir="natives">
-			<arg value="clean" />
-			<arg value="all" />
-		</exec>
+		<exec executable="make" dir="natives"/>
 	</target>
 
 	<target depends="build" name="pack">
