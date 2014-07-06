@@ -1,139 +1,147 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project basedir="." default="all" name="cacert-gigi">
-	<property environment="env"/>
-	<property name="junit.output.dir" value="junit"/>
-	<property name="debuglevel" value="source,lines,vars"/>
-	<property name="target" value="1.8"/>
-	<property name="source" value="1.8"/>
-	<property name="mysqlconnector" value="mysql-connector-java-5.1.31-bin.jar"/>
-	<property name="juintexec" value="."/>
+	<property environment="env" />
+	<property name="junit.output.dir" value="junit" />
+	<property name="debuglevel" value="source,lines,vars" />
+	<property name="target" value="1.8" />
+	<property name="source" value="1.8" />
+	<property name="mysqlconnector" value="mysql-connector-java-5.1.31-bin.jar" />
+	<property name="juintexec" value="." />
 	<path id="JUnit 4.libraryclasspath">
-		<pathelement location="${juintexec}/junit.jar"/>
-		<pathelement location="${juintexec}/org.hamcrest.core.jar"/>
+		<pathelement location="${juintexec}/junit.jar" />
+		<pathelement location="${juintexec}/org.hamcrest.core.jar" />
 	</path>
 	<path id="cacert-gigi.classpath">
-		<pathelement location="bin"/>
-		<pathelement location="${mysqlconnector}"/>
+		<pathelement location="bin" />
+		<pathelement location="${mysqlconnector}" />
 	</path>
 	<path id="cacert-gigi.test.classpath">
-		<pathelement location="bin"/>
-		<pathelement location="bintest"/>
-		<path refid="JUnit 4.libraryclasspath"/>
-		<pathelement location="${mysqlconnector}"/>
+		<pathelement location="bin" />
+		<pathelement location="bintest" />
+		<path refid="JUnit 4.libraryclasspath" />
+		<pathelement location="${mysqlconnector}" />
 	</path>
 	<target name="init">
-		<mkdir dir="bin"/>
-		<mkdir dir="bintest"/>
+		<mkdir dir="bin" />
+		<mkdir dir="bintest" />
 
 		<copy includeemptydirs="false" todir="bin">
 			<fileset dir="lib/servlet-api">
-				<exclude name="**/*.launch"/>
-				<exclude name="**/*.java"/>
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
 		<copy includeemptydirs="false" todir="bin">
 			<fileset dir="lib/jetty">
-				<exclude name="**/*.launch"/>
-				<exclude name="**/*.java"/>
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
 		<copy includeemptydirs="false" todir="bin">
 			<fileset dir="src">
-				<exclude name="**/*.launch"/>
-				<exclude name="**/*.java"/>
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
 		<copy includeemptydirs="false" todir="bin">
 			<fileset dir="util">
-				<exclude name="**/*.launch"/>
-				<exclude name="**/*.java"/>
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
 		<copy includeemptydirs="false" todir="bintest">
 			<fileset dir="tests">
-				<exclude name="**/*.launch"/>
-				<exclude name="**/*.java"/>
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
 	</target>
 	<target name="clean">
-		<delete dir="bin"/>
+		<delete dir="bin" />
 	</target>
-	<target depends="clean" name="cleanall"/>
-	<target depends="build-project, native" name="build"/>
+	<target depends="clean" name="cleanall" />
+	<target depends="build-project, native" name="build" />
 	<target depends="init" name="build-project">
-		<echo message="${ant.project.name}: ${ant.file}"/>
-		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
-			<src path="lib/servlet-api"/>
-			<src path="lib/jetty"/>
-			<src path="lib/jtar"/>
-			<src path="src"/>
-			<src path="util"/>
-			<classpath refid="cacert-gigi.classpath"/>
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin"
+			includeantruntime="false" source="${source}" target="${target}">
+			<src path="lib/servlet-api" />
+			<src path="lib/jetty" />
+			<src path="lib/jtar" />
+			<src path="src" />
+			<src path="util" />
+			<classpath refid="cacert-gigi.classpath" />
 		</javac>
 	</target>
 
 	<target name="native">
-		<exec executable="make" dir="natives"/>
+		<exec executable="make" dir="natives">
+			<arg value="clean" />
+			<arg value="all" />
+		</exec>
 	</target>
 
 	<target depends="build" name="pack">
-		<jar destfile="gigi.jar" basedir="bin" manifest="Gigi.MF"/>
+		<jar destfile="gigi.jar" basedir="bin" manifest="Gigi.MF" />
 	</target>
 
 	<target depends="test,native" name="bundle">
-		<zip destfile="gigi-linux_amd64.zip" basedir="." includes="gigi.jar,native/*.so,doc/tableStructure.sql,static/**,templates/**"/>
+		<zip destfile="gigi-linux_amd64.zip" basedir="."
+			includes="gigi.jar,native/*.so,doc/tableStructure.sql,static/**,templates/**" />
 	</target>
 	<target name="static-bundle">
-		<tar destfile="static.tar.gz" compression="gzip" basedir="." includes="doc/tableStructure.sql,static/**,templates/**"/>
+		<tar destfile="static.tar.gz" compression="gzip" basedir="."
+			includes="doc/tableStructure.sql,static/**,templates/**" />
 	</target>
 
-	<target name="all" depends="bundle,static-bundle"/>
+	<target name="all" depends="bundle,static-bundle" />
 
 
 	<target depends="init,build-project" name="build-project-test">
-		<echo message="${ant.project.name}: ${ant.file}"/>
-		<javac debug="true" debuglevel="${debuglevel}" destdir="bintest" includeantruntime="false" source="${source}" target="${target}">
-			<src path="tests"/>
-			<classpath refid="cacert-gigi.test.classpath"/>
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bintest"
+			includeantruntime="false" source="${source}" target="${target}">
+			<src path="tests" />
+			<classpath refid="cacert-gigi.test.classpath" />
 		</javac>
 	</target>
 	<target name="check-locale">
-		<available file="locale/de.xml" property="locale.present"/>
+		<available file="locale/de.xml" property="locale.present" />
 	</target>
 	<target name="FetchLocales" depends="check-locale" unless="locale.present">
-		<java classname="org.cacert.gigi.util.FetchLocales" failonerror="true" fork="yes">
-			<classpath refid="cacert-gigi.classpath"/>
+		<java classname="org.cacert.gigi.util.FetchLocales" failonerror="true"
+			fork="yes">
+			<classpath refid="cacert-gigi.classpath" />
 		</java>
 	</target>
 	<target name="check-generateKeys">
-		<available file="config/keystore.pkcs12" property="keystore.present"/>
+		<available file="config/keystore.pkcs12" property="keystore.present" />
 	</target>
 	<target name="generateKeys" depends="check-generateKeys" unless="keystore.present">
-		<exec executable="./generateKeys.sh" dir="keys"/>
+		<exec executable="./generateKeys.sh" dir="keys" />
 		<exec executable="./generateTruststore.sh" dir="keys">
-			<arg value="-noprompt"/>
+			<arg value="-noprompt" />
 		</exec>
 	</target>
 	<target name="test" depends="build-project-test,generateKeys,FetchLocales,pack">
-		<mkdir dir="${junit.output.dir}"/>
+		<mkdir dir="${junit.output.dir}" />
 		<junit fork="yes" printsummary="withOutAndErr">
-			<formatter type="xml"/>
+			<formatter type="xml" />
 			<batchtest fork="yes" todir="${junit.output.dir}">
 				<fileset dir="tests">
-					<include name="**/*.java"/>
-					<exclude name="**/testUtils/**"/>
+					<include name="**/*.java" />
+					<exclude name="**/testUtils/**" />
 				</fileset>
 			</batchtest>
-			<classpath refid="cacert-gigi.test.classpath"/>
+			<classpath refid="cacert-gigi.test.classpath" />
 		</junit>
 	</target>
 	<target name="junitreport">
 		<junitreport todir="${junit.output.dir}">
 			<fileset dir="${junit.output.dir}">
-				<include name="TEST-*.xml"/>
+				<include name="TEST-*.xml" />
 			</fileset>
-			<report format="frames" todir="${junit.output.dir}"/>
+			<report format="frames" todir="${junit.output.dir}" />
 		</junitreport>
 	</target>
 </project>
