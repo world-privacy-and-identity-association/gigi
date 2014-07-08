@@ -6,3 +6,4 @@ testca
 csr
 crt
 testca.crl
+config
