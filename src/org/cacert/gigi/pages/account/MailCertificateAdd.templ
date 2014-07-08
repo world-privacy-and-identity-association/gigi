@@ -7,7 +7,7 @@
 
 <p><?=_If the Subscriber's name and/or domain name registration change the subscriber will immediately inform CAcert Inc. who shall revoke the digital certificate. When the Digital Certificate expires or is revoked the company will permanently remove the certificate from the server on which it is installed and will not use it for any purpose thereafter. The person responsible for key management and security is fully authorized to install and utilize the certificate to represent this organization's electronic presence.?></p>
 
-<form method="post" action="account.php">
+<form method="post">
 <table align="center" valign="middle" border="0" cellspacing="0" cellpadding="0" class="wrapper">
   <tr>
     <td colspan="2" class="title"><?=_New Client Certificate?></td>
@@ -48,9 +48,9 @@
     </td>
   </tr>
 
-  <tr class="expertoff" style="display:none">
+  <tr class="expertoff">
     <td class="DataTD">
-      <input type="checkbox" id="expertbox" name="expertbox" onchange="showExpert(this.checked)" />
+      <input type="checkbox" id="expertbox" name="expertbox"/>
     </td>
     <td class="DataTD" align="left">
       <label for="expertbox"><?=_Show advanced options?></label>
