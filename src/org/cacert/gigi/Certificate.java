@@ -1,5 +1,11 @@
 package org.cacert.gigi;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,7 +39,7 @@ public class Certificate {
 			return CertificateStatus.DRAFT;
 		}
 		PreparedStatement searcher = DatabaseConnection.getInstance().prepare(
-				"SELECT csr_name, created, revoked FROM emailcerts WHERE id=?");
+				"SELECT crt_name, created, revoked FROM emailcerts WHERE id=?");
 		searcher.setInt(1, id);
 		ResultSet rs = searcher.executeQuery();
 		if (!rs.next()) {
@@ -42,7 +48,7 @@ public class Certificate {
 		if (rs.getString(2) == null) {
 			return CertificateStatus.BEEING_ISSUED;
 		}
-		csrName = rs.getString(1);
+		crtName = rs.getString(1);
 		if (rs.getTime(2) != null && rs.getTime(3) == null) {
 			return CertificateStatus.ISSUED;
 		}
@@ -61,9 +67,10 @@ public class Certificate {
 			PreparedStatement inserter = DatabaseConnection
 					.getInstance()
 					.prepare(
-							"INSERT INTO emailcerts SET csr_name =?, md=?, subject='a', coll_found=0, crt_name=''");
+							"INSERT INTO emailcerts SET csr_name =?, md=?, subject=?, coll_found=0, crt_name=''");
 			inserter.setString(1, csrName);
 			inserter.setString(2, md);
+			inserter.setString(3, dn);
 			inserter.execute();
 			id = DatabaseConnection.lastInsertId(inserter);
 		} catch (SQLException e) {
@@ -96,6 +103,21 @@ public class Certificate {
 			e.printStackTrace();
 		}
 
+	}
+
+	public X509Certificate cert() throws IOException, GeneralSecurityException {
+		InputStream is = null;
+		X509Certificate crt = null;
+		try {
+			is = new FileInputStream(crtName);
+			CertificateFactory cf = CertificateFactory.getInstance("X.509");
+			crt = (X509Certificate) cf.generateCertificate(is);
+		} finally {
+			if (is != null) {
+				is.close();
+			}
+		}
+		return crt;
 	}
 	public Certificate renew() {
 		return null;

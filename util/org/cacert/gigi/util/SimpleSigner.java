@@ -24,7 +24,7 @@ public class SimpleSigner {
 		DatabaseConnection.init(p);
 
 		readyMail = DatabaseConnection.getInstance().prepare(
-				"SELECT id, csr_name FROM emailcerts"
+				"SELECT id, csr_name, subject FROM emailcerts"
 						+ " WHERE csr_name is not null"//
 						+ " AND created=0"//
 						+ " AND crt_name=''"//
@@ -113,6 +113,7 @@ public class SimpleSigner {
 					"-out", "../" + crt.getPath(),//
 					"-days", "356",//
 					"-batch",//
+					"-subj", rs.getString(3),//
 					"-config", "selfsign.config"
 
 			};
