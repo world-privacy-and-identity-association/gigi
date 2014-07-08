@@ -105,13 +105,17 @@ public class Launcher {
 						if (sniServerName instanceof SNIHostName) {
 							SNIHostName host = (SNIHostName) sniServerName;
 							String hostname = host.getAsciiName();
-							if (hostname.equals("www.cacert.local")) {
+							if (hostname.equals(ServerConstants
+									.getWwwHostName())) {
 								e2 = sslContextFactory.newSSLEngine();
-							} else if (hostname.equals("static.cacert.local")) {
+							} else if (hostname.equals(ServerConstants
+									.getStaticHostName())) {
 								e2 = staticContextFactory.newSSLEngine();
-							} else if (hostname.equals("secure.cacert.local")) {
+							} else if (hostname.equals(ServerConstants
+									.getSecureHostName())) {
 								e2 = secureContextFactory.newSSLEngine();
-							} else if (hostname.equals("api.cacert.local")) {
+							} else if (hostname.equals(ServerConstants
+									.getApiHostName())) {
 								e2 = apiContextFactory.newSSLEngine();
 							}
 							break;
