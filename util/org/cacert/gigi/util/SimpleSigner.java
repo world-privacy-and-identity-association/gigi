@@ -14,6 +14,8 @@ public class SimpleSigner {
 	private static PreparedStatement warnMail;
 	private static PreparedStatement updateMail;
 	private static PreparedStatement readyMail;
+	private static PreparedStatement revoke;
+	private static PreparedStatement revokeCompleted;
 
 	public static void main(String[] args) throws IOException, SQLException,
 			InterruptedException {
@@ -22,7 +24,8 @@ public class SimpleSigner {
 		DatabaseConnection.init(p);
 
 		readyMail = DatabaseConnection.getInstance().prepare(
-				"SELECT id, csr_name FROM emailcerts" + " WHERE csr_name!=null"//
+				"SELECT id, csr_name FROM emailcerts"
+						+ " WHERE csr_name is not null"//
 						+ " AND created=0"//
 						+ " AND crt_name=''"//
 						+ " AND warning<3");
@@ -32,13 +35,69 @@ public class SimpleSigner {
 						+ " created=NOW() WHERE id=?");
 		warnMail = DatabaseConnection.getInstance().prepare(
 				"UPDATE emailcerts SET warning=warning+1 WHERE id=?");
+
+		revoke = DatabaseConnection.getInstance().prepare(
+				"SELECT id, csr_name FROM emailcerts"
+						+ " WHERE csr_name is not null"//
+						+ " AND created != 0"//
+						+ " AND revoked = '1970-01-01'");
+		revokeCompleted = DatabaseConnection.getInstance().prepare(
+				"UPDATE emailcerts SET revoked=NOW() WHERE id=?");
+		gencrl();
 		while (true) {
 			System.out.println("ping");
 			executeOutstanders();
+			revokeOutstanders();
 			Thread.sleep(5000);
 		}
 	}
 
+	private static void revokeOutstanders() throws SQLException, IOException,
+			InterruptedException {
+		ResultSet rs = revoke.executeQuery();
+		boolean worked = false;
+		while (rs.next()) {
+			int id = rs.getInt(1);
+			File crt = KeyStorage.locateCrt(id);
+			String[] call = new String[]{"openssl", "ca",//
+					"-cert", "testca.crt",//
+					"-keyfile", "testca.key",//
+					"-revoke", "../" + crt.getPath(),//
+					"-batch",//
+					"-config", "selfsign.config"
+
+			};
+			Process p1 = Runtime.getRuntime()
+					.exec(call, null, new File("keys"));
+			System.out.println("revoking: " + crt.getPath());
+			if (p1.waitFor() == 0) {
+				worked = true;
+				revokeCompleted.setInt(1, id);
+				revokeCompleted.execute();
+			} else {
+				System.out.println("Failed");
+			}
+		}
+		if (worked) {
+			gencrl();
+		}
+	}
+	private static void gencrl() throws IOException, InterruptedException {
+		String[] call = new String[]{"openssl", "ca",//
+				"-cert", "testca.crt",//
+				"-keyfile", "testca.key",//
+				"-gencrl",//
+				"-crlhours",//
+				"12",//
+				"-out", "testca.crl",//
+				"-config", "selfsign.config"
+
+		};
+		Process p1 = Runtime.getRuntime().exec(call, null, new File("keys"));
+		if (p1.waitFor() != 0) {
+			System.out.println("Error while generating crl.");
+		}
+	}
 	private static void executeOutstanders() throws SQLException, IOException,
 			InterruptedException {
 		ResultSet rs = readyMail.executeQuery();
