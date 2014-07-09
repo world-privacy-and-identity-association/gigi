@@ -195,11 +195,4 @@ public class SSLPinger extends DomainPinger {
 			e.printStackTrace();
 		}
 	}
-	public static void main(String[] args) {
-		new SSLPinger().ping("dogcraft.de", "443", "");
-		new SSLPinger().ping("dogcraft.de", "587:smtp", "");
-		new SSLPinger().ping("dogcraft.de", "5222:xmpp", "");
-		new SSLPinger().ping("dogcraft.de", "5269:server-xmpp", "");
-		new SSLPinger().ping("dogcraft.de", "143:imap", "");
-	}
 }

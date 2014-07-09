@@ -64,8 +64,5 @@ public class DNSPinger extends DomainPinger {
 		}
 		// FAIL
 	}
-	public static void main(String[] args) {
-		new DNSPinger().ping("dyn.dogcraft.de", "", "salat");
-	}
 
 }
