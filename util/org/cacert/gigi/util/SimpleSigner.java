@@ -46,13 +46,13 @@ public class SimpleSigner {
 		gencrl();
 		while (true) {
 			System.out.println("ping");
-			executeOutstanders();
-			revokeOutstanders();
+			signCertificates();
+			revokeCertificates();
 			Thread.sleep(5000);
 		}
 	}
 
-	private static void revokeOutstanders() throws SQLException, IOException,
+	private static void revokeCertificates() throws SQLException, IOException,
 			InterruptedException {
 		ResultSet rs = revoke.executeQuery();
 		boolean worked = false;
@@ -98,7 +98,7 @@ public class SimpleSigner {
 			System.out.println("Error while generating crl.");
 		}
 	}
-	private static void executeOutstanders() throws SQLException, IOException,
+	private static void signCertificates() throws SQLException, IOException,
 			InterruptedException {
 		ResultSet rs = readyMail.executeQuery();
 		while (rs.next()) {
