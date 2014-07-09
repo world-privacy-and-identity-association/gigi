@@ -2,7 +2,6 @@ package org.cacert.gigi.pages.account;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.HashMap;
 
@@ -42,20 +41,18 @@ public class MailCertificateAdd extends Page {
 			// Error.
 			return;
 		}
-		Certificate c = new Certificate("/commonName=felix@dogcraft.de",
+		Certificate c = new Certificate("/commonName=CAcert WoT User",
 				"sha256", csr);
 		c.issue();
 		try {
 			c.waitFor(60000);
-			out.println(c.getStatus());
-			out.println(c.cert());
-		} catch (SQLException e1) {
-			e1.printStackTrace();
-		} catch (GeneralSecurityException e) {
+			resp.sendRedirect(MailCertificates.PATH + "/" + c.getId());
+		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+
 	}
 
 }

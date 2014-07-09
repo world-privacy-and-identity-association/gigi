@@ -54,7 +54,7 @@ public class Gigi extends HttpServlet {
 		pages.put("/secure", new TestSecure());
 		pages.put(Verify.PATH, new Verify());
 		pages.put(AssurePage.PATH + "/*", new AssurePage());
-		pages.put(MailCertificates.PATH, new MailCertificates());
+		pages.put(MailCertificates.PATH + "/*", new MailCertificates());
 		pages.put(MyDetails.PATH, new MyDetails());
 		pages.put(ChangePasswordPage.PATH, new ChangePasswordPage());
 		pages.put(RegisterPage.PATH, new RegisterPage());

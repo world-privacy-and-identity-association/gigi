@@ -745,3 +745,7 @@ formMandatory{
 .expertoff{
 	display:none;	
 }
+pre{
+	word-wrap: break-word;
+	white-space: pre-wrap;
+}

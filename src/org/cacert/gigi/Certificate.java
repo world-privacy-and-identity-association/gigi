@@ -29,6 +29,28 @@ public class Certificate {
 		this.csr = csr;
 	}
 
+	public Certificate(int id) {
+		try {
+			PreparedStatement ps = DatabaseConnection
+					.getInstance()
+					.prepare(
+							"SELECT subject, md, csr_name, crt_name FROM `emailcerts` WHERE id=?");
+			ps.setInt(1, id);
+			ResultSet rs = ps.executeQuery();
+			if (!rs.next()) {
+				throw new IllegalArgumentException("Invalid mid " + id);
+			}
+			this.id = id;
+			dn = rs.getString(1);
+			md = rs.getString(2);
+			csrName = rs.getString(3);
+			crtName = rs.getString(4);
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public enum CertificateStatus {
 		/**
 		 * This certificate is not in the database, has no id and only exists as
