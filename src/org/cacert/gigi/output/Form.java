@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.Language;
 import org.cacert.gigi.pages.Page;
@@ -13,8 +14,11 @@ import org.cacert.gigi.util.RandomToken;
 public abstract class Form implements Outputable {
 	String csrf;
 
-	public Form() {
+	public Form(HttpServletRequest hsr) {
 		csrf = RandomToken.generateToken(32);
+		HttpSession hs = hsr.getSession();
+		hs.setAttribute("form/" + getClass().getName() + "/" + csrf, this);
+
 	}
 
 	public abstract boolean submit(PrintWriter out, HttpServletRequest req);
@@ -23,7 +27,7 @@ public abstract class Form implements Outputable {
 	public final void output(PrintWriter out, Language l, Map<String, Object> vars) {
 		out.println("<form method='POST' autocomplete='off'>");
 		outputContent(out, l, vars);
-		out.print("<input type='csrf' value='");
+		out.print("<input type='hidden' name='csrf' value='");
 		out.print(getCSRFToken());
 		out.println("'></form>");
 	}
@@ -46,7 +50,20 @@ public abstract class Form implements Outputable {
 		}
 	}
 
-	public class CSRFError extends Error {
+	public static <T extends Form> T getForm(HttpServletRequest req, Class<T> target) {
+		String csrf = req.getParameter("csrf");
+		if (csrf == null) {
+			throw new CSRFError();
+		}
+		HttpSession hs = req.getSession();
+		if (hs == null) {
+			throw new CSRFError();
+		}
+		Form f = (Form) hs.getAttribute("form/" + target.getName() + "/" + csrf);
+		return (T) f;
+	}
+
+	public static class CSRFError extends Error {
 
 	}
 }

@@ -10,13 +10,11 @@ import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.output.DateSelector;
+import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.Template;
-import org.cacert.gigi.output.Form.CSRFError;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.Notary;
@@ -24,7 +22,6 @@ import org.cacert.gigi.util.Notary.AssuranceResult;
 
 public class AssurePage extends Page {
 	public static final String PATH = "/wot/assure";
-	public static final String SESSION = "/wot/assure/FORM";
 	DateSelector ds = new DateSelector("day", "month", "year");
 	Template t;
 
@@ -40,27 +37,29 @@ public class AssurePage extends Page {
 		PrintWriter out = resp.getWriter();
 		String pi = req.getPathInfo().substring(PATH.length());
 		if (pi.length() > 1) {
-			User myself = LoginPage.getUser(req);
 			int mid = Integer.parseInt(pi.substring(1));
-			AssuranceResult check = Notary.checkAssuranceIsPossible(myself, new User(mid));
-			if (check != AssuranceResult.ASSURANCE_SUCCEDED) {
-				out.println(translate(req, check.getMessage()));
-				return;
-			}
-			HttpSession hs = req.getSession();
-			AssuranceForm form = (AssuranceForm) hs.getAttribute(SESSION);
-			if (form == null || form.assuree.getId() != mid) {
-				form = new AssuranceForm(mid);
-				hs.setAttribute(SESSION, form);
-			}
+			AssuranceForm form = new AssuranceForm(req, mid);
+			outputForm(req, out, mid, form);
 
-			form.output(out, getLanguage(req), new HashMap<String, Object>());
-			;
 		} else {
 			HashMap<String, Object> vars = new HashMap<String, Object>();
 			vars.put("DoB", ds);
 			t.output(out, getLanguage(req), vars);
 		}
+	}
+
+	private void outputForm(HttpServletRequest req, PrintWriter out, int mid, AssuranceForm form) {
+		User myself = LoginPage.getUser(req);
+		AssuranceResult check = Notary.checkAssuranceIsPossible(myself, new User(mid));
+		if (check != AssuranceResult.ASSURANCE_SUCCEDED) {
+			out.println(translate(req, check.getMessage()));
+			return;
+		}
+		if (form == null || form.assuree.getId() != mid) {
+			form = new AssuranceForm(req, mid);
+		}
+
+		form.output(out, getLanguage(req), new HashMap<String, Object>());
 	}
 
 	@Override
@@ -71,26 +70,23 @@ public class AssurePage extends Page {
 			User myself = LoginPage.getUser(req);
 			int mid = Integer.parseInt(pi.substring(1));
 			if (mid == myself.getId()) {
-				out.println("Cannot assure myself.");
+				out.println(translate(req, "Cannot assure myself."));
 				return;
 			}
 
-			AssuranceForm form = (AssuranceForm) req.getSession().getAttribute(SESSION);
-			if (form == null) {
-				out.println("No form found. This is an Error. Fill in the form again.");
+			AssuranceForm form = Form.getForm(req, AssuranceForm.class);
+			if (mid != form.assuree.getId()) {
 				return;
 			}
-			try {
-				form.submit(out, req);
-			} catch (CSRFError e) {
-				resp.sendError(500, "CSRF Failed");
-				out.println(translate(req, "CSRF Token failed."));
+			if (form.submit(out, req)) {
+				out.println(translate(req, "Assurance complete."));
+			} else {
+				outputForm(req, resp.getWriter(), mid, form);
 			}
 
 			return;
 		}
 
-		System.out.println("searching for");
 		ResultSet rs = null;
 		try {
 			PreparedStatement ps = DatabaseConnection.getInstance().prepare(

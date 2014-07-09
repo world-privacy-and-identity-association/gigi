@@ -17,7 +17,7 @@ public class ChangePasswordPage extends Page {
 
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		new ChangeForm().output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+		new ChangeForm(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
 	}
 
 }

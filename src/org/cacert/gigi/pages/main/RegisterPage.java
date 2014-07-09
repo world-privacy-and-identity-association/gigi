@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.cacert.gigi.output.Form;
 import org.cacert.gigi.pages.Page;
 
 public class RegisterPage extends Page {
@@ -24,25 +25,16 @@ public class RegisterPage extends Page {
 		PrintWriter out = resp.getWriter();
 		HashMap<String, Object> vars = new HashMap<String, Object>();
 		getDefaultTemplate().output(out, getLanguage(req), vars);
-		Signup s = getForm(req);
+		Signup s = new Signup(req);
 		s.output(out, getLanguage(req), vars);
-	}
-
-	public Signup getForm(HttpServletRequest req) {
-		HttpSession hs = req.getSession();
-		Signup s = (Signup) hs.getAttribute(SIGNUP_PROCESS);
-		if (s == null) {
-			s = new Signup();
-			hs.setAttribute(SIGNUP_PROCESS, s);
-		}
-		return s;
-
 	}
 
 	@Override
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		Signup s = getForm(req);
-		if (s.submit(resp.getWriter(), req)) {
+		Signup s = Form.getForm(req, Signup.class);
+		if (s == null) {
+			resp.getWriter().println(translate(req, "CSRF token check failed."));
+		} else if (s.submit(resp.getWriter(), req)) {
 			HttpSession hs = req.getSession();
 			hs.setAttribute(SIGNUP_PROCESS, null);
 			resp.getWriter().println(

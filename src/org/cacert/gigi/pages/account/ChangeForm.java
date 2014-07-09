@@ -11,6 +11,10 @@ import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.Template;
 
 public class ChangeForm extends Form {
+	public ChangeForm(HttpServletRequest hsr) {
+		super(hsr);
+	}
+
 	private static Template t;
 	static {
 		t = new Template(

@@ -26,7 +26,8 @@ public class AssuranceForm extends Form {
 		templ = new Template(new InputStreamReader(AssuranceForm.class.getResourceAsStream("AssuranceForm.templ")));
 	}
 
-	public AssuranceForm(int assuree) {
+	public AssuranceForm(HttpServletRequest hsr, int assuree) {
+		super(hsr);
 		this.assuree = new User(assuree);
 	}
 
