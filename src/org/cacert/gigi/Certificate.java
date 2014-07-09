@@ -30,14 +30,48 @@ public class Certificate {
 	}
 
 	public enum CertificateStatus {
-		DRAFT(false), BEING_ISSUED(true), ISSUED(false), BEING_REVOKED(true), REVOKED(
-				false);
+		/**
+		 * This certificate is not in the database, has no id and only exists as
+		 * this java object.
+		 */
+		DRAFT(false),
+		/**
+		 * The certificate has been written to the database and is waiting for
+		 * the signer to sign it.
+		 */
+		SIGNING(true),
+		/**
+		 * The certificate has been signed. It is stored in the database.
+		 * {@link Certificate#cert()} is valid.
+		 */
+		ISSUED(false),
+		/**
+		 * The cetrificate is about to be revoked by the signer bot.
+		 */
+		BEING_REVOKED(true),
+
+		/**
+		 * The certificate has been revoked.
+		 */
+		REVOKED(false),
+
+		/**
+		 * If this certificate cannot be updated because an error happened in
+		 * the signer.
+		 */
+		ERROR(false);
 
 		private boolean unstable;
 
 		private CertificateStatus(boolean unstable) {
 			this.unstable = unstable;
 		}
+		/**
+		 * Checks, iff this certificate stage will be left by signer actions.
+		 * 
+		 * @return True, iff this certificate stage will be left by signer
+		 *         actions.
+		 */
 		public boolean isUnstable() {
 			return unstable;
 		}
@@ -47,15 +81,21 @@ public class Certificate {
 		if (id == 0) {
 			return CertificateStatus.DRAFT;
 		}
-		PreparedStatement searcher = DatabaseConnection.getInstance().prepare(
-				"SELECT crt_name, created, revoked FROM emailcerts WHERE id=?");
+		PreparedStatement searcher = DatabaseConnection
+				.getInstance()
+				.prepare(
+						"SELECT crt_name, created, revoked, warning FROM emailcerts WHERE id=?");
 		searcher.setInt(1, id);
 		ResultSet rs = searcher.executeQuery();
 		if (!rs.next()) {
 			throw new IllegalStateException("Certificate not in Database");
 		}
+		if (rs.getInt(4) >= 3) {
+			return CertificateStatus.ERROR;
+		}
+
 		if (rs.getString(2) == null) {
-			return CertificateStatus.BEING_ISSUED;
+			return CertificateStatus.SIGNING;
 		}
 		crtName = rs.getString(1);
 		System.out.println(crtName);
