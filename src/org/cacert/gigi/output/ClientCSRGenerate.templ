@@ -1,0 +1,9 @@
+
+	<p>
+		<form method="post" action="account.php">
+			<input type="hidden" name="keytype" value="NS">
+			<?=_Keysize:?> <keygen name="SPKAC" challenge="<?=$spkac_hash?>">
+
+			<input type="submit" name="submit" value="<?=_Create Certificate Request?>">
+		</form>
+	</p>

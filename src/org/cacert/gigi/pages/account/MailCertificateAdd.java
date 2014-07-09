@@ -7,6 +7,7 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.output.ClientCSRGenerate;
 import org.cacert.gigi.pages.Page;
 
 public class MailCertificateAdd extends Page {
@@ -29,6 +30,7 @@ public class MailCertificateAdd extends Page {
 		if (req.getParameter("optionalCSR") == null
 				|| req.getParameter("optionalCSR").equals("")) {
 			out.println("csr missing");
+			ClientCSRGenerate.output(req, resp);
 		}
 		out.println("could now start processing the cert request");
 	}

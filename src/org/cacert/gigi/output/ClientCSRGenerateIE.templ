@@ -1,0 +1,70 @@
+	<noscript>
+		<p><?=_You have to enable JavaScript to generate certificates in the browser.?></p>
+		<p><?=_If you don't want to do that for any reason, you can use manually created certificate requests instead.?></p>
+	</noscript>
+
+	<div id="noActiveX" style="color:red">
+		<p><?=_Could not initialize ActiveX object required for certificate generation.?></p>
+		<p><?=_You have to enable ActiveX for this to work. On Windows Vista, Windows 7 and later versions you have to add this website to the list of trusted sites in the internet settings.?></p>
+		<p><?=s,$normalhost,$securehost,Go to "Extras -> Internet Options -> Security -> Trusted Websites",
+ click on "Custom Level", set "ActiveX control elements that are not marked as safe initialized on start
+ in scripts" to "Confirm" and click "OK". Now click "Sites", add "%s" and "%s" to your list of trusted
+ sites and make the changes come into effect by clicking "Close" and "OK".?></p>
+	</div>
+
+	<form method="post" style="display:none" action="account.php"
+			id="CertReqForm">
+		<input type="hidden" id="CSR" name="CSR" />
+		<input type="hidden" name="keytype" value="MS" />
+
+		<p><?=_Security level?>:
+			<select id="SecurityLevel">
+				<option value="high" selected="selected"><?=_High?></option>
+				<option value="medium"><?=_Medium?></option>
+				<option value="custom"><?=_Custom?>&hellip;</option>
+			</select>
+		</p>
+
+		<fieldset id="customSettings" style="display:none">
+			<legend><?=_Custom Parameters?></legend>
+
+			<p><?=_Cryptography Provider?>:
+				<select id="CspProvider"></select>
+			</p>
+			<p><?=_Algorithm?>: <select id="algorithm"></select></p>
+			<p><?=_Keysize?>:
+				<input id="keySize" type="number" />
+				<?=_Minimum Size?>: <span id="keySizeMin"></span>,
+				<?=_Maximum Size?>: <span id="keySizeMax"></span>,
+				<?=_Step?>: <span id="keySizeStep"></span></p>
+			<p style="color:red"><?=s,$minsize,Please note that RSA key sizes smaller than %d bit will not be accepted by CAcert?>
+			</p>
+		</fieldset>
+
+		<p><input type="submit" id="GenReq" name="GenReq" value="<?=_Create Certificate?>" /></p>
+		<p id="generatingKeyNotice" style="display:none">
+			<?=_Generating your key. Please wait?>&hellip;</p>
+	</form>
+
+	<!-- Error messages used in the JavaScript. Defined here so they can be
+	translated without passing the JavaScript code through PHP -->
+	<p id="createRequestErrorChooseAlgorithm" style="display:none">
+		<?=_Could not generate certificate request. Probably you need to choose a different algorithm.?>
+	</p>
+	<p id="createRequestErrorConfirmDialogue" style="display:none">
+		<?=_Could not generate certificate request. Please confirm the dialogue if you are asked if you want to generate the key.?>
+	</p>
+	<p id="createRequestErrorConnectDevice" style="display:none">
+		<?=_Could not generate certificate request. Please make sure the cryptography device (e.g. the smartcard) is connected.?>
+	</p>
+	<p id="createRequestError" style="display:none">
+		<?=_Could not generate certificate request.?>
+	</p>
+	<p id="invalidKeySizeError" style="display:none">
+		<?=_You have specified an invalid key size?>
+	</p>
+	<p id="unsupportedPlatformError" style="display:none">
+		<?=_Could not initialize the cryptographic module for your platform. Currently we support Microsoft Windows XP, Vista and 7. If you're using one of these platforms and see this error message anyway you might have to enable ActiveX as described in the red explanation text and accept loading of the module.?>
+	</p>
+
+	<script type="text/javascript" src="<?=$statichost?>/keygenIE.js"></script>
