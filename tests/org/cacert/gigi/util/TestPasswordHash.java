@@ -12,4 +12,10 @@ public class TestPasswordHash {
 		assertTrue(PasswordHash.verifyHash("auhlcb4 9x,IUQẞ&lvrvä",
 				PasswordHash.hash("auhlcb4 9x,IUQẞ&lvrvä")));
 	}
+	@Test
+	public void testVerifyNegative() {
+		assertFalse(PasswordHash.verifyHash("b", PasswordHash.hash("a")));
+		assertFalse(PasswordHash.verifyHash("ae",
+				PasswordHash.hash("auhlcb4 9x,IUQẞ&lvrvä")));
+	}
 }

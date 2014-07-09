@@ -26,6 +26,13 @@ public class TestPasswordStrengthChecker {
 				"0123456789012345678901234567890", u));
 	}
 	@Test
+	public void testPasswordNonASCII() {
+		assertEquals(2, PasswordStrengthChecker.checkpw("0ä", u));
+		assertEquals(3, PasswordStrengthChecker.checkpw("0aä", u));
+		assertEquals(3, PasswordStrengthChecker.checkpw("0azä", u));
+		assertEquals(3, PasswordStrengthChecker.checkpw("0az.ä", u));
+	}
+	@Test
 	public void testPasswordCharTypes() {
 		assertEquals(1, PasswordStrengthChecker.checkpw("0", u));
 		assertEquals(2, PasswordStrengthChecker.checkpw("0a", u));
