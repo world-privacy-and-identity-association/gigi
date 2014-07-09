@@ -58,7 +58,7 @@ public class Notary {
 				"Cannot assure myself."), ASSURANCE_SUCCEDED(""), ASSUREE_CHANGED(
 				"Person details changed. Please start over again."), POINTS_OUT_OF_RANGE(
 				"Points out of range.");
-		String message;
+		private final String message;
 		private AssuranceResult(String message) {
 			this.message = message;
 		}
