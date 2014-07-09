@@ -1,6 +1,8 @@
 package org.cacert.gigi;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -9,7 +11,9 @@ import java.security.cert.X509Certificate;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.util.KeyStorage;
 
 public class Certificate {
 	int id;
@@ -18,6 +22,12 @@ public class Certificate {
 	String md;
 	String csrName;
 	String crtName;
+	String csr = null;
+	public Certificate(String dn, String md, String csr) {
+		this.dn = dn;
+		this.md = md;
+		this.csr = csr;
+	}
 
 	// created, modified, revoked, expire
 	public enum CertificateStatus {
@@ -49,6 +59,7 @@ public class Certificate {
 			return CertificateStatus.BEEING_ISSUED;
 		}
 		crtName = rs.getString(1);
+		System.out.println(crtName);
 		if (rs.getTime(2) != null && rs.getTime(3) == null) {
 			return CertificateStatus.ISSUED;
 		}
@@ -59,7 +70,7 @@ public class Certificate {
 		return CertificateStatus.REVOKED;
 	}
 
-	public void issue() {
+	public void issue() throws IOException {
 		try {
 			if (getStatus() != CertificateStatus.DRAFT) {
 				throw new IllegalStateException();
@@ -67,12 +78,22 @@ public class Certificate {
 			PreparedStatement inserter = DatabaseConnection
 					.getInstance()
 					.prepare(
-							"INSERT INTO emailcerts SET csr_name =?, md=?, subject=?, coll_found=0, crt_name=''");
-			inserter.setString(1, csrName);
-			inserter.setString(2, md);
-			inserter.setString(3, dn);
+							"INSERT INTO emailcerts SET md=?, subject=?, coll_found=0, crt_name=''");
+			inserter.setString(1, md);
+			inserter.setString(2, dn);
 			inserter.execute();
 			id = DatabaseConnection.lastInsertId(inserter);
+			File csrFile = KeyStorage.locateCsr(id);
+			csrName = csrFile.getPath();
+			FileOutputStream fos = new FileOutputStream(csrFile);
+			fos.write(csr.getBytes());
+			fos.close();
+
+			PreparedStatement updater = DatabaseConnection.getInstance()
+					.prepare("UPDATE emailcerts SET csr_name=? WHERE id=?");
+			updater.setString(1, csrName);
+			updater.setInt(2, id);
+			updater.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -105,7 +126,12 @@ public class Certificate {
 
 	}
 
-	public X509Certificate cert() throws IOException, GeneralSecurityException {
+	public X509Certificate cert() throws IOException, GeneralSecurityException,
+			SQLException {
+		CertificateStatus status = getStatus();
+		if (status != CertificateStatus.ISSUED) {
+			throw new IllegalStateException(status + " is not wanted here.");
+		}
 		InputStream is = null;
 		X509Certificate crt = null;
 		try {
