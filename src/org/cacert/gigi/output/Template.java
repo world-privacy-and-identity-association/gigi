@@ -44,6 +44,7 @@ public class Template implements Outputable {
 			splitted.add(buf.toString());
 			contents = splitted.toArray(new String[splitted.size()]);
 			vars = commands.toArray(new Outputable[commands.size()]);
+			r.close();
 		} catch (IOException e) {
 			throw new Error(e);
 		}
@@ -54,6 +55,7 @@ public class Template implements Outputable {
 						.equals(string);
 	}
 	private Outputable parseCommand(String s2) {
+		s2 = s2.replace("\n", "");
 		if (s2.startsWith("=_")) {
 			final String raw = s2.substring(2);
 			return new Outputable() {
