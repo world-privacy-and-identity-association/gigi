@@ -22,10 +22,14 @@ public class RegisterPage extends Page {
 
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		Signup s = new Signup(req);
+		outputGet(req, resp, s);
+	}
+
+	private void outputGet(HttpServletRequest req, HttpServletResponse resp, Signup s) throws IOException {
 		PrintWriter out = resp.getWriter();
 		HashMap<String, Object> vars = new HashMap<String, Object>();
 		getDefaultTemplate().output(out, getLanguage(req), vars);
-		Signup s = new Signup(req);
 		s.output(out, getLanguage(req), vars);
 	}
 
@@ -45,7 +49,7 @@ public class RegisterPage extends Page {
 			return;
 		}
 
-		super.doPost(req, resp);
+		outputGet(req, resp, s);
 	}
 
 	@Override

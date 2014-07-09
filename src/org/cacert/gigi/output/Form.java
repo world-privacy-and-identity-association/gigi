@@ -60,6 +60,9 @@ public abstract class Form implements Outputable {
 			throw new CSRFError();
 		}
 		Form f = (Form) hs.getAttribute("form/" + target.getName() + "/" + csrf);
+		if (f == null) {
+			throw new CSRFError();
+		}
 		return (T) f;
 	}
 

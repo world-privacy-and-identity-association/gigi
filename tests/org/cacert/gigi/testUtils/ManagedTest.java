@@ -151,10 +151,17 @@ public class ManagedTest {
 	}
 
 	public String runRegister(String param) throws IOException {
-		HttpURLConnection uc = (HttpURLConnection) new URL("https://" + getServerName() + registerService)
-			.openConnection();
+		URL regist = new URL("https://" + getServerName() + registerService);
+		HttpURLConnection uc = (HttpURLConnection) regist.openConnection();
+		HttpURLConnection csrfConn = (HttpURLConnection) regist.openConnection();
+
+		String headerField = csrfConn.getHeaderField("Set-Cookie");
+		headerField = headerField.substring(0, headerField.indexOf(';'));
+
+		String csrf = getCSRF(csrfConn);
+		uc.addRequestProperty("Cookie", headerField);
 		uc.setDoOutput(true);
-		uc.getOutputStream().write(param.getBytes());
+		uc.getOutputStream().write((param + "&csrf=" + csrf).getBytes());
 		String d = IOUtils.readURL(uc);
 		return d;
 	}
@@ -261,10 +268,10 @@ public class ManagedTest {
 
 	public String getCSRF(URLConnection u) throws IOException {
 		String content = IOUtils.readURL(u);
-		Pattern p = Pattern.compile("<input type='csrf' value='([^']+)'>");
+		Pattern p = Pattern.compile("<input type='hidden' name='csrf' value='([^']+)'>");
 		Matcher m = p.matcher(content);
 		if (!m.find()) {
-			throw new Error("New CSRF Token");
+			throw new Error("No CSRF Token");
 		}
 		return m.group(1);
 	}
