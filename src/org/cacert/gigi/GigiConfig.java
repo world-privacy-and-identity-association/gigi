@@ -21,12 +21,15 @@ public class GigiConfig {
 
 	private GigiConfig() {
 	}
+
 	public byte[] getCacerts() {
 		return cacerts;
 	}
+
 	public byte[] getKeystore() {
 		return keystore;
 	}
+
 	public Properties getMainProps() {
 		return mainProps;
 	}
@@ -53,6 +56,7 @@ public class GigiConfig {
 		tis.close();
 		return gc;
 	}
+
 	public static byte[] readFully(InputStream is) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024];
@@ -63,6 +67,7 @@ public class GigiConfig {
 		baos.close();
 		return baos.toByteArray();
 	}
+
 	private static char[] transformSafe(byte[] readChunk) {
 		char[] res = new char[readChunk.length];
 		for (int i = 0; i < res.length; i++) {
@@ -72,18 +77,18 @@ public class GigiConfig {
 		return res;
 	}
 
-	public KeyStore getPrivateStore() throws GeneralSecurityException,
-			IOException {
+	public KeyStore getPrivateStore() throws GeneralSecurityException, IOException {
 		KeyStore ks1 = KeyStore.getInstance("pkcs12");
 		ks1.load(new ByteArrayInputStream(keystore), keystorpw);
 		return ks1;
 	}
-	public KeyStore getTrustStore() throws GeneralSecurityException,
-			IOException {
+
+	public KeyStore getTrustStore() throws GeneralSecurityException, IOException {
 		KeyStore ks1 = KeyStore.getInstance("jks");
 		ks1.load(new ByteArrayInputStream(cacerts), truststorepw);
 		return ks1;
 	}
+
 	public String getPrivateStorePw() {
 		return new String(keystorpw);
 	}

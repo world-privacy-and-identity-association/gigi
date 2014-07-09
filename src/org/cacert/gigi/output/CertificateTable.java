@@ -9,12 +9,13 @@ import org.cacert.gigi.Language;
 
 public class CertificateTable implements Outputable {
 	String resultSet;
+
 	public CertificateTable(String resultSet) {
 		this.resultSet = resultSet;
 	}
-	private static final String[] columnNames = new String[]{
-			"Renew/Revoke/Delete", "Status", "Email Address", "SerialNumber",
-			"Revoked", "Expires", "Login"};
+
+	private static final String[] columnNames = new String[] { "Renew/Revoke/Delete", "Status", "Email Address",
+			"SerialNumber", "Revoked", "Expires", "Login" };
 
 	@Override
 	public void output(PrintWriter out, Language l, Map<String, Object> vars) {

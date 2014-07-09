@@ -27,8 +27,7 @@ public class MailCertificates extends Page {
 	}
 
 	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		PrintWriter out = resp.getWriter();
 		String pi = req.getPathInfo().substring(PATH.length());
 		if (pi.length() != 0) {
@@ -51,10 +50,8 @@ public class MailCertificates extends Page {
 		HashMap<String, Object> vars = new HashMap<String, Object>();
 		User us = LoginPage.getUser(req);
 		try {
-			PreparedStatement ps = DatabaseConnection
-					.getInstance()
-					.prepare(
-							"SELECT `id`, `CN`, `serial`, `revoked`, `expire`, `disablelogin` FROM `emailcerts` WHERE `memid`=?");
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+				"SELECT `id`, `CN`, `serial`, `revoked`, `expire`, `disablelogin` FROM `emailcerts` WHERE `memid`=?");
 			ps.setInt(1, us.getId());
 			ResultSet rs = ps.executeQuery();
 			vars.put("mailcerts", rs);

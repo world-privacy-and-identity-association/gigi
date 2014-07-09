@@ -13,41 +13,37 @@ import org.cacert.gigi.database.DatabaseConnection;
 
 public class Verify extends Page {
 	public static final String PATH = "/verify";
+
 	public Verify() {
 		super("Verify email");
 	}
+
 	@Override
 	public boolean needsLogin() {
 		return false;
 	}
+
 	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		PrintWriter out = resp.getWriter();
 		String hash = req.getParameter("hash");
 		String type = req.getParameter("type");
 		String id = req.getParameter("id");
 		if ("email".equals(type)) {
 			try {
-				PreparedStatement ps = DatabaseConnection
-						.getInstance()
-						.prepare(
-								"select email, memid from `email` where `id`=? and `hash`=? and `hash` != '' and `deleted` = 0");
+				PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+					"select email, memid from `email` where `id`=? and `hash`=? and `hash` != '' and `deleted` = 0");
 				ps.setString(1, id);
 				ps.setString(2, hash);
 				ResultSet rs = ps.executeQuery();
 				rs.last();
 				if (rs.getRow() == 1) {
-					PreparedStatement ps1 = DatabaseConnection
-							.getInstance()
-							.prepare(
-									"update `email` set `hash`='', `modified`=NOW() where `id`=?");
+					PreparedStatement ps1 = DatabaseConnection.getInstance().prepare(
+						"update `email` set `hash`='', `modified`=NOW() where `id`=?");
 					ps1.setString(1, id);
 					ps1.execute();
-					PreparedStatement ps2 = DatabaseConnection
-							.getInstance()
-							.prepare(
-									"update `users` set `verified`='1' where `id`=? and `email`=? and `verified`='0'");
+					PreparedStatement ps2 = DatabaseConnection.getInstance().prepare(
+						"update `users` set `verified`='1' where `id`=? and `email`=? and `verified`='0'");
 					ps2.setString(1, rs.getString(2));
 					ps2.setString(2, rs.getString(1));
 					ps2.execute();
@@ -60,9 +56,9 @@ public class Verify extends Page {
 			}
 		}
 	}
+
 	@Override
-	public void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		String hash = req.getParameter("hash");
 		String type = req.getParameter("type");
 		if ("email".equals(type)) {

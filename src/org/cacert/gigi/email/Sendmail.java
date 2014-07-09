@@ -15,20 +15,18 @@ import java.util.regex.Pattern;
 public class Sendmail extends EmailProvider {
 	protected Sendmail(Properties props) {
 	}
-	private static final Pattern NON_ASCII = Pattern
-			.compile("[^a-zA-Z0-9 .-\\[\\]!_@]");
+
+	private static final Pattern NON_ASCII = Pattern.compile("[^a-zA-Z0-9 .-\\[\\]!_@]");
 
 	@Override
-	public void sendmail(String to, String subject, String message,
-			String from, String replyto, String toname, String fromname,
-			String errorsto, boolean extra) throws IOException {
+	public void sendmail(String to, String subject, String message, String from, String replyto, String toname,
+		String fromname, String errorsto, boolean extra) throws IOException {
 
 		String[] bits = from.split(",");
 
 		Socket smtp = new Socket("dogcraft.de", 25);
 		PrintWriter out = new PrintWriter(smtp.getOutputStream());
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				smtp.getInputStream()));
+		BufferedReader in = new BufferedReader(new InputStreamReader(smtp.getInputStream()));
 		readResponse(in);
 		out.print("HELO www.cacert.org\r\n");
 		out.flush();
@@ -50,11 +48,8 @@ public class Sendmail extends EmailProvider {
 		// out.print("X-OriginatingIP: ".$_SERVER["REMOTE_ADDR"]."\r\n");
 		// }
 		// TODO
-		SimpleDateFormat emailDate = new SimpleDateFormat(
-				"E, d MMM yyyy HH:mm:ss ZZZZ (z)", Locale.ENGLISH);
-		out.print("Date: "
-				+ emailDate.format(new Date(System.currentTimeMillis()))
-				+ "\r\n");
+		SimpleDateFormat emailDate = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss ZZZZ (z)", Locale.ENGLISH);
+		out.print("Date: " + emailDate.format(new Date(System.currentTimeMillis())) + "\r\n");
 		out.print("Sender: " + errorsto + "\r\n");
 		out.print("Errors-To: " + errorsto + "\r\n");
 		if (replyto != null) {
@@ -66,9 +61,7 @@ public class Sendmail extends EmailProvider {
 		out.print("To: " + to + "\r\n");
 		if (NON_ASCII.matcher(subject).matches()) {
 
-			out.print("Subject: =?utf-8?B?"
-					+ Base64.getEncoder().encodeToString(subject.getBytes())
-					+ "?=\r\n");
+			out.print("Subject: =?utf-8?B?" + Base64.getEncoder().encodeToString(subject.getBytes()) + "?=\r\n");
 		} else {
 			out.print("Subject: " + subject + "\r\n");
 		}
@@ -87,9 +80,8 @@ public class Sendmail extends EmailProvider {
 		// $message)))."\r\n.\r\n");
 		message = message + "\r\n";
 
-		String sendM = message.replace("\r", "").replace("\n.\n", "\n")
-				.replace("\n.\n", "\n").replace("\n", "\r\n")
-				+ ".\r\n";
+		String sendM = message.replace("\r", "").replace("\n.\n", "\n").replace("\n.\n", "\n").replace("\n", "\r\n")
+			+ ".\r\n";
 		out.print(sendM);
 		out.flush();
 		readResponse(in);
@@ -98,6 +90,7 @@ public class Sendmail extends EmailProvider {
 		readResponse(in);
 		smtp.close();
 	}
+
 	private static void readResponse(BufferedReader in) throws IOException {
 		String line;
 		while ((line = in.readLine()) != null && line.matches("\\d+-")) {

@@ -13,12 +13,15 @@ import org.cacert.gigi.Language;
 
 public class DateSelector implements Outputable {
 	String[] names;
+
 	public DateSelector(String day, String month, String year) {
-		this.names = new String[]{day, month, year};
+		this.names = new String[] { day, month, year };
 	}
+
 	int day;
 	int month;
 	int year;
+
 	@Override
 	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
 		out.print("<nobr><select name=\"");
@@ -71,6 +74,7 @@ public class DateSelector implements Outputable {
 			year = parseIntSafe(yearS);
 		}
 	}
+
 	private int parseIntSafe(String dayS) {
 		try {
 			return Integer.parseInt(dayS);
@@ -79,6 +83,7 @@ public class DateSelector implements Outputable {
 		}
 		return 0;
 	}
+
 	public boolean isValid() {
 		if (!(1900 < year && 1 <= month && month <= 12 && 1 <= day && day <= 32)) {
 			return false;
@@ -88,8 +93,8 @@ public class DateSelector implements Outputable {
 
 	@Override
 	public String toString() {
-		return "DateSelector [names=" + Arrays.toString(names) + ", day=" + day
-				+ ", month=" + month + ", year=" + year + "]";
+		return "DateSelector [names=" + Arrays.toString(names) + ", day=" + day + ", month=" + month + ", year=" + year
+			+ "]";
 	}
 
 	public java.sql.Date getDate() {

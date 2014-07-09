@@ -10,8 +10,10 @@ public class PasswordStrengthChecker {
 	static Pattern upper = Pattern.compile("[A-Z]");
 	static Pattern whitespace = Pattern.compile("\\s");
 	static Pattern special = Pattern.compile("(?!\\s)\\W");
+
 	private PasswordStrengthChecker() {
 	}
+
 	private static int checkpwlight(String pw) {
 		int points = 0;
 		if (pw.length() > 15) {
@@ -43,6 +45,7 @@ public class PasswordStrengthChecker {
 		}
 		return points;
 	}
+
 	public static int checkpw(String pw, User u) {
 		if (pw == null) {
 			return 0;
@@ -66,6 +69,7 @@ public class PasswordStrengthChecker {
 		// TODO dictionary check
 		return light;
 	}
+
 	private static boolean contained(String pw, String check) {
 		if (check == null || check.equals("")) {
 			return false;

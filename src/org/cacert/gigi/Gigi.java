@@ -62,14 +62,14 @@ public class Gigi extends HttpServlet {
 		pages.put(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"));
 		baseTemplate = new Template(new InputStreamReader(Gigi.class.getResourceAsStream("Gigi.templ")));
 		m = new Menu("Certificates", "cert", new MenuItem(MailOverview.DEFAULT_PATH, "Emails"), new MenuItem("",
-				"Client Certificates"), new MenuItem("", "Domains"), new MenuItem("", "Server Certificates"));
+			"Client Certificates"), new MenuItem("", "Domains"), new MenuItem("", "Server Certificates"));
 		super.init();
 
 	}
 
 	@Override
 	protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException,
-			IOException {
+		IOException {
 		addXSSHeaders(resp);
 		// if (req.getHeader("Origin") != null) {
 		// resp.getWriter().println("No cross domain access allowed.");
@@ -154,7 +154,7 @@ public class Gigi extends HttpServlet {
 
 	public static void addXSSHeaders(HttpServletResponse hsr) {
 		hsr.addHeader("Access-Control-Allow-Origin", "https://" + ServerConstants.getWwwHostNamePort() + " https://"
-				+ ServerConstants.getSecureHostNamePort());
+			+ ServerConstants.getSecureHostNamePort());
 		hsr.addHeader("Access-Control-Max-Age", "60");
 
 		hsr.addHeader("Content-Security-Policy", getDefaultCSP());
@@ -174,7 +174,7 @@ public class Gigi extends HttpServlet {
 			csp.append("script-src https://" + ServerConstants.getStaticHostNamePort());
 			csp.append(";style-src https://" + ServerConstants.getStaticHostNamePort());
 			csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://"
-					+ ServerConstants.getWwwHostNamePort());
+				+ ServerConstants.getWwwHostNamePort());
 			csp.append("report-url https://api.cacert.org/security/csp/report");
 			defaultCSP = csp.toString();
 		}

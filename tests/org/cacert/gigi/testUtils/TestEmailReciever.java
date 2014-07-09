@@ -17,29 +17,35 @@ public class TestEmailReciever implements Runnable {
 		String message;
 		String from;
 		String replyto;
-		public TestMail(String to, String subject, String message, String from,
-				String replyto) {
+
+		public TestMail(String to, String subject, String message, String from, String replyto) {
 			this.to = to;
 			this.subject = subject;
 			this.message = message;
 			this.from = from;
 			this.replyto = replyto;
 		}
+
 		public String getTo() {
 			return to;
 		}
+
 		public String getSubject() {
 			return subject;
 		}
+
 		public String getMessage() {
 			return message;
 		}
+
 		public String getFrom() {
 			return from;
 		}
+
 		public String getReplyto() {
 			return replyto;
 		}
+
 		public String extractLink() {
 			Pattern link = Pattern.compile("https?://[^\\s]+(?=\\s)");
 			Matcher m = link.matcher(getMessage());
@@ -48,6 +54,7 @@ public class TestEmailReciever implements Runnable {
 		}
 
 	}
+
 	private Socket s;
 	private DataInputStream dis;
 	private DataOutputStream dos;
@@ -61,11 +68,13 @@ public class TestEmailReciever implements Runnable {
 		dos = new DataOutputStream(s.getOutputStream());
 		new Thread(this).start();
 	}
+
 	LinkedBlockingQueue<TestMail> mails = new LinkedBlockingQueue<TestEmailReciever.TestMail>();
 
 	public TestMail recieve() throws InterruptedException {
 		return mails.poll(5, TimeUnit.SECONDS);
 	}
+
 	@Override
 	public void run() {
 		try {
@@ -98,7 +107,9 @@ public class TestEmailReciever implements Runnable {
 		}
 
 	}
+
 	Pattern approveRegex = Pattern.compile(".*");
+
 	public void setApproveRegex(Pattern approveRegex) {
 		this.approveRegex = approveRegex;
 	}
@@ -106,11 +117,14 @@ public class TestEmailReciever implements Runnable {
 	public void clearMails() {
 		mails.clear();
 	}
+
 	public void reset() {
 		clearMails();
 		approveRegex = Pattern.compile(".*");
 	}
+
 	boolean closed = false;
+
 	public void destroy() {
 		try {
 			closed = true;

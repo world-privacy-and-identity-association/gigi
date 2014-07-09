@@ -10,11 +10,11 @@ public class IOUtils {
 	private IOUtils() {
 
 	}
+
 	public static String readURL(URLConnection in) {
 		try {
 			if (!in.getContentType().equals("text/html; charset=UTF-8")) {
-				throw new Error("Unrecognized content-type: "
-						+ in.getContentType());
+				throw new Error("Unrecognized content-type: " + in.getContentType());
 			}
 			return readURL(new InputStreamReader(in.getInputStream(), "UTF-8"));
 		} catch (IOException e) {
@@ -22,6 +22,7 @@ public class IOUtils {
 		}
 
 	}
+
 	public static String readURL(Reader in) {
 		CharArrayWriter caw = new CharArrayWriter();
 		char[] buffer = new char[1024];

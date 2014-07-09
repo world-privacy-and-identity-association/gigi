@@ -25,8 +25,7 @@ public class CipherInfo implements Comparable<CipherInfo> {
 
 		public CipherInfoGenerator() throws ReflectiveOperationException {
 			SSLContextImpl sc = new SSLContextImpl.TLS12Context();
-			Method m = SSLContextImpl.class
-					.getDeclaredMethod("getSupportedCipherSuiteList");
+			Method m = SSLContextImpl.class.getDeclaredMethod("getSupportedCipherSuiteList");
 			m.setAccessible(true);
 			Object o = m.invoke(sc);
 			Class<?> cipherSuiteList = o.getClass();
@@ -58,8 +57,8 @@ public class CipherInfo implements Comparable<CipherInfo> {
 			macSize = mac.getDeclaredField("size");
 			macSize.setAccessible(true);
 		}
-		public CipherInfo generateInfo(String suiteName)
-				throws IllegalArgumentException, IllegalAccessException {
+
+		public CipherInfo generateInfo(String suiteName) throws IllegalArgumentException, IllegalAccessException {
 			Object suite = names.get(suiteName);
 			String keyExchange = exchange.get(suite).toString();
 			Object bulkCipher = cipher.get(suite);
@@ -79,12 +78,12 @@ public class CipherInfo implements Comparable<CipherInfo> {
 				padding = transformationParts[2];
 			}
 
-			return new CipherInfo(suiteName, keyExchange,
-					transformationParts[0], keysize * 8, chaining, padding,
-					macNam, macSiz * 8);
+			return new CipherInfo(suiteName, keyExchange, transformationParts[0], keysize * 8, chaining, padding,
+				macNam, macSiz * 8);
 
 		}
 	}
+
 	String keyExchange;
 	String cipher;
 	int keySize;
@@ -94,9 +93,8 @@ public class CipherInfo implements Comparable<CipherInfo> {
 	int macSize;
 	String suiteName;
 
-	private CipherInfo(String suiteName, String keyExchange, String cipher,
-			int keySize, String cipherChaining, String cipherPadding,
-			String macName, int macSize) {
+	private CipherInfo(String suiteName, String keyExchange, String cipher, int keySize, String cipherChaining,
+		String cipherPadding, String macName, int macSize) {
 		this.suiteName = suiteName;
 		this.keyExchange = keyExchange;
 		this.cipher = cipher;
@@ -129,9 +127,11 @@ public class CipherInfo implements Comparable<CipherInfo> {
 		}
 		return null;
 	}
+
 	public String getSuiteName() {
 		return suiteName;
 	}
+
 	/**
 	 * 5: ECDHE, AES||CAMELLIA, keysize >=256 <br>
 	 * 4: DHE, AES||CAMELLIA, keysize >= 256<br>
@@ -143,8 +143,7 @@ public class CipherInfo implements Comparable<CipherInfo> {
 	 * @return the strength
 	 */
 	public int getStrength() {
-		if (cipher.equals("NULL") || cipher.equals("RC4")
-				|| cipher.contains("DES")) {
+		if (cipher.equals("NULL") || cipher.equals("RC4") || cipher.contains("DES")) {
 			return 0;
 		}
 		boolean ecdhe = keyExchange.startsWith("ECDHE");
@@ -168,16 +167,16 @@ public class CipherInfo implements Comparable<CipherInfo> {
 		}
 		return 0;
 	}
-	private static final String[] CIPHER_RANKING = new String[]{"CAMELLIA",
-			"AES", "RC4", "3DES", "DES", "DES40"};
+
+	private static final String[] CIPHER_RANKING = new String[] { "CAMELLIA", "AES", "RC4", "3DES", "DES", "DES40" };
 
 	@Override
 	public String toString() {
-		return "CipherInfo [keyExchange=" + keyExchange + ", cipher=" + cipher
-				+ ", keySize=" + keySize + ", cipherChaining=" + cipherChaining
-				+ ", cipherPadding=" + cipherPadding + ", macName=" + macName
-				+ ", macSize=" + macSize + "]";
+		return "CipherInfo [keyExchange=" + keyExchange + ", cipher=" + cipher + ", keySize=" + keySize
+			+ ", cipherChaining=" + cipherChaining + ", cipherPadding=" + cipherPadding + ", macName=" + macName
+			+ ", macSize=" + macSize + "]";
 	}
+
 	/**
 	 * ECDHE<br>
 	 * GCM<br>
@@ -255,15 +254,17 @@ public class CipherInfo implements Comparable<CipherInfo> {
 
 		return suiteName.compareTo(o.suiteName);
 	}
+
 	static String[] cipherRanking = null;
+
 	public static String[] getCompleteRanking() {
 		if (cipherRanking == null) {
-			String[] ciphers = filterCiphers((Iterable<String>) cig.names
-					.keySet());
+			String[] ciphers = filterCiphers((Iterable<String>) cig.names.keySet());
 			cipherRanking = ciphers;
 		}
 		return cipherRanking;
 	}
+
 	private static String[] filterCiphers(Iterable<String> toFilter) {
 		TreeSet<CipherInfo> chosenCiphers = new TreeSet<CipherInfo>();
 		for (String o : toFilter) {
@@ -282,6 +283,7 @@ public class CipherInfo implements Comparable<CipherInfo> {
 		}
 		return ciphers;
 	}
+
 	public static String[] filter(String[] supportedCipherSuites) {
 		return filterCiphers(Arrays.asList(supportedCipherSuites));
 	}

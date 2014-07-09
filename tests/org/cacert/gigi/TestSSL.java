@@ -25,14 +25,13 @@ public class TestSSL extends ManagedTest {
 	static {
 		InitTruststore.run();
 	}
+
 	@Test
-	public void testClientIntitiatedRenegotiation()
-			throws NoSuchAlgorithmException, IOException {
+	public void testClientIntitiatedRenegotiation() throws NoSuchAlgorithmException, IOException {
 		SSLContext sc = SSLContext.getDefault();
 		SSLEngine se = sc.createSSLEngine();
 		String[] serverParts = getServerName().split(":", 2);
-		SocketChannel s = SocketChannel.open(new InetSocketAddress(
-				serverParts[0], Integer.parseInt(serverParts[1])));
+		SocketChannel s = SocketChannel.open(new InetSocketAddress(serverParts[0], Integer.parseInt(serverParts[1])));
 
 		in = ByteBuffer.allocate(se.getSession().getApplicationBufferSize());
 		inC = ByteBuffer.allocate(se.getSession().getPacketBufferSize());
@@ -47,34 +46,33 @@ public class TestSSL extends ManagedTest {
 		se.beginHandshake();
 		try {
 			work(se, s);
-			throw new Error(
-					"Client re-negotiation succeded (possible DoS vulnerability");
+			throw new Error("Client re-negotiation succeded (possible DoS vulnerability");
 		} catch (EOFException e) {
 			// Cool, server closed connection
 		}
 
 	}
-	private void work(SSLEngine se, SocketChannel s) throws SSLException,
-			IOException {
+
+	private void work(SSLEngine se, SocketChannel s) throws SSLException, IOException {
 		while (se.getHandshakeStatus() != HandshakeStatus.NOT_HANDSHAKING
-				&& se.getHandshakeStatus() != HandshakeStatus.FINISHED) {
+			&& se.getHandshakeStatus() != HandshakeStatus.FINISHED) {
 			switch (se.getHandshakeStatus()) {
-				case NEED_WRAP :
-					wrap(se, s);
-					break;
-				case NEED_UNWRAP :
-					unwrap(se, s);
-					break;
-				case NEED_TASK :
-					se.getDelegatedTask().run();
-					break;
-				default :
-					System.out.println(se.getHandshakeStatus());
+			case NEED_WRAP:
+				wrap(se, s);
+				break;
+			case NEED_UNWRAP:
+				unwrap(se, s);
+				break;
+			case NEED_TASK:
+				se.getDelegatedTask().run();
+				break;
+			default:
+				System.out.println(se.getHandshakeStatus());
 			}
 		}
 	}
-	private SSLEngineResult unwrap(SSLEngine se, SocketChannel s)
-			throws IOException, SSLException {
+
+	private SSLEngineResult unwrap(SSLEngine se, SocketChannel s) throws IOException, SSLException {
 		if (inC.remaining() == 0) {
 			inC.clear();
 			s.read(inC);
@@ -95,8 +93,8 @@ public class TestSSL extends ManagedTest {
 		}
 		return result;
 	}
-	private SSLEngineResult wrap(SSLEngine se, SocketChannel s)
-			throws SSLException, IOException {
+
+	private SSLEngineResult wrap(SSLEngine se, SocketChannel s) throws SSLException, IOException {
 		outC.clear();
 		SSLEngineResult result = se.wrap(out, outC);
 		outC.flip();

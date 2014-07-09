@@ -20,15 +20,12 @@ public class User {
 	public User(int id) {
 		this.id = id;
 		try {
-			PreparedStatement ps = DatabaseConnection
-					.getInstance()
-					.prepare(
-							"SELECT `fname`, `lname`,`mname`, `suffix`, `dob`, `email` FROM `users` WHERE id=?");
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+				"SELECT `fname`, `lname`,`mname`, `suffix`, `dob`, `email` FROM `users` WHERE id=?");
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
-				name = new Name(rs.getString(1), rs.getString(2),
-						rs.getString(3), rs.getString(4));
+				name = new Name(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
 				dob = rs.getDate(5);
 				email = rs.getString(6);
 			}
@@ -37,61 +34,77 @@ public class User {
 			e.printStackTrace();
 		}
 	}
+
 	public User() {
 	}
+
 	public int getId() {
 		return id;
 	}
+
 	public String getFname() {
 		return name.fname;
 	}
+
 	public String getLname() {
 		return name.lname;
 	}
+
 	public String getMname() {
 		return name.mname;
 	}
+
 	public Name getName() {
 		return name;
 	}
+
 	public void setMname(String mname) {
 		this.name.mname = mname;
 	}
+
 	public String getSuffix() {
 		return name.suffix;
 	}
+
 	public void setSuffix(String suffix) {
 		this.name.suffix = suffix;
 	}
+
 	public Date getDob() {
 		return dob;
 	}
+
 	public void setDob(Date dob) {
 		this.dob = dob;
 	}
+
 	public String getEmail() {
 		return email;
 	}
+
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
 	public void setId(int id) {
 		this.id = id;
 	}
+
 	public void setFname(String fname) {
 		this.name.fname = fname;
 	}
+
 	public void setLname(String lname) {
 		this.name.lname = lname;
 	}
+
 	public void insert(String password) throws SQLException {
 		if (id != 0) {
 			throw new Error("refusing to insert");
 		}
 		PreparedStatement query = DatabaseConnection.getInstance().prepare(
-				"insert into `users` set `email`=?, `password`=?, "
-						+ "`fname`=?, `mname`=?, `lname`=?, "
-						+ "`suffix`=?, `dob`=?, `created`=NOW(), locked=0");
+			"insert into `users` set `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, "
+				+ "`suffix`=?, `dob`=?, `created`=NOW(), locked=0");
 		query.setString(1, email);
 		query.setString(2, PasswordHash.hash(password));
 		query.setString(3, name.fname);
@@ -112,9 +125,10 @@ public class User {
 		return hasPassedCATS();
 
 	}
+
 	public boolean hasPassedCATS() throws SQLException {
 		PreparedStatement query = DatabaseConnection.getInstance().prepare(
-				"SELECT 1 FROM `cats_passed` where `user_id`=?");
+			"SELECT 1 FROM `cats_passed` where `user_id`=?");
 		query.setInt(1, id);
 		ResultSet rs = query.executeQuery();
 		if (rs.next()) {
@@ -123,11 +137,10 @@ public class User {
 			return false;
 		}
 	}
+
 	public int getAssurancePoints() throws SQLException {
-		PreparedStatement query = DatabaseConnection
-				.getInstance()
-				.prepare(
-						"SELECT sum(points) FROM `notary` where `to`=? AND `deleted`=0");
+		PreparedStatement query = DatabaseConnection.getInstance().prepare(
+			"SELECT sum(points) FROM `notary` where `to`=? AND `deleted`=0");
 		query.setInt(1, id);
 		ResultSet rs = query.executeQuery();
 		int points = 0;
@@ -137,9 +150,10 @@ public class User {
 		rs.close();
 		return points;
 	}
+
 	public int getExperiencePoints() throws SQLException {
 		PreparedStatement query = DatabaseConnection.getInstance().prepare(
-				"SELECT count(*) FROM `notary` where `from`=? AND `deleted`=0");
+			"SELECT count(*) FROM `notary` where `from`=? AND `deleted`=0");
 		query.setInt(1, id);
 		ResultSet rs = query.executeQuery();
 		int points = 0;
@@ -149,15 +163,19 @@ public class User {
 		rs.close();
 		return points;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof User)) {
 			return false;
 		}
 		User s = (User) obj;
-		return name.equals(s.name) && email.equals(s.email)
-				&& dob.toString().equals(s.dob.toString()); // This is due to
-															// day cutoff
+		return name.equals(s.name) && email.equals(s.email) && dob.toString().equals(s.dob.toString()); // This
+																										// is
+																										// due
+																										// to
+																										// day
+																										// cutoff
 	}
 
 	/**

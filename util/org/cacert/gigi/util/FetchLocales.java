@@ -23,13 +23,11 @@ import org.w3c.dom.Node;
 
 public class FetchLocales {
 	public static final String DOWNLOAD_SERVER = "translations.cacert.org";
-	public static final String PO_URL_TEMPLATE = "http://" + DOWNLOAD_SERVER
-			+ "/export/cacert/%/messages.po";
-	public static final String[] AUTO_LANGS = new String[]{"en", "de", "nl",
-			"pt_BR", "fr", "sv", "it", "es", "hu", "fi", "ja", "bg", "pt",
-			"da", "pl", "zh_CN", "ru", "lv", "cs", "zh_TW", "el", "tr", "ar"};
-	public static void main(String[] args) throws IOException,
-			ParserConfigurationException, TransformerException {
+	public static final String PO_URL_TEMPLATE = "http://" + DOWNLOAD_SERVER + "/export/cacert/%/messages.po";
+	public static final String[] AUTO_LANGS = new String[] { "en", "de", "nl", "pt_BR", "fr", "sv", "it", "es", "hu",
+			"fi", "ja", "bg", "pt", "da", "pl", "zh_CN", "ru", "lv", "cs", "zh_TW", "el", "tr", "ar" };
+
+	public static void main(String[] args) throws IOException, ParserConfigurationException, TransformerException {
 		System.out.println("downloading locales ...");
 		File locale = new File("locale");
 		locale.mkdir();
@@ -55,8 +53,7 @@ public class FetchLocales {
 					contents.delete(0, contents.length());
 					// System.out.println("msgstr");
 					s = readString(s, sc, contents);
-					String msg = contents.toString().replace("\\\"", "\"")
-							.replace("\\n", "\n");
+					String msg = contents.toString().replace("\\\"", "\"").replace("\\n", "\n");
 					insertTranslation(doc, id, msg);
 				} else if (s.startsWith("#")) {
 					// System.out.println(s);
@@ -71,16 +68,15 @@ public class FetchLocales {
 			Transformer transformer = tFactory.newTransformer();
 
 			DOMSource source = new DOMSource(doc);
-			FileOutputStream fos = new FileOutputStream(new File(locale, lang
-					+ ".xml"));
+			FileOutputStream fos = new FileOutputStream(new File(locale, lang + ".xml"));
 			StreamResult result = new StreamResult(fos);
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			transformer.setOutputProperty(
-					"{http://xml.apache.org/xslt}indent-amount", "2");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			transformer.transform(source, result);
 			fos.close();
 		}
 	}
+
 	private static String readLine(Scanner sc) {
 		String line = sc.findWithinHorizon("[^\n]*\n", 0);
 		if (line == null) {
@@ -88,6 +84,7 @@ public class FetchLocales {
 		}
 		return line.substring(0, line.length() - 1);
 	}
+
 	private static void insertTranslation(Document doc, String id, String msg) {
 		Node idN = doc.createTextNode(id);
 		Node textN = doc.createTextNode(msg);
@@ -100,8 +97,8 @@ public class FetchLocales {
 		tr.appendChild(e);
 		doc.getDocumentElement().appendChild(tr);
 	}
-	private static String readString(String head, Scanner sc,
-			StringBuffer contents) throws IOException {
+
+	private static String readString(String head, Scanner sc, StringBuffer contents) throws IOException {
 		head = head.split(" ", 2)[1];
 		contents.append(head.substring(1, head.length() - 1));
 		String s;

@@ -13,19 +13,19 @@ class TestEmailProvider extends EmailProvider {
 	Socket client;
 	DataOutputStream out;
 	DataInputStream in;
+
 	protected TestEmailProvider(Properties props) {
 		try {
-			servs = new ServerSocket(Integer.parseInt(props
-					.getProperty("emailProvider.port")), 10,
-					InetAddress.getByName("127.0.0.1"));
+			servs = new ServerSocket(Integer.parseInt(props.getProperty("emailProvider.port")), 10,
+				InetAddress.getByName("127.0.0.1"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+
 	@Override
-	public synchronized void sendmail(String to, String subject,
-			String message, String from, String replyto, String toname,
-			String fromname, String errorsto, boolean extra) throws IOException {
+	public synchronized void sendmail(String to, String subject, String message, String from, String replyto,
+		String toname, String fromname, String errorsto, boolean extra) throws IOException {
 		while (true) {
 			assureLocalConnection();
 			try {
@@ -42,6 +42,7 @@ class TestEmailProvider extends EmailProvider {
 			}
 		}
 	}
+
 	private void assureLocalConnection() throws IOException {
 		if (out != null) {
 			try {
@@ -56,9 +57,9 @@ class TestEmailProvider extends EmailProvider {
 			in = new DataInputStream(client.getInputStream());
 		}
 	}
+
 	@Override
-	public synchronized String checkEmailServer(int forUid, String address)
-			throws IOException {
+	public synchronized String checkEmailServer(int forUid, String address) throws IOException {
 		while (true) {
 			assureLocalConnection();
 			try {

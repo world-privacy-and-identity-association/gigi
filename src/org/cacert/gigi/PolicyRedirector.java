@@ -11,9 +11,8 @@ import org.eclipse.jetty.server.handler.HandlerWrapper;
 
 public class PolicyRedirector extends HandlerWrapper {
 	@Override
-	public void handle(String target, Request baseRequest,
-			HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
+	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response)
+		throws IOException, ServletException {
 		if (target.equals("/")) {
 			return;
 		}

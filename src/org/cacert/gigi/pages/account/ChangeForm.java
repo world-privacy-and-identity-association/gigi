@@ -13,14 +13,12 @@ import org.cacert.gigi.output.Template;
 public class ChangeForm extends Form {
 	private static Template t;
 	static {
-		t = new Template(new InputStreamReader(
-				ChangePasswordPage.class
-						.getResourceAsStream("ChangePasswordForm.templ")));
+		t = new Template(
+			new InputStreamReader(ChangePasswordPage.class.getResourceAsStream("ChangePasswordForm.templ")));
 	}
 
 	@Override
-	public void outputContent(PrintWriter out, Language l,
-			Map<String, Object> vars) {
+	public void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
 		t.output(out, l, vars);
 	}
 

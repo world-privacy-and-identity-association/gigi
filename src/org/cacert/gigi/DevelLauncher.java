@@ -30,20 +30,18 @@ public class DevelLauncher {
 		ByteArrayOutputStream chunkConfig = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(chunkConfig);
 		byte[] cacerts = Files.readAllBytes(Paths.get("config/cacerts.jks"));
-		byte[] keystore = Files.readAllBytes(Paths
-				.get("config/keystore.pkcs12"));
+		byte[] keystore = Files.readAllBytes(Paths.get("config/keystore.pkcs12"));
 
-		DevelLauncher.writeGigiConfig(dos, "changeit".getBytes(),
-				"changeit".getBytes(), mainProps, cacerts, keystore);
+		DevelLauncher.writeGigiConfig(dos, "changeit".getBytes(), "changeit".getBytes(), mainProps, cacerts, keystore);
 		dos.flush();
 		InputStream oldin = System.in;
 		System.setIn(new ByteArrayInputStream(chunkConfig.toByteArray()));
 		Launcher.main(args);
 		System.setIn(oldin);
 	}
-	public static void writeGigiConfig(OutputStream target, byte[] keystorepw,
-			byte[] truststorepw, Properties mainprop, byte[] cacerts,
-			byte[] keystore) throws IOException {
+
+	public static void writeGigiConfig(OutputStream target, byte[] keystorepw, byte[] truststorepw,
+		Properties mainprop, byte[] cacerts, byte[] keystore) throws IOException {
 		TarOutputStream tos = new TarOutputStream(target);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		mainprop.store(baos, "");
@@ -56,21 +54,21 @@ public class DevelLauncher {
 		tos.close();
 
 	}
-	private static void putTarEntry(byte[] data, TarOutputStream tos,
-			String name) throws IOException {
+
+	private static void putTarEntry(byte[] data, TarOutputStream tos, String name) throws IOException {
 		TarHeader th = new TarHeader();
 		th.name = new StringBuffer(name);
 		th.size = data.length;
 		tos.putNextEntry(new TarEntry(th));
 		tos.write(data);
 	}
-	public static void writeChunk(DataOutputStream dos, byte[] chunk)
-			throws IOException {
+
+	public static void writeChunk(DataOutputStream dos, byte[] chunk) throws IOException {
 		dos.writeInt(chunk.length);
 		dos.write(chunk);
 	}
-	public static void launch(Properties props, File cacerts, File keystore)
-			throws IOException {
+
+	public static void launch(Properties props, File cacerts, File keystore) throws IOException {
 		ByteArrayOutputStream config = new ByteArrayOutputStream();
 		props.store(config, "");
 	}

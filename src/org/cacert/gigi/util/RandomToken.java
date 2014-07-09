@@ -4,6 +4,7 @@ import java.security.SecureRandom;
 
 public class RandomToken {
 	static SecureRandom sr = new SecureRandom();
+
 	public static String generateToken(int length) {
 		StringBuffer token = new StringBuffer();
 		for (int i = 0; i < length; i++) {

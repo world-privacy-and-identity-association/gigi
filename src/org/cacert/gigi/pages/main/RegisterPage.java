@@ -20,14 +20,14 @@ public class RegisterPage extends Page {
 	}
 
 	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		PrintWriter out = resp.getWriter();
 		HashMap<String, Object> vars = new HashMap<String, Object>();
 		getDefaultTemplate().output(out, getLanguage(req), vars);
 		Signup s = getForm(req);
 		s.output(out, getLanguage(req), vars);
 	}
+
 	public Signup getForm(HttpServletRequest req) {
 		HttpSession hs = req.getSession();
 		Signup s = (Signup) hs.getAttribute(SIGNUP_PROCESS);
@@ -38,26 +38,24 @@ public class RegisterPage extends Page {
 		return s;
 
 	}
+
 	@Override
-	public void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		Signup s = getForm(req);
 		if (s.submit(resp.getWriter(), req)) {
 			HttpSession hs = req.getSession();
 			hs.setAttribute(SIGNUP_PROCESS, null);
-			resp.getWriter()
-					.println(
-							translate(
-									req,
-									"Your information has been submitted"
-											+ " into our system. You will now be sent an email with a web link,"
-											+ " you need to open that link in your web browser within 24 hours"
-											+ " or your information will be removed from our system!"));
+			resp.getWriter().println(
+				translate(req, "Your information has been submitted"
+					+ " into our system. You will now be sent an email with a web link,"
+					+ " you need to open that link in your web browser within 24 hours"
+					+ " or your information will be removed from our system!"));
 			return;
 		}
 
 		super.doPost(req, resp);
 	}
+
 	@Override
 	public boolean needsLogin() {
 		return false;

@@ -20,19 +20,16 @@ public class MailCertificateAdd extends Page {
 	}
 
 	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		HashMap<String, Object> vars = new HashMap<String, Object>();
-		vars.put("CCA",
-				"<a href='/policy/CAcertCommunityAgreement.html'>CCA</a>");
+		vars.put("CCA", "<a href='/policy/CAcertCommunityAgreement.html'>CCA</a>");
 		getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
 	}
+
 	@Override
-	public void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		PrintWriter out = resp.getWriter();
-		if (req.getParameter("optionalCSR") == null
-				|| req.getParameter("optionalCSR").equals("")) {
+		if (req.getParameter("optionalCSR") == null || req.getParameter("optionalCSR").equals("")) {
 			out.println("csr missing");
 			ClientCSRGenerate.output(req, resp);
 		}
@@ -41,8 +38,7 @@ public class MailCertificateAdd extends Page {
 			// Error.
 			return;
 		}
-		Certificate c = new Certificate("/commonName=CAcert WoT User",
-				"sha256", csr);
+		Certificate c = new Certificate("/commonName=CAcert WoT User", "sha256", csr);
 		c.issue();
 		try {
 			c.waitFor(60000);

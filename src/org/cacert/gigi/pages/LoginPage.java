@@ -25,22 +25,17 @@ public class LoginPage extends Page {
 	}
 
 	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
-		resp.getWriter()
-				.println(
-						"<form method='POST' action='/login'>"
-								+ "<input type='text' name='username'>"
-								+ "<input type='password' name='password'> <input type='submit' value='login'></form>");
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		resp.getWriter().println(
+			"<form method='POST' action='/login'>" + "<input type='text' name='username'>"
+				+ "<input type='password' name='password'> <input type='submit' value='login'></form>");
 	}
 
 	@Override
-	public boolean beforeTemplate(HttpServletRequest req,
-			HttpServletResponse resp) throws IOException {
+	public boolean beforeTemplate(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		String redir = (String) req.getSession().getAttribute(LOGIN_RETURNPATH);
 		if (req.getSession().getAttribute("loggedin") == null) {
-			X509Certificate[] cert = (X509Certificate[]) req
-					.getAttribute("javax.servlet.request.X509Certificate");
+			X509Certificate[] cert = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
 			if (cert != null && cert[0] != null) {
 				tryAuthWithCertificate(req, cert[0]);
 			}
@@ -63,18 +58,18 @@ public class LoginPage extends Page {
 		}
 		return false;
 	}
+
 	@Override
 	public boolean needsLogin() {
 		return false;
 	}
+
 	private void tryAuthWithUnpw(HttpServletRequest req) {
 		String un = req.getParameter("username");
 		String pw = req.getParameter("password");
 		try {
-			PreparedStatement ps = DatabaseConnection
-					.getInstance()
-					.prepare(
-							"SELECT `password`, `id` FROM `users` WHERE `email`=? AND locked='0' AND verified='1'");
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+				"SELECT `password`, `id` FROM `users` WHERE `email`=? AND locked='0' AND verified='1'");
 			ps.setString(1, un);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
@@ -90,19 +85,17 @@ public class LoginPage extends Page {
 			e.printStackTrace();
 		}
 	}
+
 	public static User getUser(HttpServletRequest req) {
 		return (User) req.getSession().getAttribute(USER);
 	}
-	private void tryAuthWithCertificate(HttpServletRequest req,
-			X509Certificate x509Certificate) {
-		String serial = x509Certificate.getSerialNumber().toString(16)
-				.toUpperCase();
+
+	private void tryAuthWithCertificate(HttpServletRequest req, X509Certificate x509Certificate) {
+		String serial = x509Certificate.getSerialNumber().toString(16).toUpperCase();
 		try {
-			PreparedStatement ps = DatabaseConnection
-					.getInstance()
-					.prepare(
-							"SELECT `memid` FROM `emailcerts` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` = "
-									+ "'0000-00-00 00:00:00'");
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+				"SELECT `memid` FROM `emailcerts` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` = "
+					+ "'0000-00-00 00:00:00'");
 			ps.setString(1, serial);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {

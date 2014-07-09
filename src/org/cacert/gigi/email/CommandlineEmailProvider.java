@@ -8,9 +8,8 @@ public class CommandlineEmailProvider extends EmailProvider {
 	}
 
 	@Override
-	public void sendmail(String to, String subject, String message,
-			String from, String replyto, String toname, String fromname,
-			String errorsto, boolean extra) throws IOException {
+	public void sendmail(String to, String subject, String message, String from, String replyto, String toname,
+		String fromname, String errorsto, boolean extra) throws IOException {
 		synchronized (System.out) {
 			System.out.println("== MAIL ==");
 			System.out.println("To: " + to);
@@ -22,9 +21,9 @@ public class CommandlineEmailProvider extends EmailProvider {
 		}
 
 	}
+
 	@Override
-	public String checkEmailServer(int forUid, String address)
-			throws IOException {
+	public String checkEmailServer(int forUid, String address) throws IOException {
 		System.out.println("checkMailBox: " + address);
 		return OK;
 	}

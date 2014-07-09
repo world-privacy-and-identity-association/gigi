@@ -23,11 +23,9 @@ public abstract class Page {
 	public Page(String title) {
 		this.title = title;
 		try {
-			InputStream resource = getClass().getResourceAsStream(
-					getClass().getSimpleName() + ".templ");
+			InputStream resource = getClass().getResourceAsStream(getClass().getSimpleName() + ".templ");
 			if (resource != null) {
-				defaultTemplate = new Template(new InputStreamReader(resource,
-						"UTF-8"));
+				defaultTemplate = new Template(new InputStreamReader(resource, "UTF-8"));
 			}
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -57,8 +55,7 @@ public abstract class Page {
 	 * @throws IOException
 	 *             if output goes wrong.
 	 */
-	public boolean beforeTemplate(HttpServletRequest req,
-			HttpServletResponse resp) throws IOException {
+	public boolean beforeTemplate(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		return false;
 	}
 
@@ -73,8 +70,7 @@ public abstract class Page {
 	 * @throws IOException
 	 *             if output goes wrong.
 	 */
-	public abstract void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException;
+	public abstract void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException;
 
 	/**
 	 * Same as {@link #doGet(HttpServletRequest, HttpServletResponse)} but for
@@ -88,8 +84,7 @@ public abstract class Page {
 	 * @throws IOException
 	 *             if output goes wrong.
 	 */
-	public void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		doGet(req, resp);
 	}
 
@@ -109,6 +104,7 @@ public abstract class Page {
 	public void setTitle(String title) {
 		this.title = title;
 	}
+
 	public static Language getLanguage(ServletRequest req) {
 		return Language.getInstance("de");
 	}

@@ -28,14 +28,13 @@ public class MailOverview extends Page {
 	}
 
 	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		final User us = LoginPage.getUser(req);
 		Language lang = Page.getLanguage(req);
 		int id = us.getId();
 		try {
 			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
-					"SELECT * from `email` WHERE `memid`=? AND `deleted`=0");
+				"SELECT * from `email` WHERE `memid`=? AND `deleted`=0");
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			HashMap<String, Object> vars = new HashMap<>();

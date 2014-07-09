@@ -30,22 +30,19 @@ public class AssurePage extends Page {
 
 	public AssurePage() {
 		super("Assure someone");
-		t = new Template(new InputStreamReader(
-				AssuranceForm.class.getResourceAsStream("AssureeSearch.templ")));
+		t = new Template(new InputStreamReader(AssuranceForm.class.getResourceAsStream("AssureeSearch.templ")));
 
 	}
 
 	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
 		PrintWriter out = resp.getWriter();
 		String pi = req.getPathInfo().substring(PATH.length());
 		if (pi.length() > 1) {
 			User myself = LoginPage.getUser(req);
 			int mid = Integer.parseInt(pi.substring(1));
-			AssuranceResult check = Notary.checkAssuranceIsPossible(myself,
-					new User(mid));
+			AssuranceResult check = Notary.checkAssuranceIsPossible(myself, new User(mid));
 			if (check != AssuranceResult.ASSURANCE_SUCCEDED) {
 				out.println(translate(req, check.getMessage()));
 				return;
@@ -57,16 +54,17 @@ public class AssurePage extends Page {
 				hs.setAttribute(SESSION, form);
 			}
 
-			form.output(out, getLanguage(req), new HashMap<String, Object>());;
+			form.output(out, getLanguage(req), new HashMap<String, Object>());
+			;
 		} else {
 			HashMap<String, Object> vars = new HashMap<String, Object>();
 			vars.put("DoB", ds);
 			t.output(out, getLanguage(req), vars);
 		}
 	}
+
 	@Override
-	public void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		PrintWriter out = resp.getWriter();
 		String pi = req.getPathInfo().substring(PATH.length());
 		if (pi.length() > 1) {
@@ -77,8 +75,7 @@ public class AssurePage extends Page {
 				return;
 			}
 
-			AssuranceForm form = (AssuranceForm) req.getSession().getAttribute(
-					SESSION);
+			AssuranceForm form = (AssuranceForm) req.getSession().getAttribute(SESSION);
 			if (form == null) {
 				out.println("No form found. This is an Error. Fill in the form again.");
 				return;
@@ -96,13 +93,10 @@ public class AssurePage extends Page {
 		System.out.println("searching for");
 		ResultSet rs = null;
 		try {
-			PreparedStatement ps = DatabaseConnection
-					.getInstance()
-					.prepare(
-							"SELECT id, verified FROM users WHERE email=? AND dob=? AND deleted=0");
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+				"SELECT id, verified FROM users WHERE email=? AND dob=? AND deleted=0");
 			ps.setString(1, req.getParameter("email"));
-			String day = req.getParameter("year") + "-"
-					+ req.getParameter("month") + "-" + req.getParameter("day");
+			String day = req.getParameter("year") + "-" + req.getParameter("month") + "-" + req.getParameter("day");
 			ps.setString(2, day);
 			rs = ps.executeQuery();
 			int id = 0;
@@ -113,19 +107,15 @@ public class AssurePage extends Page {
 					out.println("Error, ambigous user. Please contact support@cacert.org.");
 				} else {
 					if (verified == 0) {
-						out.println(translate(req,
-								"User is not yet verified. Please try again in 24 hours!"));
+						out.println(translate(req, "User is not yet verified. Please try again in 24 hours!"));
 					}
 					resp.sendRedirect(PATH + "/" + id);
 				}
 			} else {
 				out.print("<div class='formError'>");
 
-				out.println(translate(
-						req,
-						"I'm sorry, there was no email and date of birth matching"
-								+ " what you entered in the system. Please double check"
-								+ " your information."));
+				out.println(translate(req, "I'm sorry, there was no email and date of birth matching"
+					+ " what you entered in the system. Please double check" + " your information."));
 				out.print("</div>");
 			}
 

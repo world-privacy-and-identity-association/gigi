@@ -15,6 +15,7 @@ public class DatabaseConnection {
 	HashMap<String, PreparedStatement> statements = new HashMap<String, PreparedStatement>();
 	private static Properties credentials;
 	Statement adHoc;
+
 	public DatabaseConnection() {
 		try {
 			Class.forName(credentials.getProperty("sql.driver"));
@@ -24,14 +25,12 @@ public class DatabaseConnection {
 		tryConnect();
 
 	}
+
 	private void tryConnect() {
 		try {
-			c = DriverManager.getConnection(credentials.getProperty("sql.url")
-					+ "?zeroDateTimeBehavior=convertToNull",
-					credentials.getProperty("sql.user"),
-					credentials.getProperty("sql.password"));
-			PreparedStatement ps = c
-					.prepareStatement("SET SESSION wait_timeout=?;");
+			c = DriverManager.getConnection(credentials.getProperty("sql.url") + "?zeroDateTimeBehavior=convertToNull",
+				credentials.getProperty("sql.user"), credentials.getProperty("sql.password"));
+			PreparedStatement ps = c.prepareStatement("SET SESSION wait_timeout=?;");
 			ps.setInt(1, CONNECTION_TIMEOUT);
 			ps.execute();
 			ps.close();
@@ -40,17 +39,19 @@ public class DatabaseConnection {
 			e.printStackTrace();
 		}
 	}
+
 	public PreparedStatement prepare(String query) throws SQLException {
 		ensureOpen();
 		PreparedStatement statement = statements.get(query);
 		if (statement == null) {
-			statement = c.prepareStatement(query,
-					Statement.RETURN_GENERATED_KEYS);
+			statement = c.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 			statements.put(query, statement);
 		}
 		return statement;
 	}
+
 	long lastAction = System.currentTimeMillis();
+
 	private void ensureOpen() {
 		if (System.currentTimeMillis() - lastAction > CONNECTION_TIMEOUT * 1000L) {
 			try {
@@ -65,6 +66,7 @@ public class DatabaseConnection {
 		}
 		lastAction = System.currentTimeMillis();
 	}
+
 	public static int lastInsertId(PreparedStatement query) throws SQLException {
 		ResultSet rs = query.getGeneratedKeys();
 		rs.next();
@@ -72,31 +74,38 @@ public class DatabaseConnection {
 		rs.close();
 		return id;
 	}
+
 	static ThreadLocal<DatabaseConnection> instances = new ThreadLocal<DatabaseConnection>() {
 		@Override
 		protected DatabaseConnection initialValue() {
 			return new DatabaseConnection();
 		}
 	};
+
 	public static DatabaseConnection getInstance() {
 		return instances.get();
 	}
+
 	public static boolean isInited() {
 		return credentials != null;
 	}
+
 	public static void init(Properties conf) {
 		if (credentials != null) {
 			throw new Error("Re-initiaizing is forbidden.");
 		}
 		credentials = conf;
 	}
+
 	public void beginTransaction() throws SQLException {
 		c.setAutoCommit(false);
 	}
+
 	public void commitTransaction() throws SQLException {
 		c.commit();
 		c.setAutoCommit(true);
 	}
+
 	public void quitTransaction() {
 		try {
 			if (!c.getAutoCommit()) {

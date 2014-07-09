@@ -42,6 +42,7 @@ public class ManagedTest {
 	public static String getServerName() {
 		return url;
 	}
+
 	static Properties testProps = new Properties();
 	static {
 		InitTruststore.run();
@@ -56,59 +57,44 @@ public class ManagedTest {
 				DatabaseConnection.init(testProps);
 			}
 			System.out.println("... purging Database");
-			DatabaseManager.run(new String[]{
-					testProps.getProperty("sql.driver"),
-					testProps.getProperty("sql.url"),
-					testProps.getProperty("sql.user"),
-					testProps.getProperty("sql.password")});
+			DatabaseManager.run(new String[] { testProps.getProperty("sql.driver"), testProps.getProperty("sql.url"),
+					testProps.getProperty("sql.user"), testProps.getProperty("sql.password") });
 
 			String type = testProps.getProperty("type");
 			if (type.equals("local")) {
 				url = testProps.getProperty("server");
 				String[] parts = testProps.getProperty("mail").split(":", 2);
-				ter = new TestEmailReciever(new InetSocketAddress(parts[0],
-						Integer.parseInt(parts[1])));
+				ter = new TestEmailReciever(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])));
 				return;
 			}
-			url = testProps.getProperty("name.www") + ":"
-					+ testProps.getProperty("serverPort");
+			url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort");
 			gigi = Runtime.getRuntime().exec(testProps.getProperty("java"));
-			DataOutputStream toGigi = new DataOutputStream(
-					gigi.getOutputStream());
+			DataOutputStream toGigi = new DataOutputStream(gigi.getOutputStream());
 			System.out.println("... starting server");
 			Properties mainProps = new Properties();
 			mainProps.setProperty("host", "127.0.0.1");
 			mainProps.setProperty("name.secure", "sec");
-			mainProps
-					.setProperty("name.www", testProps.getProperty("name.www"));
+			mainProps.setProperty("name.www", testProps.getProperty("name.www"));
 			mainProps.setProperty("name.static", "stat");
 
 			mainProps.setProperty("port", testProps.getProperty("serverPort"));
-			mainProps.setProperty("emailProvider",
-					"org.cacert.gigi.email.TestEmailProvider");
+			mainProps.setProperty("emailProvider", "org.cacert.gigi.email.TestEmailProvider");
 			mainProps.setProperty("emailProvider.port", "8473");
-			mainProps.setProperty("sql.driver",
-					testProps.getProperty("sql.driver"));
+			mainProps.setProperty("sql.driver", testProps.getProperty("sql.driver"));
 			mainProps.setProperty("sql.url", testProps.getProperty("sql.url"));
-			mainProps
-					.setProperty("sql.user", testProps.getProperty("sql.user"));
-			mainProps.setProperty("sql.password",
-					testProps.getProperty("sql.password"));
+			mainProps.setProperty("sql.user", testProps.getProperty("sql.user"));
+			mainProps.setProperty("sql.password", testProps.getProperty("sql.password"));
 
-			byte[] cacerts = Files
-					.readAllBytes(Paths.get("config/cacerts.jks"));
-			byte[] keystore = Files.readAllBytes(Paths
-					.get("config/keystore.pkcs12"));
+			byte[] cacerts = Files.readAllBytes(Paths.get("config/cacerts.jks"));
+			byte[] keystore = Files.readAllBytes(Paths.get("config/keystore.pkcs12"));
 
-			DevelLauncher.writeGigiConfig(toGigi, "changeit".getBytes(),
-					"changeit".getBytes(), mainProps, cacerts, keystore);
+			DevelLauncher.writeGigiConfig(toGigi, "changeit".getBytes(), "changeit".getBytes(), mainProps, cacerts,
+				keystore);
 			toGigi.flush();
 
-			final BufferedReader br = new BufferedReader(new InputStreamReader(
-					gigi.getErrorStream()));
+			final BufferedReader br = new BufferedReader(new InputStreamReader(gigi.getErrorStream()));
 			String line;
-			while ((line = br.readLine()) != null
-					&& !line.contains("Server:main: Started")) {
+			while ((line = br.readLine()) != null && !line.contains("Server:main: Started")) {
 			}
 			new Thread() {
 				@Override
@@ -126,8 +112,7 @@ public class ManagedTest {
 			if (line == null) {
 				throw new Error("Server startup failed");
 			}
-			ter = new TestEmailReciever(
-					new InetSocketAddress("localhost", 8473));
+			ter = new TestEmailReciever(new InetSocketAddress("localhost", 8473));
 		} catch (IOException e) {
 			throw new Error(e);
 		} catch (ClassNotFoundException e1) {
@@ -137,6 +122,7 @@ public class ManagedTest {
 		}
 
 	}
+
 	@AfterClass
 	public static void tearDownServer() {
 		String type = testProps.getProperty("type");
@@ -146,6 +132,7 @@ public class ManagedTest {
 		}
 		gigi.destroy();
 	}
+
 	@After
 	public void removeMails() {
 		ter.reset();
@@ -158,35 +145,34 @@ public class ManagedTest {
 			throw new Error(e);
 		}
 	}
+
 	public static TestEmailReciever getMailReciever() {
 		return ter;
 	}
+
 	public String runRegister(String param) throws IOException {
-		HttpURLConnection uc = (HttpURLConnection) new URL("https://"
-				+ getServerName() + registerService).openConnection();
+		HttpURLConnection uc = (HttpURLConnection) new URL("https://" + getServerName() + registerService)
+			.openConnection();
 		uc.setDoOutput(true);
 		uc.getOutputStream().write(param.getBytes());
 		String d = IOUtils.readURL(uc);
 		return d;
 	}
+
 	public String fetchStartErrorMessage(String d) throws IOException {
 		String formFail = "<div class='formError'>";
 		int idx = d.indexOf(formFail);
 		assertNotEquals(-1, idx);
-		String startError = d.substring(idx + formFail.length(), idx + 100)
-				.trim();
+		String startError = d.substring(idx + formFail.length(), idx + 100).trim();
 		return startError;
 	}
 
-	public void registerUser(String firstName, String lastName, String email,
-			String password) {
+	public void registerUser(String firstName, String lastName, String email, String password) {
 		try {
-			String query = "fname=" + URLEncoder.encode(firstName, "UTF-8")
-					+ "&lname=" + URLEncoder.encode(lastName, "UTF-8")
-					+ "&email=" + URLEncoder.encode(email, "UTF-8")
-					+ "&pword1=" + URLEncoder.encode(password, "UTF-8")
-					+ "&pword2=" + URLEncoder.encode(password, "UTF-8")
-					+ "&day=1&month=1&year=1910&cca_agree=1";
+			String query = "fname=" + URLEncoder.encode(firstName, "UTF-8") + "&lname="
+				+ URLEncoder.encode(lastName, "UTF-8") + "&email=" + URLEncoder.encode(email, "UTF-8") + "&pword1="
+				+ URLEncoder.encode(password, "UTF-8") + "&pword2=" + URLEncoder.encode(password, "UTF-8")
+				+ "&day=1&month=1&year=1910&cca_agree=1";
 			String data = fetchStartErrorMessage(runRegister(query));
 			assertTrue(data, data.startsWith("</div>"));
 		} catch (UnsupportedEncodingException e) {
@@ -195,18 +181,17 @@ public class ManagedTest {
 			throw new Error(e);
 		}
 	}
-	public int createVerifiedUser(String firstName, String lastName,
-			String email, String password) {
+
+	public int createVerifiedUser(String firstName, String lastName, String email, String password) {
 		registerUser(firstName, lastName, email, password);
 		try {
 			TestMail tm = ter.recieve();
 			String verifyLink = tm.extractLink();
 			String[] parts = verifyLink.split("\\?");
-			URL u = new URL("https://" + getServerName() + "/verify?"
-					+ parts[1]);
-			u.openStream().close();;
-			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
-					"SELECT id FROM users where email=?");
+			URL u = new URL("https://" + getServerName() + "/verify?" + parts[1]);
+			u.openStream().close();
+			;
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM users where email=?");
 			ps.setString(1, email);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
@@ -221,6 +206,7 @@ public class ManagedTest {
 			throw new Error(e);
 		}
 	}
+
 	/**
 	 * Creates a new user with 100 Assurance points given by an (invalid)
 	 * assurance.
@@ -235,19 +221,15 @@ public class ManagedTest {
 	 *            the password
 	 * @return a new userid.
 	 */
-	public int createAssuranceUser(String firstName, String lastName,
-			String email, String password) {
+	public int createAssuranceUser(String firstName, String lastName, String email, String password) {
 		int uid = createVerifiedUser(firstName, lastName, email, password);
 		try {
-			PreparedStatement ps = DatabaseConnection
-					.getInstance()
-					.prepare(
-							"INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?");
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+				"INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?");
 			ps.setInt(1, uid);
 			ps.setInt(2, 0);
 			ps.execute();
-			ps = DatabaseConnection.getInstance().prepare(
-					"INSERT INTO `notary` SET `from`=?, `to`=?, points='100'");
+			ps = DatabaseConnection.getInstance().prepare("INSERT INTO `notary` SET `from`=?, `to`=?, points='100'");
 			ps.setInt(1, uid);
 			ps.setInt(2, uid);
 			ps.execute();
@@ -257,17 +239,19 @@ public class ManagedTest {
 		}
 		return uid;
 	}
+
 	static int count = 0;
+
 	public String createUniqueName() {
 		return "test" + System.currentTimeMillis() + "a" + (count++);
 	}
+
 	public String login(String email, String pw) throws IOException {
 		URL u = new URL("https://" + getServerName() + "/login");
 		HttpURLConnection huc = (HttpURLConnection) u.openConnection();
 		huc.setDoOutput(true);
 		OutputStream os = huc.getOutputStream();
-		String data = "username=" + URLEncoder.encode(email, "UTF-8")
-				+ "&password=" + URLEncoder.encode(pw, "UTF-8");
+		String data = "username=" + URLEncoder.encode(email, "UTF-8") + "&password=" + URLEncoder.encode(pw, "UTF-8");
 		os.write(data.getBytes());
 		os.flush();
 		String headerField = huc.getHeaderField("Set-Cookie");

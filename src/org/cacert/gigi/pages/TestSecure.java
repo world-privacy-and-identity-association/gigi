@@ -12,8 +12,7 @@ public class TestSecure extends Page {
 	}
 
 	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		resp.getWriter().println("This page is secure.");
 	}
 

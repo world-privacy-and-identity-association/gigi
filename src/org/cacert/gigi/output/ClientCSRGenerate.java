@@ -15,21 +15,17 @@ public class ClientCSRGenerate {
 	static Template IE;
 	static {
 		normal = new Template(new InputStreamReader(
-				ClientCSRGenerate.class
-						.getResourceAsStream("ClientCSRGenerate.templ")));
+			ClientCSRGenerate.class.getResourceAsStream("ClientCSRGenerate.templ")));
 		IE = new Template(new InputStreamReader(
-				ClientCSRGenerate.class
-						.getResourceAsStream("ClientCSRGenerateIE.templ")));
+			ClientCSRGenerate.class.getResourceAsStream("ClientCSRGenerateIE.templ")));
 	}
+
 	public static void output(HttpServletRequest req, HttpServletResponse resp) {
 		HashMap<String, Object> vars = new HashMap<String, Object>();
 		vars.put("minsize", "2048");
-		vars.put("normalhost",
-				"https://" + ServerConstants.getWwwHostNamePort());
-		vars.put("securehost",
-				"https://" + ServerConstants.getSecureHostNamePort());
-		vars.put("statichost",
-				"https://" + ServerConstants.getStaticHostNamePort());
+		vars.put("normalhost", "https://" + ServerConstants.getWwwHostNamePort());
+		vars.put("securehost", "https://" + ServerConstants.getSecureHostNamePort());
+		vars.put("statichost", "https://" + ServerConstants.getStaticHostNamePort());
 		try {
 			normal.output(resp.getWriter(), Page.getLanguage(req), vars);
 		} catch (IOException e) {

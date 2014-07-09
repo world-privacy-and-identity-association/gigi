@@ -19,7 +19,7 @@ public class Template implements Outputable {
 			LinkedList<Outputable> commands = new LinkedList<Outputable>();
 			StringBuffer buf = new StringBuffer();
 			int ch = r.read();
-			outer : while (true) {
+			outer: while (true) {
 				while (!endsWith(buf, "<?")) {
 					if (ch == -1) {
 						break outer;
@@ -49,11 +49,12 @@ public class Template implements Outputable {
 			throw new Error(e);
 		}
 	}
+
 	private boolean endsWith(StringBuffer buf, String string) {
 		return buf.length() >= string.length()
-				&& buf.substring(buf.length() - string.length(), buf.length())
-						.equals(string);
+			&& buf.substring(buf.length() - string.length(), buf.length()).equals(string);
 	}
+
 	private Outputable parseCommand(String s2) {
 		s2 = s2.replace("\n", "");
 		if (s2.startsWith("=_")) {
@@ -61,8 +62,7 @@ public class Template implements Outputable {
 			return new Outputable() {
 
 				@Override
-				public void output(PrintWriter out, Language l,
-						Map<String, Object> vars) {
+				public void output(PrintWriter out, Language l, Map<String, Object> vars) {
 					out.print(l.getTranslation(raw));
 				}
 			};
@@ -71,8 +71,7 @@ public class Template implements Outputable {
 			return new Outputable() {
 
 				@Override
-				public void output(PrintWriter out, Language l,
-						Map<String, Object> vars) {
+				public void output(PrintWriter out, Language l, Map<String, Object> vars) {
 					outputVar(out, l, vars, raw);
 				}
 			};
@@ -88,8 +87,7 @@ public class Template implements Outputable {
 			return new Outputable() {
 
 				@Override
-				public void output(PrintWriter out, Language l,
-						Map<String, Object> vars) {
+				public void output(PrintWriter out, Language l, Map<String, Object> vars) {
 					String[] parts = l.getTranslation(text).split("%s");
 					String[] myvars = store.toArray(new String[store.size()]);
 					out.print(parts[0]);
@@ -104,6 +102,7 @@ public class Template implements Outputable {
 		}
 		return null;
 	}
+
 	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
 		for (int i = 0; i < contents.length; i++) {
 			out.print(contents[i]);
@@ -112,8 +111,8 @@ public class Template implements Outputable {
 			}
 		}
 	}
-	private void outputVar(PrintWriter out, Language l,
-			Map<String, Object> vars, String varname) {
+
+	private void outputVar(PrintWriter out, Language l, Map<String, Object> vars, String varname) {
 		Object s = vars.get(varname);
 
 		if (s == null) {

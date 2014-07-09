@@ -18,8 +18,8 @@ public class Language {
 	private static HashMap<String, Language> langs = new HashMap<String, Language>();
 	HashMap<String, String> translations = new HashMap<String, String>();
 	Locale l;
-	private Language(String language) throws ParserConfigurationException,
-			IOException, SAXException {
+
+	private Language(String language) throws ParserConfigurationException, IOException, SAXException {
 		if (language.contains("_")) {
 			String[] parts = language.split("_");
 			l = new Locale(parts[0], parts[1]);
@@ -29,8 +29,7 @@ public class Language {
 
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document d = db.parse(new FileInputStream(new File("locale", language
-				+ ".xml")));
+		Document d = db.parse(new FileInputStream(new File("locale", language + ".xml")));
 		NodeList nl = d.getDocumentElement().getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
 			if (!(nl.item(i) instanceof Element)) {
@@ -43,6 +42,7 @@ public class Language {
 		}
 		System.out.println(translations.size() + " strings loaded.");
 	}
+
 	public String getTranslation(String text) {
 		String string = translations.get(text);
 		if (string == null || string.equals("")) {
@@ -50,6 +50,7 @@ public class Language {
 		}
 		return string;
 	}
+
 	public static Language getInstance(String language) {
 		Language l = langs.get(language);
 		if (l == null) {
@@ -66,6 +67,7 @@ public class Language {
 		}
 		return l;
 	}
+
 	public Locale getLocale() {
 		return l;
 	}

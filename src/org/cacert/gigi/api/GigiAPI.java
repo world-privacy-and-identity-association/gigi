@@ -11,8 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class GigiAPI extends HttpServlet {
 	@Override
-	protected void service(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String pi = req.getPathInfo();
 		if (pi == null) {
 			return;

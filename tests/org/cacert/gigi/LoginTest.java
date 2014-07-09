@@ -12,6 +12,7 @@ import org.junit.Test;
 
 public class LoginTest extends ManagedTest {
 	public static final String secureReference = "/account/certs/email";
+
 	@Test
 	public void testLoginUnverified() throws IOException {
 		long uniq = System.currentTimeMillis();
@@ -21,6 +22,7 @@ public class LoginTest extends ManagedTest {
 		waitForMail();
 		assertFalse(isLoggedin(login(email, pw)));
 	}
+
 	@Test
 	public void testLoginVerified() throws IOException {
 		long uniq = System.currentTimeMillis();
@@ -29,6 +31,7 @@ public class LoginTest extends ManagedTest {
 		createVerifiedUser("an", "bn", email, pw);
 		assertTrue(isLoggedin(login(email, pw)));
 	}
+
 	public boolean isLoggedin(String cookie) throws IOException {
 		URL u = new URL("https://" + getServerName() + secureReference);
 		HttpURLConnection huc = (HttpURLConnection) u.openConnection();

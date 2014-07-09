@@ -29,19 +29,19 @@ public class SimpleSigner {
 		DatabaseConnection.init(p);
 
 		readyMail = DatabaseConnection.getInstance().prepare(
-				"SELECT id, csr_name, subject FROM emailcerts" + " WHERE csr_name is not null"//
-						+ " AND created=0"//
-						+ " AND crt_name=''"//
-						+ " AND warning<3");
+			"SELECT id, csr_name, subject FROM emailcerts" + " WHERE csr_name is not null"//
+				+ " AND created=0"//
+				+ " AND crt_name=''"//
+				+ " AND warning<3");
 
 		updateMail = DatabaseConnection.getInstance().prepare(
-				"UPDATE emailcerts SET crt_name=?," + " created=NOW(), serial=? WHERE id=?");
+			"UPDATE emailcerts SET crt_name=?," + " created=NOW(), serial=? WHERE id=?");
 		warnMail = DatabaseConnection.getInstance().prepare("UPDATE emailcerts SET warning=warning+1 WHERE id=?");
 
 		revoke = DatabaseConnection.getInstance().prepare(
-				"SELECT id, csr_name FROM emailcerts" + " WHERE csr_name is not null"//
-						+ " AND created != 0"//
-						+ " AND revoked = '1970-01-01'");
+			"SELECT id, csr_name FROM emailcerts" + " WHERE csr_name is not null"//
+				+ " AND created != 0"//
+				+ " AND revoked = '1970-01-01'");
 		revokeCompleted = DatabaseConnection.getInstance().prepare("UPDATE emailcerts SET revoked=NOW() WHERE id=?");
 		gencrl();
 		while (true) {

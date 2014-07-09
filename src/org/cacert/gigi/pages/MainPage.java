@@ -11,10 +11,10 @@ public class MainPage extends Page {
 	}
 
 	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		resp.getWriter().println("Access granted.");
 	}
+
 	@Override
 	public boolean needsLogin() {
 		return false;

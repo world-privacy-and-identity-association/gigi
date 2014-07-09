@@ -11,10 +11,8 @@ public class DNSPinger extends DomainPinger {
 	@Override
 	public void ping(String domain, String configuration, String expToken) {
 		try {
-			Process p = Runtime.getRuntime().exec(
-					new String[]{"dig", "+short", "NS", domain});
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					p.getInputStream()));
+			Process p = Runtime.getRuntime().exec(new String[] { "dig", "+short", "NS", domain });
+			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line;
 			LinkedList<String> nameservers = new LinkedList<String>();
 			while ((line = br.readLine()) != null) {
@@ -24,13 +22,11 @@ public class DNSPinger extends DomainPinger {
 			StringBuffer result = new StringBuffer();
 			result.append("failed: ");
 			boolean failed = nameservers.isEmpty();
-			nameservers : for (String NS : nameservers) {
-				String[] call = new String[]{"dig", "+short", "TXT",
-						"cacert." + domain, NS};
+			nameservers: for (String NS : nameservers) {
+				String[] call = new String[] { "dig", "+short", "TXT", "cacert." + domain, NS };
 				System.out.println(Arrays.toString(call));
 				p = Runtime.getRuntime().exec(call);
-				br = new BufferedReader(new InputStreamReader(
-						p.getInputStream()));
+				br = new BufferedReader(new InputStreamReader(p.getInputStream()));
 				String token = null;
 				boolean found = false;
 				while ((line = br.readLine()) != null) {

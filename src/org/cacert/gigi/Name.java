@@ -29,6 +29,7 @@ public class Name implements Outputable {
 		out.print("</span>");
 		out.println("</span>");
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof Name)) {

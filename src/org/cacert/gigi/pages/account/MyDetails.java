@@ -23,21 +23,15 @@ public class MyDetails extends Page {
 	public static final String PATH = "/account/details";
 
 	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		User u = (User) req.getSession().getAttribute(USER);
 
 		PrintWriter out = resp.getWriter();
 		HashMap<String, Object> map = new HashMap<String, Object>();
 		map.put("fname", HTMLEncoder.encodeHTML(u.getFname()));
-		map.put("mname",
-				u.getMname() == null
-						? ""
-						: HTMLEncoder.encodeHTML(u.getMname()));
+		map.put("mname", u.getMname() == null ? "" : HTMLEncoder.encodeHTML(u.getMname()));
 		map.put("lname", HTMLEncoder.encodeHTML(u.getLname()));
-		map.put("suffix",
-				u.getSuffix() == null ? "" : HTMLEncoder.encodeHTML(u
-						.getSuffix()));
+		map.put("suffix", u.getSuffix() == null ? "" : HTMLEncoder.encodeHTML(u.getSuffix()));
 		DateSelector ds = new DateSelector("day", "month", "year");
 		map.put("DoB", ds);
 		map.put("details", "");

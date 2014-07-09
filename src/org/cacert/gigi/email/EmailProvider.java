@@ -14,18 +14,19 @@ import java.util.regex.Pattern;
 import org.cacert.gigi.database.DatabaseConnection;
 
 public abstract class EmailProvider {
-	public abstract void sendmail(String to, String subject, String message,
-			String from, String replyto, String toname, String fromname,
-			String errorsto, boolean extra) throws IOException;
+	public abstract void sendmail(String to, String subject, String message, String from, String replyto,
+		String toname, String fromname, String errorsto, boolean extra) throws IOException;
+
 	private static EmailProvider instance;
+
 	public static EmailProvider getInstance() {
 		return instance;
 	}
+
 	public static void init(Properties conf) {
 		try {
 			Class<?> c = Class.forName(conf.getProperty("emailProvider"));
-			instance = (EmailProvider) c.getDeclaredConstructor(
-					Properties.class).newInstance(conf);
+			instance = (EmailProvider) c.getDeclaredConstructor(Properties.class).newInstance(conf);
 		} catch (ReflectiveOperationException e) {
 			e.printStackTrace();
 		}
@@ -34,10 +35,9 @@ public abstract class EmailProvider {
 	public static final String OK = "OK";
 	public static final String FAIL = "FAIL";
 	private static final Pattern MAIL = Pattern
-			.compile("^([a-zA-Z0-9])+([a-zA-Z0-9\\+\\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\\._-]+)+$");
+		.compile("^([a-zA-Z0-9])+([a-zA-Z0-9\\+\\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\\._-]+)+$");
 
-	public String checkEmailServer(int forUid, String address)
-			throws IOException {
+	public String checkEmailServer(int forUid, String address) throws IOException {
 		if (MAIL.matcher(address).matches()) {
 			String[] parts = address.split("@", 2);
 			String domain = parts[1];
@@ -46,12 +46,10 @@ public abstract class EmailProvider {
 
 			for (String host : mxhosts) {
 				try (Socket s = new Socket(host, 25);
-						BufferedReader br = new BufferedReader(
-								new InputStreamReader(s.getInputStream()));
-						PrintWriter pw = new PrintWriter(s.getOutputStream())) {
+					BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+					PrintWriter pw = new PrintWriter(s.getOutputStream())) {
 					String line;
-					while ((line = br.readLine()) != null
-							&& line.startsWith("220-")) {
+					while ((line = br.readLine()) != null && line.startsWith("220-")) {
 					}
 					if (line == null || !line.startsWith("220")) {
 						continue;
@@ -60,8 +58,7 @@ public abstract class EmailProvider {
 					pw.print("HELO www.cacert.org\r\n");
 					pw.flush();
 
-					while ((line = br.readLine()) != null
-							&& line.startsWith("220")) {
+					while ((line = br.readLine()) != null && line.startsWith("220")) {
 					}
 
 					if (line == null || !line.startsWith("250")) {
@@ -83,10 +80,8 @@ public abstract class EmailProvider {
 					pw.flush();
 
 					try {
-						PreparedStatement statmt = DatabaseConnection
-								.getInstance()
-								.prepare(
-										"insert into `pinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
+						PreparedStatement statmt = DatabaseConnection.getInstance().prepare(
+							"insert into `pinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
 						statmt.setString(1, address);
 						statmt.setString(2, line);
 						statmt.setInt(3, forUid);
@@ -105,13 +100,10 @@ public abstract class EmailProvider {
 			}
 		}
 		try {
-			PreparedStatement statmt = DatabaseConnection
-					.getInstance()
-					.prepare(
-							"insert into `pinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
+			PreparedStatement statmt = DatabaseConnection.getInstance().prepare(
+				"insert into `pinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
 			statmt.setString(1, address);
-			statmt.setString(2,
-					"Failed to make a connection to the mail server");
+			statmt.setString(2, "Failed to make a connection to the mail server");
 			statmt.setInt(3, forUid);
 			statmt.execute();
 		} catch (SQLException e) {
@@ -119,13 +111,11 @@ public abstract class EmailProvider {
 		}
 		return FAIL;
 	}
-	private static LinkedList<String> getMxHosts(String domain)
-			throws IOException {
+
+	private static LinkedList<String> getMxHosts(String domain) throws IOException {
 		LinkedList<String> mxhosts = new LinkedList<String>();
-		Process dig = Runtime.getRuntime().exec(
-				new String[]{"dig", "+short", "MX", domain});
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(
-				dig.getInputStream()))) {
+		Process dig = Runtime.getRuntime().exec(new String[] { "dig", "+short", "MX", domain });
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(dig.getInputStream()))) {
 			String line;
 			while ((line = br.readLine()) != null) {
 				String[] mxparts = line.split(" ", 2);

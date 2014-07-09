@@ -23,6 +23,7 @@ public class Certificate {
 	private String csrName;
 	private String crtName;
 	private String csr = null;
+
 	public Certificate(String dn, String md, String csr) {
 		this.dn = dn;
 		this.md = md;
@@ -31,10 +32,8 @@ public class Certificate {
 
 	public Certificate(int id) {
 		try {
-			PreparedStatement ps = DatabaseConnection
-					.getInstance()
-					.prepare(
-							"SELECT subject, md, csr_name, crt_name FROM `emailcerts` WHERE id=?");
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+				"SELECT subject, md, csr_name, crt_name FROM `emailcerts` WHERE id=?");
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			if (!rs.next()) {
@@ -88,6 +87,7 @@ public class Certificate {
 		private CertificateStatus(boolean unstable) {
 			this.unstable = unstable;
 		}
+
 		/**
 		 * Checks, iff this certificate stage will be left by signer actions.
 		 * 
@@ -99,14 +99,13 @@ public class Certificate {
 		}
 
 	}
+
 	public CertificateStatus getStatus() throws SQLException {
 		if (id == 0) {
 			return CertificateStatus.DRAFT;
 		}
-		PreparedStatement searcher = DatabaseConnection
-				.getInstance()
-				.prepare(
-						"SELECT crt_name, created, revoked, warning FROM emailcerts WHERE id=?");
+		PreparedStatement searcher = DatabaseConnection.getInstance().prepare(
+			"SELECT crt_name, created, revoked, warning FROM emailcerts WHERE id=?");
 		searcher.setInt(1, id);
 		ResultSet rs = searcher.executeQuery();
 		if (!rs.next()) {
@@ -124,8 +123,7 @@ public class Certificate {
 		if (rs.getTime(2) != null && rs.getTime(3) == null) {
 			return CertificateStatus.ISSUED;
 		}
-		if (rs.getTime(2) != null
-				&& rs.getString(3).equals("1970-01-01 00:00:00.0")) {
+		if (rs.getTime(2) != null && rs.getString(3).equals("1970-01-01 00:00:00.0")) {
 			return CertificateStatus.BEING_REVOKED;
 		}
 		return CertificateStatus.REVOKED;
@@ -136,10 +134,8 @@ public class Certificate {
 			if (getStatus() != CertificateStatus.DRAFT) {
 				throw new IllegalStateException();
 			}
-			PreparedStatement inserter = DatabaseConnection
-					.getInstance()
-					.prepare(
-							"INSERT INTO emailcerts SET md=?, subject=?, coll_found=0, crt_name=''");
+			PreparedStatement inserter = DatabaseConnection.getInstance().prepare(
+				"INSERT INTO emailcerts SET md=?, subject=?, coll_found=0, crt_name=''");
 			inserter.setString(1, md);
 			inserter.setString(2, dn);
 			inserter.execute();
@@ -150,8 +146,8 @@ public class Certificate {
 			fos.write(csr.getBytes());
 			fos.close();
 
-			PreparedStatement updater = DatabaseConnection.getInstance()
-					.prepare("UPDATE emailcerts SET csr_name=? WHERE id=?");
+			PreparedStatement updater = DatabaseConnection.getInstance().prepare(
+				"UPDATE emailcerts SET csr_name=? WHERE id=?");
 			updater.setString(1, csrName);
 			updater.setInt(2, id);
 			updater.execute();
@@ -160,6 +156,7 @@ public class Certificate {
 		}
 
 	}
+
 	public boolean waitFor(int max) throws SQLException, InterruptedException {
 		long start = System.currentTimeMillis();
 		while (getStatus().isUnstable()) {
@@ -170,15 +167,14 @@ public class Certificate {
 		}
 		return true;
 	}
+
 	public void revoke() {
 		try {
 			if (getStatus() != CertificateStatus.ISSUED) {
 				throw new IllegalStateException();
 			}
-			PreparedStatement inserter = DatabaseConnection
-					.getInstance()
-					.prepare(
-							"UPDATE emailcerts SET revoked = '1970-01-01' WHERE id=?");
+			PreparedStatement inserter = DatabaseConnection.getInstance().prepare(
+				"UPDATE emailcerts SET revoked = '1970-01-01' WHERE id=?");
 			inserter.setInt(1, id);
 			inserter.execute();
 		} catch (SQLException e) {
@@ -187,8 +183,7 @@ public class Certificate {
 
 	}
 
-	public X509Certificate cert() throws IOException, GeneralSecurityException,
-			SQLException {
+	public X509Certificate cert() throws IOException, GeneralSecurityException, SQLException {
 		CertificateStatus status = getStatus();
 		if (status != CertificateStatus.ISSUED) {
 			throw new IllegalStateException(status + " is not wanted here.");
@@ -206,18 +201,23 @@ public class Certificate {
 		}
 		return crt;
 	}
+
 	public Certificate renew() {
 		return null;
 	}
+
 	public int getId() {
 		return id;
 	}
+
 	public int getSerial() {
 		return serial;
 	}
+
 	public String getDistinguishedName() {
 		return dn;
 	}
+
 	public String getMessageDigest() {
 		return md;
 	}
