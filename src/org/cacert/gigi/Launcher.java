@@ -146,7 +146,7 @@ public class Launcher {
 		servlet.addServlet(new ServletHolder(new Gigi(conf)), "/*");
 
 		HandlerList hl = new HandlerList();
-		hl.setHandlers(new Handler[]{servlet, hw});
+		hl.setHandlers(new Handler[]{hw, servlet});
 
 		ContextHandler ch = new ContextHandler();
 		ch.setVirtualHosts(new String[]{ServerConstants.getWwwHostName(),
