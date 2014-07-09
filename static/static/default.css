@@ -509,30 +509,6 @@ td.storyLeft {
 
 
 /********************* end **********************/
-
-.DataTD input, .DataTD textarea {
-	font-size: 92%;
-}
-
-.DataTD select, .DataTD option {
-	font-size: 92%;
-}
-
-.DataTD {
-	background-color: #e2e2e2;
-	border-style: inset;
-	border-width: 1px;
-	font-size: 8pt;
-	color: #000000;
-	font-family: Arial, Tahoma, Verdana, Helvetica, sans-serif;
-
-	background: #ffffff;
-	padding: 1px 5px 1px 5px;
-	border: 1px #cfcfcf solid;
-	border-left: 1px #cfcfcf dotted;
-	border-right: 1px #cfcfcf dotted;
-}
-
 .DataTDGrey {
 	background-color: #EFEDED;
 	border-style: inset;
@@ -748,4 +724,37 @@ formMandatory{
 pre{
 	word-wrap: break-word;
 	white-space: pre-wrap;
+}
+
+.dataTable td {
+	background-color: #e2e2e2;
+	border-style: inset;
+	border-width: 1px;
+	font-size: 8pt;
+	color: #000000;
+	font-family: Arial, Tahoma, Verdana, Helvetica, sans-serif;
+
+	background: #ffffff;
+	padding: 1px 5px 1px 5px;
+	border: 1px #cfcfcf solid;
+	border-left: 1px #cfcfcf dotted;
+	border-right: 1px #cfcfcf dotted;
+}
+
+.dataTable thead td {
+	background: #e2e2e2;
+	font-weight: bold;
+	padding: 1px 5px 1px 5px;
+	border: 1px solid #cfcfcf;
+	border-bottom: 3px double #cfcfcf;
+	border-top: 1px solid #656565;
+	text-align: center;
+}
+
+.dataTable input, .dataTable textarea {
+	font-size: 92%;
+}
+
+.dataTable select, .dataTable option {
+	font-size: 92%;
 }

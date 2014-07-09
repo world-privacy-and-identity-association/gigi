@@ -8,23 +8,26 @@
 <p><?=_If the Subscriber's name and/or domain name registration change the subscriber will immediately inform CAcert Inc. who shall revoke the digital certificate. When the Digital Certificate expires or is revoked the company will permanently remove the certificate from the server on which it is installed and will not use it for any purpose thereafter. The person responsible for key management and security is fully authorized to install and utilize the certificate to represent this organization's electronic presence.?></p>
 
 <form method="post">
-<table align="center" valign="middle" border="0" cellspacing="0" cellpadding="0" class="wrapper">
+<table align="center" valign="middle" border="0" cellspacing="0" cellpadding="0" class="wrapper dataTable">
+  <thead>
   <tr>
     <td colspan="2" class="title"><?=_New Client Certificate?></td>
   </tr>
+  </thead>
+  <tbody>
   <tr>
-    <td class="DataTD"><?=_Add?></td>
-    <td class="DataTD"><?=_Address?></td>
+    <td><?=_Add?></td>
+    <td><?=_Address?></td>
   </tr>
 <!-- For each mail -->
   <tr>
-    <td class="DataTD"><input type="checkbox" id="addid<=intval($row['id'])>" name="addid[]" value="<=intval($row['id'])>"></td>
-    <td class="DataTD" align="left"><label for="addid<=intval($row['id'])>"><=sanitizeHTML($row['email'])></label></td>
+    <td><input type="checkbox" id="addid<=intval($row['id'])>" name="addid[]" value="<=intval($row['id'])>"></td>
+    <td align="left"><label for="addid<=intval($row['id'])>"><=sanitizeHTML($row['email'])></label></td>
   </tr>
 <!-- For each mail -->
 <!-- if points > 50 -->
   <tr>
-    <td class="DataTD" colspan="2" align="left">
+    <td colspan="2" align="left">
       <input type="radio" id="incname0" name="incname" value="0" checked="checked" />
         <label for="incname0"><?=_No Name?></label><br />
         <input type="radio" id="incname1" name="incname" value="1" />
@@ -33,33 +36,33 @@
   </tr>
 
   <tr>
-    <td class="DataTD">
+    <td>
       <input type="checkbox" id="login" name="login" value="1" checked="checked" />
     </td>
-    <td class="DataTD" align="left">
+    <td align="left">
       <label for="login"><?=_Enable certificate login with this certificate?><br />
       <?=_By allowing certificate login, this certificate can be used to login into this account at https://secure.cacert.org/ .?></label>
     </td>
   </tr>
   <tr>
-    <td class="DataTD" colspan="2" align="left">
+    <td colspan="2" align="left">
       <label for="description"><?=_Optional comment, only used in the certificate overview?></label><br />
       <input type="text" id="description" name="description" maxlength="100" size="100" />
     </td>
   </tr>
 
   <tr class="expertoff">
-    <td class="DataTD">
+    <td>
       <input type="checkbox" id="expertbox" name="expertbox"/>
     </td>
-    <td class="DataTD" align="left">
+    <td align="left">
       <label for="expertbox"><?=_Show advanced options?></label>
     </td>
   </tr>
 
 <!-- if >50 points -->
   <tr class="expert">
-    <td class="DataTD" colspan="2" align="left">
+    <td colspan="2" align="left">
       <input type="radio" id="root1" name="rootcert" value="1" /> <label for="root1"><?=_Sign by class 1 root certificate?></label><br />
       <input type="radio" id="root2" name="rootcert" value="2" checked="checked" /> <label for="root2"><?=_Sign by class 3 root certificate?></label><br />
       <?=_Please note: If you use a certificate signed by the class 3 root, the class 3 root certificate needs to be imported into your email program as well as the class 1 root certificate so your email program can build a full trust path chain.?>
@@ -68,7 +71,7 @@
 <!-- if >50 points -->
 
   <tr class="expert">
-    <td class="DataTD" colspan="2" align="left">
+    <td colspan="2" align="left">
       <?=_Hash algorithm used when signing the certificate:?><br />
       <!-- Hash algs!!! -->
     </td>
@@ -76,10 +79,10 @@
 
 <!-- if codesign -->
   <tr class="expert">
-    <td class="DataTD">
+    <td>
       <input type="checkbox" id="codesign" name="codesign" value="1" />
     </td>
-    <td class="DataTD" align="left">
+    <td align="left">
       <label for="codesign"><?=_Code Signing?><br />
       <?=_Please note: By ticking this box you will automatically have your name included in the certificate.?></label>
     </td>
@@ -87,10 +90,10 @@
 <!-- if codesign -->
 
   <tr class="expert">
-    <td class="DataTD">
+    <td>
       <input type="checkbox" id="SSO" name="SSO" value="1" />
     </td>
-    <td class="DataTD" align="left">
+    <td align="left">
       <label for="SSO"><?=_Add Single Sign On ID Information?><br />
       <?=_By adding Single Sign On (SSO) ID information to your certificates this could be used to track you, you can also issue certificates with no email addresses that are useful only for Authentication. Please see a more detailed description on our WIKI about it.?>
       <a href="http://wiki.cacert.org/wiki/SSO"><?=_SSO WIKI Entry?></a></label>
@@ -98,7 +101,7 @@
   </tr>
 
   <tr class="expert">
-    <td class="DataTD" colspan="2">
+    <td colspan="2">
       <label for="optionalCSR"><?=_Optional Client CSR, no information on the certificate will be used?></label><br />
       <textarea id="optionalCSR" name="optionalCSR" cols="80" rows="5"></textarea>
     </td>
@@ -106,16 +109,17 @@
 
 
   <tr>
-    <td class="DataTD">
+    <td>
       <input type="checkbox" id="CCA" name="CCA" />
     </td>
-    <td class="DataTD" align="left">
+    <td align="left">
       <label for="CCA"><strong><?=s,$CCA,I accept the CAcert Community Agreement (%s).?> </strong><br />
       <?=_Please note: You need to accept the CCA to proceed.?></label>
     </td>
   </tr>
   <tr>
-    <td class="DataTD" colspan="2"><input type="submit" name="process" value="<?=_Next?>" /></td>
+    <td colspan="2"><input type="submit" name="process" value="<?=_Next?>" /></td>
   </tr>
+  </tbody>
 </table>
 </form>

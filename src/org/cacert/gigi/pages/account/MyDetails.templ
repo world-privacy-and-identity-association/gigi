@@ -1,31 +1,34 @@
 <form method="post" action="/account/myDetails">
-<table class="wrapper" width="400">
+<table class="wrapper dataTable" width="400">
+<thead>
   <tr>
-    <td colspan="2" class="title"><?=_My Details?></td>
+    <td colspan="2"><?=_My Details?></td>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td width="125"><?=_First Name?>: </td>
+    <td width="125"><input type="text" name="fname" value="<?=$fname?>"></td>
   </tr>
   <tr>
-    <td class="DataTD" width="125"><?=_First Name?>: </td>
-    <td class="DataTD" width="125"><input type="text" name="fname" value="<?=$fname?>"></td>
-  </tr>
-  <tr>
-    <td class="DataTD" valign="top"><?=_Middle Name(s)?><br>
+    <td valign="top"><?=_Middle Name(s)?><br>
       (<?=_optional?>)
     </td>
-    <td class="DataTD"><input type="text" name="mname" value="<?=$mname?>"></td>
+    <td><input type="text" name="mname" value="<?=$mname?>"></td>
   </tr>
   <tr>
-    <td class="DataTD"><?=_Last Name?>: </td>
-    <td class="DataTD"><input type="text" name="lname" value="<?=$lname?>"></td>
+    <td><?=_Last Name?>: </td>
+    <td><input type="text" name="lname" value="<?=$lname?>"></td>
   </tr>
   <tr>
-    <td class="DataTD"><?=_Suffix?><br>
+    <td><?=_Suffix?><br>
       (<?=_optional?>)</td>
-    <td class="DataTD"><input type="text" name="suffix" value="<?=$suffix?>"></td>
+    <td><input type="text" name="suffix" value="<?=$suffix?>"></td>
   </tr>
   <tr>
-    <td class="DataTD"><?=_Date of Birth?><br>
+    <td><?=_Date of Birth?><br>
 	    (<?=_dd/mm/yyyy?>)</td>
-    <td class="DataTD"><?=$DoB?></td>
+    <td><?=$DoB?></td>
   </tr>
   <tr>
     <td colspan="2" class="title"><?=_('Show account history')?></td>
@@ -34,7 +37,8 @@
     <td colspan="2" class="title"><?=_View secret question & answers and OTP phrases?></td>
   </tr>
   <?=$details?>
-  <tr><td class="DataTD" colspan="2"><input type="submit" name="process" value="<?=_Update?>"></td>
+  <tr><td colspan="2"><input type="submit" name="process" value="<?=_Update?>"></td>
   </tr>
+  </tbody>
 </table>
 </form>
