@@ -16,25 +16,24 @@ import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.util.KeyStorage;
 
 public class Certificate {
-	int id;
-	int serial;
-	String dn;
-	String md;
-	String csrName;
-	String crtName;
-	String csr = null;
+	private int id;
+	private int serial;
+	private String dn;
+	private String md;
+	private String csrName;
+	private String crtName;
+	private String csr = null;
 	public Certificate(String dn, String md, String csr) {
 		this.dn = dn;
 		this.md = md;
 		this.csr = csr;
 	}
 
-	// created, modified, revoked, expire
 	public enum CertificateStatus {
-		DRAFT(false), BEEING_ISSUED(true), ISSUED(false), BEEING_REVOKED(true), REVOKED(
+		DRAFT(false), BEING_ISSUED(true), ISSUED(false), BEING_REVOKED(true), REVOKED(
 				false);
 
-		boolean unstable;
+		private boolean unstable;
 
 		private CertificateStatus(boolean unstable) {
 			this.unstable = unstable;
@@ -56,7 +55,7 @@ public class Certificate {
 			throw new IllegalStateException("Certificate not in Database");
 		}
 		if (rs.getString(2) == null) {
-			return CertificateStatus.BEEING_ISSUED;
+			return CertificateStatus.BEING_ISSUED;
 		}
 		crtName = rs.getString(1);
 		System.out.println(crtName);
@@ -65,7 +64,7 @@ public class Certificate {
 		}
 		if (rs.getTime(2) != null
 				&& rs.getString(3).equals("1970-01-01 00:00:00.0")) {
-			return CertificateStatus.BEEING_REVOKED;
+			return CertificateStatus.BEING_REVOKED;
 		}
 		return CertificateStatus.REVOKED;
 	}
@@ -147,6 +146,18 @@ public class Certificate {
 	}
 	public Certificate renew() {
 		return null;
+	}
+	public int getId() {
+		return id;
+	}
+	public int getSerial() {
+		return serial;
+	}
+	public String getDistinguishedName() {
+		return dn;
+	}
+	public String getMessageDigest() {
+		return md;
 	}
 
 }
