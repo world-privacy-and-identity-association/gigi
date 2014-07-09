@@ -14,6 +14,9 @@ public class PolicyRedirector extends HandlerWrapper {
 	public void handle(String target, Request baseRequest,
 			HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
+		if (target.equals("/")) {
+			return;
+		}
 		if (target.startsWith("/policy/") && target.endsWith(".php")) {
 			target = target.replace(".php", ".html");
 			response.sendRedirect(target);
