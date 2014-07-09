@@ -26,7 +26,6 @@ import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.TestSecure;
 import org.cacert.gigi.pages.Verify;
 import org.cacert.gigi.pages.account.ChangePasswordPage;
-import org.cacert.gigi.pages.account.MailAdd;
 import org.cacert.gigi.pages.account.MailCertificateAdd;
 import org.cacert.gigi.pages.account.MailCertificates;
 import org.cacert.gigi.pages.account.MailOverview;
@@ -47,6 +46,7 @@ public class Gigi extends HttpServlet {
 		EmailProvider.init(conf);
 		DatabaseConnection.init(conf);
 	}
+
 	@Override
 	public void init() throws ServletException {
 		pages.put("/login", new LoginPage("CACert - Login"));
@@ -59,27 +59,22 @@ public class Gigi extends HttpServlet {
 		pages.put(ChangePasswordPage.PATH, new ChangePasswordPage());
 		pages.put(RegisterPage.PATH, new RegisterPage());
 		pages.put(MailCertificateAdd.PATH, new MailCertificateAdd());
-		pages.put(MailOverview.DEFAULT_PATH, new MailOverview(
-				"My email addresses"));
-		pages.put(MailAdd.DEFAULT_PATH, new MailAdd("Add new email"));
-		baseTemplate = new Template(new InputStreamReader(
-				Gigi.class.getResourceAsStream("Gigi.templ")));
-		m = new Menu("Certificates", "cert", new MenuItem(
-				MailOverview.DEFAULT_PATH, "Emails"), new MenuItem("",
-				"Client Certificates"), new MenuItem("", "Domains"),
-				new MenuItem("", "Server Certificates"));
+		pages.put(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"));
+		baseTemplate = new Template(new InputStreamReader(Gigi.class.getResourceAsStream("Gigi.templ")));
+		m = new Menu("Certificates", "cert", new MenuItem(MailOverview.DEFAULT_PATH, "Emails"), new MenuItem("",
+				"Client Certificates"), new MenuItem("", "Domains"), new MenuItem("", "Server Certificates"));
 		super.init();
 
 	}
+
 	@Override
-	protected void service(final HttpServletRequest req,
-			final HttpServletResponse resp) throws ServletException,
+	protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException,
 			IOException {
 		addXSSHeaders(resp);
-		if (req.getHeader("Origin") != null) {
-			resp.getWriter().println("No cross domain access allowed.");
-			return;
-		}
+		// if (req.getHeader("Origin") != null) {
+		// resp.getWriter().println("No cross domain access allowed.");
+		// return;
+		// }
 		HttpSession hs = req.getSession();
 		if (req.getPathInfo() != null && req.getPathInfo().equals("/logout")) {
 			if (hs != null) {
@@ -109,8 +104,7 @@ public class Gigi extends HttpServlet {
 			Outputable content = new Outputable() {
 
 				@Override
-				public void output(PrintWriter out, Language l,
-						Map<String, Object> vars) {
+				public void output(PrintWriter out, Language l, Map<String, Object> vars) {
 					try {
 						if (req.getMethod().equals("POST")) {
 							p.doPost(req, resp);
@@ -134,6 +128,7 @@ public class Gigi extends HttpServlet {
 		}
 
 	}
+
 	private Page getPage(String pathInfo) {
 		if (pathInfo.endsWith("/") && !pathInfo.equals("/")) {
 			pathInfo = pathInfo.substring(0, pathInfo.length() - 1);
@@ -158,8 +153,7 @@ public class Gigi extends HttpServlet {
 	}
 
 	public static void addXSSHeaders(HttpServletResponse hsr) {
-		hsr.addHeader("Access-Control-Allow-Origin", "https://"
-				+ ServerConstants.getWwwHostNamePort() + " https://"
+		hsr.addHeader("Access-Control-Allow-Origin", "https://" + ServerConstants.getWwwHostNamePort() + " https://"
 				+ ServerConstants.getSecureHostNamePort());
 		hsr.addHeader("Access-Control-Max-Age", "60");
 
@@ -167,22 +161,19 @@ public class Gigi extends HttpServlet {
 		hsr.addHeader("Strict-Transport-Security", "max-age=31536000");
 
 	}
+
 	private static String defaultCSP = null;
+
 	private static String getDefaultCSP() {
 		if (defaultCSP == null) {
 			StringBuffer csp = new StringBuffer();
 			csp.append("default-src 'none';");
-			csp.append("font-src https://"
-					+ ServerConstants.getStaticHostNamePort());
-			csp.append(";img-src https://"
-					+ ServerConstants.getStaticHostNamePort());
+			csp.append("font-src https://" + ServerConstants.getStaticHostNamePort());
+			csp.append(";img-src https://" + ServerConstants.getStaticHostNamePort());
 			csp.append(";media-src 'none'; object-src 'none';");
-			csp.append("script-src https://"
-					+ ServerConstants.getStaticHostNamePort());
-			csp.append(";style-src https://"
-					+ ServerConstants.getStaticHostNamePort());
-			csp.append(";form-action https://"
-					+ ServerConstants.getSecureHostNamePort() + " https://"
+			csp.append("script-src https://" + ServerConstants.getStaticHostNamePort());
+			csp.append(";style-src https://" + ServerConstants.getStaticHostNamePort());
+			csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://"
 					+ ServerConstants.getWwwHostNamePort());
 			csp.append("report-url https://api.cacert.org/security/csp/report");
 			defaultCSP = csp.toString();
