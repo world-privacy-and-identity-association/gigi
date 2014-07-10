@@ -31,6 +31,7 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Log;
@@ -132,6 +133,9 @@ public class Launcher {
 		ServletContextHandler servlet = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		servlet.setInitParameter(SessionManager.__SessionCookieProperty, "CACert-Session");
 		servlet.addServlet(new ServletHolder(new Gigi(conf)), "/*");
+		ErrorPageErrorHandler epeh = new ErrorPageErrorHandler();
+		epeh.addErrorPage(404, "/error");
+		servlet.setErrorHandler(epeh);
 
 		HandlerList hl = new HandlerList();
 		hl.setHandlers(new Handler[] { hw, servlet });

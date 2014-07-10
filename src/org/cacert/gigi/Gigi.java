@@ -30,6 +30,7 @@ import org.cacert.gigi.pages.account.MailCertificateAdd;
 import org.cacert.gigi.pages.account.MailCertificates;
 import org.cacert.gigi.pages.account.MailOverview;
 import org.cacert.gigi.pages.account.MyDetails;
+import org.cacert.gigi.pages.error.PageNotFound;
 import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.pages.wot.AssurePage;
 import org.cacert.gigi.util.ServerConstants;
@@ -49,6 +50,7 @@ public class Gigi extends HttpServlet {
 
 	@Override
 	public void init() throws ServletException {
+		pages.put("/error", new PageNotFound());
 		pages.put("/login", new LoginPage("CACert - Login"));
 		pages.put("/", new MainPage("CACert - Home"));
 		pages.put("/secure", new TestSecure());
