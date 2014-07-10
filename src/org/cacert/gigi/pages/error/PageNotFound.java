@@ -9,8 +9,8 @@ import org.cacert.gigi.pages.Page;
 
 public class PageNotFound extends Page {
 
-	public PageNotFound(String title) {
-		super(title);
+	public PageNotFound() {
+		super("");
 	}
 
 	@Override
