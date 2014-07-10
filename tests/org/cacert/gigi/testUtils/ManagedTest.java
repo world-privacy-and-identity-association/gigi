@@ -62,7 +62,7 @@ public class ManagedTest {
 
 			String type = testProps.getProperty("type");
 			if (type.equals("local")) {
-				url = testProps.getProperty("server");
+				url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort");
 				String[] parts = testProps.getProperty("mail").split(":", 2);
 				ter = new TestEmailReciever(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])));
 				return;
@@ -73,9 +73,9 @@ public class ManagedTest {
 			System.out.println("... starting server");
 			Properties mainProps = new Properties();
 			mainProps.setProperty("host", "127.0.0.1");
-			mainProps.setProperty("name.secure", "sec");
+			mainProps.setProperty("name.secure", testProps.getProperty("name.secure"));
 			mainProps.setProperty("name.www", testProps.getProperty("name.www"));
-			mainProps.setProperty("name.static", "stat");
+			mainProps.setProperty("name.static", testProps.getProperty("name.static"));
 
 			mainProps.setProperty("port", testProps.getProperty("serverPort"));
 			mainProps.setProperty("emailProvider", "org.cacert.gigi.email.TestEmailProvider");

@@ -1,5 +1,5 @@
 type=local
-server=localhost:443
+serverPort=443
 mail=localhost:8474
 
 # ==== OR ===
