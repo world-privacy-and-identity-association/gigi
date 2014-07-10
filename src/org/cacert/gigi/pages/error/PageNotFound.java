@@ -18,4 +18,9 @@ public class PageNotFound extends Page {
 		getDefaultTemplate().output(resp.getWriter(), Page.getLanguage(req), null);
 	}
 
+	@Override
+	public boolean needsLogin() {
+		return false;
+	}
+
 }
