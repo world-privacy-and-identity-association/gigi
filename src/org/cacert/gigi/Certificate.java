@@ -109,7 +109,7 @@ public class Certificate {
 			return CertificateStatus.DRAFT;
 		}
 		PreparedStatement searcher = DatabaseConnection.getInstance().prepare(
-			"SELECT crt_name, created, revoked, warning FROM emailcerts WHERE id=?");
+			"SELECT crt_name, created, revoked, warning, serial FROM emailcerts WHERE id=?");
 		searcher.setInt(1, id);
 		ResultSet rs = searcher.executeQuery();
 		if (!rs.next()) {
@@ -123,6 +123,7 @@ public class Certificate {
 			return CertificateStatus.SIGNING;
 		}
 		crtName = rs.getString(1);
+		serial = rs.getString(5);
 		if (rs.getTime(2) != null && rs.getTime(3) == null) {
 			return CertificateStatus.ISSUED;
 		}
