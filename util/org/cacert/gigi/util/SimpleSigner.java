@@ -1,10 +1,12 @@
 package org.cacert.gigi.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateFactory;
@@ -12,6 +14,7 @@ import java.security.cert.X509Certificate;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.cacert.gigi.database.DatabaseConnection;
@@ -49,7 +52,7 @@ public class SimpleSigner {
 		}
 		running = true;
 		readyMail = DatabaseConnection.getInstance().prepare(
-			"SELECT id, csr_name, subject FROM emailcerts" + " WHERE csr_name is not null"//
+			"SELECT id, csr_name, subject FROM emailcerts" + " WHERE csr_name is not null AND csr_name != ''"//
 				+ " AND created=0"//
 				+ " AND crt_name=''"//
 				+ " AND warning<3");
@@ -176,10 +179,16 @@ public class SimpleSigner {
 				} catch (GeneralSecurityException e) {
 					e.printStackTrace();
 				}
-				System.out.println("ERROR: " + id);
+				System.out.println("ERROR Afterwards: " + id);
 				warnMail.setInt(1, id);
 				warnMail.execute();
 			} else {
+				BufferedReader br = new BufferedReader(new InputStreamReader(p1.getErrorStream()));
+				String s;
+				while ((s = br.readLine()) != null) {
+					System.out.println(s);
+				}
+				System.out.println(Arrays.toString(call));
 				System.out.println("ERROR: " + id);
 				warnMail.setInt(1, id);
 				warnMail.execute();
