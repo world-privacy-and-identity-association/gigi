@@ -66,28 +66,33 @@ public class SimpleSigner {
 		runner = new Thread() {
 			@Override
 			public void run() {
-				try {
-					gencrl();
-				} catch (IOException e2) {
-					e2.printStackTrace();
-				} catch (InterruptedException e2) {
-					e2.printStackTrace();
-				}
-				while (running) {
-					try {
-						signCertificates();
-						revokeCertificates();
-						Thread.sleep(5000);
-					} catch (IOException e) {
-						e.printStackTrace();
-					} catch (SQLException e) {
-						e.printStackTrace();
-					} catch (InterruptedException e1) {
-					}
-				}
+				work();
 			}
+
 		};
 		runner.start();
+	}
+
+	private static void work() {
+		try {
+			gencrl();
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		} catch (InterruptedException e2) {
+			e2.printStackTrace();
+		}
+		while (running) {
+			try {
+				signCertificates();
+				revokeCertificates();
+				Thread.sleep(5000);
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e1) {
+			}
+		}
 	}
 
 	private static void revokeCertificates() throws SQLException, IOException, InterruptedException {
@@ -163,7 +168,7 @@ public class SimpleSigner {
 					X509Certificate crtp = (X509Certificate) cf.generateCertificate(is);
 					BigInteger serial = crtp.getSerialNumber();
 					updateMail.setString(1, crt.getPath());
-					updateMail.setString(2, serial.toString());
+					updateMail.setString(2, serial.toString(16));
 					updateMail.setInt(3, id);
 					updateMail.execute();
 					System.out.println("sign: " + id);

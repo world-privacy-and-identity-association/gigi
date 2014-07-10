@@ -73,7 +73,8 @@ public class Launcher {
 		IOException {
 		final SslContextFactory sslContextFactory = generateSSLContextFactory(conf, "www");
 		final SslContextFactory secureContextFactory = generateSSLContextFactory(conf, "secure");
-		secureContextFactory.setNeedClientAuth(true);
+		secureContextFactory.setWantClientAuth(true);
+		secureContextFactory.setNeedClientAuth(false);
 		final SslContextFactory staticContextFactory = generateSSLContextFactory(conf, "static");
 		final SslContextFactory apiContextFactory = generateSSLContextFactory(conf, "api");
 		try {

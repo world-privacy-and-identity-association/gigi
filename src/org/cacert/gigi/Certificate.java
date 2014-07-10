@@ -123,7 +123,6 @@ public class Certificate {
 			return CertificateStatus.SIGNING;
 		}
 		crtName = rs.getString(1);
-		System.out.println(crtName);
 		if (rs.getTime(2) != null && rs.getTime(3) == null) {
 			return CertificateStatus.ISSUED;
 		}

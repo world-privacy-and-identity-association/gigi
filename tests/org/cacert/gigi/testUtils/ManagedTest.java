@@ -284,4 +284,19 @@ public class ManagedTest {
 		}
 		return m.group(1);
 	}
+
+	public static String[] generateCSR(String dn) throws IOException {
+		Process p = Runtime.getRuntime().exec(
+			new String[] { "openssl", "req", "-newkey", "rsa:1024", "-nodes", "-subj", dn, "-config",
+					"keys/selfsign.config" });
+		String csr = IOUtils.readURL(new InputStreamReader(p.getInputStream()));
+
+		String[] parts = csr.split("(?<=-----)\n(?=-----)");
+		if (parts.length != 2) {
+			System.err.println(IOUtils.readURL(new InputStreamReader(p.getErrorStream())));
+			throw new Error();
+		}
+		return parts;
+	}
+
 }
