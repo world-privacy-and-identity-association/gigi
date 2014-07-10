@@ -28,6 +28,7 @@ import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.cacert.gigi.util.DatabaseManager;
+import org.cacert.gigi.util.SimpleSigner;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -113,12 +114,15 @@ public class ManagedTest {
 				throw new Error("Server startup failed");
 			}
 			ter = new TestEmailReciever(new InetSocketAddress("localhost", 8473));
+			SimpleSigner.runSigner();
 		} catch (IOException e) {
 			throw new Error(e);
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (SQLException e1) {
 			e1.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 
 	}
@@ -131,6 +135,11 @@ public class ManagedTest {
 			return;
 		}
 		gigi.destroy();
+		try {
+			SimpleSigner.stopSigner();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@After

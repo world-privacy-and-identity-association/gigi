@@ -22,12 +22,32 @@ public class SimpleSigner {
 	private static PreparedStatement readyMail;
 	private static PreparedStatement revoke;
 	private static PreparedStatement revokeCompleted;
+	private static boolean running = true;
+	private static Thread runner;
 
 	public static void main(String[] args) throws IOException, SQLException, InterruptedException {
 		Properties p = new Properties();
 		p.load(new FileReader("config/gigi.properties"));
 		DatabaseConnection.init(p);
 
+		runSigner();
+	}
+
+	public synchronized static void stopSigner() throws InterruptedException {
+		if (runner == null) {
+			throw new IllegalStateException("already stopped");
+		}
+		running = false;
+		runner.interrupt();
+		runner.join();
+		runner = null;
+	}
+
+	public synchronized static void runSigner() throws SQLException, IOException, InterruptedException {
+		if (runner != null) {
+			throw new IllegalStateException("already running");
+		}
+		running = true;
 		readyMail = DatabaseConnection.getInstance().prepare(
 			"SELECT id, csr_name, subject FROM emailcerts" + " WHERE csr_name is not null"//
 				+ " AND created=0"//
@@ -43,13 +63,31 @@ public class SimpleSigner {
 				+ " AND created != 0"//
 				+ " AND revoked = '1970-01-01'");
 		revokeCompleted = DatabaseConnection.getInstance().prepare("UPDATE emailcerts SET revoked=NOW() WHERE id=?");
-		gencrl();
-		while (true) {
-			System.out.println("ping");
-			signCertificates();
-			revokeCertificates();
-			Thread.sleep(5000);
-		}
+		runner = new Thread() {
+			@Override
+			public void run() {
+				try {
+					gencrl();
+				} catch (IOException e2) {
+					e2.printStackTrace();
+				} catch (InterruptedException e2) {
+					e2.printStackTrace();
+				}
+				while (running) {
+					try {
+						signCertificates();
+						revokeCertificates();
+						Thread.sleep(5000);
+					} catch (IOException e) {
+						e.printStackTrace();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					} catch (InterruptedException e1) {
+					}
+				}
+			}
+		};
+		runner.start();
 	}
 
 	private static void revokeCertificates() throws SQLException, IOException, InterruptedException {
