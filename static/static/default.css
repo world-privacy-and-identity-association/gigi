@@ -741,7 +741,7 @@ pre{
 	border-right: 1px #cfcfcf dotted;
 }
 
-.dataTable thead td {
+.dataTable th {
 	background: #e2e2e2;
 	font-weight: bold;
 	padding: 1px 5px 1px 5px;
