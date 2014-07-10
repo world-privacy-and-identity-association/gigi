@@ -2,8 +2,10 @@ package org.cacert.gigi.output;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -13,41 +15,57 @@ public class Template implements Outputable {
 	String[] contents;
 	Outputable[] vars;
 
-	public Template(Reader r) {
+	URL source;
+
+	public Template(URL u) {
 		try {
-			LinkedList<String> splitted = new LinkedList<String>();
-			LinkedList<Outputable> commands = new LinkedList<Outputable>();
-			StringBuffer buf = new StringBuffer();
-			int ch = r.read();
-			outer: while (true) {
-				while (!endsWith(buf, "<?")) {
-					if (ch == -1) {
-						break outer;
-					}
-					buf.append((char) ch);
-					ch = r.read();
-				}
-				buf.delete(buf.length() - 2, buf.length());
-				splitted.add(buf.toString());
-				buf.delete(0, buf.length());
-				while (!endsWith(buf, "?>")) {
-					buf.append((char) ch);
-					ch = r.read();
-					if (ch == -1) {
-						throw new EOFException();
-					}
-				}
-				buf.delete(buf.length() - 2, buf.length());
-				commands.add(parseCommand(buf.toString()));
-				buf.delete(0, buf.length());
-			}
-			splitted.add(buf.toString());
-			contents = splitted.toArray(new String[splitted.size()]);
-			vars = commands.toArray(new Outputable[commands.size()]);
-			r.close();
+			source = u;
+			Reader r = new InputStreamReader(u.openStream(), "UTF-8");
+			parse(r);
 		} catch (IOException e) {
 			throw new Error(e);
 		}
+	}
+
+	public Template(Reader r) {
+		try {
+			parse(r);
+		} catch (IOException e) {
+			throw new Error(e);
+		}
+	}
+
+	private void parse(Reader r) throws IOException {
+		LinkedList<String> splitted = new LinkedList<String>();
+		LinkedList<Outputable> commands = new LinkedList<Outputable>();
+		StringBuffer buf = new StringBuffer();
+		int ch = r.read();
+		outer: while (true) {
+			while (!endsWith(buf, "<?")) {
+				if (ch == -1) {
+					break outer;
+				}
+				buf.append((char) ch);
+				ch = r.read();
+			}
+			buf.delete(buf.length() - 2, buf.length());
+			splitted.add(buf.toString());
+			buf.delete(0, buf.length());
+			while (!endsWith(buf, "?>")) {
+				buf.append((char) ch);
+				ch = r.read();
+				if (ch == -1) {
+					throw new EOFException();
+				}
+			}
+			buf.delete(buf.length() - 2, buf.length());
+			commands.add(parseCommand(buf.toString()));
+			buf.delete(0, buf.length());
+		}
+		splitted.add(buf.toString());
+		contents = splitted.toArray(new String[splitted.size()]);
+		vars = commands.toArray(new Outputable[commands.size()]);
+		r.close();
 	}
 
 	private boolean endsWith(StringBuffer buf, String string) {

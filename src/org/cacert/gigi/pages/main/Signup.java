@@ -1,9 +1,7 @@
 package org.cacert.gigi.pages.main;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,11 +32,7 @@ public class Signup extends Form {
 
 	public Signup(HttpServletRequest hsr) {
 		super(hsr);
-		try {
-			t = new Template(new InputStreamReader(Signup.class.getResourceAsStream("Signup.templ"), "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
+		t = new Template(Signup.class.getResource("Signup.templ"));
 		buildup.setFname("");
 		buildup.setMname("");
 		buildup.setLname("");

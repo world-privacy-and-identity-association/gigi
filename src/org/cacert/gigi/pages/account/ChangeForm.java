@@ -1,6 +1,5 @@
 package org.cacert.gigi.pages.account;
 
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Map;
 
@@ -17,8 +16,7 @@ public class ChangeForm extends Form {
 
 	private static Template t;
 	static {
-		t = new Template(
-			new InputStreamReader(ChangePasswordPage.class.getResourceAsStream("ChangePasswordForm.templ")));
+		t = new Template(ChangePasswordPage.class.getResource("ChangePasswordForm.templ"));
 	}
 
 	@Override
