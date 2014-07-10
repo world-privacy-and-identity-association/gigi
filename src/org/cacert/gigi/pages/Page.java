@@ -27,8 +27,8 @@ public abstract class Page {
 	}
 
 	/**
-	 * Retrives the default template (&lt;className&gt;.templ) which has already
-	 * been loaded.
+	 * Retrieves the default template (&lt;className&gt;.templ) which has
+	 * already been loaded.
 	 * 
 	 * @return the default template.
 	 */
@@ -44,7 +44,7 @@ public abstract class Page {
 	 *            the request to handle.
 	 * @param resp
 	 *            the response to write to
-	 * @return true, iff the request is consumed and the default template should
+	 * @return true, if the request is consumed and the default template should
 	 *         not be applied.
 	 * @throws IOException
 	 *             if output goes wrong.
@@ -83,9 +83,9 @@ public abstract class Page {
 	}
 
 	/**
-	 * Returns true, iff this page requires login. Default is <code>true</code>
+	 * Returns true, if this page requires login. Default is <code>true</code>
 	 * 
-	 * @return iff the page needs login.
+	 * @return if the page needs login.
 	 */
 	public boolean needsLogin() {
 		return true;
