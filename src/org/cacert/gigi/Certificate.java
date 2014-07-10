@@ -32,14 +32,14 @@ public class Certificate {
 		this.csr = csr;
 	}
 
-	public Certificate(int id) {
+	public Certificate(int serial) {
 		try {
 			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
 				"SELECT id,subject, md, csr_name, crt_name,memid FROM `emailcerts` WHERE serial=?");
-			ps.setInt(1, id);
+			ps.setInt(1, serial);
 			ResultSet rs = ps.executeQuery();
 			if (!rs.next()) {
-				throw new IllegalArgumentException("Invalid mid " + id);
+				throw new IllegalArgumentException("Invalid mid " + serial);
 			}
 			this.id = rs.getInt(1);
 			dn = rs.getString(2);
@@ -47,7 +47,7 @@ public class Certificate {
 			csrName = rs.getString(4);
 			crtName = rs.getString(5);
 			ownerId = rs.getInt(6);
-			serial = id;
+			this.serial = serial;
 			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();

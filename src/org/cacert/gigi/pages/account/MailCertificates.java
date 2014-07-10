@@ -32,8 +32,8 @@ public class MailCertificates extends Page {
 		String pi = req.getPathInfo().substring(PATH.length());
 		if (pi.length() != 0) {
 			pi = pi.substring(1);
-			int id = Integer.parseInt(pi);
-			Certificate c = new Certificate(id);
+			int serial = Integer.parseInt(pi);
+			Certificate c = new Certificate(serial);
 			if (LoginPage.getUser(req).getId() != c.getOwnerId()) {
 				out.println(translate(req, "You do not own this certificate."));
 				return;
