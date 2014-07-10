@@ -1,7 +1,6 @@
 package org.cacert.gigi;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -61,7 +60,7 @@ public class Gigi extends HttpServlet {
 		pages.put(RegisterPage.PATH, new RegisterPage());
 		pages.put(MailCertificateAdd.PATH, new MailCertificateAdd());
 		pages.put(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"));
-		baseTemplate = new Template(new InputStreamReader(Gigi.class.getResourceAsStream("Gigi.templ")));
+		baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
 		m = new Menu("Certificates", "cert", new MenuItem(MailOverview.DEFAULT_PATH, "Emails"), new MenuItem("",
 			"Client Certificates"), new MenuItem("", "Domains"), new MenuItem("", "Server Certificates"));
 		super.init();

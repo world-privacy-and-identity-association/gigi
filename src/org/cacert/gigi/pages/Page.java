@@ -1,9 +1,7 @@
 package org.cacert.gigi.pages;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.net.URL;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -22,13 +20,9 @@ public abstract class Page {
 
 	public Page(String title) {
 		this.title = title;
-		try {
-			InputStream resource = getClass().getResourceAsStream(getClass().getSimpleName() + ".templ");
-			if (resource != null) {
-				defaultTemplate = new Template(new InputStreamReader(resource, "UTF-8"));
-			}
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		URL resource = getClass().getResource(getClass().getSimpleName() + ".templ");
+		if (resource != null) {
+			defaultTemplate = new Template(resource);
 		}
 	}
 

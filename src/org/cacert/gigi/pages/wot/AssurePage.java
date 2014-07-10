@@ -1,7 +1,6 @@
 package org.cacert.gigi.pages.wot;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,7 +26,7 @@ public class AssurePage extends Page {
 
 	public AssurePage() {
 		super("Assure someone");
-		t = new Template(new InputStreamReader(AssuranceForm.class.getResourceAsStream("AssureeSearch.templ")));
+		t = new Template(AssuranceForm.class.getResource("AssureeSearch.templ"));
 
 	}
 

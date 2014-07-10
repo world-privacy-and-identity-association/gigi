@@ -1,6 +1,5 @@
 package org.cacert.gigi.pages.wot;
 
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -23,7 +22,7 @@ public class AssuranceForm extends Form {
 	User assuree;
 	static final Template templ;
 	static {
-		templ = new Template(new InputStreamReader(AssuranceForm.class.getResourceAsStream("AssuranceForm.templ")));
+		templ = new Template(AssuranceForm.class.getResource("AssuranceForm.templ"));
 	}
 
 	public AssuranceForm(HttpServletRequest hsr, int assuree) {

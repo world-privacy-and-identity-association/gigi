@@ -1,7 +1,6 @@
 package org.cacert.gigi.output;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,10 +13,8 @@ public class ClientCSRGenerate {
 	static Template normal;
 	static Template IE;
 	static {
-		normal = new Template(new InputStreamReader(
-			ClientCSRGenerate.class.getResourceAsStream("ClientCSRGenerate.templ")));
-		IE = new Template(new InputStreamReader(
-			ClientCSRGenerate.class.getResourceAsStream("ClientCSRGenerateIE.templ")));
+		normal = new Template(ClientCSRGenerate.class.getResource("ClientCSRGenerate.templ"));
+		IE = new Template(ClientCSRGenerate.class.getResource("ClientCSRGenerateIE.templ"));
 	}
 
 	public static void output(HttpServletRequest req, HttpServletResponse resp) {
