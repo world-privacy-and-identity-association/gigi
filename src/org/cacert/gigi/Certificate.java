@@ -18,7 +18,7 @@ import org.cacert.gigi.util.KeyStorage;
 public class Certificate {
 	private int id;
 	private int ownerId;
-	private int serial;
+	private String serial;
 	private String dn;
 	private String md;
 	private String csrName;
@@ -32,11 +32,11 @@ public class Certificate {
 		this.csr = csr;
 	}
 
-	public Certificate(int serial) {
+	private Certificate(String serial) {
 		try {
 			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
 				"SELECT id,subject, md, csr_name, crt_name,memid FROM `emailcerts` WHERE serial=?");
-			ps.setInt(1, serial);
+			ps.setString(1, serial);
 			ResultSet rs = ps.executeQuery();
 			if (!rs.next()) {
 				throw new IllegalArgumentException("Invalid mid " + serial);
@@ -214,7 +214,7 @@ public class Certificate {
 		return id;
 	}
 
-	public int getSerial() {
+	public String getSerial() {
 		return serial;
 	}
 
@@ -228,6 +228,16 @@ public class Certificate {
 
 	public int getOwnerId() {
 		return ownerId;
+	}
+
+	public static Certificate getBySerial(String serial) {
+		// TODO caching?
+		try {
+			return new Certificate(serial);
+		} catch (IllegalArgumentException e) {
+
+		}
+		return null;
 	}
 
 }

@@ -45,16 +45,10 @@ public class MailCertificates extends Page {
 			cer = true;
 			pi = pi.substring(0, pi.length() - 4);
 		}
-		int serial = 0;
+		String serial = pi;
 		try {
-			serial = Integer.parseInt(pi);
-		} catch (NumberFormatException nfe) {
-			resp.sendError(404);
-			return true;
-		}
-		try {
-			Certificate c = new Certificate(serial);
-			if (LoginPage.getUser(req).getId() != c.getOwnerId()) {
+			Certificate c = Certificate.getBySerial(serial);
+			if (c == null || LoginPage.getUser(req).getId() != c.getOwnerId()) {
 				resp.sendError(404);
 				return true;
 			}
@@ -92,15 +86,8 @@ public class MailCertificates extends Page {
 		if (pi.length() != 0) {
 			pi = pi.substring(1);
 
-			int serial = 0;
-			try {
-				serial = Integer.parseInt(pi);
-			} catch (NumberFormatException nfe) {
-			}
-			Certificate c = null;
-			if (serial != 0) {
-				c = new Certificate(serial);
-			}
+			String serial = pi;
+			Certificate c = Certificate.getBySerial(serial);
 			if (c == null || LoginPage.getUser(req).getId() != c.getOwnerId()) {
 				resp.sendError(404);
 				return;
