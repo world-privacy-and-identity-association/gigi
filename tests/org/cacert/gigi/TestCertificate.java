@@ -2,9 +2,12 @@ package org.cacert.gigi;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
@@ -32,6 +35,11 @@ public class TestCertificate extends ManagedTest {
 		c.issue();
 		c.waitFor(60000);
 		final X509Certificate ce = c.cert();
+		testLogin(pk, ce, true);
+	}
+
+	private void testLogin(final PrivateKey pk, final X509Certificate ce, boolean success)
+		throws NoSuchAlgorithmException, KeyManagementException, IOException, MalformedURLException {
 		KeyManager km = new X509KeyManager() {
 
 			@Override
@@ -75,15 +83,23 @@ public class TestCertificate extends ManagedTest {
 		if (connection instanceof HttpsURLConnection) {
 			((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
 		}
-		assertEquals(302, connection.getResponseCode());
-		assertEquals("https://" + getServerName().replaceFirst("^www.", "secure.") + "/",
-			connection.getHeaderField("Location"));
+		if (success) {
+			assertEquals(302, connection.getResponseCode());
+			assertEquals("https://" + getServerName().replaceFirst("^www.", "secure.") + "/",
+				connection.getHeaderField("Location"));
+		} else {
+			assertNotEquals(302, connection.getResponseCode());
+			assertNotEquals("https://" + getServerName().replaceFirst("^www.", "secure.") + "/",
+				connection.getHeaderField("Location"));
+		}
 	}
 
 	@Test
 	public void testCertLifeCycle() throws IOException, GeneralSecurityException, SQLException, InterruptedException {
 		String[] key1 = generateCSR("/CN=testmail@example.com");
 		Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key1[1]);
+		final PrivateKey pk = PemKey.parsePEMPrivateKey(key1[0]);
+
 		testFails(CertificateStatus.DRAFT, c);
 		c.issue();
 
@@ -91,12 +107,15 @@ public class TestCertificate extends ManagedTest {
 		c.waitFor(60000);
 
 		testFails(CertificateStatus.ISSUED, c);
+		X509Certificate cert = c.cert();
+		testLogin(pk, cert, true);
 		c.revoke();
 
 		testFails(CertificateStatus.BEING_REVOKED, c);
 		c.waitFor(60000);
 
 		testFails(CertificateStatus.REVOKED, c);
+		testLogin(pk, cert, false);
 
 	}
 
