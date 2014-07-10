@@ -1,26 +1,38 @@
 package org.cacert.gigi.output;
 
 import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.Language;
 
 public class Template implements Outputable {
 	String[] contents;
 	Outputable[] vars;
 
-	URL source;
+	long lastLoaded;
+	File source;
 
 	public Template(URL u) {
 		try {
-			source = u;
 			Reader r = new InputStreamReader(u.openStream(), "UTF-8");
+			try {
+				if (u.getProtocol().equals("file") && DevelLauncher.DEVEL) {
+					source = new File(u.toURI());
+					lastLoaded = source.lastModified() + 1000;
+				}
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
 			parse(r);
 		} catch (IOException e) {
 			throw new Error(e);
@@ -122,6 +134,17 @@ public class Template implements Outputable {
 	}
 
 	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+		if (source != null && DevelLauncher.DEVEL) {
+			if (lastLoaded < source.lastModified()) {
+				try {
+					System.out.println("Reloading template.... " + source);
+					parse(new InputStreamReader(new FileInputStream(source), "UTF-8"));
+					lastLoaded = source.lastModified() + 1000;
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		for (int i = 0; i < contents.length; i++) {
 			out.print(contents[i]);
 			if (i < this.vars.length) {

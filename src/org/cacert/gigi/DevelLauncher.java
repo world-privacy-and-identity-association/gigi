@@ -17,6 +17,8 @@ import org.kamranzafar.jtar.TarHeader;
 import org.kamranzafar.jtar.TarOutputStream;
 
 public class DevelLauncher {
+	public static final boolean DEVEL = true;
+
 	public static void main(String[] args) throws Exception {
 		Properties mainProps = new Properties();
 		mainProps.load(new FileInputStream("config/gigi.properties"));
