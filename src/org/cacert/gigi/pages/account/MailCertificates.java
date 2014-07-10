@@ -34,7 +34,10 @@ public class MailCertificates extends Page {
 			pi = pi.substring(1);
 			int id = Integer.parseInt(pi);
 			Certificate c = new Certificate(id);
-			// TODO check ownership
+			if (LoginPage.getUser(req).getId() != c.getOwnerId()) {
+				out.println(translate(req, "You do not own this certificate."));
+				return;
+			}
 			out.println("<pre>");
 			try {
 				out.print(c.cert());

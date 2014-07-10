@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.Certificate;
 import org.cacert.gigi.output.ClientCSRGenerate;
+import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 
 public class MailCertificateAdd extends Page {
@@ -38,11 +39,11 @@ public class MailCertificateAdd extends Page {
 			// Error.
 			return;
 		}
-		Certificate c = new Certificate("/commonName=CAcert WoT User", "sha256", csr);
+		Certificate c = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User", "sha256", csr);
 		c.issue();
 		try {
 			c.waitFor(60000);
-			resp.sendRedirect(MailCertificates.PATH + "/" + c.getId());
+			resp.sendRedirect(MailCertificates.PATH + "/" + c.getSerial());
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {

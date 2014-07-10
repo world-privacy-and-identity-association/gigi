@@ -17,6 +17,7 @@ import org.cacert.gigi.util.KeyStorage;
 
 public class Certificate {
 	private int id;
+	private int ownerId;
 	private int serial;
 	private String dn;
 	private String md;
@@ -24,7 +25,8 @@ public class Certificate {
 	private String crtName;
 	private String csr = null;
 
-	public Certificate(String dn, String md, String csr) {
+	public Certificate(int ownerId, String dn, String md, String csr) {
+		this.ownerId = ownerId;
 		this.dn = dn;
 		this.md = md;
 		this.csr = csr;
@@ -33,17 +35,19 @@ public class Certificate {
 	public Certificate(int id) {
 		try {
 			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
-				"SELECT subject, md, csr_name, crt_name FROM `emailcerts` WHERE id=?");
+				"SELECT id,subject, md, csr_name, crt_name,memid FROM `emailcerts` WHERE serial=?");
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			if (!rs.next()) {
 				throw new IllegalArgumentException("Invalid mid " + id);
 			}
-			this.id = id;
-			dn = rs.getString(1);
-			md = rs.getString(2);
-			csrName = rs.getString(3);
-			crtName = rs.getString(4);
+			this.id = rs.getInt(1);
+			dn = rs.getString(2);
+			md = rs.getString(3);
+			csrName = rs.getString(4);
+			crtName = rs.getString(5);
+			ownerId = rs.getInt(6);
+			serial = id;
 			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -135,9 +139,10 @@ public class Certificate {
 				throw new IllegalStateException();
 			}
 			PreparedStatement inserter = DatabaseConnection.getInstance().prepare(
-				"INSERT INTO emailcerts SET md=?, subject=?, coll_found=0, crt_name=''");
+				"INSERT INTO emailcerts SET md=?, subject=?, coll_found=0, crt_name='', memid=?");
 			inserter.setString(1, md);
 			inserter.setString(2, dn);
+			inserter.setInt(3, ownerId);
 			inserter.execute();
 			id = DatabaseConnection.lastInsertId(inserter);
 			File csrFile = KeyStorage.locateCsr(id);
@@ -220,6 +225,10 @@ public class Certificate {
 
 	public String getMessageDigest() {
 		return md;
+	}
+
+	public int getOwnerId() {
+		return ownerId;
 	}
 
 }
