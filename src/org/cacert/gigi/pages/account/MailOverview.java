@@ -62,18 +62,18 @@ public class MailOverview extends Page {
 				String usM = (String) vars.get(userMail);
 				while (rs.next()) {
 					out.println("<tr>");
-					out.println("<td class=\"DataTD\"><input type=\"radio\" name=\"emailid\" value=\"");
+					out.println("<td><input type=\"radio\" name=\"emailid\" value=\"");
 					int mailID = rs.getInt(1);
 					out.print(mailID);
 					out.print("\"/></td>");
-					out.println("<td class=\"DataTD\">");
+					out.println("<td>");
 					if (rs.getString(7).isEmpty()) {
 						out.print(l.getTranslation("Verified"));
 					} else {
 						out.print(l.getTranslation("Unverified"));
 					}
 					out.print("</td>");
-					out.println("<td class=\"DataTD\">");
+					out.println("<td>");
 					String address = rs.getString(3);
 					if (usM.equals(address)) {
 						out.print(l.getTranslation("N/A"));

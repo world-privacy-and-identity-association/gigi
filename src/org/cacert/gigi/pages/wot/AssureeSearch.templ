@@ -1,19 +1,23 @@
 <form method="POST">
-<table class="wrapper" width="300">
+<table class="wrapper dataTable" width="300">
+  <thead>
   <tr>
-    <td colspan="2" class="title"><?=_Assure Someone?></td>
+    <th colspan="2" class="title"><?=_Assure Someone?></th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td width="125"><?=_Email?>: </td>
+    <td width="125"><input type="text" name="email"></td>
   </tr>
   <tr>
-    <td class="DataTD" width="125"><?=_Email?>: </td>
-    <td class="DataTD" width="125"><input type="text" name="email"></td>
-  </tr>
-  <tr>
-    <td class="DataTD" width="125"><?=_Date of Birth?><br>
+    <td width="125"><?=_Date of Birth?><br>
 	    (<?=_dd/mm/yyyy?>)</td>
-    <td class="DataTD" width="125"><?=$DoB?></td>
+    <td width="125"><?=$DoB?></td>
   </tr>
   <tr>
-    <td class="DataTD" colspan="2"><input type="submit" name="process" value="<?=_Next?>"></td>
+    <td colspan="2"><input type="submit" name="process" value="<?=_Next?>"></td>
   </tr>
+  </tbody>
 </table>
 </form>

@@ -1,81 +1,83 @@
-<table align="center" valign="middle" border="0" cellspacing="0" cellpadding="0" class="wrapper" width="400">
+<table class="wrapper dataTable" width="400">
+  <thead>
   <tr>
-    <td colspan="3" class="title"><?=_My Details?></td>
+    <th colspan="3"><?=_My Details?></th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td width="125"><?=_First Name?>: </td>
+    <td width="125"><input type="text" name="fname" size="30" value="<?=$fname?>" autocomplete="off"></td>
+    <td rowspan="4" width="125"><?=$helpOnNames?></td>
   </tr>
 
   <tr>
-    <td class="DataTD" width="125"><?=_First Name?>: </td>
-    <td class="DataTD" width="125"><input type="text" name="fname" size="30" value="<?=$fname?>" autocomplete="off"></td>
-    <td rowspan="4" class="DataTD" width="125"><?=$helpOnNames?></td>
-  </tr>
-
-  <tr>
-    <td class="DataTD" valign="top"><?=_Middle Name(s)?><br>
+    <td valign="top"><?=_Middle Name(s)?><br>
       (<?=_optional?>)
     </td>
-    <td class="DataTD"><input type="text" name="mname" size="30" value="<?=$mname?>" autocomplete="off"></td>
+    <td><input type="text" name="mname" size="30" value="<?=$mname?>" autocomplete="off"></td>
   </tr>
 
   <tr>
-    <td class="DataTD"><?=_Last Name?>: </td>
-    <td class="DataTD"><input type="text" name="lname" size="30" value="<?=$lname?>" autocomplete="off"></td>
+    <td><?=_Last Name?>: </td>
+    <td><input type="text" name="lname" size="30" value="<?=$lname?>" autocomplete="off"></td>
   </tr>
 
   <tr>
-    <td class="DataTD"><?=_Suffix?><br>
+    <td><?=_Suffix?><br>
       (<?=_optional?>)</td>
-    <td class="DataTD"><input type="text" name="suffix" size="30" value="<?=$suffix?>" autocomplete="off"><br><?=_Please only write Name Suffixes into this field.?></td>
+    <td><input type="text" name="suffix" size="30" value="<?=$suffix?>" autocomplete="off"><br><?=_Please only write Name Suffixes into this field.?></td>
   </tr>
 
   <tr>
-    <td class="DataTD"><?=_Date of Birth?><br>
+    <td><?=_Date of Birth?><br>
 	    (<?=_dd/mm/yyyy?>)</td>
-    <td class="DataTD"><?=$dob?></td>
-    <td class="DataTD">&nbsp;</td>
+    <td><?=$dob?></td>
+    <td>&nbsp;</td>
   </tr>
 
   <tr>
-    <td class="DataTD"><?=_Email Address?>: </td>
-    <td class="DataTD"><input type="text" name="email" size="30" value="<?=$email?>" autocomplete="off"></td>
-    <td class="DataTD"><?=_I own or am authorised to control this email address?></td>
+    <td><?=_Email Address?>: </td>
+    <td><input type="text" name="email" size="30" value="<?=$email?>" autocomplete="off"></td>
+    <td><?=_I own or am authorised to control this email address?></td>
   </tr>
 
   <tr>
-    <td class="DataTD"><?=_Pass Phrase?><font color="red">*</font>: </td>
-    <td class="DataTD"><input type="password" name="pword1" size="30" autocomplete="off"></td>
-    <td class="DataTD" rowspan="2">&nbsp;</td>
+    <td><?=_Pass Phrase?><font color="red">*</font>: </td>
+    <td><input type="password" name="pword1" size="30" autocomplete="off"></td>
+    <td rowspan="2">&nbsp;</td>
   </tr>
   <tr>
-    <td class="DataTD"><?=_Pass Phrase Again?><font color="red">*</font>: </td>
-    <td class="DataTD"><input type="password" name="pword2" size="30" autocomplete="off"></td>
-  </tr>
-
-  <tr>
-    <td class="DataTD" colspan="3"><font color="red">*</font><?=_Please note, in the interests of good security, the pass phrase must be made up of an upper case letter, lower case letter, number and symbol.?></td>
-  </tr>
-  <tr>
-    <td class="DataTD" colspan="3"><?=_It's possible to get notifications of up and coming events and even just general announcements, untick any notifications you don't wish to receive. For country, regional and radius notifications to work you must choose your location once you've verified your account and logged in.?></td>
+    <td><?=_Pass Phrase Again?><font color="red">*</font>: </td>
+    <td><input type="password" name="pword2" size="30" autocomplete="off"></td>
   </tr>
 
   <tr>
-    <td class="DataTD" valign="top"><?=_Alert me if?>: </td>
-    <td class="DataTD" align="left">
+    <td colspan="3"><font color="red">*</font><?=_Please note, in the interests of good security, the pass phrase must be made up of an upper case letter, lower case letter, number and symbol.?></td>
+  </tr>
+  <tr>
+    <td colspan="3"><?=_It's possible to get notifications of up and coming events and even just general announcements, untick any notifications you don't wish to receive. For country, regional and radius notifications to work you must choose your location once you've verified your account and logged in.?></td>
+  </tr>
+
+  <tr>
+    <td valign="top"><?=_Alert me if?>: </td>
+    <td align="left">
         <input type="checkbox" name="general" value="1"<?=$general?>><?=_General Announcements?><br>
 	<input type="checkbox" name="country" value="1"<?=$country?>><?=_Country Announcements?><br>
 	<input type="checkbox" name="regional" value="1"<?=$regional?>><?=_Regional Announcements?><br>
 	<input type="checkbox" name="radius" value="1"<?=$radius?>><?=_Within 200km Announcements?></td>
-    <td class="DataTD">&nbsp;</td>
+    <td>&nbsp;</td>
   </tr>
 
   <tr>
-    <td class="DataTD" colspan="3"><?=_When you click on next, we will send a confirmation email to the email address you have entered above.?></td>
+    <td colspan="3"><?=_When you click on next, we will send a confirmation email to the email address you have entered above.?></td>
   </tr>
   <tr>
-    <td class="DataTD" colspan="3"><input type="checkbox" name="cca_agree" value="1"><?=_I agree to the terms and conditions of the CAcert Community Agreement?>: <a href="/policy/CAcertCommunityAgreement.php">http://www.cacert.org/policy/CAcertCommunityAgreement.php</a></td>
+    <td colspan="3"><input type="checkbox" name="cca_agree" value="1"><?=_I agree to the terms and conditions of the CAcert Community Agreement?>: <a href="/policy/CAcertCommunityAgreement.php">http://www.cacert.org/policy/CAcertCommunityAgreement.php</a></td>
   </tr>
 
   <tr>
-    <td class="DataTD" colspan="3"><input type="submit" name="process" value="<?=_Next?>"></td>
+    <td colspan="3"><input type="submit" name="process" value="<?=_Next?>"></td>
   </tr>
-
+  </tbody>
 </table>
