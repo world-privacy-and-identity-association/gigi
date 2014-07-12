@@ -19,27 +19,6 @@ import org.cacert.gigi.Language;
 import org.cacert.gigi.output.Outputable;
 
 public class Template implements Outputable {
-	static class TemplateBlock implements Outputable {
-		String[] contents;
-		Outputable[] vars;
-
-		public TemplateBlock(String[] contents, Outputable[] vars) {
-			this.contents = contents;
-			this.vars = vars;
-		}
-
-		@Override
-		public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-			for (int i = 0; i < contents.length; i++) {
-				out.print(contents[i]);
-				if (i < this.vars.length) {
-					this.vars[i].output(out, l, vars);
-				}
-			}
-		}
-
-	}
-
 	TemplateBlock data;
 
 	long lastLoaded;
@@ -104,16 +83,7 @@ public class Template implements Outputable {
 			if (m.matches()) {
 				final String variable = m.group(1);
 				final TemplateBlock body = parse(r);
-				commands.add(new Outputable() {
-
-					@Override
-					public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-						Object o = vars.get(variable);
-						if (o instanceof Boolean && o == Boolean.TRUE) {
-							body.output(out, l, vars);
-						}
-					}
-				});
+				commands.add(new IfStatement(variable, body));
 				continue;
 			}
 			if (com.matches(" ?\\} ?")) {
@@ -135,22 +105,10 @@ public class Template implements Outputable {
 	private Outputable parseCommand(String s2) {
 		if (s2.startsWith("=_")) {
 			final String raw = s2.substring(2);
-			return new Outputable() {
-
-				@Override
-				public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-					out.print(l.getTranslation(raw));
-				}
-			};
+			return new TranslateCommand(raw);
 		} else if (s2.startsWith("=$")) {
 			final String raw = s2.substring(2);
-			return new Outputable() {
-
-				@Override
-				public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-					outputVar(out, l, vars, raw);
-				}
-			};
+			return new OutputVariableCommand(raw);
 		} else if (s2.startsWith("=s,")) {
 			String command = s2.substring(3);
 			final LinkedList<String> store = new LinkedList<String>();
@@ -160,19 +118,7 @@ public class Template implements Outputable {
 				command = command.substring(idx + 1);
 			}
 			final String text = command;
-			return new Outputable() {
-
-				@Override
-				public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-					String[] parts = l.getTranslation(text).split("%s");
-					String[] myvars = store.toArray(new String[store.size()]);
-					out.print(parts[0]);
-					for (int j = 1; j < parts.length; j++) {
-						outputVar(out, l, vars, myvars[j - 1].substring(1));
-						out.print(parts[j]);
-					}
-				}
-			};
+			return new SprintfCommand(text, store);
 		} else {
 			System.out.println("Unknown processing instruction: " + s2);
 		}
@@ -196,7 +142,7 @@ public class Template implements Outputable {
 		data.output(out, l, vars);
 	}
 
-	private void outputVar(PrintWriter out, Language l, Map<String, Object> vars, String varname) {
+	protected static void outputVar(PrintWriter out, Language l, Map<String, Object> vars, String varname) {
 		Object s = vars.get(varname);
 
 		if (s == null) {
