@@ -25,7 +25,7 @@
     <td align="left"><label for="addid<=intval($row['id'])>"><=sanitizeHTML($row['email'])></label></td>
   </tr>
 <!-- For each mail -->
-<!-- if points > 50 -->
+<? if($points50) { ?>
   <tr>
     <td colspan="2" align="left">
       <input type="radio" id="incname0" name="incname" value="0" checked="checked" />
@@ -34,6 +34,7 @@
         <label for="incname1"><?=_Include?> 'fnamelname'</label><br />
     </td>
   </tr>
+<? } ?>
 
   <tr>
     <td>
@@ -60,7 +61,7 @@
     </td>
   </tr>
 
-<!-- if >50 points -->
+<? if($points50) { ?>
   <tr class="expert">
     <td colspan="2" align="left">
       <input type="radio" id="root1" name="rootcert" value="1" /> <label for="root1"><?=_Sign by class 1 root certificate?></label><br />
@@ -68,7 +69,7 @@
       <?=_Please note: If you use a certificate signed by the class 3 root, the class 3 root certificate needs to be imported into your email program as well as the class 1 root certificate so your email program can build a full trust path chain.?>
     </td>
   </tr>
-<!-- if >50 points -->
+<? } ?>
 
   <tr class="expert">
     <td colspan="2" align="left">

@@ -11,16 +11,40 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.Language;
 
 public class Template implements Outputable {
-	String[] contents;
-	Outputable[] vars;
+	static class TemplateBlock implements Outputable {
+		String[] contents;
+		Outputable[] vars;
+
+		public TemplateBlock(String[] contents, Outputable[] vars) {
+			this.contents = contents;
+			this.vars = vars;
+		}
+
+		@Override
+		public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+			for (int i = 0; i < contents.length; i++) {
+				out.print(contents[i]);
+				if (i < this.vars.length) {
+					this.vars[i].output(out, l, vars);
+				}
+			}
+		}
+
+	}
+
+	TemplateBlock data;
 
 	long lastLoaded;
 	File source;
+
+	private static final Pattern IF_PATTERN = Pattern.compile(" ?if\\(\\$([^)]+)\\) ?\\{ ?");
 
 	public Template(URL u) {
 		try {
@@ -33,7 +57,8 @@ public class Template implements Outputable {
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
 			}
-			parse(r);
+			data = parse(r);
+			r.close();
 		} catch (IOException e) {
 			throw new Error(e);
 		}
@@ -41,13 +66,14 @@ public class Template implements Outputable {
 
 	public Template(Reader r) {
 		try {
-			parse(r);
+			data = parse(r);
+			r.close();
 		} catch (IOException e) {
 			throw new Error(e);
 		}
 	}
 
-	private void parse(Reader r) throws IOException {
+	private TemplateBlock parse(Reader r) throws IOException {
 		LinkedList<String> splitted = new LinkedList<String>();
 		LinkedList<Outputable> commands = new LinkedList<Outputable>();
 		StringBuffer buf = new StringBuffer();
@@ -71,13 +97,33 @@ public class Template implements Outputable {
 				}
 			}
 			buf.delete(buf.length() - 2, buf.length());
-			commands.add(parseCommand(buf.toString()));
+			String com = buf.toString().replace("\n", "");
 			buf.delete(0, buf.length());
+			Matcher m = IF_PATTERN.matcher(com);
+			if (m.matches()) {
+				final String variable = m.group(1);
+				final TemplateBlock body = parse(r);
+				commands.add(new Outputable() {
+
+					@Override
+					public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+						Object o = vars.get(variable);
+						if (o instanceof Boolean && o == Boolean.TRUE) {
+							body.output(out, l, vars);
+						}
+					}
+				});
+				continue;
+			}
+			if (com.matches(" ?\\} ?")) {
+				break;
+			}
+			commands.add(parseCommand(com));
 		}
 		splitted.add(buf.toString());
-		contents = splitted.toArray(new String[splitted.size()]);
-		vars = commands.toArray(new Outputable[commands.size()]);
-		r.close();
+		String[] contents = splitted.toArray(new String[splitted.size()]);
+		Outputable[] vars = commands.toArray(new Outputable[commands.size()]);
+		return new TemplateBlock(contents, vars);
 	}
 
 	private boolean endsWith(StringBuffer buf, String string) {
@@ -86,7 +132,6 @@ public class Template implements Outputable {
 	}
 
 	private Outputable parseCommand(String s2) {
-		s2 = s2.replace("\n", "");
 		if (s2.startsWith("=_")) {
 			final String raw = s2.substring(2);
 			return new Outputable() {
@@ -138,19 +183,16 @@ public class Template implements Outputable {
 			if (lastLoaded < source.lastModified()) {
 				try {
 					System.out.println("Reloading template.... " + source);
-					parse(new InputStreamReader(new FileInputStream(source), "UTF-8"));
+					InputStreamReader r = new InputStreamReader(new FileInputStream(source), "UTF-8");
+					parse(r);
+					r.close();
 					lastLoaded = source.lastModified() + 1000;
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-		for (int i = 0; i < contents.length; i++) {
-			out.print(contents[i]);
-			if (i < this.vars.length) {
-				this.vars[i].output(out, l, vars);
-			}
-		}
+		data.output(out, l, vars);
 	}
 
 	private void outputVar(PrintWriter out, Language l, Map<String, Object> vars, String varname) {
