@@ -78,7 +78,7 @@
     </td>
   </tr>
 
-<!-- if codesign -->
+<? if($codesign) { ?>
   <tr class="expert">
     <td>
       <input type="checkbox" id="codesign" name="codesign" value="1" />
@@ -88,7 +88,7 @@
       <?=_Please note: By ticking this box you will automatically have your name included in the certificate.?></label>
     </td>
   </tr>
-<!-- if codesign -->
+<? } ?>
 
   <tr class="expert">
     <td>
