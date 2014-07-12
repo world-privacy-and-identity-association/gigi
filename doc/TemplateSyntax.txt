@@ -12,3 +12,10 @@ A template is constructed from a charstream. Everything that is not in "<?" to "
 - <? if($variable) { ?>
   Output/execute the text until "<? } ?>" only if $variable is boolean and true.
   
+- <? foreach($variable) { ?>
+  If $variable is an "IterableDataset"
+  Output/execute the text until "<? } ?>" repeated as $variable suggests. 
+  Special variables that $variable defines can be used in the inner text.
+ 
+  
+  

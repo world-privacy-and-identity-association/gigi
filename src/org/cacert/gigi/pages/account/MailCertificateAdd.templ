@@ -19,12 +19,13 @@
     <td><?=_Add?></td>
     <td><?=_Address?></td>
   </tr>
-<!-- For each mail -->
+<? foreach($emails) { ?>
   <tr>
-    <td><input type="checkbox" id="addid<=intval($row['id'])>" name="addid[]" value="<=intval($row['id'])>"></td>
-    <td align="left"><label for="addid<=intval($row['id'])>"><=sanitizeHTML($row['email'])></label></td>
+    <td><input type="checkbox" id="addid<?=$id?>" name="addid[]" value="<?=$id?>"></td>
+    <td align="left"><label for="addid<?=$id?>"><?=$value?></label></td>
   </tr>
-<!-- For each mail -->
+<? } ?>
+
 <? if($points50) { ?>
   <tr>
     <td colspan="2" align="left">

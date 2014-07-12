@@ -24,7 +24,7 @@ public class Template implements Outputable {
 	long lastLoaded;
 	File source;
 
-	private static final Pattern IF_PATTERN = Pattern.compile(" ?if\\(\\$([^)]+)\\) ?\\{ ?");
+	private static final Pattern CONTROL_PATTERN = Pattern.compile(" ?([a-z]+)\\(\\$([^)]+)\\) ?\\{ ?");
 
 	public Template(URL u) {
 		try {
@@ -79,11 +79,18 @@ public class Template implements Outputable {
 			buf.delete(buf.length() - 2, buf.length());
 			String com = buf.toString().replace("\n", "");
 			buf.delete(0, buf.length());
-			Matcher m = IF_PATTERN.matcher(com);
+			Matcher m = CONTROL_PATTERN.matcher(com);
 			if (m.matches()) {
-				final String variable = m.group(1);
-				final TemplateBlock body = parse(r);
-				commands.add(new IfStatement(variable, body));
+				String type = m.group(1);
+				String variable = m.group(2);
+				TemplateBlock body = parse(r);
+				if (type.equals("if")) {
+					commands.add(new IfStatement(variable, body));
+				} else if (type.equals("foreach")) {
+					commands.add(new ForeachStatement(variable, body));
+				} else {
+					throw new IOException("Syntax error: unknown control structure: " + type);
+				}
 				continue;
 			}
 			if (com.matches(" ?\\} ?")) {
