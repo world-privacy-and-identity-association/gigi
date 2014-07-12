@@ -1,0 +1,14 @@
+A template is constructed from a charstream. Everything that is not in "<?" to "?>" will be outputted directly. Text in these markers will be interpreted is template scripting syntax. The following strings are valid:
+
+- <?=$variblename?> will output "variablename".
+   if "variablename" is an Outputable output this thing recursively.
+   else turn it into a String (Object.toString()) and output it.
+   
+- <?=_This is free Text.?> will translate "This is free Text." into the users language, (escaped) and output it.
+   
+- <?=s,$var1,$var2,$var3,...,$varn,This %s is, %s free.?>
+  Translate the last string. Output $var1,...,$varn sprintf-ed into the translated string.
+  
+- <? if($variable) { ?>
+  Output/execute the text until "<? } ?>" only if $variable is boolean and true.
+  
