@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.Language;
-import org.cacert.gigi.output.Template;
+import org.cacert.gigi.output.template.Template;
 
 /**
  * This class encapsulates a sub page of Gigi. A template residing nearby this

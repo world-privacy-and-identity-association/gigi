@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
 import org.cacert.gigi.output.Form;
-import org.cacert.gigi.output.Template;
+import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.Notary.AssuranceResult;

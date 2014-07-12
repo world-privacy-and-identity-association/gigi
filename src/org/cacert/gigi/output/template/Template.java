@@ -1,4 +1,4 @@
-package org.cacert.gigi.output;
+package org.cacert.gigi.output.template;
 
 import java.io.EOFException;
 import java.io.File;
@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.Language;
+import org.cacert.gigi.output.Outputable;
 
 public class Template implements Outputable {
 	static class TemplateBlock implements Outputable {
