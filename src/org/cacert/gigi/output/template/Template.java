@@ -138,7 +138,7 @@ public class Template implements Outputable {
 				try {
 					System.out.println("Reloading template.... " + source);
 					InputStreamReader r = new InputStreamReader(new FileInputStream(source), "UTF-8");
-					parse(r);
+					data = parse(r);
 					r.close();
 					lastLoaded = source.lastModified() + 1000;
 				} catch (IOException e) {
