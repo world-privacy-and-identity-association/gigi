@@ -758,3 +758,6 @@ pre{
 .dataTable select, .dataTable option {
 	font-size: 92%;
 }
+.dataTable textarea{
+	width: 100%;
+}

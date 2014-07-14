@@ -75,7 +75,10 @@
   <tr class="expert">
     <td colspan="2" align="left">
       <?=_Hash algorithm used when signing the certificate:?><br />
-      <!-- Hash algs!!! -->
+      <? foreach($hashs) { ?>
+        <input type="radio" id="hash_alg_<?=$algorithm?>" name="hash_alg" value="<?=$algorithm?>"<?=$checked?>/>
+        <label for="hash_alg_<?=$algorithm?>"><?=$name?><? if($info) { ?> - <?=$info?><? } ?></label><br />
+      <? } ?>
     </td>
   </tr>
 
@@ -90,25 +93,6 @@
     </td>
   </tr>
 <? } ?>
-
-  <tr class="expert">
-    <td>
-      <input type="checkbox" id="SSO" name="SSO" value="1" />
-    </td>
-    <td align="left">
-      <label for="SSO"><?=_Add Single Sign On ID Information?><br />
-      <?=_By adding Single Sign On (SSO) ID information to your certificates this could be used to track you, you can also issue certificates with no email addresses that are useful only for Authentication. Please see a more detailed description on our WIKI about it.?>
-      <a href="http://wiki.cacert.org/wiki/SSO"><?=_SSO WIKI Entry?></a></label>
-    </td>
-  </tr>
-
-  <tr class="expert">
-    <td colspan="2">
-      <label for="optionalCSR"><?=_Optional Client CSR, no information on the certificate will be used?></label><br />
-      <textarea id="optionalCSR" name="optionalCSR" cols="80" rows="5"></textarea>
-    </td>
-  </tr>
-
 
   <tr>
     <td>

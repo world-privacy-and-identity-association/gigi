@@ -12,6 +12,7 @@ import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.RandomToken;
 
 public abstract class Form implements Outputable {
+	public static final String CSRF_FIELD = "csrf";
 	String csrf;
 
 	public Form(HttpServletRequest hsr) {
@@ -27,7 +28,7 @@ public abstract class Form implements Outputable {
 	public final void output(PrintWriter out, Language l, Map<String, Object> vars) {
 		out.println("<form method='POST' autocomplete='off'>");
 		outputContent(out, l, vars);
-		out.print("<input type='hidden' name='csrf' value='");
+		out.print("<input type='hidden' name='" + CSRF_FIELD + "' value='");
 		out.print(getCSRFToken());
 		out.println("'></form>");
 	}
@@ -45,13 +46,13 @@ public abstract class Form implements Outputable {
 	}
 
 	protected void checkCSRF(HttpServletRequest req) {
-		if (!csrf.equals(req.getParameter("csrf"))) {
+		if (!csrf.equals(req.getParameter(CSRF_FIELD))) {
 			throw new CSRFError();
 		}
 	}
 
 	public static <T extends Form> T getForm(HttpServletRequest req, Class<T> target) {
-		String csrf = req.getParameter("csrf");
+		String csrf = req.getParameter(CSRF_FIELD);
 		if (csrf == null) {
 			throw new CSRFError();
 		}

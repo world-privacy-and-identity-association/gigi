@@ -1,0 +1,24 @@
+
+<table class="wrapper dataTable">
+  <thead>
+  <tr>
+    <th colspan="2" class="title"><?=_New Certificate?></th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td><?=_CSR?></td>
+    <td><?=_SPKAC?></td>
+  </tr>
+
+  <tr>
+    <td>
+     <form method="post"> <textarea name="CSR"></textarea><br/><input type="submit" name="process" value="<?=_Next?>" /></form>
+    </td>
+    <td align="left">
+     <form method="post"> <keygen name="SPKAC"/><br/><input type="submit" name="process" value="<?=_Next?>" /></form>
+      
+    </td>
+  </tr>
+  </tbody>
+</table>
