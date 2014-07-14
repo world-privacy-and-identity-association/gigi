@@ -22,7 +22,7 @@ final class ForeachStatement implements Outputable {
 		if (o instanceof IterableDataset) {
 			IterableDataset id = (IterableDataset) o;
 			Map<String, Object> subcontext = new HashMap<String, Object>(vars);
-			while (id.next(subcontext)) {
+			while (id.next(l, subcontext)) {
 				body.output(out, l, subcontext);
 			}
 		}

@@ -57,24 +57,23 @@ public class Template implements Outputable {
 		LinkedList<String> splitted = new LinkedList<String>();
 		LinkedList<Outputable> commands = new LinkedList<Outputable>();
 		StringBuffer buf = new StringBuffer();
-		int ch = r.read();
 		outer: while (true) {
 			while (!endsWith(buf, "<?")) {
+				int ch = r.read();
 				if (ch == -1) {
 					break outer;
 				}
 				buf.append((char) ch);
-				ch = r.read();
 			}
 			buf.delete(buf.length() - 2, buf.length());
 			splitted.add(buf.toString());
 			buf.delete(0, buf.length());
 			while (!endsWith(buf, "?>")) {
-				buf.append((char) ch);
-				ch = r.read();
+				int ch = r.read();
 				if (ch == -1) {
 					throw new EOFException();
 				}
+				buf.append((char) ch);
 			}
 			buf.delete(buf.length() - 2, buf.length());
 			String com = buf.toString().replace("\n", "");

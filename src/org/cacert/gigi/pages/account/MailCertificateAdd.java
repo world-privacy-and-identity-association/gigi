@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.Certificate;
+import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.output.ClientCSRGenerate;
@@ -40,7 +41,7 @@ public class MailCertificateAdd extends Page {
 			vars.put("emails", new IterableDataset() {
 
 				@Override
-				public boolean next(Map<String, Object> vars) {
+				public boolean next(Language l, Map<String, Object> vars) {
 					try {
 						if (!rs.next()) {
 							return false;
