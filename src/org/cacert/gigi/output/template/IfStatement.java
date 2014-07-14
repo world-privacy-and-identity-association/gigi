@@ -18,7 +18,7 @@ final class IfStatement implements Outputable {
 	@Override
 	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
 		Object o = vars.get(variable);
-		if (o instanceof Boolean && o == Boolean.TRUE) {
+		if (!(o == Boolean.FALSE || o == null)) {
 			body.output(out, l, vars);
 		}
 	}

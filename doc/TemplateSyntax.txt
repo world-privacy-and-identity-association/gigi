@@ -10,7 +10,7 @@ A template is constructed from a charstream. Everything that is not in "<?" to "
   Translate the last string. Output $var1,...,$varn replaced into the %s positions in the translated string.
   
 - <? if($variable) { ?>
-  Output/execute the text until "<? } ?>" only if $variable is boolean and true.
+  Output/execute the text until "<? } ?>" only if $variable not null or Boolean.FALSE.
   
 - <? foreach($variable) { ?>
   If $variable is an "IterableDataset"
