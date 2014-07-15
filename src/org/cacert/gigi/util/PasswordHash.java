@@ -6,7 +6,14 @@ import java.security.NoSuchAlgorithmException;
 public class PasswordHash {
 	public static boolean verifyHash(String password, String hash) {
 		String newhash = sha1(password);
-		return newhash.equals(hash);
+		boolean match = true;
+		if (newhash.length() != hash.length()) {
+			match = false;
+		}
+		for (int i = 0; i < newhash.length(); i++) {
+			match &= newhash.charAt(i) == hash.charAt(i);
+		}
+		return match;
 	}
 
 	private static String sha1(String password) {
