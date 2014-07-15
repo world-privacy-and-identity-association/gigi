@@ -65,6 +65,7 @@
 		<echo message="${ant.project.name}: ${ant.file}" />
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bin"
 			includeantruntime="false" source="${source}" target="${target}">
+			<compilerarg value="-XDignore.symbol.file"/>
 			<src path="lib/servlet-api" />
 			<src path="lib/jetty" />
 			<src path="lib/jtar" />
@@ -98,6 +99,7 @@
 		<echo message="${ant.project.name}: ${ant.file}" />
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bintest"
 			includeantruntime="false" source="${source}" target="${target}">
+			<compilerarg value="-XDignore.symbol.file"/>
 			<src path="tests" />
 			<classpath refid="cacert-gigi.test.classpath" />
 		</javac>
