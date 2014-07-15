@@ -16,6 +16,7 @@ import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.pages.LoginPage;
+import org.cacert.gigi.Certificate;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
@@ -68,6 +69,11 @@ public class MailCertificateAdd extends Page {
 		IssueCertificateForm f;
 		if (req.getParameter(Form.CSRF_FIELD) != null) {
 			f = Form.getForm(req, IssueCertificateForm.class);
+			if (f.submit(resp.getWriter(), req)) {
+				Certificate c = f.getResult();
+				String ser = c.getSerial();
+				resp.sendRedirect(MailCertificates.PATH + "/" + ser);
+			}
 		} else {
 			f = new IssueCertificateForm(req);
 			f.submit(resp.getWriter(), req);

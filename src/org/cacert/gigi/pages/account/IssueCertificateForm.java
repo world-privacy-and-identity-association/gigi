@@ -15,8 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.cacert.gigi.Certificate;
 import org.cacert.gigi.Digest;
 import org.cacert.gigi.Language;
@@ -39,6 +37,8 @@ import sun.security.pkcs10.PKCS10;
 public class IssueCertificateForm extends Form {
 	User u;
 	Digest selectedDigest = Digest.getDefault();
+	boolean login;
+	String csr;
 
 	private final static Template t = new Template(IssueCertificateForm.class.getResource("IssueCertificateForm.templ"));
 
@@ -47,12 +47,18 @@ public class IssueCertificateForm extends Form {
 		u = LoginPage.getUser(hsr);
 	}
 
+	Certificate result;
+
+	public Certificate getResult() {
+		return result;
+	}
+
 	@Override
 	public boolean submit(PrintWriter out, HttpServletRequest req) {
 		String csr = req.getParameter("CSR");
 		String spkac = req.getParameter("spkac");
 		try {
-			if (csr != null && !"".equals(csr)) {
+			if (csr != null) {
 				PKCS10 parsed = parseCSR(csr);
 				out.println(parsed.getSubjectName().getCommonName());
 				out.println(parsed.getSubjectName().getCountry());
@@ -73,7 +79,32 @@ public class IssueCertificateForm extends Form {
 					out.println(epk.getParams().getCurve());
 				}
 				out.println("<br/>digest: sha256<br/>");
+				this.csr = csr;
+			} else if (spkac != null) {
 
+			} else {
+				login = "1".equals(req.getParameter("login"));
+				String hashAlg = req.getParameter("hash_alg");
+				if (hashAlg != null) {
+					selectedDigest = Digest.valueOf(hashAlg);
+				}
+				if (req.getParameter("CCA") == null) {
+					outputError(out, req, "You need to accept the CCA.");
+					return false;
+				}
+				System.out.println("issuing " + selectedDigest);
+				result = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User",
+					selectedDigest.toString(), this.csr);
+				result.issue();
+				try {
+					result.waitFor(60000);
+					return true;
+				} catch (SQLException e) {
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				return false;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -81,19 +112,6 @@ public class IssueCertificateForm extends Form {
 			e.printStackTrace();
 		}
 		return false;
-	}
-
-	private void issue(HttpServletRequest req, HttpServletResponse resp, String csr) throws IOException {
-		Certificate c = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User", "sha256", csr);
-		c.issue();
-		try {
-			c.waitFor(60000);
-			resp.sendRedirect(MailCertificates.PATH + "/" + c.getSerial());
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 
 	private PKCS10 parseCSR(String csr) throws IOException, GeneralSecurityException {
