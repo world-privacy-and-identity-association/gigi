@@ -14,6 +14,7 @@ import java.sql.SQLException;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.util.KeyStorage;
+import org.cacert.gigi.util.Notary;
 
 public class Certificate {
 	private int id;
@@ -138,6 +139,8 @@ public class Certificate {
 			if (getStatus() != CertificateStatus.DRAFT) {
 				throw new IllegalStateException();
 			}
+			Notary.writeUserAgreement(ownerId, "CCA", "issue certificate", "", true, 0);
+
 			PreparedStatement inserter = DatabaseConnection.getInstance().prepare(
 				"INSERT INTO emailcerts SET md=?, subject=?, coll_found=0, crt_name='', memid=?");
 			inserter.setString(1, md);
