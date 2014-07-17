@@ -18,7 +18,7 @@ import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.output.Menu;
 import org.cacert.gigi.output.MenuItem;
 import org.cacert.gigi.output.Outputable;
-import org.cacert.gigi.output.Form.CSRFError;
+import org.cacert.gigi.output.Form.CSRFException;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
@@ -113,14 +113,14 @@ public class Gigi extends HttpServlet {
 						} else {
 							p.doGet(req, resp);
 						}
-					} catch (IOException e) {
-						e.printStackTrace();
-					} catch (CSRFError err) {
+					} catch (CSRFException err) {
 						try {
 							resp.sendError(500, "CSRF invalid");
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
 
 				}

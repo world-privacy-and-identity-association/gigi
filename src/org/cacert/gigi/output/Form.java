@@ -1,5 +1,6 @@
 package org.cacert.gigi.output;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 
@@ -45,29 +46,23 @@ public abstract class Form implements Outputable {
 		return csrf;
 	}
 
-	protected void checkCSRF(HttpServletRequest req) {
-		if (!csrf.equals(req.getParameter(CSRF_FIELD))) {
-			throw new CSRFError();
-		}
-	}
-
-	public static <T extends Form> T getForm(HttpServletRequest req, Class<T> target) {
+	public static <T extends Form> T getForm(HttpServletRequest req, Class<T> target) throws CSRFException {
 		String csrf = req.getParameter(CSRF_FIELD);
 		if (csrf == null) {
-			throw new CSRFError();
+			throw new CSRFException();
 		}
 		HttpSession hs = req.getSession();
 		if (hs == null) {
-			throw new CSRFError();
+			throw new CSRFException();
 		}
 		Form f = (Form) hs.getAttribute("form/" + target.getName() + "/" + csrf);
 		if (f == null) {
-			throw new CSRFError();
+			throw new CSRFException();
 		}
 		return (T) f;
 	}
 
-	public static class CSRFError extends Error {
+	public static class CSRFException extends IOException {
 
 	}
 }
