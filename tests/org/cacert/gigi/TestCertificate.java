@@ -85,12 +85,11 @@ public class TestCertificate extends ManagedTest {
 		}
 		if (success) {
 			assertEquals(302, connection.getResponseCode());
-			assertEquals("https://" + getServerName().replaceFirst("^www.", "secure.") + "/",
-				connection.getHeaderField("Location"));
+			assertEquals("https://" + getServerName().replaceFirst("^www.", "secure.").replaceFirst(":443$", "") + "/",
+				connection.getHeaderField("Location").replaceFirst(":443$", ""));
 		} else {
 			assertNotEquals(302, connection.getResponseCode());
-			assertNotEquals("https://" + getServerName().replaceFirst("^www.", "secure.") + "/",
-				connection.getHeaderField("Location"));
+			assertNull(connection.getHeaderField("Location"));
 		}
 	}
 
