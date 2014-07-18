@@ -57,7 +57,7 @@ public class MailCertificateAdd extends Page {
 					return false;
 				}
 			});
-			getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
+			t.output(resp.getWriter(), getLanguage(req), vars);
 			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
