@@ -23,7 +23,6 @@ public class TestNotary extends ManagedTest {
 		int[] result = new int[] { 10, 10, 10, 10, 15, 15, 15, 15, 15, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 30, 30,
 				30, 30, 30, 35, 35, 35, 35, 35, 35 };
 
-		System.out.println(result.length);
 		assertNotEquals(AssuranceResult.ASSURANCE_SUCCEDED,
 			Notary.assure(assurer, users[0], -1, "test-notary", "2014-01-01"));
 		for (int i = 0; i < result.length; i++) {
