@@ -13,6 +13,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.util.Job;
+import org.cacert.gigi.util.Job.JobType;
 import org.cacert.gigi.util.KeyStorage;
 import org.cacert.gigi.util.Notary;
 
@@ -60,47 +62,25 @@ public class Certificate {
 		 * This certificate is not in the database, has no id and only exists as
 		 * this java object.
 		 */
-		DRAFT(false),
-		/**
-		 * The certificate has been written to the database and is waiting for
-		 * the signer to sign it.
-		 */
-		SIGNING(true),
+		DRAFT(),
 		/**
 		 * The certificate has been signed. It is stored in the database.
 		 * {@link Certificate#cert()} is valid.
 		 */
-		ISSUED(false),
-		/**
-		 * The cetrificate is about to be revoked by the signer bot.
-		 */
-		BEING_REVOKED(true),
+		ISSUED(),
 
 		/**
 		 * The certificate has been revoked.
 		 */
-		REVOKED(false),
+		REVOKED(),
 
 		/**
 		 * If this certificate cannot be updated because an error happened in
 		 * the signer.
 		 */
-		ERROR(false);
+		ERROR();
 
-		private boolean unstable;
-
-		private CertificateStatus(boolean unstable) {
-			this.unstable = unstable;
-		}
-
-		/**
-		 * Checks, iff this certificate stage will be left by signer actions.
-		 * 
-		 * @return True, iff this certificate stage will be left by signer
-		 *         actions.
-		 */
-		public boolean isUnstable() {
-			return unstable;
+		private CertificateStatus() {
 		}
 
 	}
@@ -110,84 +90,57 @@ public class Certificate {
 			return CertificateStatus.DRAFT;
 		}
 		PreparedStatement searcher = DatabaseConnection.getInstance().prepare(
-			"SELECT crt_name, created, revoked, warning, serial FROM emailcerts WHERE id=?");
+			"SELECT crt_name, created, revoked, serial FROM emailcerts WHERE id=?");
 		searcher.setInt(1, id);
 		ResultSet rs = searcher.executeQuery();
 		if (!rs.next()) {
 			throw new IllegalStateException("Certificate not in Database");
 		}
-		if (rs.getInt(4) >= 3) {
-			return CertificateStatus.ERROR;
-		}
 
-		if (rs.getString(2) == null) {
-			return CertificateStatus.SIGNING;
-		}
 		crtName = rs.getString(1);
-		serial = rs.getString(5);
+		serial = rs.getString(4);
+		if (rs.getTime(2) == null) {
+			return CertificateStatus.DRAFT;
+		}
 		if (rs.getTime(2) != null && rs.getTime(3) == null) {
 			return CertificateStatus.ISSUED;
-		}
-		if (rs.getTime(2) != null && rs.getString(3).equals("1970-01-01 00:00:00.0")) {
-			return CertificateStatus.BEING_REVOKED;
 		}
 		return CertificateStatus.REVOKED;
 	}
 
-	public void issue() throws IOException {
-		try {
-			if (getStatus() != CertificateStatus.DRAFT) {
-				throw new IllegalStateException();
-			}
-			Notary.writeUserAgreement(ownerId, "CCA", "issue certificate", "", true, 0);
-
-			PreparedStatement inserter = DatabaseConnection.getInstance().prepare(
-				"INSERT INTO emailcerts SET md=?, subject=?, coll_found=0, crt_name='', memid=?");
-			inserter.setString(1, md);
-			inserter.setString(2, dn);
-			inserter.setInt(3, ownerId);
-			inserter.execute();
-			id = DatabaseConnection.lastInsertId(inserter);
-			File csrFile = KeyStorage.locateCsr(id);
-			csrName = csrFile.getPath();
-			FileOutputStream fos = new FileOutputStream(csrFile);
-			fos.write(csr.getBytes());
-			fos.close();
-
-			PreparedStatement updater = DatabaseConnection.getInstance().prepare(
-				"UPDATE emailcerts SET csr_name=? WHERE id=?");
-			updater.setString(1, csrName);
-			updater.setInt(2, id);
-			updater.execute();
-		} catch (SQLException e) {
-			e.printStackTrace();
+	public Job issue() throws IOException, SQLException {
+		if (getStatus() != CertificateStatus.DRAFT) {
+			throw new IllegalStateException();
 		}
+		Notary.writeUserAgreement(ownerId, "CCA", "issue certificate", "", true, 0);
+
+		PreparedStatement inserter = DatabaseConnection.getInstance().prepare(
+			"INSERT INTO emailcerts SET md=?, subject=?, crt_name='', memid=?");
+		inserter.setString(1, md);
+		inserter.setString(2, dn);
+		inserter.setInt(3, ownerId);
+		inserter.execute();
+		id = DatabaseConnection.lastInsertId(inserter);
+		File csrFile = KeyStorage.locateCsr(id);
+		csrName = csrFile.getPath();
+		FileOutputStream fos = new FileOutputStream(csrFile);
+		fos.write(csr.getBytes());
+		fos.close();
+
+		PreparedStatement updater = DatabaseConnection.getInstance().prepare(
+			"UPDATE emailcerts SET csr_name=? WHERE id=?");
+		updater.setString(1, csrName);
+		updater.setInt(2, id);
+		updater.execute();
+		return Job.submit(this, JobType.SIGN);
 
 	}
 
-	public boolean waitFor(int max) throws SQLException, InterruptedException {
-		long start = System.currentTimeMillis();
-		while (getStatus().isUnstable()) {
-			if (max != 0 && System.currentTimeMillis() - start > max) {
-				return false;
-			}
-			Thread.sleep((long) (2000 + Math.random() * 2000));
+	public Job revoke() throws SQLException {
+		if (getStatus() != CertificateStatus.ISSUED) {
+			throw new IllegalStateException();
 		}
-		return true;
-	}
-
-	public void revoke() {
-		try {
-			if (getStatus() != CertificateStatus.ISSUED) {
-				throw new IllegalStateException();
-			}
-			PreparedStatement inserter = DatabaseConnection.getInstance().prepare(
-				"UPDATE emailcerts SET revoked = '1970-01-01' WHERE id=?");
-			inserter.setInt(1, id);
-			inserter.execute();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		return Job.submit(this, JobType.REVOKE);
 
 	}
 

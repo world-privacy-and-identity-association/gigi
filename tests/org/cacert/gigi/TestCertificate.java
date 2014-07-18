@@ -32,9 +32,9 @@ public class TestCertificate extends ManagedTest {
 		String[] key1 = generateCSR("/CN=testmail@example.com");
 		Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key1[1]);
 		final PrivateKey pk = PemKey.parsePEMPrivateKey(key1[0]);
-		c.issue();
-		c.waitFor(60000);
+		c.issue().waitFor(60000);
 		final X509Certificate ce = c.cert();
+		System.out.println(ce);
 		testLogin(pk, ce, true);
 	}
 
@@ -100,18 +100,12 @@ public class TestCertificate extends ManagedTest {
 		final PrivateKey pk = PemKey.parsePEMPrivateKey(key1[0]);
 
 		testFails(CertificateStatus.DRAFT, c);
-		c.issue();
-
-		testFails(CertificateStatus.SIGNING, c);
-		c.waitFor(60000);
+		c.issue().waitFor(60000);
 
 		testFails(CertificateStatus.ISSUED, c);
 		X509Certificate cert = c.cert();
 		testLogin(pk, cert, true);
-		c.revoke();
-
-		testFails(CertificateStatus.BEING_REVOKED, c);
-		c.waitFor(60000);
+		c.revoke().waitFor(60000);
 
 		testFails(CertificateStatus.REVOKED, c);
 		testLogin(pk, cert, false);
@@ -120,10 +114,11 @@ public class TestCertificate extends ManagedTest {
 
 	private void testFails(CertificateStatus status, Certificate c) throws IOException, GeneralSecurityException,
 		SQLException {
+		assertEquals(status, c.getStatus());
 		if (status != CertificateStatus.ISSUED) {
 			try {
 				c.revoke();
-				fail("is in invalid state");
+				fail(status + " is in invalid state");
 			} catch (IllegalStateException ise) {
 
 			}
@@ -131,7 +126,7 @@ public class TestCertificate extends ManagedTest {
 		if (status != CertificateStatus.DRAFT) {
 			try {
 				c.issue();
-				fail("is in invalid state");
+				fail(status + " is in invalid state");
 			} catch (IllegalStateException ise) {
 
 			}
@@ -139,7 +134,7 @@ public class TestCertificate extends ManagedTest {
 		if (status != CertificateStatus.ISSUED) {
 			try {
 				c.cert();
-				fail("is in invalid state");
+				fail(status + " is in invalid state");
 			} catch (IllegalStateException ise) {
 
 			}

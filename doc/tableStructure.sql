@@ -94,21 +94,20 @@ CREATE TABLE `emailcerts` (
   `subject` text NOT NULL,
   `keytype` char(2) NOT NULL DEFAULT 'NS',
   `codesign` tinyint(1) NOT NULL DEFAULT '0',
+  `md` enum('md5','sha1','sha256','sha512') NOT NULL DEFAULT 'sha512',
+  `rootcert` int(2) NOT NULL DEFAULT '1',
+  `type` enum('client', 'server') DEFAULT NULL,
+
   `csr_name` varchar(255) NOT NULL DEFAULT '',
   `crt_name` varchar(255) NOT NULL DEFAULT '',
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `revoked` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `expire` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `warning` tinyint(1) NOT NULL DEFAULT '0',
   `renewed` tinyint(1) NOT NULL DEFAULT '0',
-  `rootcert` int(2) NOT NULL DEFAULT '1',
-  `md` enum('md5','sha1','sha256','sha512') NOT NULL DEFAULT 'sha512',
-  `type` tinyint(4) DEFAULT NULL,
   `disablelogin` int(1) NOT NULL DEFAULT '0',
   `pkhash` char(40) DEFAULT NULL,
   `certhash` char(40) DEFAULT NULL,
-  `coll_found` tinyint(1) NOT NULL,
   `description` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `emailcerts_pkhash` (`pkhash`),
@@ -119,6 +118,28 @@ CREATE TABLE `emailcerts` (
   KEY `stats_emailcerts_expire` (`expire`),
   KEY `emailcrt` (`crt_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `clientcerts`;
+CREATE TABLE `clientcerts` (
+  `id` int(11) NOT NULL,
+  `disablelogin` int(1) NOT NULL DEFAULT '0',
+
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+
+
+
+DROP TABLE IF EXISTS `jobs`;
+CREATE TABLE `jobs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `targetId` int(11) NOT NULL,
+  `task` enum('sign','revoke') NOT NULL,
+  `state` enum('open', 'done', 'error') NOT NULL DEFAULT 'open',
+  `warning` int(2) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `state` (`state`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+
 
 DROP TABLE IF EXISTS `notary`;
 CREATE TABLE `notary` (

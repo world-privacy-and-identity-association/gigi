@@ -95,9 +95,8 @@ public class IssueCertificateForm extends Form {
 				System.out.println("issuing " + selectedDigest);
 				result = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User",
 					selectedDigest.toString(), this.csr);
-				result.issue();
 				try {
-					result.waitFor(60000);
+					result.issue().waitFor(60000);
 					return true;
 				} catch (SQLException e) {
 					e.printStackTrace();

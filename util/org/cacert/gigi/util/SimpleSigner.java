@@ -25,6 +25,7 @@ public class SimpleSigner {
 	private static PreparedStatement readyMail;
 	private static PreparedStatement revoke;
 	private static PreparedStatement revokeCompleted;
+	private static PreparedStatement finishJob;
 	private static boolean running = true;
 	private static Thread runner;
 
@@ -51,21 +52,25 @@ public class SimpleSigner {
 			throw new IllegalStateException("already running");
 		}
 		running = true;
-		readyMail = DatabaseConnection.getInstance().prepare(
-			"SELECT id, csr_name, subject FROM emailcerts" + " WHERE csr_name is not null AND csr_name != ''"//
-				+ " AND created=0"//
-				+ " AND crt_name=''"//
-				+ " AND warning<3");
+		readyMail = DatabaseConnection
+			.getInstance()
+			.prepare(
+				"SELECT emailcerts.id,emailcerts.csr_name,emailcerts.subject, jobs.id FROM jobs INNER JOIN emailcerts ON emailcerts.id=jobs.targetId"
+					+ " WHERE jobs.state='open'"//
+					+ " AND task='sign'");
 
 		updateMail = DatabaseConnection.getInstance().prepare(
 			"UPDATE emailcerts SET crt_name=?," + " created=NOW(), serial=? WHERE id=?");
-		warnMail = DatabaseConnection.getInstance().prepare("UPDATE emailcerts SET warning=warning+1 WHERE id=?");
+		warnMail = DatabaseConnection.getInstance().prepare(
+			"UPDATE jobs SET warning=warning+1, state=IF(warning<3, 'open','error') WHERE id=?");
 
 		revoke = DatabaseConnection.getInstance().prepare(
-			"SELECT id, csr_name FROM emailcerts" + " WHERE csr_name is not null"//
-				+ " AND created != 0"//
-				+ " AND revoked = '1970-01-01'");
+			"SELECT emailcerts.id, emailcerts.csr_name,jobs.id FROM jobs INNER JOIN emailcerts ON jobs.targetId=emailcerts.id"
+				+ " WHERE jobs.state='open' AND task='revoke'");
 		revokeCompleted = DatabaseConnection.getInstance().prepare("UPDATE emailcerts SET revoked=NOW() WHERE id=?");
+
+		finishJob = DatabaseConnection.getInstance().prepare("UPDATE jobs SET state='done' WHERE id=?");
+
 		runner = new Thread() {
 			@Override
 			public void run() {
@@ -118,6 +123,8 @@ public class SimpleSigner {
 				worked = true;
 				revokeCompleted.setInt(1, id);
 				revokeCompleted.execute();
+				finishJob.setInt(1, rs.getInt(3));
+				finishJob.execute();
 			} else {
 				System.out.println("Failed");
 			}
@@ -174,13 +181,16 @@ public class SimpleSigner {
 					updateMail.setString(2, serial.toString(16));
 					updateMail.setInt(3, id);
 					updateMail.execute();
-					System.out.println("sign: " + id);
+
+					finishJob.setInt(1, rs.getInt(4));
+					finishJob.execute();
+					System.out.println("signed: " + id);
 					continue;
 				} catch (GeneralSecurityException e) {
 					e.printStackTrace();
 				}
 				System.out.println("ERROR Afterwards: " + id);
-				warnMail.setInt(1, id);
+				warnMail.setInt(1, rs.getInt(4));
 				warnMail.execute();
 			} else {
 				BufferedReader br = new BufferedReader(new InputStreamReader(p1.getErrorStream()));
@@ -190,7 +200,7 @@ public class SimpleSigner {
 				}
 				System.out.println(Arrays.toString(call));
 				System.out.println("ERROR: " + id);
-				warnMail.setInt(1, id);
+				warnMail.setInt(1, rs.getInt(4));
 				warnMail.execute();
 			}
 
