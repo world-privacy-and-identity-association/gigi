@@ -1,5 +1,6 @@
 package org.cacert.gigi.testUtils;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -12,17 +13,29 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509KeyManager;
 
 import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.database.DatabaseConnection;
@@ -165,7 +178,7 @@ public class ManagedTest {
 		HttpURLConnection csrfConn = (HttpURLConnection) regist.openConnection();
 
 		String headerField = csrfConn.getHeaderField("Set-Cookie");
-		headerField = headerField.substring(0, headerField.indexOf(';'));
+		headerField = stripCookie(headerField);
 
 		String csrf = getCSRF(csrfConn);
 		uc.addRequestProperty("Cookie", headerField);
@@ -262,6 +275,10 @@ public class ManagedTest {
 		return "test" + System.currentTimeMillis() + "a" + (count++);
 	}
 
+	private String stripCookie(String headerField) {
+		return headerField.substring(0, headerField.indexOf(';'));
+	}
+
 	public String login(String email, String pw) throws IOException {
 		URL u = new URL("https://" + getServerName() + "/login");
 		HttpURLConnection huc = (HttpURLConnection) u.openConnection();
@@ -271,8 +288,61 @@ public class ManagedTest {
 		os.write(data.getBytes());
 		os.flush();
 		String headerField = huc.getHeaderField("Set-Cookie");
-		headerField = headerField.substring(0, headerField.indexOf(';'));
-		return headerField;
+		return stripCookie(headerField);
+	}
+
+	public String login(final PrivateKey pk, final X509Certificate ce) throws NoSuchAlgorithmException,
+		KeyManagementException, IOException, MalformedURLException {
+		KeyManager km = new X509KeyManager() {
+
+			@Override
+			public String chooseClientAlias(String[] arg0, Principal[] arg1, Socket arg2) {
+				return "client";
+			}
+
+			@Override
+			public String chooseServerAlias(String arg0, Principal[] arg1, Socket arg2) {
+				return null;
+			}
+
+			@Override
+			public X509Certificate[] getCertificateChain(String arg0) {
+				return new X509Certificate[] { ce };
+			}
+
+			@Override
+			public String[] getClientAliases(String arg0, Principal[] arg1) {
+				return new String[] { "client" };
+			}
+
+			@Override
+			public PrivateKey getPrivateKey(String arg0) {
+				if (arg0.equals("client")) {
+					return pk;
+				}
+				return null;
+			}
+
+			@Override
+			public String[] getServerAliases(String arg0, Principal[] arg1) {
+				return new String[] { "client" };
+			}
+		};
+		SSLContext sc = SSLContext.getInstance("TLS");
+		sc.init(new KeyManager[] { km }, null, null);
+
+		HttpURLConnection connection = (HttpURLConnection) new URL("https://"
+			+ getServerName().replaceFirst("^www.", "secure.") + "/login").openConnection();
+		if (connection instanceof HttpsURLConnection) {
+			((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
+		}
+		if (connection.getResponseCode() == 302) {
+			assertEquals("https://" + getServerName().replaceFirst("^www.", "secure.").replaceFirst(":443$", "") + "/",
+				connection.getHeaderField("Location").replaceFirst(":443$", ""));
+			return stripCookie(connection.getHeaderField("Set-Cookie"));
+		} else {
+			return null;
+		}
 	}
 
 	public String getCSRF(URLConnection u) throws IOException {
