@@ -114,7 +114,6 @@ public class User {
 		query.setDate(7, new java.sql.Date(dob.getTime()));
 		query.execute();
 		id = DatabaseConnection.lastInsertId(query);
-		System.out.println("Inserted: " + id);
 	}
 
 	public boolean canAssure() throws SQLException {
