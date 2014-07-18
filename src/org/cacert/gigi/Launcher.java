@@ -58,7 +58,7 @@ public class Launcher {
 		s.setConnectors(new Connector[] { connector });
 
 		HandlerList hl = new HandlerList();
-		hl.setHandlers(new Handler[] { generateStaticContext(), generateGigiContext(conf.getMainProps()),
+		hl.setHandlers(new Handler[] { generateStaticContext(), generateGigiContexts(conf.getMainProps()),
 				generateAPIContext() });
 		s.setHandler(hl);
 		s.start();
@@ -123,7 +123,20 @@ public class Launcher {
 		};
 	}
 
-	private static ContextHandler generateGigiContext(Properties conf) {
+	private static Handler generateGigiContexts(Properties conf) {
+		ServletHolder webAppServlet = new ServletHolder(new Gigi(conf));
+
+		ContextHandler ch = generateGigiServletContext(webAppServlet);
+		ch.setVirtualHosts(new String[] { ServerConstants.getWwwHostName() });
+		ContextHandler chSecure = generateGigiServletContext(webAppServlet);
+		chSecure.setVirtualHosts(new String[] { ServerConstants.getSecureHostName() });
+
+		HandlerList hl = new HandlerList();
+		hl.setHandlers(new Handler[] { ch, chSecure });
+		return hl;
+	}
+
+	private static ContextHandler generateGigiServletContext(ServletHolder webAppServlet) {
 		final ResourceHandler rh = new ResourceHandler();
 		rh.setResourceBase("static/www");
 
@@ -132,7 +145,7 @@ public class Launcher {
 
 		ServletContextHandler servlet = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		servlet.setInitParameter(SessionManager.__SessionCookieProperty, "CACert-Session");
-		servlet.addServlet(new ServletHolder(new Gigi(conf)), "/*");
+		servlet.addServlet(webAppServlet, "/*");
 		ErrorPageErrorHandler epeh = new ErrorPageErrorHandler();
 		epeh.addErrorPage(404, "/error");
 		servlet.setErrorHandler(epeh);
@@ -141,9 +154,7 @@ public class Launcher {
 		hl.setHandlers(new Handler[] { hw, servlet });
 
 		ContextHandler ch = new ContextHandler();
-		ch.setVirtualHosts(new String[] { ServerConstants.getWwwHostName(), ServerConstants.getSecureHostName() });
 		ch.setHandler(hl);
-
 		return ch;
 	}
 
