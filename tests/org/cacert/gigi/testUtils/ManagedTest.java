@@ -279,6 +279,15 @@ public class ManagedTest {
 		return headerField.substring(0, headerField.indexOf(';'));
 	}
 
+	public static final String SECURE_REFERENCE = "/account/certs/email";
+
+	public boolean isLoggedin(String cookie) throws IOException {
+		URL u = new URL("https://" + getServerName() + SECURE_REFERENCE);
+		HttpURLConnection huc = (HttpURLConnection) u.openConnection();
+		huc.addRequestProperty("Cookie", cookie);
+		return huc.getResponseCode() == 200;
+	}
+
 	public String login(String email, String pw) throws IOException {
 		URL u = new URL("https://" + getServerName() + "/login");
 		HttpURLConnection huc = (HttpURLConnection) u.openConnection();
@@ -293,6 +302,21 @@ public class ManagedTest {
 
 	public String login(final PrivateKey pk, final X509Certificate ce) throws NoSuchAlgorithmException,
 		KeyManagementException, IOException, MalformedURLException {
+
+		HttpURLConnection connection = (HttpURLConnection) new URL("https://"
+			+ getServerName().replaceFirst("^www.", "secure.") + "/login").openConnection();
+		authenticateClientCert(pk, ce, connection);
+		if (connection.getResponseCode() == 302) {
+			assertEquals("https://" + getServerName().replaceFirst("^www.", "secure.").replaceFirst(":443$", "") + "/",
+				connection.getHeaderField("Location").replaceFirst(":443$", ""));
+			return stripCookie(connection.getHeaderField("Set-Cookie"));
+		} else {
+			return null;
+		}
+	}
+
+	public void authenticateClientCert(final PrivateKey pk, final X509Certificate ce, HttpURLConnection connection)
+		throws NoSuchAlgorithmException, KeyManagementException {
 		KeyManager km = new X509KeyManager() {
 
 			@Override
@@ -330,18 +354,8 @@ public class ManagedTest {
 		};
 		SSLContext sc = SSLContext.getInstance("TLS");
 		sc.init(new KeyManager[] { km }, null, null);
-
-		HttpURLConnection connection = (HttpURLConnection) new URL("https://"
-			+ getServerName().replaceFirst("^www.", "secure.") + "/login").openConnection();
 		if (connection instanceof HttpsURLConnection) {
 			((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
-		}
-		if (connection.getResponseCode() == 302) {
-			assertEquals("https://" + getServerName().replaceFirst("^www.", "secure.").replaceFirst(":443$", "") + "/",
-				connection.getHeaderField("Location").replaceFirst(":443$", ""));
-			return stripCookie(connection.getHeaderField("Set-Cookie"));
-		} else {
-			return null;
 		}
 	}
 
