@@ -6,11 +6,11 @@ import java.util.Map;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.output.Outputable;
 
-final class IfStatement implements Outputable {
+public final class IfStatement implements Outputable {
 	private final String variable;
 	private final TemplateBlock body;
 
-	IfStatement(String variable, TemplateBlock body) {
+	public IfStatement(String variable, TemplateBlock body) {
 		this.variable = variable;
 		this.body = body;
 	}

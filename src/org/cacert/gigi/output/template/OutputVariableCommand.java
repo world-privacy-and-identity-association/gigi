@@ -6,10 +6,10 @@ import java.util.Map;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.output.Outputable;
 
-final class OutputVariableCommand implements Outputable {
+public final class OutputVariableCommand implements Outputable {
 	private final String raw;
 
-	OutputVariableCommand(String raw) {
+	public OutputVariableCommand(String raw) {
 		this.raw = raw;
 	}
 

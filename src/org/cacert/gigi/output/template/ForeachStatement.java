@@ -7,11 +7,11 @@ import java.util.Map;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.output.Outputable;
 
-final class ForeachStatement implements Outputable {
+public final class ForeachStatement implements Outputable {
 	private final String variable;
 	private final TemplateBlock body;
 
-	ForeachStatement(String variable, TemplateBlock body) {
+	public ForeachStatement(String variable, TemplateBlock body) {
 		this.variable = variable;
 		this.body = body;
 	}

@@ -6,10 +6,10 @@ import java.util.Map;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.output.Outputable;
 
-final class TranslateCommand implements Outputable {
+public final class TranslateCommand implements Outputable {
 	private final String raw;
 
-	TranslateCommand(String raw) {
+	public TranslateCommand(String raw) {
 		this.raw = raw;
 	}
 
