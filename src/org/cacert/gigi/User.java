@@ -219,4 +219,27 @@ public class User {
 		return new User(id);
 	}
 
+	public EmailAddress[] getEmails() {
+		try {
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM email WHERE memid=?");
+			ps.setInt(1, id);
+			ResultSet rs = ps.executeQuery();
+			rs.last();
+			int count = rs.getRow();
+			EmailAddress[] data = new EmailAddress[count];
+			rs.beforeFirst();
+			for (int i = 0; i < data.length; i++) {
+				if (!rs.next()) {
+					throw new Error("Internal sql api violation.");
+				}
+				data[i] = EmailAddress.getById(rs.getInt(1));
+			}
+			rs.close();
+			return data;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
 }
