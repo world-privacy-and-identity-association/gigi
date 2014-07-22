@@ -41,10 +41,18 @@ public class MailOverview extends Page {
 			vars.put("mailData", t);
 			vars.put("res", rs);
 			vars.put("us", us.getEmail());
+			vars.put("addForm", new MailAddForm(req));
+			vars.put("manForm", new MailManagementForm(req));
 			getDefaultTemplate().output(resp.getWriter(), lang, vars);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		System.out.println();
+		super.doPost(req, resp);
 	}
 
 	private class MailTable implements Outputable {
