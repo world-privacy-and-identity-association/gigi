@@ -214,4 +214,9 @@ public class User {
 		}
 		return points;
 	}
+
+	public static User getById(int id) {
+		return new User(id);
+	}
+
 }
