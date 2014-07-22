@@ -31,6 +31,7 @@ public class MailCertificates extends Page {
 
 	@Override
 	public boolean beforeTemplate(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
 		String pi = req.getPathInfo().substring(PATH.length());
 		if (pi.length() == 0) {
 			return false;
@@ -38,8 +39,15 @@ public class MailCertificates extends Page {
 		pi = pi.substring(1);
 		boolean crt = false;
 		boolean cer = false;
+		resp.setContentType("application/pkix-cert");
 		if (pi.endsWith(".crt")) {
 			crt = true;
+			pi = pi.substring(0, pi.length() - 4);
+		} else if (pi.endsWith(".cer")) {
+			if (req.getParameter("install") != null) {
+				resp.setContentType("application/x-x509-user-cert");
+			}
+			cer = true;
 			pi = pi.substring(0, pi.length() - 4);
 		} else if (pi.endsWith(".cer")) {
 			cer = true;
@@ -102,6 +110,11 @@ public class MailCertificates extends Page {
 			out.print(serial);
 			out.print(".cer'>");
 			out.print(translate(req, "DER encoded Certificate"));
+			out.println("</a><br/>");
+			out.print("<a href='");
+			out.print(serial);
+			out.print(".cer?install'>");
+			out.print(translate(req, "Install into browser."));
 			out.println("</a><br/>");
 
 			out.println("<pre>");
