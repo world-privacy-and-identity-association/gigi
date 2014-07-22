@@ -6,6 +6,7 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 
+import org.cacert.gigi.Certificate.CSRType;
 import org.cacert.gigi.Certificate.CertificateStatus;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.cacert.gigi.testUtils.PemKey;
@@ -18,7 +19,7 @@ public class TestCertificate extends ManagedTest {
 	public void testClientCertLoginStates() throws IOException, GeneralSecurityException, SQLException,
 		InterruptedException {
 		String[] key1 = generateCSR("/CN=testmail@example.com");
-		Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key1[1]);
+		Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key1[1], CSRType.CSR);
 		final PrivateKey pk = PemKey.parsePEMPrivateKey(key1[0]);
 		c.issue().waitFor(60000);
 		final X509Certificate ce = c.cert();
@@ -28,7 +29,7 @@ public class TestCertificate extends ManagedTest {
 	@Test
 	public void testCertLifeCycle() throws IOException, GeneralSecurityException, SQLException, InterruptedException {
 		String[] key1 = generateCSR("/CN=testmail@example.com");
-		Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key1[1]);
+		Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key1[1], CSRType.CSR);
 		final PrivateKey pk = PemKey.parsePEMPrivateKey(key1[0]);
 
 		testFails(CertificateStatus.DRAFT, c);

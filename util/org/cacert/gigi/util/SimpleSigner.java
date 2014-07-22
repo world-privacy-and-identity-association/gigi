@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Properties;
 
+import org.cacert.gigi.Certificate.CSRType;
 import org.cacert.gigi.database.DatabaseConnection;
 
 public class SimpleSigner {
@@ -55,7 +56,7 @@ public class SimpleSigner {
 		readyMail = DatabaseConnection
 			.getInstance()
 			.prepare(
-				"SELECT emailcerts.id,emailcerts.csr_name,emailcerts.subject, jobs.id FROM jobs INNER JOIN emailcerts ON emailcerts.id=jobs.targetId"
+				"SELECT emailcerts.id,emailcerts.csr_name,emailcerts.subject, jobs.id,csr_type FROM jobs INNER JOIN emailcerts ON emailcerts.id=jobs.targetId"
 					+ " WHERE jobs.state='open'"//
 					+ " AND task='sign'");
 
@@ -157,18 +158,23 @@ public class SimpleSigner {
 			String csrname = rs.getString(2);
 			System.out.println("sign: " + csrname);
 			int id = rs.getInt(1);
+			String csrType = rs.getString(5);
+			CSRType ct = CSRType.valueOf(csrType);
 			File crt = KeyStorage.locateCrt(id);
 			String[] call = new String[] { "openssl", "ca",//
+					"-in", "../" + csrname,//
 					"-cert", "testca.crt",//
 					"-keyfile", "testca.key",//
-					"-in", "../" + csrname,//
 					"-out", "../" + crt.getPath(),//
 					"-days", "356",//
 					"-batch",//
 					"-subj", rs.getString(3),//
-					"-config", "selfsign.config"
+					"-config", "selfsign.config"//
 
 			};
+			if (ct == CSRType.SPKAC) {
+				call[2] = "-spkac";
+			}
 			Process p1 = Runtime.getRuntime().exec(call, null, new File("keys"));
 
 			int waitFor = p1.waitFor();

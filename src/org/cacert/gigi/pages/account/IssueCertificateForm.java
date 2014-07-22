@@ -19,6 +19,7 @@ import org.cacert.gigi.Digest;
 import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
+import org.cacert.gigi.Certificate.CSRType;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.HashAlgorithms;
 import org.cacert.gigi.output.template.IterableDataset;
@@ -47,6 +48,7 @@ public class IssueCertificateForm extends Form {
 	}
 
 	Certificate result;
+	private CSRType csrType;
 
 	public Certificate getResult() {
 		return result;
@@ -55,7 +57,7 @@ public class IssueCertificateForm extends Form {
 	@Override
 	public boolean submit(PrintWriter out, HttpServletRequest req) {
 		String csr = req.getParameter("CSR");
-		String spkac = req.getParameter("spkac");
+		String spkac = req.getParameter("SPKAC");
 		try {
 			if (csr != null) {
 				PKCS10 parsed = parseCSR(csr);
@@ -79,8 +81,10 @@ public class IssueCertificateForm extends Form {
 				}
 				out.println("<br/>digest: sha256<br/>");
 				this.csr = csr;
+				this.csrType = CSRType.CSR;
 			} else if (spkac != null) {
-
+				this.csr = "SPKAC=" + spkac.replaceAll("[\r\n]", "");
+				this.csrType = CSRType.SPKAC;
 			} else {
 				login = "1".equals(req.getParameter("login"));
 				String hashAlg = req.getParameter("hash_alg");
@@ -93,7 +97,7 @@ public class IssueCertificateForm extends Form {
 				}
 				System.out.println("issuing " + selectedDigest);
 				result = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User",
-					selectedDigest.toString(), this.csr);
+					selectedDigest.toString(), this.csr, this.csrType);
 				try {
 					result.issue().waitFor(60000);
 					return true;
