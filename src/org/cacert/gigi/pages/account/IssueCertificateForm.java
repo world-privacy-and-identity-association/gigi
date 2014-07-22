@@ -7,19 +7,19 @@ import java.security.PublicKey;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+
 import org.cacert.gigi.Certificate;
 import org.cacert.gigi.Digest;
+import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
-import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.Certificate.CSRType;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.HashAlgorithms;
 import org.cacert.gigi.output.template.IterableDataset;
@@ -48,6 +48,7 @@ public class IssueCertificateForm extends Form {
 	}
 
 	Certificate result;
+	private CSRType csrType;
 
 	public Certificate getResult() {
 		return result;
@@ -56,7 +57,7 @@ public class IssueCertificateForm extends Form {
 	@Override
 	public boolean submit(PrintWriter out, HttpServletRequest req) {
 		String csr = req.getParameter("CSR");
-		String spkac = req.getParameter("spkac");
+		String spkac = req.getParameter("SPKAC");
 		try {
 			if (csr != null) {
 				PKCS10 parsed = parseCSR(csr);
@@ -80,8 +81,10 @@ public class IssueCertificateForm extends Form {
 				}
 				out.println("<br/>digest: sha256<br/>");
 				this.csr = csr;
+				this.csrType = CSRType.CSR;
 			} else if (spkac != null) {
-
+				this.csr = "SPKAC=" + spkac.replaceAll("[\r\n]", "");
+				this.csrType = CSRType.SPKAC;
 			} else {
 				login = "1".equals(req.getParameter("login"));
 				String hashAlg = req.getParameter("hash_alg");
@@ -94,7 +97,7 @@ public class IssueCertificateForm extends Form {
 				}
 				System.out.println("issuing " + selectedDigest);
 				result = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User",
-					selectedDigest.toString(), this.csr);
+					selectedDigest.toString(), this.csr, this.csrType);
 				try {
 					result.issue().waitFor(60000);
 					return true;
@@ -128,33 +131,23 @@ public class IssueCertificateForm extends Form {
 		HashMap<String, Object> vars2 = new HashMap<String, Object>(vars);
 		vars2.put("CCA", "<a href='/policy/CAcertCommunityAgreement.html'>CCA</a>");
 
-		try {
-			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
-				"SELECT `id`,`email` from `email` WHERE `memid`=? AND `deleted`=0");
-			ps.setInt(1, u.getId());
-			final ResultSet rs = ps.executeQuery();
-			vars2.put("emails", new IterableDataset() {
+		final EmailAddress[] ea = u.getEmails();
+		vars2.put("emails", new IterableDataset() {
+			int count;
 
-				@Override
-				public boolean next(Language l, Map<String, Object> vars) {
-					try {
-						if (!rs.next()) {
-							return false;
-						}
-						vars.put("id", rs.getString(1));
-						vars.put("value", rs.getString(2));
-						return true;
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
+			@Override
+			public boolean next(Language l, Map<String, Object> vars) {
+				if (count >= ea.length) {
 					return false;
 				}
-			});
-			vars2.put("hashs", new HashAlgorithms(selectedDigest));
-			t.output(out, l, vars2);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+				vars.put("id", ea[count].getId());
+				vars.put("value", ea[count].getAddress());
+				count++;
+				return true;
+			}
+		});
+		vars2.put("hashs", new HashAlgorithms(selectedDigest));
+		t.output(out, l, vars2);
 	}
 
 }

@@ -19,6 +19,10 @@ import org.cacert.gigi.util.KeyStorage;
 import org.cacert.gigi.util.Notary;
 
 public class Certificate {
+	public enum CSRType {
+		CSR, SPKAC;
+	}
+
 	private int id;
 	private int ownerId;
 	private String serial;
@@ -27,12 +31,14 @@ public class Certificate {
 	private String csrName;
 	private String crtName;
 	private String csr = null;
+	private CSRType csrType;
 
-	public Certificate(int ownerId, String dn, String md, String csr) {
+	public Certificate(int ownerId, String dn, String md, String csr, CSRType csrType) {
 		this.ownerId = ownerId;
 		this.dn = dn;
 		this.md = md;
 		this.csr = csr;
+		this.csrType = csrType;
 	}
 
 	private Certificate(String serial) {
@@ -115,10 +121,12 @@ public class Certificate {
 		Notary.writeUserAgreement(ownerId, "CCA", "issue certificate", "", true, 0);
 
 		PreparedStatement inserter = DatabaseConnection.getInstance().prepare(
-			"INSERT INTO emailcerts SET md=?, subject=?, crt_name='', memid=?");
+			"INSERT INTO emailcerts SET md=?, subject=?, csr_type=?, crt_name='', memid=?");
 		inserter.setString(1, md);
+		System.out.println(csrType.toString());
 		inserter.setString(2, dn);
-		inserter.setInt(3, ownerId);
+		inserter.setString(3, csrType.toString());
+		inserter.setInt(4, ownerId);
 		inserter.execute();
 		id = DatabaseConnection.lastInsertId(inserter);
 		File csrFile = KeyStorage.locateCsr(id);
@@ -172,6 +180,11 @@ public class Certificate {
 	}
 
 	public String getSerial() {
+		try {
+			getStatus();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} // poll changes
 		return serial;
 	}
 
