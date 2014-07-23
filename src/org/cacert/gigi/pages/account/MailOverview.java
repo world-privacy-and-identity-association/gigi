@@ -60,7 +60,7 @@ public class MailOverview extends Page {
 			MailAddForm f = Form.getForm(req, MailAddForm.class);
 			if (f.submit(out, req)) {
 				EmailAddress addr = new EmailAddress(f.getMail(), us, RandomToken.generateToken(16));
-				addr.insert();
+				addr.insert(Page.getLanguage(req));
 			}
 		} else if (req.getParameter("makedefault") != null || req.getParameter("delete") != null) {
 			System.out.println("MakeDefault/Delete");

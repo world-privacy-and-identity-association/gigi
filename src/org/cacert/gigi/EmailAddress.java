@@ -1,9 +1,13 @@
 package org.cacert.gigi;
 
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.email.EmailProvider;
+import org.cacert.gigi.util.ServerConstants;
 
 public class EmailAddress {
 	private String address;
@@ -33,7 +37,7 @@ public class EmailAddress {
 		this.hash = hash;
 	}
 
-	public void insert() {
+	public void insert(Language l) {
 		if (id != 0) {
 			throw new IllegalStateException("already inserted.");
 		}
@@ -45,7 +49,24 @@ public class EmailAddress {
 			ps.setString(3, address);
 			ps.execute();
 			id = DatabaseConnection.lastInsertId(ps);
+			StringBuffer body = new StringBuffer();
+			body.append(l
+				.getTranslation("Thanks for signing up with CAcert.org, below is the link you need to open to verify your account. Once your account is verified you will be able to start issuing certificates till your hearts' content!"));
+			body.append("\n\nhttps://");
+			body.append(ServerConstants.getWwwHostNamePort());
+			body.append("/verify?type=email&id=");
+			body.append(id);
+			body.append("&hash=");
+			body.append(hash);
+			body.append("\n\n");
+			body.append(l.getTranslation("Best regards"));
+			body.append("\n");
+			body.append(l.getTranslation("CAcert.org Support!"));
+			EmailProvider.getInstance().sendmail(address, "[CAcert.org] " + l.getTranslation("Mail Probe"),
+				body.toString(), "support@cacert.org", null, null, null, null, false);
 		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
