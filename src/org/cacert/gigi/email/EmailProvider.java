@@ -34,7 +34,7 @@ public abstract class EmailProvider {
 
 	public static final String OK = "OK";
 	public static final String FAIL = "FAIL";
-	private static final Pattern MAIL = Pattern
+	public static final Pattern MAIL = Pattern
 		.compile("^([a-zA-Z0-9])+([a-zA-Z0-9\\+\\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\\._-]+)+$");
 
 	public String checkEmailServer(int forUid, String address) throws IOException {
