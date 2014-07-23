@@ -47,6 +47,11 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 public class ManagedTest {
+	/**
+	 * Some password that fullfills the password criteria.
+	 */
+	protected static final String TEST_PASSWORD = "xvXV12°§";
+
 	private final String registerService = "/register";
 
 	private static TestEmailReciever ter;

@@ -26,7 +26,7 @@ public class TestUser extends ManagedTest {
 
 	@Test
 	public void testWebStoreAndLoad() throws SQLException {
-		int id = createVerifiedUser("aä", "b", createUniqueName() + "a@email.org", "xvXV12°§");
+		int id = createVerifiedUser("aä", "b", createUniqueName() + "a@email.org", TEST_PASSWORD);
 
 		User u = new User(id);
 		assertEquals("aä", u.getFname());
@@ -36,7 +36,7 @@ public class TestUser extends ManagedTest {
 
 	@Test
 	public void testAssurerUtilMethods() throws SQLException {
-		int id = createAssuranceUser("aä", "b", createUniqueName() + "a@email.org", "xvXV12°§");
+		int id = createAssuranceUser("aä", "b", createUniqueName() + "a@email.org", TEST_PASSWORD);
 
 		User u = new User(id);
 		assertTrue(u.canAssure());

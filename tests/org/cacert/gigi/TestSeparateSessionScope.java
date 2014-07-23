@@ -17,8 +17,6 @@ import org.junit.Test;
 
 public class TestSeparateSessionScope extends ManagedTest {
 
-	private static final String TEST_PASSWORD = "xvXV12°§";
-
 	@Test
 	public void testSeparateScope() throws IOException, GeneralSecurityException, SQLException, InterruptedException {
 		String mail = "thisgo" + createUniqueName() + "@example.com";

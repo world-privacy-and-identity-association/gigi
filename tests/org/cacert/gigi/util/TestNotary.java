@@ -16,10 +16,10 @@ public class TestNotary extends ManagedTest {
 	public void testNormalAssurance() throws SQLException {
 		User[] users = new User[30];
 		for (int i = 0; i < users.length; i++) {
-			int id = createVerifiedUser("fn" + i, "ln" + i, createUniqueName() + "@email.org", "xvXV12°§");
+			int id = createVerifiedUser("fn" + i, "ln" + i, createUniqueName() + "@email.org", TEST_PASSWORD);
 			users[i] = new User(id);
 		}
-		User assurer = new User(createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", "xvXV12°§"));
+		User assurer = new User(createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
 		int[] result = new int[] { 10, 10, 10, 10, 15, 15, 15, 15, 15, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 30, 30,
 				30, 30, 30, 35, 35, 35, 35, 35, 35 };
 
@@ -45,10 +45,10 @@ public class TestNotary extends ManagedTest {
 	public void testPoJam() throws SQLException {
 		User[] users = new User[30];
 		for (int i = 0; i < users.length; i++) {
-			int id = createVerifiedUser("fn" + i, "ln" + i, createUniqueName() + "@email.org", "xvXV12°§");
+			int id = createVerifiedUser("fn" + i, "ln" + i, createUniqueName() + "@email.org", TEST_PASSWORD);
 			users[i] = new User(id);
 		}
-		int id = createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", "xvXV12°§");
+		int id = createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD);
 		PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE users SET dob=NOW() WHERE id=?");
 		ps.setInt(1, id);
 		ps.execute();

@@ -31,9 +31,9 @@ public class TestAssurance extends ManagedTest {
 	public void setup() throws IOException {
 		assurerM = createUniqueName() + "@cacert-test.org";
 		assureeM = createUniqueName() + "@cacert-test.org";
-		assurer = createAssuranceUser("a", "b", assurerM, "xvXV.1");
-		assuree = createAssuranceUser("a", "c", assureeM, "xvXV.1");
-		cookie = login(assurerM, "xvXV.1");
+		assurer = createAssuranceUser("a", "b", assurerM, TEST_PASSWORD);
+		assuree = createAssuranceUser("a", "c", assureeM, TEST_PASSWORD);
+		cookie = login(assurerM, TEST_PASSWORD);
 
 	}
 
