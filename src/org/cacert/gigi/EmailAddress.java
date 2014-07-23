@@ -3,14 +3,13 @@ package org.cacert.gigi;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import org.cacert.gigi.database.DatabaseConnection;
 
 public class EmailAddress {
-	String address;
-	int id;
-	User owner;
-	String hash = null;
+	private String address;
+	private int id;
+	private User owner;
+	private String hash = null;
 
 	private EmailAddress(int id) throws SQLException {
 		PreparedStatement ps = DatabaseConnection.getInstance().prepare(
@@ -26,6 +25,29 @@ public class EmailAddress {
 		address = rs.getString(2);
 		hash = rs.getString(3);
 		rs.close();
+	}
+
+	public EmailAddress(String address, User owner, String hash) {
+		this.address = address;
+		this.owner = owner;
+		this.hash = hash;
+	}
+
+	public void insert() {
+		if (id != 0) {
+			throw new IllegalStateException("already inserted.");
+		}
+		try {
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+				"INSERT INTO `email` SET memid=?, hash=?, email=?");
+			ps.setInt(1, owner.getId());
+			ps.setString(2, hash);
+			ps.setString(3, address);
+			ps.execute();
+			id = DatabaseConnection.lastInsertId(ps);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public int getId() {
