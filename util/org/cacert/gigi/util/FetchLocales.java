@@ -75,6 +75,7 @@ public class FetchLocales {
 			transformer.transform(source, result);
 			fos.close();
 		}
+		System.out.println("Done.");
 	}
 
 	private static String readLine(Scanner sc) {
