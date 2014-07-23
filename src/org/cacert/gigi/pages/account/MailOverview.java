@@ -11,7 +11,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
@@ -19,7 +18,6 @@ import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.Outputable;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
-import org.cacert.gigi.util.RandomToken;
 
 public class MailOverview extends Page {
 	public static final String DEFAULT_PATH = "/account/mails";
@@ -44,7 +42,7 @@ public class MailOverview extends Page {
 			vars.put("mailData", t);
 			vars.put("res", rs);
 			vars.put("us", us.getEmail());
-			vars.put("addForm", new MailAddForm(req));
+			vars.put("addForm", new MailAddForm(req, us));
 			vars.put("manForm", new MailManagementForm(req));
 			getDefaultTemplate().output(resp.getWriter(), lang, vars);
 		} catch (SQLException e) {
@@ -59,8 +57,7 @@ public class MailOverview extends Page {
 		if (req.getParameter("addmail") != null) {
 			MailAddForm f = Form.getForm(req, MailAddForm.class);
 			if (f.submit(out, req)) {
-				EmailAddress addr = new EmailAddress(f.getMail(), us, RandomToken.generateToken(16));
-				addr.insert(Page.getLanguage(req));
+				resp.sendRedirect(MailOverview.DEFAULT_PATH);
 			}
 		} else if (req.getParameter("makedefault") != null || req.getParameter("delete") != null) {
 			System.out.println("MakeDefault/Delete");

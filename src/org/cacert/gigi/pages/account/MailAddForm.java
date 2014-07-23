@@ -5,10 +5,14 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.Language;
+import org.cacert.gigi.User;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.RandomToken;
 
 public class MailAddForm extends Form {
 	private static Template t;
@@ -16,9 +20,11 @@ public class MailAddForm extends Form {
 	static {
 		t = new Template(ChangePasswordPage.class.getResource("MailAddForm.templ"));
 	}
+	User target;
 
-	public MailAddForm(HttpServletRequest hsr) {
+	public MailAddForm(HttpServletRequest hsr, User target) {
 		super(hsr);
+		this.target = target;
 	}
 
 	@Override
@@ -30,11 +36,9 @@ public class MailAddForm extends Form {
 			return false;
 		}
 		mail = formMail;
+		EmailAddress addr = new EmailAddress(mail, target, RandomToken.generateToken(16));
+		addr.insert(Page.getLanguage(req));
 		return true;
-	}
-
-	public String getMail() {
-		return mail;
 	}
 
 	@Override
