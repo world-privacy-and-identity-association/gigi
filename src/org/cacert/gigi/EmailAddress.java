@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.email.EmailProvider;
+import org.cacert.gigi.util.RandomToken;
 import org.cacert.gigi.util.ServerConstants;
 
 public class EmailAddress {
@@ -31,10 +32,10 @@ public class EmailAddress {
 		rs.close();
 	}
 
-	public EmailAddress(String address, User owner, String hash) {
+	public EmailAddress(String address, User owner) {
 		this.address = address;
 		this.owner = owner;
-		this.hash = hash;
+		this.hash = RandomToken.generateToken(16);
 	}
 
 	public void insert(Language l) {

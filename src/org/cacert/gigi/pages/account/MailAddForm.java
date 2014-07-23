@@ -12,7 +12,6 @@ import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
-import org.cacert.gigi.util.RandomToken;
 
 public class MailAddForm extends Form {
 	private static Template t;
@@ -36,7 +35,7 @@ public class MailAddForm extends Form {
 			return false;
 		}
 		mail = formMail;
-		EmailAddress addr = new EmailAddress(mail, target, RandomToken.generateToken(16));
+		EmailAddress addr = new EmailAddress(mail, target);
 		addr.insert(Page.getLanguage(req));
 		return true;
 	}

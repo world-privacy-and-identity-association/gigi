@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
@@ -22,8 +23,6 @@ import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.HTMLEncoder;
 import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PasswordStrengthChecker;
-import org.cacert.gigi.util.RandomToken;
-import org.cacert.gigi.util.ServerConstants;
 
 public class Signup extends Form {
 	User buildup = new User();
@@ -197,19 +196,14 @@ public class Signup extends Form {
 	private void run(HttpServletRequest req, String password) throws SQLException {
 		try {
 			DatabaseConnection.getInstance().beginTransaction();
-			String hash = RandomToken.generateToken(16);
 
 			buildup.setDob(myDoB.getDate());
 			buildup.insert(password);
 			int memid = buildup.getId();
+			EmailAddress ea = new EmailAddress(buildup.getEmail(), buildup);
+			ea.insert(Page.getLanguage(req));
+
 			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
-				"insert into `email` set `email`=?," + " `hash`=?, `created`=NOW(),`memid`=?");
-			ps.setString(1, buildup.getEmail());
-			ps.setString(2, hash);
-			ps.setInt(3, memid);
-			ps.execute();
-			int emailid = DatabaseConnection.lastInsertId(ps);
-			ps = DatabaseConnection.getInstance().prepare(
 				"insert into `alerts` set `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?");
 			ps.setInt(1, memid);
 			ps.setString(2, general ? "1" : "0");
@@ -219,28 +213,6 @@ public class Signup extends Form {
 			ps.execute();
 			Notary.writeUserAgreement(memid, "CCA", "account creation", "", true, 0);
 
-			StringBuffer body = new StringBuffer();
-			body.append(Page
-				.translate(
-					req,
-					"Thanks for signing up with CAcert.org, below is the link you need to open to verify your account. Once your account is verified you will be able to start issuing certificates till your hearts' content!"));
-			body.append("\n\nhttps://");
-			body.append(ServerConstants.getWwwHostNamePort());
-			body.append("/verify?type=email&id=");
-			body.append(emailid);
-			body.append("&hash=");
-			body.append(hash);
-			body.append("\n\n");
-			body.append(Page.translate(req, "Best regards"));
-			body.append("\n");
-			body.append(Page.translate(req, "CAcert.org Support!"));
-			try {
-				EmailProvider.getInstance().sendmail(buildup.getEmail(),
-					"[CAcert.org] " + Page.translate(req, "Mail Probe"), body.toString(), "support@cacert.org", null,
-					null, null, null, false);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 			DatabaseConnection.getInstance().commitTransaction();
 		} finally {
 			DatabaseConnection.getInstance().quitTransaction();
