@@ -33,7 +33,7 @@ public class MailManagementForm extends Form {
 				}
 				target.updateDefaultEmail(EmailAddress.getById(Integer.parseInt(mailid.trim())));
 			} catch (Exception e) {
-				out.println("<b>Error precessing your request.</b>");
+				out.println("<div class='formError'>Error precessing your request.</div>");
 				e.printStackTrace();
 				return false;
 			}
@@ -48,7 +48,7 @@ public class MailManagementForm extends Form {
 				try {
 					target.deleteEmail(EmailAddress.getById(Integer.parseInt(toDel[i].trim())));
 				} catch (Exception e) {
-					out.println("<b>Error precessing your request.</b>");
+					out.println("<div class='formError'>Error precessing your request.</div>");
 					e.printStackTrace();
 					return false;
 				}

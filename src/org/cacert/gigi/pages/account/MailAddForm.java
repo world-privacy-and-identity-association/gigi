@@ -31,7 +31,7 @@ public class MailAddForm extends Form {
 		String formMail = req.getParameter("newemail");
 		if (!EmailProvider.MAIL.matcher(formMail).matches()) {
 			// TODO Proper error output (css, maybe abstract)
-			out.println("<b>Error: Invalid address!</b>");
+			out.println("<div class='formError'>Error: Invalid address!</div>");
 			return false;
 		}
 		mail = formMail;
