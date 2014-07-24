@@ -96,6 +96,7 @@ public class EmailAddress {
 				ps2.setInt(1, owner.getId());
 				ps2.setString(2, address);
 				ps2.execute();
+				this.hash = "";
 			} catch (SQLException e) {
 				throw new GigiApiException(e);
 			}
@@ -113,5 +114,9 @@ public class EmailAddress {
 		} catch (SQLException e) {
 			throw new IllegalArgumentException(e);
 		}
+	}
+
+	public boolean isVerified() {
+		return hash.isEmpty();
 	}
 }
