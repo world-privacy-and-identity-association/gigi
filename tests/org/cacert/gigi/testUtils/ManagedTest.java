@@ -39,6 +39,7 @@ import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.cacert.gigi.util.DatabaseManager;
+import org.cacert.gigi.util.ServerConstants;
 import org.cacert.gigi.util.SimpleSigner;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -76,8 +77,9 @@ public class ManagedTest {
 			System.out.println("... purging Database");
 			DatabaseManager.run(new String[] { testProps.getProperty("sql.driver"), testProps.getProperty("sql.url"),
 					testProps.getProperty("sql.user"), testProps.getProperty("sql.password") });
-
 			String type = testProps.getProperty("type");
+			Properties mainProps = generateMainProps();
+			ServerConstants.init(mainProps);
 			if (type.equals("local")) {
 				url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort");
 				String[] parts = testProps.getProperty("mail").split(":", 2);
@@ -88,19 +90,6 @@ public class ManagedTest {
 			gigi = Runtime.getRuntime().exec(testProps.getProperty("java"));
 			DataOutputStream toGigi = new DataOutputStream(gigi.getOutputStream());
 			System.out.println("... starting server");
-			Properties mainProps = new Properties();
-			mainProps.setProperty("host", "127.0.0.1");
-			mainProps.setProperty("name.secure", testProps.getProperty("name.secure"));
-			mainProps.setProperty("name.www", testProps.getProperty("name.www"));
-			mainProps.setProperty("name.static", testProps.getProperty("name.static"));
-
-			mainProps.setProperty("port", testProps.getProperty("serverPort"));
-			mainProps.setProperty("emailProvider", "org.cacert.gigi.email.TestEmailProvider");
-			mainProps.setProperty("emailProvider.port", "8473");
-			mainProps.setProperty("sql.driver", testProps.getProperty("sql.driver"));
-			mainProps.setProperty("sql.url", testProps.getProperty("sql.url"));
-			mainProps.setProperty("sql.user", testProps.getProperty("sql.user"));
-			mainProps.setProperty("sql.password", testProps.getProperty("sql.password"));
 
 			byte[] cacerts = Files.readAllBytes(Paths.get("config/cacerts.jks"));
 			byte[] keystore = Files.readAllBytes(Paths.get("config/keystore.pkcs12"));
@@ -141,6 +130,23 @@ public class ManagedTest {
 			e.printStackTrace();
 		}
 
+	}
+
+	private static Properties generateMainProps() {
+		Properties mainProps = new Properties();
+		mainProps.setProperty("host", "127.0.0.1");
+		mainProps.setProperty("name.secure", testProps.getProperty("name.secure"));
+		mainProps.setProperty("name.www", testProps.getProperty("name.www"));
+		mainProps.setProperty("name.static", testProps.getProperty("name.static"));
+
+		mainProps.setProperty("port", testProps.getProperty("serverPort"));
+		mainProps.setProperty("emailProvider", "org.cacert.gigi.email.TestEmailProvider");
+		mainProps.setProperty("emailProvider.port", "8473");
+		mainProps.setProperty("sql.driver", testProps.getProperty("sql.driver"));
+		mainProps.setProperty("sql.url", testProps.getProperty("sql.url"));
+		mainProps.setProperty("sql.user", testProps.getProperty("sql.user"));
+		mainProps.setProperty("sql.password", testProps.getProperty("sql.password"));
+		return mainProps;
 	}
 
 	@AfterClass
