@@ -1,9 +1,9 @@
 package org.cacert.gigi;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Date;
 import java.util.Calendar;
 
 import org.cacert.gigi.database.DatabaseConnection;
@@ -241,5 +241,25 @@ public class User {
 		}
 
 		return null;
+	}
+
+	public void updateDefaultEmail(EmailAddress newMail) {
+		try {
+			EmailAddress[] adrs = getEmails();
+			for (int i = 0; i < adrs.length; i++) {
+				if (adrs[i].getAddress().equals(newMail.getAddress())) {
+					PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+						"UPDATE users SET email=? WHERE id=?");
+					ps.setString(1, newMail.getAddress());
+					ps.setInt(2, getId());
+					ps.execute();
+					email = newMail.getAddress();
+					return;
+				}
+			}
+			throw new IllegalArgumentException("Given address not an address of the user.");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }

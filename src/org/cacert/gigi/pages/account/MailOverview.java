@@ -33,14 +33,13 @@ public class MailOverview extends Page {
 		vars.put("mailData", t);
 		vars.put("us", us);
 		vars.put("addForm", new MailAddForm(req, us));
-		vars.put("manForm", new MailManagementForm(req));
+		vars.put("manForm", new MailManagementForm(req, us));
 		getDefaultTemplate().output(resp.getWriter(), lang, vars);
 	}
 
 	@Override
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		PrintWriter out = resp.getWriter();
-		User us = LoginPage.getUser(req);
 		if (req.getParameter("addmail") != null) {
 			MailAddForm f = Form.getForm(req, MailAddForm.class);
 			if (f.submit(out, req)) {
