@@ -287,4 +287,17 @@ public class User {
 			e.printStackTrace();
 		}
 	}
+
+	public void deleteEmail(EmailAddress mail) {
+		if (getEmail().equals(mail.getAddress())) {
+			throw new IllegalArgumentException("Can't delete user's default e-mail.");
+		}
+		try {
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare("DELETE FROM email WHERE id=?");
+			ps.setInt(1, mail.getId());
+			ps.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }

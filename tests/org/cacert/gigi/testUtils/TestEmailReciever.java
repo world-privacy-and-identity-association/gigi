@@ -10,7 +10,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TestEmailReciever implements Runnable {
+import org.cacert.gigi.email.EmailProvider;
+
+public class TestEmailReciever extends EmailProvider implements Runnable {
 	public class TestMail {
 		String to;
 		String subject;
@@ -67,6 +69,7 @@ public class TestEmailReciever implements Runnable {
 		dis = new DataInputStream(s.getInputStream());
 		dos = new DataOutputStream(s.getOutputStream());
 		new Thread(this).start();
+		setInstance(this);
 	}
 
 	LinkedBlockingQueue<TestMail> mails = new LinkedBlockingQueue<TestEmailReciever.TestMail>();
@@ -89,11 +92,7 @@ public class TestEmailReciever implements Runnable {
 					mails.add(new TestMail(to, subject, message, from, replyto));
 				} else if (type.equals("challengeAddrBox")) {
 					String email = dis.readUTF();
-					if (approveRegex.matcher(email).matches()) {
-						dos.writeUTF("OK");
-					} else {
-						dos.writeUTF(error);
-					}
+					dos.writeUTF(quickEmailCheck(email));
 					dos.flush();
 				} else if (type.equals("ping")) {
 				} else {
@@ -106,6 +105,14 @@ public class TestEmailReciever implements Runnable {
 			}
 		}
 
+	}
+
+	private String quickEmailCheck(String email) throws IOException {
+		if (approveRegex.matcher(email).matches()) {
+			return "OK";
+		} else {
+			return error;
+		}
 	}
 
 	String error = "FAIL";
@@ -139,6 +146,17 @@ public class TestEmailReciever implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public String checkEmailServer(int forUid, String address) throws IOException {
+		return quickEmailCheck(address);
+	}
+
+	@Override
+	public void sendmail(String to, String subject, String message, String from, String replyto, String toname,
+		String fromname, String errorsto, boolean extra) throws IOException {
+		mails.add(new TestMail(to, subject, message, from, replyto));
 	}
 
 }

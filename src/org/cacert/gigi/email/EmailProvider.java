@@ -23,6 +23,10 @@ public abstract class EmailProvider {
 		return instance;
 	}
 
+	protected static void setInstance(EmailProvider instance) {
+		EmailProvider.instance = instance;
+	}
+
 	public static void init(Properties conf) {
 		try {
 			Class<?> c = Class.forName(conf.getProperty("emailProvider"));

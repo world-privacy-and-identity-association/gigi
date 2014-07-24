@@ -27,13 +27,34 @@ public class MailManagementForm extends Form {
 	public boolean submit(PrintWriter out, HttpServletRequest req) {
 		if (req.getParameter("makedefault") != null) {
 			try {
-				target.updateDefaultEmail(EmailAddress.getById(Integer.parseInt(req.getParameter("emailid").trim())));
+				String mailid = req.getParameter("emailid");
+				if (mailid == null) {
+					return false;
+				}
+				target.updateDefaultEmail(EmailAddress.getById(Integer.parseInt(mailid.trim())));
 			} catch (Exception e) {
-				out.println("<b>Error precessing your request.</b>");
+				out.println("<div class='formError'>Error precessing your request.</div>");
 				e.printStackTrace();
 				return false;
 			}
 			return true;
+		}
+		if (req.getParameter("delete") != null) {
+			String[] toDel = req.getParameterValues("delid[]");
+			if (toDel == null) {
+				return false;
+			}
+			for (int i = 0; i < toDel.length; i++) {
+				try {
+					target.deleteEmail(EmailAddress.getById(Integer.parseInt(toDel[i].trim())));
+				} catch (Exception e) {
+					out.println("<div class='formError'>Error precessing your request.</div>");
+					e.printStackTrace();
+					return false;
+				}
+			}
+			return true;
+
 		}
 		return false;
 	}
