@@ -46,7 +46,6 @@ public class MailOverview extends Page {
 				resp.sendRedirect(MailOverview.DEFAULT_PATH);
 			}
 		} else if (req.getParameter("makedefault") != null || req.getParameter("delete") != null) {
-			System.out.println("MakeDefault/Delete");
 			MailManagementForm f = Form.getForm(req, MailManagementForm.class);
 			f.submit(out, req);
 		}
