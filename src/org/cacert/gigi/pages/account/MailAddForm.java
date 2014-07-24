@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
-import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
@@ -29,14 +28,14 @@ public class MailAddForm extends Form {
 	@Override
 	public boolean submit(PrintWriter out, HttpServletRequest req) {
 		String formMail = req.getParameter("newemail");
-		if (!EmailProvider.MAIL.matcher(formMail).matches()) {
-			// TODO Proper error output (css, maybe abstract)
+		mail = formMail;
+		try {
+			EmailAddress addr = new EmailAddress(mail, target);
+			addr.insert(Page.getLanguage(req));
+		} catch (IllegalArgumentException e) {
 			out.println("<div class='formError'>Error: Invalid address!</div>");
 			return false;
 		}
-		mail = formMail;
-		EmailAddress addr = new EmailAddress(mail, target);
-		addr.insert(Page.getLanguage(req));
 		return true;
 	}
 

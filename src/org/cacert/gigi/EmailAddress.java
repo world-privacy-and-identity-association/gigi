@@ -33,6 +33,9 @@ public class EmailAddress {
 	}
 
 	public EmailAddress(String address, User owner) {
+		if (!EmailProvider.MAIL.matcher(address).matches()) {
+			throw new IllegalArgumentException("Invalid email.");
+		}
 		this.address = address;
 		this.owner = owner;
 		this.hash = RandomToken.generateToken(16);
