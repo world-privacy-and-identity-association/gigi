@@ -8,6 +8,7 @@ import java.util.Calendar;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.util.PasswordHash;
+import org.cacert.gigi.util.PasswordStrengthChecker;
 
 public class User {
 
@@ -114,6 +115,30 @@ public class User {
 		query.setDate(7, new java.sql.Date(dob.getTime()));
 		query.execute();
 		id = DatabaseConnection.lastInsertId(query);
+	}
+
+	public void changePassword(String oldPass, String newPass) throws GigiApiException {
+		try {
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `password` FROM users WHERE id=?");
+			ps.setInt(1, id);
+			ResultSet rs = ps.executeQuery();
+			if (!rs.next()) {
+				throw new GigiApiException("User not found... very bad.");
+			}
+			if (!PasswordHash.verifyHash(oldPass, rs.getString(1))) {
+				throw new GigiApiException("Old password does not match.");
+			}
+			rs.close();
+			PasswordStrengthChecker.assertStrongPassword(newPass, this);
+			ps = DatabaseConnection.getInstance().prepare("UPDATE users SET `password`=? WHERE id=?");
+			ps.setString(1, PasswordHash.hash(newPass));
+			ps.setInt(2, id);
+			if (ps.executeUpdate() != 1) {
+				throw new GigiApiException("Password update failed.");
+			}
+		} catch (SQLException e) {
+			throw new GigiApiException(e);
+		}
 	}
 
 	public boolean canAssure() throws SQLException {

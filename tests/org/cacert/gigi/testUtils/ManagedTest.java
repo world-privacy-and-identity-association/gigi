@@ -1,7 +1,6 @@
 package org.cacert.gigi.testUtils;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
@@ -196,7 +195,9 @@ public class ManagedTest {
 	public String fetchStartErrorMessage(String d) throws IOException {
 		String formFail = "<div class='formError'>";
 		int idx = d.indexOf(formFail);
-		assertNotEquals(-1, idx);
+		if (idx == -1) {
+			return null;
+		}
 		String startError = d.substring(idx + formFail.length(), idx + 100).trim();
 		return startError;
 	}

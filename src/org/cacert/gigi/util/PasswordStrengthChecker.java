@@ -2,6 +2,7 @@ package org.cacert.gigi.util;
 
 import java.util.regex.Pattern;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.User;
 
 public class PasswordStrengthChecker {
@@ -68,6 +69,13 @@ public class PasswordStrengthChecker {
 		}
 		// TODO dictionary check
 		return light;
+	}
+
+	public static void assertStrongPassword(String pw, User u) throws GigiApiException {
+		if (checkpw(pw, u) < 3) {
+			throw new GigiApiException("The Pass Phrase you submitted failed to contain enough"
+				+ " differing characters and/or contained words from" + " your name and/or email address.");
+		}
 	}
 
 	private static boolean contained(String pw, String check) {
