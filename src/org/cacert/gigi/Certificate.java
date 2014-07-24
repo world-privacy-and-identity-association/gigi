@@ -123,7 +123,6 @@ public class Certificate {
 		PreparedStatement inserter = DatabaseConnection.getInstance().prepare(
 			"INSERT INTO emailcerts SET md=?, subject=?, csr_type=?, crt_name='', memid=?");
 		inserter.setString(1, md);
-		System.out.println(csrType.toString());
 		inserter.setString(2, dn);
 		inserter.setString(3, csrType.toString());
 		inserter.setInt(4, ownerId);
