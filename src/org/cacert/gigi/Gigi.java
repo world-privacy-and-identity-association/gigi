@@ -109,6 +109,9 @@ public class Gigi extends HttpServlet {
 				public void output(PrintWriter out, Language l, Map<String, Object> vars) {
 					try {
 						if (req.getMethod().equals("POST")) {
+							if (req.getQueryString() != null) {
+								return;
+							}
 							p.doPost(req, resp);
 						} else {
 							p.doGet(req, resp);
