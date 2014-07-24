@@ -4,6 +4,7 @@ import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.HttpURLConnection;
 import java.net.URLConnection;
 
 public class IOUtils {
@@ -14,6 +15,10 @@ public class IOUtils {
 	public static String readURL(URLConnection in) {
 		try {
 			if (!in.getContentType().equals("text/html; charset=UTF-8")) {
+				if (in instanceof HttpURLConnection && ((HttpURLConnection) in).getResponseCode() != 200) {
+					System.err
+						.println(readURL(new InputStreamReader(((HttpURLConnection) in).getErrorStream(), "UTF-8")));
+				}
 				throw new Error("Unrecognized content-type: " + in.getContentType());
 			}
 			return readURL(new InputStreamReader(in.getInputStream(), "UTF-8"));
