@@ -1,7 +1,6 @@
 package org.cacert.gigi.testUtils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -387,6 +386,24 @@ public class ManagedTest {
 			throw new Error();
 		}
 		return parts;
+	}
+
+	public String executeBasicWebInteraction(String cookie, String path, String query) throws IOException,
+		MalformedURLException, UnsupportedEncodingException {
+		URLConnection uc = new URL("https://" + getServerName() + path).openConnection();
+		uc.addRequestProperty("Cookie", cookie);
+		String csrf = getCSRF(uc);
+
+		uc = new URL("https://" + getServerName() + path).openConnection();
+		uc.addRequestProperty("Cookie", cookie);
+		uc.setDoOutput(true);
+		OutputStream os = uc.getOutputStream();
+		os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
+		+ query//
+		).getBytes());
+		os.flush();
+		String error = fetchStartErrorMessage(IOUtils.readURL(uc));
+		return error;
 	}
 
 }

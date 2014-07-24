@@ -3,22 +3,17 @@ package org.cacert.gigi.pages.account;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.User;
-import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
 
 public class TestChangePassword extends ManagedTest {
 	User u = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "uni@example.org", TEST_PASSWORD));
 	String cookie;
+	String path = ChangePasswordPage.PATH;
 
 	public TestChangePassword() throws IOException {
 		cookie = login(u.getEmail(), TEST_PASSWORD);
@@ -41,9 +36,10 @@ public class TestChangePassword extends ManagedTest {
 
 	@Test
 	public void testChangePasswordWeb() throws IOException {
-		String error = executeChangePassword("oldpassword=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
-			+ "&pword1=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8")//
-			+ "&pword2=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8"));
+		String error = executeBasicWebInteraction(cookie, path,
+			"oldpassword=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
+				+ "&pword1=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8")//
+				+ "&pword2=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8"));
 		assertNull(error);
 		assertTrue(isLoggedin(login(u.getEmail(), TEST_PASSWORD + "v2")));
 		assertFalse(isLoggedin(login(u.getEmail(), TEST_PASSWORD)));
@@ -52,9 +48,10 @@ public class TestChangePassword extends ManagedTest {
 
 	@Test
 	public void testChangePasswordWebOldWrong() throws IOException {
-		String error = executeChangePassword("oldpassword=a" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
-			+ "&pword1=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8")//
-			+ "&pword2=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8"));
+		String error = executeBasicWebInteraction(cookie, path,
+			"oldpassword=a" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
+				+ "&pword1=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8")//
+				+ "&pword2=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8"));
 		assertNotNull(error);
 		assertFalse(isLoggedin(login(u.getEmail(), TEST_PASSWORD + "v2")));
 		assertTrue(isLoggedin(login(u.getEmail(), TEST_PASSWORD)));
@@ -63,9 +60,10 @@ public class TestChangePassword extends ManagedTest {
 
 	@Test
 	public void testChangePasswordWebNewWrong() throws IOException {
-		String error = executeChangePassword("oldpassword=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
-			+ "&pword1=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8")//
-			+ "&pword2=a" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8"));
+		String error = executeBasicWebInteraction(cookie, path,
+			"oldpassword=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
+				+ "&pword1=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8")//
+				+ "&pword2=a" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8"));
 		assertNotNull(error);
 		assertFalse(isLoggedin(login(u.getEmail(), TEST_PASSWORD + "v2")));
 		assertTrue(isLoggedin(login(u.getEmail(), TEST_PASSWORD)));
@@ -74,8 +72,9 @@ public class TestChangePassword extends ManagedTest {
 
 	@Test
 	public void testChangePasswordWebNewEasy() throws IOException {
-		String error = executeChangePassword("oldpassword=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
-			+ "&pword1=a&pword2=a");
+		String error = executeBasicWebInteraction(cookie, path,
+			"oldpassword=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
+				+ "&pword1=a&pword2=a");
 		assertNotNull(error);
 		assertFalse(isLoggedin(login(u.getEmail(), TEST_PASSWORD + "v2")));
 		assertTrue(isLoggedin(login(u.getEmail(), TEST_PASSWORD)));
@@ -86,41 +85,24 @@ public class TestChangePassword extends ManagedTest {
 	public void testChangePasswordWebMissingFields() throws IOException {
 		String np = URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8");
 		assertTrue(isLoggedin(login(u.getEmail(), TEST_PASSWORD)));
-		String error = executeChangePassword("oldpassword=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
-			+ "&pword1=" + np);
+		String error = executeBasicWebInteraction(cookie, path,
+			"oldpassword=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
+				+ "&pword1=" + np);
 		assertNotNull(error);
 		assertFalse(isLoggedin(login(u.getEmail(), TEST_PASSWORD + "v2")));
 		assertTrue(isLoggedin(login(u.getEmail(), TEST_PASSWORD)));
 
-		error = executeChangePassword("oldpassword=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
+		error = executeBasicWebInteraction(cookie, path, "oldpassword=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
 			+ "&pword2=" + np);
 		assertNotNull(error);
 		assertFalse(isLoggedin(login(u.getEmail(), TEST_PASSWORD + "v2")));
 		assertTrue(isLoggedin(login(u.getEmail(), TEST_PASSWORD)));
 
-		error = executeChangePassword("pword1=" + np + "&pword2=" + np);
+		error = executeBasicWebInteraction(cookie, path, "pword1=" + np + "&pword2=" + np);
 		assertNotNull(error);
 		assertFalse(isLoggedin(login(u.getEmail(), TEST_PASSWORD + "v2")));
 		assertTrue(isLoggedin(login(u.getEmail(), TEST_PASSWORD)));
 
-	}
-
-	private String executeChangePassword(String query) throws IOException, MalformedURLException,
-		UnsupportedEncodingException {
-		URLConnection uc = new URL("https://" + getServerName() + ChangePasswordPage.PATH).openConnection();
-		uc.addRequestProperty("Cookie", cookie);
-		String csrf = getCSRF(uc);
-
-		uc = new URL("https://" + getServerName() + ChangePasswordPage.PATH).openConnection();
-		uc.addRequestProperty("Cookie", cookie);
-		uc.setDoOutput(true);
-		OutputStream os = uc.getOutputStream();
-		os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
-		+ query//
-		).getBytes());
-		os.flush();
-		String error = fetchStartErrorMessage(IOUtils.readURL(uc));
-		return error;
 	}
 
 }
