@@ -92,7 +92,7 @@ public class TestEmailReciever implements Runnable {
 					if (approveRegex.matcher(email).matches()) {
 						dos.writeUTF("OK");
 					} else {
-						dos.writeUTF("FAIL");
+						dos.writeUTF(error);
 					}
 					dos.flush();
 				} else if (type.equals("ping")) {
@@ -108,6 +108,12 @@ public class TestEmailReciever implements Runnable {
 
 	}
 
+	String error = "FAIL";
+
+	public void setEmailCheckError(String error) {
+		this.error = error;
+	}
+
 	Pattern approveRegex = Pattern.compile(".*");
 
 	public void setApproveRegex(Pattern approveRegex) {
@@ -120,6 +126,7 @@ public class TestEmailReciever implements Runnable {
 
 	public void reset() {
 		clearMails();
+		error = "FAIL";
 		approveRegex = Pattern.compile(".*");
 	}
 

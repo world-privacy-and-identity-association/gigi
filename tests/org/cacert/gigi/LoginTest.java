@@ -11,19 +11,17 @@ public class LoginTest extends ManagedTest {
 	public void testLoginUnverified() throws IOException {
 		long uniq = System.currentTimeMillis();
 		String email = "system" + uniq + "@testmail.org";
-		String pw = "1'aAaA";
-		registerUser("an", "bn", email, pw);
+		registerUser("an", "bn", email, TEST_PASSWORD);
 		waitForMail();
-		assertFalse(isLoggedin(login(email, pw)));
+		assertFalse(isLoggedin(login(email, TEST_PASSWORD)));
 	}
 
 	@Test
 	public void testLoginVerified() throws IOException {
 		long uniq = System.currentTimeMillis();
 		String email = "system2" + uniq + "@testmail.org";
-		String pw = "1'aAaA";
-		createVerifiedUser("an", "bn", email, pw);
-		assertTrue(isLoggedin(login(email, pw)));
+		createVerifiedUser("an", "bn", email, TEST_PASSWORD);
+		assertTrue(isLoggedin(login(email, TEST_PASSWORD)));
 	}
 
 }

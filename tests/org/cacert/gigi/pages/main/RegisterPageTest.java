@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URLEncoder;
 import java.util.regex.Pattern;
 
 import org.cacert.gigi.testUtils.InitTruststore;
@@ -23,9 +24,34 @@ public class RegisterPageTest extends ManagedTest {
 	}
 
 	@Test
-	public void testSuccess() throws IOException {
+	public void testSuccess() throws IOException, InterruptedException {
 		long uniq = System.currentTimeMillis();
-		registerUser("ab", "b", "correct" + uniq + "@email.de", "ap12UI.'");
+		registerUser("ab", "b", "correct" + uniq + "@email.de", TEST_PASSWORD);
+		assertSuccessfullRegMail();
+
+		String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname="
+			+ URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2="
+			+ URLEncoder.encode(TEST_PASSWORD, "UTF-8")
+			+ "&day=1&month=1&year=1910&cca_agree=1&mname=mn&suffix=sf&email=";
+
+		String query = defaultSignup + URLEncoder.encode("correct3_" + uniq + "@email.de", "UTF-8")
+			+ "&general=1&country=1&regional=1&radius=1";
+		String data = fetchStartErrorMessage(runRegister(query));
+		assertTrue(data, data.startsWith("</div>"));
+		assertSuccessfullRegMail();
+
+		getMailReciever().setEmailCheckError("400 Greylisted");
+		getMailReciever().setApproveRegex(Pattern.compile("a"));
+		query = defaultSignup + URLEncoder.encode("correct4_" + uniq + "@email.de", "UTF-8")
+			+ "&general=1&country=1&regional=1&radius=1";
+		data = fetchStartErrorMessage(runRegister(query));
+		assertFalse(data, data.startsWith("</div>"));
+
+		assertNull(getMailReciever().recieve());
+
+	}
+
+	private void assertSuccessfullRegMail() {
 		TestMail tm = waitForMail();
 		String link = tm.extractLink();
 		assertTrue(link, link.startsWith("https://"));
@@ -129,9 +155,9 @@ public class RegisterPageTest extends ManagedTest {
 	@Test
 	public void testDoubleMail() throws IOException {
 		long uniq = System.currentTimeMillis();
-		registerUser("RegisterTest", "User", "testmail" + uniq + "@cacert.org", "registerPW'1");
+		registerUser("RegisterTest", "User", "testmail" + uniq + "@cacert.org", TEST_PASSWORD);
 		try {
-			registerUser("RegisterTest", "User", "testmail" + uniq + "@cacert.org", "registerPW");
+			registerUser("RegisterTest", "User", "testmail" + uniq + "@cacert.org", TEST_PASSWORD);
 			throw new Error("Registering a user with the same email needs to fail.");
 		} catch (AssertionError e) {
 
@@ -143,7 +169,7 @@ public class RegisterPageTest extends ManagedTest {
 		getMailReciever().setApproveRegex(Pattern.compile("a"));
 		long uniq = System.currentTimeMillis();
 		try {
-			registerUser("RegisterTest", "User", "testInvalidMailbox" + uniq + "@cacert.org", "registerPW");
+			registerUser("RegisterTest", "User", "testInvalidMailbox" + uniq + "@cacert.org", TEST_PASSWORD);
 			throw new Error("Registering a user with invalid mailbox must fail.");
 		} catch (AssertionError e) {
 
