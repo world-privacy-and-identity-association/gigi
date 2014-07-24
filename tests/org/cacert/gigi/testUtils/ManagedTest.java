@@ -371,11 +371,17 @@ public class ManagedTest {
 	}
 
 	public String getCSRF(URLConnection u) throws IOException {
+		return getCSRF(u, 0);
+	}
+
+	public String getCSRF(URLConnection u, int formIndex) throws IOException {
 		String content = IOUtils.readURL(u);
 		Pattern p = Pattern.compile("<input type='hidden' name='csrf' value='([^']+)'>");
 		Matcher m = p.matcher(content);
-		if (!m.find()) {
-			throw new Error("No CSRF Token");
+		for (int i = 0; i < formIndex + 1; i++) {
+			if (!m.find()) {
+				throw new Error("No CSRF Token");
+			}
 		}
 		return m.group(1);
 	}
@@ -394,11 +400,16 @@ public class ManagedTest {
 		return parts;
 	}
 
-	public String executeBasicWebInteraction(String cookie, String path, String query) throws IOException,
-		MalformedURLException, UnsupportedEncodingException {
+	public String executeBasicWebInteraction(String cookie, String path, String query) throws MalformedURLException,
+		UnsupportedEncodingException, IOException {
+		return executeBasicWebInteraction(cookie, path, query, 0);
+	}
+
+	public String executeBasicWebInteraction(String cookie, String path, String query, int formIndex)
+		throws IOException, MalformedURLException, UnsupportedEncodingException {
 		URLConnection uc = new URL("https://" + getServerName() + path).openConnection();
 		uc.addRequestProperty("Cookie", cookie);
-		String csrf = getCSRF(uc);
+		String csrf = getCSRF(uc, formIndex);
 
 		uc = new URL("https://" + getServerName() + path).openConnection();
 		uc.addRequestProperty("Cookie", cookie);
