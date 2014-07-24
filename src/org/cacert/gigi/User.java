@@ -268,11 +268,14 @@ public class User {
 		return null;
 	}
 
-	public void updateDefaultEmail(EmailAddress newMail) {
+	public void updateDefaultEmail(EmailAddress newMail) throws GigiApiException {
 		try {
 			EmailAddress[] adrs = getEmails();
 			for (int i = 0; i < adrs.length; i++) {
 				if (adrs[i].getAddress().equals(newMail.getAddress())) {
+					if (!adrs[i].isVerified()) {
+						throw new GigiApiException("Email not verified.");
+					}
 					PreparedStatement ps = DatabaseConnection.getInstance().prepare(
 						"UPDATE users SET email=? WHERE id=?");
 					ps.setString(1, newMail.getAddress());
@@ -282,9 +285,9 @@ public class User {
 					return;
 				}
 			}
-			throw new IllegalArgumentException("Given address not an address of the user.");
+			throw new GigiApiException("Given address not an address of the user.");
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new GigiApiException(e);
 		}
 	}
 
