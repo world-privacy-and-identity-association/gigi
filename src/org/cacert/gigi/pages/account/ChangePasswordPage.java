@@ -6,6 +6,8 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.output.Form;
+import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 
 public class ChangePasswordPage extends Page {
@@ -17,7 +19,14 @@ public class ChangePasswordPage extends Page {
 
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		new ChangeForm(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+		new ChangeForm(req, LoginPage.getUser(req)).output(resp.getWriter(), getLanguage(req),
+			new HashMap<String, Object>());
+	}
+
+	@Override
+	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		ChangeForm f = Form.getForm(req, ChangeForm.class);
+		f.submit(resp.getWriter(), req);
 	}
 
 }
