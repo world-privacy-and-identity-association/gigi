@@ -36,7 +36,6 @@ public class MailManagementForm extends Form {
 				target.updateDefaultEmail(EmailAddress.getById(Integer.parseInt(mailid.trim())));
 			} catch (GigiApiException e) {
 				e.format(out, Page.getLanguage(req));
-				e.printStackTrace();
 				return false;
 			}
 			return true;
@@ -51,7 +50,6 @@ public class MailManagementForm extends Form {
 					target.deleteEmail(EmailAddress.getById(Integer.parseInt(toDel[i].trim())));
 				} catch (GigiApiException e) {
 					e.format(out, Page.getLanguage(req));
-					e.printStackTrace();
 					return false;
 				}
 			}
