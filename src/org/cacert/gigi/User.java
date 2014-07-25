@@ -296,7 +296,7 @@ public class User {
 			throw new GigiApiException("Can't delete user's default e-mail.");
 		}
 		try {
-			PreparedStatement ps = DatabaseConnection.getInstance().prepare("DELETE FROM email WHERE id=?");
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE email SET deleted=1 WHERE id=?");
 			ps.setInt(1, mail.getId());
 			ps.execute();
 		} catch (SQLException e) {
