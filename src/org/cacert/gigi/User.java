@@ -246,7 +246,8 @@ public class User {
 
 	public EmailAddress[] getEmails() {
 		try {
-			PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM email WHERE memid=?");
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+				"SELECT id FROM email WHERE memid=? AND deleted=0");
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			rs.last();
@@ -296,10 +297,12 @@ public class User {
 			throw new GigiApiException("Can't delete user's default e-mail.");
 		}
 		try {
-			PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE email SET deleted=1 WHERE id=?");
-			ps.setInt(1, mail.getId());
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE email SET deleted=? WHERE id=?");
+			ps.setDate(1, new Date(System.currentTimeMillis()));
+			ps.setInt(2, mail.getId());
 			ps.execute();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			throw new GigiApiException(e);
 		}
 	}
