@@ -102,4 +102,30 @@ public class TestMailManagement extends ManagedTest {
 		getMailReciever().clearMails();
 	}
 
+	@Test
+	public void testMailDeleteWeb() throws InterruptedException, GigiApiException, MalformedURLException,
+		UnsupportedEncodingException, IOException {
+		EmailAddress addr = createVerifiedEmail(u);
+		assertNull(executeBasicWebInteraction(cookie, path, "delete&delid[]=" + addr.getId(), 0));
+		User u = User.getById(this.u.getId());
+		EmailAddress[] addresses = u.getEmails();
+		for (int i = 0; i < addresses.length; i++) {
+			assertNotEquals(addresses[i].getAddress(), addr.getAddress());
+		}
+	}
+
+	@Test
+	public void testMailDeleteWebMulti() throws InterruptedException, GigiApiException, MalformedURLException,
+		UnsupportedEncodingException, IOException {
+		EmailAddress[] addr = new EmailAddress[] { createVerifiedEmail(u), createVerifiedEmail(u) };
+		assertNull(executeBasicWebInteraction(cookie, path,
+			"delete&delid[]=" + addr[0].getId() + "&delid[]="
+			+ addr[1].getId(), 0));
+		User u = User.getById(this.u.getId());
+		EmailAddress[] addresses = u.getEmails();
+		for (int i = 0; i < addresses.length; i++) {
+			assertNotEquals(addresses[i].getAddress(), addr[0].getAddress());
+			assertNotEquals(addresses[i].getAddress(), addr[1].getAddress());
+		}
+	}
 }
