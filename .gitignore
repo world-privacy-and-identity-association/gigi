@@ -8,4 +8,7 @@
 # Generated Stuff
 *.manifest
 
+#OS stuff
+.DS_Store
+
 /bin
