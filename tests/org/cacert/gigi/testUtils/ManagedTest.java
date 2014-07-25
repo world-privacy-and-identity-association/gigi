@@ -36,6 +36,10 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509KeyManager;
 
 import org.cacert.gigi.DevelLauncher;
+import org.cacert.gigi.EmailAddress;
+import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.Language;
+import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.cacert.gigi.util.DatabaseManager;
@@ -421,6 +425,17 @@ public class ManagedTest {
 		os.flush();
 		String error = fetchStartErrorMessage(IOUtils.readURL(uc));
 		return error;
+	}
+
+	public EmailAddress createVerifiedEmail(User u) throws InterruptedException, GigiApiException {
+		EmailAddress adrr = new EmailAddress(createUniqueName() + "test@test.tld", u);
+		adrr.insert(Language.getInstance("en"));
+		TestMail testMail = getMailReciever().recieve();
+		assertTrue(adrr.getAddress().equals(testMail.getTo()));
+		String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);
+		adrr.verify(hash);
+		getMailReciever().clearMails();
+		return adrr;
 	}
 
 }

@@ -12,7 +12,6 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
 import org.cacert.gigi.testUtils.ManagedTest;
-import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.junit.Test;
 
 public class TestMailManagement extends ManagedTest {
@@ -28,13 +27,7 @@ public class TestMailManagement extends ManagedTest {
 
 	@Test
 	public void testMailAddInternal() throws InterruptedException, GigiApiException {
-		EmailAddress adrr = new EmailAddress(createUniqueName() + "test@test.tld", u);
-		adrr.insert(Language.getInstance("en"));
-		TestMail testMail = getMailReciever().recieve();
-		assertTrue(adrr.getAddress().equals(testMail.getTo()));
-		String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);
-		adrr.verify(hash);
-		getMailReciever().clearMails();
+		createVerifiedEmail(u);
 	}
 
 	@Test
@@ -77,15 +70,9 @@ public class TestMailManagement extends ManagedTest {
 	@Test
 	public void testMailSetDefaultWeb() throws MalformedURLException, UnsupportedEncodingException, IOException,
 		InterruptedException, GigiApiException {
-		EmailAddress adrr = new EmailAddress(createUniqueName() + "test@test.tld", u);
-		adrr.insert(Language.getInstance("en"));
-		TestMail testMail = getMailReciever().recieve();
-		assertTrue(adrr.getAddress().equals(testMail.getTo()));
-		String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);
-		adrr.verify(hash);
+		EmailAddress adrr = createVerifiedEmail(u);
 		assertNull(executeBasicWebInteraction(cookie, path, "makedefault&emailid=" + adrr.getId()));
 		assertEquals(User.getById(u.getId()).getEmail(), adrr.getAddress());
-		getMailReciever().clearMails();
 	}
 
 	@Test
@@ -114,4 +101,5 @@ public class TestMailManagement extends ManagedTest {
 		assertNotEquals(User.getById(u.getId()).getEmail(), u2.getEmail());
 		getMailReciever().clearMails();
 	}
+
 }
