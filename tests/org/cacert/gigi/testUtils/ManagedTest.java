@@ -286,7 +286,7 @@ public class ManagedTest {
 
 	static int count = 0;
 
-	public String createUniqueName() {
+	public static String createUniqueName() {
 		return "test" + System.currentTimeMillis() + "a" + (count++);
 	}
 
@@ -427,7 +427,7 @@ public class ManagedTest {
 		return error;
 	}
 
-	public EmailAddress createVerifiedEmail(User u) throws InterruptedException, GigiApiException {
+	public static EmailAddress createVerifiedEmail(User u) throws InterruptedException, GigiApiException {
 		EmailAddress adrr = new EmailAddress(createUniqueName() + "test@test.tld", u);
 		adrr.insert(Language.getInstance("en"));
 		TestMail testMail = getMailReciever().recieve();
