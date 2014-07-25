@@ -291,16 +291,16 @@ public class User {
 		}
 	}
 
-	public void deleteEmail(EmailAddress mail) {
+	public void deleteEmail(EmailAddress mail) throws GigiApiException {
 		if (getEmail().equals(mail.getAddress())) {
-			throw new IllegalArgumentException("Can't delete user's default e-mail.");
+			throw new GigiApiException("Can't delete user's default e-mail.");
 		}
 		try {
 			PreparedStatement ps = DatabaseConnection.getInstance().prepare("DELETE FROM email WHERE id=?");
 			ps.setInt(1, mail.getId());
 			ps.execute();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new GigiApiException(e);
 		}
 	}
 }

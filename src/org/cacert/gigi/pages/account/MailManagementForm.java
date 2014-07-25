@@ -6,10 +6,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.EmailAddress;
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.pages.Page;
 
 public class MailManagementForm extends Form {
 	private static Template t;
@@ -32,8 +34,8 @@ public class MailManagementForm extends Form {
 					return false;
 				}
 				target.updateDefaultEmail(EmailAddress.getById(Integer.parseInt(mailid.trim())));
-			} catch (Exception e) {
-				out.println("<div class='formError'>Error precessing your request.</div>");
+			} catch (GigiApiException e) {
+				e.format(out, Page.getLanguage(req));
 				e.printStackTrace();
 				return false;
 			}
@@ -47,8 +49,8 @@ public class MailManagementForm extends Form {
 			for (int i = 0; i < toDel.length; i++) {
 				try {
 					target.deleteEmail(EmailAddress.getById(Integer.parseInt(toDel[i].trim())));
-				} catch (Exception e) {
-					out.println("<div class='formError'>Error precessing your request.</div>");
+				} catch (GigiApiException e) {
+					e.format(out, Page.getLanguage(req));
 					e.printStackTrace();
 					return false;
 				}
