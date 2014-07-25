@@ -34,13 +34,16 @@ public class TestMailManagement extends ManagedTest {
 		assertTrue(adrr.getAddress().equals(testMail.getTo()));
 		String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);
 		adrr.verify(hash);
+	}
+
+	@Test
+	public void testMailAddInternalFaulty() {
 		try {
 			new EmailAddress("kurti ", u);
+			fail();
 		} catch (IllegalArgumentException e) {
 			// Intended.
-			return;
 		}
-		fail();
 	}
 
 	@Test
