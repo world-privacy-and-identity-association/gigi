@@ -57,4 +57,16 @@ public class TestMailManagement extends ManagedTest {
 		fail();
 	}
 
+	@Test
+	public void testMailAddWebFaulty() throws MalformedURLException, UnsupportedEncodingException, IOException {
+		String newMail = createUniqueName() + "uniexample.org";
+		assertNotNull(executeBasicWebInteraction(cookie, path,
+			"addmail&newemail=" + URLEncoder.encode(newMail, "UTF-8"), 1));
+		EmailAddress[] addrs = u.getEmails();
+		for (int i = 0; i < addrs.length; i++) {
+			if (addrs[i].getAddress().equals(newMail)) {
+				fail();
+			}
+		}
+	}
 }

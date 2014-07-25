@@ -268,11 +268,14 @@ public class User {
 		return null;
 	}
 
-	public void updateDefaultEmail(EmailAddress newMail) {
+	public void updateDefaultEmail(EmailAddress newMail) throws GigiApiException {
 		try {
 			EmailAddress[] adrs = getEmails();
 			for (int i = 0; i < adrs.length; i++) {
 				if (adrs[i].getAddress().equals(newMail.getAddress())) {
+					if (!adrs[i].isVerified()) {
+						throw new GigiApiException("Email not verified.");
+					}
 					PreparedStatement ps = DatabaseConnection.getInstance().prepare(
 						"UPDATE users SET email=? WHERE id=?");
 					ps.setString(1, newMail.getAddress());
@@ -282,22 +285,22 @@ public class User {
 					return;
 				}
 			}
-			throw new IllegalArgumentException("Given address not an address of the user.");
+			throw new GigiApiException("Given address not an address of the user.");
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new GigiApiException(e);
 		}
 	}
 
-	public void deleteEmail(EmailAddress mail) {
+	public void deleteEmail(EmailAddress mail) throws GigiApiException {
 		if (getEmail().equals(mail.getAddress())) {
-			throw new IllegalArgumentException("Can't delete user's default e-mail.");
+			throw new GigiApiException("Can't delete user's default e-mail.");
 		}
 		try {
-			PreparedStatement ps = DatabaseConnection.getInstance().prepare("DELETE FROM email WHERE id=?");
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE email SET deleted=1 WHERE id=?");
 			ps.setInt(1, mail.getId());
 			ps.execute();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			throw new GigiApiException(e);
 		}
 	}
 }

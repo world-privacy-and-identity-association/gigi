@@ -47,7 +47,9 @@ public class MailOverview extends Page {
 			}
 		} else if (req.getParameter("makedefault") != null || req.getParameter("delete") != null) {
 			MailManagementForm f = Form.getForm(req, MailManagementForm.class);
-			f.submit(out, req);
+			if (f.submit(out, req)) {
+				resp.sendRedirect(MailOverview.DEFAULT_PATH);
+			}
 		}
 		super.doPost(req, resp);
 	}
