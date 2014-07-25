@@ -26,7 +26,6 @@ public class PemKey {
 		privKeyPEM = privKeyPEM.replaceAll("-----BEGIN PRIVATE KEY-----", "").replace("\n", "");
 		// Remove the first and last lines
 		privKeyPEM = privKeyPEM.replaceAll("-----END PRIVATE KEY-----", "");
-		System.out.println(privKeyPEM);
 		// Base64 decode the data
 		byte[] encoded = Base64.getDecoder().decode(privKeyPEM);
 
