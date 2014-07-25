@@ -1,5 +1,6 @@
 package org.cacert.gigi;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -7,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -40,6 +42,11 @@ public class DevelLauncher {
 		System.setIn(new ByteArrayInputStream(chunkConfig.toByteArray()));
 		Launcher.main(args);
 		System.setIn(oldin);
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		System.out.println("Cacert-gigi system sucessfully started.");
+		System.out.println("Press enter to shutdown.");
+		br.readLine();
+		System.exit(0);
 	}
 
 	public static void writeGigiConfig(OutputStream target, byte[] keystorepw, byte[] truststorepw,
