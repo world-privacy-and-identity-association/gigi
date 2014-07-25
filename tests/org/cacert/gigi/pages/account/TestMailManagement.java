@@ -28,12 +28,13 @@ public class TestMailManagement extends ManagedTest {
 
 	@Test
 	public void testMailAddInternal() throws InterruptedException, GigiApiException {
-		EmailAddress adrr = new EmailAddress("test@test.tld", u);
+		EmailAddress adrr = new EmailAddress(createUniqueName() + "test@test.tld", u);
 		adrr.insert(Language.getInstance("en"));
 		TestMail testMail = getMailReciever().recieve();
 		assertTrue(adrr.getAddress().equals(testMail.getTo()));
 		String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);
 		adrr.verify(hash);
+		getMailReciever().clearMails();
 	}
 
 	@Test
@@ -71,5 +72,46 @@ public class TestMailManagement extends ManagedTest {
 				fail();
 			}
 		}
+	}
+
+	@Test
+	public void testMailSetDefaultWeb() throws MalformedURLException, UnsupportedEncodingException, IOException,
+		InterruptedException, GigiApiException {
+		EmailAddress adrr = new EmailAddress(createUniqueName() + "test@test.tld", u);
+		adrr.insert(Language.getInstance("en"));
+		TestMail testMail = getMailReciever().recieve();
+		assertTrue(adrr.getAddress().equals(testMail.getTo()));
+		String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);
+		adrr.verify(hash);
+		assertNull(executeBasicWebInteraction(cookie, path, "makedefault&emailid=" + adrr.getId()));
+		assertEquals(User.getById(u.getId()).getEmail(), adrr.getAddress());
+		getMailReciever().clearMails();
+	}
+
+	@Test
+	public void testMailSetDefaultWebUnverified() throws MalformedURLException, UnsupportedEncodingException,
+		IOException, InterruptedException, GigiApiException {
+		EmailAddress adrr = new EmailAddress(createUniqueName() + "test@test.tld", u);
+		adrr.insert(Language.getInstance("en"));
+		assertNotNull(executeBasicWebInteraction(cookie, path, "makedefault&emailid=" + adrr.getId()));
+		assertNotEquals(User.getById(u.getId()).getEmail(), adrr.getAddress());
+		getMailReciever().clearMails();
+	}
+
+	@Test
+	public void testMailSetDefaultWebInvalidID() throws MalformedURLException, UnsupportedEncodingException,
+		IOException, InterruptedException, GigiApiException {
+		User u2 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "uni@example.org", TEST_PASSWORD));
+		int id = -1;
+		EmailAddress[] emails = u2.getEmails();
+		for (int i = 0; i < emails.length; i++) {
+			if (emails[i].getAddress().equals(u2.getEmail())) {
+				id = emails[i].getId();
+			}
+		}
+		assertNotEquals(id, -1);
+		assertNotNull(executeBasicWebInteraction(cookie, path, "makedefault&emailid=" + id));
+		assertNotEquals(User.getById(u.getId()).getEmail(), u2.getEmail());
+		getMailReciever().clearMails();
 	}
 }
