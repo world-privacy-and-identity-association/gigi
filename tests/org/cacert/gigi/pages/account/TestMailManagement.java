@@ -119,13 +119,21 @@ public class TestMailManagement extends ManagedTest {
 		UnsupportedEncodingException, IOException {
 		EmailAddress[] addr = new EmailAddress[] { createVerifiedEmail(u), createVerifiedEmail(u) };
 		assertNull(executeBasicWebInteraction(cookie, path,
-			"delete&delid[]=" + addr[0].getId() + "&delid[]="
-			+ addr[1].getId(), 0));
+			"delete&delid[]=" + addr[0].getId() + "&delid[]=" + addr[1].getId(), 0));
 		User u = User.getById(this.u.getId());
 		EmailAddress[] addresses = u.getEmails();
 		for (int i = 0; i < addresses.length; i++) {
 			assertNotEquals(addresses[i].getAddress(), addr[0].getAddress());
 			assertNotEquals(addresses[i].getAddress(), addr[1].getAddress());
 		}
+	}
+
+	@Test
+	public void testMailDeleteWebFaulty() throws MalformedURLException, UnsupportedEncodingException, IOException {
+		User u2 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "uni@test.tld", TEST_PASSWORD));
+		EmailAddress em = u2.getEmails()[0];
+		assertNotNull(executeBasicWebInteraction(cookie, path, "delete&delid[]=" + em.getId(), 0));
+		u2 = User.getById(u2.getId());
+		assertNotEquals(u2.getEmails().length, 0);
 	}
 }
