@@ -321,14 +321,22 @@ public class User {
 		if (getEmail().equals(mail.getAddress())) {
 			throw new GigiApiException("Can't delete user's default e-mail.");
 		}
-		try {
-			PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE email SET deleted=? WHERE id=?");
-			ps.setDate(1, new Date(System.currentTimeMillis()));
-			ps.setInt(2, mail.getId());
-			ps.execute();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new GigiApiException(e);
+		EmailAddress[] emails = getEmails();
+		for (int i = 0; i < emails.length; i++) {
+			if (emails[i].getId() == mail.getId()) {
+				try {
+					PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+						"UPDATE email SET deleted=? WHERE id=?");
+					ps.setDate(1, new Date(System.currentTimeMillis()));
+					ps.setInt(2, mail.getId());
+					ps.execute();
+				} catch (SQLException e) {
+					e.printStackTrace();
+					throw new GigiApiException(e);
+				}
+				return;
+			}
 		}
+		throw new GigiApiException("Email not one user's mail addresses.");
 	}
 }
