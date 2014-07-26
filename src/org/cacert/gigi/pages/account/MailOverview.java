@@ -17,88 +17,91 @@ import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 
 public class MailOverview extends Page {
-	public static final String DEFAULT_PATH = "/account/mails";
-	private MailTable t;
 
-	public MailOverview(String title) {
-		super(title);
-		t = new MailTable("us");
-	}
+    public static final String DEFAULT_PATH = "/account/mails";
 
-	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		final User us = LoginPage.getUser(req);
-		Language lang = Page.getLanguage(req);
-		HashMap<String, Object> vars = new HashMap<>();
-		vars.put("mailData", t);
-		vars.put("us", us);
-		vars.put("addForm", new MailAddForm(req, us));
-		vars.put("manForm", new MailManagementForm(req, us));
-		getDefaultTemplate().output(resp.getWriter(), lang, vars);
-	}
+    private MailTable t;
 
-	@Override
-	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		PrintWriter out = resp.getWriter();
-		if (req.getParameter("addmail") != null) {
-			MailAddForm f = Form.getForm(req, MailAddForm.class);
-			if (f.submit(out, req)) {
-				resp.sendRedirect(MailOverview.DEFAULT_PATH);
-			}
-		} else if (req.getParameter("makedefault") != null || req.getParameter("delete") != null) {
-			MailManagementForm f = Form.getForm(req, MailManagementForm.class);
-			if (f.submit(out, req)) {
-				resp.sendRedirect(MailOverview.DEFAULT_PATH);
-			}
-		}
-		super.doPost(req, resp);
-	}
+    public MailOverview(String title) {
+        super(title);
+        t = new MailTable("us");
+    }
 
-	private class MailTable implements Outputable {
-		private String user;
+    @Override
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        final User us = LoginPage.getUser(req);
+        Language lang = Page.getLanguage(req);
+        HashMap<String, Object> vars = new HashMap<>();
+        vars.put("mailData", t);
+        vars.put("us", us);
+        vars.put("addForm", new MailAddForm(req, us));
+        vars.put("manForm", new MailManagementForm(req, us));
+        getDefaultTemplate().output(resp.getWriter(), lang, vars);
+    }
 
-		public MailTable(String user) {
-			this.user = user;
-		}
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        PrintWriter out = resp.getWriter();
+        if (req.getParameter("addmail") != null) {
+            MailAddForm f = Form.getForm(req, MailAddForm.class);
+            if (f.submit(out, req)) {
+                resp.sendRedirect(MailOverview.DEFAULT_PATH);
+            }
+        } else if (req.getParameter("makedefault") != null || req.getParameter("delete") != null) {
+            MailManagementForm f = Form.getForm(req, MailManagementForm.class);
+            if (f.submit(out, req)) {
+                resp.sendRedirect(MailOverview.DEFAULT_PATH);
+            }
+        }
+        super.doPost(req, resp);
+    }
 
-		@Override
-		public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-			User us = (User) vars.get(user);
-			String usM = us.getEmail();
-			EmailAddress[] emails = us.getEmails();
+    private class MailTable implements Outputable {
 
-			for (int i = 0; i < emails.length; i++) {
-				out.println("<tr>");
-				out.println("<td><input type=\"radio\" name=\"emailid\" value=\"");
-				int mailID = emails[i].getId();
-				out.print(mailID);
-				out.print("\" ");
-				if (emails[i].getAddress().equals(us.getEmail())) {
-					out.print("checked=\"yes\"");
-				}
-				out.print("/></td>");
-				out.println("<td>");
-				if (emails[i].isVerified()) {
-					out.print(l.getTranslation("Verified"));
-				} else {
-					out.print(l.getTranslation("Unverified"));
-				}
-				out.print("</td>");
-				out.println("<td>");
-				String address = emails[i].getAddress();
-				if (usM.equals(address)) {
-					out.print(l.getTranslation("N/A"));
-				} else {
-					out.print("<input type=\"checkbox\" name=\"delid[]\" value=\"");
-					out.print(mailID);
-					out.print("\"/>");
-				}
-				out.print("</td>");
-				out.println("<td>");
-				out.print(address);
-				out.print("</td>");
-				out.println("</tr>");
-			}
-		}
-	}
+        private String user;
+
+        public MailTable(String user) {
+            this.user = user;
+        }
+
+        @Override
+        public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+            User us = (User) vars.get(user);
+            String usM = us.getEmail();
+            EmailAddress[] emails = us.getEmails();
+
+            for (int i = 0; i < emails.length; i++) {
+                out.println("<tr>");
+                out.println("<td><input type=\"radio\" name=\"emailid\" value=\"");
+                int mailID = emails[i].getId();
+                out.print(mailID);
+                out.print("\" ");
+                if (emails[i].getAddress().equals(us.getEmail())) {
+                    out.print("checked=\"yes\"");
+                }
+                out.print("/></td>");
+                out.println("<td>");
+                if (emails[i].isVerified()) {
+                    out.print(l.getTranslation("Verified"));
+                } else {
+                    out.print(l.getTranslation("Unverified"));
+                }
+                out.print("</td>");
+                out.println("<td>");
+                String address = emails[i].getAddress();
+                if (usM.equals(address)) {
+                    out.print(l.getTranslation("N/A"));
+                } else {
+                    out.print("<input type=\"checkbox\" name=\"delid[]\" value=\"");
+                    out.print(mailID);
+                    out.print("\"/>");
+                }
+                out.print("</td>");
+                out.println("<td>");
+                out.print(address);
+                out.print("</td>");
+                out.println("</tr>");
+            }
+        }
+    }
 }

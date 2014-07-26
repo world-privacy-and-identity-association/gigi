@@ -10,110 +10,115 @@ import java.util.Properties;
 import java.sql.Statement;
 
 public class DatabaseConnection {
-	public static final int CONNECTION_TIMEOUT = 24 * 60 * 60;
-	Connection c;
-	HashMap<String, PreparedStatement> statements = new HashMap<String, PreparedStatement>();
-	private static Properties credentials;
-	Statement adHoc;
 
-	public DatabaseConnection() {
-		try {
-			Class.forName(credentials.getProperty("sql.driver"));
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		tryConnect();
+    public static final int CONNECTION_TIMEOUT = 24 * 60 * 60;
 
-	}
+    Connection c;
 
-	private void tryConnect() {
-		try {
-			c = DriverManager.getConnection(credentials.getProperty("sql.url") + "?zeroDateTimeBehavior=convertToNull",
-				credentials.getProperty("sql.user"), credentials.getProperty("sql.password"));
-			PreparedStatement ps = c.prepareStatement("SET SESSION wait_timeout=?;");
-			ps.setInt(1, CONNECTION_TIMEOUT);
-			ps.execute();
-			ps.close();
-			adHoc = c.createStatement();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
+    HashMap<String, PreparedStatement> statements = new HashMap<String, PreparedStatement>();
 
-	public PreparedStatement prepare(String query) throws SQLException {
-		ensureOpen();
-		PreparedStatement statement = statements.get(query);
-		if (statement == null) {
-			statement = c.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-			statements.put(query, statement);
-		}
-		return statement;
-	}
+    private static Properties credentials;
 
-	long lastAction = System.currentTimeMillis();
+    Statement adHoc;
 
-	private void ensureOpen() {
-		if (System.currentTimeMillis() - lastAction > CONNECTION_TIMEOUT * 1000L) {
-			try {
-				ResultSet rs = adHoc.executeQuery("SELECT 1");
-				rs.close();
-				lastAction = System.currentTimeMillis();
-				return;
-			} catch (SQLException e) {
-			}
-			statements.clear();
-			tryConnect();
-		}
-		lastAction = System.currentTimeMillis();
-	}
+    public DatabaseConnection() {
+        try {
+            Class.forName(credentials.getProperty("sql.driver"));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        tryConnect();
 
-	public static int lastInsertId(PreparedStatement query) throws SQLException {
-		ResultSet rs = query.getGeneratedKeys();
-		rs.next();
-		int id = rs.getInt(1);
-		rs.close();
-		return id;
-	}
+    }
 
-	static ThreadLocal<DatabaseConnection> instances = new ThreadLocal<DatabaseConnection>() {
-		@Override
-		protected DatabaseConnection initialValue() {
-			return new DatabaseConnection();
-		}
-	};
+    private void tryConnect() {
+        try {
+            c = DriverManager.getConnection(credentials.getProperty("sql.url") + "?zeroDateTimeBehavior=convertToNull", credentials.getProperty("sql.user"), credentials.getProperty("sql.password"));
+            PreparedStatement ps = c.prepareStatement("SET SESSION wait_timeout=?;");
+            ps.setInt(1, CONNECTION_TIMEOUT);
+            ps.execute();
+            ps.close();
+            adHoc = c.createStatement();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public static DatabaseConnection getInstance() {
-		return instances.get();
-	}
+    public PreparedStatement prepare(String query) throws SQLException {
+        ensureOpen();
+        PreparedStatement statement = statements.get(query);
+        if (statement == null) {
+            statement = c.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            statements.put(query, statement);
+        }
+        return statement;
+    }
 
-	public static boolean isInited() {
-		return credentials != null;
-	}
+    long lastAction = System.currentTimeMillis();
 
-	public static void init(Properties conf) {
-		if (credentials != null) {
-			throw new Error("Re-initiaizing is forbidden.");
-		}
-		credentials = conf;
-	}
+    private void ensureOpen() {
+        if (System.currentTimeMillis() - lastAction > CONNECTION_TIMEOUT * 1000L) {
+            try {
+                ResultSet rs = adHoc.executeQuery("SELECT 1");
+                rs.close();
+                lastAction = System.currentTimeMillis();
+                return;
+            } catch (SQLException e) {
+            }
+            statements.clear();
+            tryConnect();
+        }
+        lastAction = System.currentTimeMillis();
+    }
 
-	public void beginTransaction() throws SQLException {
-		c.setAutoCommit(false);
-	}
+    public static int lastInsertId(PreparedStatement query) throws SQLException {
+        ResultSet rs = query.getGeneratedKeys();
+        rs.next();
+        int id = rs.getInt(1);
+        rs.close();
+        return id;
+    }
 
-	public void commitTransaction() throws SQLException {
-		c.commit();
-		c.setAutoCommit(true);
-	}
+    static ThreadLocal<DatabaseConnection> instances = new ThreadLocal<DatabaseConnection>() {
 
-	public void quitTransaction() {
-		try {
-			if (!c.getAutoCommit()) {
-				c.rollback();
-				c.setAutoCommit(true);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
+        @Override
+        protected DatabaseConnection initialValue() {
+            return new DatabaseConnection();
+        }
+    };
+
+    public static DatabaseConnection getInstance() {
+        return instances.get();
+    }
+
+    public static boolean isInited() {
+        return credentials != null;
+    }
+
+    public static void init(Properties conf) {
+        if (credentials != null) {
+            throw new Error("Re-initiaizing is forbidden.");
+        }
+        credentials = conf;
+    }
+
+    public void beginTransaction() throws SQLException {
+        c.setAutoCommit(false);
+    }
+
+    public void commitTransaction() throws SQLException {
+        c.commit();
+        c.setAutoCommit(true);
+    }
+
+    public void quitTransaction() {
+        try {
+            if ( !c.getAutoCommit()) {
+                c.rollback();
+                c.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

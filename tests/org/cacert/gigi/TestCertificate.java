@@ -15,62 +15,61 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class TestCertificate extends ManagedTest {
-	@Test
-	public void testClientCertLoginStates() throws IOException, GeneralSecurityException, SQLException,
-		InterruptedException {
-		String[] key1 = generateCSR("/CN=testmail@example.com");
-		Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key1[1], CSRType.CSR);
-		final PrivateKey pk = PemKey.parsePEMPrivateKey(key1[0]);
-		c.issue().waitFor(60000);
-		final X509Certificate ce = c.cert();
-		assertNotNull(login(pk, ce));
-	}
 
-	@Test
-	public void testCertLifeCycle() throws IOException, GeneralSecurityException, SQLException, InterruptedException {
-		String[] key1 = generateCSR("/CN=testmail@example.com");
-		Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key1[1], CSRType.CSR);
-		final PrivateKey pk = PemKey.parsePEMPrivateKey(key1[0]);
+    @Test
+    public void testClientCertLoginStates() throws IOException, GeneralSecurityException, SQLException, InterruptedException {
+        String[] key1 = generateCSR("/CN=testmail@example.com");
+        Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key1[1], CSRType.CSR);
+        final PrivateKey pk = PemKey.parsePEMPrivateKey(key1[0]);
+        c.issue().waitFor(60000);
+        final X509Certificate ce = c.cert();
+        assertNotNull(login(pk, ce));
+    }
 
-		testFails(CertificateStatus.DRAFT, c);
-		c.issue().waitFor(60000);
+    @Test
+    public void testCertLifeCycle() throws IOException, GeneralSecurityException, SQLException, InterruptedException {
+        String[] key1 = generateCSR("/CN=testmail@example.com");
+        Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key1[1], CSRType.CSR);
+        final PrivateKey pk = PemKey.parsePEMPrivateKey(key1[0]);
 
-		testFails(CertificateStatus.ISSUED, c);
-		X509Certificate cert = c.cert();
-		assertNotNull(login(pk, cert));
-		c.revoke().waitFor(60000);
+        testFails(CertificateStatus.DRAFT, c);
+        c.issue().waitFor(60000);
 
-		testFails(CertificateStatus.REVOKED, c);
-		assertNull(login(pk, cert));
+        testFails(CertificateStatus.ISSUED, c);
+        X509Certificate cert = c.cert();
+        assertNotNull(login(pk, cert));
+        c.revoke().waitFor(60000);
 
-	}
+        testFails(CertificateStatus.REVOKED, c);
+        assertNull(login(pk, cert));
 
-	private void testFails(CertificateStatus status, Certificate c) throws IOException, GeneralSecurityException,
-		SQLException {
-		assertEquals(status, c.getStatus());
-		if (status != CertificateStatus.ISSUED) {
-			try {
-				c.revoke();
-				fail(status + " is in invalid state");
-			} catch (IllegalStateException ise) {
+    }
 
-			}
-		}
-		if (status != CertificateStatus.DRAFT) {
-			try {
-				c.issue();
-				fail(status + " is in invalid state");
-			} catch (IllegalStateException ise) {
+    private void testFails(CertificateStatus status, Certificate c) throws IOException, GeneralSecurityException, SQLException {
+        assertEquals(status, c.getStatus());
+        if (status != CertificateStatus.ISSUED) {
+            try {
+                c.revoke();
+                fail(status + " is in invalid state");
+            } catch (IllegalStateException ise) {
 
-			}
-		}
-		if (status != CertificateStatus.ISSUED) {
-			try {
-				c.cert();
-				fail(status + " is in invalid state");
-			} catch (IllegalStateException ise) {
+            }
+        }
+        if (status != CertificateStatus.DRAFT) {
+            try {
+                c.issue();
+                fail(status + " is in invalid state");
+            } catch (IllegalStateException ise) {
 
-			}
-		}
-	}
+            }
+        }
+        if (status != CertificateStatus.ISSUED) {
+            try {
+                c.cert();
+                fail(status + " is in invalid state");
+            } catch (IllegalStateException ise) {
+
+            }
+        }
+    }
 }

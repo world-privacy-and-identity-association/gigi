@@ -19,194 +19,198 @@ import org.cacert.gigi.util.KeyStorage;
 import org.cacert.gigi.util.Notary;
 
 public class Certificate {
-	public enum CSRType {
-		CSR, SPKAC;
-	}
 
-	private int id;
-	private int ownerId;
-	private String serial;
-	private String dn;
-	private String md;
-	private String csrName;
-	private String crtName;
-	private String csr = null;
-	private CSRType csrType;
+    public enum CSRType {
+        CSR, SPKAC;
+    }
 
-	public Certificate(int ownerId, String dn, String md, String csr, CSRType csrType) {
-		this.ownerId = ownerId;
-		this.dn = dn;
-		this.md = md;
-		this.csr = csr;
-		this.csrType = csrType;
-	}
+    private int id;
 
-	private Certificate(String serial) {
-		try {
-			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
-				"SELECT id,subject, md, csr_name, crt_name,memid FROM `emailcerts` WHERE serial=?");
-			ps.setString(1, serial);
-			ResultSet rs = ps.executeQuery();
-			if (!rs.next()) {
-				throw new IllegalArgumentException("Invalid mid " + serial);
-			}
-			this.id = rs.getInt(1);
-			dn = rs.getString(2);
-			md = rs.getString(3);
-			csrName = rs.getString(4);
-			crtName = rs.getString(5);
-			ownerId = rs.getInt(6);
-			this.serial = serial;
-			rs.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
+    private int ownerId;
 
-	public enum CertificateStatus {
-		/**
-		 * This certificate is not in the database, has no id and only exists as
-		 * this java object.
-		 */
-		DRAFT(),
-		/**
-		 * The certificate has been signed. It is stored in the database.
-		 * {@link Certificate#cert()} is valid.
-		 */
-		ISSUED(),
+    private String serial;
 
-		/**
-		 * The certificate has been revoked.
-		 */
-		REVOKED(),
+    private String dn;
 
-		/**
-		 * If this certificate cannot be updated because an error happened in
-		 * the signer.
-		 */
-		ERROR();
+    private String md;
 
-		private CertificateStatus() {
-		}
+    private String csrName;
 
-	}
+    private String crtName;
 
-	public CertificateStatus getStatus() throws SQLException {
-		if (id == 0) {
-			return CertificateStatus.DRAFT;
-		}
-		PreparedStatement searcher = DatabaseConnection.getInstance().prepare(
-			"SELECT crt_name, created, revoked, serial FROM emailcerts WHERE id=?");
-		searcher.setInt(1, id);
-		ResultSet rs = searcher.executeQuery();
-		if (!rs.next()) {
-			throw new IllegalStateException("Certificate not in Database");
-		}
+    private String csr = null;
 
-		crtName = rs.getString(1);
-		serial = rs.getString(4);
-		if (rs.getTime(2) == null) {
-			return CertificateStatus.DRAFT;
-		}
-		if (rs.getTime(2) != null && rs.getTime(3) == null) {
-			return CertificateStatus.ISSUED;
-		}
-		return CertificateStatus.REVOKED;
-	}
+    private CSRType csrType;
 
-	public Job issue() throws IOException, SQLException {
-		if (getStatus() != CertificateStatus.DRAFT) {
-			throw new IllegalStateException();
-		}
-		Notary.writeUserAgreement(ownerId, "CCA", "issue certificate", "", true, 0);
+    public Certificate(int ownerId, String dn, String md, String csr, CSRType csrType) {
+        this.ownerId = ownerId;
+        this.dn = dn;
+        this.md = md;
+        this.csr = csr;
+        this.csrType = csrType;
+    }
 
-		PreparedStatement inserter = DatabaseConnection.getInstance().prepare(
-			"INSERT INTO emailcerts SET md=?, subject=?, csr_type=?, crt_name='', memid=?");
-		inserter.setString(1, md);
-		inserter.setString(2, dn);
-		inserter.setString(3, csrType.toString());
-		inserter.setInt(4, ownerId);
-		inserter.execute();
-		id = DatabaseConnection.lastInsertId(inserter);
-		File csrFile = KeyStorage.locateCsr(id);
-		csrName = csrFile.getPath();
-		FileOutputStream fos = new FileOutputStream(csrFile);
-		fos.write(csr.getBytes());
-		fos.close();
+    private Certificate(String serial) {
+        try {
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id,subject, md, csr_name, crt_name,memid FROM `emailcerts` WHERE serial=?");
+            ps.setString(1, serial);
+            ResultSet rs = ps.executeQuery();
+            if ( !rs.next()) {
+                throw new IllegalArgumentException("Invalid mid " + serial);
+            }
+            this.id = rs.getInt(1);
+            dn = rs.getString(2);
+            md = rs.getString(3);
+            csrName = rs.getString(4);
+            crtName = rs.getString(5);
+            ownerId = rs.getInt(6);
+            this.serial = serial;
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-		PreparedStatement updater = DatabaseConnection.getInstance().prepare(
-			"UPDATE emailcerts SET csr_name=? WHERE id=?");
-		updater.setString(1, csrName);
-		updater.setInt(2, id);
-		updater.execute();
-		return Job.submit(this, JobType.SIGN);
+    public enum CertificateStatus {
+        /**
+         * This certificate is not in the database, has no id and only exists as
+         * this java object.
+         */
+        DRAFT(),
+        /**
+         * The certificate has been signed. It is stored in the database.
+         * {@link Certificate#cert()} is valid.
+         */
+        ISSUED(),
 
-	}
+        /**
+         * The certificate has been revoked.
+         */
+        REVOKED(),
 
-	public Job revoke() throws SQLException {
-		if (getStatus() != CertificateStatus.ISSUED) {
-			throw new IllegalStateException();
-		}
-		return Job.submit(this, JobType.REVOKE);
+        /**
+         * If this certificate cannot be updated because an error happened in
+         * the signer.
+         */
+        ERROR();
 
-	}
+        private CertificateStatus() {}
 
-	public X509Certificate cert() throws IOException, GeneralSecurityException, SQLException {
-		CertificateStatus status = getStatus();
-		if (status != CertificateStatus.ISSUED) {
-			throw new IllegalStateException(status + " is not wanted here.");
-		}
-		InputStream is = null;
-		X509Certificate crt = null;
-		try {
-			is = new FileInputStream(crtName);
-			CertificateFactory cf = CertificateFactory.getInstance("X.509");
-			crt = (X509Certificate) cf.generateCertificate(is);
-		} finally {
-			if (is != null) {
-				is.close();
-			}
-		}
-		return crt;
-	}
+    }
 
-	public Certificate renew() {
-		return null;
-	}
+    public CertificateStatus getStatus() throws SQLException {
+        if (id == 0) {
+            return CertificateStatus.DRAFT;
+        }
+        PreparedStatement searcher = DatabaseConnection.getInstance().prepare("SELECT crt_name, created, revoked, serial FROM emailcerts WHERE id=?");
+        searcher.setInt(1, id);
+        ResultSet rs = searcher.executeQuery();
+        if ( !rs.next()) {
+            throw new IllegalStateException("Certificate not in Database");
+        }
 
-	public int getId() {
-		return id;
-	}
+        crtName = rs.getString(1);
+        serial = rs.getString(4);
+        if (rs.getTime(2) == null) {
+            return CertificateStatus.DRAFT;
+        }
+        if (rs.getTime(2) != null && rs.getTime(3) == null) {
+            return CertificateStatus.ISSUED;
+        }
+        return CertificateStatus.REVOKED;
+    }
 
-	public String getSerial() {
-		try {
-			getStatus();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} // poll changes
-		return serial;
-	}
+    public Job issue() throws IOException, SQLException {
+        if (getStatus() != CertificateStatus.DRAFT) {
+            throw new IllegalStateException();
+        }
+        Notary.writeUserAgreement(ownerId, "CCA", "issue certificate", "", true, 0);
 
-	public String getDistinguishedName() {
-		return dn;
-	}
+        PreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO emailcerts SET md=?, subject=?, csr_type=?, crt_name='', memid=?");
+        inserter.setString(1, md);
+        inserter.setString(2, dn);
+        inserter.setString(3, csrType.toString());
+        inserter.setInt(4, ownerId);
+        inserter.execute();
+        id = DatabaseConnection.lastInsertId(inserter);
+        File csrFile = KeyStorage.locateCsr(id);
+        csrName = csrFile.getPath();
+        FileOutputStream fos = new FileOutputStream(csrFile);
+        fos.write(csr.getBytes());
+        fos.close();
 
-	public String getMessageDigest() {
-		return md;
-	}
+        PreparedStatement updater = DatabaseConnection.getInstance().prepare("UPDATE emailcerts SET csr_name=? WHERE id=?");
+        updater.setString(1, csrName);
+        updater.setInt(2, id);
+        updater.execute();
+        return Job.submit(this, JobType.SIGN);
 
-	public int getOwnerId() {
-		return ownerId;
-	}
+    }
 
-	public static Certificate getBySerial(String serial) {
-		// TODO caching?
-		try {
-			return new Certificate(serial);
-		} catch (IllegalArgumentException e) {
+    public Job revoke() throws SQLException {
+        if (getStatus() != CertificateStatus.ISSUED) {
+            throw new IllegalStateException();
+        }
+        return Job.submit(this, JobType.REVOKE);
 
-		}
-		return null;
-	}
+    }
+
+    public X509Certificate cert() throws IOException, GeneralSecurityException, SQLException {
+        CertificateStatus status = getStatus();
+        if (status != CertificateStatus.ISSUED) {
+            throw new IllegalStateException(status + " is not wanted here.");
+        }
+        InputStream is = null;
+        X509Certificate crt = null;
+        try {
+            is = new FileInputStream(crtName);
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            crt = (X509Certificate) cf.generateCertificate(is);
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+        }
+        return crt;
+    }
+
+    public Certificate renew() {
+        return null;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getSerial() {
+        try {
+            getStatus();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } // poll changes
+        return serial;
+    }
+
+    public String getDistinguishedName() {
+        return dn;
+    }
+
+    public String getMessageDigest() {
+        return md;
+    }
+
+    public int getOwnerId() {
+        return ownerId;
+    }
+
+    public static Certificate getBySerial(String serial) {
+        // TODO caching?
+        try {
+            return new Certificate(serial);
+        } catch (IllegalArgumentException e) {
+
+        }
+        return null;
+    }
 
 }

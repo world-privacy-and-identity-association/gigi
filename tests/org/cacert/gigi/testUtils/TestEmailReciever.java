@@ -13,150 +13,157 @@ import java.util.regex.Pattern;
 import org.cacert.gigi.email.EmailProvider;
 
 public class TestEmailReciever extends EmailProvider implements Runnable {
-	public class TestMail {
-		String to;
-		String subject;
-		String message;
-		String from;
-		String replyto;
 
-		public TestMail(String to, String subject, String message, String from, String replyto) {
-			this.to = to;
-			this.subject = subject;
-			this.message = message;
-			this.from = from;
-			this.replyto = replyto;
-		}
+    public class TestMail {
 
-		public String getTo() {
-			return to;
-		}
+        String to;
 
-		public String getSubject() {
-			return subject;
-		}
+        String subject;
 
-		public String getMessage() {
-			return message;
-		}
+        String message;
 
-		public String getFrom() {
-			return from;
-		}
+        String from;
 
-		public String getReplyto() {
-			return replyto;
-		}
+        String replyto;
 
-		public String extractLink() {
-			Pattern link = Pattern.compile("https?://[^\\s]+(?=\\s)");
-			Matcher m = link.matcher(getMessage());
-			m.find();
-			return m.group(0);
-		}
+        public TestMail(String to, String subject, String message, String from, String replyto) {
+            this.to = to;
+            this.subject = subject;
+            this.message = message;
+            this.from = from;
+            this.replyto = replyto;
+        }
 
-	}
+        public String getTo() {
+            return to;
+        }
 
-	private Socket s;
-	private DataInputStream dis;
-	private DataOutputStream dos;
+        public String getSubject() {
+            return subject;
+        }
 
-	public TestEmailReciever(SocketAddress target) throws IOException {
-		s = new Socket();
-		s.connect(target);
-		s.setKeepAlive(true);
-		s.setSoTimeout(1000 * 60 * 60);
-		dis = new DataInputStream(s.getInputStream());
-		dos = new DataOutputStream(s.getOutputStream());
-		new Thread(this).start();
-		setInstance(this);
-	}
+        public String getMessage() {
+            return message;
+        }
 
-	LinkedBlockingQueue<TestMail> mails = new LinkedBlockingQueue<TestEmailReciever.TestMail>();
+        public String getFrom() {
+            return from;
+        }
 
-	public TestMail recieve() throws InterruptedException {
-		return mails.poll(5, TimeUnit.SECONDS);
-	}
+        public String getReplyto() {
+            return replyto;
+        }
 
-	@Override
-	public void run() {
-		try {
-			while (true) {
-				String type = dis.readUTF();
-				if (type.equals("mail")) {
-					String to = dis.readUTF();
-					String subject = dis.readUTF();
-					String message = dis.readUTF();
-					String from = dis.readUTF();
-					String replyto = dis.readUTF();
-					mails.add(new TestMail(to, subject, message, from, replyto));
-				} else if (type.equals("challengeAddrBox")) {
-					String email = dis.readUTF();
-					dos.writeUTF(quickEmailCheck(email));
-					dos.flush();
-				} else if (type.equals("ping")) {
-				} else {
-					System.err.println("Unknown type: " + type);
-				}
-			}
-		} catch (IOException e) {
-			if (!closed) {
-				e.printStackTrace();
-			}
-		}
+        public String extractLink() {
+            Pattern link = Pattern.compile("https?://[^\\s]+(?=\\s)");
+            Matcher m = link.matcher(getMessage());
+            m.find();
+            return m.group(0);
+        }
 
-	}
+    }
 
-	private String quickEmailCheck(String email) throws IOException {
-		if (approveRegex.matcher(email).matches()) {
-			return "OK";
-		} else {
-			return error;
-		}
-	}
+    private Socket s;
 
-	String error = "FAIL";
+    private DataInputStream dis;
 
-	public void setEmailCheckError(String error) {
-		this.error = error;
-	}
+    private DataOutputStream dos;
 
-	Pattern approveRegex = Pattern.compile(".*");
+    public TestEmailReciever(SocketAddress target) throws IOException {
+        s = new Socket();
+        s.connect(target);
+        s.setKeepAlive(true);
+        s.setSoTimeout(1000 * 60 * 60);
+        dis = new DataInputStream(s.getInputStream());
+        dos = new DataOutputStream(s.getOutputStream());
+        new Thread(this).start();
+        setInstance(this);
+    }
 
-	public void setApproveRegex(Pattern approveRegex) {
-		this.approveRegex = approveRegex;
-	}
+    LinkedBlockingQueue<TestMail> mails = new LinkedBlockingQueue<TestEmailReciever.TestMail>();
 
-	public void clearMails() {
-		mails.clear();
-	}
+    public TestMail recieve() throws InterruptedException {
+        return mails.poll(5, TimeUnit.SECONDS);
+    }
 
-	public void reset() {
-		clearMails();
-		error = "FAIL";
-		approveRegex = Pattern.compile(".*");
-	}
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                String type = dis.readUTF();
+                if (type.equals("mail")) {
+                    String to = dis.readUTF();
+                    String subject = dis.readUTF();
+                    String message = dis.readUTF();
+                    String from = dis.readUTF();
+                    String replyto = dis.readUTF();
+                    mails.add(new TestMail(to, subject, message, from, replyto));
+                } else if (type.equals("challengeAddrBox")) {
+                    String email = dis.readUTF();
+                    dos.writeUTF(quickEmailCheck(email));
+                    dos.flush();
+                } else if (type.equals("ping")) {
+                } else {
+                    System.err.println("Unknown type: " + type);
+                }
+            }
+        } catch (IOException e) {
+            if ( !closed) {
+                e.printStackTrace();
+            }
+        }
 
-	boolean closed = false;
+    }
 
-	public void destroy() {
-		try {
-			closed = true;
-			s.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+    private String quickEmailCheck(String email) throws IOException {
+        if (approveRegex.matcher(email).matches()) {
+            return "OK";
+        } else {
+            return error;
+        }
+    }
 
-	@Override
-	public String checkEmailServer(int forUid, String address) throws IOException {
-		return quickEmailCheck(address);
-	}
+    String error = "FAIL";
 
-	@Override
-	public void sendmail(String to, String subject, String message, String from, String replyto, String toname,
-		String fromname, String errorsto, boolean extra) throws IOException {
-		mails.add(new TestMail(to, subject, message, from, replyto));
-	}
+    public void setEmailCheckError(String error) {
+        this.error = error;
+    }
+
+    Pattern approveRegex = Pattern.compile(".*");
+
+    public void setApproveRegex(Pattern approveRegex) {
+        this.approveRegex = approveRegex;
+    }
+
+    public void clearMails() {
+        mails.clear();
+    }
+
+    public void reset() {
+        clearMails();
+        error = "FAIL";
+        approveRegex = Pattern.compile(".*");
+    }
+
+    boolean closed = false;
+
+    public void destroy() {
+        try {
+            closed = true;
+            s.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String checkEmailServer(int forUid, String address) throws IOException {
+        return quickEmailCheck(address);
+    }
+
+    @Override
+    public void sendmail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
+        mails.add(new TestMail(to, subject, message, from, replyto));
+    }
 
 }

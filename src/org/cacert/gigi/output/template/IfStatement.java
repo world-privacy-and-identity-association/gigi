@@ -7,19 +7,21 @@ import org.cacert.gigi.Language;
 import org.cacert.gigi.output.Outputable;
 
 public final class IfStatement implements Outputable {
-	private final String variable;
-	private final TemplateBlock body;
 
-	public IfStatement(String variable, TemplateBlock body) {
-		this.variable = variable;
-		this.body = body;
-	}
+    private final String variable;
 
-	@Override
-	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-		Object o = vars.get(variable);
-		if (!(o == Boolean.FALSE || o == null)) {
-			body.output(out, l, vars);
-		}
-	}
+    private final TemplateBlock body;
+
+    public IfStatement(String variable, TemplateBlock body) {
+        this.variable = variable;
+        this.body = body;
+    }
+
+    @Override
+    public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+        Object o = vars.get(variable);
+        if ( !(o == Boolean.FALSE || o == null)) {
+            body.output(out, l, vars);
+        }
+    }
 }

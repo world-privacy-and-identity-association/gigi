@@ -38,175 +38,189 @@ import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class Launcher {
-	public static void main(String[] args) throws Exception {
-		GigiConfig conf = GigiConfig.parse(System.in);
-		ServerConstants.init(conf.getMainProps());
 
-		Server s = new Server();
-		// === SSL HTTP Configuration ===
-		HttpConfiguration https_config = new HttpConfiguration();
-		https_config.setSendServerVersion(false);
-		https_config.setSendXPoweredBy(false);
+    public static void main(String[] args) throws Exception {
+        GigiConfig conf = GigiConfig.parse(System.in);
+        ServerConstants.init(conf.getMainProps());
 
-		// for client-cert auth
-		https_config.addCustomizer(new SecureRequestCustomizer());
+        Server s = new Server();
+        // === SSL HTTP Configuration ===
+        HttpConfiguration https_config = new HttpConfiguration();
+        https_config.setSendServerVersion(false);
+        https_config.setSendXPoweredBy(false);
 
-		ServerConnector connector = new ServerConnector(s, createConnectionFactory(conf), new HttpConnectionFactory(
-			https_config));
-		connector.setHost(conf.getMainProps().getProperty("host"));
-		connector.setPort(Integer.parseInt(conf.getMainProps().getProperty("port")));
-		s.setConnectors(new Connector[] { connector });
+        // for client-cert auth
+        https_config.addCustomizer(new SecureRequestCustomizer());
 
-		HandlerList hl = new HandlerList();
-		hl.setHandlers(new Handler[] { generateStaticContext(), generateGigiContexts(conf.getMainProps()),
-				generateAPIContext() });
-		s.setHandler(hl);
-		s.start();
-		if (connector.getPort() <= 1024 && !System.getProperty("os.name").toLowerCase().contains("win")) {
-			SetUID uid = new SetUID();
-			if (!uid.setUid(65536 - 2, 65536 - 2).getSuccess()) {
-				Log.getLogger(Launcher.class).warn("Couldn't set uid!");
-			}
-		}
-	}
+        ServerConnector connector = new ServerConnector(s, createConnectionFactory(conf), new HttpConnectionFactory(https_config));
+        connector.setHost(conf.getMainProps().getProperty("host"));
+        connector.setPort(Integer.parseInt(conf.getMainProps().getProperty("port")));
+        s.setConnectors(new Connector[] {
+            connector
+        });
 
-	private static SslConnectionFactory createConnectionFactory(GigiConfig conf) throws GeneralSecurityException,
-		IOException {
-		final SslContextFactory sslContextFactory = generateSSLContextFactory(conf, "www");
-		final SslContextFactory secureContextFactory = generateSSLContextFactory(conf, "secure");
-		secureContextFactory.setWantClientAuth(true);
-		secureContextFactory.setNeedClientAuth(false);
-		final SslContextFactory staticContextFactory = generateSSLContextFactory(conf, "static");
-		final SslContextFactory apiContextFactory = generateSSLContextFactory(conf, "api");
-		try {
-			secureContextFactory.start();
-			staticContextFactory.start();
-			apiContextFactory.start();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()) {
-			@Override
-			public boolean shouldRestartSSL() {
-				return true;
-			}
+        HandlerList hl = new HandlerList();
+        hl.setHandlers(new Handler[] {
+                generateStaticContext(), generateGigiContexts(conf.getMainProps()), generateAPIContext()
+        });
+        s.setHandler(hl);
+        s.start();
+        if (connector.getPort() <= 1024 && !System.getProperty("os.name").toLowerCase().contains("win")) {
+            SetUID uid = new SetUID();
+            if ( !uid.setUid(65536 - 2, 65536 - 2).getSuccess()) {
+                Log.getLogger(Launcher.class).warn("Couldn't set uid!");
+            }
+        }
+    }
 
-			@Override
-			public SSLEngine restartSSL(SSLSession sslSession) {
-				SSLEngine e2 = null;
-				if (sslSession instanceof ExtendedSSLSession) {
-					ExtendedSSLSession es = (ExtendedSSLSession) sslSession;
-					List<SNIServerName> names = es.getRequestedServerNames();
-					for (SNIServerName sniServerName : names) {
-						if (sniServerName instanceof SNIHostName) {
-							SNIHostName host = (SNIHostName) sniServerName;
-							String hostname = host.getAsciiName();
-							if (hostname.equals(ServerConstants.getWwwHostName())) {
-								e2 = sslContextFactory.newSSLEngine();
-							} else if (hostname.equals(ServerConstants.getStaticHostName())) {
-								e2 = staticContextFactory.newSSLEngine();
-							} else if (hostname.equals(ServerConstants.getSecureHostName())) {
-								e2 = secureContextFactory.newSSLEngine();
-							} else if (hostname.equals(ServerConstants.getApiHostName())) {
-								e2 = apiContextFactory.newSSLEngine();
-							}
-							break;
-						}
-					}
-				}
-				if (e2 == null) {
-					e2 = sslContextFactory.newSSLEngine(sslSession.getPeerHost(), sslSession.getPeerPort());
-				}
-				e2.setUseClientMode(false);
-				return e2;
-			}
-		};
-	}
+    private static SslConnectionFactory createConnectionFactory(GigiConfig conf) throws GeneralSecurityException, IOException {
+        final SslContextFactory sslContextFactory = generateSSLContextFactory(conf, "www");
+        final SslContextFactory secureContextFactory = generateSSLContextFactory(conf, "secure");
+        secureContextFactory.setWantClientAuth(true);
+        secureContextFactory.setNeedClientAuth(false);
+        final SslContextFactory staticContextFactory = generateSSLContextFactory(conf, "static");
+        final SslContextFactory apiContextFactory = generateSSLContextFactory(conf, "api");
+        try {
+            secureContextFactory.start();
+            staticContextFactory.start();
+            apiContextFactory.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()) {
 
-	private static Handler generateGigiContexts(Properties conf) {
-		ServletHolder webAppServlet = new ServletHolder(new Gigi(conf));
+            @Override
+            public boolean shouldRestartSSL() {
+                return true;
+            }
 
-		ContextHandler ch = generateGigiServletContext(webAppServlet);
-		ch.setVirtualHosts(new String[] { ServerConstants.getWwwHostName() });
-		ContextHandler chSecure = generateGigiServletContext(webAppServlet);
-		chSecure.setVirtualHosts(new String[] { ServerConstants.getSecureHostName() });
+            @Override
+            public SSLEngine restartSSL(SSLSession sslSession) {
+                SSLEngine e2 = null;
+                if (sslSession instanceof ExtendedSSLSession) {
+                    ExtendedSSLSession es = (ExtendedSSLSession) sslSession;
+                    List<SNIServerName> names = es.getRequestedServerNames();
+                    for (SNIServerName sniServerName : names) {
+                        if (sniServerName instanceof SNIHostName) {
+                            SNIHostName host = (SNIHostName) sniServerName;
+                            String hostname = host.getAsciiName();
+                            if (hostname.equals(ServerConstants.getWwwHostName())) {
+                                e2 = sslContextFactory.newSSLEngine();
+                            } else if (hostname.equals(ServerConstants.getStaticHostName())) {
+                                e2 = staticContextFactory.newSSLEngine();
+                            } else if (hostname.equals(ServerConstants.getSecureHostName())) {
+                                e2 = secureContextFactory.newSSLEngine();
+                            } else if (hostname.equals(ServerConstants.getApiHostName())) {
+                                e2 = apiContextFactory.newSSLEngine();
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (e2 == null) {
+                    e2 = sslContextFactory.newSSLEngine(sslSession.getPeerHost(), sslSession.getPeerPort());
+                }
+                e2.setUseClientMode(false);
+                return e2;
+            }
+        };
+    }
 
-		HandlerList hl = new HandlerList();
-		hl.setHandlers(new Handler[] { ch, chSecure });
-		return hl;
-	}
+    private static Handler generateGigiContexts(Properties conf) {
+        ServletHolder webAppServlet = new ServletHolder(new Gigi(conf));
 
-	private static ContextHandler generateGigiServletContext(ServletHolder webAppServlet) {
-		final ResourceHandler rh = new ResourceHandler();
-		rh.setResourceBase("static/www");
+        ContextHandler ch = generateGigiServletContext(webAppServlet);
+        ch.setVirtualHosts(new String[] {
+            ServerConstants.getWwwHostName()
+        });
+        ContextHandler chSecure = generateGigiServletContext(webAppServlet);
+        chSecure.setVirtualHosts(new String[] {
+            ServerConstants.getSecureHostName()
+        });
 
-		HandlerWrapper hw = new PolicyRedirector();
-		hw.setHandler(rh);
+        HandlerList hl = new HandlerList();
+        hl.setHandlers(new Handler[] {
+                ch, chSecure
+        });
+        return hl;
+    }
 
-		ServletContextHandler servlet = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		servlet.setInitParameter(SessionManager.__SessionCookieProperty, "CACert-Session");
-		servlet.addServlet(webAppServlet, "/*");
-		ErrorPageErrorHandler epeh = new ErrorPageErrorHandler();
-		epeh.addErrorPage(404, "/error");
-		servlet.setErrorHandler(epeh);
+    private static ContextHandler generateGigiServletContext(ServletHolder webAppServlet) {
+        final ResourceHandler rh = new ResourceHandler();
+        rh.setResourceBase("static/www");
 
-		HandlerList hl = new HandlerList();
-		hl.setHandlers(new Handler[] { hw, servlet });
+        HandlerWrapper hw = new PolicyRedirector();
+        hw.setHandler(rh);
 
-		ContextHandler ch = new ContextHandler();
-		ch.setHandler(hl);
-		return ch;
-	}
+        ServletContextHandler servlet = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        servlet.setInitParameter(SessionManager.__SessionCookieProperty, "CACert-Session");
+        servlet.addServlet(webAppServlet, "/*");
+        ErrorPageErrorHandler epeh = new ErrorPageErrorHandler();
+        epeh.addErrorPage(404, "/error");
+        servlet.setErrorHandler(epeh);
 
-	private static Handler generateStaticContext() {
-		final ResourceHandler rh = new ResourceHandler();
-		rh.setResourceBase("static/static");
+        HandlerList hl = new HandlerList();
+        hl.setHandlers(new Handler[] {
+                hw, servlet
+        });
 
-		ContextHandler ch = new ContextHandler();
-		ch.setHandler(rh);
-		ch.setVirtualHosts(new String[] { ServerConstants.getStaticHostName() });
+        ContextHandler ch = new ContextHandler();
+        ch.setHandler(hl);
+        return ch;
+    }
 
-		return ch;
-	}
+    private static Handler generateStaticContext() {
+        final ResourceHandler rh = new ResourceHandler();
+        rh.setResourceBase("static/static");
 
-	private static Handler generateAPIContext() {
-		ServletContextHandler sch = new ServletContextHandler();
+        ContextHandler ch = new ContextHandler();
+        ch.setHandler(rh);
+        ch.setVirtualHosts(new String[] {
+            ServerConstants.getStaticHostName()
+        });
 
-		sch.addVirtualHosts(new String[] { ServerConstants.getApiHostName() });
-		sch.addServlet(new ServletHolder(new GigiAPI()), "/*");
-		return sch;
-	}
+        return ch;
+    }
 
-	private static SslContextFactory generateSSLContextFactory(GigiConfig conf, String alias)
-		throws GeneralSecurityException, IOException {
-		SslContextFactory scf = new SslContextFactory() {
+    private static Handler generateAPIContext() {
+        ServletContextHandler sch = new ServletContextHandler();
 
-			String[] ciphers = null;
+        sch.addVirtualHosts(new String[] {
+            ServerConstants.getApiHostName()
+        });
+        sch.addServlet(new ServletHolder(new GigiAPI()), "/*");
+        return sch;
+    }
 
-			@Override
-			public void customize(SSLEngine sslEngine) {
-				super.customize(sslEngine);
+    private static SslContextFactory generateSSLContextFactory(GigiConfig conf, String alias) throws GeneralSecurityException, IOException {
+        SslContextFactory scf = new SslContextFactory() {
 
-				SSLParameters ssl = sslEngine.getSSLParameters();
-				ssl.setUseCipherSuitesOrder(true);
-				if (ciphers == null) {
-					ciphers = CipherInfo.filter(sslEngine.getSupportedCipherSuites());
-				}
+            String[] ciphers = null;
 
-				ssl.setCipherSuites(ciphers);
-				sslEngine.setSSLParameters(ssl);
+            @Override
+            public void customize(SSLEngine sslEngine) {
+                super.customize(sslEngine);
 
-			}
+                SSLParameters ssl = sslEngine.getSSLParameters();
+                ssl.setUseCipherSuitesOrder(true);
+                if (ciphers == null) {
+                    ciphers = CipherInfo.filter(sslEngine.getSupportedCipherSuites());
+                }
 
-		};
-		scf.setRenegotiationAllowed(false);
+                ssl.setCipherSuites(ciphers);
+                sslEngine.setSSLParameters(ssl);
 
-		scf.setProtocol("TLS");
-		scf.setTrustStore(conf.getTrustStore());
-		KeyStore privateStore = conf.getPrivateStore();
-		scf.setKeyStorePassword(conf.getPrivateStorePw());
-		scf.setKeyStore(privateStore);
-		scf.setCertAlias(alias);
-		return scf;
-	}
+            }
+
+        };
+        scf.setRenegotiationAllowed(false);
+
+        scf.setProtocol("TLS");
+        scf.setTrustStore(conf.getTrustStore());
+        KeyStore privateStore = conf.getPrivateStore();
+        scf.setKeyStorePassword(conf.getPrivateStorePw());
+        scf.setKeyStore(privateStore);
+        scf.setCertAlias(alias);
+        return scf;
+    }
 }

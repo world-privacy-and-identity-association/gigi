@@ -13,47 +13,44 @@ import org.cacert.gigi.pages.Page;
 
 public class RegisterPage extends Page {
 
-	private static final String SIGNUP_PROCESS = "signupProcess";
-	public static final String PATH = "/register";
+    private static final String SIGNUP_PROCESS = "signupProcess";
 
-	public RegisterPage() {
-		super("Register");
-	}
+    public static final String PATH = "/register";
 
-	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		Signup s = new Signup(req);
-		outputGet(req, resp, s);
-	}
+    public RegisterPage() {
+        super("Register");
+    }
 
-	private void outputGet(HttpServletRequest req, HttpServletResponse resp, Signup s) throws IOException {
-		PrintWriter out = resp.getWriter();
-		HashMap<String, Object> vars = new HashMap<String, Object>();
-		getDefaultTemplate().output(out, getLanguage(req), vars);
-		s.output(out, getLanguage(req), vars);
-	}
+    @Override
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        Signup s = new Signup(req);
+        outputGet(req, resp, s);
+    }
 
-	@Override
-	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		Signup s = Form.getForm(req, Signup.class);
-		if (s == null) {
-			resp.getWriter().println(translate(req, "CSRF token check failed."));
-		} else if (s.submit(resp.getWriter(), req)) {
-			HttpSession hs = req.getSession();
-			hs.setAttribute(SIGNUP_PROCESS, null);
-			resp.getWriter().println(
-				translate(req, "Your information has been submitted"
-					+ " into our system. You will now be sent an email with a web link,"
-					+ " you need to open that link in your web browser within 24 hours"
-					+ " or your information will be removed from our system!"));
-			return;
-		}
+    private void outputGet(HttpServletRequest req, HttpServletResponse resp, Signup s) throws IOException {
+        PrintWriter out = resp.getWriter();
+        HashMap<String, Object> vars = new HashMap<String, Object>();
+        getDefaultTemplate().output(out, getLanguage(req), vars);
+        s.output(out, getLanguage(req), vars);
+    }
 
-		outputGet(req, resp, s);
-	}
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        Signup s = Form.getForm(req, Signup.class);
+        if (s == null) {
+            resp.getWriter().println(translate(req, "CSRF token check failed."));
+        } else if (s.submit(resp.getWriter(), req)) {
+            HttpSession hs = req.getSession();
+            hs.setAttribute(SIGNUP_PROCESS, null);
+            resp.getWriter().println(translate(req, "Your information has been submitted" + " into our system. You will now be sent an email with a web link," + " you need to open that link in your web browser within 24 hours" + " or your information will be removed from our system!"));
+            return;
+        }
 
-	@Override
-	public boolean needsLogin() {
-		return false;
-	}
+        outputGet(req, resp, s);
+    }
+
+    @Override
+    public boolean needsLogin() {
+        return false;
+    }
 }

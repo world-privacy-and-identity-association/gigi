@@ -5,53 +5,55 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 
 public class GigiApiException extends Exception {
-	SQLException e;
-	LinkedList<String> messages = new LinkedList<>();
 
-	public GigiApiException(SQLException e) {
-		super(e);
-		this.e = e;
-	}
+    SQLException e;
 
-	public GigiApiException(String message) {
-		super(message);
-		messages.add(message);
-	}
+    LinkedList<String> messages = new LinkedList<>();
 
-	public GigiApiException() {
+    public GigiApiException(SQLException e) {
+        super(e);
+        this.e = e;
+    }
 
-	}
+    public GigiApiException(String message) {
+        super(message);
+        messages.add(message);
+    }
 
-	public void mergeInto(GigiApiException e2) {
-		messages.addAll(e2.messages);
-		if (e == null) {
-			e = e2.e;
-		}
-	}
+    public GigiApiException() {
 
-	public boolean isInternalError() {
-		return e != null;
-	}
+    }
 
-	public void format(PrintWriter out, Language language) {
-		out.println("<div class='formError'>");
-		if (isInternalError()) {
-			e.printStackTrace();
-			out.print("<div>");
-			out.println(language.getTranslation("An internal error ouccured."));
-			out.println("</div>");
-		}
-		for (String message : messages) {
-			out.print("<div>");
-			out.print(language.getTranslation(message));
-			out.println("</div>");
-		}
-		out.println("</div>");
+    public void mergeInto(GigiApiException e2) {
+        messages.addAll(e2.messages);
+        if (e == null) {
+            e = e2.e;
+        }
+    }
 
-	}
+    public boolean isInternalError() {
+        return e != null;
+    }
 
-	public boolean isEmpty() {
-		return e == null && messages.size() == 0;
-	}
+    public void format(PrintWriter out, Language language) {
+        out.println("<div class='formError'>");
+        if (isInternalError()) {
+            e.printStackTrace();
+            out.print("<div>");
+            out.println(language.getTranslation("An internal error ouccured."));
+            out.println("</div>");
+        }
+        for (String message : messages) {
+            out.print("<div>");
+            out.print(language.getTranslation(message));
+            out.println("</div>");
+        }
+        out.println("</div>");
+
+    }
+
+    public boolean isEmpty() {
+        return e == null && messages.size() == 0;
+    }
 
 }

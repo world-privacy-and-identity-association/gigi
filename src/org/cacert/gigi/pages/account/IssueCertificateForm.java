@@ -29,125 +29,128 @@ import org.cacert.gigi.pages.LoginPage;
 import sun.security.pkcs10.PKCS10;
 
 /**
- * This class represents a form that is used for issuing certificates.
- * 
- * This class uses "sun.security" and therefore needs "-XDignore.symbol.file"
- * 
+ * This class represents a form that is used for issuing certificates. This
+ * class uses "sun.security" and therefore needs "-XDignore.symbol.file"
  */
 public class IssueCertificateForm extends Form {
-	User u;
-	Digest selectedDigest = Digest.getDefault();
-	boolean login;
-	String csr;
 
-	private final static Template t = new Template(IssueCertificateForm.class.getResource("IssueCertificateForm.templ"));
+    User u;
 
-	public IssueCertificateForm(HttpServletRequest hsr) {
-		super(hsr);
-		u = LoginPage.getUser(hsr);
-	}
+    Digest selectedDigest = Digest.getDefault();
 
-	Certificate result;
-	private CSRType csrType;
+    boolean login;
 
-	public Certificate getResult() {
-		return result;
-	}
+    String csr;
 
-	@Override
-	public boolean submit(PrintWriter out, HttpServletRequest req) {
-		String csr = req.getParameter("CSR");
-		String spkac = req.getParameter("SPKAC");
-		try {
-			if (csr != null) {
-				PKCS10 parsed = parseCSR(csr);
-				out.println(parsed.getSubjectName().getCommonName());
-				out.println(parsed.getSubjectName().getCountry());
-				out.println("CSR DN: " + parsed.getSubjectName() + "<br/>");
-				PublicKey pk = parsed.getSubjectPublicKeyInfo();
-				out.println("Type: " + pk.getAlgorithm() + "<br/>");
-				if (pk instanceof RSAPublicKey) {
-					out.println("Exponent: " + ((RSAPublicKey) pk).getPublicExponent() + "<br/>");
-					out.println("Length: " + ((RSAPublicKey) pk).getModulus().bitLength());
-				} else if (pk instanceof DSAPublicKey) {
-					DSAPublicKey dpk = (DSAPublicKey) pk;
-					out.println("Length: " + dpk.getY().bitLength() + "<br/>");
-					out.println(dpk.getParams());
-				} else if (pk instanceof ECPublicKey) {
-					ECPublicKey epk = (ECPublicKey) pk;
-					out.println("Length-x: " + epk.getW().getAffineX().bitLength() + "<br/>");
-					out.println("Length-y: " + epk.getW().getAffineY().bitLength() + "<br/>");
-					out.println(epk.getParams().getCurve());
-				}
-				out.println("<br/>digest: sha256<br/>");
-				this.csr = csr;
-				this.csrType = CSRType.CSR;
-			} else if (spkac != null) {
-				this.csr = "SPKAC=" + spkac.replaceAll("[\r\n]", "");
-				this.csrType = CSRType.SPKAC;
-			} else {
-				login = "1".equals(req.getParameter("login"));
-				String hashAlg = req.getParameter("hash_alg");
-				if (hashAlg != null) {
-					selectedDigest = Digest.valueOf(hashAlg);
-				}
-				if (req.getParameter("CCA") == null) {
-					outputError(out, req, "You need to accept the CCA.");
-					return false;
-				}
-				System.out.println("issuing " + selectedDigest);
-				result = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User",
-					selectedDigest.toString(), this.csr, this.csrType);
-				try {
-					result.issue().waitFor(60000);
-					return true;
-				} catch (SQLException e) {
-					e.printStackTrace();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				return false;
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (GeneralSecurityException e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
+    private final static Template t = new Template(IssueCertificateForm.class.getResource("IssueCertificateForm.templ"));
 
-	private PKCS10 parseCSR(String csr) throws IOException, GeneralSecurityException {
-		csr = csr.replaceFirst("-----BEGIN (NEW )?CERTIFICATE REQUEST-----", "");
-		csr = csr.replaceFirst("-----END (NEW )?CERTIFICATE REQUEST-----", "");
-		csr = csr.replace("\r", "");
-		csr = csr.replace("\n", "");
-		byte[] b = Base64.getDecoder().decode(csr);
-		// Also checks signature validity
-		return new PKCS10(b);
-	}
+    public IssueCertificateForm(HttpServletRequest hsr) {
+        super(hsr);
+        u = LoginPage.getUser(hsr);
+    }
 
-	@Override
-	protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
-		HashMap<String, Object> vars2 = new HashMap<String, Object>(vars);
-		vars2.put("CCA", "<a href='/policy/CAcertCommunityAgreement.html'>CCA</a>");
+    Certificate result;
 
-		final EmailAddress[] ea = u.getEmails();
-		vars2.put("emails", new IterableDataset() {
-			int count;
+    private CSRType csrType;
 
-			@Override
-			public boolean next(Language l, Map<String, Object> vars) {
-				if (count >= ea.length) {
-					return false;
-				}
-				vars.put("id", ea[count].getId());
-				vars.put("value", ea[count].getAddress());
-				count++;
-				return true;
-			}
-		});
-		vars2.put("hashs", new HashAlgorithms(selectedDigest));
-		t.output(out, l, vars2);
-	}
+    public Certificate getResult() {
+        return result;
+    }
+
+    @Override
+    public boolean submit(PrintWriter out, HttpServletRequest req) {
+        String csr = req.getParameter("CSR");
+        String spkac = req.getParameter("SPKAC");
+        try {
+            if (csr != null) {
+                PKCS10 parsed = parseCSR(csr);
+                out.println(parsed.getSubjectName().getCommonName());
+                out.println(parsed.getSubjectName().getCountry());
+                out.println("CSR DN: " + parsed.getSubjectName() + "<br/>");
+                PublicKey pk = parsed.getSubjectPublicKeyInfo();
+                out.println("Type: " + pk.getAlgorithm() + "<br/>");
+                if (pk instanceof RSAPublicKey) {
+                    out.println("Exponent: " + ((RSAPublicKey) pk).getPublicExponent() + "<br/>");
+                    out.println("Length: " + ((RSAPublicKey) pk).getModulus().bitLength());
+                } else if (pk instanceof DSAPublicKey) {
+                    DSAPublicKey dpk = (DSAPublicKey) pk;
+                    out.println("Length: " + dpk.getY().bitLength() + "<br/>");
+                    out.println(dpk.getParams());
+                } else if (pk instanceof ECPublicKey) {
+                    ECPublicKey epk = (ECPublicKey) pk;
+                    out.println("Length-x: " + epk.getW().getAffineX().bitLength() + "<br/>");
+                    out.println("Length-y: " + epk.getW().getAffineY().bitLength() + "<br/>");
+                    out.println(epk.getParams().getCurve());
+                }
+                out.println("<br/>digest: sha256<br/>");
+                this.csr = csr;
+                this.csrType = CSRType.CSR;
+            } else if (spkac != null) {
+                this.csr = "SPKAC=" + spkac.replaceAll("[\r\n]", "");
+                this.csrType = CSRType.SPKAC;
+            } else {
+                login = "1".equals(req.getParameter("login"));
+                String hashAlg = req.getParameter("hash_alg");
+                if (hashAlg != null) {
+                    selectedDigest = Digest.valueOf(hashAlg);
+                }
+                if (req.getParameter("CCA") == null) {
+                    outputError(out, req, "You need to accept the CCA.");
+                    return false;
+                }
+                System.out.println("issuing " + selectedDigest);
+                result = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User", selectedDigest.toString(), this.csr, this.csrType);
+                try {
+                    result.issue().waitFor(60000);
+                    return true;
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private PKCS10 parseCSR(String csr) throws IOException, GeneralSecurityException {
+        csr = csr.replaceFirst("-----BEGIN (NEW )?CERTIFICATE REQUEST-----", "");
+        csr = csr.replaceFirst("-----END (NEW )?CERTIFICATE REQUEST-----", "");
+        csr = csr.replace("\r", "");
+        csr = csr.replace("\n", "");
+        byte[] b = Base64.getDecoder().decode(csr);
+        // Also checks signature validity
+        return new PKCS10(b);
+    }
+
+    @Override
+    protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
+        HashMap<String, Object> vars2 = new HashMap<String, Object>(vars);
+        vars2.put("CCA", "<a href='/policy/CAcertCommunityAgreement.html'>CCA</a>");
+
+        final EmailAddress[] ea = u.getEmails();
+        vars2.put("emails", new IterableDataset() {
+
+            int count;
+
+            @Override
+            public boolean next(Language l, Map<String, Object> vars) {
+                if (count >= ea.length) {
+                    return false;
+                }
+                vars.put("id", ea[count].getId());
+                vars.put("value", ea[count].getAddress());
+                count++;
+                return true;
+            }
+        });
+        vars2.put("hashs", new HashAlgorithms(selectedDigest));
+        t.output(out, l, vars2);
+    }
 
 }

@@ -13,56 +13,58 @@ import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.RandomToken;
 
 public abstract class Form implements Outputable {
-	public static final String CSRF_FIELD = "csrf";
-	String csrf;
 
-	public Form(HttpServletRequest hsr) {
-		csrf = RandomToken.generateToken(32);
-		HttpSession hs = hsr.getSession();
-		hs.setAttribute("form/" + getClass().getName() + "/" + csrf, this);
+    public static final String CSRF_FIELD = "csrf";
 
-	}
+    String csrf;
 
-	public abstract boolean submit(PrintWriter out, HttpServletRequest req);
+    public Form(HttpServletRequest hsr) {
+        csrf = RandomToken.generateToken(32);
+        HttpSession hs = hsr.getSession();
+        hs.setAttribute("form/" + getClass().getName() + "/" + csrf, this);
 
-	@Override
-	public final void output(PrintWriter out, Language l, Map<String, Object> vars) {
-		out.println("<form method='POST' autocomplete='off'>");
-		outputContent(out, l, vars);
-		out.print("<input type='hidden' name='" + CSRF_FIELD + "' value='");
-		out.print(getCSRFToken());
-		out.println("'></form>");
-	}
+    }
 
-	protected abstract void outputContent(PrintWriter out, Language l, Map<String, Object> vars);
+    public abstract boolean submit(PrintWriter out, HttpServletRequest req);
 
-	protected void outputError(PrintWriter out, ServletRequest req, String text) {
-		out.print("<div>");
-		out.print(Page.translate(req, text));
-		out.println("</div>");
-	}
+    @Override
+    public final void output(PrintWriter out, Language l, Map<String, Object> vars) {
+        out.println("<form method='POST' autocomplete='off'>");
+        outputContent(out, l, vars);
+        out.print("<input type='hidden' name='" + CSRF_FIELD + "' value='");
+        out.print(getCSRFToken());
+        out.println("'></form>");
+    }
 
-	protected String getCSRFToken() {
-		return csrf;
-	}
+    protected abstract void outputContent(PrintWriter out, Language l, Map<String, Object> vars);
 
-	public static <T extends Form> T getForm(HttpServletRequest req, Class<T> target) throws CSRFException {
-		String csrf = req.getParameter(CSRF_FIELD);
-		if (csrf == null) {
-			throw new CSRFException();
-		}
-		HttpSession hs = req.getSession();
-		if (hs == null) {
-			throw new CSRFException();
-		}
-		Form f = (Form) hs.getAttribute("form/" + target.getName() + "/" + csrf);
-		if (f == null) {
-			throw new CSRFException();
-		}
-		return (T) f;
-	}
+    protected void outputError(PrintWriter out, ServletRequest req, String text) {
+        out.print("<div>");
+        out.print(Page.translate(req, text));
+        out.println("</div>");
+    }
 
-	public static class CSRFException extends IOException {
+    protected String getCSRFToken() {
+        return csrf;
+    }
 
-	}
+    public static <T extends Form> T getForm(HttpServletRequest req, Class<T> target) throws CSRFException {
+        String csrf = req.getParameter(CSRF_FIELD);
+        if (csrf == null) {
+            throw new CSRFException();
+        }
+        HttpSession hs = req.getSession();
+        if (hs == null) {
+            throw new CSRFException();
+        }
+        Form f = (Form) hs.getAttribute("form/" + target.getName() + "/" + csrf);
+        if (f == null) {
+            throw new CSRFException();
+        }
+        return (T) f;
+    }
+
+    public static class CSRFException extends IOException {
+
+    }
 }

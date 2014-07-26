@@ -7,14 +7,15 @@ import org.cacert.gigi.Language;
 import org.cacert.gigi.output.Outputable;
 
 public final class TranslateCommand implements Outputable {
-	private final String raw;
 
-	public TranslateCommand(String raw) {
-		this.raw = raw;
-	}
+    private final String raw;
 
-	@Override
-	public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-		out.print(l.getTranslation(raw));
-	}
+    public TranslateCommand(String raw) {
+        this.raw = raw;
+    }
+
+    @Override
+    public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+        out.print(l.getTranslation(raw));
+    }
 }

@@ -11,22 +11,22 @@ import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 
 public class ChangePasswordPage extends Page {
-	public static final String PATH = "/account/password";
 
-	public ChangePasswordPage() {
-		super("Change Password");
-	}
+    public static final String PATH = "/account/password";
 
-	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		new ChangeForm(req, LoginPage.getUser(req)).output(resp.getWriter(), getLanguage(req),
-			new HashMap<String, Object>());
-	}
+    public ChangePasswordPage() {
+        super("Change Password");
+    }
 
-	@Override
-	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		ChangeForm f = Form.getForm(req, ChangeForm.class);
-		f.submit(resp.getWriter(), req);
-	}
+    @Override
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        new ChangeForm(req, LoginPage.getUser(req)).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+    }
+
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        ChangeForm f = Form.getForm(req, ChangeForm.class);
+        f.submit(resp.getWriter(), req);
+    }
 
 }

@@ -6,31 +6,32 @@ import java.io.File;
  * Native to use privileged ports on unix-like hosts.
  * 
  * @author janis
- * 
  */
 public class SetUID {
-	static {
-		System.load(new File("natives/libsetuid.so").getAbsolutePath());
-	}
 
-	public native Status setUid(int uid, int gid);
+    static {
+        System.load(new File("natives/libsetuid.so").getAbsolutePath());
+    }
 
-	public static class Status {
+    public native Status setUid(int uid, int gid);
 
-		private boolean success;
-		private String message;
+    public static class Status {
 
-		public Status(boolean success, String message) {
-			this.success = success;
-			this.message = message;
-		}
+        private boolean success;
 
-		public boolean getSuccess() {
-			return success;
-		}
+        private String message;
 
-		public String getMessage() {
-			return message;
-		}
-	}
+        public Status(boolean success, String message) {
+            this.success = success;
+            this.message = message;
+        }
+
+        public boolean getSuccess() {
+            return success;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+    }
 }
