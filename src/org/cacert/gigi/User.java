@@ -269,6 +269,31 @@ public class User {
 		return null;
 	}
 
+	public Domain[] getDomains() {
+		try {
+			PreparedStatement ps = DatabaseConnection.getInstance().prepare(
+				"SELECT id FROM domain WHERE memid=? AND deleted IS NULL");
+			ps.setInt(1, id);
+			ResultSet rs = ps.executeQuery();
+			rs.last();
+			int count = rs.getRow();
+			Domain[] data = new Domain[count];
+			rs.beforeFirst();
+			for (int i = 0; i < data.length; i++) {
+				if (!rs.next()) {
+					throw new Error("Internal sql api violation.");
+				}
+				data[i] = Domain.getById(rs.getInt(1));
+			}
+			rs.close();
+			return data;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 	public void updateDefaultEmail(EmailAddress newMail) throws GigiApiException {
 		try {
 			EmailAddress[] adrs = getEmails();

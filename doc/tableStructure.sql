@@ -31,6 +31,20 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 
+DROP TABLE IF EXISTS `domain`;
+CREATE TABLE `domain` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `memid` int(11) NOT NULL,
+  `domain` varchar(255) NOT NULL,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `deleted` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `memid` (`memid`),
+  KEY `domain` (`domain`),
+  KEY `stats_domains_deleted` (`deleted`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+
 DROP TABLE IF EXISTS `email`;
 CREATE TABLE `email` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
