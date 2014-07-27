@@ -27,8 +27,12 @@ public abstract class Form implements Outputable {
 
     public abstract boolean submit(PrintWriter out, HttpServletRequest req);
 
+    protected String getCsrfFieldName() {
+        return CSRF_FIELD;
+    }
+
     @Override
-    public final void output(PrintWriter out, Language l, Map<String, Object> vars) {
+    public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         out.println("<form method='POST' autocomplete='off'>");
         outputContent(out, l, vars);
         out.print("<input type='hidden' name='" + CSRF_FIELD + "' value='");

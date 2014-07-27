@@ -25,6 +25,7 @@ import org.cacert.gigi.output.template.HashAlgorithms;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
+import org.cacert.gigi.util.RandomToken;
 
 import sun.security.pkcs10.PKCS10;
 
@@ -44,9 +45,14 @@ public class IssueCertificateForm extends Form {
 
     private final static Template t = new Template(IssueCertificateForm.class.getResource("IssueCertificateForm.templ"));
 
+    private final static Template tIni = new Template(MailCertificateAdd.class.getResource("RequestCertificate.templ"));
+
+    String spkacChallange;
+
     public IssueCertificateForm(HttpServletRequest hsr) {
         super(hsr);
         u = LoginPage.getUser(hsr);
+        spkacChallange = RandomToken.generateToken(16);
     }
 
     Certificate result;
@@ -129,6 +135,20 @@ public class IssueCertificateForm extends Form {
     }
 
     @Override
+    public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+        if (csr == null) {
+            HashMap<String, Object> vars2 = new HashMap<String, Object>(vars);
+            vars2.put("csrf", getCSRFToken());
+            vars2.put("csrf_name", getCsrfFieldName());
+            vars2.put("spkacChallange", spkacChallange);
+            tIni.output(out, l, vars2);
+            return;
+        } else {
+            super.output(out, l, vars);
+        }
+    }
+
+    @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
         HashMap<String, Object> vars2 = new HashMap<String, Object>(vars);
         vars2.put("CCA", "<a href='/policy/CAcertCommunityAgreement.html'>CCA</a>");
@@ -152,5 +172,4 @@ public class IssueCertificateForm extends Form {
         vars2.put("hashs", new HashAlgorithms(selectedDigest));
         t.output(out, l, vars2);
     }
-
 }
