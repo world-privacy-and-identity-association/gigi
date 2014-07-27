@@ -18,7 +18,7 @@
      <input type='hidden' name='<?=$csrf_name?>' value='<?=$csrf?>'/></form>
     </td>
     <td align="left">
-     <form method="post"> <keygen name="SPKAC"/><br/>
+     <form method="post"> <keygen name="SPKAC" challenge="<?=$spkacChallange?>"/><br/>
      <input type="submit" name="process" value="<?=_Next?>" />
      <input type='hidden' name='<?=$csrf_name?>' value='<?=$csrf?>'/></form>
   </tr>

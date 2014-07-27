@@ -1,6 +1,9 @@
 package org.cacert.gigi.pages.account;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
@@ -17,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.cacert.gigi.Certificate;
 import org.cacert.gigi.Digest;
 import org.cacert.gigi.EmailAddress;
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
 import org.cacert.gigi.Certificate.CSRType;
@@ -25,6 +29,7 @@ import org.cacert.gigi.output.template.HashAlgorithms;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
+import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.RandomToken;
 
 import sun.security.pkcs10.PKCS10;
@@ -92,8 +97,15 @@ public class IssueCertificateForm extends Form {
                 this.csr = csr;
                 this.csrType = CSRType.CSR;
             } else if (spkac != null) {
-                this.csr = "SPKAC=" + spkac.replaceAll("[\r\n]", "");
-                this.csrType = CSRType.SPKAC;
+                String cleanedSPKAC = "SPKAC=" + spkac.replaceAll("[\r\n]", "");
+                try {
+                    checkSPKAC(cleanedSPKAC, spkacChallange);
+                    this.csr = cleanedSPKAC;
+                    this.csrType = CSRType.SPKAC;
+                } catch (GigiApiException e) {
+                    e.format(out, Page.getLanguage(req));
+                }
+
             } else {
                 login = "1".equals(req.getParameter("login"));
                 String hashAlg = req.getParameter("hash_alg");
@@ -122,6 +134,40 @@ public class IssueCertificateForm extends Form {
             e.printStackTrace();
         }
         return false;
+    }
+
+    private static void checkSPKAC(String csr, String spkacChallange) throws IOException, GigiApiException {
+        Process p = Runtime.getRuntime().exec(new String[] {
+                "openssl", "spkac", "-verify"
+        });
+        OutputStream outputStream = p.getOutputStream();
+        outputStream.write(csr.getBytes());
+        outputStream.flush();
+        outputStream.close();
+        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream(), "UTF-8"));
+        String line;
+        String challenge = null;
+        while ((line = br.readLine()) != null) {
+            line = line.trim();
+            String challengePrefix = "Challenge String: ";
+            if (line.startsWith(challengePrefix)) {
+                challenge = line.substring(challengePrefix.length());
+            }
+        }
+        GigiApiException gae = new GigiApiException();
+        if ( !spkacChallange.equals(challenge)) {
+            gae.mergeInto(new GigiApiException("The challenge-response code of your certificate request did not match. Can't continue with certificaterequest."));
+        }
+        try {
+            if (p.waitFor() != 0) {
+                gae.mergeInto(new GigiApiException("The signature of your certificate request is invalid. Can't continue with certificaterequest."));
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if ( !gae.isEmpty()) {
+            throw gae;
+        }
     }
 
     private PKCS10 parseCSR(String csr) throws IOException, GeneralSecurityException {
