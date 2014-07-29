@@ -6,22 +6,44 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.Domain;
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.Language;
+import org.cacert.gigi.User;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.pages.Page;
 
 public class DomainManagementForm extends Form {
 
     private static final Template t = new Template(DomainManagementForm.class.getResource("DomainManagementForm.templ"));
 
-    public DomainManagementForm(HttpServletRequest hsr) {
+    private User target;
+
+    public DomainManagementForm(HttpServletRequest hsr, User target) {
         super(hsr);
+        this.target = target;
     }
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) {
-        return false;
+        try {
+            String[] dels = req.getParameterValues("delid[]");
+            Domain[] usDomains = target.getDomains();
+            for (int i = 0; i < dels.length; i++) {
+                int delId = Integer.parseInt(dels[i]);
+                for (int j = 0; j < usDomains.length; j++) {
+                    if (usDomains[j].getId() == delId) {
+                        usDomains[j].delete();
+                        break;
+                    }
+                }
+            }
+        } catch (GigiApiException e) {
+            e.format(out, Page.getLanguage(req));
+            return false;
+        }
+        return true;
     }
 
     @Override

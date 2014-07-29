@@ -21,7 +21,7 @@ public class DomainOverview extends Page {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         User u = getUser(req);
-        DomainManagementForm domMan = new DomainManagementForm(req);
+        DomainManagementForm domMan = new DomainManagementForm(req, u);
         DomainAddForm domAdd = new DomainAddForm(req, u);
         HashMap<String, Object> vars = new HashMap<>();
         vars.put("doms", u.getDomains());
@@ -34,10 +34,14 @@ public class DomainOverview extends Page {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (req.getParameter("adddomain") != null) {
             DomainAddForm f = Form.getForm(req, DomainAddForm.class);
-            f.submit(resp.getWriter(), req);
-        } else if (req.getParameter("") != null) {
+            if (f.submit(resp.getWriter(), req)) {
+                resp.sendRedirect(PATH);
+            }
+        } else if (req.getParameter("domdel") != null) {
             DomainManagementForm f = Form.getForm(req, DomainManagementForm.class);
-            f.submit(resp.getWriter(), req);
+            if (f.submit(resp.getWriter(), req)) {
+                resp.sendRedirect(PATH);
+            }
         }
         super.doPost(req, resp);
     }
