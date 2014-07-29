@@ -6,13 +6,13 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.GeneralSecurityException;
+import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 
 import org.cacert.gigi.Certificate.CSRType;
 import org.cacert.gigi.testUtils.ManagedTest;
-import org.cacert.gigi.testUtils.PemKey;
 import org.junit.Test;
 
 public class TestSeparateSessionScope extends ManagedTest {
@@ -22,9 +22,10 @@ public class TestSeparateSessionScope extends ManagedTest {
         String mail = "thisgo" + createUniqueName() + "@example.com";
         int user = createAssuranceUser("test", "tugo", mail, TEST_PASSWORD);
         String cookie = login(mail, TEST_PASSWORD);
-        String[] csr = generateCSR("/CN=felix@dogcraft.de");
-        Certificate c = new Certificate(user, "/CN=testmail@example.com", "sha256", csr[1], CSRType.CSR);
-        final PrivateKey pk = PemKey.parsePEMPrivateKey(csr[0]);
+        KeyPair kp = generateKeypair();
+        String csr = generatePEMCSR(kp, "CN=felix@dogcraft.de");
+        Certificate c = new Certificate(user, "/CN=testmail@example.com", "sha256", csr, CSRType.CSR);
+        final PrivateKey pk = kp.getPrivate();
         c.issue().waitFor(60000);
         final X509Certificate ce = c.cert();
         String scookie = login(pk, ce);

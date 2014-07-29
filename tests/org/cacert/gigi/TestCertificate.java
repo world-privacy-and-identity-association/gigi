@@ -2,6 +2,7 @@ package org.cacert.gigi;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
@@ -9,7 +10,6 @@ import java.sql.SQLException;
 import org.cacert.gigi.Certificate.CSRType;
 import org.cacert.gigi.Certificate.CertificateStatus;
 import org.cacert.gigi.testUtils.ManagedTest;
-import org.cacert.gigi.testUtils.PemKey;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -18,9 +18,10 @@ public class TestCertificate extends ManagedTest {
 
     @Test
     public void testClientCertLoginStates() throws IOException, GeneralSecurityException, SQLException, InterruptedException {
-        String[] key1 = generateCSR("/CN=testmail@example.com");
-        Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key1[1], CSRType.CSR);
-        final PrivateKey pk = PemKey.parsePEMPrivateKey(key1[0]);
+        KeyPair kp = generateKeypair();
+        String key1 = generatePEMCSR(kp, "CN=testmail@example.com");
+        Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key1, CSRType.CSR);
+        final PrivateKey pk = kp.getPrivate();
         c.issue().waitFor(60000);
         final X509Certificate ce = c.cert();
         assertNotNull(login(pk, ce));
@@ -28,9 +29,10 @@ public class TestCertificate extends ManagedTest {
 
     @Test
     public void testCertLifeCycle() throws IOException, GeneralSecurityException, SQLException, InterruptedException {
-        String[] key1 = generateCSR("/CN=testmail@example.com");
-        Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key1[1], CSRType.CSR);
-        final PrivateKey pk = PemKey.parsePEMPrivateKey(key1[0]);
+        KeyPair kp = generateKeypair();
+        String key = generatePEMCSR(kp, "CN=testmail@example.com");
+        Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key, CSRType.CSR);
+        final PrivateKey pk = kp.getPrivate();
 
         testFails(CertificateStatus.DRAFT, c);
         c.issue().waitFor(60000);

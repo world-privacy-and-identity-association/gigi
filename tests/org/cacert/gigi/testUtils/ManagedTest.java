@@ -18,10 +18,14 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivateKey;
+import java.security.Signature;
 import java.security.cert.X509Certificate;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -43,11 +47,16 @@ import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.cacert.gigi.util.DatabaseManager;
+import org.cacert.gigi.util.PEM;
 import org.cacert.gigi.util.ServerConstants;
 import org.cacert.gigi.util.SimpleSigner;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+
+import sun.security.pkcs10.PKCS10;
+import sun.security.pkcs10.PKCS10Attributes;
+import sun.security.x509.X500Name;
 
 public class ManagedTest {
 
@@ -394,18 +403,18 @@ public class ManagedTest {
         return m.group(1);
     }
 
-    public static String[] generateCSR(String dn) throws IOException {
-        Process p = Runtime.getRuntime().exec(new String[] {
-                "openssl", "req", "-newkey", "rsa:1024", "-nodes", "-subj", dn, "-config", "keys/selfsign.config"
-        });
-        String csr = IOUtils.readURL(new InputStreamReader(p.getInputStream()));
+    public static KeyPair generateKeypair() throws GeneralSecurityException {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(4096);
+        return kpg.generateKeyPair();
+    }
 
-        String[] parts = csr.split("(?<=-----)\n(?=-----)");
-        if (parts.length != 2) {
-            System.err.println(IOUtils.readURL(new InputStreamReader(p.getErrorStream())));
-            throw new Error();
-        }
-        return parts;
+    public static String generatePEMCSR(KeyPair kp, String dn) throws GeneralSecurityException, IOException {
+        PKCS10 p10 = new PKCS10(kp.getPublic(), new PKCS10Attributes());
+        Signature s = Signature.getInstance("SHA256WithRSA");
+        s.initSign(kp.getPrivate());
+        p10.encodeAndSign(new X500Name(dn), s);
+        return PEM.encode("CERTIFICATE REQUEST", p10.getEncoded());
     }
 
     public String executeBasicWebInteraction(String cookie, String path, String query) throws MalformedURLException, UnsupportedEncodingException, IOException {
