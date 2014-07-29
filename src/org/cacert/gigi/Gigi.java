@@ -15,10 +15,10 @@ import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.email.EmailProvider;
+import org.cacert.gigi.output.Form.CSRFException;
 import org.cacert.gigi.output.Menu;
 import org.cacert.gigi.output.MenuItem;
 import org.cacert.gigi.output.Outputable;
-import org.cacert.gigi.output.Form.CSRFException;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
@@ -26,6 +26,7 @@ import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.TestSecure;
 import org.cacert.gigi.pages.Verify;
 import org.cacert.gigi.pages.account.ChangePasswordPage;
+import org.cacert.gigi.pages.account.DomainOverview;
 import org.cacert.gigi.pages.account.MailCertificateAdd;
 import org.cacert.gigi.pages.account.MailCertificates;
 import org.cacert.gigi.pages.account.MailOverview;
@@ -68,6 +69,7 @@ public class Gigi extends HttpServlet {
         pages.put(RegisterPage.PATH, new RegisterPage());
         pages.put(MailCertificateAdd.PATH, new MailCertificateAdd());
         pages.put(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"));
+        pages.put(DomainOverview.PATH, new DomainOverview("Domains"));
         baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
         m = new Menu("Certificates", "cert", new MenuItem(MailOverview.DEFAULT_PATH, "Emails"), new MenuItem("", "Client Certificates"), new MenuItem("", "Domains"), new MenuItem("", "Server Certificates"));
         super.init();
