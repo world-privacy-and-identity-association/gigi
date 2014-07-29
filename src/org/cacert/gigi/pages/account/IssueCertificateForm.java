@@ -15,12 +15,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.Certificate;
+import org.cacert.gigi.Certificate.CSRType;
 import org.cacert.gigi.Digest;
 import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
-import org.cacert.gigi.Certificate.CSRType;
 import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.HashAlgorithms;
@@ -58,7 +58,7 @@ public class IssueCertificateForm extends Form {
 
     public IssueCertificateForm(HttpServletRequest hsr) {
         super(hsr);
-        u = LoginPage.getUser(hsr);
+        u = Page.getUser(hsr);
         spkacChallange = RandomToken.generateToken(16);
     }
 

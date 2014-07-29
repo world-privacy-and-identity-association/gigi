@@ -14,7 +14,7 @@ import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.Template;
-import org.cacert.gigi.pages.LoginPage;
+import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.Notary.AssuranceResult;
 
@@ -92,7 +92,7 @@ public class AssuranceForm extends Form {
             return false;
         }
         try {
-            AssuranceResult success = Notary.assure(LoginPage.getUser(req), assuree, Integer.parseInt(req.getParameter("points")), req.getParameter("location"), req.getParameter("date"));
+            AssuranceResult success = Notary.assure(Page.getUser(req), assuree, Integer.parseInt(req.getParameter("points")), req.getParameter("location"), req.getParameter("date"));
             if (success != AssuranceResult.ASSURANCE_SUCCEDED) {
                 outputError(out, req, success.getMessage());
             }

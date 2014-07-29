@@ -58,7 +58,7 @@ public class MailCertificates extends Page {
         String serial = pi;
         try {
             Certificate c = Certificate.getBySerial(serial);
-            if (c == null || LoginPage.getUser(req).getId() != c.getOwnerId()) {
+            if (c == null || getUser(req).getId() != c.getOwnerId()) {
                 resp.sendError(404);
                 return true;
             }

@@ -13,7 +13,6 @@ import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.Outputable;
-import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 
 public class MailOverview extends Page {
@@ -29,7 +28,7 @@ public class MailOverview extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        final User us = LoginPage.getUser(req);
+        final User us = getUser(req);
         Language lang = Page.getLanguage(req);
         HashMap<String, Object> vars = new HashMap<>();
         vars.put("mailData", t);

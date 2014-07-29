@@ -70,7 +70,7 @@ public class AssurePage extends Page {
         PrintWriter out = resp.getWriter();
         String pi = req.getPathInfo().substring(PATH.length());
         if (pi.length() > 1) {
-            User myself = LoginPage.getUser(req);
+            User myself = getUser(req);
             int mid = Integer.parseInt(pi.substring(1));
             if (mid == myself.getId()) {
                 out.println(translate(req, "Cannot assure myself."));
