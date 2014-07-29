@@ -7,7 +7,6 @@ import java.security.cert.X509Certificate;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Base64;
 import java.util.HashMap;
 
 import javax.servlet.ServletOutputStream;
@@ -20,6 +19,7 @@ import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.output.CertificateTable;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.PEM;
 
 public class MailCertificates extends Page {
 
@@ -68,10 +68,7 @@ public class MailCertificates extends Page {
             }
             ServletOutputStream out = resp.getOutputStream();
             if (crt) {
-                out.println("-----BEGIN CERTIFICATE-----");
-                String block = Base64.getEncoder().encodeToString(cert.getEncoded()).replaceAll("(.{64})(?=.)", "$1\n");
-                out.println(block);
-                out.println("-----END CERTIFICATE-----");
+                out.println(PEM.encode("CERTIFICATE", cert.getEncoded()));
             } else if (cer) {
                 out.write(cert.getEncoded());
             }

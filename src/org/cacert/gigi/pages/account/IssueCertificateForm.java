@@ -11,7 +11,6 @@ import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.sql.SQLException;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +29,7 @@ import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.PEM;
 import org.cacert.gigi.util.RandomToken;
 
 import sun.security.pkcs10.PKCS10;
@@ -171,13 +171,7 @@ public class IssueCertificateForm extends Form {
     }
 
     private PKCS10 parseCSR(String csr) throws IOException, GeneralSecurityException {
-        csr = csr.replaceFirst("-----BEGIN (NEW )?CERTIFICATE REQUEST-----", "");
-        csr = csr.replaceFirst("-----END (NEW )?CERTIFICATE REQUEST-----", "");
-        csr = csr.replace("\r", "");
-        csr = csr.replace("\n", "");
-        byte[] b = Base64.getDecoder().decode(csr);
-        // Also checks signature validity
-        return new PKCS10(b);
+        return new PKCS10(PEM.decode("(NEW )?CERTIFICATE REQUEST", csr));
     }
 
     @Override
