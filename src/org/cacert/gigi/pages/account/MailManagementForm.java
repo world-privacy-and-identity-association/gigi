@@ -64,7 +64,7 @@ public class MailManagementForm extends Form {
 
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
-        final EmailAddress[] emails = (EmailAddress[]) vars.get("mils");
+        final EmailAddress[] emails = target.getEmails();
         IterableDataset ds = new IterableDataset() {
 
             private int point = 0;

@@ -27,7 +27,6 @@ public class MailOverview extends Page {
         HashMap<String, Object> vars = new HashMap<>();
         vars.put("addForm", new MailAddForm(req, us));
         vars.put("manForm", new MailManagementForm(req, us));
-        vars.put("mils", us.getEmails());
         getDefaultTemplate().output(resp.getWriter(), lang, vars);
     }
 
