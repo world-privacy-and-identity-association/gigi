@@ -11,7 +11,14 @@
     <td><?=_Delete?></td>
     <td><?=_Address?></td>
   </tr>
- <?=$mailData?>
+ <? foreach($emails) {?>
+ 	<tr>
+ 		<td><input type="radio" name="emailid" value="<?=$id?>" <?=$checked?>></td>
+ 		<td><?=$verification?></td>
+ 		<td><?=$delete?></td>
+ 		<td><?=$address?></td>
+ 	</tr>
+ <? } ?>
   <tr>
     <td colspan="2"><input type="submit" name="makedefault" value="Setze als Standard"></td>
     <td colspan="2"><input type="submit" name="delete" value="Löschen"></td>

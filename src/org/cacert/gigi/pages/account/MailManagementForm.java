@@ -10,6 +10,7 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
 import org.cacert.gigi.output.Form;
+import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
 
@@ -63,7 +64,41 @@ public class MailManagementForm extends Form {
 
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
+        final EmailAddress[] emails = (EmailAddress[]) vars.get("mils");
+        IterableDataset ds = new IterableDataset() {
+
+            private int point = 0;
+
+            @Override
+            public boolean next(Language l, Map<String, Object> vars) {
+                if (point >= emails.length) {
+                    return false;
+                }
+                EmailAddress emailAddress = emails[point];
+                int mailID = emailAddress.getId();
+                vars.put("id", mailID);
+                if (emailAddress.getAddress().equals(target.getEmail())) {
+                    vars.put("checked", "checked");
+                } else {
+                    vars.put("checked", "");
+                }
+                if (emailAddress.isVerified()) {
+                    vars.put("verification", "Verified");
+                } else {
+                    vars.put("verification", "Unverified");
+                }
+                if (target.getEmail().equals(emailAddress.getAddress())) {
+                    vars.put("delete", "N/A");
+                } else {
+                    vars.put("delete", "<input type=\"checkbox\" name=\"delid[]\" value=\"" + mailID + "\"/>");
+                }
+                vars.put("address", emailAddress.getAddress());
+                point++;
+                return true;
+            }
+
+        };
+        vars.put("emails", ds);
         t.output(out, l, vars);
     }
-
 }
