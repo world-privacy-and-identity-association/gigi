@@ -328,6 +328,6 @@ public class User {
                 return;
             }
         }
-        throw new GigiApiException("Email not one user's mail addresses.");
+        throw new GigiApiException("Email not one of user's email addresses.");
     }
 }
