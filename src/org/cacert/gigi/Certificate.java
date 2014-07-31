@@ -11,6 +11,10 @@ import java.security.cert.X509Certificate;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.util.Job;
@@ -19,6 +23,41 @@ import org.cacert.gigi.util.KeyStorage;
 import org.cacert.gigi.util.Notary;
 
 public class Certificate {
+
+    public enum SANType {
+        EMAIL("email"), DNS("DNS");
+
+        private final String opensslName;
+
+        private SANType(String opensslName) {
+            this.opensslName = opensslName;
+        }
+
+        public String getOpensslName() {
+            return opensslName;
+        }
+    }
+
+    public static class SubjectAlternateName {
+
+        private SANType type;
+
+        private String name;
+
+        public SubjectAlternateName(SANType type, String name) {
+            this.type = type;
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public SANType getType() {
+            return type;
+        }
+
+    }
 
     public enum CSRType {
         CSR, SPKAC;
@@ -42,12 +81,15 @@ public class Certificate {
 
     private CSRType csrType;
 
-    public Certificate(int ownerId, String dn, String md, String csr, CSRType csrType) {
+    private List<SubjectAlternateName> sans;
+
+    public Certificate(int ownerId, String dn, String md, String csr, CSRType csrType, SubjectAlternateName... sans) {
         this.ownerId = ownerId;
         this.dn = dn;
         this.md = md;
         this.csr = csr;
         this.csrType = csrType;
+        this.sans = Arrays.asList(sans);
     }
 
     private Certificate(String serial) {
@@ -65,6 +107,16 @@ public class Certificate {
             crtName = rs.getString(5);
             ownerId = rs.getInt(6);
             this.serial = serial;
+
+            PreparedStatement ps2 = DatabaseConnection.getInstance().prepare("SELECT contents, type FROM `subjectAlternativeNames` WHERE certId=?");
+            ps2.setInt(1, id);
+            ResultSet rs2 = ps2.executeQuery();
+            sans = new LinkedList<>();
+            while (rs2.next()) {
+                sans.add(new SubjectAlternateName(SANType.valueOf(rs2.getString("type").toUpperCase()), rs2.getString("contents")));
+            }
+            rs2.close();
+
             rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -141,10 +193,12 @@ public class Certificate {
 
         // TODO draft to insert SANs
         PreparedStatement san = DatabaseConnection.getInstance().prepare("INSERT INTO subjectAlternativeNames SET certId=?, contents=?, type=?");
-        san.setInt(1, id);
-        san.setString(2, "<address>");
-        san.setString(3, "email");
-        // san.execute();
+        for (SubjectAlternateName subjectAlternateName : sans) {
+            san.setInt(1, id);
+            san.setString(2, subjectAlternateName.getName());
+            san.setString(3, subjectAlternateName.getType().getOpensslName());
+            san.execute();
+        }
 
         PreparedStatement updater = DatabaseConnection.getInstance().prepare("UPDATE emailcerts SET csr_name=? WHERE id=?");
         updater.setString(1, csrName);
@@ -208,6 +262,10 @@ public class Certificate {
 
     public int getOwnerId() {
         return ownerId;
+    }
+
+    public List<SubjectAlternateName> getSans() {
+        return Collections.unmodifiableList(sans);
     }
 
     public static Certificate getBySerial(String serial) {
