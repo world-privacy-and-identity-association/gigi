@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.output.Outputable;
+import org.cacert.gigi.util.HTMLEncoder;
 
 public class Template implements Outputable {
 
@@ -150,7 +151,7 @@ public class Template implements Outputable {
         data.output(out, l, vars);
     }
 
-    protected static void outputVar(PrintWriter out, Language l, Map<String, Object> vars, String varname) {
+    protected static void outputVar(PrintWriter out, Language l, Map<String, Object> vars, String varname, boolean unescaped) {
         Object s = vars.get(varname);
 
         if (s == null) {
@@ -159,7 +160,7 @@ public class Template implements Outputable {
         if (s instanceof Outputable) {
             ((Outputable) s).output(out, l, vars);
         } else {
-            out.print(s);
+            out.print(s == null ? "null" : (unescaped ? s.toString() : HTMLEncoder.encodeHTML(s.toString())));
         }
     }
 }

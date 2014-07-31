@@ -10,7 +10,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.cacert.gigi.util.HTMLEncoder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -43,7 +42,7 @@ public class Language {
             Element e = (Element) nl.item(i);
             Element id = (Element) e.getElementsByTagName("id").item(0);
             Element msg = (Element) e.getElementsByTagName("msg").item(0);
-            translations.put(id.getTextContent(), HTMLEncoder.encodeHTML(msg.getTextContent()));
+            translations.put(id.getTextContent(), msg.getTextContent());
         }
         System.out.println(translations.size() + " strings loaded.");
     }

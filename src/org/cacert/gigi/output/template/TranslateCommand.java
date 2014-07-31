@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.cacert.gigi.Language;
 import org.cacert.gigi.output.Outputable;
+import org.cacert.gigi.util.HTMLEncoder;
 
 public final class TranslateCommand implements Outputable {
 
@@ -16,6 +17,6 @@ public final class TranslateCommand implements Outputable {
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-        out.print(l.getTranslation(raw));
+        out.print(HTMLEncoder.encodeHTML(l.getTranslation(raw)));
     }
 }
