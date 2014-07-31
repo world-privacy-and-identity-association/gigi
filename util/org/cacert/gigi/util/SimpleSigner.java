@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateFactory;
@@ -26,7 +27,9 @@ public class SimpleSigner {
 
     private static PreparedStatement updateMail;
 
-    private static PreparedStatement readyMail;
+    private static PreparedStatement readyCerts;
+
+    private static PreparedStatement getSANSs;
 
     private static PreparedStatement revoke;
 
@@ -61,8 +64,14 @@ public class SimpleSigner {
             throw new IllegalStateException("already running");
         }
         running = true;
-        readyMail = DatabaseConnection.getInstance().prepare("SELECT emailcerts.id,emailcerts.csr_name,emailcerts.subject, jobs.id,csr_type FROM jobs INNER JOIN emailcerts ON emailcerts.id=jobs.targetId" + " WHERE jobs.state='open'"//
-                + " AND task='sign'");
+        readyCerts = DatabaseConnection.getInstance().prepare("SELECT emailcerts.id AS id, emailcerts.csr_name, emailcerts.subject, jobs.id AS jobid, csr_type, md, keyUsage, extendedKeyUsage FROM jobs " + //
+                "INNER JOIN emailcerts ON emailcerts.id=jobs.targetId " + //
+                "INNER JOIN profiles ON profiles.id=emailcerts.profile " + //
+                "WHERE jobs.state='open' "//
+                + "AND task='sign'");
+
+        getSANSs = DatabaseConnection.getInstance().prepare("SELECT contents, type FROM subjectAlternativeNames " + //
+                "WHERE certId=?");
 
         updateMail = DatabaseConnection.getInstance().prepare("UPDATE emailcerts SET crt_name=?," + " created=NOW(), serial=? WHERE id=?");
         warnMail = DatabaseConnection.getInstance().prepare("UPDATE jobs SET warning=warning+1, state=IF(warning<3, 'open','error') WHERE id=?");
@@ -163,15 +172,42 @@ public class SimpleSigner {
         }
     }
 
+    private static int counter = 0;
+
     private static void signCertificates() throws SQLException, IOException, InterruptedException {
-        ResultSet rs = readyMail.executeQuery();
+        ResultSet rs = readyCerts.executeQuery();
         while (rs.next()) {
-            String csrname = rs.getString(2);
+            String csrname = rs.getString("csr_name");
             System.out.println("sign: " + csrname);
-            int id = rs.getInt(1);
-            String csrType = rs.getString(5);
+            int id = rs.getInt("id");
+            String csrType = rs.getString("csr_type");
             CSRType ct = CSRType.valueOf(csrType);
             File crt = KeyStorage.locateCrt(id);
+
+            String keyUsage = rs.getString("keyUsage");
+            String ekeyUsage = rs.getString("extendedKeyUsage");
+            getSANSs.setInt(1, id);
+            ResultSet san = getSANSs.executeQuery();
+
+            File f = new File("keys", "SANFile" + System.currentTimeMillis() + (counter++) + ".cfg");
+            PrintWriter cfg = new PrintWriter(f);
+            boolean first = true;
+            while (san.next()) {
+                if ( !first) {
+                    cfg.print(", ");
+                } else {
+                    cfg.print("subjectAltName=");
+                }
+                first = false;
+                cfg.print(san.getString("type"));
+                cfg.print(":");
+                cfg.print(san.getString("contents"));
+            }
+            cfg.println();
+            cfg.println("keyUsage=" + keyUsage);
+            cfg.println("extendedKeyUsage=" + ekeyUsage);
+            cfg.close();
+
             String[] call = new String[] {
                     "openssl", "ca",//
                     "-in",
@@ -185,8 +221,13 @@ public class SimpleSigner {
                     "-days",
                     "356",//
                     "-batch",//
+                    "-md",
+                    rs.getString("md"),//
+                    "-extfile",
+                    f.getName(),//
+
                     "-subj",
-                    rs.getString(3),//
+                    rs.getString("subject"),//
                     "-config",
                     "selfsign.config"//
 
@@ -197,6 +238,7 @@ public class SimpleSigner {
             Process p1 = Runtime.getRuntime().exec(call, null, new File("keys"));
 
             int waitFor = p1.waitFor();
+            f.delete();
             if (waitFor == 0) {
                 try (InputStream is = new FileInputStream(crt)) {
                     CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -207,7 +249,7 @@ public class SimpleSigner {
                     updateMail.setInt(3, id);
                     updateMail.execute();
 
-                    finishJob.setInt(1, rs.getInt(4));
+                    finishJob.setInt(1, rs.getInt("jobid"));
                     finishJob.execute();
                     System.out.println("signed: " + id);
                     continue;
@@ -215,7 +257,7 @@ public class SimpleSigner {
                     e.printStackTrace();
                 }
                 System.out.println("ERROR Afterwards: " + id);
-                warnMail.setInt(1, rs.getInt(4));
+                warnMail.setInt(1, rs.getInt("jobid"));
                 warnMail.execute();
             } else {
                 BufferedReader br = new BufferedReader(new InputStreamReader(p1.getErrorStream()));
@@ -225,7 +267,7 @@ public class SimpleSigner {
                 }
                 System.out.println(Arrays.toString(call));
                 System.out.println("ERROR: " + id);
-                warnMail.setInt(1, rs.getInt(4));
+                warnMail.setInt(1, rs.getInt("jobid"));
                 warnMail.execute();
             }
 

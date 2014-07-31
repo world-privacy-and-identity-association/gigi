@@ -126,7 +126,7 @@ public class Certificate {
         }
         Notary.writeUserAgreement(ownerId, "CCA", "issue certificate", "", true, 0);
 
-        PreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO emailcerts SET md=?, subject=?, csr_type=?, crt_name='', memid=?");
+        PreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO emailcerts SET md=?, subject=?, csr_type=?, crt_name='', memid=?, profile=1");
         inserter.setString(1, md);
         inserter.setString(2, dn);
         inserter.setString(3, csrType.toString());
@@ -138,6 +138,13 @@ public class Certificate {
         FileOutputStream fos = new FileOutputStream(csrFile);
         fos.write(csr.getBytes());
         fos.close();
+
+        // TODO draft to insert SANs
+        PreparedStatement san = DatabaseConnection.getInstance().prepare("INSERT INTO subjectAlternativeNames SET certId=?, contents=?, type=?");
+        san.setInt(1, id);
+        san.setString(2, "<address>");
+        san.setString(3, "email");
+        // san.execute();
 
         PreparedStatement updater = DatabaseConnection.getInstance().prepare("UPDATE emailcerts SET csr_name=? WHERE id=?");
         updater.setString(1, csrName);

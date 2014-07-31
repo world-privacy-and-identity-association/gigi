@@ -109,8 +109,7 @@ CREATE TABLE `emailcerts` (
   `keytype` char(2) NOT NULL DEFAULT 'NS',
   `codesign` tinyint(1) NOT NULL DEFAULT '0',
   `md` enum('md5','sha1','sha256','sha512') NOT NULL DEFAULT 'sha512',
-  `rootcert` int(2) NOT NULL DEFAULT '1',
-  `type` enum('client', 'server') DEFAULT NULL,
+  `profile` int(3) NOT NULL,
 
   `csr_name` varchar(255) NOT NULL DEFAULT '',
   `csr_type` enum('CSR', 'SPKAC') NOT NULL,
@@ -141,6 +140,26 @@ CREATE TABLE `clientcerts` (
 
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `profiles`;
+CREATE TABLE `profiles` (
+  `id` int(3) NOT NULL AUTO_INCREMENT,
+  `keyUsage` varchar(100) NOT NULL,
+  `extendedKeyUsage` varchar(100) NOT NULL,
+  `rootcert` int(2) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+INSERT INTO `profiles` SET keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth';
+INSERT INTO `profiles` SET keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='serverAuth';
+INSERT INTO `profiles` SET keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='emailProtection';
+
+DROP TABLE IF EXISTS `subjectAlternativeNames`;
+CREATE TABLE `subjectAlternativeNames` (
+  `certId` int(11) NOT NULL,
+  `contents` varchar(50) NOT NULL,
+  `type` enum('email','DNS') NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+
 
 
 
