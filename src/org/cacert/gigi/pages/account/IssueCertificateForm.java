@@ -54,12 +54,12 @@ public class IssueCertificateForm extends Form {
 
     private final static Template tIni = new Template(MailCertificateAdd.class.getResource("RequestCertificate.templ"));
 
-    String spkacChallange;
+    String spkacChallenge;
 
     public IssueCertificateForm(HttpServletRequest hsr) {
         super(hsr);
         u = Page.getUser(hsr);
-        spkacChallange = RandomToken.generateToken(16);
+        spkacChallenge = RandomToken.generateToken(16);
     }
 
     Certificate result;
@@ -94,14 +94,14 @@ public class IssueCertificateForm extends Form {
                     String cleanedSPKAC = spkac.replaceAll("[\r\n]", "");
                     byte[] data = Base64.getDecoder().decode(cleanedSPKAC);
                     SPKAC parsed = new SPKAC(data);
-                    if ( !parsed.getChallenge().equals(spkacChallange)) {
-                        throw new GigiApiException("Challange mismatch");
+                    if ( !parsed.getChallenge().equals(spkacChallenge)) {
+                        throw new GigiApiException("Challenge mismatch");
                     }
                     checkKeyStrength(parsed.getPubkey(), out);
                     String sign = getSignatureAlgorithm(data);
                     out.println("<br/>digest: " + sign + "<br/>");
 
-                    // spkacChallange
+                    // spkacChallenge
                     this.csr = "SPKAC=" + cleanedSPKAC;
                     this.csrType = CSRType.SPKAC;
 
@@ -170,7 +170,7 @@ public class IssueCertificateForm extends Form {
             HashMap<String, Object> vars2 = new HashMap<String, Object>(vars);
             vars2.put("csrf", getCSRFToken());
             vars2.put("csrf_name", getCsrfFieldName());
-            vars2.put("spkacChallange", spkacChallange);
+            vars2.put("spkacChallenge", spkacChallenge);
             tIni.output(out, l, vars2);
             return;
         } else {
