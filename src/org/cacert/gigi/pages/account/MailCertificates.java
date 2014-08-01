@@ -2,6 +2,7 @@ package org.cacert.gigi.pages.account;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.sql.PreparedStatement;
@@ -17,6 +18,7 @@ import org.cacert.gigi.Certificate;
 import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.output.CertificateTable;
+import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.PEM;
@@ -24,6 +26,8 @@ import org.cacert.gigi.util.PEM;
 public class MailCertificates extends Page {
 
     CertificateTable myTable = new CertificateTable("mailcerts");
+
+    Template certDisplay = new Template(MailCertificates.class.getResource("CertificateDisplay.templ"));
 
     public static final String PATH = "/account/certs/email";
 
@@ -99,33 +103,17 @@ public class MailCertificates extends Page {
                 resp.sendError(404);
                 return;
             }
-            out.print("<a href='");
-            out.print(serial);
-            out.print(".crt'>");
-            out.print(translate(req, "PEM encoded Certificate"));
-            out.println("</a><br/>");
-
-            out.print("<a href='");
-            out.print(serial);
-            out.print(".cer'>");
-            out.print(translate(req, "DER encoded Certificate"));
-            out.println("</a><br/>");
-            out.print("<a href='");
-            out.print(serial);
-            out.print(".cer?install'>");
-            out.print(translate(req, "Install into browser."));
-            out.println("</a><br/>");
-
-            out.println("<pre>");
+            HashMap<String, Object> vars = new HashMap<>();
+            vars.put("serial", URLEncoder.encode(serial, "UTF-8"));
             try {
-                X509Certificate cert = c.cert();
-                out.print(cert);
+                vars.put("cert", c.cert());
             } catch (GeneralSecurityException e) {
                 e.printStackTrace();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            out.println("</pre>");
+            certDisplay.output(out, getLanguage(req), vars);
+
             return;
         }
 
