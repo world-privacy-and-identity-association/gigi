@@ -31,8 +31,8 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 
-DROP TABLE IF EXISTS `domain`;
-CREATE TABLE `domain` (
+DROP TABLE IF EXISTS `domains`;
+CREATE TABLE `domains` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `memid` int(11) NOT NULL,
   `domain` varchar(255) NOT NULL,
@@ -45,8 +45,8 @@ CREATE TABLE `domain` (
   KEY `stats_domains_deleted` (`deleted`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `email`;
-CREATE TABLE `email` (
+DROP TABLE IF EXISTS `emails`;
+CREATE TABLE `emails` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `memid` int(11) NOT NULL DEFAULT '0',
   `email` varchar(255) NOT NULL DEFAULT '',

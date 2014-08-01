@@ -241,7 +241,7 @@ public class User {
 
     public EmailAddress[] getEmails() {
         try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM email WHERE memid=? AND deleted=0");
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM emails WHERE memid=? AND deleted=0");
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             rs.last();
@@ -265,7 +265,7 @@ public class User {
 
     public Domain[] getDomains() {
         try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM domain WHERE memid=? AND deleted IS NULL");
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM domains WHERE memid=? AND deleted IS NULL");
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             rs.last();
@@ -317,7 +317,7 @@ public class User {
         for (int i = 0; i < emails.length; i++) {
             if (emails[i].getId() == mail.getId()) {
                 try {
-                    PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE email SET deleted=? WHERE id=?");
+                    PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE emails SET deleted=? WHERE id=?");
                     ps.setDate(1, new Date(System.currentTimeMillis()));
                     ps.setInt(2, mail.getId());
                     ps.execute();

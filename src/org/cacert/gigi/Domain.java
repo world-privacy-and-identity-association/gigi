@@ -15,7 +15,7 @@ public class Domain {
     int id;
 
     public Domain(int id) throws SQLException {
-        PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid, domain FROM `domain` WHERE id=? AND deleted IS NULL");
+        PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid, domain FROM `domains` WHERE id=? AND deleted IS NULL");
         ps.setInt(1, id);
 
         ResultSet rs = ps.executeQuery();
@@ -36,7 +36,7 @@ public class Domain {
 
     private static void checkInsert(String suffix) throws GigiApiException {
         try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `domain` WHERE (domain=RIGHT(?,LENGTH(domain))  OR RIGHT(domain,LENGTH(?))=?) AND deleted IS NULL");
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `domains` WHERE (domain=RIGHT(?,LENGTH(domain))  OR RIGHT(domain,LENGTH(?))=?) AND deleted IS NULL");
             ps.setString(1, suffix);
             ps.setString(2, suffix);
             ps.setString(3, suffix);
@@ -58,7 +58,7 @@ public class Domain {
         synchronized (Domain.class) {
             checkInsert(suffix);
             try {
-                PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `domain` SET memid=?, domain=?");
+                PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `domains` SET memid=?, domain=?");
                 ps.setInt(1, owner.getId());
                 ps.setString(2, suffix);
                 ps.execute();
@@ -74,7 +74,7 @@ public class Domain {
             throw new GigiApiException("not inserted.");
         }
         try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `domain` SET deleted=CURRENT_TIMESTAMP WHERE id=?");
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `domains` SET deleted=CURRENT_TIMESTAMP WHERE id=?");
             ps.setInt(1, id);
             ps.execute();
         } catch (SQLException e) {

@@ -21,7 +21,7 @@ public class EmailAddress {
     private String hash = null;
 
     private EmailAddress(int id) throws SQLException {
-        PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid, email, hash FROM `email` WHERE id=? AND deleted=0");
+        PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid, email, hash FROM `emails` WHERE id=? AND deleted=0");
         ps.setInt(1, id);
 
         ResultSet rs = ps.executeQuery();
@@ -49,7 +49,7 @@ public class EmailAddress {
             throw new IllegalStateException("already inserted.");
         }
         try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `email` SET memid=?, hash=?, email=?");
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `emails` SET memid=?, hash=?, email=?");
             ps.setInt(1, owner.getId());
             ps.setString(2, hash);
             ps.setString(3, address);
@@ -87,7 +87,7 @@ public class EmailAddress {
         if (this.hash.equals(hash)) {
 
             try {
-                PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `email` SET hash='' WHERE id=?");
+                PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `emails` SET hash='' WHERE id=?");
                 ps.setInt(1, id);
                 ps.execute();
                 hash = "";

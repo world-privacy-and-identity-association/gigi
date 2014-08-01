@@ -126,7 +126,7 @@ public class Signup extends Form {
             return false;
         }
         try {
-            PreparedStatement q1 = DatabaseConnection.getInstance().prepare("select * from `email` where `email`=? and `deleted`=0");
+            PreparedStatement q1 = DatabaseConnection.getInstance().prepare("select * from `emails` where `email`=? and `deleted`=0");
             PreparedStatement q2 = DatabaseConnection.getInstance().prepare("select * from `users` where `email`=? and `deleted`=0");
             q1.setString(1, buildup.getEmail());
             q2.setString(1, buildup.getEmail());
