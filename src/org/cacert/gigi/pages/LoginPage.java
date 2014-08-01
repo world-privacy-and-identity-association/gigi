@@ -91,7 +91,7 @@ public class LoginPage extends Page {
     private void tryAuthWithCertificate(HttpServletRequest req, X509Certificate x509Certificate) {
         String serial = x509Certificate.getSerialNumber().toString(16).toUpperCase();
         try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `emailcerts` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` = " + "'0000-00-00 00:00:00'");
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `certs` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` = " + "'0000-00-00 00:00:00'");
             ps.setString(1, serial);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {

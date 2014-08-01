@@ -120,7 +120,7 @@ public class Certificates extends Page {
         HashMap<String, Object> vars = new HashMap<String, Object>();
         User us = LoginPage.getUser(req);
         try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `id`, `CN`, `serial`, `revoked`, `expire`, `disablelogin` FROM `emailcerts` WHERE `memid`=?");
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `id`, `CN`, `serial`, `revoked`, `expire`, `disablelogin` FROM `certs` WHERE `memid`=?");
             ps.setInt(1, us.getId());
             ResultSet rs = ps.executeQuery();
             vars.put("mailcerts", rs);

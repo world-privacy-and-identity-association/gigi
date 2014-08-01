@@ -94,7 +94,7 @@ public class Certificate {
 
     private Certificate(String serial) {
         try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id,subject, md, csr_name, crt_name,memid FROM `emailcerts` WHERE serial=?");
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id,subject, md, csr_name, crt_name,memid FROM `certs` WHERE serial=?");
             ps.setString(1, serial);
             ResultSet rs = ps.executeQuery();
             if ( !rs.next()) {
@@ -154,7 +154,7 @@ public class Certificate {
         if (id == 0) {
             return CertificateStatus.DRAFT;
         }
-        PreparedStatement searcher = DatabaseConnection.getInstance().prepare("SELECT crt_name, created, revoked, serial FROM emailcerts WHERE id=?");
+        PreparedStatement searcher = DatabaseConnection.getInstance().prepare("SELECT crt_name, created, revoked, serial FROM certs WHERE id=?");
         searcher.setInt(1, id);
         ResultSet rs = searcher.executeQuery();
         if ( !rs.next()) {
@@ -178,7 +178,7 @@ public class Certificate {
         }
         Notary.writeUserAgreement(ownerId, "CCA", "issue certificate", "", true, 0);
 
-        PreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO emailcerts SET md=?, subject=?, csr_type=?, crt_name='', memid=?, profile=1");
+        PreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO certs SET md=?, subject=?, csr_type=?, crt_name='', memid=?, profile=1");
         inserter.setString(1, md);
         inserter.setString(2, dn);
         inserter.setString(3, csrType.toString());
@@ -200,7 +200,7 @@ public class Certificate {
             san.execute();
         }
 
-        PreparedStatement updater = DatabaseConnection.getInstance().prepare("UPDATE emailcerts SET csr_name=? WHERE id=?");
+        PreparedStatement updater = DatabaseConnection.getInstance().prepare("UPDATE certs SET csr_name=? WHERE id=?");
         updater.setString(1, csrName);
         updater.setInt(2, id);
         updater.execute();

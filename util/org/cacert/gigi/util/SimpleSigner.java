@@ -64,20 +64,20 @@ public class SimpleSigner {
             throw new IllegalStateException("already running");
         }
         running = true;
-        readyCerts = DatabaseConnection.getInstance().prepare("SELECT emailcerts.id AS id, emailcerts.csr_name, emailcerts.subject, jobs.id AS jobid, csr_type, md, keyUsage, extendedKeyUsage FROM jobs " + //
-                "INNER JOIN emailcerts ON emailcerts.id=jobs.targetId " + //
-                "INNER JOIN profiles ON profiles.id=emailcerts.profile " + //
+        readyCerts = DatabaseConnection.getInstance().prepare("SELECT certs.id AS id, certs.csr_name, certs.subject, jobs.id AS jobid, csr_type, md, keyUsage, extendedKeyUsage FROM jobs " + //
+                "INNER JOIN certs ON certs.id=jobs.targetId " + //
+                "INNER JOIN profiles ON profiles.id=certs.profile " + //
                 "WHERE jobs.state='open' "//
                 + "AND task='sign'");
 
         getSANSs = DatabaseConnection.getInstance().prepare("SELECT contents, type FROM subjectAlternativeNames " + //
                 "WHERE certId=?");
 
-        updateMail = DatabaseConnection.getInstance().prepare("UPDATE emailcerts SET crt_name=?," + " created=NOW(), serial=? WHERE id=?");
+        updateMail = DatabaseConnection.getInstance().prepare("UPDATE certs SET crt_name=?," + " created=NOW(), serial=? WHERE id=?");
         warnMail = DatabaseConnection.getInstance().prepare("UPDATE jobs SET warning=warning+1, state=IF(warning<3, 'open','error') WHERE id=?");
 
-        revoke = DatabaseConnection.getInstance().prepare("SELECT emailcerts.id, emailcerts.csr_name,jobs.id FROM jobs INNER JOIN emailcerts ON jobs.targetId=emailcerts.id" + " WHERE jobs.state='open' AND task='revoke'");
-        revokeCompleted = DatabaseConnection.getInstance().prepare("UPDATE emailcerts SET revoked=NOW() WHERE id=?");
+        revoke = DatabaseConnection.getInstance().prepare("SELECT certs.id, certs.csr_name,jobs.id FROM jobs INNER JOIN certs ON jobs.targetId=certs.id" + " WHERE jobs.state='open' AND task='revoke'");
+        revokeCompleted = DatabaseConnection.getInstance().prepare("UPDATE certs SET revoked=NOW() WHERE id=?");
 
         finishJob = DatabaseConnection.getInstance().prepare("UPDATE jobs SET state='done' WHERE id=?");
 

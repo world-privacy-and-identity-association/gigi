@@ -99,8 +99,8 @@ CREATE TABLE `user_agreements` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `emailcerts`;
-CREATE TABLE `emailcerts` (
+DROP TABLE IF EXISTS `certs`;
+CREATE TABLE `certs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `memid` int(11) NOT NULL DEFAULT '0',
   `serial` varchar(50) NOT NULL DEFAULT '',
