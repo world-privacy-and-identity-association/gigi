@@ -23,16 +23,16 @@ import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.PEM;
 
-public class MailCertificates extends Page {
+public class Certificates extends Page {
 
     CertificateTable myTable = new CertificateTable("mailcerts");
 
-    Template certDisplay = new Template(MailCertificates.class.getResource("CertificateDisplay.templ"));
+    Template certDisplay = new Template(Certificates.class.getResource("CertificateDisplay.templ"));
 
-    public static final String PATH = "/account/certs/email";
+    public static final String PATH = "/account/certs";
 
-    public MailCertificates() {
-        super("Email Certificates");
+    public Certificates() {
+        super("Certificates");
     }
 
     @Override

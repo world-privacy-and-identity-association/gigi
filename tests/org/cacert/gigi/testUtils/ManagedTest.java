@@ -45,6 +45,7 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.Language;
 import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.cacert.gigi.util.DatabaseManager;
 import org.cacert.gigi.util.PEM;
@@ -303,7 +304,7 @@ public class ManagedTest {
         return headerField.substring(0, headerField.indexOf(';'));
     }
 
-    public static final String SECURE_REFERENCE = "/account/certs/email";
+    public static final String SECURE_REFERENCE = MyDetails.PATH;
 
     public boolean isLoggedin(String cookie) throws IOException {
         URL u = new URL("https://" + getServerName() + SECURE_REFERENCE);

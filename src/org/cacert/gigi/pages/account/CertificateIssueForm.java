@@ -40,7 +40,7 @@ import sun.security.x509.AlgorithmId;
  * This class represents a form that is used for issuing certificates. This
  * class uses "sun.security" and therefore needs "-XDignore.symbol.file"
  */
-public class IssueCertificateForm extends Form {
+public class CertificateIssueForm extends Form {
 
     User u;
 
@@ -50,13 +50,13 @@ public class IssueCertificateForm extends Form {
 
     String csr;
 
-    private final static Template t = new Template(IssueCertificateForm.class.getResource("IssueCertificateForm.templ"));
+    private final static Template t = new Template(CertificateIssueForm.class.getResource("CertificateIssueForm.templ"));
 
-    private final static Template tIni = new Template(MailCertificateAdd.class.getResource("RequestCertificate.templ"));
+    private final static Template tIni = new Template(CertificateAdd.class.getResource("RequestCertificate.templ"));
 
     String spkacChallenge;
 
-    public IssueCertificateForm(HttpServletRequest hsr) {
+    public CertificateIssueForm(HttpServletRequest hsr) {
         super(hsr);
         u = Page.getUser(hsr);
         spkacChallenge = RandomToken.generateToken(16);

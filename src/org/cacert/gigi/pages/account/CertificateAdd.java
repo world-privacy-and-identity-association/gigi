@@ -11,26 +11,26 @@ import org.cacert.gigi.Certificate;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.pages.Page;
 
-public class MailCertificateAdd extends Page {
+public class CertificateAdd extends Page {
 
-    public static final String PATH = "/account/certs/email/new";
+    public static final String PATH = "/account/certs/new";
 
-    public MailCertificateAdd() {
-        super("Create Email certificate");
+    public CertificateAdd() {
+        super("Create certificate");
     }
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        new IssueCertificateForm(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+        new CertificateIssueForm(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
     }
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        IssueCertificateForm f = Form.getForm(req, IssueCertificateForm.class);
+        CertificateIssueForm f = Form.getForm(req, CertificateIssueForm.class);
         if (f.submit(resp.getWriter(), req)) {
             Certificate c = f.getResult();
             String ser = c.getSerial();
-            resp.sendRedirect(MailCertificates.PATH + "/" + ser);
+            resp.sendRedirect(Certificates.PATH + "/" + ser);
         }
         f.output(resp.getWriter(), getLanguage(req), Collections.<String,Object>emptyMap());
 

@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import org.cacert.gigi.Language;
-import org.cacert.gigi.pages.account.MailCertificates;
+import org.cacert.gigi.pages.account.Certificates;
 
 public class CertificateTable implements Outputable {
 
@@ -42,7 +42,7 @@ public class CertificateTable implements Outputable {
                 out.print("<tr><td>&nbsp;</td><td>State</td><td>");
                 out.println(rs.getString("CN"));
                 out.print("</td><td><a href='");
-                out.print(MailCertificates.PATH);
+                out.print(Certificates.PATH);
                 out.print("/");
                 out.print(rs.getString("serial"));
                 out.print("'>");
