@@ -201,6 +201,21 @@ public class CertificateIssueForm extends Form {
             }
         });
         vars2.put("hashs", new HashAlgorithms(selectedDigest));
+        vars2.put("profiles", new IterableDataset() {
+
+            int i = 1;
+
+            @Override
+            public boolean next(Language l, Map<String, Object> vars) {
+                CertificateProfile cp = CertificateProfile.getById(i++);
+                if (cp == null) {
+                    return false;
+                }
+                vars.put("key", cp.getKeyName());
+                vars.put("name", cp.getVisibleName());
+                return true;
+            }
+        });
         t.output(out, l, vars2);
     }
 }
