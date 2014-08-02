@@ -3,7 +3,7 @@ package org.cacert.gigi.output;
 import java.io.PrintWriter;
 import java.util.Map;
 
-import org.cacert.gigi.Language;
+import org.cacert.gigi.localisation.Language;
 
 public class MenuItem implements Outputable {
 

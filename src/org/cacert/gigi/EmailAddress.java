@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.email.EmailProvider;
+import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.util.RandomToken;
 import org.cacert.gigi.util.ServerConstants;
 

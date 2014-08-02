@@ -3,6 +3,7 @@ package org.cacert.gigi;
 import java.io.PrintWriter;
 import java.util.Map;
 
+import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Outputable;
 
 public class Name implements Outputable {

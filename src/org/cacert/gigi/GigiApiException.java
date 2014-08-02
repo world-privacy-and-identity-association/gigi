@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.LinkedList;
 
+import org.cacert.gigi.localisation.Language;
+
 public class GigiApiException extends Exception {
 
     SQLException e;

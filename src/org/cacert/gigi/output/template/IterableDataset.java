@@ -2,7 +2,7 @@ package org.cacert.gigi.output.template;
 
 import java.util.Map;
 
-import org.cacert.gigi.Language;
+import org.cacert.gigi.localisation.Language;
 
 /**
  * Represents some kind of data, that may be iterated over in a template.

@@ -3,7 +3,7 @@ package org.cacert.gigi.output.template;
 import java.io.PrintWriter;
 import java.util.Map;
 
-import org.cacert.gigi.Language;
+import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Outputable;
 import org.cacert.gigi.util.HTMLEncoder;
 

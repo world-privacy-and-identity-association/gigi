@@ -8,7 +8,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.cacert.gigi.Language;
+import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.RandomToken;
 

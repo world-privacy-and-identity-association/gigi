@@ -1,4 +1,4 @@
-package org.cacert.gigi;
+package org.cacert.gigi.localisation;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,7 +23,7 @@ public class Language {
 
     Locale l;
 
-    private Language(String language) throws ParserConfigurationException, IOException, SAXException {
+    protected Language(String language) throws ParserConfigurationException, IOException, SAXException {
         if (language.contains("_")) {
             String[] parts = language.split("_");
             l = new Locale(parts[0], parts[1]);

@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import org.cacert.gigi.Certificate;
-import org.cacert.gigi.Language;
+import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.IterableDataset;
 
 public class CertificateIterable implements IterableDataset {

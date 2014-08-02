@@ -9,7 +9,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.cacert.gigi.Language;
+import org.cacert.gigi.localisation.Language;
 
 public class DateSelector implements Outputable {
 

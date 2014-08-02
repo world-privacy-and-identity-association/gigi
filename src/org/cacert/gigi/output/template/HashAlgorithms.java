@@ -3,7 +3,7 @@ package org.cacert.gigi.output.template;
 import java.util.Map;
 
 import org.cacert.gigi.Digest;
-import org.cacert.gigi.Language;
+import org.cacert.gigi.localisation.Language;
 
 public class HashAlgorithms implements IterableDataset {
 
