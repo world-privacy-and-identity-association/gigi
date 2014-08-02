@@ -8,6 +8,9 @@ A template is constructed from a charstream. Everything that is not in "<?" to "
    
 - <?=s,$var1,$var2,$var3,...,$varn,This %s is, %s free.?>
   Translate the last string. Output $var1,...,$varn replaced into the %s positions in the translated string.
+
+- <?=$!variablename?> will output the variable "variablename" but not HTML-escaped
+- <?=s,$!variablename,My %s text?> will insert the variable "variablename" into the translated text but not HTML-escaped
   
 - <? if($variable) { ?>
   Output/execute the text until "<? } ?>" only if $variable not null or Boolean.FALSE.
