@@ -1,0 +1,30 @@
+<form method="post">
+<table class="wrapper dataTable">
+<thead><tr>
+<td><?=_Renew/Revoke/Delete?></td>
+<td><?=_Status?></td>
+<td><?=_Email Address?></td>
+<td><?=_SerialNumber?></td>
+<td><?=_Digest?></td>
+<td><?=_Issued?></td>
+<td><?=_Revoked?></td>
+<td><?=_Expires?></td>
+<td><?=_Login?></td>
+</tr></thead>
+<tbody>
+<? foreach($certs) {?>
+<tr>
+	<td><input type='checkbox' name='certs[]' value='<?=$serial?>'></td>
+	<td><?=$state?></td>
+	<td><?=$CN?></td>
+	<td><a href='/account/certs/<?=$serial?>'><?=$serial?></a></td>
+	<td><?=$digest?></td>
+	<td><?=$issued?></td>
+	<td><?=$revoked?></td>
+	<td><?=$expire?></td>
+	<td>a</td>
+</tr>
+<? } ?>
+</tbody>
+</table>
+</form>

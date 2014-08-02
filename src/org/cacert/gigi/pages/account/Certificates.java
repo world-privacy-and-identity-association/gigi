@@ -5,8 +5,6 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
@@ -16,16 +14,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.Certificate;
 import org.cacert.gigi.User;
-import org.cacert.gigi.database.DatabaseConnection;
-import org.cacert.gigi.output.CertificateTable;
+import org.cacert.gigi.output.CertificateIterable;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.PEM;
 
 public class Certificates extends Page {
-
-    CertificateTable myTable = new CertificateTable("mailcerts");
 
     Template certDisplay = new Template(Certificates.class.getResource("CertificateDisplay.templ"));
 
@@ -90,6 +85,8 @@ public class Certificates extends Page {
         return true;
     }
 
+    Template certTable = new Template(CertificateIterable.class.getResource("CertificateTable.templ"));
+
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
@@ -119,16 +116,8 @@ public class Certificates extends Page {
 
         HashMap<String, Object> vars = new HashMap<String, Object>();
         User us = LoginPage.getUser(req);
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `id`, `CN`, `serial`, `revoked`, `expire`, `disablelogin` FROM `certs` WHERE `memid`=?");
-            ps.setInt(1, us.getId());
-            ResultSet rs = ps.executeQuery();
-            vars.put("mailcerts", rs);
-            myTable.output(out, getLanguage(req), vars);
-            rs.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        vars.put("certs", new CertificateIterable(us.getCertificates()));
+        certTable.output(out, getLanguage(req), vars);
     }
 
 }

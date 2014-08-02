@@ -287,6 +287,30 @@ public class User {
         return null;
     }
 
+    public Certificate[] getCertificates() {
+        try {
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT serial FROM certs WHERE memid=? AND revoked=0");
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            rs.last();
+            int count = rs.getRow();
+            Certificate[] data = new Certificate[count];
+            rs.beforeFirst();
+            for (int i = 0; i < data.length; i++) {
+                if ( !rs.next()) {
+                    throw new Error("Internal sql api violation.");
+                }
+                data[i] = Certificate.getBySerial(rs.getString(1));
+            }
+            rs.close();
+            return data;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public void updateDefaultEmail(EmailAddress newMail) throws GigiApiException {
         try {
             EmailAddress[] adrs = getEmails();
