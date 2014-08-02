@@ -83,18 +83,21 @@ public class Certificate {
 
     private List<SubjectAlternateName> sans;
 
-    public Certificate(int ownerId, String dn, String md, String csr, CSRType csrType, SubjectAlternateName... sans) {
+    private CertificateProfile profile;
+
+    public Certificate(int ownerId, String dn, String md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) {
         this.ownerId = ownerId;
         this.dn = dn;
         this.md = md;
         this.csr = csr;
         this.csrType = csrType;
+        this.profile = profile;
         this.sans = Arrays.asList(sans);
     }
 
     private Certificate(String serial) {
         try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id,subject, md, csr_name, crt_name,memid FROM `certs` WHERE serial=?");
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id,subject, md, csr_name, crt_name,memid, profile FROM `certs` WHERE serial=?");
             ps.setString(1, serial);
             ResultSet rs = ps.executeQuery();
             if ( !rs.next()) {
@@ -106,6 +109,7 @@ public class Certificate {
             csrName = rs.getString(4);
             crtName = rs.getString(5);
             ownerId = rs.getInt(6);
+            profile = CertificateProfile.getById(rs.getInt(7));
             this.serial = serial;
 
             PreparedStatement ps2 = DatabaseConnection.getInstance().prepare("SELECT contents, type FROM `subjectAlternativeNames` WHERE certId=?");
@@ -178,11 +182,12 @@ public class Certificate {
         }
         Notary.writeUserAgreement(ownerId, "CCA", "issue certificate", "", true, 0);
 
-        PreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO certs SET md=?, subject=?, csr_type=?, crt_name='', memid=?, profile=1");
+        PreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO certs SET md=?, subject=?, csr_type=?, crt_name='', memid=?, profile=?");
         inserter.setString(1, md);
         inserter.setString(2, dn);
         inserter.setString(3, csrType.toString());
         inserter.setInt(4, ownerId);
+        inserter.setInt(5, profile.getId());
         inserter.execute();
         id = DatabaseConnection.lastInsertId(inserter);
         File csrFile = KeyStorage.locateCsr(id);
@@ -266,6 +271,10 @@ public class Certificate {
 
     public List<SubjectAlternateName> getSans() {
         return Collections.unmodifiableList(sans);
+    }
+
+    public CertificateProfile getProfile() {
+        return profile;
     }
 
     public static Certificate getBySerial(String serial) {

@@ -24,7 +24,7 @@ public class TestSeparateSessionScope extends ManagedTest {
         String cookie = login(mail, TEST_PASSWORD);
         KeyPair kp = generateKeypair();
         String csr = generatePEMCSR(kp, "CN=felix@dogcraft.de");
-        Certificate c = new Certificate(user, "/CN=testmail@example.com", "sha256", csr, CSRType.CSR);
+        Certificate c = new Certificate(user, "/CN=testmail@example.com", "sha256", csr, CSRType.CSR, CertificateProfile.getById(1));
         final PrivateKey pk = kp.getPrivate();
         c.issue().waitFor(60000);
         final X509Certificate ce = c.cert();

@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.Certificate;
 import org.cacert.gigi.Certificate.CSRType;
+import org.cacert.gigi.CertificateProfile;
 import org.cacert.gigi.Digest;
 import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.GigiApiException;
@@ -116,7 +117,7 @@ public class CertificateIssueForm extends Form {
                         return false;
                     }
                     System.out.println("issuing " + selectedDigest);
-                    result = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User", selectedDigest.toString(), this.csr, this.csrType);
+                    result = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User", selectedDigest.toString(), this.csr, this.csrType, CertificateProfile.getById(1));
                     result.issue().waitFor(60000);
                     return true;
                 }

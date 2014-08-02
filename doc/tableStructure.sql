@@ -144,14 +144,17 @@ CREATE TABLE `clientcerts` (
 DROP TABLE IF EXISTS `profiles`;
 CREATE TABLE `profiles` (
   `id` int(3) NOT NULL AUTO_INCREMENT,
+  `keyname` varchar(10) NOT NULL,
   `keyUsage` varchar(100) NOT NULL,
   `extendedKeyUsage` varchar(100) NOT NULL,
   `rootcert` int(2) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`)
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE (`keyname`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
-INSERT INTO `profiles` SET keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth';
-INSERT INTO `profiles` SET keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='serverAuth';
-INSERT INTO `profiles` SET keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='emailProtection';
+INSERT INTO `profiles` SET keyname='client', name='ssl-client', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth';
+INSERT INTO `profiles` SET keyname='server', name='ssl-server', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='serverAuth';
+INSERT INTO `profiles` SET keyname='mail',  name='mail', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='emailProtection';
 
 DROP TABLE IF EXISTS `subjectAlternativeNames`;
 CREATE TABLE `subjectAlternativeNames` (

@@ -60,16 +60,18 @@
       <label for="expertbox"><?=_Show advanced options?></label>
     </td>
   </tr>
-
-<? if($points50) { ?>
-  <tr class="expert">
-    <td colspan="2" align="left">
-      <input type="radio" id="root1" name="rootcert" value="1" /> <label for="root1"><?=_Sign by class 1 root certificate?></label><br />
-      <input type="radio" id="root2" name="rootcert" value="2" checked="checked" /> <label for="root2"><?=_Sign by class 3 root certificate?></label><br />
-      <?=_Please note: If you use a certificate signed by the class 3 root, the class 3 root certificate needs to be imported into your email program as well as the class 1 root certificate so your email program can build a full trust path chain.?>
+  <tr>
+    <td>
+    </td>
+    <td>
+    <select name="profile">
+    <? foreach($profiles) { ?>
+      <option value="<?=$key?>"><?=$name?></option>
+    <? } ?>
+    </select>
     </td>
   </tr>
-<? } ?>
+
 
   <tr class="expert">
     <td colspan="2" align="left">
@@ -80,18 +82,6 @@
       <? } ?>
     </td>
   </tr>
-
-<? if($codesign) { ?>
-  <tr class="expert">
-    <td>
-      <input type="checkbox" id="codesign" name="codesign" value="1" />
-    </td>
-    <td align="left">
-      <label for="codesign"><?=_Code Signing?><br />
-      <?=_Please note: By ticking this box you will automatically have your name included in the certificate.?></label>
-    </td>
-  </tr>
-<? } ?>
 
   <tr>
     <td>
