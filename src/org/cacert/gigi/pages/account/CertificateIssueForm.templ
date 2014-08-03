@@ -15,6 +15,18 @@
   </thead>
   <tbody>
   <tr>
+    <td>
+    </td>
+    <td>
+    <?=_Key type?>: 
+    <select name="profile">
+    <? foreach($profiles) { ?>
+      <option value="<?=$key?>"><?=$name?></option>
+    <? } ?>
+    </select>
+    </td>
+  </tr>
+  <tr>
     <td><?=_Add?></td>
     <td><?=_Address?></td>
   </tr>
@@ -60,18 +72,6 @@
       <label for="expertbox"><?=_Show advanced options?></label>
     </td>
   </tr>
-  <tr>
-    <td>
-    </td>
-    <td>
-    <select name="profile">
-    <? foreach($profiles) { ?>
-      <option value="<?=$key?>"><?=$name?></option>
-    <? } ?>
-    </select>
-    </td>
-  </tr>
-
 
   <tr class="expert">
     <td colspan="2" align="left">

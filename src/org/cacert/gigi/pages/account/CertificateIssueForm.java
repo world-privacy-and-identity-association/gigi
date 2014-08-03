@@ -116,8 +116,10 @@ public class CertificateIssueForm extends Form {
                         outputError(out, req, "You need to accept the CCA.");
                         return false;
                     }
+                    CertificateProfile profile = CertificateProfile.getByName(req.getParameter("profile"));
+
                     System.out.println("issuing " + selectedDigest);
-                    result = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User", selectedDigest.toString(), this.csr, this.csrType, CertificateProfile.getById(1));
+                    result = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User", selectedDigest.toString(), this.csr, this.csrType, profile);
                     result.issue().waitFor(60000);
                     return true;
                 }
