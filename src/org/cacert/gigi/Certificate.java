@@ -269,7 +269,7 @@ public class Certificate {
         return ownerId;
     }
 
-    public List<SubjectAlternateName> getSans() {
+    public List<SubjectAlternateName> getSANs() {
         return Collections.unmodifiableList(sans);
     }
 

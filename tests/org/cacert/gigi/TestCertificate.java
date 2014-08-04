@@ -16,6 +16,7 @@ import org.cacert.gigi.Certificate.SubjectAlternateName;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
 
+import sun.security.x509.GeneralNameInterface;
 import static org.junit.Assert.*;
 
 public class TestCertificate extends ManagedTest {
@@ -32,7 +33,7 @@ public class TestCertificate extends ManagedTest {
     }
 
     @Test
-    public void testSans() throws IOException, GeneralSecurityException, SQLException, InterruptedException {
+    public void testSANs() throws IOException, GeneralSecurityException, SQLException, InterruptedException {
         KeyPair kp = generateKeypair();
         String key = generatePEMCSR(kp, "CN=testmail@example.com");
         Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key, CSRType.CSR, CertificateProfile.getById(1),//
@@ -48,14 +49,18 @@ public class TestCertificate extends ManagedTest {
         for (List<?> list : sans) {
             assertEquals(2, list.size());
             Integer type = (Integer) list.get(0);
-            if (type == 1) {
+            switch (type) {
+            case GeneralNameInterface.NAME_RFC822:
                 hadEmail = true;
                 assertEquals("testmail@example.com", list.get(1));
-            } else if (type == 2) {
+                break;
+            case GeneralNameInterface.NAME_DNS:
                 hadDNS = true;
                 assertEquals("testmail.example.com", list.get(1));
-            } else {
+                break;
+            default:
                 fail("Unknown type");
+
             }
         }
         assertTrue(hadDNS);
@@ -64,15 +69,15 @@ public class TestCertificate extends ManagedTest {
         testFails(CertificateStatus.ISSUED, c);
 
         Certificate c2 = Certificate.getBySerial(c.getSerial());
-        assertEquals(2, c2.getSans().size());
-        assertEquals(c.getSans().get(0).getName(), c2.getSans().get(0).getName());
-        assertEquals(c.getSans().get(0).getType(), c2.getSans().get(0).getType());
-        assertEquals(c.getSans().get(1).getName(), c2.getSans().get(1).getName());
-        assertEquals(c.getSans().get(1).getType(), c2.getSans().get(1).getType());
+        assertEquals(2, c2.getSANs().size());
+        assertEquals(c.getSANs().get(0).getName(), c2.getSANs().get(0).getName());
+        assertEquals(c.getSANs().get(0).getType(), c2.getSANs().get(0).getType());
+        assertEquals(c.getSANs().get(1).getName(), c2.getSANs().get(1).getName());
+        assertEquals(c.getSANs().get(1).getType(), c2.getSANs().get(1).getType());
 
         try {
-            c2.getSans().remove(0);
-            fail("the list should no be modifiable");
+            c2.getSANs().remove(0);
+            fail("the list should not be modifiable");
         } catch (UnsupportedOperationException e) {
             // expected
         }
