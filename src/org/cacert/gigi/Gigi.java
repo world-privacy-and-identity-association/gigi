@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.database.DatabaseConnection;
-import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Form.CSRFException;
 import org.cacert.gigi.output.Menu;
@@ -52,7 +51,6 @@ public class Gigi extends HttpServlet {
     Menu m;
 
     public Gigi(Properties conf) {
-        EmailProvider.init(conf);
         DatabaseConnection.init(conf);
     }
 

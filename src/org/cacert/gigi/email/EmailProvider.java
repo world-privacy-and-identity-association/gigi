@@ -5,12 +5,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.security.GeneralSecurityException;
+import java.security.Key;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import org.cacert.gigi.crypto.SMIME;
 import org.cacert.gigi.database.DatabaseConnection;
 
 public abstract class EmailProvider {
@@ -18,6 +24,19 @@ public abstract class EmailProvider {
     public abstract void sendmail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException;
 
     private static EmailProvider instance;
+
+    private X509Certificate c;
+
+    private PrivateKey k;
+
+    protected final void init(Certificate c, Key k) {
+        this.c = (X509Certificate) c;
+        this.k = (PrivateKey) k;
+    }
+
+    protected final void sendSigned(String contents, PrintWriter output) throws IOException, GeneralSecurityException {
+        SMIME.smime(contents, k, c, output);
+    }
 
     public static EmailProvider getInstance() {
         return instance;
@@ -27,10 +46,12 @@ public abstract class EmailProvider {
         EmailProvider.instance = instance;
     }
 
-    public static void init(Properties conf) {
+    public static void initSystem(Properties conf, Certificate cert, Key pk) {
         try {
             Class<?> c = Class.forName(conf.getProperty("emailProvider"));
-            instance = (EmailProvider) c.getDeclaredConstructor(Properties.class).newInstance(conf);
+            EmailProvider ep = (EmailProvider) c.getDeclaredConstructor(Properties.class).newInstance(conf);
+            ep.init(cert, pk);
+            instance = ep;
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }

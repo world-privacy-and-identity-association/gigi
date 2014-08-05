@@ -5,12 +5,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.regex.Pattern;
+
+import org.cacert.gigi.util.ServerConstants;
 
 public class Sendmail extends EmailProvider {
 
@@ -23,7 +26,7 @@ public class Sendmail extends EmailProvider {
 
         String[] bits = from.split(",");
 
-        Socket smtp = new Socket("dogcraft.de", 25);
+        Socket smtp = new Socket("localhost", 25);
         PrintWriter out = new PrintWriter(smtp.getOutputStream());
         BufferedReader in = new BufferedReader(new InputStreamReader(smtp.getInputStream()));
         readResponse(in);
@@ -56,7 +59,7 @@ public class Sendmail extends EmailProvider {
         } else {
             out.print("Reply-To: " + from + "\r\n");
         }
-        out.print("From: " + from + "\r\n");
+        out.print("From: support@" + ServerConstants.getWwwHostName().replaceAll("^www.", "") + "\r\n");
         out.print("To: " + to + "\r\n");
         if (NON_ASCII.matcher(subject).matches()) {
 
@@ -64,24 +67,24 @@ public class Sendmail extends EmailProvider {
         } else {
             out.print("Subject: " + subject + "\r\n");
         }
-        out.print("Mime-Version: 1.0\r\n");
-        if ( !extra) {
-            out.print("Content-Type: text/plain; charset=\"utf-8\"\r\n");
-            out.print("Content-Transfer-Encoding: 8bit\r\n");
-        } else {
-            out.print("Content-Type: text/plain; charset=\"iso-8859-1\"\r\n");
-            out.print("Content-Transfer-Encoding: quoted-printable\r\n");
-            out.print("Content-Disposition: inline\r\n");
-        }
-        // out.print("Content-Transfer-Encoding: BASE64\r\n");
-        out.print("\r\n");
+        StringBuffer headers = new StringBuffer();
+        headers.append("Content-Type: text/plain; charset=\"utf-8\"\r\n");
+        headers.append("Content-Transfer-Encoding: base64\r\n");
         // out.print(chunk_split(base64_encode(recode("html..utf-8",
         // $message)))."\r\n.\r\n");
-        message = message + "\r\n";
+        headers.append("\r\n");
+        headers.append(Base64.getEncoder().encodeToString(message.getBytes("UTF-8")).replaceAll("(.{64})(?=.)", "$1\r\n"));
+        headers.append("\r\n");
 
-        String sendM = message.replace("\r", "").replace("\n.\n", "\n").replace("\n.\n", "\n").replace("\n", "\r\n") + ".\r\n";
-        out.print(sendM);
-        out.flush();
+        try {
+            sendSigned(headers.toString(), out);
+            out.print("\r\n.\r\n");
+            out.flush();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+            smtp.close();
+            return;
+        }
         readResponse(in);
         out.print("QUIT\n");
         out.flush();
