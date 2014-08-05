@@ -33,9 +33,21 @@ import org.cacert.gigi.util.PEM;
 import org.cacert.gigi.util.RandomToken;
 
 import sun.security.pkcs10.PKCS10;
+import sun.security.pkcs10.PKCS10Attribute;
+import sun.security.pkcs10.PKCS10Attributes;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerValue;
+import sun.security.util.ObjectIdentifier;
 import sun.security.x509.AlgorithmId;
+import sun.security.x509.CertificateExtensions;
+import sun.security.x509.DNSName;
+import sun.security.x509.ExtendedKeyUsageExtension;
+import sun.security.x509.Extension;
+import sun.security.x509.GeneralName;
+import sun.security.x509.GeneralNameInterface;
+import sun.security.x509.GeneralNames;
+import sun.security.x509.RFC822Name;
+import sun.security.x509.SubjectAlternativeNameExtension;
 
 /**
  * This class represents a form that is used for issuing certificates. This
@@ -80,7 +92,57 @@ public class CertificateIssueForm extends Form {
                 if (csr != null) {
                     byte[] data = PEM.decode("(NEW )?CERTIFICATE REQUEST", csr);
                     PKCS10 parsed = new PKCS10(data);
+                    PKCS10Attributes atts = parsed.getAttributes();
+                    ObjectIdentifier extensionsRequest = ObjectIdentifier.newInternal(new int[] {
+                            1, 2, 840, 113549, 1, 9, 14
+                    });
 
+                    for (PKCS10Attribute b : atts.getAttributes()) {
+
+                        if ( !b.getAttributeId().equals((Object) extensionsRequest)) {
+                            // unknown attrib
+                            continue;
+                        }
+                        Object attribs = b.getAttributeValue();
+                        CertificateExtensions ce = (CertificateExtensions) attribs;
+                        for (Extension c : ce.getAllExtensions()) {
+                            if (c instanceof SubjectAlternativeNameExtension) {
+
+                                SubjectAlternativeNameExtension san = (SubjectAlternativeNameExtension) c;
+                                GeneralNames obj = san.get(SubjectAlternativeNameExtension.SUBJECT_NAME);
+                                for (int i = 0; i < obj.size(); i++) {
+                                    GeneralName generalName = obj.get(i);
+                                    GeneralNameInterface peeled = generalName.getName();
+                                    if (peeled instanceof DNSName) {
+                                        System.out.println("is-dns: " + ((DNSName) peeled).getName());
+                                    } else if (peeled instanceof RFC822Name) {
+                                        System.out.println("is email: " + ((RFC822Name) peeled).getName());
+                                    }
+                                }
+                            } else if (c instanceof ExtendedKeyUsageExtension) {
+                                ExtendedKeyUsageExtension ekue = (ExtendedKeyUsageExtension) c;
+                                for (String s : ekue.getExtendedKeyUsage()) {
+                                    System.out.println("Usage: " + s);
+                                    if (s.equals("1.3.6.1.5.5.7.3.1")) {
+                                        // server
+                                    } else if (s.equals("1.3.6.1.5.5.7.3.2")) {
+                                        // client
+                                    } else if (s.equals("1.3.6.1.5.5.7.3.3")) {
+                                        // code sign
+                                    } else if (s.equals("1.3.6.1.5.5.7.3.4")) {
+                                        System.out.println("Us: emailProtection");
+                                    } else if (s.equals("1.3.6.1.5.5.7.3.8")) {
+                                        // timestamp
+                                    } else if (s.equals("1.3.6.1.5.5.7.3.9")) {
+                                        // OCSP
+                                    }
+                                }
+                            } else {
+                                // Unknown requestet extension
+                            }
+                        }
+
+                    }
                     out.println(parsed.getSubjectName().getCommonName());
                     out.println(parsed.getSubjectName().getCountry());
                     out.println("CSR DN: " + parsed.getSubjectName() + "<br/>");
