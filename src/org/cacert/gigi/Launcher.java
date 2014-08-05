@@ -2,7 +2,12 @@ package org.cacert.gigi;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.Key;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
 import java.util.List;
 import java.util.Properties;
 
@@ -14,6 +19,7 @@ import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSession;
 
 import org.cacert.gigi.api.GigiAPI;
+import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.natives.SetUID;
 import org.cacert.gigi.util.CipherInfo;
 import org.cacert.gigi.util.ServerConstants;
@@ -42,6 +48,7 @@ public class Launcher {
     public static void main(String[] args) throws Exception {
         GigiConfig conf = GigiConfig.parse(System.in);
         ServerConstants.init(conf.getMainProps());
+        initEmails(conf);
 
         Server s = new Server();
         // === SSL HTTP Configuration ===
@@ -71,6 +78,13 @@ public class Launcher {
                 Log.getLogger(Launcher.class).warn("Couldn't set uid!");
             }
         }
+    }
+
+    private static void initEmails(GigiConfig conf) throws GeneralSecurityException, IOException, KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException {
+        KeyStore privateStore = conf.getPrivateStore();
+        Certificate mail = privateStore.getCertificate("mail");
+        Key k = privateStore.getKey("mail", conf.getPrivateStorePw().toCharArray());
+        EmailProvider.initSystem(conf.getMainProps(), mail, k);
     }
 
     private static SslConnectionFactory createConnectionFactory(GigiConfig conf) throws GeneralSecurityException, IOException {
