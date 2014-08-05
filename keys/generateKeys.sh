@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 # this script generates a set of sample keys
 DOMAIN="cacert.local"
 KEYSIZE=4096
 PRIVATEPW="changeit"
 
-[ -f config ] && . config
+[ -f config ] && . ./config
 
 
 rm -Rf *.csr *.crt *.key *.pkcs12 *.ca *.crl
@@ -46,7 +46,7 @@ authorityKeyIdentifier = keyid:always,issuer:always
 TESTCA
 
 
-function genca(){ #subj, internalName
+genca(){ #subj, internalName
 
     openssl genrsa -out $2.key ${KEYSIZE}
     openssl req -new -key $2.key -out $2.csr -subj "$1/O=Test Environment CA Ltd./OU=Test Environment CAs"
@@ -59,17 +59,17 @@ function genca(){ #subj, internalName
 
 }
 
-function caSign(){ # key,ca,config
-    pushd $2.ca
+caSign(){ # key,ca,config
+    cd $2.ca
     openssl ca -cert ../$2.crt -keyfile ../$2.key -in ../$1.csr -out ../$1.crt -days 365 -batch -config ../selfsign.config -extfile ../$3
-    popd
+    cd ..
 }
 
-function rootSign(){ # key
+rootSign(){ # key
     caSign $1 root test_subca.cnf
 }
 
-function genserver(){ #key, subject, config
+genserver(){ #key, subject, config
     openssl genrsa -out $1.key ${KEYSIZE}
     openssl req -new -key $1.key -out $1.csr -subj "$2" -config selfsign.config
     caSign $1 env "$3"
