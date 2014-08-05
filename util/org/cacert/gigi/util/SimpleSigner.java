@@ -123,17 +123,17 @@ public class SimpleSigner {
             String[] call = new String[] {
                     "openssl", "ca",//
                     "-cert",
-                    "testca.crt",//
+                    "../unassured.crt",//
                     "-keyfile",
-                    "testca.key",//
+                    "../unassured.key",//
                     "-revoke",
-                    "../" + crt.getPath(),//
+                    "../../" + crt.getPath(),//
                     "-batch",//
                     "-config",
-                    "selfsign.config"
+                    "../selfsign.config"
 
             };
-            Process p1 = Runtime.getRuntime().exec(call, null, new File("keys"));
+            Process p1 = Runtime.getRuntime().exec(call, null, new File("keys/unassured.ca"));
             System.out.println("revoking: " + crt.getPath());
             if (p1.waitFor() == 0) {
                 worked = true;
@@ -154,19 +154,19 @@ public class SimpleSigner {
         String[] call = new String[] {
                 "openssl", "ca",//
                 "-cert",
-                "testca.crt",//
+                "../unassured.crt",//
                 "-keyfile",
-                "testca.key",//
+                "../unassured.key",//
                 "-gencrl",//
                 "-crlhours",//
                 "12",//
                 "-out",
-                "testca.crl",//
+                "../unassured.crl",//
                 "-config",
-                "selfsign.config"
+                "../selfsign.config"
 
         };
-        Process p1 = Runtime.getRuntime().exec(call, null, new File("keys"));
+        Process p1 = Runtime.getRuntime().exec(call, null, new File("keys/unassured.ca"));
         if (p1.waitFor() != 0) {
             System.out.println("Error while generating crl.");
         }
@@ -211,31 +211,31 @@ public class SimpleSigner {
             String[] call = new String[] {
                     "openssl", "ca",//
                     "-in",
-                    "../" + csrname,//
+                    "../../" + csrname,//
                     "-cert",
-                    "testca.crt",//
+                    "../unassured.crt",//
                     "-keyfile",
-                    "testca.key",//
+                    "../unassured.key",//
                     "-out",
-                    "../" + crt.getPath(),//
+                    "../../" + crt.getPath(),//
                     "-days",
                     "356",//
                     "-batch",//
                     "-md",
                     rs.getString("md"),//
                     "-extfile",
-                    f.getName(),//
+                    "../" + f.getName(),//
 
                     "-subj",
                     rs.getString("subject"),//
                     "-config",
-                    "selfsign.config"//
+                    "../selfsign.config"//
 
             };
             if (ct == CSRType.SPKAC) {
                 call[2] = "-spkac";
             }
-            Process p1 = Runtime.getRuntime().exec(call, null, new File("keys"));
+            Process p1 = Runtime.getRuntime().exec(call, null, new File("keys/unassured.ca"));
 
             int waitFor = p1.waitFor();
             f.delete();

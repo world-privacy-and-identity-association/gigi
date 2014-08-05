@@ -1,9 +1,13 @@
+#generated keys
 *.crt
 *.csr
 *.key
 *.pkcs12
-testca
+*.ca
+*.crl
 csr
 crt
-testca.crl
+
+# user specific generation config
 config
+
