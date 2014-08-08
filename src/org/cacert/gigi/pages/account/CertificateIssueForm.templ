@@ -27,15 +27,13 @@
     </td>
   </tr>
   <tr>
-    <td><?=_Add?></td>
-    <td><?=_Address?></td>
+    <td><?=_Common name?></td>
+    <td><input type='text' name='CN' value='<?=$CN?>'></td>
   </tr>
-<? foreach($emails) { ?>
   <tr>
-    <td><input type="checkbox" id="addid<?=$id?>" name="addid[]" value="<?=$id?>"></td>
-    <td align="left"><label for="addid<?=$id?>"><?=$value?></label></td>
+    <td>SANs</td>
+    <td align="left"><textarea rows='5' name='SANs'><?=$emails?></textarea></td>
   </tr>
-<? } ?>
 
 <? if($points50) { ?>
   <tr>
@@ -48,21 +46,6 @@
   </tr>
 <? } ?>
 
-  <tr>
-    <td>
-      <input type="checkbox" id="login" name="login" value="1" checked="checked" />
-    </td>
-    <td align="left">
-      <label for="login"><?=_Enable certificate login with this certificate?><br />
-      <?=_By allowing certificate login, this certificate can be used to login into this account at https://secure.cacert.org/ .?></label>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2" align="left">
-      <label for="description"><?=_Optional comment, only used in the certificate overview?></label><br />
-      <input type="text" id="description" name="description" maxlength="100" size="100" />
-    </td>
-  </tr>
 
   <tr class="expertoff">
     <td>
@@ -80,6 +63,22 @@
         <input type="radio" id="hash_alg_<?=$algorithm?>" name="hash_alg" value="<?=$algorithm?>"<?=$checked?>/>
         <label for="hash_alg_<?=$algorithm?>"><?=$name?><? if($info) { ?> - <?=$info?><? } ?></label><br />
       <? } ?>
+    </td>
+  </tr>
+  <tr><td colspan='2'>&nbsp;</td></tr>
+  <tr>
+    <td>
+      <input type="checkbox" id="login" name="login" value="1" checked="checked" />
+    </td>
+    <td align="left">
+      <label for="login"><?=_Enable certificate login with this certificate?><br />
+      <?=_By allowing certificate login, this certificate can be used to login into this account at https://secure.cacert.org/ .?></label>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="left">
+      <label for="description"><?=_Optional comment, only used in the certificate overview?></label><br />
+      <input type="text" id="description" name="description" maxlength="100" size="100" />
     </td>
   </tr>
 

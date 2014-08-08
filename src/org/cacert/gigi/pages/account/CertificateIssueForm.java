@@ -10,15 +10,19 @@ import java.security.interfaces.RSAPublicKey;
 import java.sql.SQLException;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.Certificate;
 import org.cacert.gigi.Certificate.CSRType;
+import org.cacert.gigi.Certificate.SANType;
+import org.cacert.gigi.Certificate.SubjectAlternateName;
 import org.cacert.gigi.CertificateProfile;
 import org.cacert.gigi.Digest;
-import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.User;
 import org.cacert.gigi.crypto.SPKAC;
@@ -32,12 +36,13 @@ import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.PEM;
 import org.cacert.gigi.util.RandomToken;
 
+import sun.security.pkcs.PKCS9Attribute;
 import sun.security.pkcs10.PKCS10;
 import sun.security.pkcs10.PKCS10Attribute;
 import sun.security.pkcs10.PKCS10Attributes;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerValue;
-import sun.security.util.ObjectIdentifier;
+import sun.security.x509.AVA;
 import sun.security.x509.AlgorithmId;
 import sun.security.x509.CertificateExtensions;
 import sun.security.x509.DNSName;
@@ -46,8 +51,10 @@ import sun.security.x509.Extension;
 import sun.security.x509.GeneralName;
 import sun.security.x509.GeneralNameInterface;
 import sun.security.x509.GeneralNames;
+import sun.security.x509.RDN;
 import sun.security.x509.RFC822Name;
 import sun.security.x509.SubjectAlternativeNameExtension;
+import sun.security.x509.X500Name;
 
 /**
  * This class represents a form that is used for issuing certificates. This
@@ -55,19 +62,25 @@ import sun.security.x509.SubjectAlternativeNameExtension;
  */
 public class CertificateIssueForm extends Form {
 
-    User u;
-
-    Digest selectedDigest = Digest.getDefault();
-
-    boolean login;
-
-    String csr;
-
     private final static Template t = new Template(CertificateIssueForm.class.getResource("CertificateIssueForm.templ"));
 
     private final static Template tIni = new Template(CertificateAdd.class.getResource("RequestCertificate.templ"));
 
+    User u;
+
+    private CSRType csrType;
+
+    String csr;
+
     String spkacChallenge;
+
+    String CN = "";
+
+    Set<SubjectAlternateName> SANs = new LinkedHashSet<>();
+
+    Digest selectedDigest = Digest.getDefault();
+
+    boolean login;
 
     public CertificateIssueForm(HttpServletRequest hsr) {
         super(hsr);
@@ -76,8 +89,6 @@ public class CertificateIssueForm extends Form {
     }
 
     Certificate result;
-
-    private CSRType csrType;
 
     public Certificate getResult() {
         return result;
@@ -93,19 +104,25 @@ public class CertificateIssueForm extends Form {
                     byte[] data = PEM.decode("(NEW )?CERTIFICATE REQUEST", csr);
                     PKCS10 parsed = new PKCS10(data);
                     PKCS10Attributes atts = parsed.getAttributes();
-                    ObjectIdentifier extensionsRequest = ObjectIdentifier.newInternal(new int[] {
-                            1, 2, 840, 113549, 1, 9, 14
-                    });
 
                     for (PKCS10Attribute b : atts.getAttributes()) {
 
-                        if ( !b.getAttributeId().equals((Object) extensionsRequest)) {
+                        if ( !b.getAttributeId().equals((Object) PKCS9Attribute.EXTENSION_REQUEST_OID)) {
                             // unknown attrib
                             continue;
                         }
-                        Object attribs = b.getAttributeValue();
-                        CertificateExtensions ce = (CertificateExtensions) attribs;
-                        for (Extension c : ce.getAllExtensions()) {
+
+                        for (RDN r : parsed.getSubjectName().rdns()) {
+                            for (AVA a : r.avas()) {
+                                if (a.getObjectIdentifier().equals((Object) PKCS9Attribute.EMAIL_ADDRESS_OID)) {
+                                    SANs.add(new SubjectAlternateName(SANType.EMAIL, a.getValueString()));
+                                } else if (a.getObjectIdentifier().equals((Object) X500Name.commonName_oid)) {
+                                    CN = a.getValueString();
+                                }
+                            }
+                        }
+
+                        for (Extension c : ((CertificateExtensions) b.getAttributeValue()).getAllExtensions()) {
                             if (c instanceof SubjectAlternativeNameExtension) {
 
                                 SubjectAlternativeNameExtension san = (SubjectAlternativeNameExtension) c;
@@ -114,15 +131,14 @@ public class CertificateIssueForm extends Form {
                                     GeneralName generalName = obj.get(i);
                                     GeneralNameInterface peeled = generalName.getName();
                                     if (peeled instanceof DNSName) {
-                                        System.out.println("is-dns: " + ((DNSName) peeled).getName());
+                                        SANs.add(new SubjectAlternateName(SANType.DNS, ((DNSName) peeled).getName()));
                                     } else if (peeled instanceof RFC822Name) {
-                                        System.out.println("is email: " + ((RFC822Name) peeled).getName());
+                                        SANs.add(new SubjectAlternateName(SANType.EMAIL, ((RFC822Name) peeled).getName()));
                                     }
                                 }
                             } else if (c instanceof ExtendedKeyUsageExtension) {
                                 ExtendedKeyUsageExtension ekue = (ExtendedKeyUsageExtension) c;
                                 for (String s : ekue.getExtendedKeyUsage()) {
-                                    System.out.println("Usage: " + s);
                                     if (s.equals("1.3.6.1.5.5.7.3.1")) {
                                         // server
                                     } else if (s.equals("1.3.6.1.5.5.7.3.2")) {
@@ -130,7 +146,7 @@ public class CertificateIssueForm extends Form {
                                     } else if (s.equals("1.3.6.1.5.5.7.3.3")) {
                                         // code sign
                                     } else if (s.equals("1.3.6.1.5.5.7.3.4")) {
-                                        System.out.println("Us: emailProtection");
+                                        // emailProtection
                                     } else if (s.equals("1.3.6.1.5.5.7.3.8")) {
                                         // timestamp
                                     } else if (s.equals("1.3.6.1.5.5.7.3.9")) {
@@ -138,13 +154,14 @@ public class CertificateIssueForm extends Form {
                                     }
                                 }
                             } else {
-                                // Unknown requestet extension
+                                // Unknown requested extension
                             }
                         }
 
                     }
                     out.println(parsed.getSubjectName().getCommonName());
                     out.println(parsed.getSubjectName().getCountry());
+
                     out.println("CSR DN: " + parsed.getSubjectName() + "<br/>");
                     PublicKey pk = parsed.getSubjectPublicKeyInfo();
                     checkKeyStrength(pk, out);
@@ -170,6 +187,8 @@ public class CertificateIssueForm extends Form {
 
                 } else {
                     login = "1".equals(req.getParameter("login"));
+                    CN = req.getParameter("CN");
+                    SANs = parseSANBox(req.getParameter("SANs"));
                     String hashAlg = req.getParameter("hash_alg");
                     if (hashAlg != null) {
                         selectedDigest = Digest.valueOf(hashAlg);
@@ -180,8 +199,8 @@ public class CertificateIssueForm extends Form {
                     }
                     CertificateProfile profile = CertificateProfile.getByName(req.getParameter("profile"));
 
-                    System.out.println("issuing " + selectedDigest);
-                    result = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User", selectedDigest.toString(), this.csr, this.csrType, profile);
+                    result = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User", selectedDigest.toString(), //
+                            this.csr, this.csrType, profile, SANs.toArray(new SubjectAlternateName[SANs.size()]));
                     result.issue().waitFor(60000);
                     return true;
                 }
@@ -202,6 +221,20 @@ public class CertificateIssueForm extends Form {
         return false;
     }
 
+    private TreeSet<SubjectAlternateName> parseSANBox(String SANs) {
+        String[] SANparts = SANs.split("[\r\n]+");
+        TreeSet<SubjectAlternateName> parsedNames = new TreeSet<>();
+        for (String SANline : SANparts) {
+            String[] parts = SANline.split(":", 2);
+            SANType t = Certificate.SANType.valueOf(parts[0].toUpperCase());
+            if (t == null || parts.length == 1) {
+                continue;
+            }
+            parsedNames.add(new SubjectAlternateName(t, parts[1]));
+        }
+        return parsedNames;
+    }
+
     private void checkKeyStrength(PublicKey pk, PrintWriter out) {
         out.println("Type: " + pk.getAlgorithm() + "<br/>");
         if (pk instanceof RSAPublicKey) {
@@ -217,10 +250,6 @@ public class CertificateIssueForm extends Form {
             out.println("Length-y: " + epk.getW().getAffineY().bitLength() + "<br/>");
             out.println(epk.getParams().getCurve());
         }
-    }
-
-    private static PKCS10 parseCSR(String csr) throws IOException, GeneralSecurityException {
-        return new PKCS10(PEM.decode("(NEW )?CERTIFICATE REQUEST", csr));
     }
 
     private static String getSignatureAlgorithm(byte[] data) throws IOException {
@@ -248,22 +277,16 @@ public class CertificateIssueForm extends Form {
         HashMap<String, Object> vars2 = new HashMap<String, Object>(vars);
         vars2.put("CCA", "<a href='/policy/CAcertCommunityAgreement.html'>CCA</a>");
 
-        final EmailAddress[] ea = u.getEmails();
-        vars2.put("emails", new IterableDataset() {
+        StringBuffer content = new StringBuffer();
+        for (SubjectAlternateName SAN : SANs) {
+            content.append(SAN.getType().toString().toLowerCase());
+            content.append(':');
+            content.append(SAN.getName());
+            content.append('\n');
+        }
 
-            int count;
-
-            @Override
-            public boolean next(Language l, Map<String, Object> vars) {
-                if (count >= ea.length) {
-                    return false;
-                }
-                vars.put("id", ea[count].getId());
-                vars.put("value", ea[count].getAddress());
-                count++;
-                return true;
-            }
-        });
+        vars2.put("CN", CN);
+        vars2.put("emails", content.toString());
         vars2.put("hashs", new HashAlgorithms(selectedDigest));
         vars2.put("profiles", new IterableDataset() {
 
