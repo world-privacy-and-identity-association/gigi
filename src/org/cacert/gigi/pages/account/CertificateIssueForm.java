@@ -196,15 +196,23 @@ public class CertificateIssueForm extends Form {
                     }
                     CertificateProfile profile = CertificateProfile.getByName(req.getParameter("profile"));
 
+                    String pDNS = null;
+                    String pMail = null;
                     Set<SubjectAlternateName> filteredSANs = new LinkedHashSet<>();
                     for (SubjectAlternateName san : parseSANBox(req.getParameter("SANs"))) {
                         if (san.getType() == SANType.DNS) {
                             if (u.isValidDomain(san.getName())) {
+                                if (pDNS == null) {
+                                    pDNS = san.getName();
+                                }
                                 filteredSANs.add(san);
                                 continue;
                             }
                         } else if (san.getType() == SANType.EMAIL) {
                             if (u.isValidEmail(san.getName())) {
+                                if (pMail == null) {
+                                    pMail = san.getName();
+                                }
                                 filteredSANs.add(san);
                                 continue;
                             }
@@ -217,8 +225,20 @@ public class CertificateIssueForm extends Form {
                         outputError(out, req, "You need to accept the CCA.");
                         return false;
                     }
+                    StringBuffer subject = new StringBuffer();
+                    if (profile.getKeyName().equals("server") && pDNS != null) {
+                        subject.append("/commonName=");
+                        subject.append(pDNS);
+                    } else {
+                        subject.append("/commonName=");
+                        subject.append(CN);
+                    }
+                    if (profile.getKeyName().equals("mail") && pMail != null) {
+                        subject.append("/emailAddress=");
+                        subject.append(pMail);
+                    }
 
-                    result = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User", selectedDigest.toString(), //
+                    result = new Certificate(LoginPage.getUser(req).getId(), subject.toString(), selectedDigest.toString(), //
                             this.csr, this.csrType, profile, SANs.toArray(new SubjectAlternateName[SANs.size()]));
                     result.issue().waitFor(60000);
                     return true;
