@@ -1,6 +1,8 @@
 package org.cacert.gigi;
 
 import java.sql.SQLException;
+
+import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
 
@@ -52,4 +54,37 @@ public class TestUser extends ManagedTest {
         assertEquals("b", u.getLname());
         assertEquals("", u.getMname());
     }
+
+    @Test
+    public void testMatcherMethods() throws SQLException, GigiApiException {
+        String uq = createUniqueName();
+        int id = createVerifiedUser("aä", "b", uq + "a@email.org", TEST_PASSWORD);
+
+        User u = new User(id);
+        new EmailAddress(uq + "b@email.org", u).insert(Language.getInstance("de"));
+        new EmailAddress(uq + "c@email.org", u).insert(Language.getInstance("de"));
+        new Domain(u, uq + "a.testdomain.org").insert();
+        new Domain(u, uq + "b.testdomain.org").insert();
+        new Domain(u, uq + "c.testdomain.org").insert();
+        assertEquals(3, u.getEmails().length);
+        assertEquals(3, u.getDomains().length);
+        assertTrue(u.isValidDomain(uq + "a.testdomain.org"));
+        assertTrue(u.isValidDomain(uq + "b.testdomain.org"));
+        assertTrue(u.isValidDomain(uq + "c.testdomain.org"));
+        assertTrue(u.isValidDomain("a." + uq + "a.testdomain.org"));
+        assertTrue(u.isValidDomain("*." + uq + "a.testdomain.org"));
+        assertFalse(u.isValidDomain("a" + uq + "a.testdomain.org"));
+        assertFalse(u.isValidDomain("b" + uq + "a.testdomain.org"));
+
+        assertTrue(u.isValidEmail(uq + "a@email.org"));
+        assertTrue(u.isValidEmail(uq + "b@email.org"));
+        assertFalse(u.isValidEmail(uq + "b+6@email.org"));
+        assertFalse(u.isValidEmail(uq + "b*@email.org"));
+
+        assertTrue(u.isValidName("aä b"));
+        assertFalse(u.isValidName("aä c"));
+        assertFalse(u.isValidName("aä d b"));
+
+    }
+
 }

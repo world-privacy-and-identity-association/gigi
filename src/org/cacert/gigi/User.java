@@ -311,6 +311,29 @@ public class User {
         return null;
     }
 
+    public boolean isValidDomain(String domainname) {
+        for (Domain d : getDomains()) {
+            String sfx = d.getSuffix();
+            if (domainname.equals(sfx) || domainname.endsWith("." + sfx)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isValidEmail(String email) {
+        for (EmailAddress em : getEmails()) {
+            if (em.getAddress().equals(email)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isValidName(String name) {
+        return getName().matches(name);
+    }
+
     public void updateDefaultEmail(EmailAddress newMail) throws GigiApiException {
         try {
             EmailAddress[] adrs = getEmails();

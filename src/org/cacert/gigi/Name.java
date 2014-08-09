@@ -61,4 +61,11 @@ public class Name implements Outputable {
         return true;
 
     }
+
+    public boolean matches(String text) {
+        return text.equals(fname + " " + lname) || //
+                (mname != null && text.equals(fname + " " + mname + " " + lname)) || //
+                (suffix != null && text.equals(fname + " " + lname + " " + suffix)) || //
+                (mname != null && suffix != null && text.equals(fname + " " + mname + " " + lname + " " + suffix));
+    }
 }
