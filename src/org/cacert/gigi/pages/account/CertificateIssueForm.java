@@ -62,6 +62,8 @@ import sun.security.x509.X500Name;
  */
 public class CertificateIssueForm extends Form {
 
+    private static final String DEFAULT_CN = "CAcert WoT User";
+
     private final static Template t = new Template(CertificateIssueForm.class.getResource("CertificateIssueForm.templ"));
 
     private final static Template tIni = new Template(CertificateAdd.class.getResource("RequestCertificate.templ"));
@@ -74,7 +76,7 @@ public class CertificateIssueForm extends Form {
 
     String spkacChallenge;
 
-    String CN = "";
+    String CN = DEFAULT_CN;
 
     Set<SubjectAlternateName> SANs = new LinkedHashSet<>();
 
@@ -188,16 +190,33 @@ public class CertificateIssueForm extends Form {
                 } else {
                     login = "1".equals(req.getParameter("login"));
                     CN = req.getParameter("CN");
-                    SANs = parseSANBox(req.getParameter("SANs"));
                     String hashAlg = req.getParameter("hash_alg");
                     if (hashAlg != null) {
                         selectedDigest = Digest.valueOf(hashAlg);
                     }
+                    CertificateProfile profile = CertificateProfile.getByName(req.getParameter("profile"));
+
+                    Set<SubjectAlternateName> filteredSANs = new LinkedHashSet<>();
+                    for (SubjectAlternateName san : parseSANBox(req.getParameter("SANs"))) {
+                        if (san.getType() == SANType.DNS) {
+                            if (u.isValidDomain(san.getName())) {
+                                filteredSANs.add(san);
+                                continue;
+                            }
+                        } else if (san.getType() == SANType.EMAIL) {
+                            if (u.isValidEmail(san.getName())) {
+                                filteredSANs.add(san);
+                                continue;
+                            }
+                        }
+                        // SAN blocked
+                    }
+                    SANs = filteredSANs;
+
                     if (req.getParameter("CCA") == null) {
                         outputError(out, req, "You need to accept the CCA.");
                         return false;
                     }
-                    CertificateProfile profile = CertificateProfile.getByName(req.getParameter("profile"));
 
                     result = new Certificate(LoginPage.getUser(req).getId(), "/commonName=CAcert WoT User", selectedDigest.toString(), //
                             this.csr, this.csrType, profile, SANs.toArray(new SubjectAlternateName[SANs.size()]));
