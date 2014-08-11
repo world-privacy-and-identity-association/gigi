@@ -285,11 +285,16 @@ public class CertificateIssueForm extends Form {
         TreeSet<SubjectAlternateName> parsedNames = new TreeSet<>();
         for (String SANline : SANparts) {
             String[] parts = SANline.split(":", 2);
-            SANType t = Certificate.SANType.valueOf(parts[0].toUpperCase());
-            if (t == null || parts.length == 1) {
+            try {
+                SANType t = Certificate.SANType.valueOf(parts[0].toUpperCase());
+                if (t == null || parts.length == 1) {
+                    continue;
+                }
+                parsedNames.add(new SubjectAlternateName(t, parts[1]));
+            } catch (IllegalArgumentException e) {
+                // invalid enum type
                 continue;
             }
-            parsedNames.add(new SubjectAlternateName(t, parts[1]));
         }
         return parsedNames;
     }
