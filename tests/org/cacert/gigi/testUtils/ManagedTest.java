@@ -229,7 +229,7 @@ public class ManagedTest {
         try {
             String query = "fname=" + URLEncoder.encode(firstName, "UTF-8") + "&lname=" + URLEncoder.encode(lastName, "UTF-8") + "&email=" + URLEncoder.encode(email, "UTF-8") + "&pword1=" + URLEncoder.encode(password, "UTF-8") + "&pword2=" + URLEncoder.encode(password, "UTF-8") + "&day=1&month=1&year=1910&cca_agree=1";
             String data = fetchStartErrorMessage(runRegister(query));
-            assertTrue(data, data.startsWith("</div>"));
+            assertNull(data);
         } catch (UnsupportedEncodingException e) {
             throw new Error(e);
         } catch (IOException e) {
@@ -297,7 +297,7 @@ public class ManagedTest {
     static int count = 0;
 
     public static String createUniqueName() {
-        return "test" + System.currentTimeMillis() + "a" + (count++);
+        return "test" + System.currentTimeMillis() + "a" + (count++) + "u";
     }
 
     private String stripCookie(String headerField) {

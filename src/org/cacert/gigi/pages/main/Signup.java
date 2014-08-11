@@ -89,40 +89,30 @@ public class Signup extends Form {
     @Override
     public synchronized boolean submit(PrintWriter out, HttpServletRequest req) {
         update(req);
-        boolean failed = false;
-        out.println("<div class='formError'>");
         if (buildup.getFname().equals("") || buildup.getLname().equals("")) {
             outputError(out, req, "First and/or last names were blank.");
-            failed = true;
         }
         if ( !myDoB.isValid()) {
             outputError(out, req, "Invalid date of birth");
-            failed = true;
         }
         if ( !"1".equals(req.getParameter("cca_agree"))) {
             outputError(out, req, "You have to agree to the CAcert Community agreement.");
-            failed = true;
         }
         if (buildup.getEmail().equals("")) {
             outputError(out, req, "Email Address was blank");
-            failed = true;
         }
         String pw1 = req.getParameter("pword1");
         String pw2 = req.getParameter("pword2");
         if (pw1 == null || pw1.equals("")) {
             outputError(out, req, "Pass Phrases were blank");
-            failed = true;
         } else if ( !pw1.equals(pw2)) {
             outputError(out, req, "Pass Phrases don't match");
-            failed = true;
         }
         int pwpoints = PasswordStrengthChecker.checkpw(pw1, buildup);
         if (pwpoints < 3) {
             outputError(out, req, "The Pass Phrase you submitted failed to contain enough" + " differing characters and/or contained words from" + " your name and/or email address.");
-            failed = true;
         }
-        if (failed) {
-            out.println("</div>");
+        if (isFailed(out)) {
             return false;
         }
         try {
@@ -134,7 +124,6 @@ public class Signup extends Form {
             ResultSet r2 = q2.executeQuery();
             if (r1.next() || r2.next()) {
                 outputError(out, req, "This email address is currently valid in the system.");
-                failed = true;
             }
             r1.close();
             r2.close();
@@ -144,15 +133,12 @@ public class Signup extends Form {
             ResultSet r3 = q3.executeQuery();
             if (r3.next()) {
                 String domain = r3.getString(1);
-                out.print("<div>");
-                out.print(String.format(Page.translate(req, "We don't allow signups from people using email addresses from %s"), domain));
-                out.println("</div>");
-                failed = true;
+                outputError(out, req, "We don't allow signups from people using email addresses from %s", domain);
             }
             r3.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            failed = true;
+            outputError(out, req, "an internal error happened");
         }
         String mailResult = EmailProvider.FAIL;
         try {
@@ -168,15 +154,11 @@ public class Signup extends Form {
             if (mailResult.equals(EmailProvider.FAIL)) {
                 outputError(out, req, "Failed to make a connection to the mail server");
             } else {
-                out.print("<div>");
-                out.print(mailResult);
-                out.println("</div>");
+                outputErrorPlain(out, mailResult);
             }
-            failed = true;
         }
 
-        out.println("</div>");
-        if (failed) {
+        if (isFailed(out)) {
             return false;
         }
         try {

@@ -33,14 +33,14 @@ public class RegisterPageTest extends ManagedTest {
 
         String query = defaultSignup + URLEncoder.encode("correct3_" + uniq + "@email.de", "UTF-8") + "&general=1&country=1&regional=1&radius=1";
         String data = fetchStartErrorMessage(runRegister(query));
-        assertTrue(data, data.startsWith("</div>"));
+        assertNull(data);
         assertSuccessfullRegMail();
 
         getMailReciever().setEmailCheckError("400 Greylisted");
         getMailReciever().setApproveRegex(Pattern.compile("a"));
         query = defaultSignup + URLEncoder.encode("correct4_" + uniq + "@email.de", "UTF-8") + "&general=1&country=1&regional=1&radius=1";
         data = fetchStartErrorMessage(runRegister(query));
-        assertFalse(data, data.startsWith("</div>"));
+        assertNotNull(data);
 
         assertNull(getMailReciever().recieve());
 
