@@ -76,7 +76,7 @@ public class CertificateIssueForm extends Form {
 
     String spkacChallenge;
 
-    String CN = DEFAULT_CN;
+    public String CN = DEFAULT_CN;
 
     Set<SubjectAlternateName> SANs = new LinkedHashSet<>();
 
@@ -199,9 +199,12 @@ public class CertificateIssueForm extends Form {
                     String pDNS = null;
                     String pMail = null;
                     Set<SubjectAlternateName> filteredSANs = new LinkedHashSet<>();
+                    boolean server = profile.getKeyName().equals("server");
+                    boolean dirty = false;
+                    ;
                     for (SubjectAlternateName san : parseSANBox(req.getParameter("SANs"))) {
                         if (san.getType() == SANType.DNS) {
-                            if (u.isValidDomain(san.getName())) {
+                            if (u.isValidDomain(san.getName()) && server) {
                                 if (pDNS == null) {
                                     pDNS = san.getName();
                                 }
@@ -209,7 +212,7 @@ public class CertificateIssueForm extends Form {
                                 continue;
                             }
                         } else if (san.getType() == SANType.EMAIL) {
-                            if (u.isValidEmail(san.getName())) {
+                            if (u.isValidEmail(san.getName()) && !server) {
                                 if (pMail == null) {
                                     pMail = san.getName();
                                 }
@@ -217,25 +220,40 @@ public class CertificateIssueForm extends Form {
                                 continue;
                             }
                         }
-                        // SAN blocked
+                        dirty = true;
+                        outputError(out, req, "The requested Subject alternate name \"%s\" has been removed.",//
+                                san.getType().toString().toLowerCase() + ":" + san.getName());
                     }
                     SANs = filteredSANs;
-
-                    if (req.getParameter("CCA") == null) {
-                        outputError(out, req, "You need to accept the CCA.");
-                        return false;
+                    if ( !u.isValidName(CN) && !server && !CN.equals(DEFAULT_CN)) {
+                        CN = DEFAULT_CN;
+                        outputError(out, req, "The real name entered cannot be verified with your account.");
                     }
-                    StringBuffer subject = new StringBuffer();
-                    if (profile.getKeyName().equals("server") && pDNS != null) {
+
+                    final StringBuffer subject = new StringBuffer();
+                    if (server && pDNS != null) {
                         subject.append("/commonName=");
                         subject.append(pDNS);
+                        if (pMail != null) {
+                            outputError(out, req, "No email is included in this certificate.");
+                        }
+                        if (CN.equals("")) {
+                            CN = "";
+                            outputError(out, req, "No real name is included in this certificate.");
+                        }
                     } else {
                         subject.append("/commonName=");
                         subject.append(CN);
+                        if (pMail != null) {
+                            subject.append("/emailAddress=");
+                            subject.append(pMail);
+                        }
                     }
-                    if (profile.getKeyName().equals("mail") && pMail != null) {
-                        subject.append("/emailAddress=");
-                        subject.append(pMail);
+                    if (req.getParameter("CCA") == null) {
+                        outputError(out, req, "You need to accept the CCA.");
+                    }
+                    if (isFailed(out)) {
+                        return false;
                     }
 
                     result = new Certificate(LoginPage.getUser(req).getId(), subject.toString(), selectedDigest.toString(), //
@@ -246,8 +264,10 @@ public class CertificateIssueForm extends Form {
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (IllegalArgumentException e) {
+                e.printStackTrace();
                 throw new GigiApiException("Certificate Request format is invalid.");
             } catch (GeneralSecurityException e) {
+                e.printStackTrace();
                 throw new GigiApiException("Certificate Request format is invalid.");
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -261,7 +281,7 @@ public class CertificateIssueForm extends Form {
     }
 
     private TreeSet<SubjectAlternateName> parseSANBox(String SANs) {
-        String[] SANparts = SANs.split("[\r\n]+");
+        String[] SANparts = SANs.split("[\r\n]+|, *");
         TreeSet<SubjectAlternateName> parsedNames = new TreeSet<>();
         for (String SANline : SANparts) {
             String[] parts = SANline.split(":", 2);

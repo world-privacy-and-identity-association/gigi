@@ -27,12 +27,12 @@
     </td>
   </tr>
   <tr>
-    <td><?=_Common name?></td>
+    <td><?=_Your name?></td>
     <td><input type='text' name='CN' value='<?=$CN?>'></td>
   </tr>
   <tr>
     <td>SANs</td>
-    <td align="left"><textarea rows='5' name='SANs'><?=$emails?></textarea></td>
+    <td align="left"><textarea rows='5' name='SANs' placeholder="dns:my.domain.example.com, dns:*.example.com, email:my.email@example.com (or newline separated)"><?=$emails?></textarea></td>
   </tr>
 
 <? if($points50) { ?>
