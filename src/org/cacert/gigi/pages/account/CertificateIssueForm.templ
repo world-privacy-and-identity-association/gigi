@@ -21,7 +21,7 @@
     <?=_Key type?>: 
     <select name="profile">
     <? foreach($profiles) { ?>
-      <option value="<?=$key?>"><?=$name?></option>
+      <option value="<?=$key?>"<?=$!selected?>><?=$name?></option>
     <? } ?>
     </select>
     </td>

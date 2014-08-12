@@ -84,6 +84,8 @@ public class CertificateIssueForm extends Form {
 
     boolean login;
 
+    CertificateProfile profile = CertificateProfile.getById(1);
+
     public CertificateIssueForm(HttpServletRequest hsr) {
         super(hsr);
         u = Page.getUser(hsr);
@@ -194,14 +196,12 @@ public class CertificateIssueForm extends Form {
                     if (hashAlg != null) {
                         selectedDigest = Digest.valueOf(hashAlg);
                     }
-                    CertificateProfile profile = CertificateProfile.getByName(req.getParameter("profile"));
+                    profile = CertificateProfile.getByName(req.getParameter("profile"));
 
                     String pDNS = null;
                     String pMail = null;
                     Set<SubjectAlternateName> filteredSANs = new LinkedHashSet<>();
                     boolean server = profile.getKeyName().equals("server");
-                    boolean dirty = false;
-                    ;
                     for (SubjectAlternateName san : parseSANBox(req.getParameter("SANs"))) {
                         if (san.getType() == SANType.DNS) {
                             if (u.isValidDomain(san.getName()) && server) {
@@ -220,7 +220,6 @@ public class CertificateIssueForm extends Form {
                                 continue;
                             }
                         }
-                        dirty = true;
                         outputError(out, req, "The requested Subject alternate name \"%s\" has been removed.",//
                                 san.getType().toString().toLowerCase() + ":" + san.getName());
                     }
@@ -372,6 +371,11 @@ public class CertificateIssueForm extends Form {
                 CertificateProfile cp = CertificateProfile.getById(i++);
                 if (cp == null) {
                     return false;
+                }
+                if (cp.getId() == profile.getId()) {
+                    vars.put("selected", " selected");
+                } else {
+                    vars.put("selected", "");
                 }
                 vars.put("key", cp.getKeyName());
                 vars.put("name", cp.getVisibleName());
