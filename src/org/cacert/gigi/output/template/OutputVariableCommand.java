@@ -10,20 +10,20 @@ public final class OutputVariableCommand implements Outputable {
 
     private final String raw;
 
-    private final boolean escaped;
+    private final boolean unescaped;
 
     public OutputVariableCommand(String raw) {
         if (raw.charAt(0) == '!') {
-            escaped = true;
+            unescaped = true;
             this.raw = raw.substring(1);
         } else {
-            escaped = true;
+            unescaped = false;
             this.raw = raw;
         }
     }
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-        Template.outputVar(out, l, vars, raw, escaped);
+        Template.outputVar(out, l, vars, raw, unescaped);
     }
 }

@@ -79,7 +79,7 @@ public class TestAssurance extends ManagedTest {
     @Test
     public void testAssureForm() throws IOException {
         String error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
-        assertTrue(error, error.startsWith("</div>"));
+        assertNull(error);
     }
 
     @Test

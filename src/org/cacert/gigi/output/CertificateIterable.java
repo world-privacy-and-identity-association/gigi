@@ -32,6 +32,7 @@ public class CertificateIterable implements IterableDataset {
         vars.put("CN", c.getDistinguishedName());
         vars.put("serial", c.getSerial());
         vars.put("digest", c.getMessageDigest());
+        vars.put("profile", c.getProfile().getVisibleName());
 
         vars.put("issued", "TODO"); // TODO output dates
         vars.put("revoked", "TODO");
