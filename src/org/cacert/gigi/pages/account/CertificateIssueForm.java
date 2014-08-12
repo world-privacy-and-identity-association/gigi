@@ -285,9 +285,20 @@ public class CertificateIssueForm extends Form {
         TreeSet<SubjectAlternateName> parsedNames = new TreeSet<>();
         for (String SANline : SANparts) {
             String[] parts = SANline.split(":", 2);
+            if (parts.length == 1) {
+                if (parts[0].trim().equals("")) {
+                    continue;
+                }
+                if (parts[0].contains("@")) {
+                    parsedNames.add(new SubjectAlternateName(SANType.EMAIL, parts[0]));
+                } else {
+                    parsedNames.add(new SubjectAlternateName(SANType.DNS, parts[0]));
+                }
+                continue;
+            }
             try {
                 SANType t = Certificate.SANType.valueOf(parts[0].toUpperCase());
-                if (t == null || parts.length == 1) {
+                if (t == null) {
                     continue;
                 }
                 parsedNames.add(new SubjectAlternateName(t, parts[1]));
