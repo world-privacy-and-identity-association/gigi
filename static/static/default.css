@@ -555,10 +555,33 @@ td.storyLeft {
 	border-collapse: collapse;
 	font-family: verdana, sans-serif;
 	font-size: 11px;
-	text-align: center;
 	margin-left:auto;
 	margin-right:auto;
 	width: 700px;
+}
+
+.wrapper .check{
+	text-align: center;
+}
+.wrapper td.radio input[type=radio]{
+	float: left;
+	width: 13px;
+	margin: 3px;
+}
+.wrapper td.radio div.name{
+	font-weight: bold;
+	padding-bottom: 4px;
+	margin-top: 3px;
+/*	display: inline;*/
+}
+.wrapper td.radio div.addinfo{
+/*	display: inline;*/
+	padding-left: 19px;
+}
+
+.wrapper td.radio div.elements{
+	clear: both;
+	height: 10px;
 }
 
 td.greytxt {

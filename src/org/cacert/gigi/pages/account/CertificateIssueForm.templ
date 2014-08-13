@@ -1,6 +1,4 @@
 <h3><?=_CAcert Certificate Acceptable Use Policy?></h3>
-<p><?=_Once you decide to subscribe for an SSL Server Certificate you will need to complete this agreement. Please read it carefully. Your Certificate Request can only be processed with your acceptance and understanding of this agreement.?></p>
-
 <p><?=_I hereby represent that I am fully authorized by the owner of the information contained in the CSR sent to CAcert Inc. to apply for an Digital Certificate for secure and authenticated electronic transactions. I understand that a digital certificate serves to identify the Subscriber for the purposes of electronic communication and that the management of the private keys associated with such certificates is the responsibility of the subscriber's technical staff and/or contractors.?></p>
 
 <p><?=_CAcert Inc.'s public certification services are governed by a CPS as amended from time to time which is incorporated into this Agreement by reference. The Subscriber will use the SSL Server Certificate in accordance with CAcert Inc.'s CPS and supporting documentation published at?> <a href="http://www.cacert.org/cps.php">http://www.cacert.org/cps.php</a></p>
@@ -16,10 +14,10 @@
   <tbody>
   <tr>
     <td>
+    <label for='profile'><?=_Key type?></label>
     </td>
     <td>
-    <?=_Key type?>: 
-    <select name="profile">
+    <select name="profile" id='profile'>
     <? foreach($profiles) { ?>
       <option value="<?=$key?>"<?=$!selected?>><?=$name?></option>
     <? } ?>
@@ -27,28 +25,18 @@
     </td>
   </tr>
   <tr>
-    <td><?=_Your name?></td>
-    <td><input type='text' name='CN' value='<?=$CN?>'></td>
+    <td>
+    <label for='CN'><?=_Your name?></label>
+    </td>
+    <td><input type='text' id='CN' name='CN' value='<?=$CN?>'></td>
   </tr>
   <tr>
     <td>SANs</td>
     <td align="left"><textarea rows='5' name='SANs' placeholder="dns:my.domain.example.com, dns:*.example.com, email:my.email@example.com (or newline separated)"><?=$emails?></textarea></td>
   </tr>
 
-<? if($points50) { ?>
-  <tr>
-    <td colspan="2" align="left">
-      <input type="radio" id="incname0" name="incname" value="0" checked="checked" />
-        <label for="incname0"><?=_No Name?></label><br />
-        <input type="radio" id="incname1" name="incname" value="1" />
-        <label for="incname1"><?=_Include?> 'fnamelname'</label><br />
-    </td>
-  </tr>
-<? } ?>
-
-
   <tr class="expertoff">
-    <td>
+    <td class='check'>
       <input type="checkbox" id="expertbox" name="expertbox"/>
     </td>
     <td align="left">
@@ -57,17 +45,27 @@
   </tr>
 
   <tr class="expert">
-    <td colspan="2" align="left">
-      <?=_Hash algorithm used when signing the certificate:?><br />
+	<td><?=_Hash algorithm for signing?></td>
+    <td class='radio'>
       <? foreach($hashs) { ?>
         <input type="radio" id="hash_alg_<?=$algorithm?>" name="hash_alg" value="<?=$algorithm?>"<?=$checked?>/>
-        <label for="hash_alg_<?=$algorithm?>"><?=$name?><? if($info) { ?> - <?=$info?><? } ?></label><br />
+        <label for="hash_alg_<?=$algorithm?>"><div class='name'><?=$name?></div><? if($info) { ?> <div class='addinfo'> <?=$info?></div><? } ?></label><div class='elements'></div>
       <? } ?>
     </td>
   </tr>
+    <tr>
+    <td class='check'>
+      <input type="checkbox" id="CCA" name="CCA" />
+    </td>
+    <td align="left">
+      <label for="CCA"><strong><?=s,$!CCA,I accept the CAcert Community Agreement (%s).?> </strong><br />
+      <?=_Please note: You need to accept the CCA to proceed.?></label>
+    </td>
+  </tr>
   <tr><td colspan='2'>&nbsp;</td></tr>
+
   <tr>
-    <td>
+    <td class='check'>
       <input type="checkbox" id="login" name="login" value="1" checked="checked" />
     </td>
     <td align="left">
@@ -82,15 +80,6 @@
     </td>
   </tr>
 
-  <tr>
-    <td>
-      <input type="checkbox" id="CCA" name="CCA" />
-    </td>
-    <td align="left">
-      <label for="CCA"><strong><?=s,$!CCA,I accept the CAcert Community Agreement (%s).?> </strong><br />
-      <?=_Please note: You need to accept the CCA to proceed.?></label>
-    </td>
-  </tr>
   <tr>
     <td colspan="2"><input type="submit" name="process" value="<?=_Issue Certificate?>" /></td>
   </tr>
