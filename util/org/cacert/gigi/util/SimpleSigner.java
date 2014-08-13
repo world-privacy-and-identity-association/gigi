@@ -218,6 +218,7 @@ public class SimpleSigner {
                     "../unassured.key",//
                     "-out",
                     "../../" + crt.getPath(),//
+                    "-utf8",
                     "-days",
                     "356",//
                     "-batch",//
