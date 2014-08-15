@@ -46,6 +46,7 @@ import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.pages.account.MyDetails;
+import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.cacert.gigi.util.DatabaseManager;
 import org.cacert.gigi.util.PEM;
@@ -65,8 +66,6 @@ public class ManagedTest {
      * Some password that fullfills the password criteria.
      */
     protected static final String TEST_PASSWORD = "xvXV12°§";
-
-    private final String registerService = "/register";
 
     private static TestEmailReciever ter;
 
@@ -182,6 +181,8 @@ public class ManagedTest {
         }
     }
 
+    public final String uniq = createUniqueName();
+
     @After
     public void removeMails() {
         ter.reset();
@@ -199,8 +200,8 @@ public class ManagedTest {
         return ter;
     }
 
-    public String runRegister(String param) throws IOException {
-        URL regist = new URL("https://" + getServerName() + registerService);
+    public static String runRegister(String param) throws IOException {
+        URL regist = new URL("https://" + getServerName() + RegisterPage.PATH);
         HttpURLConnection uc = (HttpURLConnection) regist.openConnection();
         HttpURLConnection csrfConn = (HttpURLConnection) regist.openConnection();
 
@@ -215,7 +216,7 @@ public class ManagedTest {
         return d;
     }
 
-    public String fetchStartErrorMessage(String d) throws IOException {
+    public static String fetchStartErrorMessage(String d) throws IOException {
         String formFail = "<div class='formError'>";
         int idx = d.indexOf(formFail);
         if (idx == -1) {
@@ -225,7 +226,7 @@ public class ManagedTest {
         return startError;
     }
 
-    public void registerUser(String firstName, String lastName, String email, String password) {
+    public static void registerUser(String firstName, String lastName, String email, String password) {
         try {
             String query = "fname=" + URLEncoder.encode(firstName, "UTF-8") + "&lname=" + URLEncoder.encode(lastName, "UTF-8") + "&email=" + URLEncoder.encode(email, "UTF-8") + "&pword1=" + URLEncoder.encode(password, "UTF-8") + "&pword2=" + URLEncoder.encode(password, "UTF-8") + "&day=1&month=1&year=1910&cca_agree=1";
             String data = fetchStartErrorMessage(runRegister(query));
@@ -237,7 +238,7 @@ public class ManagedTest {
         }
     }
 
-    public int createVerifiedUser(String firstName, String lastName, String email, String password) {
+    public static int createVerifiedUser(String firstName, String lastName, String email, String password) {
         registerUser(firstName, lastName, email, password);
         try {
             TestMail tm = ter.recieve();
@@ -276,7 +277,7 @@ public class ManagedTest {
      *            the password
      * @return a new userid.
      */
-    public int createAssuranceUser(String firstName, String lastName, String email, String password) {
+    public static int createAssuranceUser(String firstName, String lastName, String email, String password) {
         int uid = createVerifiedUser(firstName, lastName, email, password);
         try {
             PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?");
@@ -300,20 +301,20 @@ public class ManagedTest {
         return "test" + System.currentTimeMillis() + "a" + (count++) + "u";
     }
 
-    private String stripCookie(String headerField) {
+    private static String stripCookie(String headerField) {
         return headerField.substring(0, headerField.indexOf(';'));
     }
 
     public static final String SECURE_REFERENCE = MyDetails.PATH;
 
-    public boolean isLoggedin(String cookie) throws IOException {
+    public static boolean isLoggedin(String cookie) throws IOException {
         URL u = new URL("https://" + getServerName() + SECURE_REFERENCE);
         HttpURLConnection huc = (HttpURLConnection) u.openConnection();
         huc.addRequestProperty("Cookie", cookie);
         return huc.getResponseCode() == 200;
     }
 
-    public String login(String email, String pw) throws IOException {
+    public static String login(String email, String pw) throws IOException {
         URL u = new URL("https://" + getServerName() + "/login");
         HttpURLConnection huc = (HttpURLConnection) u.openConnection();
         huc.setDoOutput(true);
@@ -325,7 +326,7 @@ public class ManagedTest {
         return stripCookie(headerField);
     }
 
-    public String login(final PrivateKey pk, final X509Certificate ce) throws NoSuchAlgorithmException, KeyManagementException, IOException, MalformedURLException {
+    public static String login(final PrivateKey pk, final X509Certificate ce) throws NoSuchAlgorithmException, KeyManagementException, IOException, MalformedURLException {
 
         HttpURLConnection connection = (HttpURLConnection) new URL("https://" + getServerName().replaceFirst("^www.", "secure.") + "/login").openConnection();
         authenticateClientCert(pk, ce, connection);
@@ -337,7 +338,7 @@ public class ManagedTest {
         }
     }
 
-    public void authenticateClientCert(final PrivateKey pk, final X509Certificate ce, HttpURLConnection connection) throws NoSuchAlgorithmException, KeyManagementException {
+    public static void authenticateClientCert(final PrivateKey pk, final X509Certificate ce, HttpURLConnection connection) throws NoSuchAlgorithmException, KeyManagementException {
         KeyManager km = new X509KeyManager() {
 
             @Override
@@ -388,11 +389,11 @@ public class ManagedTest {
         }
     }
 
-    public String getCSRF(URLConnection u) throws IOException {
+    public static String getCSRF(URLConnection u) throws IOException {
         return getCSRF(u, 0);
     }
 
-    public String getCSRF(URLConnection u, int formIndex) throws IOException {
+    public static String getCSRF(URLConnection u, int formIndex) throws IOException {
         String content = IOUtils.readURL(u);
         Pattern p = Pattern.compile("<input type='hidden' name='csrf' value='([^']+)'>");
         Matcher m = p.matcher(content);
@@ -411,18 +412,26 @@ public class ManagedTest {
     }
 
     public static String generatePEMCSR(KeyPair kp, String dn) throws GeneralSecurityException, IOException {
-        PKCS10 p10 = new PKCS10(kp.getPublic(), new PKCS10Attributes());
-        Signature s = Signature.getInstance("SHA256WithRSA");
+        return generatePEMCSR(kp, dn, new PKCS10Attributes());
+    }
+
+    public static String generatePEMCSR(KeyPair kp, String dn, PKCS10Attributes atts) throws GeneralSecurityException, IOException {
+        return generatePEMCSR(kp, dn, atts, "SHA256WithRSA");
+    }
+
+    public static String generatePEMCSR(KeyPair kp, String dn, PKCS10Attributes atts, String signature) throws GeneralSecurityException, IOException {
+        PKCS10 p10 = new PKCS10(kp.getPublic(), atts);
+        Signature s = Signature.getInstance(signature);
         s.initSign(kp.getPrivate());
         p10.encodeAndSign(new X500Name(dn), s);
         return PEM.encode("CERTIFICATE REQUEST", p10.getEncoded());
     }
 
-    public String executeBasicWebInteraction(String cookie, String path, String query) throws MalformedURLException, UnsupportedEncodingException, IOException {
+    public static String executeBasicWebInteraction(String cookie, String path, String query) throws MalformedURLException, UnsupportedEncodingException, IOException {
         return executeBasicWebInteraction(cookie, path, query, 0);
     }
 
-    public String executeBasicWebInteraction(String cookie, String path, String query, int formIndex) throws IOException, MalformedURLException, UnsupportedEncodingException {
+    public static String executeBasicWebInteraction(String cookie, String path, String query, int formIndex) throws IOException, MalformedURLException, UnsupportedEncodingException {
         URLConnection uc = new URL("https://" + getServerName() + path).openConnection();
         uc.addRequestProperty("Cookie", cookie);
         String csrf = getCSRF(uc, formIndex);
