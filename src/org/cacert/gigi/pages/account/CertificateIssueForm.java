@@ -42,6 +42,7 @@ import sun.security.pkcs10.PKCS10Attribute;
 import sun.security.pkcs10.PKCS10Attributes;
 import sun.security.util.DerInputStream;
 import sun.security.util.DerValue;
+import sun.security.util.ObjectIdentifier;
 import sun.security.x509.AVA;
 import sun.security.x509.AlgorithmId;
 import sun.security.x509.CertificateExtensions;
@@ -68,6 +69,30 @@ public class CertificateIssueForm extends Form {
     private final static Template t = new Template(CertificateIssueForm.class.getResource("CertificateIssueForm.templ"));
 
     private final static Template tIni = new Template(CertificateAdd.class.getResource("RequestCertificate.templ"));
+
+    public static final ObjectIdentifier OID_KEY_USAGE_SSL_SERVER = ObjectIdentifier.newInternal(new int[] {
+            1, 3, 6, 1, 5, 5, 7, 3, 1
+    });
+
+    public static final ObjectIdentifier OID_KEY_USAGE_SSL_CLIENT = ObjectIdentifier.newInternal(new int[] {
+            1, 3, 6, 1, 5, 5, 7, 3, 2
+    });
+
+    public static final ObjectIdentifier OID_KEY_USAGE_CODESIGN = ObjectIdentifier.newInternal(new int[] {
+            1, 3, 6, 1, 5, 5, 7, 3, 3
+    });
+
+    public static final ObjectIdentifier OID_KEY_USAGE_EMAIL_PROTECTION = ObjectIdentifier.newInternal(new int[] {
+            1, 3, 6, 1, 5, 5, 7, 3, 4
+    });
+
+    public static final ObjectIdentifier OID_KEY_USAGE_TIMESTAMP = ObjectIdentifier.newInternal(new int[] {
+            1, 3, 6, 1, 5, 5, 7, 3, 8
+    });
+
+    public static final ObjectIdentifier OID_KEY_USAGE_OCSP = ObjectIdentifier.newInternal(new int[] {
+            1, 3, 6, 1, 5, 5, 7, 3, 9
+    });
 
     User u;
 
@@ -151,17 +176,17 @@ public class CertificateIssueForm extends Form {
                             } else if (c instanceof ExtendedKeyUsageExtension) {
                                 ExtendedKeyUsageExtension ekue = (ExtendedKeyUsageExtension) c;
                                 for (String s : ekue.getExtendedKeyUsage()) {
-                                    if (s.equals("1.3.6.1.5.5.7.3.1")) {
+                                    if (s.equals(OID_KEY_USAGE_SSL_SERVER.toString())) {
                                         // server
-                                    } else if (s.equals("1.3.6.1.5.5.7.3.2")) {
+                                    } else if (s.equals(OID_KEY_USAGE_SSL_CLIENT.toString())) {
                                         // client
-                                    } else if (s.equals("1.3.6.1.5.5.7.3.3")) {
+                                    } else if (s.equals(OID_KEY_USAGE_CODESIGN.toString())) {
                                         // code sign
-                                    } else if (s.equals("1.3.6.1.5.5.7.3.4")) {
+                                    } else if (s.equals(OID_KEY_USAGE_EMAIL_PROTECTION.toString())) {
                                         // emailProtection
-                                    } else if (s.equals("1.3.6.1.5.5.7.3.8")) {
+                                    } else if (s.equals(OID_KEY_USAGE_TIMESTAMP.toString())) {
                                         // timestamp
-                                    } else if (s.equals("1.3.6.1.5.5.7.3.9")) {
+                                    } else if (s.equals(OID_KEY_USAGE_OCSP.toString())) {
                                         // OCSP
                                     }
                                 }
