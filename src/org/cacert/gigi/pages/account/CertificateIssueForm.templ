@@ -48,7 +48,7 @@
 	<td><?=_Hash algorithm for signing?></td>
     <td class='radio'>
       <? foreach($hashs) { ?>
-        <input type="radio" id="hash_alg_<?=$algorithm?>" name="hash_alg" value="<?=$algorithm?>"<?=$checked?>/>
+        <input type="radio" id="hash_alg_<?=$algorithm?>" name="hash_alg" value="<?=$algorithm?>"<?=$!checked?>/>
         <label for="hash_alg_<?=$algorithm?>"><div class='name'><?=$name?></div><? if($info) { ?> <div class='addinfo'> <?=$info?></div><? } ?></label><div class='elements'></div>
       <? } ?>
     </td>

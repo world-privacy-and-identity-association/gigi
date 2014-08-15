@@ -15,12 +15,12 @@
     <td>
      <form method="post"> <textarea name="CSR"></textarea><br/>
      <input type="submit" name="process" value="<?=_Next?>" />
-     <input type='hidden' name='<?=$csrf_name?>' value='<?=$csrf?>'/></form>
+     <input type='hidden' name='<?=$csrf_name?>' value='<?=$csrf?>'></form>
     </td>
     <td align="left">
      <form method="post"> <keygen name="SPKAC" challenge="<?=$spkacChallenge?>"/><br/>
      <input type="submit" name="process" value="<?=_Next?>" />
-     <input type='hidden' name='<?=$csrf_name?>' value='<?=$csrf?>'/></form>
+     <input type='hidden' name='<?=$csrf_name?>' value='<?=$csrf?>'></form>
   </tr>
   </tbody>
 </table>
