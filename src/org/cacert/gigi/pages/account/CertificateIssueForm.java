@@ -64,7 +64,7 @@ import sun.security.x509.X500Name;
  */
 public class CertificateIssueForm extends Form {
 
-    private static final String DEFAULT_CN = "CAcert WoT User";
+    public static final String DEFAULT_CN = "CAcert WoT User";
 
     private final static Template t = new Template(CertificateIssueForm.class.getResource("CertificateIssueForm.templ"));
 
