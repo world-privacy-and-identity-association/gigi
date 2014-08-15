@@ -206,6 +206,8 @@ public class CertificateIssueForm extends Form {
                     PublicKey pk = parsed.getSubjectPublicKeyInfo();
                     checkKeyStrength(pk, out);
                     String sign = getSignatureAlgorithm(data);
+                    guessDigest(sign);
+
                     out.println("<br/>digest: " + sign + "<br/>");
 
                     this.csr = csr;
@@ -219,6 +221,7 @@ public class CertificateIssueForm extends Form {
                     }
                     checkKeyStrength(parsed.getPubkey(), out);
                     String sign = getSignatureAlgorithm(data);
+                    guessDigest(sign);
                     out.println("<br/>digest: " + sign + "<br/>");
 
                     // spkacChallenge
@@ -313,6 +316,14 @@ public class CertificateIssueForm extends Form {
             e.format(out, Page.getLanguage(req));
         }
         return false;
+    }
+
+    private void guessDigest(String sign) {
+        if (sign.toLowerCase().startsWith("sha512")) {
+            selectedDigest = Digest.SHA512;
+        } else if (sign.toLowerCase().startsWith("sha384")) {
+            selectedDigest = Digest.SHA384;
+        }
     }
 
     private TreeSet<SubjectAlternateName> parseSANBox(String SANs) {
