@@ -51,6 +51,7 @@ import sun.security.x509.Extension;
 import sun.security.x509.GeneralName;
 import sun.security.x509.GeneralNameInterface;
 import sun.security.x509.GeneralNames;
+import sun.security.x509.PKIXExtensions;
 import sun.security.x509.RDN;
 import sun.security.x509.RFC822Name;
 import sun.security.x509.SubjectAlternativeNameExtension;
@@ -121,7 +122,14 @@ public class CertificateIssueForm extends Form {
                                 if (a.getObjectIdentifier().equals((Object) PKCS9Attribute.EMAIL_ADDRESS_OID)) {
                                     SANs.add(new SubjectAlternateName(SANType.EMAIL, a.getValueString()));
                                 } else if (a.getObjectIdentifier().equals((Object) X500Name.commonName_oid)) {
-                                    CN = a.getValueString();
+                                    String value = a.getValueString();
+                                    if (value.contains(".") && !value.contains(" ")) {
+                                        SANs.add(new SubjectAlternateName(SANType.DNS, value));
+                                    } else {
+                                        CN = value;
+                                    }
+                                } else if (a.getObjectIdentifier().equals((Object) PKIXExtensions.SubjectAlternativeName_Id)) {
+                                    // parse invalid SANs
                                 }
                             }
                         }
