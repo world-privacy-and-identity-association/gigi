@@ -178,12 +178,15 @@ public class CertificateIssueForm extends Form {
                                 for (String s : ekue.getExtendedKeyUsage()) {
                                     if (s.equals(OID_KEY_USAGE_SSL_SERVER.toString())) {
                                         // server
+                                        profile = CertificateProfile.getByName("server");
                                     } else if (s.equals(OID_KEY_USAGE_SSL_CLIENT.toString())) {
                                         // client
+                                        profile = CertificateProfile.getByName("client");
                                     } else if (s.equals(OID_KEY_USAGE_CODESIGN.toString())) {
                                         // code sign
                                     } else if (s.equals(OID_KEY_USAGE_EMAIL_PROTECTION.toString())) {
                                         // emailProtection
+                                        profile = CertificateProfile.getByName("mail");
                                     } else if (s.equals(OID_KEY_USAGE_TIMESTAMP.toString())) {
                                         // timestamp
                                     } else if (s.equals(OID_KEY_USAGE_OCSP.toString())) {
