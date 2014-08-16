@@ -1,10 +1,14 @@
 package org.cacert.gigi.pages.account;
 
 import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -20,8 +24,8 @@ import org.cacert.gigi.User;
 import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.util.PEM;
 import org.junit.Test;
-
 import sun.security.pkcs.PKCS9Attribute;
 import sun.security.pkcs10.PKCS10Attribute;
 import sun.security.pkcs10.PKCS10Attributes;
@@ -43,6 +47,8 @@ public class TestCertificateAdd extends ManagedTest {
     User u = User.getById(createVerifiedUser("testuser", "testname", uniq + "@testdom.com", TEST_PASSWORD));
 
     String session = login(uniq + "@testdom.com", TEST_PASSWORD);
+
+    String csrf;
 
     public TestCertificateAdd() throws GeneralSecurityException, IOException {
         TestDomain.addDomain(session, uniq + ".tld");
@@ -97,19 +103,66 @@ public class TestCertificateAdd extends ManagedTest {
         testSPKAC(true);
     }
 
-    protected void testSPKAC(boolean correctChallange) throws GeneralSecurityException, IOException {
+    @Test
+    public void testIssue() throws IOException, GeneralSecurityException {
+        PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
+            CertificateIssueForm.OID_KEY_USAGE_SSL_CLIENT
+        }, new RFC822Name(uniq + "@testdom.com"));
+
+        String pem = generatePEMCSR(kp, "CN=testuser testname,email=" + uniq + "@testdom.com", atts, "SHA512WithRSA");
+
+        String[] res = fillOutForm("CSR=" + URLEncoder.encode(pem, "UTF-8"));
+        assertArrayEquals(new String[] {
+                "client", "testuser testname", "email:" + uniq + "@testdom.com\n", Digest.SHA512.toString()
+        }, res);
+
+        HttpURLConnection huc = (HttpURLConnection) ncert.openConnection();
+        huc.setRequestProperty("Cookie", session);
+        huc.setDoOutput(true);
+        OutputStream out = huc.getOutputStream();
+        out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes());
+        out.write(("&profile=client&CN=testuser+testname&SANs=" + URLEncoder.encode("email:" + uniq + "@testdom.com\n", "UTF-8")).getBytes());
+        out.write(("&hash_alg=SHA512&CCA=y").getBytes());
+        URLConnection uc = authenticate(new URL(huc.getHeaderField("Location") + ".crt"));
+        String crt = IOUtils.readURL(new InputStreamReader(uc.getInputStream(), "UTF-8"));
+
+        uc = authenticate(new URL(huc.getHeaderField("Location") + ".cer"));
+        byte[] cer = IOUtils.readURL(uc.getInputStream());
+        assertArrayEquals(cer, PEM.decode("CERTIFICATE", crt));
+
+        uc = authenticate(new URL(huc.getHeaderField("Location") + ".cer?install"));
+        byte[] cer2 = IOUtils.readURL(uc.getInputStream());
+        assertArrayEquals(cer, cer2);
+        assertEquals("application/x-x509-user-cert", uc.getHeaderField("Content-type"));
+
+        uc = authenticate(new URL(huc.getHeaderField("Location")));
+        String gui = IOUtils.readURL(uc);
+        assertThat(gui, containsString("clientAuth"));
+        assertThat(gui, containsString("CN=testuser testname"));
+        assertThat(gui, containsString("SHA512withRSA"));
+        assertThat(gui, containsString("RFC822Name: " + uniq + "@testdom.com"));
+
+    }
+
+    private URLConnection authenticate(URL url) throws IOException {
+        URLConnection uc = url.openConnection();
+        uc.setRequestProperty("Cookie", session);
+        return uc;
+    }
+
+    protected String testSPKAC(boolean correctChallange) throws GeneralSecurityException, IOException {
         HttpURLConnection uc = (HttpURLConnection) ncert.openConnection();
         uc.setRequestProperty("Cookie", session);
         String s = IOUtils.readURL(uc);
 
-        String csrf = extractPattern(s, Pattern.compile("<input [^>]*name='csrf' [^>]*value='([^']*)'>"));
+        csrf = extractPattern(s, Pattern.compile("<input [^>]*name='csrf' [^>]*value='([^']*)'>"));
         String challenge = extractPattern(s, Pattern.compile("<keygen [^>]*name=\"SPKAC\" [^>]*challenge=\"([^\"]*)\"/>"));
 
         SPKAC spk = new SPKAC((X509Key) kp.getPublic(), challenge + (correctChallange ? "" : "b"));
         Signature sign = Signature.getInstance("SHA512WithRSA");
         sign.initSign(kp.getPrivate());
         try {
-            String[] res = fillOutForm(csrf, "SPKAC=" + URLEncoder.encode(Base64.getEncoder().encodeToString(spk.getEncoded(sign)), "UTF-8"));
+            String[] res = fillOutFormDirect("SPKAC=" + URLEncoder.encode(Base64.getEncoder().encodeToString(spk.getEncoded(sign)), "UTF-8"));
             if ( !correctChallange) {
                 fail("Should not succeed with wrong challange.");
             }
@@ -119,6 +172,7 @@ public class TestCertificateAdd extends ManagedTest {
         } catch (Error e) {
             assertTrue(e.getMessage().startsWith("<div>Challenge mismatch"));
         }
+        return csrf;
     }
 
     private PKCS10Attributes buildAtts(ObjectIdentifier[] ekuOIDs, GeneralNameInterface... SANs) throws IOException {
@@ -143,12 +197,12 @@ public class TestCertificateAdd extends ManagedTest {
     private String[] fillOutForm(String pem) throws IOException {
         HttpURLConnection uc = (HttpURLConnection) ncert.openConnection();
         uc.setRequestProperty("Cookie", session);
-        String csrf = getCSRF(uc);
-        return fillOutForm(csrf, pem);
+        csrf = getCSRF(uc);
+        return fillOutFormDirect(pem);
 
     }
 
-    private String[] fillOutForm(String csrf, String pem) throws IOException {
+    private String[] fillOutFormDirect(String pem) throws IOException {
 
         HttpURLConnection uc = (HttpURLConnection) ncert.openConnection();
         uc.setRequestProperty("Cookie", session);
@@ -156,6 +210,10 @@ public class TestCertificateAdd extends ManagedTest {
         uc.getOutputStream().write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" + pem).getBytes());
         uc.getOutputStream().flush();
 
+        return extractFormData(uc);
+    }
+
+    private String[] extractFormData(HttpURLConnection uc) throws IOException, Error {
         String result = IOUtils.readURL(uc);
         if (result.contains("<div class='formError'>")) {
             String s = fetchStartErrorMessage(result);
