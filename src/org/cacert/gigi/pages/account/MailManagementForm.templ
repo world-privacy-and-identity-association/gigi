@@ -13,9 +13,9 @@
   </tr>
  <? foreach($emails) {?>
  	<tr>
- 		<td><input type="radio" name="emailid" value="<?=$id?>" <?=$checked?>></td>
+ 		<td><input type="radio" name="emailid" value="<?=$id?>" <?=$!checked?>></td>
  		<td><?=$verification?></td>
- 		<td><?=$delete?></td>
+ 		<td><?=$!delete?></td>
  		<td><?=$address?></td>
  	</tr>
  <? } ?>
