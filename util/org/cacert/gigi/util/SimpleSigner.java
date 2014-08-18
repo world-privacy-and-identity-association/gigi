@@ -64,7 +64,7 @@ public class SimpleSigner {
             throw new IllegalStateException("already running");
         }
         running = true;
-        readyCerts = DatabaseConnection.getInstance().prepare("SELECT certs.id AS id, certs.csr_name, certs.subject, jobs.id AS jobid, csr_type, md, keyUsage, extendedKeyUsage FROM jobs " + //
+        readyCerts = DatabaseConnection.getInstance().prepare("SELECT certs.id AS id, certs.csr_name, certs.subject, jobs.id AS jobid, csr_type, md, keyUsage, extendedKeyUsage, rootcert FROM jobs " + //
                 "INNER JOIN certs ON certs.id=jobs.targetId " + //
                 "INNER JOIN profiles ON profiles.id=certs.profile " + //
                 "WHERE jobs.state='open' "//
@@ -207,15 +207,22 @@ public class SimpleSigner {
             cfg.println("keyUsage=" + keyUsage);
             cfg.println("extendedKeyUsage=" + ekeyUsage);
             cfg.close();
+            int rootcert = rs.getInt("rootcert");
+            String ca = "unassured";
+            if (rootcert == 0) {
+                ca = "unassured";
+            } else if (rootcert == 1) {
+                ca = "assured";
+            }
 
             String[] call = new String[] {
                     "openssl", "ca",//
                     "-in",
                     "../../" + csrname,//
                     "-cert",
-                    "../unassured.crt",//
+                    "../" + ca + ".crt",//
                     "-keyfile",
-                    "../unassured.key",//
+                    "../" + ca + ".key",//
                     "-out",
                     "../../" + crt.getPath(),//
                     "-utf8",
