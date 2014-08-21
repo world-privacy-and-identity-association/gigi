@@ -62,6 +62,7 @@ public class Launcher {
         ServerConnector connector = new ServerConnector(s, createConnectionFactory(conf), new HttpConnectionFactory(https_config));
         connector.setHost(conf.getMainProps().getProperty("host"));
         connector.setPort(Integer.parseInt(conf.getMainProps().getProperty("port")));
+        connector.setAcceptQueueSize(100);
         s.setConnectors(new Connector[] {
             connector
         });
