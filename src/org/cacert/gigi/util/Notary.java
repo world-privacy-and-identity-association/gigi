@@ -35,7 +35,7 @@ public class Notary {
             }
             rs.close();
             if ( !assurer.canAssure()) {
-                return AssuranceResult.CANNOT_ASSURE;
+                return AssuranceResult.NO_ASSURER;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -44,7 +44,7 @@ public class Notary {
     }
 
     public enum AssuranceResult {
-        CANNOT_ASSURE("You cannot assure."), ALREADY_ASSUREED("You already assured this person."), CANNOT_ASSURE_SELF("Cannot assure myself."), ASSURANCE_SUCCEDED(""), ASSUREE_CHANGED("Person details changed. Please start over again."), POINTS_OUT_OF_RANGE("Points out of range.");
+        NO_ASSURER("You are not an assurer."), ALREADY_ASSUREED("You already assured this person."), CANNOT_ASSURE_SELF("Cannot assure myself."), ASSURANCE_SUCCEDED(""), ASSUREE_CHANGED("Person details changed. Please start over again."), POINTS_OUT_OF_RANGE("Points out of range.");
 
         private final String message;
 
