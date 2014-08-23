@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
 
-public class MenuItem implements Outputable {
+public class MenuItem implements Outputable, IMenuItem {
 
     final String href;
 

@@ -11,9 +11,9 @@ public class Menu implements Outputable {
 
     String id;
 
-    private MenuItem[] content;
+    private IMenuItem[] content;
 
-    public Menu(String menuName, String id, MenuItem... content) {
+    public Menu(String menuName, String id, IMenuItem... content) {
         this.menuName = menuName;
         this.id = id;
         this.content = content;
@@ -28,7 +28,7 @@ public class Menu implements Outputable {
         out.print("<ul class=\"menu\" id=\"");
         out.print(id);
         out.print("\">");
-        for (MenuItem mi : content) {
+        for (Outputable mi : content) {
             mi.output(out, l, vars);
         }
 
