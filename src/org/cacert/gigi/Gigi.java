@@ -17,8 +17,8 @@ import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Form.CSRFException;
 import org.cacert.gigi.output.Menu;
-import org.cacert.gigi.output.MenuItem;
 import org.cacert.gigi.output.Outputable;
+import org.cacert.gigi.output.SimpleMenuItem;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
@@ -47,32 +47,43 @@ public class Gigi extends HttpServlet {
     private Template baseTemplate;
 
     private HashMap<String, Page> pages = new HashMap<String, Page>();
+    
+    private HashMap<Page, String> reveresePages = new HashMap<Page, String>();
 
     private Menu m;
 
+    private static Gigi instance;
+
     public Gigi(Properties conf) {
+        if (instance != null) {
+            new IllegalStateException("Multiple Gigi instances!");
+        }
         DatabaseConnection.init(conf);
     }
 
     @Override
     public void init() throws ServletException {
-        pages.put("/error", new PageNotFound());
-        pages.put("/login", new LoginPage("CACert - Login"));
-        pages.put("/", new MainPage("CACert - Home"));
-        pages.put("/secure", new TestSecure());
-        pages.put(Verify.PATH, new Verify());
-        pages.put(AssurePage.PATH + "/*", new AssurePage());
-        pages.put(Certificates.PATH + "/*", new Certificates());
-        pages.put(MyDetails.PATH, new MyDetails());
-        pages.put(ChangePasswordPage.PATH, new ChangePasswordPage());
-        pages.put(RegisterPage.PATH, new RegisterPage());
-        pages.put(CertificateAdd.PATH, new CertificateAdd());
-        pages.put(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"));
-        pages.put(DomainOverview.PATH, new DomainOverview("Domains"));
+        putPage("/error", new PageNotFound());
+        putPage("/login", new LoginPage("CACert - Login"));
+        putPage("/", new MainPage("CACert - Home"));
+        putPage("/secure", new TestSecure());
+        putPage(Verify.PATH, new Verify());
+        putPage(AssurePage.PATH + "/*", new AssurePage());
+        putPage(Certificates.PATH + "/*", new Certificates());
+        putPage(MyDetails.PATH, new MyDetails());
+        putPage(ChangePasswordPage.PATH, new ChangePasswordPage());
+        putPage(RegisterPage.PATH, new RegisterPage());
+        putPage(CertificateAdd.PATH, new CertificateAdd());
+        putPage(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"));
+        putPage(DomainOverview.PATH, new DomainOverview("Domains"));
         baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
-        m = new Menu("Certificates", "cert", new MenuItem(MailOverview.DEFAULT_PATH, "Emails"), new MenuItem("", "Client Certificates"), new MenuItem("", "Domains"), new MenuItem("", "Server Certificates"));
+        m = new Menu("Certificates", "cert", new SimpleMenuItem(MailOverview.DEFAULT_PATH, "Emails"), new SimpleMenuItem("", "Client Certificates"), new SimpleMenuItem("", "Domains"), new SimpleMenuItem("", "Server Certificates"));
         super.init();
+    }
 
+    private void putPage(String path, Page p) {
+        pages.put(path, p);
+        reveresePages.put(p, path);
     }
 
     @Override
@@ -194,4 +205,9 @@ public class Gigi extends HttpServlet {
         }
         return defaultCSP;
     }
+
+    public static String getPathByPage(Page p) {
+        return instance.reveresePages.get(p);
+    }
+
 }

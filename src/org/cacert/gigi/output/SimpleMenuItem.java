@@ -5,13 +5,13 @@ import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
 
-public class MenuItem implements Outputable, IMenuItem {
+public class SimpleMenuItem implements IMenuItem {
 
     private final String href;
 
     private final String name;
 
-    public MenuItem(String href, String name) {
+    public SimpleMenuItem(String href, String name) {
         this.href = href;
         this.name = name;
     }
