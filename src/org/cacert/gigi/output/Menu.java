@@ -1,11 +1,14 @@
 package org.cacert.gigi.output;
 
 import java.io.PrintWriter;
+import java.util.LinkedList;
 import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
 
-public class Menu implements Outputable {
+public class Menu implements IMenuItem {
+
+    public static final String USER_VALUE = "user";
 
     private String menuName;
 
@@ -13,10 +16,11 @@ public class Menu implements Outputable {
 
     private IMenuItem[] content;
 
-    public Menu(String menuName, String id, IMenuItem... content) {
+    private LinkedList<IMenuItem> prepare = new LinkedList<IMenuItem>();
+
+    public Menu(String menuName, String id) {
         this.menuName = menuName;
         this.id = id;
-        this.content = content;
     }
 
     @Override
@@ -31,7 +35,28 @@ public class Menu implements Outputable {
         for (Outputable mi : content) {
             mi.output(out, l, vars);
         }
-
         out.println("</ul></div>");
+    }
+
+    public void addItem(IMenuItem item) {
+        prepare.add(item);
+    }
+
+    public void prepare() {
+        content = new IMenuItem[prepare.size()];
+        content = prepare.toArray(content);
+        prepare = null;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Menu) {
+            return menuName.equals(((Menu) obj).getMenuName());
+        }
+        return super.equals(obj);
+    }
+
+    public String getMenuName() {
+        return menuName;
     }
 }

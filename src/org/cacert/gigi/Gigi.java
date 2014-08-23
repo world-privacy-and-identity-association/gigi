@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Properties;
 
@@ -18,7 +19,7 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Form.CSRFException;
 import org.cacert.gigi.output.Menu;
 import org.cacert.gigi.output.Outputable;
-import org.cacert.gigi.output.SimpleMenuItem;
+import org.cacert.gigi.output.PageMenuItem;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
@@ -38,6 +39,8 @@ import org.cacert.gigi.util.ServerConstants;
 
 public class Gigi extends HttpServlet {
 
+    private boolean firstInstanceInited = false;
+
     public static final String LOGGEDIN = "loggedin";
 
     public static final String USER = "user";
@@ -46,11 +49,13 @@ public class Gigi extends HttpServlet {
 
     private Template baseTemplate;
 
+    private LinkedList<Menu> categories = new LinkedList<Menu>();
+
     private HashMap<String, Page> pages = new HashMap<String, Page>();
-    
+
     private HashMap<Page, String> reveresePages = new HashMap<Page, String>();
 
-    private Menu m;
+    private Menu rootMenu;
 
     private static Gigi instance;
 
@@ -58,32 +63,57 @@ public class Gigi extends HttpServlet {
         if (instance != null) {
             new IllegalStateException("Multiple Gigi instances!");
         }
+        instance = this;
         DatabaseConnection.init(conf);
     }
 
     @Override
     public void init() throws ServletException {
-        putPage("/error", new PageNotFound());
-        putPage("/login", new LoginPage("CACert - Login"));
-        putPage("/", new MainPage("CACert - Home"));
-        putPage("/secure", new TestSecure());
-        putPage(Verify.PATH, new Verify());
-        putPage(AssurePage.PATH + "/*", new AssurePage());
-        putPage(Certificates.PATH + "/*", new Certificates());
-        putPage(MyDetails.PATH, new MyDetails());
-        putPage(ChangePasswordPage.PATH, new ChangePasswordPage());
-        putPage(RegisterPage.PATH, new RegisterPage());
-        putPage(CertificateAdd.PATH, new CertificateAdd());
-        putPage(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"));
-        putPage(DomainOverview.PATH, new DomainOverview("Domains"));
-        baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
-        m = new Menu("Certificates", "cert", new SimpleMenuItem(MailOverview.DEFAULT_PATH, "Emails"), new SimpleMenuItem("", "Client Certificates"), new SimpleMenuItem("", "Domains"), new SimpleMenuItem("", "Server Certificates"));
+        if ( !firstInstanceInited) {
+            putPage("/error", new PageNotFound(), null);
+            putPage("/login", new LoginPage("CACert - Login"), "Join CAcert.org");
+            putPage("/", new MainPage("CACert - Home"), null);
+            putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
+            putPage("/secure", new TestSecure(), null);
+            putPage(Verify.PATH, new Verify(), null);
+            putPage(AssurePage.PATH + "/*", new AssurePage(), "CAcert Web of Trust");
+            putPage(Certificates.PATH + "/*", new Certificates(), "Certificates");
+            putPage(MyDetails.PATH, new MyDetails(), "My Account");
+            putPage(RegisterPage.PATH, new RegisterPage(), "My Account");
+            putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
+            putPage(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"), "Certificates");
+            putPage(DomainOverview.PATH, new DomainOverview("Domains"), "Certificates");
+            baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
+            rootMenu = new Menu("Main", "");
+            for (Menu menu : categories) {
+                menu.prepare();
+                rootMenu.addItem(menu);
+            }
+            rootMenu.prepare();
+            firstInstanceInited = true;
+        }
         super.init();
     }
 
-    private void putPage(String path, Page p) {
+    private void putPage(String path, Page p, String category) {
         pages.put(path, p);
         reveresePages.put(p, path);
+        if (category == null) {
+            return;
+        }
+        Menu m = null;
+        for (Menu menu : categories) {
+            if (menu.getMenuName().equals(category)) {
+                m = menu;
+                break;
+            }
+        }
+        if (m == null) {
+            m = new Menu(category, "");
+            categories.add(m);
+        }
+        m.addItem(new PageMenuItem(p));
+
     }
 
     @Override
@@ -106,7 +136,8 @@ public class Gigi extends HttpServlet {
         final Page p = getPage(req.getPathInfo());
         if (p != null) {
 
-            if ( !p.isPermitted(LoginPage.getUser(req)) && hs.getAttribute("loggedin") == null) {
+            User currentPageUser = LoginPage.getUser(req);
+            if ( !p.isPermitted(currentPageUser) && hs.getAttribute("loggedin") == null) {
                 String request = req.getPathInfo();
                 request = request.split("\\?")[0];
                 hs.setAttribute(LoginPage.LOGIN_RETURNPATH, request);
@@ -144,7 +175,8 @@ public class Gigi extends HttpServlet {
 
                 }
             };
-            vars.put("menu", m);
+            vars.put(Menu.USER_VALUE, currentPageUser);
+            vars.put("menu", rootMenu);
             vars.put("title", p.getTitle());
             vars.put("static", ServerConstants.getStaticHostNamePort());
             vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
@@ -207,7 +239,7 @@ public class Gigi extends HttpServlet {
     }
 
     public static String getPathByPage(Page p) {
-        return instance.reveresePages.get(p);
+        return instance.reveresePages.get(p).replaceFirst("\\*$", "");
     }
 
 }
