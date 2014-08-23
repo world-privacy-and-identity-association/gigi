@@ -27,6 +27,7 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.User;
 import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.CertificateValiditySelector;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.HashAlgorithms;
 import org.cacert.gigi.output.template.IterableDataset;
@@ -107,6 +108,8 @@ public class CertificateIssueForm extends Form {
     private Set<SubjectAlternateName> SANs = new LinkedHashSet<>();
 
     private Digest selectedDigest = Digest.getDefault();
+
+    CertificateValiditySelector issueDate = new CertificateValiditySelector();
 
     private boolean login;
 
@@ -230,6 +233,7 @@ public class CertificateIssueForm extends Form {
 
                 } else {
                     login = "1".equals(req.getParameter("login"));
+                    issueDate.update(req);
                     CN = req.getParameter("CN");
                     String hashAlg = req.getParameter("hash_alg");
                     if (hashAlg != null) {
@@ -296,7 +300,7 @@ public class CertificateIssueForm extends Form {
 
                     result = new Certificate(LoginPage.getUser(req).getId(), subject.toString(), selectedDigest.toString(), //
                             this.csr, this.csrType, profile, SANs.toArray(new SubjectAlternateName[SANs.size()]));
-                    result.issue().waitFor(60000);
+                    result.issue(issueDate.getFrom(), issueDate.getTo()).waitFor(60000);
                     return true;
                 }
             } catch (IOException e) {
@@ -407,6 +411,7 @@ public class CertificateIssueForm extends Form {
         }
 
         vars2.put("CN", CN);
+        vars2.put("validity", issueDate);
         vars2.put("emails", content.toString());
         vars2.put("hashs", new HashAlgorithms(selectedDigest));
         vars2.put("profiles", new IterableDataset() {

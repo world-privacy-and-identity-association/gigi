@@ -10,6 +10,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import javax.net.ssl.ExtendedSSLSession;
 import javax.net.ssl.SNIHostName;
@@ -46,6 +47,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 public class Launcher {
 
     public static void main(String[] args) throws Exception {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         GigiConfig conf = GigiConfig.parse(System.in);
         ServerConstants.init(conf.getMainProps());
         initEmails(conf);

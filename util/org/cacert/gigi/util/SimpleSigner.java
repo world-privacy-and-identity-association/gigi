@@ -12,14 +12,19 @@ import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import org.cacert.gigi.Certificate.CSRType;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.output.CertificateValiditySelector;
 
 public class SimpleSigner {
 
@@ -40,6 +45,12 @@ public class SimpleSigner {
     private static boolean running = true;
 
     private static Thread runner;
+
+    private static SimpleDateFormat sdf = new SimpleDateFormat("YYMMddHHmmss'Z'");
+
+    static {
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
 
     public static void main(String[] args) throws IOException, SQLException, InterruptedException {
         Properties p = new Properties();
@@ -64,7 +75,7 @@ public class SimpleSigner {
             throw new IllegalStateException("already running");
         }
         running = true;
-        readyCerts = DatabaseConnection.getInstance().prepare("SELECT certs.id AS id, certs.csr_name, certs.subject, jobs.id AS jobid, csr_type, md, keyUsage, extendedKeyUsage, rootcert FROM jobs " + //
+        readyCerts = DatabaseConnection.getInstance().prepare("SELECT certs.id AS id, certs.csr_name, certs.subject, jobs.id AS jobid, csr_type, md, keyUsage, extendedKeyUsage, executeFrom, executeTo, rootcert FROM jobs " + //
                 "INNER JOIN certs ON certs.id=jobs.targetId " + //
                 "INNER JOIN profiles ON profiles.id=certs.profile " + //
                 "WHERE jobs.state='open' "//
@@ -174,110 +185,146 @@ public class SimpleSigner {
 
     private static int counter = 0;
 
-    private static void signCertificates() throws SQLException, IOException, InterruptedException {
+    private static void signCertificates() throws SQLException {
         ResultSet rs = readyCerts.executeQuery();
         while (rs.next()) {
             String csrname = rs.getString("csr_name");
-            System.out.println("sign: " + csrname);
             int id = rs.getInt("id");
-            String csrType = rs.getString("csr_type");
-            CSRType ct = CSRType.valueOf(csrType);
-            File crt = KeyStorage.locateCrt(id);
+            System.out.println("sign: " + csrname);
+            try {
+                String csrType = rs.getString("csr_type");
+                CSRType ct = CSRType.valueOf(csrType);
+                File crt = KeyStorage.locateCrt(id);
 
-            String keyUsage = rs.getString("keyUsage");
-            String ekeyUsage = rs.getString("extendedKeyUsage");
-            getSANSs.setInt(1, id);
-            ResultSet san = getSANSs.executeQuery();
-
-            File f = new File("keys", "SANFile" + System.currentTimeMillis() + (counter++) + ".cfg");
-            PrintWriter cfg = new PrintWriter(f);
-            boolean first = true;
-            while (san.next()) {
-                if ( !first) {
-                    cfg.print(", ");
+                String keyUsage = rs.getString("keyUsage");
+                String ekeyUsage = rs.getString("extendedKeyUsage");
+                java.sql.Date from = rs.getDate("executeFrom");
+                String length = rs.getString("executeTo");
+                Date fromDate;
+                Date toDate;
+                if (from == null) {
+                    fromDate = new Date(System.currentTimeMillis());
                 } else {
-                    cfg.print("subjectAltName=");
+                    fromDate = new Date(from.getTime());
                 }
-                first = false;
-                cfg.print(san.getString("type"));
-                cfg.print(":");
-                cfg.print(san.getString("contents"));
-            }
-            cfg.println();
-            cfg.println("keyUsage=" + keyUsage);
-            cfg.println("extendedKeyUsage=" + ekeyUsage);
-            cfg.close();
-            int rootcert = rs.getInt("rootcert");
-            String ca = "unassured";
-            if (rootcert == 0) {
-                ca = "unassured";
-            } else if (rootcert == 1) {
-                ca = "assured";
-            }
-
-            String[] call = new String[] {
-                    "openssl", "ca",//
-                    "-in",
-                    "../../" + csrname,//
-                    "-cert",
-                    "../" + ca + ".crt",//
-                    "-keyfile",
-                    "../" + ca + ".key",//
-                    "-out",
-                    "../../" + crt.getPath(),//
-                    "-utf8",
-                    "-days",
-                    "356",//
-                    "-batch",//
-                    "-md",
-                    rs.getString("md"),//
-                    "-extfile",
-                    "../" + f.getName(),//
-
-                    "-subj",
-                    rs.getString("subject"),//
-                    "-config",
-                    "../selfsign.config"//
-
-            };
-            if (ct == CSRType.SPKAC) {
-                call[2] = "-spkac";
-            }
-            Process p1 = Runtime.getRuntime().exec(call, null, new File("keys/unassured.ca"));
-
-            int waitFor = p1.waitFor();
-            f.delete();
-            if (waitFor == 0) {
-                try (InputStream is = new FileInputStream(crt)) {
-                    CertificateFactory cf = CertificateFactory.getInstance("X.509");
-                    X509Certificate crtp = (X509Certificate) cf.generateCertificate(is);
-                    BigInteger serial = crtp.getSerialNumber();
-                    updateMail.setString(1, crt.getPath());
-                    updateMail.setString(2, serial.toString(16));
-                    updateMail.setInt(3, id);
-                    updateMail.execute();
-
-                    finishJob.setInt(1, rs.getInt("jobid"));
-                    finishJob.execute();
-                    System.out.println("signed: " + id);
-                    continue;
-                } catch (GeneralSecurityException e) {
-                    e.printStackTrace();
+                if (length.endsWith("m") || length.endsWith("y")) {
+                    String num = length.substring(0, length.length() - 1);
+                    int inter = Integer.parseInt(num);
+                    Calendar c = Calendar.getInstance();
+                    c.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    c.setTime(fromDate);
+                    if (length.endsWith("m")) {
+                        c.add(Calendar.MONTH, inter);
+                    } else {
+                        c.add(Calendar.YEAR, inter);
+                    }
+                    toDate = c.getTime();
+                } else {
+                    toDate = CertificateValiditySelector.getDateFormat().parse(length);
                 }
-                System.out.println("ERROR Afterwards: " + id);
-                warnMail.setInt(1, rs.getInt("jobid"));
-                warnMail.execute();
-            } else {
-                BufferedReader br = new BufferedReader(new InputStreamReader(p1.getErrorStream()));
-                String s;
-                while ((s = br.readLine()) != null) {
-                    System.out.println(s);
+                System.out.println(from);
+                System.out.println(sdf.format(fromDate));
+
+                getSANSs.setInt(1, id);
+                ResultSet san = getSANSs.executeQuery();
+
+                File f = new File("keys", "SANFile" + System.currentTimeMillis() + (counter++) + ".cfg");
+                PrintWriter cfg = new PrintWriter(f);
+                boolean first = true;
+                while (san.next()) {
+                    if ( !first) {
+                        cfg.print(", ");
+                    } else {
+                        cfg.print("subjectAltName=");
+                    }
+                    first = false;
+                    cfg.print(san.getString("type"));
+                    cfg.print(":");
+                    cfg.print(san.getString("contents"));
                 }
-                System.out.println(Arrays.toString(call));
-                System.out.println("ERROR: " + id);
-                warnMail.setInt(1, rs.getInt("jobid"));
-                warnMail.execute();
+                cfg.println();
+                cfg.println("keyUsage=" + keyUsage);
+                cfg.println("extendedKeyUsage=" + ekeyUsage);
+                cfg.close();
+
+                int rootcert = rs.getInt("rootcert");
+                String ca = "unassured";
+                if (rootcert == 0) {
+                    ca = "unassured";
+                } else if (rootcert == 1) {
+                    ca = "assured";
+                }
+
+                String[] call = new String[] {
+                        "openssl", "ca",//
+                        "-in",
+                        "../../" + csrname,//
+                        "-cert",
+                        "../" + ca + ".crt",//
+                        "-keyfile",
+                        "../" + ca + ".key",//
+                        "-out",
+                        "../../" + crt.getPath(),//
+                        "-utf8",
+                        "-startdate",
+                        sdf.format(fromDate),//
+                        "-enddate",
+                        sdf.format(toDate),//
+                        "-batch",//
+                        "-md",
+                        rs.getString("md"),//
+                        "-extfile",
+                        "../" + f.getName(),//
+
+                        "-subj",
+                        rs.getString("subject"),//
+                        "-config",
+                        "../selfsign.config"//
+
+                };
+                if (ct == CSRType.SPKAC) {
+                    call[2] = "-spkac";
+                }
+                Process p1 = Runtime.getRuntime().exec(call, null, new File("keys/unassured.ca"));
+
+                int waitFor = p1.waitFor();
+                f.delete();
+                if (waitFor == 0) {
+                    try (InputStream is = new FileInputStream(crt)) {
+                        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                        X509Certificate crtp = (X509Certificate) cf.generateCertificate(is);
+                        BigInteger serial = crtp.getSerialNumber();
+                        updateMail.setString(1, crt.getPath());
+                        updateMail.setString(2, serial.toString(16));
+                        updateMail.setInt(3, id);
+                        updateMail.execute();
+
+                        finishJob.setInt(1, rs.getInt("jobid"));
+                        finishJob.execute();
+                        System.out.println("signed: " + id);
+                        continue;
+                    }
+                } else {
+                    BufferedReader br = new BufferedReader(new InputStreamReader(p1.getErrorStream()));
+                    String s;
+                    while ((s = br.readLine()) != null) {
+                        System.out.println(s);
+                    }
+                }
+            } catch (GeneralSecurityException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
             }
+            System.out.println("Error with: " + id);
+            warnMail.setInt(1, rs.getInt("jobid"));
+            warnMail.execute();
 
         }
         rs.close();
