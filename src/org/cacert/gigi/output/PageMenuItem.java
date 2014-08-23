@@ -1,11 +1,7 @@
 package org.cacert.gigi.output;
 
-import java.io.PrintWriter;
-import java.util.Map;
-
 import org.cacert.gigi.Gigi;
 import org.cacert.gigi.User;
-import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.ServerConstants;
 
@@ -20,9 +16,7 @@ public class PageMenuItem extends SimpleMenuItem {
     }
 
     @Override
-    public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-        if (p.isPermitted((User) vars.get(Menu.USER_VALUE))) {
-            super.output(out, l, vars);
-        }
+    public boolean isPermitted(User u) {
+        return p.isPermitted(u);
     }
 }

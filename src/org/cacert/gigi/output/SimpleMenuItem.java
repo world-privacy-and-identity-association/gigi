@@ -3,6 +3,7 @@ package org.cacert.gigi.output;
 import java.io.PrintWriter;
 import java.util.Map;
 
+import org.cacert.gigi.User;
 import org.cacert.gigi.localisation.Language;
 
 public class SimpleMenuItem implements IMenuItem {
@@ -23,6 +24,11 @@ public class SimpleMenuItem implements IMenuItem {
         out.print("\">");
         out.print(l.getTranslation(name));
         out.print("</a></li>");
+    }
+
+    @Override
+    public boolean isPermitted(User u) {
+        return true;
     }
 
 }

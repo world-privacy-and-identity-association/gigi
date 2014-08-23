@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.cacert.gigi.User;
 import org.cacert.gigi.localisation.Language;
 
 public class Menu implements IMenuItem {
@@ -25,17 +26,26 @@ public class Menu implements IMenuItem {
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-        out.println("<div>");
-        out.print("<h3>+ ");
-        out.print(l.getTranslation(menuName));
-        out.print("</h3>");
-        out.print("<ul class=\"menu\" id=\"");
-        out.print(id);
-        out.print("\">");
-        for (Outputable mi : content) {
-            mi.output(out, l, vars);
+        boolean visible = false;
+        User u = (User) vars.get(USER_VALUE);
+        for (IMenuItem mi : content) {
+            if (mi.isPermitted(u)) {
+                if ( !visible) {
+                    visible = true;
+                    out.println("<div>");
+                    out.print("<h3>+ ");
+                    out.print(l.getTranslation(menuName));
+                    out.print("</h3>");
+                    out.print("<ul class=\"menu\" id=\"");
+                    out.print(id);
+                    out.print("\">");
+                }
+                mi.output(out, l, vars);
+            }
         }
-        out.println("</ul></div>");
+        if (visible) {
+            out.println("</ul></div>");
+        }
     }
 
     public void addItem(IMenuItem item) {
@@ -58,5 +68,10 @@ public class Menu implements IMenuItem {
 
     public String getMenuName() {
         return menuName;
+    }
+
+    @Override
+    public boolean isPermitted(User u) {
+        return true;
     }
 }
