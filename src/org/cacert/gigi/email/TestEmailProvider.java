@@ -10,13 +10,13 @@ import java.util.Properties;
 
 class TestEmailProvider extends EmailProvider {
 
-    ServerSocket servs;
+    private ServerSocket servs;
 
-    Socket client;
+    private Socket client;
 
-    DataOutputStream out;
+    private DataOutputStream out;
 
-    DataInputStream in;
+    private DataInputStream in;
 
     protected TestEmailProvider(Properties props) {
         try {

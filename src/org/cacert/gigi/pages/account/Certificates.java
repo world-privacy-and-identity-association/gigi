@@ -22,7 +22,7 @@ import org.cacert.gigi.util.PEM;
 
 public class Certificates extends Page {
 
-    Template certDisplay = new Template(Certificates.class.getResource("CertificateDisplay.templ"));
+    private Template certDisplay = new Template(Certificates.class.getResource("CertificateDisplay.templ"));
 
     public static final String PATH = "/account/certs";
 
@@ -85,7 +85,7 @@ public class Certificates extends Page {
         return true;
     }
 
-    Template certTable = new Template(CertificateIterable.class.getResource("CertificateTable.templ"));
+    private Template certTable = new Template(CertificateIterable.class.getResource("CertificateTable.templ"));
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {

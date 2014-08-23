@@ -48,7 +48,7 @@ public class Gigi extends HttpServlet {
 
     private HashMap<String, Page> pages = new HashMap<String, Page>();
 
-    Menu m;
+    private Menu m;
 
     public Gigi(Properties conf) {
         DatabaseConnection.init(conf);

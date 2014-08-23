@@ -94,23 +94,23 @@ public class CertificateIssueForm extends Form {
             1, 3, 6, 1, 5, 5, 7, 3, 9
     });
 
-    User u;
+    private User u;
 
     private CSRType csrType;
 
-    String csr;
+    private String csr;
 
-    String spkacChallenge;
+    private String spkacChallenge;
 
     public String CN = DEFAULT_CN;
 
-    Set<SubjectAlternateName> SANs = new LinkedHashSet<>();
+    private Set<SubjectAlternateName> SANs = new LinkedHashSet<>();
 
-    Digest selectedDigest = Digest.getDefault();
+    private Digest selectedDigest = Digest.getDefault();
 
-    boolean login;
+    private boolean login;
 
-    CertificateProfile profile = CertificateProfile.getById(1);
+    private CertificateProfile profile = CertificateProfile.getById(1);
 
     public CertificateIssueForm(HttpServletRequest hsr) {
         super(hsr);
@@ -118,7 +118,7 @@ public class CertificateIssueForm extends Form {
         spkacChallenge = RandomToken.generateToken(16);
     }
 
-    Certificate result;
+    private Certificate result;
 
     public Certificate getResult() {
         return result;

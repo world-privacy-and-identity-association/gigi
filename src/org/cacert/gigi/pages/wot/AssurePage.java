@@ -58,7 +58,7 @@ public class AssurePage extends Page {
             out.println(translate(req, check.getMessage()));
             return;
         }
-        if (form == null || form.assuree.getId() != mid) {
+        if (form == null || form.getAssuree().getId() != mid) {
             form = new AssuranceForm(req, mid);
         }
 
@@ -78,7 +78,7 @@ public class AssurePage extends Page {
             }
 
             AssuranceForm form = Form.getForm(req, AssuranceForm.class);
-            if (mid != form.assuree.getId()) {
+            if (mid != form.getAssuree().getId()) {
                 return;
             }
             if (form.submit(out, req)) {

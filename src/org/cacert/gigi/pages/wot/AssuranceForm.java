@@ -20,9 +20,9 @@ import org.cacert.gigi.util.Notary.AssuranceResult;
 
 public class AssuranceForm extends Form {
 
-    User assuree;
+    private User assuree;
 
-    static final Template templ;
+    private static final Template templ;
     static {
         templ = new Template(AssuranceForm.class.getResource("AssuranceForm.templ"));
     }
@@ -91,6 +91,10 @@ public class AssuranceForm extends Form {
         }
 
         return false;
+    }
+
+    public User getAssuree() {
+        return assuree;
     }
 
 }

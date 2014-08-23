@@ -7,9 +7,9 @@ import org.cacert.gigi.localisation.Language;
 
 public class HashAlgorithms implements IterableDataset {
 
-    int i = 0;
+    private int i = 0;
 
-    Digest selected;
+    private Digest selected;
 
     public HashAlgorithms(Digest selected) {
         this.selected = selected;

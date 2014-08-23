@@ -7,9 +7,9 @@ import org.cacert.gigi.localisation.Language;
 
 public class Menu implements Outputable {
 
-    String menuName;
+    private String menuName;
 
-    String id;
+    private String id;
 
     private IMenuItem[] content;
 

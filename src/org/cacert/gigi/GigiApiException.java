@@ -8,9 +8,9 @@ import org.cacert.gigi.localisation.Language;
 
 public class GigiApiException extends Exception {
 
-    SQLException e;
+    private SQLException e;
 
-    LinkedList<String> messages = new LinkedList<>();
+    private LinkedList<String> messages = new LinkedList<>();
 
     public GigiApiException(SQLException e) {
         super(e);

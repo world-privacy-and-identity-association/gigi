@@ -2,10 +2,10 @@ package org.cacert.gigi.pages.main;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,9 +26,9 @@ import org.cacert.gigi.util.PasswordStrengthChecker;
 
 public class Signup extends Form {
 
-    User buildup = new User();
+    private User buildup = new User();
 
-    Template t;
+    private Template t;
 
     boolean general = true, country = true, regional = true, radius = true;
 

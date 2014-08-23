@@ -21,7 +21,7 @@ public class MailAddForm extends Form {
         t = new Template(ChangePasswordPage.class.getResource("MailAddForm.templ"));
     }
 
-    User target;
+    private User target;
 
     public MailAddForm(HttpServletRequest hsr, User target) {
         super(hsr);

@@ -74,7 +74,7 @@ public class SMIME {
         mimeEncode(contents, Base64.getEncoder().encodeToString(bOut.toByteArray()).replaceAll("(.{64})(?=.)", "$1\n"), to);
     }
 
-    static Random r = new Random();
+    private static Random r = new Random();
 
     private static void mimeEncode(String contents, String signature, PrintWriter to) {
         String boundary = generateBoundary(contents, null);

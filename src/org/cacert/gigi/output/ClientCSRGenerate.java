@@ -12,9 +12,9 @@ import org.cacert.gigi.util.ServerConstants;
 
 public class ClientCSRGenerate {
 
-    static Template normal;
+    private static Template normal;
 
-    static Template IE;
+    private static Template IE;
     static {
         normal = new Template(ClientCSRGenerate.class.getResource("ClientCSRGenerate.templ"));
         IE = new Template(ClientCSRGenerate.class.getResource("ClientCSRGenerateIE.templ"));

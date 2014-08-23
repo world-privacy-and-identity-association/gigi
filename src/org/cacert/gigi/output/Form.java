@@ -16,7 +16,7 @@ public abstract class Form implements Outputable {
 
     public static final String CSRF_FIELD = "csrf";
 
-    String csrf;
+    private String csrf;
 
     public Form(HttpServletRequest hsr) {
         csrf = RandomToken.generateToken(32);

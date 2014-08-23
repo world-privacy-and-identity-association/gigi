@@ -19,9 +19,9 @@ public class Language {
 
     private static HashMap<String, Language> langs = new HashMap<String, Language>();
 
-    HashMap<String, String> translations = new HashMap<String, String>();
+    private HashMap<String, String> translations = new HashMap<String, String>();
 
-    Locale l;
+    private Locale l;
 
     protected Language(String language) throws ParserConfigurationException, IOException, SAXException {
         if (language.contains("_")) {

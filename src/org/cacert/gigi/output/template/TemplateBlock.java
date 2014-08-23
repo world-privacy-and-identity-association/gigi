@@ -8,9 +8,9 @@ import org.cacert.gigi.output.Outputable;
 
 class TemplateBlock implements Outputable {
 
-    String[] contents;
+    private String[] contents;
 
-    Outputable[] vars;
+    private Outputable[] vars;
 
     public TemplateBlock(String[] contents, Outputable[] vars) {
         this.contents = contents;

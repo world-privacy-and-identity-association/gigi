@@ -7,15 +7,15 @@ import org.cacert.gigi.User;
 
 public class PasswordStrengthChecker {
 
-    static Pattern digits = Pattern.compile("\\d");
+    private static Pattern digits = Pattern.compile("\\d");
 
-    static Pattern lower = Pattern.compile("[a-z]");
+    private static Pattern lower = Pattern.compile("[a-z]");
 
-    static Pattern upper = Pattern.compile("[A-Z]");
+    private static Pattern upper = Pattern.compile("[A-Z]");
 
-    static Pattern whitespace = Pattern.compile("\\s");
+    private static Pattern whitespace = Pattern.compile("\\s");
 
-    static Pattern special = Pattern.compile("(?!\\s)\\W");
+    private static Pattern special = Pattern.compile("(?!\\s)\\W");
 
     private PasswordStrengthChecker() {}
 

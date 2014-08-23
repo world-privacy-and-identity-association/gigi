@@ -8,11 +8,11 @@ import org.cacert.gigi.database.DatabaseConnection;
 
 public class Domain {
 
-    User owner;
+    private User owner;
 
-    String suffix;
+    private String suffix;
 
-    int id;
+    private int id;
 
     public Domain(int id) throws SQLException {
         PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid, domain FROM `domains` WHERE id=? AND deleted IS NULL");

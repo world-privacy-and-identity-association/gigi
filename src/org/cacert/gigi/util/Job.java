@@ -9,7 +9,7 @@ import org.cacert.gigi.database.DatabaseConnection;
 
 public class Job {
 
-    int id;
+    private int id;
 
     private Job(int id) {
         this.id = id;

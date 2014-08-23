@@ -5,21 +5,21 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Properties;
-import java.sql.Statement;
 
 public class DatabaseConnection {
 
     public static final int CONNECTION_TIMEOUT = 24 * 60 * 60;
 
-    Connection c;
+    private Connection c;
 
-    HashMap<String, PreparedStatement> statements = new HashMap<String, PreparedStatement>();
+    private HashMap<String, PreparedStatement> statements = new HashMap<String, PreparedStatement>();
 
     private static Properties credentials;
 
-    Statement adHoc;
+    private Statement adHoc;
 
     public DatabaseConnection() {
         try {
@@ -54,7 +54,7 @@ public class DatabaseConnection {
         return statement;
     }
 
-    long lastAction = System.currentTimeMillis();
+    private long lastAction = System.currentTimeMillis();
 
     private void ensureOpen() {
         if (System.currentTimeMillis() - lastAction > CONNECTION_TIMEOUT * 1000L) {
@@ -79,7 +79,7 @@ public class DatabaseConnection {
         return id;
     }
 
-    static ThreadLocal<DatabaseConnection> instances = new ThreadLocal<DatabaseConnection>() {
+    private static ThreadLocal<DatabaseConnection> instances = new ThreadLocal<DatabaseConnection>() {
 
         @Override
         protected DatabaseConnection initialValue() {

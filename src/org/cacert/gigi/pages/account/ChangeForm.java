@@ -14,7 +14,7 @@ import org.cacert.gigi.pages.Page;
 
 public class ChangeForm extends Form {
 
-    User target;
+    private User target;
 
     public ChangeForm(HttpServletRequest hsr, User target) {
         super(hsr);

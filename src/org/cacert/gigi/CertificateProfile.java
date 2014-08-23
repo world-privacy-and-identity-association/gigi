@@ -9,15 +9,15 @@ import org.cacert.gigi.database.DatabaseConnection;
 
 public class CertificateProfile {
 
-    final int id;
+    private final int id;
 
-    final String keyName;
+    private final String keyName;
 
-    final String visibleName;
+    private final String visibleName;
 
-    static HashMap<String, CertificateProfile> byName = new HashMap<>();
+    private static HashMap<String, CertificateProfile> byName = new HashMap<>();
 
-    static HashMap<Integer, CertificateProfile> byId = new HashMap<>();
+    private static HashMap<Integer, CertificateProfile> byId = new HashMap<>();
 
     private CertificateProfile(int id, String keyName, String visibleName) {
         this.id = id;

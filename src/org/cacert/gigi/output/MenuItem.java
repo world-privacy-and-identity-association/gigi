@@ -7,9 +7,9 @@ import org.cacert.gigi.localisation.Language;
 
 public class MenuItem implements Outputable, IMenuItem {
 
-    final String href;
+    private final String href;
 
-    final String name;
+    private final String name;
 
     public MenuItem(String href, String name) {
         this.href = href;

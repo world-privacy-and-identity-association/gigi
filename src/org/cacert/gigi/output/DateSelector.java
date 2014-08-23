@@ -13,7 +13,7 @@ import org.cacert.gigi.localisation.Language;
 
 public class DateSelector implements Outputable {
 
-    String[] names;
+    private String[] names;
 
     public DateSelector(String day, String month, String year) {
         this.names = new String[] {
@@ -21,11 +21,11 @@ public class DateSelector implements Outputable {
         };
     }
 
-    int day;
+    private int day;
 
-    int month;
+    private int month;
 
-    int year;
+    private int year;
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {

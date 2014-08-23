@@ -15,11 +15,11 @@ public class GigiConfig {
 
     public static final String GIGI_CONFIG_VERSION = "GigiConfigV1.0";
 
-    byte[] cacerts;
+    private byte[] cacerts;
 
-    byte[] keystore;
+    private byte[] keystore;
 
-    Properties mainProps = new Properties();
+    private Properties mainProps = new Properties();
 
     private char[] keystorpw;
 

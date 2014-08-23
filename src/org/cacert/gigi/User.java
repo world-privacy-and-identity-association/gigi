@@ -14,11 +14,11 @@ public class User {
 
     private int id;
 
-    Name name = new Name(null, null, null, null);
+    private Name name = new Name(null, null, null, null);
 
-    Date dob;
+    private Date dob;
 
-    String email;
+    private String email;
 
     public User(int id) {
         this.id = id;

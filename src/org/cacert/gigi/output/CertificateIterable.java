@@ -9,13 +9,13 @@ import org.cacert.gigi.output.template.IterableDataset;
 
 public class CertificateIterable implements IterableDataset {
 
-    Certificate[] certificates;
+    private Certificate[] certificates;
 
     public CertificateIterable(Certificate[] certificates) {
         this.certificates = certificates;
     }
 
-    int i = 0;
+    private int i = 0;
 
     @Override
     public boolean next(Language l, Map<String, Object> vars) {

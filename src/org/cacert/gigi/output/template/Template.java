@@ -21,11 +21,11 @@ import org.cacert.gigi.util.HTMLEncoder;
 
 public class Template implements Outputable {
 
-    TemplateBlock data;
+    private TemplateBlock data;
 
-    long lastLoaded;
+    private long lastLoaded;
 
-    File source;
+    private File source;
 
     private static final Pattern CONTROL_PATTERN = Pattern.compile(" ?([a-z]+)\\(\\$([^)]+)\\) ?\\{ ?");
 
@@ -134,6 +134,7 @@ public class Template implements Outputable {
         return null;
     }
 
+    @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         if (source != null && DevelLauncher.DEVEL) {
             if (lastLoaded < source.lastModified()) {
