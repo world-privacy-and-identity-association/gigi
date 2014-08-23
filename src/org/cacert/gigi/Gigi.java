@@ -239,7 +239,7 @@ public class Gigi extends HttpServlet {
     }
 
     public static String getPathByPage(Page p) {
-        return instance.reveresePages.get(p).replaceFirst("\\*$", "");
+        return instance.reveresePages.get(p).replaceFirst("/?\\*$", "");
     }
 
 }
