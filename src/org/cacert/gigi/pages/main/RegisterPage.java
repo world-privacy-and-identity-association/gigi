@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.cacert.gigi.User;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.pages.Page;
 
@@ -52,5 +53,10 @@ public class RegisterPage extends Page {
     @Override
     public boolean needsLogin() {
         return false;
+    }
+
+    @Override
+    public boolean isPermitted(User u) {
+        return u == null;
     }
 }

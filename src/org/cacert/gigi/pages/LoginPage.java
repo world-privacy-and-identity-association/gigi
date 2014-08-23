@@ -1,7 +1,6 @@
 package org.cacert.gigi.pages;
 
-import static org.cacert.gigi.Gigi.LOGGEDIN;
-import static org.cacert.gigi.Gigi.USER;
+import static org.cacert.gigi.Gigi.*;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
@@ -104,5 +103,10 @@ public class LoginPage extends Page {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean isPermitted(User u) {
+        return u == null;
     }
 }
