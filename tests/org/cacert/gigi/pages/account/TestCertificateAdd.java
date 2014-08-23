@@ -3,18 +3,28 @@ package org.cacert.gigi.pages.account;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.Signature;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +36,7 @@ import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.cacert.gigi.util.PEM;
 import org.junit.Test;
+
 import sun.security.pkcs.PKCS9Attribute;
 import sun.security.pkcs10.PKCS10Attribute;
 import sun.security.pkcs10.PKCS10Attributes;
@@ -142,6 +153,82 @@ public class TestCertificateAdd extends ManagedTest {
         assertThat(gui, containsString("SHA512withRSA"));
         assertThat(gui, containsString("RFC822Name: " + uniq + "@testdom.com"));
 
+    }
+
+    @Test
+    public void testValidityPeriodCalendar() throws IOException, GeneralSecurityException {
+        testCertificateValidityRelative(Calendar.YEAR, 2, "2y", true);
+        testCertificateValidityRelative(Calendar.YEAR, 1, "1y", true);
+        testCertificateValidityRelative(Calendar.MONTH, 3, "3m", true);
+        testCertificateValidityRelative(Calendar.MONTH, 7, "7m", true);
+        testCertificateValidityRelative(Calendar.MONTH, 13, "13m", true);
+
+        testCertificateValidityRelative(Calendar.MONTH, 13, "-1m", false);
+    }
+
+    @Test
+    public void testValidityPeriodWhishStart() throws IOException, GeneralSecurityException {
+        long now = System.currentTimeMillis();
+        final long MS_PER_DAY = 24 * 60 * 60 * 1000;
+        now -= now % MS_PER_DAY;
+        now += MS_PER_DAY;
+        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        Date start = new Date(now);
+        Date end = new Date(now + MS_PER_DAY * 10);
+        X509Certificate res = createCertWithValidity("&validFrom=" + sdf.format(start) + "&validity=" + sdf.format(end));
+        assertEquals(start, res.getNotBefore());
+        assertEquals(end, res.getNotAfter());
+    }
+
+    private void testCertificateValidityRelative(int field, int amount, String length, boolean shouldsucceed) throws IOException, GeneralSecurityException, UnsupportedEncodingException, MalformedURLException, CertificateException {
+        X509Certificate parsed = createCertWithValidity("&validFrom=now&validity=" + length);
+        if (parsed == null) {
+            assertTrue( !shouldsucceed);
+            return;
+        } else {
+            assertTrue(shouldsucceed);
+        }
+
+        long now = System.currentTimeMillis();
+        Date start = parsed.getNotBefore();
+        Date end = parsed.getNotAfter();
+        Calendar c = Calendar.getInstance();
+        c.setTimeZone(TimeZone.getTimeZone("UTC"));
+        c.setTime(start);
+        c.add(field, amount);
+        assertTrue(Math.abs(start.getTime() - now) < 10000);
+        assertEquals(c.getTime(), end);
+    }
+
+    private X509Certificate createCertWithValidity(String validity) throws IOException, GeneralSecurityException, UnsupportedEncodingException, MalformedURLException, CertificateException {
+        PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
+            CertificateIssueForm.OID_KEY_USAGE_SSL_CLIENT
+        }, new RFC822Name(uniq + "@testdom.com"));
+
+        String pem = generatePEMCSR(kp, "CN=testuser testname", atts, "SHA512WithRSA");
+        fillOutForm("CSR=" + URLEncoder.encode(pem, "UTF-8"));
+
+        HttpURLConnection huc = (HttpURLConnection) ncert.openConnection();
+        huc.setRequestProperty("Cookie", session);
+        huc.setDoOutput(true);
+        OutputStream out = huc.getOutputStream();
+        out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes());
+        out.write(("&profile=client&CN=testuser+testname&SANs=" + URLEncoder.encode("email:" + uniq + "@testdom.com\n", "UTF-8")).getBytes());
+        out.write(("&hash_alg=SHA512&CCA=y&").getBytes());
+        out.write(validity.getBytes());
+
+        String certurl = huc.getHeaderField("Location");
+        if (certurl == null) {
+            return null;
+        }
+        URLConnection uc = authenticate(new URL(certurl + ".crt"));
+        String crt = IOUtils.readURL(new InputStreamReader(uc.getInputStream(), "UTF-8"));
+
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        X509Certificate parsed = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(crt.getBytes()));
+        return parsed;
     }
 
     private URLConnection authenticate(URL url) throws IOException {
