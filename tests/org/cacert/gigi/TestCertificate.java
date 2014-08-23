@@ -22,25 +22,25 @@ import static org.junit.Assert.*;
 public class TestCertificate extends ManagedTest {
 
     @Test
-    public void testClientCertLoginStates() throws IOException, GeneralSecurityException, SQLException, InterruptedException {
+    public void testClientCertLoginStates() throws IOException, GeneralSecurityException, SQLException, InterruptedException, GigiApiException {
         KeyPair kp = generateKeypair();
         String key1 = generatePEMCSR(kp, "CN=testmail@example.com");
         Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key1, CSRType.CSR, CertificateProfile.getById(1));
         final PrivateKey pk = kp.getPrivate();
-        c.issue().waitFor(60000);
+        c.issue(null, "2y").waitFor(60000);
         final X509Certificate ce = c.cert();
         assertNotNull(login(pk, ce));
     }
 
     @Test
-    public void testSANs() throws IOException, GeneralSecurityException, SQLException, InterruptedException {
+    public void testSANs() throws IOException, GeneralSecurityException, SQLException, InterruptedException, GigiApiException {
         KeyPair kp = generateKeypair();
         String key = generatePEMCSR(kp, "CN=testmail@example.com");
         Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key, CSRType.CSR, CertificateProfile.getById(1),//
                 new SubjectAlternateName(SANType.EMAIL, "testmail@example.com"), new SubjectAlternateName(SANType.DNS, "testmail.example.com"));
 
         testFails(CertificateStatus.DRAFT, c);
-        c.issue().waitFor(60000);
+        c.issue(null, "2y").waitFor(60000);
         X509Certificate cert = c.cert();
         Collection<List<?>> sans = cert.getSubjectAlternativeNames();
         assertEquals(2, sans.size());
@@ -84,14 +84,14 @@ public class TestCertificate extends ManagedTest {
     }
 
     @Test
-    public void testCertLifeCycle() throws IOException, GeneralSecurityException, SQLException, InterruptedException {
+    public void testCertLifeCycle() throws IOException, GeneralSecurityException, SQLException, InterruptedException, GigiApiException {
         KeyPair kp = generateKeypair();
         String key = generatePEMCSR(kp, "CN=testmail@example.com");
         Certificate c = new Certificate(1, "/CN=testmail@example.com", "sha256", key, CSRType.CSR, CertificateProfile.getById(1));
         final PrivateKey pk = kp.getPrivate();
 
         testFails(CertificateStatus.DRAFT, c);
-        c.issue().waitFor(60000);
+        c.issue(null, "2y").waitFor(60000);
 
         testFails(CertificateStatus.ISSUED, c);
         X509Certificate cert = c.cert();
@@ -103,7 +103,7 @@ public class TestCertificate extends ManagedTest {
 
     }
 
-    private void testFails(CertificateStatus status, Certificate c) throws IOException, GeneralSecurityException, SQLException {
+    private void testFails(CertificateStatus status, Certificate c) throws IOException, GeneralSecurityException, SQLException, GigiApiException {
         assertEquals(status, c.getStatus());
         if (status != CertificateStatus.ISSUED) {
             try {
@@ -115,7 +115,7 @@ public class TestCertificate extends ManagedTest {
         }
         if (status != CertificateStatus.DRAFT) {
             try {
-                c.issue();
+                c.issue(null, "2y");
                 fail(status + " is in invalid state");
             } catch (IllegalStateException ise) {
 

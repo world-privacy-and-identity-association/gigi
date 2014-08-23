@@ -3,29 +3,38 @@ package org.cacert.gigi.output;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.sql.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.util.HTMLEncoder;
 
 public class CertificateValiditySelector implements Outputable {
 
-    SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+    private static ThreadLocal<SimpleDateFormat> fmt = new ThreadLocal<>();
 
     private static final int DAY = 1000 * 60 * 60 * 24;
 
-    Date from;
+    private Date from;
 
-    String val;
+    private String val = "2y";
 
     public CertificateValiditySelector() {
-        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
 
+    }
+
+    public static SimpleDateFormat getDateFormat() {
+        SimpleDateFormat local = fmt.get();
+        if (local == null) {
+            local = new SimpleDateFormat("yyyy-MM-dd");
+            local.setTimeZone(TimeZone.getTimeZone("UTC"));
+            fmt.set(local);
+        }
+        return local;
     }
 
     @Override
@@ -40,7 +49,7 @@ public class CertificateValiditySelector implements Outputable {
         long base = getCurrentDayBase();
         for (int i = 0; i < 14; i++) {
             long date = base + DAY * i;
-            String d = fmt.format(new Date(date));
+            String d = getDateFormat().format(new Date(date));
             out.print("<option value='");
             out.print(d);
             out.print("'");
@@ -53,41 +62,14 @@ public class CertificateValiditySelector implements Outputable {
         }
         out.println("</select>");
 
-        out.print("<select name='validity'>");
-        out.print("<option value='6m'");
-        if ("0.5m".equals(val)) {
-            out.print(" selected='selected'");
-        }
-        out.println(">6 months</option>");
-
-        out.print("<option value='1y'");
-        if ("1y".equals(val)) {
-            out.print(" selected='selected'");
-        }
-        out.println(">1 year</option>");
-
-        out.print("<option value='2y'");
-        if ("2y".equals(val)) {
-            out.print(" selected='selected'");
-        }
-        out.println(">2 years</option>");
-        out.println("</select>");
+        out.print("<input type='text' name='validity' value='");
+        out.print(HTMLEncoder.encodeHTML(val));
+        out.println("'>");
 
         if (from == null) {
             return;
         }
-        // debug dummy output
-        Calendar c = GregorianCalendar.getInstance();
-        c.setTime(from);
-        if ("6m".equals(val)) {
-            c.add(Calendar.MONTH, 6);
-        } else if ("1y".equals(val)) {
-            c.add(Calendar.YEAR, 1);
-        } else if ("2y".equals(val)) {
-            c.add(Calendar.YEAR, 2);
-        }
-        out.println("From: " + fmt.format(from));
-        out.println("To: " + fmt.format(c.getTime()));
+
     }
 
     private long getCurrentDayBase() {
@@ -97,19 +79,71 @@ public class CertificateValiditySelector implements Outputable {
         return base;
     }
 
-    public void update(HttpServletRequest r) {
+    public void update(HttpServletRequest r) throws GigiApiException {
         String from = r.getParameter("validFrom");
+
+        GigiApiException gae = new GigiApiException();
+        try {
+            saveStartDate(from);
+        } catch (GigiApiException e) {
+            gae.mergeInto(e);
+        }
+        try {
+            String validity = r.getParameter("validity");
+            if (validity != null) {
+                checkValidityLength(validity);
+                val = validity;
+            }
+        } catch (GigiApiException e) {
+            gae.mergeInto(e);
+        }
+        if ( !gae.isEmpty()) {
+            throw gae;
+        }
+
+    }
+
+    public static void checkValidityLength(String newval) throws GigiApiException {
+        if (newval.endsWith("y") || newval.endsWith("m")) {
+            if (newval.length() > 10) { // for database
+                throw new GigiApiException("The validity interval entered is invalid.");
+            }
+            String num = newval.substring(0, newval.length() - 1);
+            try {
+                int len = Integer.parseInt(num);
+                if (len <= 0) {
+                    throw new GigiApiException("The validity interval entered is invalid.");
+                }
+            } catch (NumberFormatException e) {
+                throw new GigiApiException("The validity interval entered is invalid.");
+            }
+        } else {
+            try {
+                getDateFormat().parse(newval);
+            } catch (ParseException e) {
+                throw new GigiApiException("The validity interval entered is invalid.");
+            }
+        }
+    }
+
+    private void saveStartDate(String from) throws GigiApiException {
         if (from == null || "now".equals(from)) {
             this.from = null;
         } else {
             try {
-                this.from = fmt.parse(from);
+                this.from = new Date(getDateFormat().parse(from).getTime());
             } catch (ParseException e) {
-                e.printStackTrace();
+                throw new GigiApiException("The validity start date entered is invalid.");
             }
         }
-        val = r.getParameter("validity");
+    }
 
+    public Date getFrom() {
+        return from;
+    }
+
+    public String getTo() {
+        return val;
     }
 
 }

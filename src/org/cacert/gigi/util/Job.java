@@ -1,11 +1,14 @@
 package org.cacert.gigi.util;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.cacert.gigi.Certificate;
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.output.CertificateValiditySelector;
 
 public class Job {
 
@@ -29,10 +32,22 @@ public class Job {
         }
     }
 
-    public static Job submit(Certificate targetId, JobType type) throws SQLException {
+    public static Job sign(Certificate targetId, Date start, String period) throws SQLException, GigiApiException {
+        CertificateValiditySelector.checkValidityLength(period);
+        PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `jobs` SET targetId=?, task=?, executeFrom=?, executeTo=?");
+        ps.setInt(1, targetId.getId());
+        ps.setString(2, JobType.SIGN.getName());
+        ps.setDate(3, start);
+        ps.setString(4, period);
+        ps.execute();
+        return new Job(DatabaseConnection.lastInsertId(ps));
+    }
+
+    public static Job revoke(Certificate targetId) throws SQLException {
+
         PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `jobs` SET targetId=?, task=?");
         ps.setInt(1, targetId.getId());
-        ps.setString(2, type.getName());
+        ps.setString(2, JobType.REVOKE.getName());
         ps.execute();
         return new Job(DatabaseConnection.lastInsertId(ps));
     }

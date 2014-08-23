@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,7 +19,6 @@ import java.util.List;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.util.Job;
-import org.cacert.gigi.util.Job.JobType;
 import org.cacert.gigi.util.KeyStorage;
 import org.cacert.gigi.util.Notary;
 
@@ -219,7 +219,23 @@ public class Certificate {
         return CertificateStatus.REVOKED;
     }
 
-    public Job issue() throws IOException, SQLException {
+    /**
+     * @param start
+     *            the date from which on the certificate should be valid. (or
+     *            null if it should be valid instantly)
+     * @param period
+     *            the period for which the date should be valid. (a
+     *            <code>yyyy-mm-dd</code> or a "2y" (2 calendar years), "6m" (6
+     *            months)
+     * @return A job which can be used to monitor the progress of this task.
+     * @throws IOException
+     *             for problems with writing the CSR/SPKAC
+     * @throws SQLException
+     *             for problems with writing to the DB
+     * @throws GigiApiException
+     *             if the period is bogus
+     */
+    public Job issue(Date start, String period) throws IOException, SQLException, GigiApiException {
         if (getStatus() != CertificateStatus.DRAFT) {
             throw new IllegalStateException();
         }
@@ -252,7 +268,7 @@ public class Certificate {
         updater.setString(1, csrName);
         updater.setInt(2, id);
         updater.execute();
-        return Job.submit(this, JobType.SIGN);
+        return Job.sign(this, start, period);
 
     }
 
@@ -260,7 +276,7 @@ public class Certificate {
         if (getStatus() != CertificateStatus.ISSUED) {
             throw new IllegalStateException();
         }
-        return Job.submit(this, JobType.REVOKE);
+        return Job.revoke(this);
 
     }
 

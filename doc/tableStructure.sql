@@ -173,6 +173,8 @@ CREATE TABLE `jobs` (
   `task` enum('sign','revoke') NOT NULL,
   `state` enum('open', 'done', 'error') NOT NULL DEFAULT 'open',
   `warning` int(2) NOT NULL DEFAULT '0',
+  `executeFrom` DATE,
+  `executeTo` VARCHAR(11),
   PRIMARY KEY (`id`),
   KEY `state` (`state`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;

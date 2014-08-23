@@ -300,7 +300,7 @@ public class CertificateIssueForm extends Form {
 
                     result = new Certificate(LoginPage.getUser(req).getId(), subject.toString(), selectedDigest.toString(), //
                             this.csr, this.csrType, profile, SANs.toArray(new SubjectAlternateName[SANs.size()]));
-                    result.issue().waitFor(60000);
+                    result.issue(issueDate.getFrom(), issueDate.getTo()).waitFor(60000);
                     return true;
                 }
             } catch (IOException e) {
