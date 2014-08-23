@@ -16,6 +16,7 @@ import java.util.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -49,6 +50,7 @@ public class SimpleSigner {
     private static SimpleDateFormat sdf = new SimpleDateFormat("YYMMddHHmmss'Z'");
 
     static {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
@@ -187,6 +189,10 @@ public class SimpleSigner {
 
     private static void signCertificates() throws SQLException {
         ResultSet rs = readyCerts.executeQuery();
+
+        Calendar c = Calendar.getInstance();
+        c.setTimeZone(TimeZone.getTimeZone("UTC"));
+
         while (rs.next()) {
             String csrname = rs.getString("csr_name");
             int id = rs.getInt("id");
@@ -198,7 +204,8 @@ public class SimpleSigner {
 
                 String keyUsage = rs.getString("keyUsage");
                 String ekeyUsage = rs.getString("extendedKeyUsage");
-                java.sql.Date from = rs.getDate("executeFrom");
+
+                Timestamp from = rs.getTimestamp("executeFrom");
                 String length = rs.getString("executeTo");
                 Date fromDate;
                 Date toDate;
@@ -210,8 +217,6 @@ public class SimpleSigner {
                 if (length.endsWith("m") || length.endsWith("y")) {
                     String num = length.substring(0, length.length() - 1);
                     int inter = Integer.parseInt(num);
-                    Calendar c = Calendar.getInstance();
-                    c.setTimeZone(TimeZone.getTimeZone("UTC"));
                     c.setTime(fromDate);
                     if (length.endsWith("m")) {
                         c.add(Calendar.MONTH, inter);
@@ -222,8 +227,6 @@ public class SimpleSigner {
                 } else {
                     toDate = CertificateValiditySelector.getDateFormat().parse(length);
                 }
-                System.out.println(from);
-                System.out.println(sdf.format(fromDate));
 
                 getSANSs.setInt(1, id);
                 ResultSet san = getSANSs.executeQuery();
