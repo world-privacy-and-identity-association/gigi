@@ -25,10 +25,10 @@ import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.TestSecure;
 import org.cacert.gigi.pages.Verify;
-import org.cacert.gigi.pages.account.ChangePasswordPage;
-import org.cacert.gigi.pages.account.DomainOverview;
 import org.cacert.gigi.pages.account.CertificateAdd;
 import org.cacert.gigi.pages.account.Certificates;
+import org.cacert.gigi.pages.account.ChangePasswordPage;
+import org.cacert.gigi.pages.account.DomainOverview;
 import org.cacert.gigi.pages.account.MailOverview;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.error.PageNotFound;
@@ -95,7 +95,7 @@ public class Gigi extends HttpServlet {
         final Page p = getPage(req.getPathInfo());
         if (p != null) {
 
-            if (p.needsLogin() && hs.getAttribute("loggedin") == null) {
+            if ( !p.isPermitted(LoginPage.getUser(req)) && hs.getAttribute("loggedin") == null) {
                 String request = req.getPathInfo();
                 request = request.split("\\?")[0];
                 hs.setAttribute(LoginPage.LOGIN_RETURNPATH, request);

@@ -7,6 +7,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.PermissionCheckable;
 import org.cacert.gigi.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Template;
@@ -15,7 +16,7 @@ import org.cacert.gigi.output.template.Template;
  * This class encapsulates a sub page of Gigi. A template residing nearby this
  * class with name &lt;className&gt;.templ will be loaded automatically.
  */
-public abstract class Page {
+public abstract class Page implements PermissionCheckable {
 
     private String title;
 
@@ -113,6 +114,11 @@ public abstract class Page {
 
     public static User getUser(HttpServletRequest req) {
         return LoginPage.getUser(req);
+    }
+
+    @Override
+    public boolean isPermitted(User u) {
+        return !needsLogin() || u != null;
     }
 
 }
