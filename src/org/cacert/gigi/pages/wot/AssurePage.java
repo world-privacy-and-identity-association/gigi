@@ -51,6 +51,16 @@ public class AssurePage extends Page {
         }
     }
 
+    @Override
+    public boolean isPermitted(User u) {
+        try {
+            return u != null && u.canAssure();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private void outputForm(HttpServletRequest req, PrintWriter out, int mid, AssuranceForm form) {
         User myself = LoginPage.getUser(req);
         AssuranceResult check = Notary.checkAssuranceIsPossible(myself, new User(mid));
