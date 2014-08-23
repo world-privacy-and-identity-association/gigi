@@ -20,6 +20,8 @@ public class User {
 
     private String email;
 
+    private Assurance[] receivedAssurances, madeAssurances;
+
     public User(int id) {
         this.id = id;
         try {
@@ -376,5 +378,49 @@ public class User {
             }
         }
         throw new GigiApiException("Email not one of user's email addresses.");
+    }
+
+    public Assurance[] getReceivedAssurances() throws SQLException {
+        if (receivedAssurances == null) {
+            PreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM notary WHERE `to`=? AND deleted=0");
+            query.setInt(1, getId());
+            ResultSet res = query.executeQuery();
+            res.last();
+            Assurance[] assurances = new Assurance[res.getRow()];
+            res.beforeFirst();
+            for (int i = 0; i < assurances.length; i++) {
+                res.next();
+                assurances[i] = new Assurance(res);
+            }
+            this.receivedAssurances = assurances;
+            return assurances;
+        }
+        return receivedAssurances;
+    }
+
+    public Assurance[] getMadeAssurances() throws SQLException {
+        if (madeAssurances == null) {
+            PreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM notary WHERE `from`=? AND deleted=0");
+            query.setInt(1, getId());
+            ResultSet res = query.executeQuery();
+            res.last();
+            Assurance[] assurances = new Assurance[res.getRow()];
+            res.beforeFirst();
+            for (int i = 0; i < assurances.length; i++) {
+                res.next();
+                assurances[i] = new Assurance(res);
+            }
+            this.madeAssurances = assurances;
+            return assurances;
+        }
+        return madeAssurances;
+    }
+
+    public void invalidateMadeAssurances() {
+        madeAssurances = null;
+    }
+
+    public void invalidateReceivedAssurances() {
+        receivedAssurances = null;
     }
 }
