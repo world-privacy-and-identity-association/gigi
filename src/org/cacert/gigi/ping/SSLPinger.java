@@ -27,7 +27,7 @@ public class SSLPinger extends DomainPinger {
     };
 
     @Override
-    public void ping(String domain, String configuration, String expToken) {
+    public String ping(String domain, String configuration) {
         try {
             SocketChannel sch = SocketChannel.open();
             String[] parts = configuration.split(":", 2);
@@ -49,9 +49,9 @@ public class SSLPinger extends DomainPinger {
 
                 }
             }
-            test(sch, domain);
+            return test(sch, domain);
         } catch (IOException e) {
-            e.printStackTrace();
+            return "Connecton failed";
         }
 
     }
@@ -130,7 +130,7 @@ public class SSLPinger extends DomainPinger {
         }
     }
 
-    private void test(SocketChannel sch, String domain) {
+    private String test(SocketChannel sch, String domain) {
         try {
             SSLContext sc = SSLContext.getDefault();
             SSLEngine se = sc.createSSLEngine();
@@ -185,12 +185,16 @@ public class SSLPinger extends DomainPinger {
             for (X509Certificate x509Certificate : peerCertificateChain) {
                 System.out.println(x509Certificate.getSubjectDN().getName());
             }
+            return PING_SUCCEDED;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
+            return "Security failed";
         } catch (SSLException e) {
             e.printStackTrace();
+            return "Security failed";
         } catch (IOException e) {
             e.printStackTrace();
+            return "Connection closed";
         }
     }
 }

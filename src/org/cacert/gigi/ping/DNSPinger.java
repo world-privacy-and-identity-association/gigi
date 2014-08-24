@@ -9,8 +9,10 @@ import java.util.LinkedList;
 public class DNSPinger extends DomainPinger {
 
     @Override
-    public void ping(String domain, String configuration, String expToken) {
+    public String ping(String domain, String expToken) {
         try {
+            String[] tokenParts = expToken.split(":", 2);
+
             Process p = Runtime.getRuntime().exec(new String[] {
                     "dig", "+short", "NS", domain
             });
@@ -27,7 +29,7 @@ public class DNSPinger extends DomainPinger {
             nameservers:
             for (String NS : nameservers) {
                 String[] call = new String[] {
-                        "dig", "+short", "TXT", "cacert." + domain, NS
+                        "dig", "@" + NS, "+short", "TXT", "cacert-" + tokenParts[0] + "." + domain
                 };
                 System.out.println(Arrays.toString(call));
                 p = Runtime.getRuntime().exec(call);
@@ -40,7 +42,7 @@ public class DNSPinger extends DomainPinger {
                     }
                     found = true;
                     token = line.substring(1, line.length() - 1);
-                    if (token.equals(expToken)) {
+                    if (token.equals(tokenParts[1])) {
                         continue nameservers;
                     }
                 }
@@ -55,15 +57,13 @@ public class DNSPinger extends DomainPinger {
 
             }
             if ( !failed) {
-                // Success
-                return;
+                return PING_SUCCEDED;
             }
-            System.out.println(result.toString());
+            return result.toString();
         } catch (IOException e) {
             e.printStackTrace();
-            // FAIL
+            return "Connection closed";
         }
-        // FAIL
     }
 
 }

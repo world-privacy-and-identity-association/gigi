@@ -74,19 +74,19 @@ CREATE TABLE `emailPinglog` (
 
 DROP TABLE IF EXISTS `pingconfig`;
 CREATE TABLE `pingconfig` (
+  `id` int(13) NOT NULL AUTO_INCREMENT,
   `domainid` int(11) NOT NULL,
   `type` enum('email', 'ssl', 'http', 'dns') NOT NULL,
-  `info` varchar(255) NOT NULL
+  `info` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 
 DROP TABLE IF EXISTS `domainPinglog`;
 CREATE TABLE `domainPinglog` (
-  `when` datetime NOT NULL,
-  `uid` int(11) NOT NULL,
-  `domainid` int(11) NOT NULL,
-  `type` enum('email', 'ssl', 'http', 'dns') NOT NULL,
-  `status` enum('open', 'success', 'failed') NOT NULL,
+  `when` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `configId` int(13) NOT NULL,
+  `state` enum('open', 'success', 'failed') NOT NULL,
   `result` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
