@@ -568,7 +568,7 @@ td.storyLeft {
 	width: 13px;
 	margin: 3px;
 }
-.wrapper td.radio div.name{
+.wrapper td.radio span.name{
 	font-weight: bold;
 	padding-bottom: 4px;
 	margin-top: 3px;

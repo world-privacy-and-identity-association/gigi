@@ -49,7 +49,7 @@
     <td class='radio'>
       <? foreach($hashs) { ?>
         <input type="radio" id="hash_alg_<?=$algorithm?>" name="hash_alg" value="<?=$algorithm?>"<?=$!checked?>/>
-        <label for="hash_alg_<?=$algorithm?>"><div class='name'><?=$name?></div><? if($info) { ?> <div class='addinfo'> <?=$info?></div><? } ?></label><div class='elements'></div>
+        <label for="hash_alg_<?=$algorithm?>"><span class='name'><?=$name?></span><? if($info) { ?> <span class='addinfo'> <?=$info?></span><? } ?></label><div class='elements'></div>
       <? } ?>
     </td>
   </tr>
