@@ -7,8 +7,8 @@ import java.sql.SQLException;
 import java.util.Calendar;
 
 import org.cacert.gigi.database.DatabaseConnection;
-import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PasswordHash;
 import org.cacert.gigi.util.PasswordStrengthChecker;
 
@@ -449,5 +449,21 @@ public class User {
 
     public Language getPrefferedLanguage() {
         return Language.getInstance("de");
+    }
+
+    public boolean wantsDirectoryListing() throws SQLException {
+        PreparedStatement get = DatabaseConnection.getInstance().prepare("SELECT listme FROM users WHERE id=?");
+        get.setInt(1, getId());
+        ResultSet exec = get.executeQuery();
+        exec.next();
+        return exec.getBoolean("listme");
+    }
+
+    public String getContactInformation() throws SQLException {
+        PreparedStatement get = DatabaseConnection.getInstance().prepare("SELECT contactinfo FROM users WHERE id=?");
+        get.setInt(1, getId());
+        ResultSet exec = get.executeQuery();
+        exec.next();
+        return exec.getString("contactinfo");
     }
 }
