@@ -13,6 +13,7 @@ CREATE TABLE `users` (
   `regid` int(5) NOT NULL DEFAULT '0',
   `locid` int(7) NOT NULL DEFAULT '0',
   `listme` int(1) NOT NULL DEFAULT '0',
+  `contactinfo` varchar(255) NOT NULL DEFAULT '',
   `admin` tinyint(1) NOT NULL DEFAULT '0',
   `language` varchar(5) NOT NULL DEFAULT '',
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
