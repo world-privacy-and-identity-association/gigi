@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.Calendar;
 
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PasswordHash;
 import org.cacert.gigi.util.PasswordStrengthChecker;
 
@@ -24,6 +25,10 @@ public class User {
 
     public User(int id) {
         this.id = id;
+        updateName(id);
+    }
+
+    private void updateName(int id) {
         try {
             PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `fname`, `lname`,`mname`, `suffix`, `dob`, `email` FROM `users` WHERE id=?");
             ps.setInt(1, id);
@@ -422,5 +427,22 @@ public class User {
 
     public void invalidateReceivedAssurances() {
         receivedAssurances = null;
+    }
+
+    public void updateUserData() throws SQLException, GigiApiException {
+        synchronized (Notary.class) {
+            if (getAssurancePoints() != 0) {
+                updateUserData();
+                throw new GigiApiException("No change after assurance allowed.");
+            }
+            PreparedStatement update = DatabaseConnection.getInstance().prepare("UPDATE users SET fname=?, lname=?, mname=?, suffix=?, dob=? WHERE id=?");
+            update.setString(1, getFname());
+            update.setString(2, getLname());
+            update.setString(3, getMname());
+            update.setString(4, getSuffix());
+            update.setDate(5, getDob());
+            update.setInt(6, getId());
+            update.executeUpdate();
+        }
     }
 }

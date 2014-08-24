@@ -1,7 +1,5 @@
 package org.cacert.gigi.pages.account;
 
-import static org.cacert.gigi.Gigi.*;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -9,10 +7,8 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cacert.gigi.User;
-import org.cacert.gigi.output.DateSelector;
+import org.cacert.gigi.output.Form;
 import org.cacert.gigi.pages.Page;
-import org.cacert.gigi.util.HTMLEncoder;
 
 public class MyDetails extends Page {
 
@@ -24,18 +20,19 @@ public class MyDetails extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        User u = (User) req.getSession().getAttribute(USER);
-
         PrintWriter out = resp.getWriter();
         HashMap<String, Object> map = new HashMap<String, Object>();
-        map.put("fname", HTMLEncoder.encodeHTML(u.getFname()));
-        map.put("mname", u.getMname() == null ? "" : HTMLEncoder.encodeHTML(u.getMname()));
-        map.put("lname", HTMLEncoder.encodeHTML(u.getLname()));
-        map.put("suffix", u.getSuffix() == null ? "" : HTMLEncoder.encodeHTML(u.getSuffix()));
-        DateSelector ds = new DateSelector("day", "month", "year", u.getDob());
-        map.put("DoB", ds);
-        map.put("details", "");
+        MyDetailsForm form = new MyDetailsForm(req, getUser(req));
+        map.put("detailsForm", form);
         getDefaultTemplate().output(out, getLanguage(req), map);
+    }
 
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if(req.getParameter("processDetails") != null) {
+            MyDetailsForm form = Form.getForm(req, MyDetailsForm.class);
+            form.submit(resp.getWriter(), req);
+        }
+        super.doPost(req, resp);
     }
 }
