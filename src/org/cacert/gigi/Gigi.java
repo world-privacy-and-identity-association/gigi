@@ -24,6 +24,7 @@ import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.pages.StaticPage;
 import org.cacert.gigi.pages.TestSecure;
 import org.cacert.gigi.pages.Verify;
 import org.cacert.gigi.pages.account.CertificateAdd;
@@ -85,6 +86,7 @@ public class Gigi extends HttpServlet {
             putPage(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"), "Certificates");
             putPage(DomainOverview.PATH, new DomainOverview("Domains"), "Certificates");
             putPage(MyPoints.PATH, new MyPoints("My Points"), "CAcert Web of Trust");
+            putPage("/wot/rules", new StaticPage("CAcert Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "CAcert Web of Trust");
             baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
             rootMenu = new Menu("Main");
             for (Menu menu : categories) {
