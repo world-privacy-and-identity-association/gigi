@@ -4,8 +4,10 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,6 +16,15 @@ import org.cacert.gigi.localisation.Language;
 public class DateSelector implements Outputable {
 
     private String[] names;
+
+    public DateSelector(String day, String month, String year, Date date) {
+        this(day, month, year);
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTF"));
+        cal.setTime(date);
+        this.day = cal.get(Calendar.DAY_OF_MONTH);
+        this.month = cal.get(Calendar.MONTH);
+        this.year = cal.get(Calendar.YEAR);
+    }
 
     public DateSelector(String day, String month, String year) {
         this.names = new String[] {

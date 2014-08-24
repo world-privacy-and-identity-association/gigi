@@ -1,6 +1,6 @@
 package org.cacert.gigi.pages.account;
 
-import static org.cacert.gigi.Gigi.USER;
+import static org.cacert.gigi.Gigi.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -32,7 +32,7 @@ public class MyDetails extends Page {
         map.put("mname", u.getMname() == null ? "" : HTMLEncoder.encodeHTML(u.getMname()));
         map.put("lname", HTMLEncoder.encodeHTML(u.getLname()));
         map.put("suffix", u.getSuffix() == null ? "" : HTMLEncoder.encodeHTML(u.getSuffix()));
-        DateSelector ds = new DateSelector("day", "month", "year");
+        DateSelector ds = new DateSelector("day", "month", "year", u.getDob());
         map.put("DoB", ds);
         map.put("details", "");
         getDefaultTemplate().output(out, getLanguage(req), map);
