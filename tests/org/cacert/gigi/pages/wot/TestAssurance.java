@@ -1,5 +1,7 @@
 package org.cacert.gigi.pages.wot;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -11,14 +13,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class TestAssurance extends ManagedTest {
 
@@ -146,6 +147,33 @@ public class TestAssurance extends ManagedTest {
         assertTrue(error, !error.startsWith("</div>"));
         error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=z&points=10");
         assertTrue(error, !error.startsWith("</div>"));
+    }
+
+    @Test
+    public void testAssureListingValid() throws IOException {
+        String uniqueLoc = createUniqueName();
+        String error = getError("date=2000-01-01&location=" + uniqueLoc + "&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
+        assertNull(error);
+        String cookie = login(assureeM, TEST_PASSWORD);
+        URLConnection url = new URL("https://" + getServerName() + MyPoints.PATH).openConnection();
+        url.setRequestProperty("Cookie", cookie);
+        String resp = IOUtils.readURL(url);
+        resp = resp.split(Pattern.quote("</table>"))[0];
+        assertTrue(resp.contains(uniqueLoc));
+    }
+
+
+    @Test
+    public void testAssurerListingValid() throws IOException {
+        String uniqueLoc = createUniqueName();
+        String error = getError("date=2000-01-01&location=" + uniqueLoc + "&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
+        assertNull(error);
+        String cookie = login(assurerM, TEST_PASSWORD);
+        URLConnection url = new URL("https://" + getServerName() + MyPoints.PATH).openConnection();
+        url.setRequestProperty("Cookie", cookie);
+        String resp = IOUtils.readURL(url);
+        resp = resp.split(Pattern.quote("</table>"))[1];
+        assertTrue(resp.contains(uniqueLoc));
     }
 
     private String getError(String query) throws MalformedURLException, IOException {
