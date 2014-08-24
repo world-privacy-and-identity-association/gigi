@@ -104,4 +104,15 @@ public class Domain {
         }
     }
 
+    public void addPing(String type, String config) throws GigiApiException {
+        try {
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO pingconfig SET domainid=?, type=?, info=?");
+            ps.setInt(1, id);
+            ps.setString(2, type);
+            ps.setString(3, config);
+            ps.execute();
+        } catch (SQLException e) {
+            throw new GigiApiException(e);
+        }
+    }
 }

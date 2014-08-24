@@ -62,11 +62,31 @@ CREATE TABLE `emails` (
   KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `pinglog`;
-CREATE TABLE `pinglog` (
+DROP TABLE IF EXISTS `emailPinglog`;
+CREATE TABLE `emailPinglog` (
   `when` datetime NOT NULL,
   `uid` int(11) NOT NULL,
-  `email` varchar(255) NOT NULL,
+  `emailid` int(11) NOT NULL,
+  `type` enum('fast', 'active') NOT NULL,
+  `status` enum('open', 'success', 'failed') NOT NULL,
+  `result` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `pingconfig`;
+CREATE TABLE `pingconfig` (
+  `domainid` int(11) NOT NULL,
+  `type` enum('email', 'ssl', 'http', 'dns') NOT NULL,
+  `info` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+DROP TABLE IF EXISTS `domainPinglog`;
+CREATE TABLE `domainPinglog` (
+  `when` datetime NOT NULL,
+  `uid` int(11) NOT NULL,
+  `domainid` int(11) NOT NULL,
+  `type` enum('email', 'ssl', 'http', 'dns') NOT NULL,
+  `status` enum('open', 'success', 'failed') NOT NULL,
   `result` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

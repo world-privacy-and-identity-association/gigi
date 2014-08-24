@@ -1,6 +1,8 @@
 package org.cacert.gigi.pages.account;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +16,7 @@ import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.OutputableArrayIterable;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.ping.SSLPinger;
 import org.cacert.gigi.util.RandomToken;
 
 public class DomainAddForm extends Form {
@@ -25,6 +28,8 @@ public class DomainAddForm extends Form {
     private String tokenName = RandomToken.generateToken(8);
 
     private String tokenValue = RandomToken.generateToken(16);
+
+    private static final int MAX_SSL_TESTS = 4;
 
     public DomainAddForm(HttpServletRequest hsr, User target) {
         super(hsr);
@@ -40,7 +45,39 @@ public class DomainAddForm extends Form {
             }
             Domain d = new Domain(target, parameter);
             d.insert();
+            if (req.getParameter("emailType") != null) {
+                String mail = AUTHORATIVE_EMAILS[Integer.parseInt(req.getParameter("email"))];
+                d.addPing("email", mail + "@" + d.getSuffix());
+            }
+            if (req.getParameter("DNSType") != null) {
+                d.addPing("dns", tokenName + ":" + tokenValue);
+            }
+            if (req.getParameter("HTTPType") != null) {
+                d.addPing("http", tokenName + ":" + tokenValue);
+            }
+            if (req.getParameter("SSLType") != null) {
+                System.out.println("ssl");
+                List<String> types = Arrays.asList(SSLPinger.TYPES);
+                for (int i = 0; i < MAX_SSL_TESTS; i++) {
+                    String type = req.getParameter("ssl-type-" + i);
+                    String port = req.getParameter("ssl-port-" + i);
+                    if (type == null || port == null || port.equals("")) {
+                        continue;
+                    }
+                    int portInt = Integer.parseInt(port);
+                    if ("direct".equals(type)) {
+                        d.addPing("ssl", port);
+                    } else if (types.contains(type)) {
+                        d.addPing("ssl", portInt + ":" + type);
+                    }
+
+                }
+            }
+
             return true;
+        } catch (NumberFormatException e) {
+            new GigiApiException("A number could not be parsed").format(out, Page.getLanguage(req));
+            return false;
         } catch (GigiApiException e) {
             e.format(out, Page.getLanguage(req));
             return false;
@@ -62,7 +99,7 @@ public class DomainAddForm extends Form {
 
             @Override
             public boolean next(Language l, Map<String, Object> vars) {
-                if (counter >= 4) {
+                if (counter >= MAX_SSL_TESTS) {
                     return false;
                 }
                 vars.put("i", counter);

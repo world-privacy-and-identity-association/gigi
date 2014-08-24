@@ -22,6 +22,10 @@ import javax.security.cert.X509Certificate;
 
 public class SSLPinger extends DomainPinger {
 
+    public static final String[] TYPES = new String[] {
+            "xmpp", "server-xmpp", "smtp", "imap"
+    };
+
     @Override
     public void ping(String domain, String configuration, String expToken) {
         try {
