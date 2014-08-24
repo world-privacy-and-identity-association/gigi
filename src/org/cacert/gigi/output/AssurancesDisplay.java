@@ -13,19 +13,28 @@ public class AssurancesDisplay implements Outputable {
 
     private static Template template;
 
+    private boolean assurer;
+
     public String assuranceArray;
 
     static {
         template = new Template(new InputStreamReader(AssurancesDisplay.class.getResourceAsStream("AssurancesDisplay.templ")));
     }
 
-    public AssurancesDisplay(String assuranceArray) {
+    public AssurancesDisplay(String assuranceArray, boolean assurer) {
         this.assuranceArray = assuranceArray;
+        this.assurer = assurer;
     }
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         final Assurance[] assurances = (Assurance[]) vars.get(assuranceArray);
+        if (assurer) {
+            vars.put("verb", l.getTranslation("To"));
+        } else {
+            vars.put("verb", l.getTranslation("From"));
+        }
+
         IterableDataset assuranceGroup = new IterableDataset() {
 
             private int i = 0;
@@ -38,8 +47,11 @@ public class AssurancesDisplay implements Outputable {
                     Assurance assurance = assurances[i];
                     vars.put("id", assurance.getId());
                     vars.put("method", assurance.getMethod());
-                    vars.put("from", assurance.getFrom().getName());
-                    vars.put("to", assurance.getTo().getName());
+                    if (assurer) {
+                        vars.put("verbVal", assurance.getTo().getName());
+                    } else {
+                        vars.put("verbVal", assurance.getFrom().getName());
+                    }
                     vars.put("date", assurance.getDate());
                     vars.put("location", assurance.getLocation());
                     vars.put("points", assurance.getPoints());

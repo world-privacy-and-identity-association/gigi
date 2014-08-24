@@ -16,9 +16,9 @@ public class MyPoints extends Page {
 
     public static final String PATH = "/wot/mypoints";
 
-    private AssurancesDisplay myDisplay = new AssurancesDisplay("asArr");
+    private AssurancesDisplay myDisplay = new AssurancesDisplay("asArr", false);
 
-    private AssurancesDisplay toOtherDisplay = new AssurancesDisplay("otherAsArr");
+    private AssurancesDisplay toOtherDisplay = new AssurancesDisplay("otherAsArr", true);
 
     public MyPoints(String title) {
         super(title);
