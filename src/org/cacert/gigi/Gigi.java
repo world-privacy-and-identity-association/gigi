@@ -37,6 +37,7 @@ import org.cacert.gigi.pages.error.PageNotFound;
 import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.pages.wot.AssurePage;
 import org.cacert.gigi.pages.wot.MyPoints;
+import org.cacert.gigi.ping.PingerDaemon;
 import org.cacert.gigi.util.ServerConstants;
 
 public class Gigi extends HttpServlet {
@@ -61,12 +62,15 @@ public class Gigi extends HttpServlet {
 
     private static Gigi instance;
 
+    private PingerDaemon pinger = new PingerDaemon();
+
     public Gigi(Properties conf) {
         if (instance != null) {
             new IllegalStateException("Multiple Gigi instances!");
         }
         instance = this;
         DatabaseConnection.init(conf);
+        pinger.start();
     }
 
     @Override

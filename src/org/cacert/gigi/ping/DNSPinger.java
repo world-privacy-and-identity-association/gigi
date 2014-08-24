@@ -3,18 +3,20 @@ package org.cacert.gigi.ping;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.LinkedList;
+
+import org.cacert.gigi.Domain;
+import org.cacert.gigi.User;
 
 public class DNSPinger extends DomainPinger {
 
     @Override
-    public String ping(String domain, String expToken) {
+    public String ping(Domain domain, String expToken, User u) {
         try {
             String[] tokenParts = expToken.split(":", 2);
 
             Process p = Runtime.getRuntime().exec(new String[] {
-                    "dig", "+short", "NS", domain
+                    "dig", "+short", "NS", domain.getSuffix()
             });
             BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line;
@@ -31,7 +33,6 @@ public class DNSPinger extends DomainPinger {
                 String[] call = new String[] {
                         "dig", "@" + NS, "+short", "TXT", "cacert-" + tokenParts[0] + "." + domain
                 };
-                System.out.println(Arrays.toString(call));
                 p = Runtime.getRuntime().exec(call);
                 br = new BufferedReader(new InputStreamReader(p.getInputStream()));
                 String token = null;

@@ -115,4 +115,15 @@ public class Domain {
             throw new GigiApiException(e);
         }
     }
+
+    public void verify(String hash) throws GigiApiException {
+        try {
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE domainPinglog SET state='success' WHERE challenge=? AND configId IN (SELECT id FROM pingconfig WHERE domainId=?)");
+            ps.setString(1, hash);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new GigiApiException(e);
+        }
+    }
 }

@@ -6,14 +6,16 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.cacert.gigi.Domain;
+import org.cacert.gigi.User;
+
 public class HTTPFetch extends DomainPinger {
 
     @Override
-    public String ping(String domain, String expToken) {
+    public String ping(Domain domain, String expToken, User user) {
         try {
             String[] tokenParts = expToken.split(":", 2);
-            URL u = new URL("http://" + domain + "/cacert_" + tokenParts[0] + ".txt");
-            System.out.println(u.toString());
+            URL u = new URL("http://" + domain.getSuffix() + "/cacert-" + tokenParts[0] + ".txt");
             HttpURLConnection huc = (HttpURLConnection) u.openConnection();
             if (huc.getResponseCode() != 200) {
                 return "Invalid status code.";

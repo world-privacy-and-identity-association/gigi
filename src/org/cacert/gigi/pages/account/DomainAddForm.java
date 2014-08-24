@@ -47,7 +47,7 @@ public class DomainAddForm extends Form {
             d.insert();
             if (req.getParameter("emailType") != null) {
                 String mail = AUTHORATIVE_EMAILS[Integer.parseInt(req.getParameter("email"))];
-                d.addPing("email", mail + "@" + d.getSuffix());
+                d.addPing("email", mail);
             }
             if (req.getParameter("DNSType") != null) {
                 d.addPing("dns", tokenName + ":" + tokenValue);
@@ -56,7 +56,6 @@ public class DomainAddForm extends Form {
                 d.addPing("http", tokenName + ":" + tokenValue);
             }
             if (req.getParameter("SSLType") != null) {
-                System.out.println("ssl");
                 List<String> types = Arrays.asList(SSLPinger.TYPES);
                 for (int i = 0; i < MAX_SSL_TESTS; i++) {
                     String type = req.getParameter("ssl-type-" + i);

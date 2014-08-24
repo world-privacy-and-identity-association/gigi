@@ -20,6 +20,9 @@ import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLParameters;
 import javax.security.cert.X509Certificate;
 
+import org.cacert.gigi.Domain;
+import org.cacert.gigi.User;
+
 public class SSLPinger extends DomainPinger {
 
     public static final String[] TYPES = new String[] {
@@ -27,18 +30,18 @@ public class SSLPinger extends DomainPinger {
     };
 
     @Override
-    public String ping(String domain, String configuration) {
+    public String ping(Domain domain, String configuration, User u) {
         try {
             SocketChannel sch = SocketChannel.open();
             String[] parts = configuration.split(":", 2);
-            sch.connect(new InetSocketAddress(domain, Integer.parseInt(parts[0])));
+            sch.connect(new InetSocketAddress(domain.getSuffix(), Integer.parseInt(parts[0])));
             if (parts.length == 2) {
                 switch (parts[1]) {
                 case "xmpp":
-                    startXMPP(sch, false, domain);
+                    startXMPP(sch, false, domain.getSuffix());
                     break;
                 case "server-xmpp":
-                    startXMPP(sch, true, domain);
+                    startXMPP(sch, true, domain.getSuffix());
                     break;
                 case "smtp":
                     startSMTP(sch);
@@ -49,7 +52,7 @@ public class SSLPinger extends DomainPinger {
 
                 }
             }
-            return test(sch, domain);
+            return test(sch, domain.getSuffix());
         } catch (IOException e) {
             return "Connecton failed";
         }

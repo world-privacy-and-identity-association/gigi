@@ -2,9 +2,11 @@ package org.cacert.gigi.pages;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.Domain;
 import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.GigiApiException;
 
@@ -34,6 +36,16 @@ public class Verify extends Page {
                 out.println("Email verification completed.");
             } catch (IllegalArgumentException e) {
                 out.println(translate(req, "The email address is invalid."));
+            } catch (GigiApiException e) {
+                e.format(out, getLanguage(req));
+            }
+        } else if ("domain".equals(type)) {
+            try {
+                Domain ea = Domain.getById(Integer.parseInt(id));
+                ea.verify(hash);
+                out.println("Domain verification completed.");
+            } catch (IllegalArgumentException e) {
+                out.println(translate(req, "The domain address is invalid."));
             } catch (GigiApiException e) {
                 e.format(out, getLanguage(req));
             }

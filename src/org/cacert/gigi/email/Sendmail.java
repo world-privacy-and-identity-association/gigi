@@ -95,6 +95,7 @@ public class Sendmail extends EmailProvider {
     private static void readResponse(BufferedReader in) throws IOException {
         String line;
         while ((line = in.readLine()) != null && line.matches("\\d+-")) {
+            System.out.println(line);
         }
 
     }

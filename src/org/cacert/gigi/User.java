@@ -8,6 +8,7 @@ import java.util.Calendar;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.util.Notary;
+import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.util.PasswordHash;
 import org.cacert.gigi.util.PasswordStrengthChecker;
 
@@ -444,5 +445,9 @@ public class User {
             update.setInt(6, getId());
             update.executeUpdate();
         }
+    }
+
+    public Language getPrefferedLanguage() {
+        return Language.getInstance("de");
     }
 }

@@ -8,43 +8,65 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Properties;
 
+import org.cacert.gigi.Domain;
+import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.util.RandomToken;
 
-public class PingerDaemon implements Runnable {
+public class PingerDaemon extends Thread {
 
     HashMap<String, DomainPinger> pingers = new HashMap<>();
 
-    public PingerDaemon() {
-        // pingers.put("email",);
-        pingers.put("ssl", new SSLPinger());
-        pingers.put("http", new HTTPFetch());
-        pingers.put("dns", new DNSPinger());
+    private PreparedStatement searchNeededPings;
 
-    }
+    private PreparedStatement enterPingResult;
 
     @Override
     public void run() {
         try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT pingconfig.*, domains.domain FROM pingconfig LEFT JOIN domainPinglog ON domainPinglog.configId=pingconfig.id INNER JOIN domains ON domains.id=pingconfig.domainid WHERE domainPinglog.configId IS NULL ");
-            PreparedStatement result = DatabaseConnection.getInstance().prepare("INSERT INTO domainPinglog SET configId=?, state=?, result=?");
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                String type = rs.getString("type");
-                String config = rs.getString("info");
-                System.out.println(type);
-                System.out.println(config);
-                DomainPinger dp = pingers.get(type);
-                if (dp != null) {
-                    result.setInt(1, rs.getInt("id"));
-                    String resp = dp.ping(rs.getString("domain"), config);
-                    result.setString(2, resp == DomainPinger.PING_STILL_PENDING ? "open" : resp == DomainPinger.PING_SUCCEDED ? "success" : "failed");
-                    result.setString(3, resp);
-                    result.execute();
-                }
-            }
+            searchNeededPings = DatabaseConnection.getInstance().prepare("SELECT pingconfig.*, domains.domain, domains.memid FROM pingconfig LEFT JOIN domainPinglog ON domainPinglog.configId=pingconfig.id INNER JOIN domains ON domains.id=pingconfig.domainid WHERE domainPinglog.configId IS NULL ");
+            enterPingResult = DatabaseConnection.getInstance().prepare("INSERT INTO domainPinglog SET configId=?, state=?, result=?, challenge=?");
+            pingers.put("email", new EmailPinger());
+            pingers.put("ssl", new SSLPinger());
+            pingers.put("http", new HTTPFetch());
+            pingers.put("dns", new DNSPinger());
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        while (true) {
+            try {
+                execute();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void execute() throws SQLException {
+
+        ResultSet rs = searchNeededPings.executeQuery();
+        while (rs.next()) {
+            String type = rs.getString("type");
+            String config = rs.getString("info");
+            DomainPinger dp = pingers.get(type);
+            if (dp != null) {
+                String token = null;
+                if (dp instanceof EmailPinger) {
+                    token = RandomToken.generateToken(16);
+                    config = config + ":" + token;
+                }
+                enterPingResult.setInt(1, rs.getInt("id"));
+                String resp = dp.ping(Domain.getById(rs.getInt("domainid")), config, User.getById(rs.getInt("memid")));
+                enterPingResult.setString(2, resp == DomainPinger.PING_STILL_PENDING ? "open" : resp == DomainPinger.PING_SUCCEDED ? "success" : "failed");
+                enterPingResult.setString(3, resp);
+                enterPingResult.setString(4, token);
+                enterPingResult.execute();
+            }
         }
     }
 
