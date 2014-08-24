@@ -73,8 +73,8 @@ public class Gigi extends HttpServlet {
     public void init() throws ServletException {
         if ( !firstInstanceInited) {
             putPage("/error", new PageNotFound(), null);
-            putPage("/login", new LoginPage("CACert - Login"), "Join CAcert.org");
-            putPage("/", new MainPage("CACert - Home"), null);
+            putPage("/login", new LoginPage("CAcert - Login"), "Join CAcert.org");
+            putPage("/", new MainPage("CAcert - Home"), null);
             putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
             putPage("/secure", new TestSecure(), null);
             putPage(Verify.PATH, new Verify(), null);
