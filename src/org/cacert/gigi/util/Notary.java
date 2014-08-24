@@ -77,6 +77,8 @@ public class Notary {
         ps.setString(4, location);
         ps.setString(5, date);
         ps.execute();
+        assurer.invalidateMadeAssurances();
+        target.invalidateReceivedAssurances();
         return AssuranceResult.ASSURANCE_SUCCEDED;
     }
 }
