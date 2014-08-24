@@ -213,7 +213,6 @@ CREATE TABLE `notary` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `from` int(11) NOT NULL DEFAULT '0',
   `to` int(11) NOT NULL DEFAULT '0',
-  `awarded` int(3) NOT NULL DEFAULT '0',
   `points` int(3) NOT NULL DEFAULT '0',
   `method` enum('Face to Face Meeting','Trusted Third Parties','Thawte Points Transfer','Administrative Increase','CT Magazine - Germany','Temporary Increase','Unknown','TOPUP','TTP-Assisted') NOT NULL DEFAULT 'Face to Face Meeting',
   `location` varchar(255) NOT NULL DEFAULT '',
