@@ -466,4 +466,18 @@ public class User {
         exec.next();
         return exec.getString("contactinfo");
     }
+
+    public void setDirectoryListing(boolean on) throws SQLException {
+        PreparedStatement update = DatabaseConnection.getInstance().prepare("UPDATE users SET listme = ? WHERE id = ?");
+        update.setBoolean(1, on);
+        update.setInt(2, getId());
+        update.executeUpdate();
+    }
+
+    public void setContactInformation(String contactInfo) throws SQLException {
+        PreparedStatement update = DatabaseConnection.getInstance().prepare("UPDATE users SET contactinfo = ? WHERE id = ?");
+        update.setString(1, contactInfo);
+        update.setInt(2, getId());
+        update.executeUpdate();
+    }
 }
