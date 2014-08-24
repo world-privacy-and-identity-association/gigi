@@ -10,7 +10,7 @@ import org.cacert.gigi.pages.Page;
 public class PageNotFound extends Page {
 
     public PageNotFound() {
-        super("");
+        super("File not found!");
     }
 
     @Override
