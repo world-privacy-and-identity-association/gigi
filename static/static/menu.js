@@ -1,9 +1,9 @@
 (function() {
 	function explodeMenu(e) {
-		if (document.getElementById(e).className == 'menu hidden') {
-			document.getElementById(e).className = 'menu';
+		if (e.className == 'menu hidden') {
+			e.className = 'menu';
 		} else {
-			document.getElementById(e).className = 'menu hidden';
+			e.className = 'menu hidden';
 		}
 	}
 
@@ -13,11 +13,11 @@
 		for (var i = 0; i < max; i++) {
 			var nodeObj = Nodes.item(i);
 			if (nodeObj.className.indexOf("menu") > -1 && nodeObj.id != "recom") {
-				nodeObj.previousSibling.previousSibling.onclick = (function(nid) {
+				nodeObj.previousSibling.previousSibling.onclick = (function(node) {
 					return function() {
-						explodeMenu(nid);
+						explodeMenu(node);
 					};
-				})(nodeObj.id);
+				})(nodeObj);
 			}
 		}
 	}

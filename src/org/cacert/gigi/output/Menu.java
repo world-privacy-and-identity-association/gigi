@@ -13,15 +13,12 @@ public class Menu implements IMenuItem {
 
     private String menuName;
 
-    private String id;
-
     private IMenuItem[] content;
 
     private LinkedList<IMenuItem> prepare = new LinkedList<IMenuItem>();
 
-    public Menu(String menuName, String id) {
+    public Menu(String menuName) {
         this.menuName = menuName;
-        this.id = id;
     }
 
     @Override
@@ -33,12 +30,10 @@ public class Menu implements IMenuItem {
                 if ( !visible) {
                     visible = true;
                     out.println("<div>");
-                    out.print("<h3>+ ");
+                    out.print("<h3 class='pointer'>+ ");
                     out.print(l.getTranslation(menuName));
-                    out.print("</h3>");
-                    out.print("<ul class=\"menu\" id=\"");
-                    out.print(id);
-                    out.print("\">");
+                    out.println("</h3>");
+                    out.print("<ul class=\"menu\">");
                 }
                 mi.output(out, l, vars);
             }

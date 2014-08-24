@@ -84,7 +84,7 @@ public class Gigi extends HttpServlet {
             putPage(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"), "Certificates");
             putPage(DomainOverview.PATH, new DomainOverview("Domains"), "Certificates");
             baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
-            rootMenu = new Menu("Main", "");
+            rootMenu = new Menu("Main");
             for (Menu menu : categories) {
                 menu.prepare();
                 rootMenu.addItem(menu);
@@ -109,7 +109,7 @@ public class Gigi extends HttpServlet {
             }
         }
         if (m == null) {
-            m = new Menu(category, "");
+            m = new Menu(category);
             categories.add(m);
         }
         m.addItem(new PageMenuItem(p));
