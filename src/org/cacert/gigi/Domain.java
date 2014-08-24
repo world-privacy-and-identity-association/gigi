@@ -3,7 +3,6 @@ package org.cacert.gigi;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import org.cacert.gigi.database.DatabaseConnection;
 
 public class Domain {
@@ -137,5 +136,25 @@ public class Domain {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public String[][] getPings() throws GigiApiException {
+        try {
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT state, type, info, result FROM domainPinglog INNER JOIN pingconfig ON pingconfig.id=domainPinglog.configid WHERE pingconfig.domainid=? ORDER BY `when` DESC;");
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            rs.last();
+            String[][] contents = new String[rs.getRow()][];
+            rs.beforeFirst();
+            for (int i = 0; i < contents.length && rs.next(); i++) {
+                contents[i] = new String[] {
+                        rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)
+                };
+            }
+            return contents;
+        } catch (SQLException e) {
+            throw new GigiApiException(e);
+        }
+
     }
 }

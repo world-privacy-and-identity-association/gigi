@@ -78,6 +78,11 @@ public class ManagedTest {
     }
 
     static Properties testProps = new Properties();
+
+    public static Properties getTestProps() {
+        return testProps;
+    }
+
     static {
         InitTruststore.run();
         HttpURLConnection.setFollowRedirects(false);
@@ -395,6 +400,10 @@ public class ManagedTest {
 
     public static String getCSRF(URLConnection u, int formIndex) throws IOException {
         String content = IOUtils.readURL(u);
+        return getCSRF(formIndex, content);
+    }
+
+    public static String getCSRF(int formIndex, String content) throws Error {
         Pattern p = Pattern.compile("<input type='hidden' name='csrf' value='([^']+)'>");
         Matcher m = p.matcher(content);
         for (int i = 0; i < formIndex + 1; i++) {
@@ -457,6 +466,11 @@ public class ManagedTest {
         adrr.verify(hash);
         getMailReciever().clearMails();
         return adrr;
+    }
+
+    public static URLConnection cookie(URLConnection openConnection, String cookie) {
+        openConnection.setRequestProperty("Cookie", cookie);
+        return openConnection;
     }
 
 }

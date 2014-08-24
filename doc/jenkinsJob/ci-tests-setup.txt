@@ -1,0 +1,14 @@
+-you need 4 domains resolving to the ci server (or localhost)
+preferably
+static.DOMAIN, secure.DOMAIN, www.DOMAIN and api.DOMAIN.
+enter them in the jenkins job to write them to "keys/config" and "config/test.properties"
+
+-you need credentials to an acessabible mysql database.
+make jenkins write them to "config/test.properties"
+
+-you need a dynamically managable dns zone.
+Write the zone name to "domain.dnstest" in "test.properties"
+and a manage script (see dyn-txt.php). Put the url with password in "domain.dnsmanage"
+
+Setup with bind9:
+dnssec-keygen -a HMAC-SHA512 -b 512 -n HOST example.org.

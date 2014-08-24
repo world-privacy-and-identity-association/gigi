@@ -1,0 +1,15 @@
+<h2><?=_Ping log for?> '<?=$domainname?>'</h2>
+<table class="wrapper dataTable">
+<tr><th><?=_Type?></th>
+<th><?=_State?></th>
+<th><?=_Config?></th>
+<th><?=_Result?></th></tr>
+<? foreach($pings) { ?>
+<tr>
+<td><?=$type?></td>
+<td><?=$state?></td>
+<td><?=$config?></td>
+<td><?=$result?></td>
+</tr>
+<?}?>
+</table>

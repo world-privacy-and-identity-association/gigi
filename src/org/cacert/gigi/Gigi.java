@@ -88,7 +88,7 @@ public class Gigi extends HttpServlet {
             putPage(RegisterPage.PATH, new RegisterPage(), "Join CAcert.org");
             putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
             putPage(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"), "Certificates");
-            putPage(DomainOverview.PATH, new DomainOverview("Domains"), "Certificates");
+            putPage(DomainOverview.PATH + "*", new DomainOverview("Domains"), "Certificates");
             putPage(MyPoints.PATH, new MyPoints("My Points"), "CAcert Web of Trust");
             putPage("/wot/rules", new StaticPage("CAcert Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "CAcert Web of Trust");
             baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));

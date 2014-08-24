@@ -20,3 +20,8 @@ sql.driver=com.mysql.jdbc.Driver
 sql.url=jdbc:mysql://localhost:3306/cacert
 sql.user=cacert
 sql.password=<password>
+
+
+domain.dnsmanage=http://you-installation-of-the/index.php
+domain.dnstest=the.dns.zone
+domain.dnsns=the.authorativ.ns.for.domain.dnstest
