@@ -87,7 +87,7 @@ CREATE TABLE `domainPinglog` (
   `when` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `configId` int(13) NOT NULL,
   `state` enum('open', 'success', 'failed') NOT NULL,
-  `challenge` varchar(16) NOT NULL,
+  `challenge` varchar(16),
   `result` varchar(255)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

@@ -61,7 +61,7 @@ public class DomainManagementForm extends Form {
                 Domain domain = doms[point];
                 vars.put("id", domain.getId());
                 vars.put("domain", domain.getSuffix());
-                vars.put("status", "??");
+                vars.put("status", l.getTranslation(domain.isVerified() ? "verified" : "not verified"));
                 point++;
                 return true;
             }
