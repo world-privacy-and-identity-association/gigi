@@ -36,6 +36,11 @@ public class Name implements Outputable {
     }
 
     @Override
+    public String toString() {
+        return fname + " " + lname;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if ( !(obj instanceof Name)) {
             return false;

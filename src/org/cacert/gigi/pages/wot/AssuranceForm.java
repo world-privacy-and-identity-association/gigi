@@ -34,17 +34,21 @@ public class AssuranceForm extends Form {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
+    SimpleDateFormat sdf2 = new SimpleDateFormat("dd. MMM yyyy");
+
     @Override
     public void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
         HashMap<String, Object> res = new HashMap<String, Object>();
         res.putAll(vars);
-        res.put("name", assuree.getName());
+        res.put("nameExplicit", assuree.getName());
+        res.put("name", assuree.getName().toString());
         try {
             res.put("maxpoints", assuree.getMaxAssurePoints());
         } catch (SQLException e) {
             e.printStackTrace();
         }
         res.put("dob", sdf.format(assuree.getDob()));
+        res.put("dobFmt2", sdf2.format(assuree.getDob()));
         templ.output(out, l, res);
     }
 
