@@ -39,16 +39,9 @@ public class AssurePage extends Page {
 
         PrintWriter out = resp.getWriter();
         String pi = req.getPathInfo().substring(PATH.length());
-        if (pi.length() > 1) {
-            int mid = Integer.parseInt(pi.substring(1));
-            AssuranceForm form = new AssuranceForm(req, mid);
-            outputForm(req, out, mid, form);
-
-        } else {
-            HashMap<String, Object> vars = new HashMap<String, Object>();
-            vars.put("DoB", ds);
-            t.output(out, getLanguage(req), vars);
-        }
+        HashMap<String, Object> vars = new HashMap<String, Object>();
+        vars.put("DoB", ds);
+        t.output(out, getLanguage(req), vars);
     }
 
     @Override
@@ -61,15 +54,12 @@ public class AssurePage extends Page {
         }
     }
 
-    private void outputForm(HttpServletRequest req, PrintWriter out, int mid, AssuranceForm form) {
+    private void outputForm(HttpServletRequest req, PrintWriter out, AssuranceForm form) {
         User myself = LoginPage.getUser(req);
-        AssuranceResult check = Notary.checkAssuranceIsPossible(myself, new User(mid));
+        AssuranceResult check = Notary.checkAssuranceIsPossible(myself, form.getAssuree());
         if (check != AssuranceResult.ASSURANCE_SUCCEDED) {
             out.println(translate(req, check.getMessage()));
             return;
-        }
-        if (form == null || form.getAssuree().getId() != mid) {
-            form = new AssuranceForm(req, mid);
         }
 
         form.output(out, getLanguage(req), new HashMap<String, Object>());
@@ -78,23 +68,12 @@ public class AssurePage extends Page {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
-        String pi = req.getPathInfo().substring(PATH.length());
-        if (pi.length() > 1) {
-            User myself = getUser(req);
-            int mid = Integer.parseInt(pi.substring(1));
-            if (mid == myself.getId()) {
-                out.println(translate(req, "Cannot assure myself."));
-                return;
-            }
-
+        if (req.getParameter("search") == null) {
             AssuranceForm form = Form.getForm(req, AssuranceForm.class);
-            if (mid != form.getAssuree().getId()) {
-                return;
-            }
             if (form.submit(out, req)) {
                 out.println(translate(req, "Assurance complete."));
             } else {
-                outputForm(req, resp.getWriter(), mid, form);
+                outputForm(req, resp.getWriter(), form);
             }
 
             return;
@@ -116,8 +95,12 @@ public class AssurePage extends Page {
                 } else {
                     if (verified == 0) {
                         out.println(translate(req, "User is not yet verified. Please try again in 24 hours!"));
+                    } else if (getUser(req).getId() == id) {
+
+                    } else {
+                        AssuranceForm form = new AssuranceForm(req, id);
+                        outputForm(req, out, form);
                     }
-                    resp.sendRedirect(PATH + "/" + id);
                 }
             } else {
                 out.print("<div class='formError'>");

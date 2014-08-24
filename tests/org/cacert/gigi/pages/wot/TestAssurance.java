@@ -46,23 +46,23 @@ public class TestAssurance extends ManagedTest {
     @Test
     public void testAssureSearch() throws IOException {
         String loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1910");
-        assertTrue(loc, loc.endsWith(AssurePage.PATH + "/" + assuree));
+        assertTrue(loc, loc.contains("type=\"checkbox\" name=\"CCAAgreed\""));
     }
 
     @Test
     public void testAssureSearchEmail() throws IOException {
         String loc = search("email=1" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1910");
-        assertNull(loc);
+        assertTrue(loc, !loc.contains("type=\"checkbox\" name=\"CCAAgreed\""));
     }
 
     @Test
     public void testAssureSearchDob() throws IOException {
         String loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=2&month=1&year=1910");
-        assertNull(loc);
+        assertTrue(loc, !loc.contains("type=\"checkbox\" name=\"CCAAgreed\""));
         loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=2&year=1910");
-        assertNull(loc);
+        assertTrue(loc, !loc.contains("type=\"checkbox\" name=\"CCAAgreed\""));
         loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1911");
-        assertNull(loc);
+        assertTrue(loc, !loc.contains("type=\"checkbox\" name=\"CCAAgreed\""));
     }
 
     private String search(String query) throws MalformedURLException, IOException, UnsupportedEncodingException {
@@ -70,11 +70,10 @@ public class TestAssurance extends ManagedTest {
         URLConnection uc = u.openConnection();
         uc.setDoOutput(true);
         uc.addRequestProperty("Cookie", cookie);
-        uc.getOutputStream().write((query).getBytes());
+        uc.getOutputStream().write(("search&" + query).getBytes());
         uc.getOutputStream().flush();
 
-        String loc = uc.getHeaderField("Location");
-        return loc;
+        return IOUtils.readURL(uc);
     }
 
     @Test
@@ -162,7 +161,6 @@ public class TestAssurance extends ManagedTest {
         assertTrue(resp.contains(uniqueLoc));
     }
 
-
     @Test
     public void testAssurerListingValid() throws IOException {
         String uniqueLoc = createUniqueName();
@@ -185,9 +183,12 @@ public class TestAssurance extends ManagedTest {
     }
 
     private URLConnection buildupAssureFormConnection(boolean doCSRF) throws MalformedURLException, IOException {
-        URL u = new URL("https://" + getServerName() + AssurePage.PATH + "/" + assuree);
+        URL u = new URL("https://" + getServerName() + AssurePage.PATH);
         URLConnection uc = u.openConnection();
         uc.addRequestProperty("Cookie", cookie);
+        uc.setDoOutput(true);
+        uc.getOutputStream().write(("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1910&search").getBytes());
+
         String csrf = getCSRF(uc);
         uc = u.openConnection();
         uc.addRequestProperty("Cookie", cookie);
