@@ -179,7 +179,7 @@ public class Gigi extends HttpServlet {
             };
             vars.put(Menu.USER_VALUE, currentPageUser);
             vars.put("menu", rootMenu);
-            vars.put("title", p.getTitle());
+            vars.put("title", Page.getLanguage(req).getTranslation(p.getTitle()));
             vars.put("static", ServerConstants.getStaticHostNamePort());
             vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
             vars.put("content", content);
