@@ -784,3 +784,7 @@ pre{
 .dataTable textarea{
 	width: 100%;
 }
+
+pre.string{
+	display: inline;
+}

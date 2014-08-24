@@ -6,9 +6,74 @@
   </thead>
 <tbody>
   <tr>
-    <td width="125"><?=_Domain?> </td>
-    <td width="125"><input type="text" name="newdomain" value=""></td>
+    <td><?=_Domain?> </td>
+    <td><input type="text" name="newdomain" value=""> (<?=_In the following:?> <span class='exampleDomainPlace'>example.org</span>)</td>
   </tr>
+  <tr><th></th><th><?=_Verification mechanisms?></th></tr>
+
+  <tr>
+    <td><input type="checkbox" name="emailType" value="y"></td>
+    <td><?=_Verify by sending an email to autorative email addresses?> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td class='radio'>
+        Select the destination mail address:<br/>
+        <? foreach($authEmails) { ?>
+        <input type="radio" id="email_<?=$i?>" name="email" value="<?=$i?>"/>
+        <label for="email_1"><div class='name'><?=$email?>@<span class='exampleDomain'>example.org</span></div></label><div class='elements'></div>
+        <? } ?>
+	</td>
+  </tr>
+
+  <tr>
+    <td><input type="checkbox" name="DNSType" value="y"></td>
+    <td><?=_Verify by reading DNS-TXT entries?> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        Please insert the following DNS TXT entry into the SOA-file of your domain:<br/>
+        <pre>
+        cacert-<?=$tokenName?>	IN	TXT	"<?=$tokenValue?>"
+        </pre>
+    </td>
+  </tr>
+
+  <tr>
+    <td><input type="checkbox" name="HTTPType" value="y"></td>
+    <td><?=_Verify by reading HTTP-content?> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        Please make the following content available under <pre class='string'>http://<span class='exampleDomain'>example.org</span>/cacert-<?=$tokenName?>.txt</pre><br/>
+        <pre><?=$tokenValue?></pre>
+    </td>
+  </tr>
+
+  <tr>
+    <td><input type="checkbox" name="SSLType" value="y"></td>
+    <td><?=_Verify by searching for installed certificate.?> </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        Please list up to three services using your certificate:
+        <table>
+        <? foreach($ssl-services){ ?>
+        <tr><td><select name='ssl-type-<?=$i?>'>
+          <option>direct</option>
+          <option>xmpp</option>
+          <option>server-xmpp</option>
+          <option>smtp</option>
+          <option>imap</option></select>
+        </td><td>Port: <input type='text' name='ssl-port-<?=$i?>'></td></tr>
+        <? } ?>
+        </table>
+    </td>
+  </tr>
+
   <tr>
     <td colspan="2"><input type="submit" name="adddomain" value="<?=_I own or am authorised to control this domain?>"></td>
   </tr>
