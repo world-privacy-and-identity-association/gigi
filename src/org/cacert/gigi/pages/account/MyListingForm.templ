@@ -1,0 +1,21 @@
+<table class="wrapper dataTable">
+  <tr>
+    <th colspan="2"><?=_My Listing?></td>
+  </tr>
+  <tr>
+    <td><?=_Directory Listing?>:</td>
+    <td>
+	<select name="listme">
+		<option value="0" <?=$notSelected?>><?=_I don't want to be listed?></option>
+		<option value="1" <?=$selected?>><?=_I want to be listed?></option>
+	</select>
+    </td>
+  </tr>
+  <tr>
+    <td><?=_Contact information?>:</td>
+    <td><textarea name="contactinfo" cols="40" rows="5" wrap="virtual"><?=$activeInfo?></textarea></td>
+  </tr>
+  <tr>
+    <td colspan="2"><input type="submit" name="processContact" value="<?=_Update?>"></td>
+  </tr>
+</table>
