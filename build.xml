@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project basedir="." default="all" name="cacert-gigi">
+<project basedir="." default="develop" name="cacert-gigi">
 	<property environment="env" />
 	<property name="junit.output.dir" value="junit" />
 	<property name="debuglevel" value="source,lines,vars" />
@@ -88,13 +88,32 @@
 			includes="gigi.jar,native/*.so,doc/tableStructure.sql,static/**,templates/**" />
 	</target>
 	<target name="static-bundle">
-		<tar destfile="static.tar.gz" compression="gzip" basedir="."
-			includes="doc/tableStructure.sql,static/**,templates/**" />
+	    <mkdir dir="work"/>
+	    <mkdir dir="work/static"/>
+	    <copy todir="work/static">
+    		<fileset dir="static"/>
+  		</copy>
+		<move file="work/static/static/images/cacert4-test.png" tofile="work/static/static/images/cacert4.png"/>
+	    <delete file="work/static/static/image/cacert4-test.png"/>
+		<tar destfile="static.tar.gz" compression="gzip" basedir="work"
+			includes="../doc/tableStructure.sql,**,templates/**" />
+	</target>
+	
+	<target name="static-bundle-release">
+		<mkdir dir="work"/>
+	    <mkdir dir="work/static"/>
+	    <copy todir="work/static">
+    		<fileset dir="static"/>
+  		</copy>
+  		<delete file="work/static/static/image/cacert4-test.png"/>
+		<tar destfile="static.tar.gz" compression="gzip" basedir="work"
+			includes="../doc/tableStructure.sql,**,templates/**" />
 	</target>
 
-	<target name="all" depends="bundle,static-bundle" />
+	<target name="develop" depends="bundle,static-bundle" />
 
-
+	<target name="release" depends="bundle,static-bundle-release" />
+	
 	<target depends="init,build-project" name="build-project-test">
 		<echo message="${ant.project.name}: ${ant.file}" />
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bintest"
