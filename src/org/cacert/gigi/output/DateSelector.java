@@ -40,7 +40,15 @@ public class DateSelector implements Outputable {
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-        out.print("<nobr><select name=\"");
+        out.print("<nobr>");
+        outputYear(out);
+        outputMonth(out, l);
+        outputDay(out);
+        out.print("</nobr>");
+    }
+
+    private void outputDay(PrintWriter out) {
+        out.print("<select name=\"");
         out.print(names[0]);
         out.println("\">");
         for (int i = 1; i <= 31; i++) {
@@ -51,6 +59,9 @@ public class DateSelector implements Outputable {
             out.println(">" + i + "</option>");
         }
         out.println("</select>");
+    }
+
+    private void outputMonth(PrintWriter out, Language l) {
         SimpleDateFormat sdf = new SimpleDateFormat("MMMM", l.getLocale());
         out.print("<select name=\"");
         out.print(names[1]);
@@ -65,13 +76,16 @@ public class DateSelector implements Outputable {
             out.println(">" + sdf.format(c.getTime()) + " (" + i + ")</option>");
         }
         out.println("</select>");
+    }
+
+    private void outputYear(PrintWriter out) {
         out.print("<input type=\"text\" name=\"");
         out.print(names[2]);
         out.print("\" value=\"");
         if (year != 0) {
             out.print(year);
         }
-        out.print("\" size=\"4\" autocomplete=\"off\"></nobr>");
+        out.print("\" size=\"4\" autocomplete=\"off\">");
     }
 
     public void update(HttpServletRequest r) {
