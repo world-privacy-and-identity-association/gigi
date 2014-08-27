@@ -26,6 +26,13 @@ public class LoginTest extends ManagedTest {
     }
 
     @Test
+    public void testLoginWrongPassword() throws IOException {
+        String email = createUniqueName() + "@testmail.org";
+        createVerifiedUser("an", "bn", email, TEST_PASSWORD);
+        assertFalse(isLoggedin(login(email, TEST_PASSWORD + "b")));
+    }
+
+    @Test
     public void testLogoutVerified() throws IOException {
         String email = createUniqueName() + "@testmail.org";
         createVerifiedUser("an", "bn", email, TEST_PASSWORD);
