@@ -103,12 +103,12 @@ public class ManagedTest {
             Properties mainProps = generateMainProps();
             ServerConstants.init(mainProps);
             if (type.equals("local")) {
-                url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort");
+                url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort.https");
                 String[] parts = testProps.getProperty("mail").split(":", 2);
                 ter = new TestEmailReciever(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])));
                 return;
             }
-            url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort");
+            url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort.https");
             gigi = Runtime.getRuntime().exec(testProps.getProperty("java"));
             DataOutputStream toGigi = new DataOutputStream(gigi.getOutputStream());
             System.out.println("... starting server");
@@ -161,7 +161,8 @@ public class ManagedTest {
         mainProps.setProperty("name.www", testProps.getProperty("name.www"));
         mainProps.setProperty("name.static", testProps.getProperty("name.static"));
 
-        mainProps.setProperty("port", testProps.getProperty("serverPort"));
+        mainProps.setProperty("https.port", testProps.getProperty("serverPort.https"));
+        mainProps.setProperty("http.port", testProps.getProperty("serverPort.http"));
         mainProps.setProperty("emailProvider", "org.cacert.gigi.email.TestEmailProvider");
         mainProps.setProperty("emailProvider.port", "8473");
         mainProps.setProperty("sql.driver", testProps.getProperty("sql.driver"));

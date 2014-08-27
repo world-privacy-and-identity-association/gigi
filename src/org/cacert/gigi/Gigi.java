@@ -126,18 +126,40 @@ public class Gigi extends HttpServlet {
 
     }
 
+    private static String staticTemplateVarHttp;
+
+    private static String staticTemplateVarHttps;
+
+    private static String getStaticTemplateVar(boolean https) {
+        if (https) {
+            if (staticTemplateVarHttps == null) {
+                staticTemplateVarHttps = "https://" + ServerConstants.getStaticHostNamePortSecure();
+            }
+            return staticTemplateVarHttps;
+        } else {
+            if (staticTemplateVarHttp == null) {
+                staticTemplateVarHttp = "http://" + ServerConstants.getStaticHostNamePort();
+            }
+            return staticTemplateVarHttp;
+        }
+    }
+
     @Override
     protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-        addXSSHeaders(resp);
+        boolean isSecure = req.getServerPort() == ServerConstants.getSecurePort();
+        addXSSHeaders(resp, isSecure);
         // if (req.getHeader("Origin") != null) {
         // resp.getWriter().println("No cross domain access allowed.");
         // return;
         // }
         HttpSession hs = req.getSession();
-
         final Page p = getPage(req.getPathInfo());
-        if (p != null) {
 
+        if (p != null) {
+            if (!isSecure && (p.needsLogin() || p instanceof LoginPage || p instanceof RegisterPage)) {
+                resp.sendRedirect("https://" + ServerConstants.getWwwHostNamePortSecure() + req.getPathInfo());
+                return;
+            }
             User currentPageUser = LoginPage.getUser(req);
             if ( !p.isPermitted(currentPageUser) && hs.getAttribute("loggedin") == null) {
                 String request = req.getPathInfo();
@@ -180,7 +202,7 @@ public class Gigi extends HttpServlet {
             vars.put(Menu.USER_VALUE, currentPageUser);
             vars.put("menu", rootMenu);
             vars.put("title", Page.getLanguage(req).getTranslation(p.getTitle()));
-            vars.put("static", ServerConstants.getStaticHostNamePort());
+            vars.put("static", getStaticTemplateVar(isSecure));
             vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
             vars.put("content", content);
             baseTemplate.output(resp.getWriter(), Page.getLanguage(req), vars);
@@ -213,31 +235,52 @@ public class Gigi extends HttpServlet {
 
     }
 
-    public static void addXSSHeaders(HttpServletResponse hsr) {
-        hsr.addHeader("Access-Control-Allow-Origin", "https://" + ServerConstants.getWwwHostNamePort() + " https://" + ServerConstants.getSecureHostNamePort());
+    public static void addXSSHeaders(HttpServletResponse hsr, boolean doHttps) {
+        hsr.addHeader("Access-Control-Allow-Origin", "https://" + ServerConstants.getWwwHostNamePortSecure() + " https://" + ServerConstants.getSecureHostNamePort());
         hsr.addHeader("Access-Control-Max-Age", "60");
-
-        hsr.addHeader("Content-Security-Policy", getDefaultCSP());
+        if (doHttps) {
+            hsr.addHeader("Content-Security-Policy", getHttpsCSP());
+        } else {
+            hsr.addHeader("Content-Security-Policy", getHttpCSP());
+        }
         hsr.addHeader("Strict-Transport-Security", "max-age=31536000");
 
     }
 
-    private static String defaultCSP = null;
+    private static String httpsCSP = null;
 
-    private static String getDefaultCSP() {
-        if (defaultCSP == null) {
+    private static String httpCSP = null;
+
+    private static String getHttpsCSP() {
+        if (httpsCSP == null) {
             StringBuffer csp = new StringBuffer();
-            csp.append("default-src 'none';");
-            csp.append("font-src https://" + ServerConstants.getStaticHostNamePort());
-            csp.append(";img-src https://" + ServerConstants.getStaticHostNamePort());
-            csp.append(";media-src 'none'; object-src 'none';");
-            csp.append("script-src https://" + ServerConstants.getStaticHostNamePort());
-            csp.append(";style-src https://" + ServerConstants.getStaticHostNamePort());
-            csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://" + ServerConstants.getWwwHostNamePort());
-            csp.append("report-url https://api.cacert.org/security/csp/report");
-            defaultCSP = csp.toString();
+            csp.append("default-src 'none'");
+            csp.append(";font-src https://" + ServerConstants.getStaticHostNamePortSecure());
+            csp.append(";img-src https://" + ServerConstants.getStaticHostNamePortSecure());
+            csp.append(";media-src 'none'; object-src 'none'");
+            csp.append(";script-src https://" + ServerConstants.getStaticHostNamePortSecure());
+            csp.append(";style-src https://" + ServerConstants.getStaticHostNamePortSecure());
+            csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://" + ServerConstants.getWwwHostNamePortSecure());
+            csp.append(";report-url https://api.cacert.org/security/csp/report");
+            httpsCSP = csp.toString();
         }
-        return defaultCSP;
+        return httpsCSP;
+    }
+
+    private static String getHttpCSP() {
+        if (httpCSP == null) {
+            StringBuffer csp = new StringBuffer();
+            csp.append("default-src 'none'");
+            csp.append(";font-src http://" + ServerConstants.getStaticHostNamePort());
+            csp.append(";img-src http://" + ServerConstants.getStaticHostNamePort());
+            csp.append(";media-src 'none'; object-src 'none'");
+            csp.append(";script-src http://" + ServerConstants.getStaticHostNamePort());
+            csp.append(";style-src http://" + ServerConstants.getStaticHostNamePort());
+            csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://" + ServerConstants.getWwwHostNamePort());
+            csp.append(";report-url http://api.cacert.org/security/csp/report");
+            httpCSP = csp.toString();
+        }
+        return httpCSP;
     }
 
     public static String getPathByPage(Page p) {

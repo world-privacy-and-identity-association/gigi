@@ -11,7 +11,7 @@ public class PageMenuItem extends SimpleMenuItem {
     private Page p;
 
     public PageMenuItem(Page p) {
-        super("https://" + ServerConstants.getWwwHostNamePort() + Gigi.getPathByPage(p), p.getTitle());
+        super("https://" + ServerConstants.getWwwHostNamePortSecure() + Gigi.getPathByPage(p), p.getTitle());
         this.p = p;
     }
 

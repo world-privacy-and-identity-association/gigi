@@ -4,7 +4,8 @@ name.secure=secure.cacert.local
 name.www=www.cacert.local
 name.api=api.cacert.local
 
-port=443
+https.port=443
+http.port=80
 #emailProvider=org.cacert.gigi.email.Sendmail
 emailProvider=org.cacert.gigi.email.CommandlineEmailProvider
 sql.driver=com.mysql.jdbc.Driver

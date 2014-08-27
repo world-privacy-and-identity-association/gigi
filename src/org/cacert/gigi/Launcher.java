@@ -53,20 +53,15 @@ public class Launcher {
         initEmails(conf);
 
         Server s = new Server();
-        // === SSL HTTP Configuration ===
-        HttpConfiguration https_config = new HttpConfiguration();
-        https_config.setSendServerVersion(false);
-        https_config.setSendXPoweredBy(false);
+        HttpConfiguration httpsConfig = createHttpConfiguration();
 
         // for client-cert auth
-        https_config.addCustomizer(new SecureRequestCustomizer());
+        httpsConfig.addCustomizer(new SecureRequestCustomizer());
 
-        ServerConnector connector = new ServerConnector(s, createConnectionFactory(conf), new HttpConnectionFactory(https_config));
-        connector.setHost(conf.getMainProps().getProperty("host"));
-        connector.setPort(Integer.parseInt(conf.getMainProps().getProperty("port")));
-        connector.setAcceptQueueSize(100);
+        HttpConfiguration httpConfig = createHttpConfiguration();
+
         s.setConnectors(new Connector[] {
-            connector
+                createConnector(conf, s, httpsConfig, true), createConnector(conf, s, httpConfig, false)
         });
 
         HandlerList hl = new HandlerList();
@@ -75,12 +70,37 @@ public class Launcher {
         });
         s.setHandler(hl);
         s.start();
-        if (connector.getPort() <= 1024 && !System.getProperty("os.name").toLowerCase().contains("win")) {
+        if ((ServerConstants.getSecurePort() <= 1024 || ServerConstants.getPort() <= 1024) && !System.getProperty("os.name").toLowerCase().contains("win")) {
             SetUID uid = new SetUID();
             if ( !uid.setUid(65536 - 2, 65536 - 2).getSuccess()) {
                 Log.getLogger(Launcher.class).warn("Couldn't set uid!");
             }
         }
+    }
+
+    private static ServerConnector createConnector(GigiConfig conf, Server s, HttpConfiguration httpConfig, boolean doHttps) throws GeneralSecurityException, IOException {
+        ServerConnector connector;
+        if (doHttps) {
+            connector = new ServerConnector(s, createConnectionFactory(conf), new HttpConnectionFactory(httpConfig));
+        } else {
+            connector = new ServerConnector(s);
+        }
+        connector.setHost(conf.getMainProps().getProperty("host"));
+        if(doHttps) {
+            connector.setPort(ServerConstants.getSecurePort());
+        } else {
+            connector.setPort(ServerConstants.getPort());
+        }
+        connector.setAcceptQueueSize(100);
+        return connector;
+    }
+
+    private static HttpConfiguration createHttpConfiguration() {
+        // SSL HTTP Configuration
+        HttpConfiguration httpsConfig = new HttpConfiguration();
+        httpsConfig.setSendServerVersion(false);
+        httpsConfig.setSendXPoweredBy(false);
+        return httpsConfig;
     }
 
     private static void initEmails(GigiConfig conf) throws GeneralSecurityException, IOException, KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException {
