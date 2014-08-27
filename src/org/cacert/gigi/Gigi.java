@@ -22,6 +22,7 @@ import org.cacert.gigi.output.Outputable;
 import org.cacert.gigi.output.PageMenuItem;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
+import org.cacert.gigi.pages.LogoutPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.StaticPage;
@@ -80,6 +81,7 @@ public class Gigi extends HttpServlet {
             putPage("/login", new LoginPage("CAcert - Login"), "Join CAcert.org");
             putPage("/", new MainPage("CAcert - Home"), null);
             putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
+            putPage(LogoutPage.PATH, new LogoutPage("Logout"), "My Account");
             putPage("/secure", new TestSecure(), null);
             putPage(Verify.PATH, new Verify(), null);
             putPage(AssurePage.PATH + "/*", new AssurePage(), "CAcert Web of Trust");
@@ -132,14 +134,6 @@ public class Gigi extends HttpServlet {
         // return;
         // }
         HttpSession hs = req.getSession();
-        if (req.getPathInfo() != null && req.getPathInfo().equals("/logout")) {
-            if (hs != null) {
-                hs.setAttribute(LOGGEDIN, null);
-                hs.invalidate();
-            }
-            resp.sendRedirect("/");
-            return;
-        }
 
         final Page p = getPage(req.getPathInfo());
         if (p != null) {
