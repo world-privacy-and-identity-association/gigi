@@ -17,7 +17,7 @@ public class CertificateValiditySelector implements Outputable {
 
     private static ThreadLocal<SimpleDateFormat> fmt = new ThreadLocal<>();
 
-    private static final int DAY = 1000 * 60 * 60 * 24;
+    private static final long DAY = 1000 * 60 * 60 * 24;
 
     private Date from;
 

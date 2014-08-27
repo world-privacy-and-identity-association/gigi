@@ -67,7 +67,7 @@ public class Gigi extends HttpServlet {
 
     public Gigi(Properties conf) {
         if (instance != null) {
-            new IllegalStateException("Multiple Gigi instances!");
+            throw new IllegalStateException("Multiple Gigi instances!");
         }
         instance = this;
         DatabaseConnection.init(conf);

@@ -62,7 +62,7 @@ public class PingerDaemon extends Thread {
                 }
                 enterPingResult.setInt(1, rs.getInt("id"));
                 String resp = dp.ping(Domain.getById(rs.getInt("domainid")), config, User.getById(rs.getInt("memid")));
-                enterPingResult.setString(2, resp == DomainPinger.PING_STILL_PENDING ? "open" : resp == DomainPinger.PING_SUCCEDED ? "success" : "failed");
+                enterPingResult.setString(2, DomainPinger.PING_STILL_PENDING == resp ? "open" : DomainPinger.PING_SUCCEDED.equals(resp) ? "success" : "failed");
                 enterPingResult.setString(3, resp);
                 enterPingResult.setString(4, token);
                 enterPingResult.execute();
