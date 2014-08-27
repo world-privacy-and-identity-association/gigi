@@ -41,30 +41,57 @@ public class Name implements Outputable {
     }
 
     @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((fname == null) ? 0 : fname.hashCode());
+        result = prime * result + ((lname == null) ? 0 : lname.hashCode());
+        result = prime * result + ((mname == null) ? 0 : mname.hashCode());
+        result = prime * result + ((suffix == null) ? 0 : suffix.hashCode());
+        return result;
+    }
+
+    @Override
     public boolean equals(Object obj) {
-        if ( !(obj instanceof Name)) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
             return false;
         }
-        Name n = (Name) obj;
-        if ( !(n.fname.equals(fname) && n.lname.equals(lname))) {
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Name other = (Name) obj;
+        if (fname == null) {
+            if (other.fname != null) {
+                return false;
+            }
+        } else if ( !fname.equals(other.fname)) {
+            return false;
+        }
+        if (lname == null) {
+            if (other.lname != null) {
+                return false;
+            }
+        } else if ( !lname.equals(other.lname)) {
             return false;
         }
         if (mname == null) {
-            if (n.mname != null) {
+            if (other.mname != null) {
                 return false;
             }
-        } else if ( !mname.equals(n.mname)) {
+        } else if ( !mname.equals(other.mname)) {
             return false;
         }
         if (suffix == null) {
-            if (n.suffix != null) {
+            if (other.suffix != null) {
                 return false;
             }
-        } else if ( !suffix.equals(n.suffix)) {
+        } else if ( !suffix.equals(other.suffix)) {
             return false;
         }
         return true;
-
     }
 
     public boolean matches(String text) {
@@ -73,4 +100,5 @@ public class Name implements Outputable {
                 (suffix != null && text.equals(fname + " " + lname + " " + suffix)) || //
                 (mname != null && suffix != null && text.equals(fname + " " + mname + " " + lname + " " + suffix));
     }
+
 }
