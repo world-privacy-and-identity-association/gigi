@@ -26,4 +26,4 @@ sql.password=<password>
 
 domain.dnsmanage=http://you-installation-of-the/index.php
 domain.dnstest=the.dns.zone
-domain.dnsns=the.authorativ.ns.for.domain.dnstest
+domain.testns=the.authorativ.ns.for.domain.dnstest

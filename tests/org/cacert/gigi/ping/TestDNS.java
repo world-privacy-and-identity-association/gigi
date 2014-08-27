@@ -14,32 +14,32 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.naming.NamingException;
+
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.pages.account.DomainOverview;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
+import org.cacert.gigi.util.DNSUtil;
 import org.cacert.gigi.util.RandomToken;
 import org.junit.Test;
 
 public class TestDNS extends ManagedTest {
 
     @Test
-    public void testDNSSanity() throws IOException {
+    public void testDNSSanity() throws IOException, NamingException {
 
         String token = RandomToken.generateToken(16);
         String value = RandomToken.generateToken(16);
 
-        Process p = updateDNS(token, value);
-        String reRead = new String(IOUtils.readURL(p.getInputStream()));
-        reRead = reRead.trim();
-        reRead = reRead.substring(1, reRead.length() - 1);
+        String reRead = updateDNS(token, value);
         assertEquals(value, reRead);
 
     }
 
     @Test
-    public void testEmailAndDNS() throws IOException, InterruptedException, SQLException {
+    public void testEmailAndDNS() throws IOException, InterruptedException, SQLException, NamingException {
         String email = createUniqueName() + "@example.org";
         int uid = createVerifiedUser("a", "b", email, TEST_PASSWORD);
         String cookie = login(email, TEST_PASSWORD);
@@ -96,17 +96,14 @@ public class TestDNS extends ManagedTest {
         assertTrue(newcontent, pat.matcher(newcontent).find());
     }
 
-    private Process updateDNS(String token, String value) throws IOException, MalformedURLException {
+    private String updateDNS(String token, String value) throws IOException, MalformedURLException, NamingException {
         String test = getTestProps().getProperty("domain.dnstest");
         String targetDomain = "cacert-" + token + "." + test;
         String manage = getTestProps().getProperty("domain.dnsmanage");
         String url = manage + "t1=" + token + "&t2=" + value;
         assertEquals(200, ((HttpURLConnection) new URL(url).openConnection()).getResponseCode());
-
-        Process p = Runtime.getRuntime().exec(new String[] {
-                "dig", "@" + getTestProps().getProperty("domain.testns"), "+short", "TXT", targetDomain
-        });
-        return p;
+        String[] data = DNSUtil.getTXTEntries(targetDomain, getTestProps().getProperty("domain.testns"));
+        assertEquals(1, data.length);
+        return data[0];
     }
-
 }

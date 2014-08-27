@@ -12,12 +12,14 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import javax.naming.NamingException;
+
 import org.cacert.gigi.crypto.SMIME;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.util.DNSUtil;
 
 public abstract class EmailProvider {
 
@@ -68,7 +70,12 @@ public abstract class EmailProvider {
             String[] parts = address.split("@", 2);
             String domain = parts[1];
 
-            LinkedList<String> mxhosts = getMxHosts(domain);
+            String[] mxhosts;
+            try {
+                mxhosts = DNSUtil.getMXEntries(domain);
+            } catch (NamingException e1) {
+                return "MX lookup for your hostname failed.";
+            }
 
             for (String host : mxhosts) {
                 try (Socket s = new Socket(host, 25); BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream())); PrintWriter pw = new PrintWriter(s.getOutputStream())) {
@@ -134,21 +141,4 @@ public abstract class EmailProvider {
         return FAIL;
     }
 
-    private static LinkedList<String> getMxHosts(String domain) throws IOException {
-        LinkedList<String> mxhosts = new LinkedList<String>();
-        Process dig = Runtime.getRuntime().exec(new String[] {
-                "dig", "+short", "MX", domain
-        });
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(dig.getInputStream()))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] mxparts = line.split(" ", 2);
-                if (mxparts.length != 2) {
-                    continue;
-                }
-                mxhosts.add(mxparts[1].substring(0, mxparts[1].length() - 1));
-            }
-        }
-        return mxhosts;
-    }
 }
