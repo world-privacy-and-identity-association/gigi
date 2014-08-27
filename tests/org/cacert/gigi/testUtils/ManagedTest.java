@@ -95,10 +95,7 @@ public class ManagedTest {
             if ( !DatabaseConnection.isInited()) {
                 DatabaseConnection.init(testProps);
             }
-            System.out.println("... purging Database");
-            DatabaseManager.run(new String[] {
-                    testProps.getProperty("sql.driver"), testProps.getProperty("sql.url"), testProps.getProperty("sql.user"), testProps.getProperty("sql.password")
-            });
+            purgeDatabase();
             String type = testProps.getProperty("type");
             Properties mainProps = generateMainProps();
             ServerConstants.init(mainProps);
@@ -144,14 +141,23 @@ public class ManagedTest {
             SimpleSigner.runSigner();
         } catch (IOException e) {
             throw new Error(e);
-        } catch (ClassNotFoundException e1) {
-            e1.printStackTrace();
         } catch (SQLException e1) {
             e1.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+    }
+
+    public static void purgeDatabase() throws SQLException, IOException {
+        System.out.println("... purging Database");
+        try {
+            DatabaseManager.run(new String[] {
+                    testProps.getProperty("sql.driver"), testProps.getProperty("sql.url"), testProps.getProperty("sql.user"), testProps.getProperty("sql.password")
+            });
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private static Properties generateMainProps() {

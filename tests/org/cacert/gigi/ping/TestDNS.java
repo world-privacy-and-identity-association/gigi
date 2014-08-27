@@ -23,6 +23,7 @@ import org.cacert.gigi.testUtils.ManagedTest;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.cacert.gigi.util.DNSUtil;
 import org.cacert.gigi.util.RandomToken;
+import org.junit.After;
 import org.junit.Test;
 
 public class TestDNS extends ManagedTest {
@@ -39,9 +40,25 @@ public class TestDNS extends ManagedTest {
     }
 
     @Test
-    public void testEmailAndDNS() throws IOException, InterruptedException, SQLException, NamingException {
+    public void testEmailAndDNSSuccess() throws IOException, InterruptedException, SQLException, NamingException {
+        testEmailAndDNS(0, 0, true, true);
+    }
+
+    @After
+    public void test() throws SQLException, IOException {
+        purgeDatabase();
+    }
+
+    @Test
+    public void testEmailAndDNSFail() throws IOException, InterruptedException, SQLException, NamingException {
+        testEmailAndDNS(1, 0, false, true);
+        purgeDatabase();
+        testEmailAndDNS(2, 0, false, true);
+    }
+
+    public void testEmailAndDNS(int dnsVariant, int emailVariant, boolean successDNS, boolean successMail) throws IOException, InterruptedException, SQLException, NamingException {
         String email = createUniqueName() + "@example.org";
-        int uid = createVerifiedUser("a", "b", email, TEST_PASSWORD);
+        createVerifiedUser("a", "b", email, TEST_PASSWORD);
         String cookie = login(email, TEST_PASSWORD);
 
         String test = getTestProps().getProperty("domain.dnstest");
@@ -54,7 +71,7 @@ public class TestDNS extends ManagedTest {
         Pattern p = Pattern.compile("cacert-([A-Za-z0-9]+) IN TXT ([A-Za-z0-9]+)");
         Matcher m = p.matcher(content1);
         m.find();
-        updateDNS(m.group(1), m.group(2));
+        updateDNS(m.group(1) + (dnsVariant == 1 ? "a" : ""), m.group(2) + (dnsVariant == 2 ? "a" : ""));
 
         String content = "newdomain=" + URLEncoder.encode(test, "UTF-8") + //
                 "&emailType=y&email=2&DNSType=y" + //
@@ -91,9 +108,9 @@ public class TestDNS extends ManagedTest {
 
         newcontent = IOUtils.readURL(cookie(u2.openConnection(), cookie));
         Pattern pat = Pattern.compile("<td>dns</td>\\s*<td>success</td>");
-        assertTrue(newcontent, pat.matcher(newcontent).find());
+        assertTrue(newcontent, !successDNS ^ pat.matcher(newcontent).find());
         pat = Pattern.compile("<td>email</td>\\s*<td>success</td>");
-        assertTrue(newcontent, pat.matcher(newcontent).find());
+        assertTrue(newcontent, !successMail ^ pat.matcher(newcontent).find());
     }
 
     private String updateDNS(String token, String value) throws IOException, MalformedURLException, NamingException {
