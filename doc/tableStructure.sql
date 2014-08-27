@@ -214,19 +214,25 @@ CREATE TABLE `notary` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `from` int(11) NOT NULL DEFAULT '0',
   `to` int(11) NOT NULL DEFAULT '0',
+# total points that have been entered
   `points` int(3) NOT NULL DEFAULT '0',
-  `method` enum('Face to Face Meeting','Trusted Third Parties','Thawte Points Transfer','Administrative Increase','CT Magazine - Germany','Temporary Increase','Unknown','TOPUP','TTP-Assisted') NOT NULL DEFAULT 'Face to Face Meeting',
+# awarded and the "experience points" are calculated virtually
+# Face to Face is default, TOPUP is for the remaining 30Points after two TTP
+# TTP is default ttp assurance
+  `method` enum('Face to Face Meeting', 'TOPUP', 'TTP-Assisted') NOT NULL DEFAULT 'Face to Face Meeting',
   `location` varchar(255) NOT NULL DEFAULT '',
   `date` varchar(255) NOT NULL DEFAULT '',
+# date when assurance was entered
   `when` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+#?
   `expire` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+#?????????????????
   `sponsor` int(11) NOT NULL DEFAULT '0',
+# date when assurance was deleted (or 0)
   `deleted` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`),
   KEY `from` (`from`),
   KEY `to` (`to`),
-  KEY `from_2` (`from`),
-  KEY `to_2` (`to`),
   KEY `stats_notary_when` (`when`),
   KEY `stats_notary_method` (`method`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
