@@ -33,8 +33,8 @@ if($_GET['action'] == "http"){
   file_put_contents("cacert-$t1.txt", $t2);
 } else if($_GET['action'] == "dns") {
   $todelete[$time][] = array("dns", $t1);
-  $dnscalls .= "update delete cacert-{$t1}." . ZONENAME . " TXT\n"
-    ."update add cacert-{$t1}." . ZONENAME . " 60 TXT {$t2}\n";
+  $dnscalls .= "update delete {$t1}._cacert._auth." . ZONENAME . " TXT\n"
+    ."update add {$t1}._cacert._auth." . ZONENAME . " 60 TXT {$t2}\n";
 }
 $copy = $todelete;
 foreach($copy as $nt => $ar){
@@ -44,7 +44,7 @@ foreach($copy as $nt => $ar){
       if($act[0] == "http"){
         unlink("cacert-{$act[1]}.txt");
       } else if($act[0] == "dns") {
-        $dnscalls .= "update delete cacert-{$act[1]}." . ZONENAME . " TXT\n";
+        $dnscalls .= "update delete {$act[1]}._cacert._auth." . ZONENAME . " TXT\n";
       }
     }
   }

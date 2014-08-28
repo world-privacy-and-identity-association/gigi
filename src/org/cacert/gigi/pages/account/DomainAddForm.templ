@@ -35,7 +35,7 @@
     <td>
         Please insert the following DNS TXT entry into the SOA-file of your domain:<br/>
         <pre>
-        cacert-<?=$tokenName?> IN TXT <?=$tokenValue?>
+        <?=$tokenName?>._cacert._auth IN TXT <?=$tokenValue?>
         </pre>
     </td>
   </tr>

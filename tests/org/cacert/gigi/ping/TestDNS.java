@@ -91,7 +91,7 @@ public class TestDNS extends PingTest {
 
     private String readDNS(String token) throws NamingException {
         String test = getTestProps().getProperty("domain.dnstest");
-        String targetDomain = "cacert-" + token + "." + test;
+        String targetDomain = token + "._cacert._auth." + test;
         String[] data = DNSUtil.getTXTEntries(targetDomain, getTestProps().getProperty("domain.testns"));
         assertEquals(1, data.length);
         return data[0];

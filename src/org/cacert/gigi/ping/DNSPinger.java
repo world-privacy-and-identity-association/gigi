@@ -27,7 +27,7 @@ public class DNSPinger extends DomainPinger {
         for (String NS : nameservers) {
             boolean found = false;
             try {
-                for (String token : DNSUtil.getTXTEntries("cacert-" + tokenParts[0] + "." + domain.getSuffix(), NS)) {
+                for (String token : DNSUtil.getTXTEntries(tokenParts[0] + "._cacert._auth." + domain.getSuffix(), NS)) {
                     if (token.isEmpty()) {
                         continue;
                     }

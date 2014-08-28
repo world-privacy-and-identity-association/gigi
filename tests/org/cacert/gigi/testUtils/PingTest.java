@@ -58,7 +58,7 @@ public abstract class PingTest extends ClientTest {
         String content1 = IOUtils.readURL(openConnection);
         csrf = getCSRF(1, content1);
 
-        Pattern p = Pattern.compile("cacert-([A-Za-z0-9]+) IN TXT ([A-Za-z0-9]+)");
+        Pattern p = Pattern.compile("([A-Za-z0-9]+)._cacert._auth IN TXT ([A-Za-z0-9]+)");
         Matcher m = p.matcher(content1);
         m.find();
         return m;
