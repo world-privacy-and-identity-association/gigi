@@ -29,7 +29,7 @@ import org.junit.Test;
 public class TestDNS extends ManagedTest {
 
     @Test
-    public void testDNSSanity() throws IOException, NamingException {
+    public void dnsSanity() throws IOException, NamingException {
 
         String token = RandomToken.generateToken(16);
         String value = RandomToken.generateToken(16);
@@ -40,20 +40,33 @@ public class TestDNS extends ManagedTest {
     }
 
     @Test
-    public void testEmailAndDNSSuccess() throws IOException, InterruptedException, SQLException, NamingException {
+    public void emailAndDNSSuccess() throws IOException, InterruptedException, SQLException, NamingException {
         testEmailAndDNS(0, 0, true, true);
     }
 
     @After
-    public void test() throws SQLException, IOException {
+    public void purgeDbAfterTest() throws SQLException, IOException {
         purgeDatabase();
     }
 
     @Test
-    public void testEmailAndDNSFail() throws IOException, InterruptedException, SQLException, NamingException {
+    public void dnsFail() throws IOException, InterruptedException, SQLException, NamingException {
         testEmailAndDNS(1, 0, false, true);
-        purgeDatabase();
+    }
+
+    @Test
+    public void dnsContentFail() throws IOException, InterruptedException, SQLException, NamingException {
         testEmailAndDNS(2, 0, false, true);
+    }
+
+    @Test
+    public void emailFail() throws IOException, InterruptedException, SQLException, NamingException {
+        testEmailAndDNS(0, 1, true, false);
+    }
+
+    @Test
+    public void emailAndDNSFail() throws IOException, InterruptedException, SQLException, NamingException {
+        testEmailAndDNS(2, 1, false, false);
     }
 
     public void testEmailAndDNS(int dnsVariant, int emailVariant, boolean successDNS, boolean successMail) throws IOException, InterruptedException, SQLException, NamingException {
@@ -93,8 +106,10 @@ public class TestDNS extends ManagedTest {
         URL u2 = new URL(u.toString() + m1.group(1));
 
         TestMail mail = getMailReciever().recieve();
-        String link = mail.extractLink();
-        new URL(link).openConnection().getHeaderField("");
+        if (emailVariant == 0) {
+            String link = mail.extractLink();
+            new URL(link).openConnection().getHeaderField("");
+        }
 
         PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT COUNT(*) FROM domainPinglog");
         while (true) {

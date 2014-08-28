@@ -150,7 +150,8 @@ public class ManagedTest {
     }
 
     public static void purgeDatabase() throws SQLException, IOException {
-        System.out.println("... purging Database");
+        System.out.print("... purging Database");
+        long ms = System.currentTimeMillis();
         try {
             DatabaseManager.run(new String[] {
                     testProps.getProperty("sql.driver"), testProps.getProperty("sql.url"), testProps.getProperty("sql.user"), testProps.getProperty("sql.password")
@@ -158,6 +159,7 @@ public class ManagedTest {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+        System.out.println(" in " + (System.currentTimeMillis() - ms) + " ms");
     }
 
     private static Properties generateMainProps() {
