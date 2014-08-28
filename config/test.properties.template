@@ -24,6 +24,7 @@ sql.user=cacert
 sql.password=<password>
 
 
-domain.dnsmanage=http://you-installation-of-the/index.php
+domain.manage=http://you-installation-of-the/index.php
+domain.http=you-intstallation-for-the-textfiles
 domain.dnstest=the.dns.zone
 domain.testns=the.authorativ.ns.for.domain.dnstest

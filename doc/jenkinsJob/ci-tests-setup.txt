@@ -8,7 +8,9 @@ make jenkins write them to "config/test.properties"
 
 -you need a dynamically managable dns zone.
 Write the zone name to "domain.dnstest" in "test.properties"
-and a manage script (see dyn-txt.php). Put the url with password in "domain.dnsmanage"
+and a manage script (see dyn-txt.php). 
+- Put the url with password in "domain.manage"
+- Put the host with password in "domain.http"
 
 Setup with bind9:
 dnssec-keygen -a HMAC-SHA512 -b 512 -n HOST example.org.
