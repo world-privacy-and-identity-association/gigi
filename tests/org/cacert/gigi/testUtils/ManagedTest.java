@@ -150,12 +150,12 @@ public class ManagedTest {
     }
 
     public static void purgeDatabase() throws SQLException, IOException {
-        System.out.print("... purging Database");
+        System.out.print("... resetting Database");
         long ms = System.currentTimeMillis();
         try {
             DatabaseManager.run(new String[] {
                     testProps.getProperty("sql.driver"), testProps.getProperty("sql.url"), testProps.getProperty("sql.user"), testProps.getProperty("sql.password")
-            });
+            }, true);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
