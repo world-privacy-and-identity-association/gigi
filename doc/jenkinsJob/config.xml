@@ -2,33 +2,44 @@
 <project>
   <actions/>
   <description></description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>100</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties>
-    <hudson.security.AuthorizationMatrixProperty>
-      <permission>hudson.model.Item.Read:anonymous</permission>
-    </hudson.security.AuthorizationMatrixProperty>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.TextParameterDefinition>
           <name>JAVA_HOME</name>
           <description></description>
-          <defaultValue>/usr/lib/jvm/java-8-openjdk/</defaultValue>
+          <defaultValue>/usr/local/jvm/openjdk-1.8.0-internal</defaultValue>
         </hudson.model.TextParameterDefinition>
         <hudson.model.TextParameterDefinition>
           <name>BRANCH</name>
           <description>The branch to build from.</description>
           <defaultValue>master</defaultValue>
         </hudson.model.TextParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>TARGET</name>
+          <description>The target.</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>develop</string>
+              <string>release</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@1.5.0">
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.2.5">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
-        <name></name>
-        <refspec></refspec>
-        <url>https://github.com/yellowant/cacert-gigi.git</url>
+        <url>$$$$YOUR_REFERENCE_GIT_REPO$$$$</url>
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
     <branches>
@@ -36,35 +47,16 @@
         <name>$BRANCH</name>
       </hudson.plugins.git.BranchSpec>
     </branches>
-    <disableSubmodules>false</disableSubmodules>
-    <recursiveSubmodules>false</recursiveSubmodules>
     <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-    <authorOrCommitter>false</authorOrCommitter>
-    <clean>false</clean>
-    <wipeOutWorkspace>false</wipeOutWorkspace>
-    <pruneBranches>false</pruneBranches>
-    <remotePoll>false</remotePoll>
-    <ignoreNotifyCommit>false</ignoreNotifyCommit>
-    <useShallowClone>false</useShallowClone>
-    <buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
-    <gitTool>Default</gitTool>
     <submoduleCfg class="list"/>
-    <relativeTargetDir></relativeTargetDir>
-    <reference></reference>
-    <excludedRegions></excludedRegions>
-    <excludedUsers></excludedUsers>
-    <gitConfigName></gitConfigName>
-    <gitConfigEmail></gitConfigEmail>
-    <skipTag>false</skipTag>
-    <includedRegions></includedRegions>
-    <scmName></scmName>
+    <extensions/>
   </scm>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <jdk>Java 8 OpenJDK</jdk>
-  <triggers class="vector">
+  <triggers>
     <hudson.triggers.SCMTrigger>
       <spec>@midnight</spec>
       <ignorePostCommitHooks>false</ignorePostCommitHooks>
@@ -73,24 +65,38 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>cat &lt;&lt;EOT &gt;config/test.properties
+      <command>cat &lt;&lt;EOT &gt;keys/config
+DOMAIN=$$$$YOUR_LOOKUP_DOMAIN$$$$
+KEYSIZE=4096
+EOT
+cat &lt;&lt;EOT &gt;config/test.properties
 type=autonomous
-java=java -cp gigi.jar:/path/to/mysql-connector.jar org.cacert.gigi.Launcher
-serverPort=4448
+java=/usr/local/jvm/openjdk-1.8.0-internal/bin/java -cp gigi.jar:$$$$SQL_CONNECTOR_PATH$$$$ org.cacert.gigi.Launcher
+serverPort.https=4448
+serverPort.http=8098
 mailPort=8473
 sql.driver=com.mysql.jdbc.Driver
 sql.url=jdbc:mysql://localhost:3306/cacert
 sql.user=cacert
-sql.password=<yourSqlPassword>
+sql.password=$$$$sql password$$$$
+name.static=static.$$$$YOUR_LOOKUP_DOMAIN$$$$
+name.secure=secure.$$$$YOUR_LOOKUP_DOMAIN$$$$
+name.www=www.$$$$YOUR_LOOKUP_DOMAIN$$$$
+name.api=api.$$$$YOUR_LOOKUP_DOMAIN$$$$
+
+domain.manage=http://$$$$YOUR_TESTSERVICE$$$$/dyn-txt.php?token=$$$$managementToken$$$$&amp;
+domain.http=$$$$YOUR_TESTSERVICE_HTTP$$$$
+domain.dnstest=$$$$YOUR_TESTSERVICE_ZONE$$$$
+domain.testns=$$$$YOUR_TESTSERVICE_AUTH_NAMESERVER$$$$
 EOT
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Ant plugin="ant@1.2">
-      <targets></targets>
+      <targets>$TARGET</targets>
       <antOpts>-Dfile.encoding=UTF-8</antOpts>
       <buildFile>build.xml</buildFile>
-      <properties>juintexec=/path/to/folder/with/junit/
-mysqlconnector=/path/to/mysql-connector.jar</properties>
+      <properties>juintexec=$$$$JUNIT_PATH$$$$
+mysqlconnector=$$$$SQL_CONNECTOR_PATH$$$$</properties>
     </hudson.tasks.Ant>
   </builders>
   <publishers>
