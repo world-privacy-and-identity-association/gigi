@@ -48,6 +48,7 @@ public class DatabaseManager {
 
     private static void addFile(Statement stmt, File f, boolean truncate) throws IOException, SQLException {
         String sql = readFile(f);
+        sql = sql.replaceAll("--[^\n]+\n", "\n");
         String[] stmts = sql.split(";");
         Pattern p = Pattern.compile("\\s*DROP TABLE IF EXISTS `([^`]+)`");
         for (String string : stmts) {
