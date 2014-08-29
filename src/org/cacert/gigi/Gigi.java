@@ -26,6 +26,7 @@ import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.LogoutPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.pages.RootCertPage;
 import org.cacert.gigi.pages.StaticPage;
 import org.cacert.gigi.pages.TestSecure;
 import org.cacert.gigi.pages.Verify;
@@ -66,12 +67,15 @@ public class Gigi extends HttpServlet {
 
     private PingerDaemon pinger;
 
+    private KeyStore truststore;
+
     public Gigi(Properties conf, KeyStore truststore) {
         if (instance != null) {
             throw new IllegalStateException("Multiple Gigi instances!");
         }
         instance = this;
         DatabaseConnection.init(conf);
+        this.truststore = truststore;
         pinger = new PingerDaemon(truststore);
         pinger.start();
     }
@@ -82,6 +86,7 @@ public class Gigi extends HttpServlet {
             putPage("/error", new PageNotFound(), null);
             putPage("/login", new LoginPage("CAcert - Login"), "Join CAcert.org");
             putPage("/", new MainPage("CAcert - Home"), null);
+            putPage("/roots", new RootCertPage(truststore), "Join CAcert.org");
             putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
             putPage(LogoutPage.PATH, new LogoutPage("Logout"), "My Account");
             putPage("/secure", new TestSecure(), null);
