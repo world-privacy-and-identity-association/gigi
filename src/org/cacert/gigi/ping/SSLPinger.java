@@ -213,13 +213,13 @@ public class SSLPinger extends DomainPinger {
             }
             return PING_SUCCEDED;
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            // e.printStackTrace(); TODO log for user debugging?
             return "Security failed";
         } catch (SSLException e) {
-            e.printStackTrace();
+            // e.printStackTrace(); TODO log for user debugging?
             return "Security failed";
         } catch (IOException e) {
-            e.printStackTrace();
+            // e.printStackTrace(); TODO log for user debugging?
             return "Connection closed";
         }
     }
