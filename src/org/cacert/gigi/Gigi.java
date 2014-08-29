@@ -2,6 +2,7 @@ package org.cacert.gigi;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.KeyStore;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -63,14 +64,15 @@ public class Gigi extends HttpServlet {
 
     private static Gigi instance;
 
-    private PingerDaemon pinger = new PingerDaemon();
+    private PingerDaemon pinger;
 
-    public Gigi(Properties conf) {
+    public Gigi(Properties conf, KeyStore truststore) {
         if (instance != null) {
             throw new IllegalStateException("Multiple Gigi instances!");
         }
         instance = this;
         DatabaseConnection.init(conf);
+        pinger = new PingerDaemon(truststore);
         pinger.start();
     }
 
@@ -156,7 +158,7 @@ public class Gigi extends HttpServlet {
         final Page p = getPage(req.getPathInfo());
 
         if (p != null) {
-            if (!isSecure && (p.needsLogin() || p instanceof LoginPage || p instanceof RegisterPage)) {
+            if ( !isSecure && (p.needsLogin() || p instanceof LoginPage || p instanceof RegisterPage)) {
                 resp.sendRedirect("https://" + ServerConstants.getWwwHostNamePortSecure() + req.getPathInfo());
                 return;
             }

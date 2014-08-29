@@ -27,7 +27,8 @@ public abstract class PingTest extends ClientTest {
 
     protected void waitForPings(int count) throws SQLException, InterruptedException {
         PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT COUNT(*) FROM domainPinglog");
-        while (true) {
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() - start < 10000) {
             ResultSet rs = ps.executeQuery();
             rs.next();
             if (rs.getInt(1) >= count) {

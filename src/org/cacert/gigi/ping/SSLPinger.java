@@ -3,23 +3,30 @@ package org.cacert.gigi.ping;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 
 import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.SSLEngineResult.Status;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLParameters;
 import javax.security.cert.X509Certificate;
 
+import org.cacert.gigi.Certificate;
 import org.cacert.gigi.Domain;
 import org.cacert.gigi.User;
 
@@ -29,10 +36,15 @@ public class SSLPinger extends DomainPinger {
             "xmpp", "server-xmpp", "smtp", "imap"
     };
 
+    private KeyStore truststore;
+
+    public SSLPinger(KeyStore truststore) {
+        this.truststore = truststore;
+    }
+
     @Override
     public String ping(Domain domain, String configuration, User u) {
-        try {
-            SocketChannel sch = SocketChannel.open();
+        try (SocketChannel sch = SocketChannel.open()) {
             String[] parts = configuration.split(":", 2);
             sch.connect(new InetSocketAddress(domain.getSuffix(), Integer.parseInt(parts[0])));
             if (parts.length == 2) {
@@ -52,7 +64,7 @@ public class SSLPinger extends DomainPinger {
 
                 }
             }
-            return test(sch, domain.getSuffix());
+            return test(sch, domain.getSuffix(), u);
         } catch (IOException e) {
             return "Connecton failed";
         }
@@ -133,9 +145,18 @@ public class SSLPinger extends DomainPinger {
         }
     }
 
-    private String test(SocketChannel sch, String domain) {
+    private String test(SocketChannel sch, String domain, User subject) {
         try {
-            SSLContext sc = SSLContext.getDefault();
+            SSLContext sc = SSLContext.getInstance("SSL");
+            try {
+                TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
+                tmf.init(truststore);
+                sc.init(null, tmf.getTrustManagers(), new SecureRandom());
+            } catch (KeyManagementException e) {
+                e.printStackTrace();
+            } catch (KeyStoreException e) {
+                e.printStackTrace();
+            }
             SSLEngine se = sc.createSSLEngine();
             ByteBuffer enc_in = ByteBuffer.allocate(se.getSession().getPacketBufferSize());
             ByteBuffer enc_out = ByteBuffer.allocate(se.getSession().getPacketBufferSize());
@@ -182,11 +203,13 @@ public class SSLPinger extends DomainPinger {
                 }
 
             }
-            System.out.println("completed");
-            System.out.println(se.getSession().getCipherSuite());
             X509Certificate[] peerCertificateChain = se.getSession().getPeerCertificateChain();
-            for (X509Certificate x509Certificate : peerCertificateChain) {
-                System.out.println(x509Certificate.getSubjectDN().getName());
+            X509Certificate first = peerCertificateChain[0];
+
+            BigInteger serial = first.getSerialNumber();
+            Certificate c = Certificate.getBySerial(serial.toString(16));
+            if (c.getOwnerId() != subject.getId()) {
+                return "Owner mismatch";
             }
             return PING_SUCCEDED;
         } catch (NoSuchAlgorithmException e) {

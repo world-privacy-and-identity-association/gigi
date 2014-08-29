@@ -28,3 +28,4 @@ domain.manage=http://you-installation-of-the/index.php
 domain.http=you-intstallation-for-the-textfiles
 domain.dnstest=the.dns.zone
 domain.testns=the.authorativ.ns.for.domain.dnstest
+domain.local=a.domain.that.resolves.to.localhost

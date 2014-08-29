@@ -1,13 +1,10 @@
 package org.cacert.gigi.ping;
 
-import java.io.FileReader;
-import java.io.IOException;
+import java.security.KeyStore;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Properties;
-
 import org.cacert.gigi.Domain;
 import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
@@ -21,13 +18,19 @@ public class PingerDaemon extends Thread {
 
     private PreparedStatement enterPingResult;
 
+    private KeyStore truststore;
+
+    public PingerDaemon(KeyStore truststore) {
+        this.truststore = truststore;
+    }
+
     @Override
     public void run() {
         try {
             searchNeededPings = DatabaseConnection.getInstance().prepare("SELECT pingconfig.*, domains.domain, domains.memid FROM pingconfig LEFT JOIN domainPinglog ON domainPinglog.configId=pingconfig.id INNER JOIN domains ON domains.id=pingconfig.domainid WHERE domainPinglog.configId IS NULL ");
             enterPingResult = DatabaseConnection.getInstance().prepare("INSERT INTO domainPinglog SET configId=?, state=?, result=?, challenge=?");
             pingers.put("email", new EmailPinger());
-            pingers.put("ssl", new SSLPinger());
+            pingers.put("ssl", new SSLPinger(truststore));
             pingers.put("http", new HTTPFetch());
             pingers.put("dns", new DNSPinger());
         } catch (SQLException e) {
@@ -68,13 +71,5 @@ public class PingerDaemon extends Thread {
                 enterPingResult.execute();
             }
         }
-    }
-
-    public static void main(String[] args) throws IOException {
-        Properties conf = new Properties();
-        conf.load(new FileReader("config/gigi.properties"));
-        DatabaseConnection.init(conf);
-        new PingerDaemon().run();
-
     }
 }

@@ -66,7 +66,7 @@ public class Launcher {
 
         HandlerList hl = new HandlerList();
         hl.setHandlers(new Handler[] {
-                generateStaticContext(), generateGigiContexts(conf.getMainProps()), generateAPIContext()
+                generateStaticContext(), generateGigiContexts(conf.getMainProps(), conf.getTrustStore()), generateAPIContext()
         });
         s.setHandler(hl);
         s.start();
@@ -86,7 +86,7 @@ public class Launcher {
             connector = new ServerConnector(s);
         }
         connector.setHost(conf.getMainProps().getProperty("host"));
-        if(doHttps) {
+        if (doHttps) {
             connector.setPort(ServerConstants.getSecurePort());
         } else {
             connector.setPort(ServerConstants.getPort());
@@ -163,8 +163,8 @@ public class Launcher {
         };
     }
 
-    private static Handler generateGigiContexts(Properties conf) {
-        ServletHolder webAppServlet = new ServletHolder(new Gigi(conf));
+    private static Handler generateGigiContexts(Properties conf, KeyStore trust) {
+        ServletHolder webAppServlet = new ServletHolder(new Gigi(conf, trust));
 
         ContextHandler ch = generateGigiServletContext(webAppServlet);
         ch.setVirtualHosts(new String[] {
