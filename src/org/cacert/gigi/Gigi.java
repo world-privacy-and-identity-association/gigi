@@ -289,4 +289,8 @@ public class Gigi extends HttpServlet {
         return instance.reveresePages.get(p).replaceFirst("/?\\*$", "");
     }
 
+    public static void notifyPinger() {
+        instance.pinger.interrupt();
+    }
+
 }
