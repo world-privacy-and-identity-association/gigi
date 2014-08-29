@@ -33,7 +33,7 @@
   <tr>
     <td></td>
     <td>
-        Please insert the following DNS TXT entry into the SOA-file of your domain:<br/>
+        Please insert the following DNS TXT entry into the Zone-file of your domain:<br/>
         <pre>
         <?=$tokenName?>._cacert._auth IN TXT <?=$tokenValue?>
         </pre>
@@ -47,7 +47,7 @@
   <tr>
     <td></td>
     <td>
-        Please make the following content available under <pre class='string'>http://<span class='exampleDomain'>example.org</span>/cacert-<?=$tokenName?>.txt</pre><br/>
+        <?=_Please make the following content available under ?><pre class='string'>http://<span class='exampleDomain'>example.org</span>/cacert-<?=$tokenName?>.txt</pre><br/>
         <pre><?=$tokenValue?></pre>
     </td>
   </tr>
@@ -59,7 +59,7 @@
   <tr>
     <td></td>
     <td>
-        Please list up to three services using your certificate:
+        <?=_Please list up to four services using your certificate. You need to have two of them up and using a valid CAcert certificate in order to pass this test?>:
         <table>
         <? foreach($ssl-services){ ?>
         <tr><td><select name='ssl-type-<?=$i?>'>
