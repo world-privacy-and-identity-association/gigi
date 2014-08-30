@@ -27,6 +27,7 @@ import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.LogoutPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.pages.PolicyIndex;
 import org.cacert.gigi.pages.RootCertPage;
 import org.cacert.gigi.pages.StaticPage;
 import org.cacert.gigi.pages.TestSecure;
@@ -103,21 +104,22 @@ public class Gigi extends HttpServlet {
             putPage("/wot/rules", new StaticPage("CAcert Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "CAcert Web of Trust");
             baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
             rootMenu = new Menu("Main");
-            for (Menu menu : categories) {
-                menu.prepare();
-                rootMenu.addItem(menu);
-            }
             Menu about = new Menu("About CAcert.org");
+            categories.add(about);
+
             about.addItem(new SimpleMenuItem("//blog.cacert.org/", "CAcert News"));
             about.addItem(new SimpleMenuItem("//wiki.cacert.org/", "Wiki Documentation"));
-            about.addItem(new SimpleMenuItem("/policy", "Policies"));
+            putPage(PolicyIndex.DEFAULT_PATH, new PolicyIndex(), "About CAcert.org");
             about.addItem(new SimpleMenuItem("//wiki.cacert.org/FAQ/Privileges", "Point System"));
             about.addItem(new SimpleMenuItem("//bugs.cacert.org/", "Bug Database"));
             about.addItem(new SimpleMenuItem("//wiki.cacert.org/Board", "CAcert Board"));
             about.addItem(new SimpleMenuItem("//lists.cacert.org/wws", "Mailing Lists"));
             about.addItem(new SimpleMenuItem("//blog.CAcert.org/feed", "RSS News Feed"));
-            about.prepare();
-            rootMenu.addItem(about);
+
+            for (Menu menu : categories) {
+                menu.prepare();
+                rootMenu.addItem(menu);
+            }
 
             rootMenu.prepare();
             firstInstanceInited = true;

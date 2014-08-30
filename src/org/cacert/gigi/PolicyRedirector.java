@@ -16,6 +16,9 @@ public class PolicyRedirector extends HandlerWrapper {
         if (target.equals("/")) {
             return;
         }
+        if (target.equals("/policy/")) {
+            return;
+        }
         if (target.startsWith("/policy/") && target.endsWith(".php")) {
             target = target.replace(".php", ".html");
             response.sendRedirect(target);
