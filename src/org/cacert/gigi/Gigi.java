@@ -21,6 +21,7 @@ import org.cacert.gigi.output.Form.CSRFException;
 import org.cacert.gigi.output.Menu;
 import org.cacert.gigi.output.Outputable;
 import org.cacert.gigi.output.PageMenuItem;
+import org.cacert.gigi.output.SimpleMenuItem;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.LogoutPage;
@@ -106,6 +107,18 @@ public class Gigi extends HttpServlet {
                 menu.prepare();
                 rootMenu.addItem(menu);
             }
+            Menu about = new Menu("About CAcert.org");
+            about.addItem(new SimpleMenuItem("//blog.cacert.org/", "CAcert News"));
+            about.addItem(new SimpleMenuItem("//wiki.cacert.org/", "Wiki Documentation"));
+            about.addItem(new SimpleMenuItem("/policy", "Policies"));
+            about.addItem(new SimpleMenuItem("//wiki.cacert.org/FAQ/Privileges", "Point System"));
+            about.addItem(new SimpleMenuItem("//bugs.cacert.org/", "Bug Database"));
+            about.addItem(new SimpleMenuItem("//wiki.cacert.org/Board", "CAcert Board"));
+            about.addItem(new SimpleMenuItem("//lists.cacert.org/wws", "Mailing Lists"));
+            about.addItem(new SimpleMenuItem("//blog.CAcert.org/feed", "RSS News Feed"));
+            about.prepare();
+            rootMenu.addItem(about);
+
             rootMenu.prepare();
             firstInstanceInited = true;
         }
