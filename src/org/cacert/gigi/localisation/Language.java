@@ -3,6 +3,8 @@ package org.cacert.gigi.localisation;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -32,6 +34,14 @@ public class Language {
             String language = f.getName().split("\\.", 2)[0];
             supported.add(getLocaleFromString(language));
         }
+        Collections.sort(supported, new Comparator<Locale>() {
+
+            @Override
+            public int compare(Locale o1, Locale o2) {
+                return o1.toString().compareTo(o2.toString());
+            }
+
+        });
         supportedLocales = supported.toArray(new Locale[supported.size()]);
     }
 
