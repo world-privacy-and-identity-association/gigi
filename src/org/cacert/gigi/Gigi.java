@@ -6,6 +6,7 @@ import java.security.KeyStore;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -116,6 +117,11 @@ public class Gigi extends HttpServlet {
             about.addItem(new SimpleMenuItem("//lists.cacert.org/wws", "Mailing Lists"));
             about.addItem(new SimpleMenuItem("//blog.CAcert.org/feed", "RSS News Feed"));
 
+            Menu languages = new Menu("Translations");
+            for (Locale l : Language.getSupportedLocales()) {
+                languages.addItem(new SimpleMenuItem("?lang=" + l.toString(), l.getDisplayName(l)));
+            }
+            categories.add(languages);
             for (Menu menu : categories) {
                 menu.prepare();
                 rootMenu.addItem(menu);
@@ -175,6 +181,11 @@ public class Gigi extends HttpServlet {
         // return;
         // }
         HttpSession hs = req.getSession();
+        if (req.getParameter("lang") != null) {
+            Locale l = Language.getLocaleFromString(req.getParameter("lang"));
+            Language lu = Language.getInstance(l);
+            req.getSession().setAttribute(Language.SESSION_ATTRIB_NAME, lu.getLocale());
+        }
         final Page p = getPage(req.getPathInfo());
 
         if (p != null) {

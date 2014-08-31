@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.util.PasswordHash;
 
 public class LoginPage extends Page {
@@ -71,10 +72,7 @@ public class LoginPage extends Page {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 if (PasswordHash.verifyHash(pw, rs.getString(1))) {
-                    req.getSession().invalidate();
-                    HttpSession hs = req.getSession();
-                    hs.setAttribute(LOGGEDIN, true);
-                    hs.setAttribute(USER, new User(rs.getInt(2)));
+                    loginSession(req, new User(rs.getInt(2)));
                 }
             }
             rs.close();
@@ -94,15 +92,20 @@ public class LoginPage extends Page {
             ps.setString(1, serial);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                req.getSession().invalidate();
-                HttpSession hs = req.getSession();
-                hs.setAttribute(LOGGEDIN, true);
-                hs.setAttribute(USER, new User(rs.getInt(1)));
+                loginSession(req, new User(rs.getInt(1)));
             }
             rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private void loginSession(HttpServletRequest req, User user) {
+        req.getSession().invalidate();
+        HttpSession hs = req.getSession();
+        hs.setAttribute(LOGGEDIN, true);
+        hs.setAttribute(Language.SESSION_ATTRIB_NAME, user.getPreferredLocale());
+        hs.setAttribute(USER, user);
     }
 
     @Override

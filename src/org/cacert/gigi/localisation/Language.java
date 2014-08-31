@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -17,23 +18,60 @@ import org.xml.sax.SAXException;
 
 public class Language {
 
+    public static final String SESSION_ATTRIB_NAME = "lang";
+
+    private static Locale[] supportedLocales;
+
+    static {
+        LinkedList<Locale> supported = new LinkedList<>();
+        File locales = new File("locale");
+        for (File f : locales.listFiles()) {
+            if ( !f.getName().endsWith(".xml")) {
+                continue;
+            }
+            String language = f.getName().split("\\.", 2)[0];
+            supported.add(getLocaleFromString(language));
+        }
+        supportedLocales = supported.toArray(new Locale[supported.size()]);
+    }
+
+    public static Locale getLocaleFromString(String language) {
+        if (language.contains("_")) {
+            String[] parts = language.split("_", 2);
+            return new Locale(parts[0], parts[1]);
+
+        } else {
+            return new Locale(language);
+        }
+    }
+
+    public static Locale[] getSupportedLocales() {
+        return supportedLocales;
+    }
+
     private static HashMap<String, Language> langs = new HashMap<String, Language>();
 
     private HashMap<String, String> translations = new HashMap<String, String>();
 
     private Locale l;
 
-    protected Language(String language) throws ParserConfigurationException, IOException, SAXException {
-        if (language.contains("_")) {
-            String[] parts = language.split("_");
-            l = new Locale(parts[0], parts[1]);
-        } else {
-            l = new Locale(language);
+    private static Locale project(Locale l) {
+        if (l == null) {
+            return Locale.getDefault();
         }
+        File file = new File("locale", l.toString() + ".xml");
+        if ( !file.exists()) {
+            return new Locale(l.getLanguage());
+        }
+        return l;
+    }
 
+    protected Language(Locale loc) throws ParserConfigurationException, IOException, SAXException {
+        File file = new File("locale", loc.toString() + ".xml");
+        l = loc;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
-        Document d = db.parse(new FileInputStream(new File("locale", language + ".xml")));
+        Document d = db.parse(new FileInputStream(file));
         NodeList nl = d.getDocumentElement().getChildNodes();
         for (int i = 0; i < nl.getLength(); i++) {
             if ( !(nl.item(i) instanceof Element)) {
@@ -55,12 +93,17 @@ public class Language {
         return string;
     }
 
-    public static Language getInstance(String language) {
-        Language l = langs.get(language);
+    public static Language getInstance(Locale language) {
+        language = project(language);
+        File file = new File("locale", language.toString() + ".xml");
+        if ( !file.exists()) {
+            return null;
+        }
+        Language l = langs.get(language.toString());
         if (l == null) {
             try {
                 l = new Language(language);
-                langs.put(language, l);
+                langs.put(language.toString(), l);
             } catch (ParserConfigurationException e) {
                 e.printStackTrace();
             } catch (IOException e) {

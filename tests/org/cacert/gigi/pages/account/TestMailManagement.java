@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
+import java.util.Locale;
 
 import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.GigiApiException;
@@ -77,7 +78,7 @@ public class TestMailManagement extends ManagedTest {
     @Test
     public void testMailSetDefaultWebUnverified() throws MalformedURLException, UnsupportedEncodingException, IOException, InterruptedException, GigiApiException {
         EmailAddress adrr = new EmailAddress(createUniqueName() + "test@test.tld", u);
-        adrr.insert(Language.getInstance("en"));
+        adrr.insert(Language.getInstance(Locale.ENGLISH));
         assertNotNull(executeBasicWebInteraction(cookie, path, "makedefault&emailid=" + adrr.getId()));
         assertNotEquals(User.getById(u.getId()).getEmail(), adrr.getAddress());
         getMailReciever().clearMails();

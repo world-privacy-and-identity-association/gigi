@@ -6,7 +6,9 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -172,7 +174,8 @@ public class Signup extends Form {
     private void run(HttpServletRequest req, String password) throws SQLException {
         try {
             DatabaseConnection.getInstance().beginTransaction();
-
+            Enumeration<Locale> locales = req.getLocales();
+            buildup.setPreferredLocale(Page.getLanguage(req).getLocale());
             buildup.setDob(myDoB.getDate());
             buildup.insert(password);
             int memid = buildup.getId();

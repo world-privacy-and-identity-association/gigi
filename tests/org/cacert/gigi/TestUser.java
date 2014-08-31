@@ -1,6 +1,7 @@
 package org.cacert.gigi;
 
 import java.sql.SQLException;
+import java.util.Locale;
 
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.testUtils.ManagedTest;
@@ -17,6 +18,7 @@ public class TestUser extends ManagedTest {
         u.setLname("last");
         u.setMname("");
         u.setSuffix("");
+        u.setPreferredLocale(Locale.ENGLISH);
         long dob = System.currentTimeMillis();
         dob -= dob % (1000 * 60 * 60 * 24);
         u.setDob(new java.sql.Date(dob));
@@ -61,8 +63,8 @@ public class TestUser extends ManagedTest {
         int id = createVerifiedUser("aä", "b", uq + "a@email.org", TEST_PASSWORD);
 
         User u = new User(id);
-        new EmailAddress(uq + "b@email.org", u).insert(Language.getInstance("de"));
-        new EmailAddress(uq + "c@email.org", u).insert(Language.getInstance("de"));
+        new EmailAddress(uq + "b@email.org", u).insert(Language.getInstance(Locale.ENGLISH));
+        new EmailAddress(uq + "c@email.org", u).insert(Language.getInstance(Locale.ENGLISH));
         new Domain(u, uq + "a.testdomain.org").insert();
         new Domain(u, uq + "b.testdomain.org").insert();
         new Domain(u, uq + "c.testdomain.org").insert();

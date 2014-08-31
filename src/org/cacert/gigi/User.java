@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.Locale;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.localisation.Language;
@@ -24,6 +25,8 @@ public class User {
 
     private Assurance[] receivedAssurances, madeAssurances;
 
+    private Locale locale;
+
     public User(int id) {
         this.id = id;
         updateName(id);
@@ -31,13 +34,19 @@ public class User {
 
     private void updateName(int id) {
         try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `fname`, `lname`,`mname`, `suffix`, `dob`, `email` FROM `users` WHERE id=?");
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `fname`, `lname`,`mname`, `suffix`, `dob`, `email`, `language` FROM `users` WHERE id=?");
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 name = new Name(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
                 dob = rs.getDate(5);
                 email = rs.getString(6);
+                String localeStr = rs.getString(7);
+                if (localeStr == null || localeStr.equals("")) {
+                    locale = Locale.getDefault();
+                } else {
+                    locale = Language.getLocaleFromString(localeStr);
+                }
             }
             rs.close();
         } catch (SQLException e) {
@@ -111,7 +120,7 @@ public class User {
         if (id != 0) {
             throw new Error("refusing to insert");
         }
-        PreparedStatement query = DatabaseConnection.getInstance().prepare("insert into `users` set `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, " + "`suffix`=?, `dob`=?, `created`=NOW(), locked=0");
+        PreparedStatement query = DatabaseConnection.getInstance().prepare("insert into `users` set `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, " + "`suffix`=?, `dob`=?, `created`=NOW(), locked=0, `language`=?");
         query.setString(1, email);
         query.setString(2, PasswordHash.hash(password));
         query.setString(3, name.fname);
@@ -119,6 +128,7 @@ public class User {
         query.setString(5, name.lname);
         query.setString(6, name.suffix);
         query.setDate(7, new java.sql.Date(dob.getTime()));
+        query.setString(8, locale.toString());
         query.execute();
         id = DatabaseConnection.lastInsertId(query);
     }
@@ -447,8 +457,13 @@ public class User {
         }
     }
 
-    public Language getPrefferedLanguage() {
-        return Language.getInstance("de");
+    public Locale getPreferredLocale() {
+        return locale;
+    }
+
+    public void setPreferredLocale(Locale locale) {
+        this.locale = locale;
+
     }
 
     public boolean wantsDirectoryListing() throws SQLException {
@@ -480,4 +495,5 @@ public class User {
         update.setInt(2, getId());
         update.executeUpdate();
     }
+
 }

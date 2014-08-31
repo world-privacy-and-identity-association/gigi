@@ -2,10 +2,13 @@ package org.cacert.gigi.pages;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Enumeration;
+import java.util.Locale;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.PermissionCheckable;
 import org.cacert.gigi.User;
@@ -104,7 +107,25 @@ public abstract class Page implements PermissionCheckable {
     }
 
     public static Language getLanguage(ServletRequest req) {
-        return Language.getInstance("de");
+        HttpSession session = ((HttpServletRequest) req).getSession();
+        Locale sessval = (Locale) session.getAttribute(Language.SESSION_ATTRIB_NAME);
+        if (sessval != null) {
+            Language l = Language.getInstance(sessval);
+            if (l != null) {
+                return l;
+            }
+        }
+        Enumeration<Locale> langs = req.getLocales();
+        while (langs.hasMoreElements()) {
+            Locale c = langs.nextElement();
+            Language l = Language.getInstance(c);
+            if (l != null) {
+                session.setAttribute(Language.SESSION_ATTRIB_NAME, l.getLocale());
+                return l;
+            }
+        }
+        session.setAttribute(Language.SESSION_ATTRIB_NAME, Locale.ENGLISH);
+        return Language.getInstance(Locale.ENGLISH);
     }
 
     public static String translate(ServletRequest req, String string) {

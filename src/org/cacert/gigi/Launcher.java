@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.TimeZone;
 
@@ -47,6 +48,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 public class Launcher {
 
     public static void main(String[] args) throws Exception {
+        Locale.setDefault(Locale.ENGLISH);
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         GigiConfig conf = GigiConfig.parse(System.in);
         ServerConstants.init(conf.getMainProps());

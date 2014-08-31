@@ -34,6 +34,7 @@ import java.security.cert.X509Certificate;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -491,7 +492,7 @@ public class ManagedTest {
 
     public static EmailAddress createVerifiedEmail(User u) throws InterruptedException, GigiApiException {
         EmailAddress adrr = new EmailAddress(createUniqueName() + "test@test.tld", u);
-        adrr.insert(Language.getInstance("en"));
+        adrr.insert(Language.getInstance(Locale.ENGLISH));
         TestMail testMail = getMailReciever().recieve();
         assertTrue(adrr.getAddress().equals(testMail.getTo()));
         String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);
