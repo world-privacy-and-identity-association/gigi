@@ -78,6 +78,12 @@ public class ManagedTest {
 
     private static String url = "localhost:4443";
 
+    private static String acceptLanguage = null;
+
+    public static void setAcceptLanguage(String acceptLanguage) {
+        ManagedTest.acceptLanguage = acceptLanguage;
+    }
+
     public static String getServerName() {
         return url;
     }
@@ -207,6 +213,11 @@ public class ManagedTest {
         ter.reset();
     }
 
+    @After
+    public void clearAcceptLanguage() {
+        acceptLanguage = null;
+    }
+
     public TestMail waitForMail() {
         try {
             return ter.recieve();
@@ -223,6 +234,10 @@ public class ManagedTest {
         URL regist = new URL("https://" + getServerName() + RegisterPage.PATH);
         HttpURLConnection uc = (HttpURLConnection) regist.openConnection();
         HttpURLConnection csrfConn = (HttpURLConnection) regist.openConnection();
+        if (acceptLanguage != null) {
+            csrfConn.setRequestProperty("Accept-Language", acceptLanguage);
+            uc.setRequestProperty("Accept-Language", acceptLanguage);
+        }
 
         String headerField = csrfConn.getHeaderField("Set-Cookie");
         headerField = stripCookie(headerField);
