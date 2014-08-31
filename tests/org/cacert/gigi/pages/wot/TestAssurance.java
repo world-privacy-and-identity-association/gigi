@@ -1,5 +1,6 @@
 package org.cacert.gigi.pages.wot;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -158,7 +159,7 @@ public class TestAssurance extends ManagedTest {
         url.setRequestProperty("Cookie", cookie);
         String resp = IOUtils.readURL(url);
         resp = resp.split(Pattern.quote("</table>"))[0];
-        assertTrue(resp.contains(uniqueLoc));
+        assertThat(resp, containsString(uniqueLoc));
     }
 
     @Test
@@ -171,7 +172,7 @@ public class TestAssurance extends ManagedTest {
         url.setRequestProperty("Cookie", cookie);
         String resp = IOUtils.readURL(url);
         resp = resp.split(Pattern.quote("</table>"))[1];
-        assertTrue(resp.contains(uniqueLoc));
+        assertThat(resp, containsString(uniqueLoc));
     }
 
     private String getError(String query) throws MalformedURLException, IOException {

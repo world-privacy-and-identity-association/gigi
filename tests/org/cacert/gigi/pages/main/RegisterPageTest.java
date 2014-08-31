@@ -1,5 +1,6 @@
 package org.cacert.gigi.pages.main;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -124,26 +125,26 @@ public class RegisterPageTest extends ManagedTest {
     public void testDataStays() throws IOException {
         long uniq = System.currentTimeMillis();
         String run = runRegister("fname=fn" + uniq + "&lname=ln" + uniq + "&email=ma" + uniq + "@cacert.org&pword1=pas" + uniq + "&pword2=pas2" + uniq + "&day=1&month=1&year=0");
-        assertTrue(run.contains("fn" + uniq));
-        assertTrue(run.contains("ln" + uniq));
-        assertTrue(run.contains("ma" + uniq + "@cacert.org"));
-        assertTrue( !run.contains("pas" + uniq));
-        assertTrue( !run.contains("pas2" + uniq));
+        assertThat(run, containsString("fn" + uniq));
+        assertThat(run, containsString("ln" + uniq));
+        assertThat(run, containsString("ma" + uniq + "@cacert.org"));
+        assertThat(run, not(containsString("pas" + uniq)));
+        assertThat(run, not(containsString("pas2" + uniq)));
 
     }
 
     @Test
     public void testCheckboxesStay() throws IOException {
         String run2 = runRegister("general=1&country=a&regional=1&radius=0");
-        assertTrue(run2.contains("name=\"general\" value=\"1\" checked=\"checked\">"));
-        assertTrue(run2.contains("name=\"country\" value=\"1\">"));
-        assertTrue(run2.contains("name=\"regional\" value=\"1\" checked=\"checked\">"));
-        assertTrue(run2.contains("name=\"radius\" value=\"1\">"));
+        assertThat(run2, containsString("name=\"general\" value=\"1\" checked=\"checked\">"));
+        assertThat(run2, containsString("name=\"country\" value=\"1\">"));
+        assertThat(run2, containsString("name=\"regional\" value=\"1\" checked=\"checked\">"));
+        assertThat(run2, containsString("name=\"radius\" value=\"1\">"));
         run2 = runRegister("general=0&country=1&radius=1");
-        assertTrue(run2.contains("name=\"general\" value=\"1\">"));
-        assertTrue(run2.contains("name=\"country\" value=\"1\" checked=\"checked\">"));
-        assertTrue(run2.contains("name=\"regional\" value=\"1\">"));
-        assertTrue(run2.contains("name=\"radius\" value=\"1\" checked=\"checked\">"));
+        assertThat(run2, containsString("name=\"general\" value=\"1\">"));
+        assertThat(run2, containsString("name=\"country\" value=\"1\" checked=\"checked\">"));
+        assertThat(run2, containsString("name=\"regional\" value=\"1\">"));
+        assertThat(run2, containsString("name=\"radius\" value=\"1\" checked=\"checked\">"));
     }
 
     @Test

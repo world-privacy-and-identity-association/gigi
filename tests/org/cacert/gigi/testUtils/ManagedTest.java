@@ -509,7 +509,7 @@ public class ManagedTest {
         EmailAddress adrr = new EmailAddress(createUniqueName() + "test@test.tld", u);
         adrr.insert(Language.getInstance(Locale.ENGLISH));
         TestMail testMail = getMailReciever().recieve();
-        assertTrue(adrr.getAddress().equals(testMail.getTo()));
+        assertEquals(adrr.getAddress(), testMail.getTo());
         String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);
         adrr.verify(hash);
         getMailReciever().clearMails();

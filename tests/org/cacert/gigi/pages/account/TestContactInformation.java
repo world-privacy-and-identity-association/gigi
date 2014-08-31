@@ -1,5 +1,6 @@
 package org.cacert.gigi.pages.account;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class TestContactInformation extends ManagedTest {
         url.setRequestProperty("Cookie", cookie);
         String res = IOUtils.readURL(url);
         res = res.split(java.util.regex.Pattern.quote("</table>"))[1];
-        assertTrue(res.contains("value=\"1\" selected"));
+        assertThat(res, containsString("value=\"1\" selected"));
         assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "listme=0&contactinfo=&processContact", 1));
         url = new URL("https://" + getServerName() + MyDetails.PATH).openConnection();
         url.setRequestProperty("Cookie", cookie);
@@ -42,6 +43,6 @@ public class TestContactInformation extends ManagedTest {
         url.setRequestProperty("Cookie", cookie);
         String res = IOUtils.readURL(url);
         res = res.split(java.util.regex.Pattern.quote("</table>"))[1];
-        assertTrue(res.contains(text));
+        assertThat(res, containsString(text));
     }
 }
