@@ -39,6 +39,8 @@ public class DateSelector implements Outputable {
 
     private int year;
 
+    private static ThreadLocal<SimpleDateFormat> fmt = new ThreadLocal<>();
+
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         out.print("<nobr>");
@@ -126,6 +128,16 @@ public class DateSelector implements Outputable {
         Calendar gc = GregorianCalendar.getInstance();
         gc.set(year, month - 1, day);
         return new java.sql.Date(gc.getTime().getTime());
+    }
+
+    public static SimpleDateFormat getDateFormat() {
+        SimpleDateFormat local = fmt.get();
+        if (local == null) {
+            local = new SimpleDateFormat("yyyy-MM-dd");
+            local.setTimeZone(TimeZone.getTimeZone("UTC"));
+            fmt.set(local);
+        }
+        return local;
     }
 
 }

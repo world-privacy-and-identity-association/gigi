@@ -25,7 +25,7 @@ import java.util.TimeZone;
 
 import org.cacert.gigi.Certificate.CSRType;
 import org.cacert.gigi.database.DatabaseConnection;
-import org.cacert.gigi.output.CertificateValiditySelector;
+import org.cacert.gigi.output.DateSelector;
 
 public class SimpleSigner {
 
@@ -225,7 +225,7 @@ public class SimpleSigner {
                     }
                     toDate = c.getTime();
                 } else {
-                    toDate = CertificateValiditySelector.getDateFormat().parse(length);
+                    toDate = DateSelector.getDateFormat().parse(length);
                 }
 
                 getSANSs.setInt(1, id);

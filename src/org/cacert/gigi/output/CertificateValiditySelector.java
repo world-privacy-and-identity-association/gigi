@@ -2,10 +2,8 @@ package org.cacert.gigi.output;
 
 import java.io.PrintWriter;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.sql.Date;
 import java.util.Map;
-import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,8 +13,6 @@ import org.cacert.gigi.util.HTMLEncoder;
 
 public class CertificateValiditySelector implements Outputable {
 
-    private static ThreadLocal<SimpleDateFormat> fmt = new ThreadLocal<>();
-
     private static final long DAY = 1000 * 60 * 60 * 24;
 
     private Date from;
@@ -25,16 +21,6 @@ public class CertificateValiditySelector implements Outputable {
 
     public CertificateValiditySelector() {
 
-    }
-
-    public static SimpleDateFormat getDateFormat() {
-        SimpleDateFormat local = fmt.get();
-        if (local == null) {
-            local = new SimpleDateFormat("yyyy-MM-dd");
-            local.setTimeZone(TimeZone.getTimeZone("UTC"));
-            fmt.set(local);
-        }
-        return local;
     }
 
     @Override
@@ -49,7 +35,7 @@ public class CertificateValiditySelector implements Outputable {
         long base = getCurrentDayBase();
         for (int i = 0; i < 14; i++) {
             long date = base + DAY * i;
-            String d = getDateFormat().format(new Date(date));
+            String d = DateSelector.getDateFormat().format(new Date(date));
             out.print("<option value='");
             out.print(d);
             out.print("'");
@@ -119,7 +105,7 @@ public class CertificateValiditySelector implements Outputable {
             }
         } else {
             try {
-                getDateFormat().parse(newval);
+                DateSelector.getDateFormat().parse(newval);
             } catch (ParseException e) {
                 throw new GigiApiException("The validity interval entered is invalid.");
             }
@@ -131,7 +117,7 @@ public class CertificateValiditySelector implements Outputable {
             this.from = null;
         } else {
             try {
-                this.from = new Date(getDateFormat().parse(from).getTime());
+                this.from = new Date(DateSelector.getDateFormat().parse(from).getTime());
             } catch (ParseException e) {
                 throw new GigiApiException("The validity start date entered is invalid.");
             }

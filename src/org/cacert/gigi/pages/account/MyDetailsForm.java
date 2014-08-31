@@ -4,12 +4,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.User;
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.output.CertificateValiditySelector;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.Template;
@@ -81,7 +81,7 @@ public class MyDetailsForm extends Form {
                 vars.put("DoB", ds);
                 templ.output(out, l, vars);
             } else {
-                vars.put("DoB", CertificateValiditySelector.getDateFormat().format(target.getDob()));
+                vars.put("DoB", DateSelector.getDateFormat().format(target.getDob()));
                 assured.output(out, l, vars);
             }
         } catch (SQLException e) {
