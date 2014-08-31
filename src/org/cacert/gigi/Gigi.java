@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -177,10 +178,19 @@ public class Gigi extends HttpServlet {
     protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
         boolean isSecure = req.getServerPort() == ServerConstants.getSecurePort();
         addXSSHeaders(resp, isSecure);
-        // if (req.getHeader("Origin") != null) {
-        // resp.getWriter().println("No cross domain access allowed.");
-        // return;
-        // }
+        resp.setContentType("text/html; charset=utf-8");
+        // Firefox only sends this, if it's a cross domain access; safari sends
+        // it always
+        String originHeader = req.getHeader("Origin");
+        if (originHeader != null //
+                &&
+                !(originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getWwwHostNamePortSecure()) + "(/.*|)") || //
+                        originHeader.matches("^" + Pattern.quote("http://" + ServerConstants.getWwwHostNamePort()) + "(/.*|)") || //
+                originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getSecureHostNamePort()) + "(/.*|)"))) {
+            resp.getWriter().println("<html><head><title>Alert</title></head><body>No cross domain access allowed.<br/><b>If you don't know why you're seeing this you may have been fished! Please change your password immediately!</b></body></html>");
+            System.out.println(originHeader);
+            return;
+        }
         HttpSession hs = req.getSession();
         if (req.getParameter("lang") != null) {
             Locale l = Language.getLocaleFromString(req.getParameter("lang"));
@@ -206,8 +216,6 @@ public class Gigi extends HttpServlet {
                 return;
             }
             HashMap<String, Object> vars = new HashMap<String, Object>();
-
-            resp.setContentType("text/html; charset=utf-8");
             Outputable content = new Outputable() {
 
                 @Override
