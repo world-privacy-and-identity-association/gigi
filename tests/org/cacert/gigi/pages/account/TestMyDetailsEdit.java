@@ -112,11 +112,11 @@ public class TestMyDetailsEdit extends ManagedTest {
         String email = createUniqueName() + "@e.de";
         int id = createVerifiedUser("Kurti", "Hansel", email, TEST_PASSWORD);
         String cookie = login(email, TEST_PASSWORD);
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=Hansel&fname=Kurti&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=Hansel&fname=Kurti&mname=&suffix=&day=1&month=2&year=2000&processDetails", 0));
         User u = User.getById(id);
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         cal.set(Calendar.YEAR, 2000);
-        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.DAY_OF_MONTH, Calendar.FEBRUARY);
         cal.set(Calendar.MONTH, 1);
         Date d = new Date(cal.getTimeInMillis());
         assertEquals(d.toString(), u.getDob().toString());

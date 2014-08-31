@@ -11,6 +11,7 @@ import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.localisation.Language;
 
 public class DateSelector implements Outputable {
@@ -88,30 +89,25 @@ public class DateSelector implements Outputable {
         out.print("\" size=\"4\" autocomplete=\"off\">");
     }
 
-    public void update(HttpServletRequest r) {
-        String dayS = r.getParameter(names[0]);
-        if (dayS != null) {
-            day = parseIntSafe(dayS);
-        }
-
-        String monthS = r.getParameter(names[1]);
-        if (monthS != null) {
-            month = parseIntSafe(monthS);
-        }
-
-        String yearS = r.getParameter(names[2]);
-        if (yearS != null) {
-            year = parseIntSafe(yearS);
-        }
-    }
-
-    private int parseIntSafe(String dayS) {
+    public void update(HttpServletRequest r) throws GigiApiException {
         try {
-            return Integer.parseInt(dayS);
-        } catch (NumberFormatException e) {
+            String dayS = r.getParameter(names[0]);
+            if (dayS != null) {
+                day = Integer.parseInt(dayS);
+            }
 
+            String monthS = r.getParameter(names[1]);
+            if (monthS != null) {
+                month = Integer.parseInt(monthS);
+            }
+
+            String yearS = r.getParameter(names[2]);
+            if (yearS != null) {
+                year = Integer.parseInt(yearS);
+            }
+        } catch (NumberFormatException e) {
+            throw new GigiApiException("Unparsable date.");
         }
-        return 0;
     }
 
     public boolean isValid() {

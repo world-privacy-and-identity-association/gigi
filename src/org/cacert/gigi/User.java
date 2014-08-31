@@ -443,7 +443,6 @@ public class User {
     public void updateUserData() throws SQLException, GigiApiException {
         synchronized (Notary.class) {
             if (getAssurancePoints() != 0) {
-                updateUserData();
                 throw new GigiApiException("No change after assurance allowed.");
             }
             PreparedStatement update = DatabaseConnection.getInstance().prepare("UPDATE users SET fname=?, lname=?, mname=?, suffix=?, dob=? WHERE id=?");

@@ -14,6 +14,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.EmailAddress;
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.email.EmailProvider;
@@ -85,7 +86,10 @@ public class Signup extends Form {
         country = "1".equals(r.getParameter("country"));
         regional = "1".equals(r.getParameter("regional"));
         radius = "1".equals(r.getParameter("radius"));
-        myDoB.update(r);
+        try {
+            myDoB.update(r);
+        } catch (GigiApiException e) {
+        }
     }
 
     @Override

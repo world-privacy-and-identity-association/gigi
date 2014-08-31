@@ -2,17 +2,14 @@ package org.cacert.gigi.pages.account;
 
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.sql.Date;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Map;
-import java.util.TimeZone;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.User;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.CertificateValiditySelector;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.Template;
@@ -21,6 +18,8 @@ import org.cacert.gigi.util.HTMLEncoder;
 
 public class MyDetailsForm extends Form {
 
+    private static Template assured = new Template(MyDetails.class.getResource("MyDetailsFormAssured.templ"));
+
     private static Template templ;
     static {
         templ = new Template(new InputStreamReader(MyDetailsForm.class.getResourceAsStream("MyDetailsForm.templ")));
@@ -28,9 +27,12 @@ public class MyDetailsForm extends Form {
 
     private User target;
 
+    private DateSelector ds;
+
     public MyDetailsForm(HttpServletRequest hsr, User target) {
         super(hsr);
         this.target = target;
+        this.ds = new DateSelector("day", "month", "year", target.getDob());
     }
 
     @Override
@@ -48,14 +50,8 @@ public class MyDetailsForm extends Form {
                 target.setLname(newLname);
                 target.setMname(newMname);
                 target.setSuffix(newSuffix);
-                int newYear = Integer.parseInt(req.getParameter("year"));
-                int newMonth = Integer.parseInt(req.getParameter("month"));
-                int newDay = Integer.parseInt(req.getParameter("day"));
-                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-                cal.set(Calendar.YEAR, newYear);
-                cal.set(Calendar.MONTH, newMonth);
-                cal.set(Calendar.DAY_OF_MONTH, newDay);
-                target.setDob(new Date(cal.getTimeInMillis()));
+                ds.update(req);
+                target.setDob(ds.getDate());
                 target.updateUserData();
             } else {
                 throw new GigiApiException("No change after assurance allowed.");
@@ -79,10 +75,18 @@ public class MyDetailsForm extends Form {
         vars.put("mname", target.getMname() == null ? "" : HTMLEncoder.encodeHTML(target.getMname()));
         vars.put("lname", HTMLEncoder.encodeHTML(target.getLname()));
         vars.put("suffix", target.getSuffix() == null ? "" : HTMLEncoder.encodeHTML(target.getSuffix()));
-        DateSelector ds = new DateSelector("day", "month", "year", target.getDob());
-        vars.put("DoB", ds);
         vars.put("details", "");
-        templ.output(out, l, vars);
+        try {
+            if (target.getAssurancePoints() == 0) {
+                vars.put("DoB", ds);
+                templ.output(out, l, vars);
+            } else {
+                vars.put("DoB", CertificateValiditySelector.getDateFormat().format(target.getDob()));
+                assured.output(out, l, vars);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 }
