@@ -10,13 +10,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
 
-import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Before;
@@ -39,7 +38,7 @@ public class TestAssurance extends ManagedTest {
         assurerM = createUniqueName() + "@cacert-test.org";
         assureeM = createUniqueName() + "@cacert-test.org";
         assurer = createAssuranceUser("a", "b", assurerM, TEST_PASSWORD);
-        assuree = createAssuranceUser("a", "c", assureeM, TEST_PASSWORD);
+        assuree = createVerifiedUser("a", "c", assureeM, TEST_PASSWORD);
         cookie = login(assurerM, TEST_PASSWORD);
 
     }
@@ -102,11 +101,24 @@ public class TestAssurance extends ManagedTest {
     }
 
     @Test
-    public void testAssureFormRace() throws IOException, SQLException {
+    public void testAssureFormRaceName() throws IOException, SQLException {
+        testAssureFormRace(true);
+    }
+
+    @Test
+    public void testAssureFormRaceDoB() throws IOException, SQLException {
+        testAssureFormRace(false);
+    }
+
+    public void testAssureFormRace(boolean name) throws IOException, SQLException {
         URLConnection uc = buildupAssureFormConnection(true);
-        PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `users` SET email='changed' WHERE id=?");
-        ps.setInt(1, assuree);
-        ps.execute();
+
+        String assureeCookie = login(assureeM, TEST_PASSWORD);
+        String newName = "lname=" + (name ? "c" : "a") + "&fname=a&mname=&suffix=";
+        String newDob = "day=1&month=1&year=" + (name ? 1910 : 1911);
+
+        assertNull(executeBasicWebInteraction(assureeCookie, MyDetails.PATH, newName + "&" + newDob + "&processDetails", 0));
+
         uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10").getBytes());
         uc.getOutputStream().flush();
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
