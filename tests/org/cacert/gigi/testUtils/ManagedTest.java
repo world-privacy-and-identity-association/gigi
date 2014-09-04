@@ -506,7 +506,7 @@ public class ManagedTest {
     }
 
     public static EmailAddress createVerifiedEmail(User u) throws InterruptedException, GigiApiException {
-        EmailAddress adrr = new EmailAddress(createUniqueName() + "test@test.tld", u);
+        EmailAddress adrr = new EmailAddress(u, createUniqueName() + "test@test.tld");
         adrr.insert(Language.getInstance(Locale.ENGLISH));
         TestMail testMail = getMailReciever().recieve();
         assertEquals(adrr.getAddress(), testMail.getTo());

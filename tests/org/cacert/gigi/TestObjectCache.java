@@ -51,7 +51,7 @@ public class TestObjectCache extends ManagedTest {
 
     @Test
     public void testEmailCache() {
-        EmailAddress em = new EmailAddress(createUniqueName() + "@example.org", User.getById(uid));
+        EmailAddress em = new EmailAddress(User.getById(uid), createUniqueName() + "@example.org");
         em.insert(Language.getInstance(Locale.ENGLISH));
 
         assertThat(em, is(sameInstance(EmailAddress.getById(em.getId()))));

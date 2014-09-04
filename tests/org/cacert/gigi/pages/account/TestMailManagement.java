@@ -37,7 +37,7 @@ public class TestMailManagement extends ManagedTest {
     @Test
     public void testMailAddInternalFaulty() {
         try {
-            new EmailAddress("kurti ", u);
+            new EmailAddress(u, "kurti ");
             fail();
         } catch (IllegalArgumentException e) {
             // Intended.
@@ -79,7 +79,7 @@ public class TestMailManagement extends ManagedTest {
 
     @Test
     public void testMailSetDefaultWebUnverified() throws MalformedURLException, UnsupportedEncodingException, IOException, InterruptedException, GigiApiException {
-        EmailAddress adrr = new EmailAddress(createUniqueName() + "test@test.tld", u);
+        EmailAddress adrr = new EmailAddress(u, createUniqueName() + "test@test.tld");
         adrr.insert(Language.getInstance(Locale.ENGLISH));
         assertNotNull(executeBasicWebInteraction(cookie, path, "makedefault&emailid=" + adrr.getId()));
         assertNotEquals(User.getById(u.getId()).getEmail(), adrr.getAddress());

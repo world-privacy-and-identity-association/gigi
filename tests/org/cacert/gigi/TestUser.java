@@ -66,8 +66,8 @@ public class TestUser extends ManagedTest {
         int id = createVerifiedUser("aä", "b", uq + "a@email.org", TEST_PASSWORD);
 
         User u = User.getById(id);
-        new EmailAddress(uq + "b@email.org", u).insert(Language.getInstance(Locale.ENGLISH));
-        new EmailAddress(uq + "c@email.org", u).insert(Language.getInstance(Locale.ENGLISH));
+        new EmailAddress(u, uq + "b@email.org").insert(Language.getInstance(Locale.ENGLISH));
+        new EmailAddress(u, uq + "c@email.org").insert(Language.getInstance(Locale.ENGLISH));
         new Domain(u, uq + "a.testdomain.org").insert();
         new Domain(u, uq + "b.testdomain.org").insert();
         new Domain(u, uq + "c.testdomain.org").insert();

@@ -37,7 +37,7 @@ public class EmailAddress implements IdCachable {
         rs.close();
     }
 
-    public EmailAddress(String address, User owner) {
+    public EmailAddress(User owner, String address) {
         if ( !EmailProvider.MAIL.matcher(address).matches()) {
             throw new IllegalArgumentException("Invalid email.");
         }

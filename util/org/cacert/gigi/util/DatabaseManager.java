@@ -36,6 +36,7 @@ public class DatabaseManager {
     public static void run(String[] args, boolean truncate) throws ClassNotFoundException, SQLException, IOException {
         Class.forName(args[0]);
         Connection conn = DriverManager.getConnection(args[1], args[2], args[3]);
+        conn.setAutoCommit(false);
         Statement stmt = conn.createStatement();
         addFile(stmt, new File("doc/tableStructure.sql"), truncate);
         File localData = new File("doc/sampleData.sql");
@@ -43,6 +44,7 @@ public class DatabaseManager {
             addFile(stmt, localData, false);
         }
         stmt.executeBatch();
+        conn.commit();
         stmt.close();
     }
 

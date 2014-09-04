@@ -183,7 +183,7 @@ public class Signup extends Form {
             buildup.setDob(myDoB.getDate());
             buildup.insert(password);
             int memid = buildup.getId();
-            EmailAddress ea = new EmailAddress(buildup.getEmail(), buildup);
+            EmailAddress ea = new EmailAddress(buildup, buildup.getEmail());
             ea.insert(Page.getLanguage(req));
 
             PreparedStatement ps = DatabaseConnection.getInstance().prepare("insert into `alerts` set `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?");
