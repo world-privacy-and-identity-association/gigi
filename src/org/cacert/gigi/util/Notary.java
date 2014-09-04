@@ -3,9 +3,13 @@ package org.cacert.gigi.util;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.Date;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.output.DateSelector;
 
 public class Notary {
 
@@ -20,9 +24,9 @@ public class Notary {
         q.execute();
     }
 
-    public static AssuranceResult checkAssuranceIsPossible(User assurer, User target) {
+    public static void checkAssuranceIsPossible(User assurer, User target) throws GigiApiException {
         if (assurer.getId() == target.getId()) {
-            return AssuranceResult.CANNOT_ASSURE_SELF;
+            throw new GigiApiException("You cannot assure yourself.");
         }
         try {
             PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `notary` where `to`=? and `from`=? AND `deleted`=0");
@@ -31,43 +35,54 @@ public class Notary {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 rs.close();
-                return AssuranceResult.ALREADY_ASSUREED;
+                throw new GigiApiException("You have already assured this member.");
             }
             rs.close();
             if ( !assurer.canAssure()) {
-                return AssuranceResult.NO_ASSURER;
+                throw new GigiApiException("You are not an assurer.");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return AssuranceResult.ASSURANCE_SUCCEDED;
-    }
-
-    public enum AssuranceResult {
-        NO_ASSURER("You are not an assurer."), ALREADY_ASSUREED("You already assured this person."), CANNOT_ASSURE_SELF("Cannot assure myself."), ASSURANCE_SUCCEDED(""), ASSUREE_CHANGED("Person details changed. Please start over again."), POINTS_OUT_OF_RANGE("Points out of range.");
-
-        private final String message;
-
-        private AssuranceResult(String message) {
-            this.message = message;
-        }
-
-        public String getMessage() {
-            return message;
+            throw new GigiApiException(e);
         }
     }
 
-    public synchronized static AssuranceResult assure(User assurer, User target, int awarded, String location, String date) throws SQLException {
-        AssuranceResult can = checkAssuranceIsPossible(assurer, target);
-        if (can != AssuranceResult.ASSURANCE_SUCCEDED) {
-            return can;
+    public synchronized static void assure(User assurer, User target, int awarded, String location, String date) throws SQLException, GigiApiException {
+        GigiApiException gae = new GigiApiException();
+
+        if (date == null || date.equals("")) {
+            gae.mergeInto(new GigiApiException("You must enter the date when you met the assuree."));
+        } else {
+            try {
+                Date d = DateSelector.getDateFormat().parse(date);
+                if (d.getTime() > System.currentTimeMillis()) {
+                    gae.mergeInto(new GigiApiException("You must not enter a date in the future."));
+                }
+            } catch (ParseException e) {
+                gae.mergeInto(new GigiApiException("You must enter the date in this format: YYYY-MM-DD."));
+            }
         }
+        // check location, min 3 characters
+        if (location == null || location.equals("")) {
+            gae.mergeInto(new GigiApiException("You failed to enter a location of your meeting."));
+        } else if (location.length() <= 2) {
+            gae.mergeInto(new GigiApiException("You must enter a location with at least 3 characters eg town and country."));
+        }
+
+        try {
+            checkAssuranceIsPossible(assurer, target);
+        } catch (GigiApiException e) {
+            gae.mergeInto(e);
+        }
+
         User u = new User(target.getId());
         if ( !u.equals(target)) {
-            return AssuranceResult.ASSUREE_CHANGED;
+            gae.mergeInto(new GigiApiException("The person you are assuring changed his personal details."));
         }
         if (awarded > assurer.getMaxAssurePoints() || awarded < 0) {
-            return AssuranceResult.POINTS_OUT_OF_RANGE;
+            gae.mergeInto(new GigiApiException("The points you are trying to award are out of range."));
+        }
+        if ( !gae.isEmpty()) {
+            throw gae;
         }
 
         PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?");
@@ -79,6 +94,5 @@ public class Notary {
         ps.execute();
         assurer.invalidateMadeAssurances();
         target.invalidateReceivedAssurances();
-        return AssuranceResult.ASSURANCE_SUCCEDED;
     }
 }

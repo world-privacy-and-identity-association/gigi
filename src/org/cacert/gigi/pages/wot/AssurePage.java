@@ -10,6 +10,7 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.DateSelector;
@@ -18,7 +19,6 @@ import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.Notary;
-import org.cacert.gigi.util.Notary.AssuranceResult;
 
 public class AssurePage extends Page {
 
@@ -56,10 +56,10 @@ public class AssurePage extends Page {
 
     private void outputForm(HttpServletRequest req, PrintWriter out, AssuranceForm form) {
         User myself = LoginPage.getUser(req);
-        AssuranceResult check = Notary.checkAssuranceIsPossible(myself, form.getAssuree());
-        if (check != AssuranceResult.ASSURANCE_SUCCEDED) {
-            out.println(translate(req, check.getMessage()));
-            return;
+        try {
+            Notary.checkAssuranceIsPossible(myself, form.getAssuree());
+        } catch (GigiApiException e) {
+            e.format(out, Page.getLanguage(req));
         }
 
         form.output(out, getLanguage(req), new HashMap<String, Object>());
