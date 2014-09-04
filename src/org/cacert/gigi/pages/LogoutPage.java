@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.Gigi;
-import org.cacert.gigi.User;
+import org.cacert.gigi.dbObjects.User;
 
 public class LogoutPage extends Page {
 

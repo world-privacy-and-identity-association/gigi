@@ -45,10 +45,10 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509KeyManager;
 
 import org.cacert.gigi.DevelLauncher;
-import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.dbObjects.EmailAddress;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.main.RegisterPage;

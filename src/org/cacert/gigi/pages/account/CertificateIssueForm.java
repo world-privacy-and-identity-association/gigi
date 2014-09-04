@@ -17,15 +17,15 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.cacert.gigi.Certificate;
-import org.cacert.gigi.Certificate.CSRType;
-import org.cacert.gigi.Certificate.SANType;
-import org.cacert.gigi.Certificate.SubjectAlternateName;
-import org.cacert.gigi.CertificateProfile;
-import org.cacert.gigi.Digest;
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.User;
 import org.cacert.gigi.crypto.SPKAC;
+import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.dbObjects.Digest;
+import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.dbObjects.Certificate.CSRType;
+import org.cacert.gigi.dbObjects.Certificate.SANType;
+import org.cacert.gigi.dbObjects.Certificate.SubjectAlternateName;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.CertificateValiditySelector;
 import org.cacert.gigi.output.Form;

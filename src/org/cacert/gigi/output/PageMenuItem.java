@@ -1,7 +1,7 @@
 package org.cacert.gigi.output;
 
 import org.cacert.gigi.Gigi;
-import org.cacert.gigi.User;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.ServerConstants;
 

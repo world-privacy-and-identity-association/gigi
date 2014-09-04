@@ -6,8 +6,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.cacert.gigi.Domain;
-import org.cacert.gigi.User;
+import org.cacert.gigi.dbObjects.Domain;
+import org.cacert.gigi.dbObjects.User;
 
 public class HTTPFetch extends DomainPinger {
 

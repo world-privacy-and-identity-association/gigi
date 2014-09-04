@@ -3,7 +3,7 @@ package org.cacert.gigi.output;
 import java.io.PrintWriter;
 import java.util.Map;
 
-import org.cacert.gigi.User;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 
 public class SimpleMenuItem implements IMenuItem {

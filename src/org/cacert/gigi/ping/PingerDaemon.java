@@ -5,9 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-import org.cacert.gigi.Domain;
-import org.cacert.gigi.User;
+
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.dbObjects.Domain;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.util.RandomToken;
 
 public class PingerDaemon extends Thread {

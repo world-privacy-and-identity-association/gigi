@@ -1,7 +1,7 @@
 package org.cacert.gigi.ping;
 
-import org.cacert.gigi.Domain;
-import org.cacert.gigi.User;
+import org.cacert.gigi.dbObjects.Domain;
+import org.cacert.gigi.dbObjects.User;
 
 public abstract class DomainPinger {
 

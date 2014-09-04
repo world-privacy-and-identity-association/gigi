@@ -6,9 +6,9 @@ import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cacert.gigi.Domain;
-import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.Domain;
+import org.cacert.gigi.dbObjects.EmailAddress;
 
 public class Verify extends Page {
 

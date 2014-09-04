@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Locale;
 
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;

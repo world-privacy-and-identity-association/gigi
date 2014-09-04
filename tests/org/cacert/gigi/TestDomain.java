@@ -2,6 +2,8 @@ package org.cacert.gigi;
 
 import static org.junit.Assert.*;
 
+import org.cacert.gigi.dbObjects.Domain;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
 

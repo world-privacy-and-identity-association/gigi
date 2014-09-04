@@ -3,7 +3,7 @@ package org.cacert.gigi.util;
 import java.util.regex.Pattern;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.User;
+import org.cacert.gigi.dbObjects.User;
 
 public class PasswordStrengthChecker {
 

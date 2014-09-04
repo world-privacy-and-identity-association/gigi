@@ -7,7 +7,7 @@ import java.sql.Date;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import org.cacert.gigi.User;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
 

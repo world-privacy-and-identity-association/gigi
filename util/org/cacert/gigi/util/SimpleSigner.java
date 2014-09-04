@@ -23,8 +23,8 @@ import java.util.Calendar;
 import java.util.Properties;
 import java.util.TimeZone;
 
-import org.cacert.gigi.Certificate.CSRType;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.output.DateSelector;
 
 public class SimpleSigner {

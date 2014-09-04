@@ -26,9 +26,9 @@ import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLParameters;
 import javax.security.cert.X509Certificate;
 
-import org.cacert.gigi.Certificate;
-import org.cacert.gigi.Domain;
-import org.cacert.gigi.User;
+import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.Domain;
+import org.cacert.gigi.dbObjects.User;
 
 public class SSLPinger extends DomainPinger {
 

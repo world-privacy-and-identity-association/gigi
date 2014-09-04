@@ -13,10 +13,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.dbObjects.EmailAddress;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;

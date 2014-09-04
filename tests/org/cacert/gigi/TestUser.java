@@ -3,6 +3,9 @@ package org.cacert.gigi;
 import java.sql.SQLException;
 import java.util.Locale;
 
+import org.cacert.gigi.dbObjects.Domain;
+import org.cacert.gigi.dbObjects.EmailAddress;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;

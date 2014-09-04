@@ -12,8 +12,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cacert.gigi.Certificate;
-import org.cacert.gigi.User;
+import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.CertificateIterable;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;

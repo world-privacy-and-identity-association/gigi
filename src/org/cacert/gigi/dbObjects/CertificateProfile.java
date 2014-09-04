@@ -1,4 +1,4 @@
-package org.cacert.gigi;
+package org.cacert.gigi.dbObjects;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

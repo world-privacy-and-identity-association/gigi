@@ -9,10 +9,12 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
-import org.cacert.gigi.Certificate.CSRType;
-import org.cacert.gigi.Certificate.CertificateStatus;
-import org.cacert.gigi.Certificate.SANType;
-import org.cacert.gigi.Certificate.SubjectAlternateName;
+import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.dbObjects.Certificate.CSRType;
+import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
+import org.cacert.gigi.dbObjects.Certificate.SANType;
+import org.cacert.gigi.dbObjects.Certificate.SubjectAlternateName;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
 

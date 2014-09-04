@@ -1,4 +1,4 @@
-package org.cacert.gigi;
+package org.cacert.gigi.dbObjects;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Locale;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.util.Notary;

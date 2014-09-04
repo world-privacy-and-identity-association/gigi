@@ -1,10 +1,11 @@
-package org.cacert.gigi;
+package org.cacert.gigi.dbObjects;
 
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.email.MailProbe;

@@ -27,10 +27,10 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.cacert.gigi.Certificate;
-import org.cacert.gigi.CertificateProfile;
-import org.cacert.gigi.Certificate.CSRType;
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.pages.account.DomainOverview;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.PingTest;

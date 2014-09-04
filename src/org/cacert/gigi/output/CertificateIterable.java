@@ -3,7 +3,7 @@ package org.cacert.gigi.output;
 import java.sql.SQLException;
 import java.util.Map;
 
-import org.cacert.gigi.Certificate;
+import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.IterableDataset;
 

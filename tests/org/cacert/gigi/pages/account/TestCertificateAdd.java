@@ -29,9 +29,9 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.cacert.gigi.Digest;
-import org.cacert.gigi.User;
 import org.cacert.gigi.crypto.SPKAC;
+import org.cacert.gigi.dbObjects.Digest;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.cacert.gigi.util.PEM;

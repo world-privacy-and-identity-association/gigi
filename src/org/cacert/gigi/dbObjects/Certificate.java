@@ -1,4 +1,4 @@
-package org.cacert.gigi;
+package org.cacert.gigi.dbObjects;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.util.Job;
 import org.cacert.gigi.util.KeyStorage;

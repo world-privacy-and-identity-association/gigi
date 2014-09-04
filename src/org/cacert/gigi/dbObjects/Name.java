@@ -1,4 +1,4 @@
-package org.cacert.gigi;
+package org.cacert.gigi.dbObjects;
 
 import java.io.PrintWriter;
 import java.util.Map;

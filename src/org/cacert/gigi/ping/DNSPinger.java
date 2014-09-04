@@ -5,8 +5,8 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.cacert.gigi.Domain;
-import org.cacert.gigi.User;
+import org.cacert.gigi.dbObjects.Domain;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.util.DNSUtil;
 
 public class DNSPinger extends DomainPinger {

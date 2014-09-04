@@ -4,8 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.dbObjects.User;
 
 public class Notary {
 

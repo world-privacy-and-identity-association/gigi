@@ -2,8 +2,8 @@ package org.cacert.gigi.ping;
 
 import java.io.IOException;
 
-import org.cacert.gigi.Domain;
-import org.cacert.gigi.User;
+import org.cacert.gigi.dbObjects.Domain;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.MailProbe;
 import org.cacert.gigi.localisation.Language;
 

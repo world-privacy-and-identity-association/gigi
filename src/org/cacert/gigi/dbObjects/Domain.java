@@ -1,9 +1,10 @@
-package org.cacert.gigi;
+package org.cacert.gigi.dbObjects;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 
 public class Domain implements IdCachable {

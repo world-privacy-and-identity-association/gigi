@@ -5,9 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.cacert.gigi.Certificate;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.output.CertificateValiditySelector;
 
 public class Job {

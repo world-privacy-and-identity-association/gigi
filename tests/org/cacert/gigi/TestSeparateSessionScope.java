@@ -11,7 +11,9 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 
-import org.cacert.gigi.Certificate.CSRType;
+import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
 

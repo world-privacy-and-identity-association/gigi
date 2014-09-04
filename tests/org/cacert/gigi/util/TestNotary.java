@@ -3,8 +3,8 @@ package org.cacert.gigi.util;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.cacert.gigi.User;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.cacert.gigi.util.Notary.AssuranceResult;
 import org.junit.Test;

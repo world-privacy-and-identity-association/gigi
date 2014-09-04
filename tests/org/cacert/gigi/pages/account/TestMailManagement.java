@@ -8,9 +8,9 @@ import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.Locale;
 
-import org.cacert.gigi.EmailAddress;
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.User;
+import org.cacert.gigi.dbObjects.EmailAddress;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
