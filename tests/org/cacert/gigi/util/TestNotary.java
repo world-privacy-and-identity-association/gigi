@@ -20,9 +20,9 @@ public class TestNotary extends ManagedTest {
         User[] users = new User[30];
         for (int i = 0; i < users.length; i++) {
             int id = createVerifiedUser("fn" + i, "ln" + i, createUniqueName() + "@email.org", TEST_PASSWORD);
-            users[i] = new User(id);
+            users[i] = User.getById(id);
         }
-        User assurer = new User(createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
+        User assurer = User.getById(createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
         int[] result = new int[] {
                 10, 10, 10, 10, 15, 15, 15, 15, 15, 20, 20, 20, 20, 20, 25, 25, 25, 25, 25, 30, 30, 30, 30, 30, 35, 35, 35, 35, 35, 35
         };
@@ -61,13 +61,13 @@ public class TestNotary extends ManagedTest {
         User[] users = new User[30];
         for (int i = 0; i < users.length; i++) {
             int id = createVerifiedUser("fn" + i, "ln" + i, createUniqueName() + "@email.org", TEST_PASSWORD);
-            users[i] = new User(id);
+            users[i] = User.getById(id);
         }
         int id = createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD);
         PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE users SET dob=NOW() WHERE id=?");
         ps.setInt(1, id);
         ps.execute();
-        User assurer = new User(id);
+        User assurer = User.getById(id);
         for (int i = 0; i < users.length; i++) {
             assuranceFail(assurer, users[i], -1, "test-notary", "2014-01-01");
             assuranceFail(assurer, users[i], 11, "test-notary", "2014-01-01");
@@ -78,8 +78,8 @@ public class TestNotary extends ManagedTest {
 
     @Test
     public void testFail() throws SQLException, GigiApiException {
-        User assuranceUser = new User(createAssuranceUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
-        User assuree = new User(createVerifiedUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
+        User assuranceUser = User.getById(createAssuranceUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
+        User assuree = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
 
         // invalid date format
         assuranceFail(assuranceUser, assuree, 10, "notary-junit-test", "2014-01-blah");

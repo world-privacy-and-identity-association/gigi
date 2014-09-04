@@ -28,7 +28,7 @@ public class TestUser extends ManagedTest {
         u.setEmail(createUniqueName() + "a@email.org");
         u.insert("password");
         int id = u.getId();
-        User u2 = new User(id);
+        User u2 = User.getById(id);
         assertEquals(u, u2);
     }
 
@@ -36,7 +36,7 @@ public class TestUser extends ManagedTest {
     public void testWebStoreAndLoad() throws SQLException {
         int id = createVerifiedUser("aä", "b", createUniqueName() + "a@email.org", TEST_PASSWORD);
 
-        User u = new User(id);
+        User u = User.getById(id);
         assertEquals("aä", u.getFname());
         assertEquals("b", u.getLname());
         assertEquals("", u.getMname());
@@ -46,7 +46,7 @@ public class TestUser extends ManagedTest {
     public void testAssurerUtilMethods() throws SQLException {
         int id = createAssuranceUser("aä", "b", createUniqueName() + "a@email.org", TEST_PASSWORD);
 
-        User u = new User(id);
+        User u = User.getById(id);
         assertTrue(u.canAssure());
         int assurancePoints = u.getAssurancePoints();
         int expPoints = u.getExperiencePoints();
@@ -65,7 +65,7 @@ public class TestUser extends ManagedTest {
         String uq = createUniqueName();
         int id = createVerifiedUser("aä", "b", uq + "a@email.org", TEST_PASSWORD);
 
-        User u = new User(id);
+        User u = User.getById(id);
         new EmailAddress(uq + "b@email.org", u).insert(Language.getInstance(Locale.ENGLISH));
         new EmailAddress(uq + "c@email.org", u).insert(Language.getInstance(Locale.ENGLISH));
         new Domain(u, uq + "a.testdomain.org").insert();

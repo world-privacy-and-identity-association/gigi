@@ -31,9 +31,9 @@ public class AssuranceForm extends Form {
         templ = new Template(AssuranceForm.class.getResource("AssuranceForm.templ"));
     }
 
-    public AssuranceForm(HttpServletRequest hsr, int assuree) {
+    public AssuranceForm(HttpServletRequest hsr, User assuree) {
         super(hsr);
-        this.assuree = new User(assuree);
+        this.assuree = assuree;
         assureeName = this.assuree.getName();
         dob = this.assuree.getDob();
     }

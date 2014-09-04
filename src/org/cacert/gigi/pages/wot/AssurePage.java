@@ -98,7 +98,7 @@ public class AssurePage extends Page {
                     } else if (getUser(req).getId() == id) {
 
                     } else {
-                        AssuranceForm form = new AssuranceForm(req, id);
+                        AssuranceForm form = new AssuranceForm(req, User.getById(id));
                         outputForm(req, out, form);
                     }
                 }

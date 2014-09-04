@@ -28,7 +28,7 @@ public class User implements IdCachable {
 
     private Locale locale;
 
-    public User(int id) {
+    private User(int id) {
         this.id = id;
         updateName(id);
     }

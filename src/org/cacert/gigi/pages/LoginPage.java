@@ -72,7 +72,7 @@ public class LoginPage extends Page {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 if (PasswordHash.verifyHash(pw, rs.getString(1))) {
-                    loginSession(req, new User(rs.getInt(2)));
+                    loginSession(req, User.getById(rs.getInt(2)));
                 }
             }
             rs.close();
@@ -92,7 +92,7 @@ public class LoginPage extends Page {
             ps.setString(1, serial);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                loginSession(req, new User(rs.getInt(1)));
+                loginSession(req, User.getById(rs.getInt(1)));
             }
             rs.close();
         } catch (SQLException e) {

@@ -15,7 +15,7 @@ public class Domain implements IdCachable {
 
     private int id;
 
-    public Domain(int id) throws SQLException {
+    private Domain(int id) throws SQLException {
         PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid, domain FROM `domains` WHERE id=? AND deleted IS NULL");
         ps.setInt(1, id);
 
