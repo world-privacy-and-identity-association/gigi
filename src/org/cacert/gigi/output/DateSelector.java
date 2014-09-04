@@ -134,6 +134,7 @@ public class DateSelector implements Outputable {
         SimpleDateFormat local = fmt.get();
         if (local == null) {
             local = new SimpleDateFormat("yyyy-MM-dd");
+            local.setLenient(false);
             local.setTimeZone(TimeZone.getTimeZone("UTC"));
             fmt.set(local);
         }
