@@ -3,12 +3,14 @@ package org.cacert.gigi.pages.wot;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Form;
@@ -20,6 +22,10 @@ public class AssuranceForm extends Form {
 
     private User assuree;
 
+    private Name assureeName;
+
+    private Date dob;
+
     private static final Template templ;
     static {
         templ = new Template(AssuranceForm.class.getResource("AssuranceForm.templ"));
@@ -28,6 +34,8 @@ public class AssuranceForm extends Form {
     public AssuranceForm(HttpServletRequest hsr, int assuree) {
         super(hsr);
         this.assuree = new User(assuree);
+        assureeName = this.assuree.getName();
+        dob = this.assuree.getDob();
     }
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -72,7 +80,7 @@ public class AssuranceForm extends Form {
             return false;
         }
         try {
-            Notary.assure(Page.getUser(req), assuree, pointsI, req.getParameter("location"), req.getParameter("date"));
+            Notary.assure(Page.getUser(req), assuree, assureeName, dob, pointsI, req.getParameter("location"), req.getParameter("date"));
             return true;
         } catch (SQLException e) {
             e.printStackTrace();

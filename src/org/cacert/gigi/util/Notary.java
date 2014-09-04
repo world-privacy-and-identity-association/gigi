@@ -8,6 +8,7 @@ import java.util.Date;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.DateSelector;
 
@@ -46,7 +47,31 @@ public class Notary {
         }
     }
 
-    public synchronized static void assure(User assurer, User target, int awarded, String location, String date) throws SQLException, GigiApiException {
+    /**
+     * This method assures another user.
+     * 
+     * @see User#canAssure() (for assurer)
+     * @see #checkAssuranceIsPossible(User, User) (for assurer or assuree)
+     * @param assurer
+     *            the person that wants to assure
+     * @param assuree
+     *            the person that should be assured
+     * @param assureeName
+     *            the Name that was personally verified
+     * @param dob
+     *            the Date of birth that the assurer verified
+     * @param awarded
+     *            the points that should be awarded in total
+     * @param location
+     *            the location where the assurance took place
+     * @param date
+     *            the date when the assurance took place
+     * @throws SQLException
+     *             if SQL goes wrong
+     * @throws GigiApiException
+     *             if the assurance fails (for various reasons)
+     */
+    public synchronized static void assure(User assurer, User assuree, Name assureeName, Date dob, int awarded, String location, String date) throws SQLException, GigiApiException {
         GigiApiException gae = new GigiApiException();
 
         if (date == null || date.equals("")) {
@@ -69,13 +94,12 @@ public class Notary {
         }
 
         try {
-            checkAssuranceIsPossible(assurer, target);
+            checkAssuranceIsPossible(assurer, assuree);
         } catch (GigiApiException e) {
             gae.mergeInto(e);
         }
 
-        User u = new User(target.getId());
-        if ( !u.equals(target)) {
+        if ( !assuree.getName().equals(assureeName) || !assuree.getDob().equals(dob)) {
             gae.mergeInto(new GigiApiException("The person you are assuring changed his personal details."));
         }
         if (awarded > assurer.getMaxAssurePoints() || awarded < 0) {
@@ -87,12 +111,12 @@ public class Notary {
 
         PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?");
         ps.setInt(1, assurer.getId());
-        ps.setInt(2, target.getId());
+        ps.setInt(2, assuree.getId());
         ps.setInt(3, awarded);
         ps.setString(4, location);
         ps.setString(5, date);
         ps.execute();
         assurer.invalidateMadeAssurances();
-        target.invalidateReceivedAssurances();
+        assuree.invalidateReceivedAssurances();
     }
 }
