@@ -2,10 +2,17 @@ package org.cacert.gigi.dbObjects;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class ObjectCache<T extends IdCachable> {
 
     HashMap<Integer, WeakReference<T>> hashmap = new HashMap<>();
+
+    private static HashSet<ObjectCache<?>> caches = new HashSet<>();
+
+    protected ObjectCache() {
+        caches.add(this);
+    }
 
     public void put(T c) {
         hashmap.put(c.getId(), new WeakReference<T>(c));
@@ -17,5 +24,11 @@ public class ObjectCache<T extends IdCachable> {
             return res.get();
         }
         return null;
+    }
+
+    public static void clearAllCashes() {
+        for (ObjectCache<?> objectCache : caches) {
+            objectCache.hashmap.clear();
+        }
     }
 }

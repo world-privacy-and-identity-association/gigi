@@ -10,6 +10,7 @@ import java.util.Locale;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.EmailAddress;
+import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.testUtils.ManagedTest;
@@ -70,6 +71,7 @@ public class TestMailManagement extends ManagedTest {
 
     @Test
     public void testMailSetDefaultWeb() throws MalformedURLException, UnsupportedEncodingException, IOException, InterruptedException, GigiApiException {
+        ObjectCache.clearAllCashes();
         EmailAddress adrr = createVerifiedEmail(u);
         assertNull(executeBasicWebInteraction(cookie, path, "makedefault&emailid=" + adrr.getId()));
         assertEquals(User.getById(u.getId()).getEmail(), adrr.getAddress());
