@@ -3,9 +3,10 @@ package org.cacert.gigi;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import org.cacert.gigi.database.DatabaseConnection;
 
-public class Domain {
+public class Domain implements IdCachable {
 
     private User owner;
 
@@ -62,6 +63,7 @@ public class Domain {
                 ps.setString(2, suffix);
                 ps.execute();
                 id = DatabaseConnection.lastInsertId(ps);
+                myCache.put(this);
             } catch (SQLException e) {
                 throw new GigiApiException(e);
             }
@@ -91,16 +93,6 @@ public class Domain {
 
     public String getSuffix() {
         return suffix;
-    }
-
-    public static Domain getById(int id) throws IllegalArgumentException {
-        // TODO cache
-        try {
-            Domain e = new Domain(id);
-            return e;
-        } catch (SQLException e) {
-            throw new IllegalArgumentException(e);
-        }
     }
 
     public void addPing(String type, String config) throws GigiApiException {
@@ -157,4 +149,21 @@ public class Domain {
         }
 
     }
+
+    private static ObjectCache<Domain> myCache = new ObjectCache<>();
+
+    public static Domain getById(int id) throws IllegalArgumentException {
+        Domain em = myCache.get(id);
+        if (em == null) {
+            try {
+                synchronized (Domain.class) {
+                    myCache.put(em = new Domain(id));
+                }
+            } catch (SQLException e1) {
+                throw new IllegalArgumentException(e1);
+            }
+        }
+        return em;
+    }
+
 }

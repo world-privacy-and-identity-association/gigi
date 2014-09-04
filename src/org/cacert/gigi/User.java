@@ -13,7 +13,7 @@ import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PasswordHash;
 import org.cacert.gigi.util.PasswordStrengthChecker;
 
-public class User {
+public class User implements IdCachable {
 
     private int id;
 
@@ -129,8 +129,11 @@ public class User {
         query.setString(6, name.suffix);
         query.setDate(7, new java.sql.Date(dob.getTime()));
         query.setString(8, locale.toString());
-        query.execute();
-        id = DatabaseConnection.lastInsertId(query);
+        synchronized (User.class) {
+            query.execute();
+            id = DatabaseConnection.lastInsertId(query);
+            myCache.put(this);
+        }
     }
 
     public void changePassword(String oldPass, String newPass) throws GigiApiException {
@@ -251,10 +254,6 @@ public class User {
             points += 5;
         }
         return points;
-    }
-
-    public static User getById(int id) {
-        return new User(id);
     }
 
     public EmailAddress[] getEmails() {
@@ -495,4 +494,15 @@ public class User {
         update.executeUpdate();
     }
 
+    private static ObjectCache<User> myCache = new ObjectCache<>();
+
+    public static User getById(int id) {
+        User u = myCache.get(id);
+        if (u == null) {
+            synchronized (User.class) {
+                myCache.put(u = new User(id));
+            }
+        }
+        return u;
+    }
 }

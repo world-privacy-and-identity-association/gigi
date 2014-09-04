@@ -11,7 +11,7 @@ import org.cacert.gigi.email.MailProbe;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.util.RandomToken;
 
-public class EmailAddress {
+public class EmailAddress implements IdCachable {
 
     private String address;
 
@@ -54,8 +54,11 @@ public class EmailAddress {
             ps.setInt(1, owner.getId());
             ps.setString(2, hash);
             ps.setString(3, address);
-            ps.execute();
-            id = DatabaseConnection.lastInsertId(ps);
+            synchronized (EmailAddress.class) {
+                ps.execute();
+                id = DatabaseConnection.lastInsertId(ps);
+                myCache.put(this);
+            }
             MailProbe.sendMailProbe(l, "email", id, hash, address);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -96,17 +99,23 @@ public class EmailAddress {
         }
     }
 
-    public static EmailAddress getById(int id) throws IllegalArgumentException {
-        // TODO cache
-        try {
-            EmailAddress e = new EmailAddress(id);
-            return e;
-        } catch (SQLException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-
     public boolean isVerified() {
         return hash.isEmpty();
+    }
+
+    private static ObjectCache<EmailAddress> myCache = new ObjectCache<>();
+
+    public static EmailAddress getById(int id) throws IllegalArgumentException {
+        EmailAddress em = myCache.get(id);
+        if (em == null) {
+            try {
+                synchronized (EmailAddress.class) {
+                    myCache.put(em = new EmailAddress(id));
+                }
+            } catch (SQLException e1) {
+                throw new IllegalArgumentException(e1);
+            }
+        }
+        return em;
     }
 }
