@@ -64,7 +64,7 @@ public class TestNotary extends ManagedTest {
             users[i] = User.getById(id);
         }
         int id = createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD);
-        PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE users SET dob=NOW() WHERE id=?");
+        PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE users SET dob=TIMESTAMPADD(YEAR,-14,NOW()) WHERE id=?");
         ps.setInt(1, id);
         ps.execute();
         User assurer = User.getById(id);
