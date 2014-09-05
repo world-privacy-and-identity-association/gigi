@@ -162,6 +162,9 @@ public class User implements IdCachable {
     }
 
     public boolean canAssure() throws SQLException {
+        if ( !isOfAge(14)) { // PoJAM
+            return false;
+        }
         if (getAssurancePoints() < 100) {
             return false;
         }
@@ -227,17 +230,12 @@ public class User implements IdCachable {
      * @throws SQLException
      */
     public int getMaxAssurePoints() throws SQLException {
+        if ( !isOfAge(18)) {
+            return 10; // PoJAM
+        }
+
         int exp = getExperiencePoints();
         int points = 10;
-        Calendar c = Calendar.getInstance();
-        c.setTime(dob);
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        c.set(year + 18, month, day);
-        if (System.currentTimeMillis() < c.getTime().getTime()) {
-            return points; // not 18 Years old.
-        }
 
         if (exp >= 10) {
             points += 5;
@@ -255,6 +253,17 @@ public class User implements IdCachable {
             points += 5;
         }
         return points;
+    }
+
+    public boolean isOfAge(int desiredAge) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(dob);
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
+        c.set(year, month, day);
+        c.add(Calendar.YEAR, desiredAge);
+        return System.currentTimeMillis() >= c.getTime().getTime();
     }
 
     public EmailAddress[] getEmails() {
