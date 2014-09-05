@@ -1,26 +1,47 @@
-
+<form method="post">
 <table class="wrapper dataTable">
   <thead>
   <tr>
-    <th colspan="2" class="title"><?=_New Certificate?></th>
+    <th colspan="2" class="title"><?=_New Certificate from CSR?></th>
   </tr>
   </thead>
   <tbody>
   <tr>
     <td><?=_I have a CSR! Paste it here:?></td>
-    <td><?=_I do not have a CSR.?></td>
-  </tr>
-
-  <tr>
     <td>
-     <form method="post"> <textarea name="CSR"></textarea><br/>
-     <input type="submit" name="process" value="<?=_Next?>" />
-     <input type='hidden' name='<?=$csrf_name?>' value='<?=$csrf?>'></form>
+      <textarea name="CSR"></textarea>
     </td>
-    <td align="left">
-     <form method="post"> <keygen name="SPKAC" challenge="<?=$spkacChallenge?>"/><br/>
-     <input type="submit" name="process" value="<?=_Next?>" />
-     <input type='hidden' name='<?=$csrf_name?>' value='<?=$csrf?>'></form>
+  </tr>
+  <tr>
+    <td colspan="2">
+      <input type="submit" name="process" value="<?=_Next?>" />
+      <input type='hidden' name='<?=$csrf_name?>' value='<?=$csrf?>'>
+    </td>
   </tr>
   </tbody>
 </table>
+</form>
+<br>
+<form method="post">
+<table class="wrapper dataTable">
+  <thead>
+  <tr>
+    <th colspan="2" class="title"><?=_New Certificate from newly generatey Key (SPKAC)?></th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td><?=_I do not have a CSR.?></td>
+    <td align="left">
+     <keygen name="SPKAC" challenge="<?=$spkacChallenge?>"/>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2">
+     <input type="submit" name="process" value="<?=_Next?>" />
+     <input type='hidden' name='<?=$csrf_name?>' value='<?=$csrf?>'>
+    </td>
+  </tr>
+  </tbody>
+</table>
+</form>
