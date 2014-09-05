@@ -58,4 +58,16 @@ public class GigiApiException extends Exception {
         return e == null && messages.size() == 0;
     }
 
+    @Override
+    public String getMessage() {
+        if (messages.size() != 0) {
+            StringBuffer res = new StringBuffer();
+            for (String string : messages) {
+                res.append(string + "\n");
+            }
+            return res.toString();
+        }
+        return "";
+    }
+
 }
