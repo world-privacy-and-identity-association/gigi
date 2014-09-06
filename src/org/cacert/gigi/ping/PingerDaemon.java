@@ -5,9 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.dbObjects.Domain;
+import org.cacert.gigi.dbObjects.DomainPingConfiguration;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.util.RandomToken;
 
@@ -28,7 +28,7 @@ public class PingerDaemon extends Thread {
     @Override
     public void run() {
         try {
-            searchNeededPings = DatabaseConnection.getInstance().prepare("SELECT pingconfig.*, domains.domain, domains.memid FROM pingconfig LEFT JOIN domainPinglog ON domainPinglog.configId=pingconfig.id INNER JOIN domains ON domains.id=pingconfig.domainid WHERE domainPinglog.configId IS NULL ");
+            searchNeededPings = DatabaseConnection.getInstance().prepare("SELECT pingconfig.*, domains.domain, domains.memid FROM pingconfig LEFT JOIN domainPinglog ON domainPinglog.configId=pingconfig.id INNER JOIN domains ON domains.id=pingconfig.domainid WHERE domainPinglog.configId IS NULL AND domains.deleted IS NULL ");
             enterPingResult = DatabaseConnection.getInstance().prepare("INSERT INTO domainPinglog SET configId=?, state=?, result=?, challenge=?");
             pingers.put("email", new EmailPinger());
             pingers.put("ssl", new SSLPinger(truststore));
@@ -72,4 +72,6 @@ public class PingerDaemon extends Thread {
             }
         }
     }
+
+    public void requestReping(DomainPingConfiguration dpc) {}
 }

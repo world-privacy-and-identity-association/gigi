@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Domain;
+import org.cacert.gigi.dbObjects.Domain.DomainPingExecution;
+import org.cacert.gigi.dbObjects.DomainPingConfiguration;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Form;
@@ -39,9 +41,10 @@ public class DomainOverview extends Page {
                 return;
             }
             try {
-                final String[][] pings = d.getPings();
+                final DomainPingExecution[] pings = d.getPings();
                 HashMap<String, Object> vars = new HashMap<>();
                 vars.put("domainname", d.getSuffix());
+                vars.put("pingconfig", new PingconfigForm(req, d));
                 vars.put("pings", new IterableDataset() {
 
                     int counter = 0;
@@ -51,14 +54,18 @@ public class DomainOverview extends Page {
                         if (counter >= pings.length) {
                             return false;
                         }
-                        vars.put("state", pings[counter][0]);
-                        vars.put("type", pings[counter][1]);
-                        vars.put("config", pings[counter][2]);
-                        String ping3 = pings[counter][3];
+                        vars.put("state", pings[counter].getState());
+                        vars.put("type", pings[counter].getType());
+                        vars.put("config", pings[counter].getInfo());
+                        String ping3 = pings[counter].getResult();
                         if (ping3 == null) {
                             vars.put("result", "");
                         } else {
                             vars.put("result", ping3);
+                        }
+                        DomainPingConfiguration dpc = pings[counter].getConfig();
+                        if (dpc != null) {
+                            vars.put("configId", Integer.toString(dpc.getId()));
                         }
                         counter++;
                         return true;
@@ -71,13 +78,17 @@ public class DomainOverview extends Page {
             }
 
         }
-        DomainManagementForm domMan = new DomainManagementForm(req, u);
-        DomainAddForm domAdd = new DomainAddForm(req, u);
-        HashMap<String, Object> vars = new HashMap<>();
-        vars.put("doms", u.getDomains());
-        vars.put("domainman", domMan);
-        vars.put("domainadd", domAdd);
-        getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
+        try {
+            DomainManagementForm domMan = new DomainManagementForm(req, u);
+            DomainAddForm domAdd = new DomainAddForm(req, u);
+            HashMap<String, Object> vars = new HashMap<>();
+            vars.put("doms", u.getDomains());
+            vars.put("domainman", domMan);
+            vars.put("domainadd", domAdd);
+            getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
+        } catch (GigiApiException e) {
+            e.format(resp.getWriter(), getLanguage(req));
+        }
     }
 
     @Override

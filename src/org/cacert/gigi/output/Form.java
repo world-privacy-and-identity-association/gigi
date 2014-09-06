@@ -8,6 +8,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.RandomToken;
@@ -25,7 +26,7 @@ public abstract class Form implements Outputable {
 
     }
 
-    public abstract boolean submit(PrintWriter out, HttpServletRequest req);
+    public abstract boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException;
 
     protected String getCsrfFieldName() {
         return CSRF_FIELD;

@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.dbObjects.DomainPingConfiguration;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Form.CSRFException;
@@ -331,6 +332,10 @@ public class Gigi extends HttpServlet {
 
     public static void notifyPinger() {
         instance.pinger.interrupt();
+    }
+
+    public static void requestReping(DomainPingConfiguration dpc) {
+        instance.pinger.requestReping(dpc);
     }
 
 }

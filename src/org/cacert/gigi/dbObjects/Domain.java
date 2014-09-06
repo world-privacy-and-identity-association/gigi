@@ -3,11 +3,57 @@ package org.cacert.gigi.dbObjects;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.dbObjects.DomainPingConfiguration.PingType;
 
 public class Domain implements IdCachable {
+
+    public class DomainPingExecution {
+
+        String state;
+
+        String type;
+
+        String info;
+
+        String result;
+
+        DomainPingConfiguration config;
+
+        public DomainPingExecution(ResultSet rs) throws SQLException {
+            state = rs.getString(1);
+            type = rs.getString(2);
+            info = rs.getString(3);
+            result = rs.getString(4);
+            config = DomainPingConfiguration.getById(rs.getInt(5));
+        }
+
+        public String getState() {
+            return state;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public String getInfo() {
+            return info;
+        }
+
+        public String getResult() {
+            return result;
+        }
+
+        public DomainPingConfiguration getConfig() {
+            return config;
+        }
+
+    }
 
     private User owner;
 
@@ -21,7 +67,7 @@ public class Domain implements IdCachable {
 
         ResultSet rs = ps.executeQuery();
         if ( !rs.next()) {
-            throw new IllegalArgumentException("Invalid email id " + id);
+            throw new IllegalArgumentException("Invalid domain id " + id);
         }
         this.id = id;
         owner = User.getById(rs.getInt(1));
@@ -96,13 +142,37 @@ public class Domain implements IdCachable {
         return suffix;
     }
 
-    public void addPing(String type, String config) throws GigiApiException {
+    private LinkedList<DomainPingConfiguration> configs = null;
+
+    public List<DomainPingConfiguration> getConfiguredPings() throws GigiApiException {
+        LinkedList<DomainPingConfiguration> configs = this.configs;
+        if (configs == null) {
+            try {
+                configs = new LinkedList<>();
+                PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM pingconfig WHERE domainid=?");
+                ps.setInt(1, id);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    configs.add(DomainPingConfiguration.getById(rs.getInt(1)));
+                }
+                rs.close();
+                this.configs = configs;
+            } catch (SQLException e) {
+                throw new GigiApiException(e);
+            }
+
+        }
+        return Collections.unmodifiableList(configs);
+    }
+
+    public void addPing(PingType ssl, String config) throws GigiApiException {
         try {
             PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO pingconfig SET domainid=?, type=?, info=?");
             ps.setInt(1, id);
-            ps.setString(2, type);
+            ps.setString(2, ssl.toString().toLowerCase());
             ps.setString(3, config);
             ps.execute();
+            configs = null;
         } catch (SQLException e) {
             throw new GigiApiException(e);
         }
@@ -131,18 +201,16 @@ public class Domain implements IdCachable {
         return false;
     }
 
-    public String[][] getPings() throws GigiApiException {
+    public DomainPingExecution[] getPings() throws GigiApiException {
         try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT state, type, info, result FROM domainPinglog INNER JOIN pingconfig ON pingconfig.id=domainPinglog.configid WHERE pingconfig.domainid=? ORDER BY `when` DESC;");
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT state, type, info, result, configId FROM domainPinglog INNER JOIN pingconfig ON pingconfig.id=domainPinglog.configid WHERE pingconfig.domainid=? ORDER BY `when` DESC;");
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             rs.last();
-            String[][] contents = new String[rs.getRow()][];
+            DomainPingExecution[] contents = new DomainPingExecution[rs.getRow()];
             rs.beforeFirst();
             for (int i = 0; i < contents.length && rs.next(); i++) {
-                contents[i] = new String[] {
-                        rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4)
-                };
+                contents[i] = new DomainPingExecution(rs);
             }
             return contents;
         } catch (SQLException e) {

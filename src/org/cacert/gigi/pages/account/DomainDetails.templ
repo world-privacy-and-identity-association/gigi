@@ -3,13 +3,17 @@
 <tr><th><?=_Type?></th>
 <th><?=_State?></th>
 <th><?=_Config?></th>
-<th><?=_Result?></th></tr>
+<th><?=_Result?></th>
+<th><?=_Reping?></th></tr>
 <? foreach($pings) { ?>
 <tr>
 <td><?=$type?></td>
 <td><?=$state?></td>
 <td><?=$config?></td>
 <td><?=$result?></td>
+<td><?=$configId?></td>
 </tr>
 <?}?>
 </table>
+<br/>
+<?=$pingconfig?>
