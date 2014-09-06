@@ -26,7 +26,7 @@ public class ObjectCache<T extends IdCachable> {
         return null;
     }
 
-    public static void clearAllCashes() {
+    public static void clearAllCaches() {
         for (ObjectCache<?> objectCache : caches) {
             objectCache.hashmap.clear();
         }

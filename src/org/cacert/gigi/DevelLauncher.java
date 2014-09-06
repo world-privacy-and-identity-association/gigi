@@ -10,10 +10,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Properties;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.cacert.gigi.dbObjects.ObjectCache;
+import org.cacert.gigi.pages.Page;
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarHeader;
 import org.kamranzafar.jtar.TarOutputStream;
@@ -42,12 +49,41 @@ public class DevelLauncher {
         InputStream oldin = System.in;
         System.setIn(new ByteArrayInputStream(chunkConfig.toByteArray()));
         Launcher.main(args);
+        addDevelPage();
         System.setIn(oldin);
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Cacert-gigi system sucessfully started.");
         System.out.println("Press enter to shutdown.");
         br.readLine();
         System.exit(0);
+    }
+
+    private static void addDevelPage() {
+        try {
+            Field instF = Gigi.class.getDeclaredField("instance");
+            Field pageF = Gigi.class.getDeclaredField("pages");
+            instF.setAccessible(true);
+            pageF.setAccessible(true);
+            Object gigi = instF.get(null);
+            HashMap<String, Page> pages = (HashMap<String, Page>) pageF.get(gigi);
+            pages.put("/manage", new Page("Page-manger") {
+
+                @Override
+                public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+                    ObjectCache.clearAllCaches();
+                    resp.getWriter().println("All caches cleared.");
+                    System.out.println("Caches cleared.");
+
+                }
+
+                @Override
+                public boolean needsLogin() {
+                    return false;
+                }
+            });
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void writeGigiConfig(OutputStream target, byte[] keystorepw, byte[] truststorepw, Properties mainprop, byte[] cacerts, byte[] keystore) throws IOException {

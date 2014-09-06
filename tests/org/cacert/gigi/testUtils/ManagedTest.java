@@ -48,6 +48,7 @@ import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.dbObjects.EmailAddress;
+import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.pages.account.MyDetails;
@@ -171,6 +172,12 @@ public class ManagedTest {
             e.printStackTrace();
         }
         System.out.println(" in " + (System.currentTimeMillis() - ms) + " ms");
+        String type = testProps.getProperty("type");
+        ObjectCache.clearAllCaches();
+        if (type.equals("local")) {
+            URL u = new URL("https://" + getServerName() + "/manage");
+            u.openConnection().getHeaderField("Location");
+        }
     }
 
     private static Properties generateMainProps() {

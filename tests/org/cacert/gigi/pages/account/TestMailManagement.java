@@ -71,9 +71,9 @@ public class TestMailManagement extends ManagedTest {
 
     @Test
     public void testMailSetDefaultWeb() throws MalformedURLException, UnsupportedEncodingException, IOException, InterruptedException, GigiApiException {
-        ObjectCache.clearAllCashes();
         EmailAddress adrr = createVerifiedEmail(u);
         assertNull(executeBasicWebInteraction(cookie, path, "makedefault&emailid=" + adrr.getId()));
+        ObjectCache.clearAllCaches();
         assertEquals(User.getById(u.getId()).getEmail(), adrr.getAddress());
     }
 
