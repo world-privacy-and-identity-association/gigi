@@ -5,11 +5,11 @@
 	<property name="debuglevel" value="source,lines,vars" />
 	<property name="target" value="1.8" />
 	<property name="source" value="1.8" />
-	<property name="mysqlconnector" value="mysql-connector-java-5.1.31-bin.jar" />
-	<property name="juintexec" value="." />
+	<property name="mysqlconnector" value="/usr/share/java/mysql-connector-java.jar" />
+	<property name="juintexec" value="/usr/share/java" />
 	<path id="JUnit 4.libraryclasspath">
-		<pathelement location="${juintexec}/junit.jar" />
-		<pathelement location="${juintexec}/org.hamcrest.core.jar" />
+		<pathelement location="${juintexec}/junit4.jar" />
+		<pathelement location="${juintexec}/hamcrest-core.jar" />
 	</path>
 	<path id="cacert-gigi.classpath">
 		<pathelement location="bin" />
@@ -59,7 +59,10 @@
 	<target name="clean">
 		<delete dir="bin" />
 	</target>
-	<target depends="clean" name="cleanall" />
+	<target name="clean-test">
+		<delete dir="bintest" />
+	</target>
+	<target depends="clean,clean-test" name="cleanall" />
 	<target depends="build-project, native" name="build" />
 	<target depends="init" name="build-project">
 		<echo message="${ant.project.name}: ${ant.file}" />
