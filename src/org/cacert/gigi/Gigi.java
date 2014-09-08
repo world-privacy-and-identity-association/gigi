@@ -89,9 +89,9 @@ public class Gigi extends HttpServlet {
     public void init() throws ServletException {
         if ( !firstInstanceInited) {
             putPage("/error", new PageNotFound(), null);
-            putPage("/login", new LoginPage("CAcert - Login"), "Join CAcert.org");
+            putPage("/login", new LoginPage("CAcert - Login"), "CAcert.org");
             putPage("/", new MainPage("CAcert - Home"), null);
-            putPage("/roots", new RootCertPage(truststore), "Join CAcert.org");
+            putPage("/roots", new RootCertPage(truststore), "CAcert.org");
             putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
             putPage(LogoutPage.PATH, new LogoutPage("Logout"), "My Account");
             putPage("/secure", new TestSecure(), null);
@@ -99,7 +99,7 @@ public class Gigi extends HttpServlet {
             putPage(AssurePage.PATH + "/*", new AssurePage(), "CAcert Web of Trust");
             putPage(Certificates.PATH + "/*", new Certificates(), "Certificates");
             putPage(MyDetails.PATH, new MyDetails(), "My Account");
-            putPage(RegisterPage.PATH, new RegisterPage(), "Join CAcert.org");
+            putPage(RegisterPage.PATH, new RegisterPage(), "CAcert.org");
             putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
             putPage(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"), "Certificates");
             putPage(DomainOverview.PATH + "*", new DomainOverview("Domains"), "Certificates");
