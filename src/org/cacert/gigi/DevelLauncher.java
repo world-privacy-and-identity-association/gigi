@@ -66,7 +66,7 @@ public class DevelLauncher {
             pageF.setAccessible(true);
             Object gigi = instF.get(null);
             HashMap<String, Page> pages = (HashMap<String, Page>) pageF.get(gigi);
-            pages.put("/manage", new Page("Page-manger") {
+            pages.put("/manage", new Page("Page-manager") {
 
                 @Override
                 public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
