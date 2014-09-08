@@ -178,7 +178,6 @@ public class Gigi extends HttpServlet {
     protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
         boolean isSecure = req.getServerPort() == ServerConstants.getSecurePort();
         addXSSHeaders(resp, isSecure);
-        resp.setContentType("text/html; charset=utf-8");
         // Firefox only sends this, if it's a cross domain access; safari sends
         // it always
         String originHeader = req.getHeader("Origin");
@@ -187,8 +186,8 @@ public class Gigi extends HttpServlet {
                 !(originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getWwwHostNamePortSecure()) + "(/.*|)") || //
                         originHeader.matches("^" + Pattern.quote("http://" + ServerConstants.getWwwHostNamePort()) + "(/.*|)") || //
                 originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getSecureHostNamePort()) + "(/.*|)"))) {
+            resp.setContentType("text/html; charset=utf-8");
             resp.getWriter().println("<html><head><title>Alert</title></head><body>No cross domain access allowed.<br/><b>If you don't know why you're seeing this you may have been fished! Please change your password immediately!</b></body></html>");
-            System.out.println(originHeader);
             return;
         }
         HttpSession hs = req.getSession();
@@ -247,6 +246,7 @@ public class Gigi extends HttpServlet {
             vars.put("static", getStaticTemplateVar(isSecure));
             vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
             vars.put("content", content);
+            resp.setContentType("text/html; charset=utf-8");
             baseTemplate.output(resp.getWriter(), Page.getLanguage(req), vars);
         } else {
             resp.sendError(404, "Page not found.");
