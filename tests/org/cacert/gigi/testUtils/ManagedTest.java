@@ -68,6 +68,9 @@ import sun.security.x509.X500Name;
 
 public class ManagedTest {
 
+    static {
+        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+    }
     /**
      * Some password that fullfills the password criteria.
      */
