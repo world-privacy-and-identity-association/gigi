@@ -1,4 +1,4 @@
-package org.cacert.gigi.pages.account;
+package org.cacert.gigi.pages.account.mail;
 
 import java.io.IOException;
 import java.io.PrintWriter;

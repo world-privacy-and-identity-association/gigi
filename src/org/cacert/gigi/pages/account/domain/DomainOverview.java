@@ -1,7 +1,8 @@
-package org.cacert.gigi.pages.account;
+package org.cacert.gigi.pages.account.domain;
 
 import java.io.IOException;
 import java.util.HashMap;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 import javax.naming.NamingException;
 
-import org.cacert.gigi.pages.account.DomainOverview;
+import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.PingTest;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;

@@ -1,4 +1,4 @@
-package org.cacert.gigi.pages.account;
+package org.cacert.gigi.pages.account.domain;
 
 import java.io.PrintWriter;
 import java.util.Arrays;

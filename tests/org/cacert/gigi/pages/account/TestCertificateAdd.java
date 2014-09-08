@@ -32,6 +32,8 @@ import java.util.regex.Pattern;
 import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.pages.account.certs.CertificateAdd;
+import org.cacert.gigi.pages.account.certs.CertificateIssueForm;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.cacert.gigi.util.PEM;

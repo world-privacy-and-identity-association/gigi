@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cacert.gigi.database.DatabaseConnection;
-import org.cacert.gigi.pages.account.DomainOverview;
+import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.junit.Before;
 
 public abstract class PingTest extends ClientTest {
