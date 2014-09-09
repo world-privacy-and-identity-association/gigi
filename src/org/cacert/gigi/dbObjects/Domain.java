@@ -15,15 +15,15 @@ public class Domain implements IdCachable {
 
     public class DomainPingExecution {
 
-        String state;
+        private String state;
 
-        String type;
+        private String type;
 
-        String info;
+        private String info;
 
-        String result;
+        private String result;
 
-        DomainPingConfiguration config;
+        private DomainPingConfiguration config;
 
         public DomainPingExecution(ResultSet rs) throws SQLException {
             state = rs.getString(1);
@@ -134,6 +134,7 @@ public class Domain implements IdCachable {
         return owner;
     }
 
+    @Override
     public int getId() {
         return id;
     }

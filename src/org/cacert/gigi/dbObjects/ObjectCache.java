@@ -6,7 +6,7 @@ import java.util.HashSet;
 
 public class ObjectCache<T extends IdCachable> {
 
-    HashMap<Integer, WeakReference<T>> hashmap = new HashMap<>();
+    private HashMap<Integer, WeakReference<T>> hashmap = new HashMap<>();
 
     private static HashSet<ObjectCache<?>> caches = new HashSet<>();
 

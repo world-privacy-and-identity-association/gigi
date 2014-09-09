@@ -12,13 +12,13 @@ public class DomainPingConfiguration implements IdCachable {
         EMAIL, DNS, HTTP, SSL;
     }
 
-    int id;
+    private int id;
 
-    Domain target;
+    private Domain target;
 
-    PingType type;
+    private PingType type;
 
-    String info;
+    private String info;
 
     private DomainPingConfiguration(int id) throws SQLException {
         PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id, domainid, type, info FROM pingconfig WHERE id=?");
