@@ -43,27 +43,27 @@ public class TestSSL extends PingTest {
 
     private Certificate c;
 
-    @Test
+    @Test(timeout = 70000)
     public void sslAndMailSuccess() throws IOException, InterruptedException, SQLException, GeneralSecurityException, GigiApiException {
         testEmailAndSSL(0, 0, true);
     }
 
-    @Test
+    @Test(timeout = 70000)
     public void sslWongTypeAndMailSuccess() throws IOException, InterruptedException, SQLException, GeneralSecurityException, GigiApiException {
         testEmailAndSSL(1, 0, true);
     }
 
-    @Test
+    @Test(timeout = 70000)
     public void sslOneMissingAndMailSuccess() throws IOException, InterruptedException, SQLException, GeneralSecurityException, GigiApiException {
         testEmailAndSSL(2, 0, true);
     }
 
-    @Test
+    @Test(timeout = 70000)
     public void sslBothMissingAndMailSuccess() throws IOException, InterruptedException, SQLException, GeneralSecurityException, GigiApiException {
         testEmailAndSSL(3, 0, true);
     }
 
-    @Test
+    @Test(timeout = 70000)
     public void sslWrongTypeAndMailFail() throws IOException, InterruptedException, SQLException, GeneralSecurityException, GigiApiException {
         testEmailAndSSL(1, 1, false);
     }
