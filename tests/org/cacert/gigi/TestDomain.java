@@ -36,6 +36,11 @@ public class TestDomain extends ManagedTest {
 
         domains = us.getDomains();
         assertEquals(2, domains.length);
+        if ( !domains[1].getSuffix().equals("v2.example.org")) {
+            Domain d1 = domains[0];
+            domains[0] = domains[1];
+            domains[1] = d1;
+        }
         assertEquals("v2.example.org", domains[1].getSuffix());
         assertEquals(domains[0].getOwner().getId(), us.getId());
         assertEquals(domains[1].getOwner().getId(), us.getId());
