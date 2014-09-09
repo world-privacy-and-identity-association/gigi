@@ -63,22 +63,22 @@ public class Language {
 
     private HashMap<String, String> translations = new HashMap<String, String>();
 
-    private Locale l;
+    private Locale locale;
 
-    private static Locale project(Locale l) {
-        if (l == null) {
+    private static Locale project(Locale locale) {
+        if (locale == null) {
             return Locale.getDefault();
         }
-        File file = new File("locale", l.toString() + ".xml");
+        File file = new File("locale", locale.toString() + ".xml");
         if ( !file.exists()) {
-            return new Locale(l.getLanguage());
+            return new Locale(locale.getLanguage());
         }
-        return l;
+        return locale;
     }
 
-    protected Language(Locale loc) throws ParserConfigurationException, IOException, SAXException {
-        File file = new File("locale", loc.toString() + ".xml");
-        l = loc;
+    protected Language(Locale locale) throws ParserConfigurationException, IOException, SAXException {
+        File file = new File("locale", locale.toString() + ".xml");
+        this.locale = locale;
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document d = db.parse(new FileInputStream(file));
@@ -103,17 +103,17 @@ public class Language {
         return string;
     }
 
-    public static Language getInstance(Locale language) {
-        language = project(language);
-        File file = new File("locale", language.toString() + ".xml");
+    public static Language getInstance(Locale locale) {
+        locale = project(locale);
+        File file = new File("locale", locale.toString() + ".xml");
         if ( !file.exists()) {
             return null;
         }
-        Language l = langs.get(language.toString());
-        if (l == null) {
+        Language lang = langs.get(locale.toString());
+        if (lang == null) {
             try {
-                l = new Language(language);
-                langs.put(language.toString(), l);
+                lang = new Language(locale);
+                langs.put(locale.toString(), lang);
             } catch (ParserConfigurationException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -122,11 +122,11 @@ public class Language {
                 e.printStackTrace();
             }
         }
-        return l;
+        return lang;
     }
 
     public Locale getLocale() {
-        return l;
+        return locale;
     }
 
 }
