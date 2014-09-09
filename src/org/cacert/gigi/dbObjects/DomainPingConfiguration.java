@@ -65,4 +65,14 @@ public class DomainPingConfiguration implements IdCachable {
         return res;
     }
 
+    public void requestReping() {
+        try {
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE pingconfig set reping='y' WHERE id=?");
+            ps.setInt(1, id);
+            ps.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

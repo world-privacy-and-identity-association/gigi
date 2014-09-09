@@ -79,6 +79,7 @@ CREATE TABLE `pingconfig` (
   `domainid` int(11) NOT NULL,
   `type` enum('email', 'ssl', 'http', 'dns') NOT NULL,
   `info` varchar(255) NOT NULL,
+  `reping` enum('y','n') NOT NULL DEFAULT 'n',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

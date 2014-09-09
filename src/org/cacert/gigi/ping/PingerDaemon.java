@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.dbObjects.Domain;
-import org.cacert.gigi.dbObjects.DomainPingConfiguration;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.util.RandomToken;
 
@@ -19,6 +18,8 @@ public class PingerDaemon extends Thread {
 
     private PreparedStatement enterPingResult;
 
+    private PreparedStatement updatePingStatus;
+
     private KeyStore truststore;
 
     public PingerDaemon(KeyStore truststore) {
@@ -28,8 +29,9 @@ public class PingerDaemon extends Thread {
     @Override
     public void run() {
         try {
-            searchNeededPings = DatabaseConnection.getInstance().prepare("SELECT pingconfig.*, domains.domain, domains.memid FROM pingconfig LEFT JOIN domainPinglog ON domainPinglog.configId=pingconfig.id INNER JOIN domains ON domains.id=pingconfig.domainid WHERE domainPinglog.configId IS NULL AND domains.deleted IS NULL ");
+            searchNeededPings = DatabaseConnection.getInstance().prepare("SELECT pingconfig.*, domains.domain, domains.memid FROM pingconfig LEFT JOIN domainPinglog ON domainPinglog.configId=pingconfig.id INNER JOIN domains ON domains.id=pingconfig.domainid WHERE ( pingconfig.reping='y' OR domainPinglog.configId IS NULL) AND domains.deleted IS NULL GROUP BY pingconfig.id");
             enterPingResult = DatabaseConnection.getInstance().prepare("INSERT INTO domainPinglog SET configId=?, state=?, result=?, challenge=?");
+            updatePingStatus = DatabaseConnection.getInstance().prepare("UPDATE pingconfig SET reping='n' WHERE id=?");
             pingers.put("email", new EmailPinger());
             pingers.put("ssl", new SSLPinger(truststore));
             pingers.put("http", new HTTPFetch());
@@ -63,6 +65,8 @@ public class PingerDaemon extends Thread {
                     token = RandomToken.generateToken(16);
                     config = config + ":" + token;
                 }
+                updatePingStatus.setInt(1, rs.getInt("id"));
+                updatePingStatus.execute();
                 enterPingResult.setInt(1, rs.getInt("id"));
                 String resp = dp.ping(Domain.getById(rs.getInt("domainid")), config, User.getById(rs.getInt("memid")));
                 enterPingResult.setString(2, DomainPinger.PING_STILL_PENDING == resp ? "open" : DomainPinger.PING_SUCCEDED.equals(resp) ? "success" : "failed");
@@ -73,5 +77,4 @@ public class PingerDaemon extends Thread {
         }
     }
 
-    public void requestReping(DomainPingConfiguration dpc) {}
 }

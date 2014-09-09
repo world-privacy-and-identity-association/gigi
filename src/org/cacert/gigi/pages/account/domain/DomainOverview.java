@@ -6,6 +6,7 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.Gigi;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration;
@@ -70,7 +71,9 @@ public class DomainOverview extends Page {
             if (dpc.getTarget() != d) {
                 return;
             }
-            System.out.println("Would now reping: " + dpc.getInfo());
+            dpc.requestReping();
+            Gigi.notifyPinger();
+            resp.sendRedirect(PATH + i);
         }
         if (req.getParameter("adddomain") != null) {
             DomainAddForm f = Form.getForm(req, DomainAddForm.class);
