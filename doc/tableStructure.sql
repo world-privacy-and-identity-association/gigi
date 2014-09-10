@@ -269,3 +269,15 @@ CREATE TABLE IF NOT EXISTS `arbitrations` (
   `arbitration` varchar(20) NOT NULL,
   PRIMARY KEY (`user`,`arbitration`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `user_groups`;
+CREATE TABLE IF NOT EXISTS `user_groups` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user` int(11) NOT NULL,
+  `permission` enum('supporter','arbitrator','blockedassuree','blockedassurer','ttp-assuer','codesigning') NOT NULL,
+  `granted` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `deleted` timestamp NULL DEFAULT NULL,
+  `grantedby` int(11) NOT NULL,
+  `revokedby` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
