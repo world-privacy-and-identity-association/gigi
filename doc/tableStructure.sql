@@ -262,3 +262,10 @@ CREATE TABLE `cats_type` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `type_text` (`type_text`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `arbitrations`;
+CREATE TABLE IF NOT EXISTS `arbitrations` (
+  `user` int(11) NOT NULL,
+  `arbitration` varchar(20) NOT NULL,
+  PRIMARY KEY (`user`,`arbitration`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
