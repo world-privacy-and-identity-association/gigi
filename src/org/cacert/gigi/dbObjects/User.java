@@ -506,12 +506,10 @@ public class User implements IdCachable {
 
     private static ObjectCache<User> myCache = new ObjectCache<>();
 
-    public static User getById(int id) {
+    public static synchronized User getById(int id) {
         User u = myCache.get(id);
         if (u == null) {
-            synchronized (User.class) {
-                myCache.put(u = new User(id));
-            }
+            myCache.put(u = new User(id));
         }
         return u;
     }

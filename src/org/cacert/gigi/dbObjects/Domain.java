@@ -222,13 +222,11 @@ public class Domain implements IdCachable {
 
     private static ObjectCache<Domain> myCache = new ObjectCache<>();
 
-    public static Domain getById(int id) throws IllegalArgumentException {
+    public static synchronized Domain getById(int id) throws IllegalArgumentException {
         Domain em = myCache.get(id);
         if (em == null) {
             try {
-                synchronized (Domain.class) {
-                    myCache.put(em = new Domain(id));
-                }
+                myCache.put(em = new Domain(id));
             } catch (SQLException e1) {
                 throw new IllegalArgumentException(e1);
             }

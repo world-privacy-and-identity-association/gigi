@@ -106,13 +106,11 @@ public class EmailAddress implements IdCachable {
 
     private static ObjectCache<EmailAddress> myCache = new ObjectCache<>();
 
-    public static EmailAddress getById(int id) throws IllegalArgumentException {
+    public static synchronized EmailAddress getById(int id) throws IllegalArgumentException {
         EmailAddress em = myCache.get(id);
         if (em == null) {
             try {
-                synchronized (EmailAddress.class) {
-                    myCache.put(em = new EmailAddress(id));
-                }
+                myCache.put(em = new EmailAddress(id));
             } catch (SQLException e1) {
                 throw new IllegalArgumentException(e1);
             }

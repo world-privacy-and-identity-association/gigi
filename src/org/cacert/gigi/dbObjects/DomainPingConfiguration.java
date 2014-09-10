@@ -53,7 +53,7 @@ public class DomainPingConfiguration implements IdCachable {
 
     private static ObjectCache<DomainPingConfiguration> cache = new ObjectCache<>();
 
-    public static DomainPingConfiguration getById(int id) {
+    public static synchronized DomainPingConfiguration getById(int id) {
         DomainPingConfiguration res = cache.get(id);
         if (res == null) {
             try {
