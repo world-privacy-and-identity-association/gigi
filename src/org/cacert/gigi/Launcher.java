@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.TimeZone;
-
 import javax.net.ssl.ExtendedSSLSession;
 import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SNIServerName;
@@ -85,7 +84,7 @@ public class Launcher {
         if (doHttps) {
             connector = new ServerConnector(s, createConnectionFactory(conf), new HttpConnectionFactory(httpConfig));
         } else {
-            connector = new ServerConnector(s);
+            connector = new ServerConnector(s, new HttpConnectionFactory(httpConfig));
         }
         connector.setHost(conf.getMainProps().getProperty("host"));
         if (doHttps) {
