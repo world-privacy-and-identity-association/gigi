@@ -5,7 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
@@ -27,6 +30,8 @@ public class User implements IdCachable {
     private Assurance[] receivedAssurances, madeAssurances;
 
     private Locale locale;
+
+    private Set<Group> groups = new HashSet<>();
 
     private User(int id) {
         this.id = id;
@@ -50,6 +55,13 @@ public class User implements IdCachable {
                 }
             }
             rs.close();
+            PreparedStatement psg = DatabaseConnection.getInstance().prepare("SELECT permission FROM user_groups WHERE user=? AND deleted is NULL");
+            psg.setInt(1, id);
+            ResultSet rs2 = psg.executeQuery();
+            while (rs2.next()) {
+                groups.add(Group.getByString(rs2.getString(1)));
+            }
+            rs2.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -502,6 +514,40 @@ public class User implements IdCachable {
         update.setString(1, contactInfo);
         update.setInt(2, getId());
         update.executeUpdate();
+    }
+
+    public boolean isInGroup(Group g) {
+        return groups.contains(g);
+    }
+
+    public Set<Group> getGroups() {
+        return Collections.unmodifiableSet(groups);
+    }
+
+    public void grantGroup(User granter, Group toGrant) throws GigiApiException {
+        groups.add(toGrant);
+        try {
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO user_groups SET user=?, permission=?, grantedby=?");
+            ps.setInt(1, getId());
+            ps.setString(2, toGrant.getDatabaseName());
+            ps.setInt(3, granter.getId());
+            ps.execute();
+        } catch (SQLException e) {
+            throw new GigiApiException(e);
+        }
+    }
+
+    public void revokeGroup(User revoker, Group toRevoke) throws GigiApiException {
+        groups.remove(toRevoke);
+        try {
+            PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE user_groups SET deleted=CURRENT_TIMESTAMP, revokedby=? WHERE deleted is NULL AND permission=? AND user=?");
+            ps.setInt(1, revoker.getId());
+            ps.setString(2, toRevoke.getDatabaseName());
+            ps.setInt(3, getId());
+            ps.execute();
+        } catch (SQLException e) {
+            throw new GigiApiException(e);
+        }
     }
 
     private static ObjectCache<User> myCache = new ObjectCache<>();
