@@ -111,15 +111,21 @@ public class Language {
         }
         Language lang = langs.get(locale.toString());
         if (lang == null) {
-            try {
-                lang = new Language(locale);
-                langs.put(locale.toString(), lang);
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (SAXException e) {
-                e.printStackTrace();
+            synchronized (Language.class) {
+                lang = langs.get(locale.toString());
+                if (lang != null) {
+                    return lang;
+                }
+                try {
+                    lang = new Language(locale);
+                    langs.put(locale.toString(), lang);
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (SAXException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return lang;
