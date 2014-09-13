@@ -1,11 +1,11 @@
 package org.cacert.gigi.ping;
 
 import java.security.KeyStore;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
+
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.util.RandomToken;
@@ -14,11 +14,11 @@ public class PingerDaemon extends Thread {
 
     HashMap<String, DomainPinger> pingers = new HashMap<>();
 
-    private PreparedStatement searchNeededPings;
+    private GigiPreparedStatement searchNeededPings;
 
-    private PreparedStatement enterPingResult;
+    private GigiPreparedStatement enterPingResult;
 
-    private PreparedStatement updatePingStatus;
+    private GigiPreparedStatement updatePingStatus;
 
     private KeyStore truststore;
 
@@ -28,23 +28,16 @@ public class PingerDaemon extends Thread {
 
     @Override
     public void run() {
-        try {
-            searchNeededPings = DatabaseConnection.getInstance().prepare("SELECT pingconfig.*, domains.domain, domains.memid FROM pingconfig LEFT JOIN domainPinglog ON domainPinglog.configId=pingconfig.id INNER JOIN domains ON domains.id=pingconfig.domainid WHERE ( pingconfig.reping='y' OR domainPinglog.configId IS NULL) AND domains.deleted IS NULL GROUP BY pingconfig.id");
-            enterPingResult = DatabaseConnection.getInstance().prepare("INSERT INTO domainPinglog SET configId=?, state=?, result=?, challenge=?");
-            updatePingStatus = DatabaseConnection.getInstance().prepare("UPDATE pingconfig SET reping='n' WHERE id=?");
-            pingers.put("email", new EmailPinger());
-            pingers.put("ssl", new SSLPinger(truststore));
-            pingers.put("http", new HTTPFetch());
-            pingers.put("dns", new DNSPinger());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        searchNeededPings = DatabaseConnection.getInstance().prepare("SELECT pingconfig.*, domains.domain, domains.memid FROM pingconfig LEFT JOIN domainPinglog ON domainPinglog.configId=pingconfig.id INNER JOIN domains ON domains.id=pingconfig.domainid WHERE ( pingconfig.reping='y' OR domainPinglog.configId IS NULL) AND domains.deleted IS NULL GROUP BY pingconfig.id");
+        enterPingResult = DatabaseConnection.getInstance().prepare("INSERT INTO domainPinglog SET configId=?, state=?, result=?, challenge=?");
+        updatePingStatus = DatabaseConnection.getInstance().prepare("UPDATE pingconfig SET reping='n' WHERE id=?");
+        pingers.put("email", new EmailPinger());
+        pingers.put("ssl", new SSLPinger(truststore));
+        pingers.put("http", new HTTPFetch());
+        pingers.put("dns", new DNSPinger());
+
         while (true) {
-            try {
-                execute();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            execute();
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
@@ -52,9 +45,9 @@ public class PingerDaemon extends Thread {
         }
     }
 
-    private void execute() throws SQLException {
+    private void execute() {
 
-        ResultSet rs = searchNeededPings.executeQuery();
+        GigiResultSet rs = searchNeededPings.executeQuery();
         while (rs.next()) {
             String type = rs.getString("type");
             String config = rs.getString("info");

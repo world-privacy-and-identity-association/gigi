@@ -15,7 +15,7 @@ public class DatabaseConnection {
 
     private Connection c;
 
-    private HashMap<String, PreparedStatement> statements = new HashMap<String, PreparedStatement>();
+    private HashMap<String, GigiPreparedStatement> statements = new HashMap<String, GigiPreparedStatement>();
 
     private static Properties credentials;
 
@@ -44,11 +44,15 @@ public class DatabaseConnection {
         }
     }
 
-    public PreparedStatement prepare(String query) throws SQLException {
+    public GigiPreparedStatement prepare(String query) {
         ensureOpen();
-        PreparedStatement statement = statements.get(query);
+        GigiPreparedStatement statement = statements.get(query);
         if (statement == null) {
-            statement = c.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            try {
+                statement = new GigiPreparedStatement(c.prepareStatement(query, Statement.RETURN_GENERATED_KEYS));
+            } catch (SQLException e) {
+                throw new Error(e);
+            }
             statements.put(query, statement);
         }
         return statement;
@@ -69,14 +73,6 @@ public class DatabaseConnection {
             tryConnect();
         }
         lastAction = System.currentTimeMillis();
-    }
-
-    public static int lastInsertId(PreparedStatement query) throws SQLException {
-        ResultSet rs = query.getGeneratedKeys();
-        rs.next();
-        int id = rs.getInt(1);
-        rs.close();
-        return id;
     }
 
     private static ThreadLocal<DatabaseConnection> instances = new ThreadLocal<DatabaseConnection>() {

@@ -1,6 +1,5 @@
 package org.cacert.gigi.output;
 
-import java.sql.SQLException;
 import java.util.Map;
 
 import org.cacert.gigi.dbObjects.Certificate;
@@ -23,12 +22,7 @@ public class CertificateIterable implements IterableDataset {
             return false;
         }
         Certificate c = certificates[i++];
-        try {
-            vars.put("state", l.getTranslation(c.getStatus().toString().toLowerCase()));
-        } catch (SQLException e) {
-            vars.put("state", "Failed");
-            e.printStackTrace();
-        }
+        vars.put("state", l.getTranslation(c.getStatus().toString().toLowerCase()));
         vars.put("CN", c.getDistinguishedName());
         vars.put("serial", c.getSerial());
         vars.put("digest", c.getMessageDigest());

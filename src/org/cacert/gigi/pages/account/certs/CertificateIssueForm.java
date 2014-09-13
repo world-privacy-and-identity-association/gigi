@@ -7,7 +7,6 @@ import java.security.PublicKey;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.sql.SQLException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -313,8 +312,6 @@ public class CertificateIssueForm extends Form {
                 throw new GigiApiException("Certificate Request format is invalid.");
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            } catch (SQLException e) {
-                throw new GigiApiException(e);
             }
         } catch (GigiApiException e) {
             e.format(out, Page.getLanguage(req));

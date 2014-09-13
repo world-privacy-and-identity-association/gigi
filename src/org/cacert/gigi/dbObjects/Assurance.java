@@ -1,10 +1,9 @@
 package org.cacert.gigi.dbObjects;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
+import org.cacert.gigi.database.GigiResultSet;
 
 public class Assurance {
+
     private int id;
 
     private User from;
@@ -19,15 +18,15 @@ public class Assurance {
 
     private String date;
 
-    public Assurance(ResultSet result) throws SQLException {
+    public Assurance(GigiResultSet res) {
         super();
-        this.id = result.getInt("id");
-        this.from = User.getById(result.getInt("from"));
-        this.to = User.getById(result.getInt("to"));
-        this.location = result.getString("location");
-        this.method = result.getString("method");
-        this.points = result.getInt("points");
-        this.date = result.getString("date");
+        this.id = res.getInt("id");
+        this.from = User.getById(res.getInt("from"));
+        this.to = User.getById(res.getInt("to"));
+        this.location = res.getString("location");
+        this.method = res.getString("method");
+        this.points = res.getInt("points");
+        this.date = res.getString("date");
     }
 
     public User getFrom() {

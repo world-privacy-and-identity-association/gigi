@@ -1,10 +1,8 @@
 package org.cacert.gigi.dbObjects;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
 
 public class DomainPingConfiguration implements IdCachable {
 
@@ -20,11 +18,11 @@ public class DomainPingConfiguration implements IdCachable {
 
     private String info;
 
-    private DomainPingConfiguration(int id) throws SQLException {
-        PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id, domainid, type, info FROM pingconfig WHERE id=?");
+    private DomainPingConfiguration(int id) {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id, domainid, type, info FROM pingconfig WHERE id=?");
         ps.setInt(1, id);
 
-        ResultSet rs = ps.executeQuery();
+        GigiResultSet rs = ps.executeQuery();
         if ( !rs.next()) {
             throw new IllegalArgumentException("Invalid pingconfig id " + id);
         }
@@ -56,23 +54,15 @@ public class DomainPingConfiguration implements IdCachable {
     public static synchronized DomainPingConfiguration getById(int id) {
         DomainPingConfiguration res = cache.get(id);
         if (res == null) {
-            try {
-                cache.put(res = new DomainPingConfiguration(id));
-            } catch (SQLException e) {
-                throw new IllegalArgumentException(e);
-            }
+            cache.put(res = new DomainPingConfiguration(id));
         }
         return res;
     }
 
     public void requestReping() {
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE pingconfig set reping='y' WHERE id=?");
-            ps.setInt(1, id);
-            ps.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE pingconfig set reping='y' WHERE id=?");
+        ps.setInt(1, id);
+        ps.execute();
     }
 
 }

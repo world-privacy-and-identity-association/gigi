@@ -3,18 +3,16 @@ package org.cacert.gigi.pages.main;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.EmailProvider;
@@ -121,31 +119,26 @@ public class Signup extends Form {
         if (isFailed(out)) {
             return false;
         }
-        try {
-            PreparedStatement q1 = DatabaseConnection.getInstance().prepare("select * from `emails` where `email`=? and `deleted`=0");
-            PreparedStatement q2 = DatabaseConnection.getInstance().prepare("select * from `users` where `email`=? and `deleted`=0");
-            q1.setString(1, buildup.getEmail());
-            q2.setString(1, buildup.getEmail());
-            ResultSet r1 = q1.executeQuery();
-            ResultSet r2 = q2.executeQuery();
-            if (r1.next() || r2.next()) {
-                outputError(out, req, "This email address is currently valid in the system.");
-            }
-            r1.close();
-            r2.close();
-            PreparedStatement q3 = DatabaseConnection.getInstance().prepare("select `domain` from `baddomains` where `domain`=RIGHT(?, LENGTH(`domain`))");
-            q3.setString(1, buildup.getEmail());
-
-            ResultSet r3 = q3.executeQuery();
-            if (r3.next()) {
-                String domain = r3.getString(1);
-                outputError(out, req, "We don't allow signups from people using email addresses from %s", domain);
-            }
-            r3.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            outputError(out, req, "an internal error happened");
+        GigiPreparedStatement q1 = DatabaseConnection.getInstance().prepare("select * from `emails` where `email`=? and `deleted`=0");
+        GigiPreparedStatement q2 = DatabaseConnection.getInstance().prepare("select * from `users` where `email`=? and `deleted`=0");
+        q1.setString(1, buildup.getEmail());
+        q2.setString(1, buildup.getEmail());
+        GigiResultSet r1 = q1.executeQuery();
+        GigiResultSet r2 = q2.executeQuery();
+        if (r1.next() || r2.next()) {
+            outputError(out, req, "This email address is currently valid in the system.");
         }
+        r1.close();
+        r2.close();
+        GigiPreparedStatement q3 = DatabaseConnection.getInstance().prepare("select `domain` from `baddomains` where `domain`=RIGHT(?, LENGTH(`domain`))");
+        q3.setString(1, buildup.getEmail());
+
+        GigiResultSet r3 = q3.executeQuery();
+        if (r3.next()) {
+            String domain = r3.getString(1);
+            outputError(out, req, "We don't allow signups from people using email addresses from %s", domain);
+        }
+        r3.close();
         String mailResult = EmailProvider.FAIL;
         try {
             mailResult = EmailProvider.getInstance().checkEmailServer(0, buildup.getEmail());
@@ -178,7 +171,6 @@ public class Signup extends Form {
     private void run(HttpServletRequest req, String password) throws SQLException {
         try {
             DatabaseConnection.getInstance().beginTransaction();
-            Enumeration<Locale> locales = req.getLocales();
             buildup.setPreferredLocale(Page.getLanguage(req).getLocale());
             buildup.setDob(myDoB.getDate());
             buildup.insert(password);
@@ -186,7 +178,7 @@ public class Signup extends Form {
             EmailAddress ea = new EmailAddress(buildup, buildup.getEmail());
             ea.insert(Page.getLanguage(req));
 
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("insert into `alerts` set `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?");
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("insert into `alerts` set `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?");
             ps.setInt(1, memid);
             ps.setString(2, general ? "1" : "0");
             ps.setString(3, country ? "1" : "0");

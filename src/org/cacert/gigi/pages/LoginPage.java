@@ -4,15 +4,13 @@ import static org.cacert.gigi.Gigi.*;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.util.PasswordHash;
@@ -66,19 +64,15 @@ public class LoginPage extends Page {
     private void tryAuthWithUnpw(HttpServletRequest req) {
         String un = req.getParameter("username");
         String pw = req.getParameter("password");
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `password`, `id` FROM `users` WHERE `email`=? AND locked='0' AND verified='1'");
-            ps.setString(1, un);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                if (PasswordHash.verifyHash(pw, rs.getString(1))) {
-                    loginSession(req, User.getById(rs.getInt(2)));
-                }
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `password`, `id` FROM `users` WHERE `email`=? AND locked='0' AND verified='1'");
+        ps.setString(1, un);
+        GigiResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            if (PasswordHash.verifyHash(pw, rs.getString(1))) {
+                loginSession(req, User.getById(rs.getInt(2)));
             }
-            rs.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
+        rs.close();
     }
 
     public static User getUser(HttpServletRequest req) {
@@ -87,17 +81,13 @@ public class LoginPage extends Page {
 
     private void tryAuthWithCertificate(HttpServletRequest req, X509Certificate x509Certificate) {
         String serial = x509Certificate.getSerialNumber().toString(16).toUpperCase();
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `certs` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` = " + "'0000-00-00 00:00:00'");
-            ps.setString(1, serial);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                loginSession(req, User.getById(rs.getInt(1)));
-            }
-            rs.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `certs` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` = " + "'0000-00-00 00:00:00'");
+        ps.setString(1, serial);
+        GigiResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            loginSession(req, User.getById(rs.getInt(1)));
         }
+        rs.close();
     }
 
     private void loginSession(HttpServletRequest req, User user) {

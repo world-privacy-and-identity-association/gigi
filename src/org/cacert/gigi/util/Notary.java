@@ -1,21 +1,20 @@
 package org.cacert.gigi.util;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Date;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.DateSelector;
 
 public class Notary {
 
-    public static void writeUserAgreement(int memid, String document, String method, String comment, boolean active, int secmemid) throws SQLException {
-        PreparedStatement q = DatabaseConnection.getInstance().prepare("insert into `user_agreements` set `memid`=?, `secmemid`=?," + " `document`=?,`date`=NOW(), `active`=?,`method`=?,`comment`=?");
+    public static void writeUserAgreement(int memid, String document, String method, String comment, boolean active, int secmemid) {
+        GigiPreparedStatement q = DatabaseConnection.getInstance().prepare("insert into `user_agreements` set `memid`=?, `secmemid`=?," + " `document`=?,`date`=NOW(), `active`=?,`method`=?,`comment`=?");
         q.setInt(1, memid);
         q.setInt(2, secmemid);
         q.setString(3, document);
@@ -29,21 +28,17 @@ public class Notary {
         if (assurer.getId() == target.getId()) {
             throw new GigiApiException("You cannot assure yourself.");
         }
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `notary` where `to`=? and `from`=? AND `deleted`=0");
-            ps.setInt(1, target.getId());
-            ps.setInt(2, assurer.getId());
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                rs.close();
-                throw new GigiApiException("You have already assured this member.");
-            }
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `notary` where `to`=? and `from`=? AND `deleted`=0");
+        ps.setInt(1, target.getId());
+        ps.setInt(2, assurer.getId());
+        GigiResultSet rs = ps.executeQuery();
+        if (rs.next()) {
             rs.close();
-            if ( !assurer.canAssure()) {
-                throw new GigiApiException("You are not an assurer.");
-            }
-        } catch (SQLException e) {
-            throw new GigiApiException(e);
+            throw new GigiApiException("You have already assured this member.");
+        }
+        rs.close();
+        if ( !assurer.canAssure()) {
+            throw new GigiApiException("You are not an assurer.");
         }
     }
 
@@ -66,12 +61,10 @@ public class Notary {
      *            the location where the assurance took place
      * @param date
      *            the date when the assurance took place
-     * @throws SQLException
-     *             if SQL goes wrong
      * @throws GigiApiException
      *             if the assurance fails (for various reasons)
      */
-    public synchronized static void assure(User assurer, User assuree, Name assureeName, Date dob, int awarded, String location, String date) throws SQLException, GigiApiException {
+    public synchronized static void assure(User assurer, User assuree, Name assureeName, Date dob, int awarded, String location, String date) throws GigiApiException {
         GigiApiException gae = new GigiApiException();
 
         if (date == null || date.equals("")) {
@@ -109,7 +102,7 @@ public class Notary {
             throw gae;
         }
 
-        PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?");
         ps.setInt(1, assurer.getId());
         ps.setInt(2, assuree.getId());
         ps.setInt(3, awarded);

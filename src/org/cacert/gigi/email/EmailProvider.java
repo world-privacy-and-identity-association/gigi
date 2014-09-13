@@ -10,8 +10,6 @@ import java.security.Key;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -19,6 +17,7 @@ import javax.naming.NamingException;
 
 import org.cacert.gigi.crypto.SMIME;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.util.DNSUtil;
 
 public abstract class EmailProvider {
@@ -110,15 +109,11 @@ public abstract class EmailProvider {
                     pw.print("QUIT\r\n");
                     pw.flush();
 
-                    try {
-                        PreparedStatement statmt = DatabaseConnection.getInstance().prepare("insert into `pinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
-                        statmt.setString(1, address);
-                        statmt.setString(2, line);
-                        statmt.setInt(3, forUid);
-                        statmt.execute();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
+                    GigiPreparedStatement statmt = DatabaseConnection.getInstance().prepare("insert into `pinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
+                    statmt.setString(1, address);
+                    statmt.setString(2, line);
+                    statmt.setInt(3, forUid);
+                    statmt.execute();
 
                     if (line == null || !line.startsWith("250")) {
                         return line;
@@ -129,15 +124,11 @@ public abstract class EmailProvider {
 
             }
         }
-        try {
-            PreparedStatement statmt = DatabaseConnection.getInstance().prepare("insert into `pinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
-            statmt.setString(1, address);
-            statmt.setString(2, "Failed to make a connection to the mail server");
-            statmt.setInt(3, forUid);
-            statmt.execute();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        GigiPreparedStatement statmt = DatabaseConnection.getInstance().prepare("insert into `pinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
+        statmt.setString(1, address);
+        statmt.setString(2, "Failed to make a connection to the mail server");
+        statmt.setInt(3, forUid);
+        statmt.execute();
         return FAIL;
     }
 

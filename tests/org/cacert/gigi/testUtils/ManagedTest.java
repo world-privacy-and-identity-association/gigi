@@ -31,8 +31,6 @@ import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.cert.X509Certificate;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Properties;
@@ -47,6 +45,8 @@ import javax.net.ssl.X509KeyManager;
 import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
@@ -71,6 +71,7 @@ public class ManagedTest {
     static {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
     }
+
     /**
      * Some password that fullfills the password criteria.
      */
@@ -290,10 +291,10 @@ public class ManagedTest {
             String[] parts = verifyLink.split("\\?");
             URL u = new URL("https://" + getServerName() + "/verify?" + parts[1]);
             u.openStream().close();
-            ;
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM users where email=?");
+
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM users where email=?");
             ps.setString(1, email);
-            ResultSet rs = ps.executeQuery();
+            GigiResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
             }
@@ -301,8 +302,6 @@ public class ManagedTest {
         } catch (InterruptedException e) {
             throw new Error(e);
         } catch (IOException e) {
-            throw new Error(e);
-        } catch (SQLException e) {
             throw new Error(e);
         }
     }
@@ -323,19 +322,14 @@ public class ManagedTest {
      */
     public static int createAssuranceUser(String firstName, String lastName, String email, String password) {
         int uid = createVerifiedUser(firstName, lastName, email, password);
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?");
-            ps.setInt(1, uid);
-            ps.setInt(2, 0);
-            ps.execute();
-            ps = DatabaseConnection.getInstance().prepare("INSERT INTO `notary` SET `from`=?, `to`=?, points='100'");
-            ps.setInt(1, uid);
-            ps.setInt(2, uid);
-            ps.execute();
-
-        } catch (SQLException e) {
-            throw new Error(e);
-        }
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?");
+        ps.setInt(1, uid);
+        ps.setInt(2, 0);
+        ps.execute();
+        ps = DatabaseConnection.getInstance().prepare("INSERT INTO `notary` SET `from`=?, `to`=?, points='100'");
+        ps.setInt(1, uid);
+        ps.setInt(2, uid);
+        ps.execute();
         return uid;
     }
 

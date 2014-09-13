@@ -1,7 +1,6 @@
 package org.cacert.gigi.pages.wot;
 
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -48,11 +47,7 @@ public class AssuranceForm extends Form {
         res.putAll(vars);
         res.put("nameExplicit", assuree.getName());
         res.put("name", assuree.getName().toString());
-        try {
-            res.put("maxpoints", assuree.getMaxAssurePoints());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        res.put("maxpoints", assuree.getMaxAssurePoints());
         res.put("dob", sdf.format(assuree.getDob()));
         res.put("dobFmt2", sdf2.format(assuree.getDob()));
         templ.output(out, l, res);
@@ -82,8 +77,6 @@ public class AssuranceForm extends Form {
         try {
             Notary.assure(Page.getUser(req), assuree, assureeName, dob, pointsI, req.getParameter("location"), req.getParameter("date"));
             return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
         } catch (GigiApiException e) {
             e.format(out, Page.getLanguage(req));
         }

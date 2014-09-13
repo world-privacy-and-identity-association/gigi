@@ -1,9 +1,6 @@
 package org.cacert.gigi.dbObjects;
 
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,6 +9,8 @@ import java.util.Set;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PasswordHash;
@@ -39,32 +38,28 @@ public class User implements IdCachable {
     }
 
     private void updateName(int id) {
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `fname`, `lname`,`mname`, `suffix`, `dob`, `email`, `language` FROM `users` WHERE id=?");
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                name = new Name(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
-                dob = rs.getDate(5);
-                email = rs.getString(6);
-                String localeStr = rs.getString(7);
-                if (localeStr == null || localeStr.equals("")) {
-                    locale = Locale.getDefault();
-                } else {
-                    locale = Language.getLocaleFromString(localeStr);
-                }
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `fname`, `lname`,`mname`, `suffix`, `dob`, `email`, `language` FROM `users` WHERE id=?");
+        ps.setInt(1, id);
+        GigiResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            name = new Name(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
+            dob = rs.getDate(5);
+            email = rs.getString(6);
+            String localeStr = rs.getString(7);
+            if (localeStr == null || localeStr.equals("")) {
+                locale = Locale.getDefault();
+            } else {
+                locale = Language.getLocaleFromString(localeStr);
             }
-            rs.close();
-            PreparedStatement psg = DatabaseConnection.getInstance().prepare("SELECT permission FROM user_groups WHERE user=? AND deleted is NULL");
-            psg.setInt(1, id);
-            ResultSet rs2 = psg.executeQuery();
-            while (rs2.next()) {
-                groups.add(Group.getByString(rs2.getString(1)));
-            }
-            rs2.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
+        rs.close();
+        GigiPreparedStatement psg = DatabaseConnection.getInstance().prepare("SELECT permission FROM user_groups WHERE user=? AND deleted is NULL");
+        psg.setInt(1, id);
+        GigiResultSet rs2 = psg.executeQuery();
+        while (rs2.next()) {
+            groups.add(Group.getByString(rs2.getString(1)));
+        }
+        rs2.close();
     }
 
     public User() {}
@@ -129,11 +124,11 @@ public class User implements IdCachable {
         this.name.lname = lname;
     }
 
-    public void insert(String password) throws SQLException {
+    public void insert(String password) {
         if (id != 0) {
             throw new Error("refusing to insert");
         }
-        PreparedStatement query = DatabaseConnection.getInstance().prepare("insert into `users` set `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, " + "`suffix`=?, `dob`=?, `created`=NOW(), locked=0, `language`=?");
+        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("insert into `users` set `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, " + "`suffix`=?, `dob`=?, `created`=NOW(), locked=0, `language`=?");
         query.setString(1, email);
         query.setString(2, PasswordHash.hash(password));
         query.setString(3, name.fname);
@@ -144,36 +139,32 @@ public class User implements IdCachable {
         query.setString(8, locale.toString());
         synchronized (User.class) {
             query.execute();
-            id = DatabaseConnection.lastInsertId(query);
+            id = query.lastInsertId();
             myCache.put(this);
         }
     }
 
     public void changePassword(String oldPass, String newPass) throws GigiApiException {
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `password` FROM users WHERE id=?");
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if ( !rs.next()) {
-                throw new GigiApiException("User not found... very bad.");
-            }
-            if ( !PasswordHash.verifyHash(oldPass, rs.getString(1))) {
-                throw new GigiApiException("Old password does not match.");
-            }
-            rs.close();
-            PasswordStrengthChecker.assertStrongPassword(newPass, this);
-            ps = DatabaseConnection.getInstance().prepare("UPDATE users SET `password`=? WHERE id=?");
-            ps.setString(1, PasswordHash.hash(newPass));
-            ps.setInt(2, id);
-            if (ps.executeUpdate() != 1) {
-                throw new GigiApiException("Password update failed.");
-            }
-        } catch (SQLException e) {
-            throw new GigiApiException(e);
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `password` FROM users WHERE id=?");
+        ps.setInt(1, id);
+        GigiResultSet rs = ps.executeQuery();
+        if ( !rs.next()) {
+            throw new GigiApiException("User not found... very bad.");
+        }
+        if ( !PasswordHash.verifyHash(oldPass, rs.getString(1))) {
+            throw new GigiApiException("Old password does not match.");
+        }
+        rs.close();
+        PasswordStrengthChecker.assertStrongPassword(newPass, this);
+        ps = DatabaseConnection.getInstance().prepare("UPDATE users SET `password`=? WHERE id=?");
+        ps.setString(1, PasswordHash.hash(newPass));
+        ps.setInt(2, id);
+        if (ps.executeUpdate() != 1) {
+            throw new GigiApiException("Password update failed.");
         }
     }
 
-    public boolean canAssure() throws SQLException {
+    public boolean canAssure() {
         if ( !isOfAge(14)) { // PoJAM
             return false;
         }
@@ -185,10 +176,10 @@ public class User implements IdCachable {
 
     }
 
-    public boolean hasPassedCATS() throws SQLException {
-        PreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `cats_passed` where `user_id`=?");
+    public boolean hasPassedCATS() {
+        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `cats_passed` where `user_id`=?");
         query.setInt(1, id);
-        ResultSet rs = query.executeQuery();
+        GigiResultSet rs = query.executeQuery();
         if (rs.next()) {
             return true;
         } else {
@@ -196,10 +187,10 @@ public class User implements IdCachable {
         }
     }
 
-    public int getAssurancePoints() throws SQLException {
-        PreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT sum(points) FROM `notary` where `to`=? AND `deleted`=0");
+    public int getAssurancePoints() {
+        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT sum(points) FROM `notary` where `to`=? AND `deleted`=0");
         query.setInt(1, id);
-        ResultSet rs = query.executeQuery();
+        GigiResultSet rs = query.executeQuery();
         int points = 0;
         if (rs.next()) {
             points = rs.getInt(1);
@@ -208,10 +199,10 @@ public class User implements IdCachable {
         return points;
     }
 
-    public int getExperiencePoints() throws SQLException {
-        PreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT count(*) FROM `notary` where `from`=? AND `deleted`=0");
+    public int getExperiencePoints() {
+        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT count(*) FROM `notary` where `from`=? AND `deleted`=0");
         query.setInt(1, id);
-        ResultSet rs = query.executeQuery();
+        GigiResultSet rs = query.executeQuery();
         int points = 0;
         if (rs.next()) {
             points = rs.getInt(1) * 2;
@@ -238,10 +229,9 @@ public class User implements IdCachable {
      * Gets the maximum allowed points NOW. Note that an assurance needs to
      * re-check PoJam as it has taken place in the past.
      * 
-     * @return the maximal points
-     * @throws SQLException
+     * @return the maximal points @
      */
-    public int getMaxAssurePoints() throws SQLException {
+    public int getMaxAssurePoints() {
         if ( !isOfAge(18)) {
             return 10; // PoJAM
         }
@@ -279,75 +269,60 @@ public class User implements IdCachable {
     }
 
     public EmailAddress[] getEmails() {
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM emails WHERE memid=? AND deleted=0");
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            rs.last();
-            int count = rs.getRow();
-            EmailAddress[] data = new EmailAddress[count];
-            rs.beforeFirst();
-            for (int i = 0; i < data.length; i++) {
-                if ( !rs.next()) {
-                    throw new Error("Internal sql api violation.");
-                }
-                data[i] = EmailAddress.getById(rs.getInt(1));
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM emails WHERE memid=? AND deleted=0");
+        ps.setInt(1, id);
+        GigiResultSet rs = ps.executeQuery();
+        rs.last();
+        int count = rs.getRow();
+        EmailAddress[] data = new EmailAddress[count];
+        rs.beforeFirst();
+        for (int i = 0; i < data.length; i++) {
+            if ( !rs.next()) {
+                throw new Error("Internal sql api violation.");
             }
-            rs.close();
-            return data;
-        } catch (SQLException e) {
-            e.printStackTrace();
+            data[i] = EmailAddress.getById(rs.getInt(1));
         }
+        rs.close();
+        return data;
 
-        return null;
     }
 
     public Domain[] getDomains() {
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM domains WHERE memid=? AND deleted IS NULL");
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            rs.last();
-            int count = rs.getRow();
-            Domain[] data = new Domain[count];
-            rs.beforeFirst();
-            for (int i = 0; i < data.length; i++) {
-                if ( !rs.next()) {
-                    throw new Error("Internal sql api violation.");
-                }
-                data[i] = Domain.getById(rs.getInt(1));
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM domains WHERE memid=? AND deleted IS NULL");
+        ps.setInt(1, id);
+        GigiResultSet rs = ps.executeQuery();
+        rs.last();
+        int count = rs.getRow();
+        Domain[] data = new Domain[count];
+        rs.beforeFirst();
+        for (int i = 0; i < data.length; i++) {
+            if ( !rs.next()) {
+                throw new Error("Internal sql api violation.");
             }
-            rs.close();
-            return data;
-        } catch (SQLException e) {
-            e.printStackTrace();
+            data[i] = Domain.getById(rs.getInt(1));
         }
+        rs.close();
+        return data;
 
-        return null;
     }
 
     public Certificate[] getCertificates() {
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT serial FROM certs WHERE memid=? AND revoked=0");
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            rs.last();
-            int count = rs.getRow();
-            Certificate[] data = new Certificate[count];
-            rs.beforeFirst();
-            for (int i = 0; i < data.length; i++) {
-                if ( !rs.next()) {
-                    throw new Error("Internal sql api violation.");
-                }
-                data[i] = Certificate.getBySerial(rs.getString(1));
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT serial FROM certs WHERE memid=? AND revoked=0");
+        ps.setInt(1, id);
+        GigiResultSet rs = ps.executeQuery();
+        rs.last();
+        int count = rs.getRow();
+        Certificate[] data = new Certificate[count];
+        rs.beforeFirst();
+        for (int i = 0; i < data.length; i++) {
+            if ( !rs.next()) {
+                throw new Error("Internal sql api violation.");
             }
-            rs.close();
-            return data;
-        } catch (SQLException e) {
-            e.printStackTrace();
+            data[i] = Certificate.getBySerial(rs.getString(1));
         }
+        rs.close();
+        return data;
 
-        return null;
     }
 
     public boolean isValidDomain(String domainname) {
@@ -374,25 +349,21 @@ public class User implements IdCachable {
     }
 
     public void updateDefaultEmail(EmailAddress newMail) throws GigiApiException {
-        try {
-            EmailAddress[] adrs = getEmails();
-            for (int i = 0; i < adrs.length; i++) {
-                if (adrs[i].getAddress().equals(newMail.getAddress())) {
-                    if ( !adrs[i].isVerified()) {
-                        throw new GigiApiException("Email not verified.");
-                    }
-                    PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE users SET email=? WHERE id=?");
-                    ps.setString(1, newMail.getAddress());
-                    ps.setInt(2, getId());
-                    ps.execute();
-                    email = newMail.getAddress();
-                    return;
+        EmailAddress[] adrs = getEmails();
+        for (int i = 0; i < adrs.length; i++) {
+            if (adrs[i].getAddress().equals(newMail.getAddress())) {
+                if ( !adrs[i].isVerified()) {
+                    throw new GigiApiException("Email not verified.");
                 }
+                GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE users SET email=? WHERE id=?");
+                ps.setString(1, newMail.getAddress());
+                ps.setInt(2, getId());
+                ps.execute();
+                email = newMail.getAddress();
+                return;
             }
-            throw new GigiApiException("Given address not an address of the user.");
-        } catch (SQLException e) {
-            throw new GigiApiException(e);
         }
+        throw new GigiApiException("Given address not an address of the user.");
     }
 
     public void deleteEmail(EmailAddress mail) throws GigiApiException {
@@ -402,26 +373,21 @@ public class User implements IdCachable {
         EmailAddress[] emails = getEmails();
         for (int i = 0; i < emails.length; i++) {
             if (emails[i].getId() == mail.getId()) {
-                try {
-                    PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE emails SET deleted=? WHERE id=?");
-                    ps.setDate(1, new Date(System.currentTimeMillis()));
-                    ps.setInt(2, mail.getId());
-                    ps.execute();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    throw new GigiApiException(e);
-                }
+                GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE emails SET deleted=? WHERE id=?");
+                ps.setDate(1, new Date(System.currentTimeMillis()));
+                ps.setInt(2, mail.getId());
+                ps.execute();
                 return;
             }
         }
         throw new GigiApiException("Email not one of user's email addresses.");
     }
 
-    public Assurance[] getReceivedAssurances() throws SQLException {
+    public Assurance[] getReceivedAssurances() {
         if (receivedAssurances == null) {
-            PreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM notary WHERE `to`=? AND deleted=0");
+            GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM notary WHERE `to`=? AND deleted=0");
             query.setInt(1, getId());
-            ResultSet res = query.executeQuery();
+            GigiResultSet res = query.executeQuery();
             res.last();
             Assurance[] assurances = new Assurance[res.getRow()];
             res.beforeFirst();
@@ -435,11 +401,11 @@ public class User implements IdCachable {
         return receivedAssurances;
     }
 
-    public Assurance[] getMadeAssurances() throws SQLException {
+    public Assurance[] getMadeAssurances() {
         if (madeAssurances == null) {
-            PreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM notary WHERE `from`=? AND deleted=0");
+            GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM notary WHERE `from`=? AND deleted=0");
             query.setInt(1, getId());
-            ResultSet res = query.executeQuery();
+            GigiResultSet res = query.executeQuery();
             res.last();
             Assurance[] assurances = new Assurance[res.getRow()];
             res.beforeFirst();
@@ -461,12 +427,12 @@ public class User implements IdCachable {
         receivedAssurances = null;
     }
 
-    public void updateUserData() throws SQLException, GigiApiException {
+    public void updateUserData() throws GigiApiException {
         synchronized (Notary.class) {
             if (getAssurancePoints() != 0) {
                 throw new GigiApiException("No change after assurance allowed.");
             }
-            PreparedStatement update = DatabaseConnection.getInstance().prepare("UPDATE users SET fname=?, lname=?, mname=?, suffix=?, dob=? WHERE id=?");
+            GigiPreparedStatement update = DatabaseConnection.getInstance().prepare("UPDATE users SET fname=?, lname=?, mname=?, suffix=?, dob=? WHERE id=?");
             update.setString(1, getFname());
             update.setString(2, getLname());
             update.setString(3, getMname());
@@ -486,31 +452,31 @@ public class User implements IdCachable {
 
     }
 
-    public boolean wantsDirectoryListing() throws SQLException {
-        PreparedStatement get = DatabaseConnection.getInstance().prepare("SELECT listme FROM users WHERE id=?");
+    public boolean wantsDirectoryListing() {
+        GigiPreparedStatement get = DatabaseConnection.getInstance().prepare("SELECT listme FROM users WHERE id=?");
         get.setInt(1, getId());
-        ResultSet exec = get.executeQuery();
+        GigiResultSet exec = get.executeQuery();
         exec.next();
         return exec.getBoolean("listme");
     }
 
-    public String getContactInformation() throws SQLException {
-        PreparedStatement get = DatabaseConnection.getInstance().prepare("SELECT contactinfo FROM users WHERE id=?");
+    public String getContactInformation() {
+        GigiPreparedStatement get = DatabaseConnection.getInstance().prepare("SELECT contactinfo FROM users WHERE id=?");
         get.setInt(1, getId());
-        ResultSet exec = get.executeQuery();
+        GigiResultSet exec = get.executeQuery();
         exec.next();
         return exec.getString("contactinfo");
     }
 
-    public void setDirectoryListing(boolean on) throws SQLException {
-        PreparedStatement update = DatabaseConnection.getInstance().prepare("UPDATE users SET listme = ? WHERE id = ?");
+    public void setDirectoryListing(boolean on) {
+        GigiPreparedStatement update = DatabaseConnection.getInstance().prepare("UPDATE users SET listme = ? WHERE id = ?");
         update.setBoolean(1, on);
         update.setInt(2, getId());
         update.executeUpdate();
     }
 
-    public void setContactInformation(String contactInfo) throws SQLException {
-        PreparedStatement update = DatabaseConnection.getInstance().prepare("UPDATE users SET contactinfo = ? WHERE id = ?");
+    public void setContactInformation(String contactInfo) {
+        GigiPreparedStatement update = DatabaseConnection.getInstance().prepare("UPDATE users SET contactinfo = ? WHERE id = ?");
         update.setString(1, contactInfo);
         update.setInt(2, getId());
         update.executeUpdate();
@@ -526,28 +492,20 @@ public class User implements IdCachable {
 
     public void grantGroup(User granter, Group toGrant) throws GigiApiException {
         groups.add(toGrant);
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO user_groups SET user=?, permission=?, grantedby=?");
-            ps.setInt(1, getId());
-            ps.setString(2, toGrant.getDatabaseName());
-            ps.setInt(3, granter.getId());
-            ps.execute();
-        } catch (SQLException e) {
-            throw new GigiApiException(e);
-        }
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO user_groups SET user=?, permission=?, grantedby=?");
+        ps.setInt(1, getId());
+        ps.setString(2, toGrant.getDatabaseName());
+        ps.setInt(3, granter.getId());
+        ps.execute();
     }
 
     public void revokeGroup(User revoker, Group toRevoke) throws GigiApiException {
         groups.remove(toRevoke);
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE user_groups SET deleted=CURRENT_TIMESTAMP, revokedby=? WHERE deleted is NULL AND permission=? AND user=?");
-            ps.setInt(1, revoker.getId());
-            ps.setString(2, toRevoke.getDatabaseName());
-            ps.setInt(3, getId());
-            ps.execute();
-        } catch (SQLException e) {
-            throw new GigiApiException(e);
-        }
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE user_groups SET deleted=CURRENT_TIMESTAMP, revokedby=? WHERE deleted is NULL AND permission=? AND user=?");
+        ps.setInt(1, revoker.getId());
+        ps.setString(2, toRevoke.getDatabaseName());
+        ps.setInt(3, getId());
+        ps.execute();
     }
 
     private static ObjectCache<User> myCache = new ObjectCache<>();

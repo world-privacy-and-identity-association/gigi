@@ -3,14 +3,14 @@ package org.cacert.gigi;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
@@ -39,7 +39,7 @@ public class TestUserGroupMembership extends ManagedTest {
         assertThat(u2, is(not(sameInstance(u))));
         assertBehavesTtpGroup(u2);
 
-        ResultSet rs = fetchGroupRowsFor(u);
+        GigiResultSet rs = fetchGroupRowsFor(u);
 
         assertTrue(rs.next());
         assertEquals(0, rs.getInt("revokedby"));
@@ -69,7 +69,7 @@ public class TestUserGroupMembership extends ManagedTest {
         assertThat(u2, is(not(sameInstance(u))));
         assertBehavesEmpty(u);
 
-        ResultSet rs = fetchGroupRowsFor(u);
+        GigiResultSet rs = fetchGroupRowsFor(u);
         assertTrue(rs.next());
         assertEquals(granter.getId(), rs.getInt("revokedby"));
         assertEquals(granter.getId(), rs.getInt("grantedby"));
@@ -81,10 +81,10 @@ public class TestUserGroupMembership extends ManagedTest {
         assertFalse(rs.next());
     }
 
-    private ResultSet fetchGroupRowsFor(User u) throws SQLException {
-        PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT * FROM user_groups WHERE user=?");
+    private GigiResultSet fetchGroupRowsFor(User u) throws SQLException {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT * FROM user_groups WHERE user=?");
         ps.setInt(1, u.getId());
-        ResultSet rs = ps.executeQuery();
+        GigiResultSet rs = ps.executeQuery();
         return rs;
     }
 

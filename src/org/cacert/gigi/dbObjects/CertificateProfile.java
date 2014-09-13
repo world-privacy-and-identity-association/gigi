@@ -1,11 +1,10 @@
 package org.cacert.gigi.dbObjects;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
 
 public class CertificateProfile {
 
@@ -38,16 +37,12 @@ public class CertificateProfile {
     }
 
     static {
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id, keyname, name FROM `profiles`");
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                CertificateProfile cp = new CertificateProfile(rs.getInt("id"), rs.getString("keyName"), rs.getString("name"));
-                byId.put(cp.getId(), cp);
-                byName.put(cp.getKeyName(), cp);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id, keyname, name FROM `profiles`");
+        GigiResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            CertificateProfile cp = new CertificateProfile(rs.getInt("id"), rs.getString("keyName"), rs.getString("name"));
+            byId.put(cp.getId(), cp);
+            byName.put(cp.getKeyName(), cp);
         }
 
     }

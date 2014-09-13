@@ -1,12 +1,10 @@
 package org.cacert.gigi.dbObjects;
 
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.email.MailProbe;
 import org.cacert.gigi.localisation.Language;
@@ -22,11 +20,11 @@ public class EmailAddress implements IdCachable {
 
     private String hash = null;
 
-    private EmailAddress(int id) throws SQLException {
-        PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid, email, hash FROM `emails` WHERE id=? AND deleted=0");
+    private EmailAddress(int id) {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid, email, hash FROM `emails` WHERE id=? AND deleted=0");
         ps.setInt(1, id);
 
-        ResultSet rs = ps.executeQuery();
+        GigiResultSet rs = ps.executeQuery();
         if ( !rs.next()) {
             throw new IllegalArgumentException("Invalid email id " + id);
         }
@@ -51,18 +49,16 @@ public class EmailAddress implements IdCachable {
             throw new IllegalStateException("already inserted.");
         }
         try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `emails` SET memid=?, hash=?, email=?");
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `emails` SET memid=?, hash=?, email=?");
             ps.setInt(1, owner.getId());
             ps.setString(2, hash);
             ps.setString(3, address);
             synchronized (EmailAddress.class) {
                 ps.execute();
-                id = DatabaseConnection.lastInsertId(ps);
+                id = ps.lastInsertId();
                 myCache.put(this);
             }
             MailProbe.sendMailProbe(l, "email", id, hash, address);
-        } catch (SQLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -78,22 +74,17 @@ public class EmailAddress implements IdCachable {
 
     public synchronized void verify(String hash) throws GigiApiException {
         if (this.hash.equals(hash)) {
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `emails` SET hash='' WHERE id=?");
+            ps.setInt(1, id);
+            ps.execute();
+            hash = "";
 
-            try {
-                PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `emails` SET hash='' WHERE id=?");
-                ps.setInt(1, id);
-                ps.execute();
-                hash = "";
-
-                // Verify user with that primary email
-                PreparedStatement ps2 = DatabaseConnection.getInstance().prepare("update `users` set `verified`='1' where `id`=? and `email`=? and `verified`='0'");
-                ps2.setInt(1, owner.getId());
-                ps2.setString(2, address);
-                ps2.execute();
-                this.hash = "";
-            } catch (SQLException e) {
-                throw new GigiApiException(e);
-            }
+            // Verify user with that primary email
+            GigiPreparedStatement ps2 = DatabaseConnection.getInstance().prepare("update `users` set `verified`='1' where `id`=? and `email`=? and `verified`='0'");
+            ps2.setInt(1, owner.getId());
+            ps2.setString(2, address);
+            ps2.execute();
+            this.hash = "";
 
         } else {
             throw new GigiApiException("Email verification hash is invalid.");
@@ -109,11 +100,7 @@ public class EmailAddress implements IdCachable {
     public static synchronized EmailAddress getById(int id) throws IllegalArgumentException {
         EmailAddress em = myCache.get(id);
         if (em == null) {
-            try {
-                myCache.put(em = new EmailAddress(id));
-            } catch (SQLException e1) {
-                throw new IllegalArgumentException(e1);
-            }
+            myCache.put(em = new EmailAddress(id));
         }
         return em;
     }

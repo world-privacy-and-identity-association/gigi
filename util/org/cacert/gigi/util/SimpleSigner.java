@@ -13,8 +13,6 @@ import java.security.GeneralSecurityException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -24,24 +22,26 @@ import java.util.Properties;
 import java.util.TimeZone;
 
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.output.DateSelector;
 
 public class SimpleSigner {
 
-    private static PreparedStatement warnMail;
+    private static GigiPreparedStatement warnMail;
 
-    private static PreparedStatement updateMail;
+    private static GigiPreparedStatement updateMail;
 
-    private static PreparedStatement readyCerts;
+    private static GigiPreparedStatement readyCerts;
 
-    private static PreparedStatement getSANSs;
+    private static GigiPreparedStatement getSANSs;
 
-    private static PreparedStatement revoke;
+    private static GigiPreparedStatement revoke;
 
-    private static PreparedStatement revokeCompleted;
+    private static GigiPreparedStatement revokeCompleted;
 
-    private static PreparedStatement finishJob;
+    private static GigiPreparedStatement finishJob;
 
     private static boolean running = true;
 
@@ -128,7 +128,7 @@ public class SimpleSigner {
     }
 
     private static void revokeCertificates() throws SQLException, IOException, InterruptedException {
-        ResultSet rs = revoke.executeQuery();
+        GigiResultSet rs = revoke.executeQuery();
         boolean worked = false;
         while (rs.next()) {
             int id = rs.getInt(1);
@@ -188,7 +188,7 @@ public class SimpleSigner {
     private static int counter = 0;
 
     private static void signCertificates() throws SQLException {
-        ResultSet rs = readyCerts.executeQuery();
+        GigiResultSet rs = readyCerts.executeQuery();
 
         Calendar c = Calendar.getInstance();
         c.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -229,7 +229,7 @@ public class SimpleSigner {
                 }
 
                 getSANSs.setInt(1, id);
-                ResultSet san = getSANSs.executeQuery();
+                GigiResultSet san = getSANSs.executeQuery();
 
                 File f = new File("keys", "SANFile" + System.currentTimeMillis() + (counter++) + ".cfg");
                 PrintWriter cfg = new PrintWriter(f);
@@ -317,8 +317,6 @@ public class SimpleSigner {
             } catch (GeneralSecurityException e) {
                 e.printStackTrace();
             } catch (IOException e) {
-                e.printStackTrace();
-            } catch (SQLException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
                 e.printStackTrace();

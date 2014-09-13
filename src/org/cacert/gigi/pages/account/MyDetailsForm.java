@@ -2,7 +2,6 @@ package org.cacert.gigi.pages.account;
 
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,9 +55,6 @@ public class MyDetailsForm extends Form {
             } else {
                 throw new GigiApiException("No change after assurance allowed.");
             }
-        } catch (SQLException e) {
-            new GigiApiException(e).format(out, Page.getLanguage(req));
-            return false;
         } catch (GigiApiException e) {
             e.format(out, Page.getLanguage(req));
             return false;
@@ -76,16 +72,12 @@ public class MyDetailsForm extends Form {
         vars.put("lname", HTMLEncoder.encodeHTML(target.getLname()));
         vars.put("suffix", target.getSuffix() == null ? "" : HTMLEncoder.encodeHTML(target.getSuffix()));
         vars.put("details", "");
-        try {
-            if (target.getAssurancePoints() == 0) {
-                vars.put("DoB", ds);
-                templ.output(out, l, vars);
-            } else {
-                vars.put("DoB", DateSelector.getDateFormat().format(target.getDob()));
-                assured.output(out, l, vars);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (target.getAssurancePoints() == 0) {
+            vars.put("DoB", ds);
+            templ.output(out, l, vars);
+        } else {
+            vars.put("DoB", DateSelector.getDateFormat().format(target.getDob()));
+            assured.output(out, l, vars);
         }
     }
 

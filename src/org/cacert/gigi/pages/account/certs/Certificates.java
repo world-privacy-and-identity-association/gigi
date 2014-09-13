@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
-import java.sql.SQLException;
 import java.util.HashMap;
 
 import javax.servlet.ServletOutputStream;
@@ -77,9 +76,6 @@ public class Certificates extends Page {
         } catch (GeneralSecurityException e) {
             resp.sendError(404);
             return true;
-        } catch (SQLException e) {
-            resp.sendError(404);
-            return true;
         }
 
         return true;
@@ -105,8 +101,6 @@ public class Certificates extends Page {
             try {
                 vars.put("cert", c.cert());
             } catch (GeneralSecurityException e) {
-                e.printStackTrace();
-            } catch (SQLException e) {
                 e.printStackTrace();
             }
             certDisplay.output(out, getLanguage(req), vars);

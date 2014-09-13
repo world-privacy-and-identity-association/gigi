@@ -1,12 +1,10 @@
 package org.cacert.gigi.util;
 
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.output.CertificateValiditySelector;
 
@@ -32,31 +30,31 @@ public class Job {
         }
     }
 
-    public static Job sign(Certificate targetId, Date start, String period) throws SQLException, GigiApiException {
+    public static Job sign(Certificate targetId, Date start, String period) throws GigiApiException {
         CertificateValiditySelector.checkValidityLength(period);
-        PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `jobs` SET targetId=?, task=?, executeFrom=?, executeTo=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `jobs` SET targetId=?, task=?, executeFrom=?, executeTo=?");
         ps.setInt(1, targetId.getId());
         ps.setString(2, JobType.SIGN.getName());
         ps.setDate(3, start);
         ps.setString(4, period);
         ps.execute();
-        return new Job(DatabaseConnection.lastInsertId(ps));
+        return new Job(ps.lastInsertId());
     }
 
-    public static Job revoke(Certificate targetId) throws SQLException {
+    public static Job revoke(Certificate targetId) {
 
-        PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `jobs` SET targetId=?, task=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `jobs` SET targetId=?, task=?");
         ps.setInt(1, targetId.getId());
         ps.setString(2, JobType.REVOKE.getName());
         ps.execute();
-        return new Job(DatabaseConnection.lastInsertId(ps));
+        return new Job(ps.lastInsertId());
     }
 
-    public boolean waitFor(int max) throws SQLException, InterruptedException {
+    public boolean waitFor(int max) throws InterruptedException {
         long start = System.currentTimeMillis();
-        PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `jobs` WHERE id=? AND state='open'");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `jobs` WHERE id=? AND state='open'");
         ps.setInt(1, id);
-        ResultSet rs = ps.executeQuery();
+        GigiResultSet rs = ps.executeQuery();
         while (rs.next()) {
             rs.close();
             if (max != 0 && System.currentTimeMillis() - start > max) {

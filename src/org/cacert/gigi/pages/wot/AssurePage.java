@@ -2,9 +2,6 @@ package org.cacert.gigi.pages.wot;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.Form;
@@ -46,12 +45,7 @@ public class AssurePage extends Page {
 
     @Override
     public boolean isPermitted(User u) {
-        try {
-            return u != null && u.canAssure();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+        return u != null && u.canAssure();
     }
 
     private void outputForm(HttpServletRequest req, PrintWriter out, AssuranceForm form) {
@@ -79,9 +73,9 @@ public class AssurePage extends Page {
             return;
         }
 
-        ResultSet rs = null;
+        GigiResultSet rs = null;
         try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id, verified FROM users WHERE email=? AND dob=? AND deleted=0");
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id, verified FROM users WHERE email=? AND dob=? AND deleted=0");
             ps.setString(1, req.getParameter("email"));
             String day = req.getParameter("year") + "-" + req.getParameter("month") + "-" + req.getParameter("day");
             ps.setString(2, day);
@@ -110,15 +104,9 @@ public class AssurePage extends Page {
             }
 
             rs.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
         } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (rs != null) {
+                rs.close();
             }
         }
     }

@@ -1,11 +1,11 @@
 package org.cacert.gigi.util;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.testUtils.ManagedTest;
@@ -64,7 +64,7 @@ public class TestNotary extends ManagedTest {
             users[i] = User.getById(id);
         }
         int id = createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD);
-        PreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE users SET dob=TIMESTAMPADD(YEAR,-14,NOW()) WHERE id=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE users SET dob=TIMESTAMPADD(YEAR,-14,NOW()) WHERE id=?");
         ps.setInt(1, id);
         ps.execute();
         User assurer = User.getById(id);

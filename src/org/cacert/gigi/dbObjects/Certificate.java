@@ -9,9 +9,6 @@ import java.security.GeneralSecurityException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -19,6 +16,8 @@ import java.util.List;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.util.Job;
 import org.cacert.gigi.util.KeyStorage;
 import org.cacert.gigi.util.Notary;
@@ -140,35 +139,31 @@ public class Certificate {
     }
 
     private Certificate(String serial) {
-        try {
-            PreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id,subject, md, csr_name, crt_name,memid, profile FROM `certs` WHERE serial=?");
-            ps.setString(1, serial);
-            ResultSet rs = ps.executeQuery();
-            if ( !rs.next()) {
-                throw new IllegalArgumentException("Invalid mid " + serial);
-            }
-            this.id = rs.getInt(1);
-            dn = rs.getString(2);
-            md = rs.getString(3);
-            csrName = rs.getString(4);
-            crtName = rs.getString(5);
-            ownerId = rs.getInt(6);
-            profile = CertificateProfile.getById(rs.getInt(7));
-            this.serial = serial;
-
-            PreparedStatement ps2 = DatabaseConnection.getInstance().prepare("SELECT contents, type FROM `subjectAlternativeNames` WHERE certId=?");
-            ps2.setInt(1, id);
-            ResultSet rs2 = ps2.executeQuery();
-            sans = new LinkedList<>();
-            while (rs2.next()) {
-                sans.add(new SubjectAlternateName(SANType.valueOf(rs2.getString("type").toUpperCase()), rs2.getString("contents")));
-            }
-            rs2.close();
-
-            rs.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id,subject, md, csr_name, crt_name,memid, profile FROM `certs` WHERE serial=?");
+        ps.setString(1, serial);
+        GigiResultSet rs = ps.executeQuery();
+        if ( !rs.next()) {
+            throw new IllegalArgumentException("Invalid mid " + serial);
         }
+        this.id = rs.getInt(1);
+        dn = rs.getString(2);
+        md = rs.getString(3);
+        csrName = rs.getString(4);
+        crtName = rs.getString(5);
+        ownerId = rs.getInt(6);
+        profile = CertificateProfile.getById(rs.getInt(7));
+        this.serial = serial;
+
+        GigiPreparedStatement ps2 = DatabaseConnection.getInstance().prepare("SELECT contents, type FROM `subjectAlternativeNames` WHERE certId=?");
+        ps2.setInt(1, id);
+        GigiResultSet rs2 = ps2.executeQuery();
+        sans = new LinkedList<>();
+        while (rs2.next()) {
+            sans.add(new SubjectAlternateName(SANType.valueOf(rs2.getString("type").toUpperCase()), rs2.getString("contents")));
+        }
+        rs2.close();
+
+        rs.close();
     }
 
     public enum CertificateStatus {
@@ -198,13 +193,13 @@ public class Certificate {
 
     }
 
-    public CertificateStatus getStatus() throws SQLException {
+    public CertificateStatus getStatus() {
         if (id == 0) {
             return CertificateStatus.DRAFT;
         }
-        PreparedStatement searcher = DatabaseConnection.getInstance().prepare("SELECT crt_name, created, revoked, serial FROM certs WHERE id=?");
+        GigiPreparedStatement searcher = DatabaseConnection.getInstance().prepare("SELECT crt_name, created, revoked, serial FROM certs WHERE id=?");
         searcher.setInt(1, id);
-        ResultSet rs = searcher.executeQuery();
+        GigiResultSet rs = searcher.executeQuery();
         if ( !rs.next()) {
             throw new IllegalStateException("Certificate not in Database");
         }
@@ -231,25 +226,23 @@ public class Certificate {
      * @return A job which can be used to monitor the progress of this task.
      * @throws IOException
      *             for problems with writing the CSR/SPKAC
-     * @throws SQLException
-     *             for problems with writing to the DB
      * @throws GigiApiException
      *             if the period is bogus
      */
-    public Job issue(Date start, String period) throws IOException, SQLException, GigiApiException {
+    public Job issue(Date start, String period) throws IOException, GigiApiException {
         if (getStatus() != CertificateStatus.DRAFT) {
             throw new IllegalStateException();
         }
         Notary.writeUserAgreement(ownerId, "CCA", "issue certificate", "", true, 0);
 
-        PreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO certs SET md=?, subject=?, csr_type=?, crt_name='', memid=?, profile=?");
+        GigiPreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO certs SET md=?, subject=?, csr_type=?, crt_name='', memid=?, profile=?");
         inserter.setString(1, md);
         inserter.setString(2, dn);
         inserter.setString(3, csrType.toString());
         inserter.setInt(4, ownerId);
         inserter.setInt(5, profile.getId());
         inserter.execute();
-        id = DatabaseConnection.lastInsertId(inserter);
+        id = inserter.lastInsertId();
         File csrFile = KeyStorage.locateCsr(id);
         csrName = csrFile.getPath();
         FileOutputStream fos = new FileOutputStream(csrFile);
@@ -257,7 +250,7 @@ public class Certificate {
         fos.close();
 
         // TODO draft to insert SANs
-        PreparedStatement san = DatabaseConnection.getInstance().prepare("INSERT INTO subjectAlternativeNames SET certId=?, contents=?, type=?");
+        GigiPreparedStatement san = DatabaseConnection.getInstance().prepare("INSERT INTO subjectAlternativeNames SET certId=?, contents=?, type=?");
         for (SubjectAlternateName subjectAlternateName : sans) {
             san.setInt(1, id);
             san.setString(2, subjectAlternateName.getName());
@@ -265,7 +258,7 @@ public class Certificate {
             san.execute();
         }
 
-        PreparedStatement updater = DatabaseConnection.getInstance().prepare("UPDATE certs SET csr_name=? WHERE id=?");
+        GigiPreparedStatement updater = DatabaseConnection.getInstance().prepare("UPDATE certs SET csr_name=? WHERE id=?");
         updater.setString(1, csrName);
         updater.setInt(2, id);
         updater.execute();
@@ -273,7 +266,7 @@ public class Certificate {
 
     }
 
-    public Job revoke() throws SQLException {
+    public Job revoke() {
         if (getStatus() != CertificateStatus.ISSUED) {
             throw new IllegalStateException();
         }
@@ -281,7 +274,7 @@ public class Certificate {
 
     }
 
-    public X509Certificate cert() throws IOException, GeneralSecurityException, SQLException {
+    public X509Certificate cert() throws IOException, GeneralSecurityException {
         CertificateStatus status = getStatus();
         if (status != CertificateStatus.ISSUED) {
             throw new IllegalStateException(status + " is not wanted here.");
@@ -309,11 +302,8 @@ public class Certificate {
     }
 
     public String getSerial() {
-        try {
-            getStatus();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } // poll changes
+        getStatus();
+        // poll changes
         return serial;
     }
 
