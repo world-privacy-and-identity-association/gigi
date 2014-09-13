@@ -166,11 +166,11 @@ public class Domain implements IdCachable {
         return Collections.unmodifiableList(configs);
     }
 
-    public void addPing(PingType ssl, String config) throws GigiApiException {
+    public void addPing(PingType type, String config) throws GigiApiException {
         try {
             PreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO pingconfig SET domainid=?, type=?, info=?");
             ps.setInt(1, id);
-            ps.setString(2, ssl.toString().toLowerCase());
+            ps.setString(2, type.toString().toLowerCase());
             ps.setString(3, config);
             ps.execute();
             configs = null;
