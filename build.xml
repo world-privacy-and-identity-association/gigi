@@ -66,6 +66,8 @@
 	</target>
 	<target name="clean-test">
 		<delete dir="bintest" />
+		<delete dir="cocoReport" failonerror="false"/>
+
 	</target>
 	<target depends="clean,clean-test" name="cleanall" />
 	<target depends="build-project, native" name="build" />
@@ -152,8 +154,8 @@
 	<target name="test" depends="build-project-test,generateKeys,FetchLocales,pack">
 		<delete failonerror="false">
 			<fileset dir=".">
-		    	<include name="jacoco.exec"/>
-		    	<include name="tester.exec"/>
+				<include name="jacoco.exec"/>
+				<include name="tester.exec"/>
 			</fileset>
 		</delete>
 		<mkdir dir="${junit.output.dir}" />
@@ -188,20 +190,22 @@
 			</executiondata>
 
 			<structure name="CAcert gigi">
-				<classfiles>
-					<fileset dir="bin/org/cacert/gigi"/>
-				</classfiles>
-				<sourcefiles encoding="UTF-8">
-					<fileset dir="src/org/cacert/gigi"/>
-				</sourcefiles>
-			</structure>
-			<structure name="CAcert testcases">
-				<classfiles>
-					<fileset dir="bintest/org/cacert/gigi"/>
-				</classfiles>
-				<sourcefiles encoding="UTF-8">
-					<fileset dir="tests/org/cacert/gigi"/>
-				</sourcefiles>
+				<group name="Server">
+					<classfiles>
+						<fileset dir="bin/org/cacert/gigi" />
+					</classfiles>
+					<sourcefiles encoding="UTF-8">
+						<fileset dir="src/org/cacert/gigi" />
+					</sourcefiles>
+				</group>
+				<group name="Testcases">
+					<classfiles>
+						<fileset dir="bintest/org/cacert/gigi" />
+					</classfiles>
+					<sourcefiles encoding="UTF-8">
+						<fileset dir="tests/org/cacert/gigi" />
+					</sourcefiles>
+				</group>
 			</structure>
 
 			<html destdir="cocoReport"/>
