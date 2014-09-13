@@ -44,7 +44,7 @@ CREATE TABLE `domains` (
   KEY `memid` (`memid`),
   KEY `domain` (`domain`),
   KEY `stats_domains_deleted` (`deleted`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `emails`;
 CREATE TABLE `emails` (
@@ -61,7 +61,7 @@ CREATE TABLE `emails` (
   KEY `stats_email_hash` (`hash`),
   KEY `stats_email_deleted` (`deleted`),
   KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `emailPinglog`;
 CREATE TABLE `emailPinglog` (
@@ -71,7 +71,7 @@ CREATE TABLE `emailPinglog` (
   `type` enum('fast', 'active') NOT NULL,
   `status` enum('open', 'success', 'failed') NOT NULL,
   `result` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `pingconfig`;
 CREATE TABLE `pingconfig` (
@@ -81,7 +81,7 @@ CREATE TABLE `pingconfig` (
   `info` varchar(255) NOT NULL,
   `reping` enum('y','n') NOT NULL DEFAULT 'n',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 DROP TABLE IF EXISTS `domainPinglog`;
@@ -91,12 +91,12 @@ CREATE TABLE `domainPinglog` (
   `state` enum('open', 'success', 'failed') NOT NULL,
   `challenge` varchar(16),
   `result` varchar(255)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `baddomains`;
 CREATE TABLE `baddomains` (
   `domain` varchar(255) NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 DROP TABLE IF EXISTS `alerts`;
@@ -107,7 +107,7 @@ CREATE TABLE `alerts` (
   `regional` tinyint(1) NOT NULL DEFAULT '0',
   `radius` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`memid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `user_agreements`;
 CREATE TABLE `user_agreements` (
@@ -120,7 +120,7 @@ CREATE TABLE `user_agreements` (
   `method` varchar(100) NOT NULL,
   `comment` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `certs`;
 CREATE TABLE `certs` (
@@ -154,7 +154,7 @@ CREATE TABLE `certs` (
   KEY `serial` (`serial`),
   KEY `stats_emailcerts_expire` (`expire`),
   KEY `emailcrt` (`crt_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `clientcerts`;
 CREATE TABLE `clientcerts` (
@@ -162,7 +162,7 @@ CREATE TABLE `clientcerts` (
   `disablelogin` int(1) NOT NULL DEFAULT '0',
 
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `profiles`;
 CREATE TABLE `profiles` (
@@ -174,7 +174,7 @@ CREATE TABLE `profiles` (
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE (`keyname`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 INSERT INTO `profiles` SET rootcert=0, keyname='client', name='ssl-client (unassured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth';
 INSERT INTO `profiles` SET rootcert=0, keyname='mail',  name='mail (unassured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='emailProtection';
 INSERT INTO `profiles` SET rootcert=0, keyname='client-mail', name='ssl-client + mail (unassured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth, emailProtection';
@@ -191,7 +191,7 @@ CREATE TABLE `subjectAlternativeNames` (
   `certId` int(11) NOT NULL,
   `contents` varchar(50) NOT NULL,
   `type` enum('email','DNS') NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 
 
@@ -207,7 +207,7 @@ CREATE TABLE `jobs` (
   `executeTo` VARCHAR(11),
   PRIMARY KEY (`id`),
   KEY `state` (`state`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 
 DROP TABLE IF EXISTS `notary`;
@@ -236,7 +236,7 @@ CREATE TABLE `notary` (
   KEY `to` (`to`),
   KEY `stats_notary_when` (`when`),
   KEY `stats_notary_method` (`method`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 
 DROP TABLE IF EXISTS `cats_passed`;
@@ -247,7 +247,7 @@ CREATE TABLE `cats_passed` (
   `pass_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `test_passed` (`user_id`,`variant_id`,`pass_date`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 # --------------------------------------------------------
 
@@ -261,14 +261,14 @@ CREATE TABLE `cats_type` (
   `type_text` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `type_text` (`type_text`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `arbitrations`;
 CREATE TABLE IF NOT EXISTS `arbitrations` (
   `user` int(11) NOT NULL,
   `arbitration` varchar(20) NOT NULL,
   PRIMARY KEY (`user`,`arbitration`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `user_groups`;
 CREATE TABLE IF NOT EXISTS `user_groups` (
@@ -280,4 +280,4 @@ CREATE TABLE IF NOT EXISTS `user_groups` (
   `grantedby` int(11) NOT NULL,
   `revokedby` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
