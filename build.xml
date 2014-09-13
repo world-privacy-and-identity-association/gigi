@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project basedir="." default="develop" name="cacert-gigi">
+<project basedir="." default="develop" name="cacert-gigi" xmlns:jacoco="antlib:org.jacoco.ant">
+
+	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+		<classpath path="/usr/share/java/jacocoant.jar" />
+	</taskdef>
+
 	<property environment="env" />
 	<property name="junit.output.dir" value="junit" />
 	<property name="debuglevel" value="source,lines,vars" />
@@ -91,24 +96,24 @@
 			includes="gigi.jar,native/*.so,doc/tableStructure.sql,static/**,templates/**" />
 	</target>
 	<target name="static-bundle">
-	    <mkdir dir="work"/>
-	    <mkdir dir="work/static"/>
-	    <copy todir="work/static">
-    		<fileset dir="static"/>
-  		</copy>
+		<mkdir dir="work"/>
+		<mkdir dir="work/static"/>
+		<copy todir="work/static">
+			<fileset dir="static"/>
+		</copy>
 		<move file="work/static/static/images/cacert4-test.png" tofile="work/static/static/images/cacert4.png"/>
-	    <delete file="work/static/static/image/cacert4-test.png"/>
+		<delete file="work/static/static/image/cacert4-test.png"/>
 		<tar destfile="static.tar.gz" compression="gzip" basedir="work"
 			includes="../doc/tableStructure.sql,**,templates/**" />
 	</target>
-	
+
 	<target name="static-bundle-release">
 		<mkdir dir="work"/>
-	    <mkdir dir="work/static"/>
-	    <copy todir="work/static">
-    		<fileset dir="static"/>
-  		</copy>
-  		<delete file="work/static/static/image/cacert4-test.png"/>
+		<mkdir dir="work/static"/>
+		<copy todir="work/static">
+			<fileset dir="static"/>
+		</copy>
+		<delete file="work/static/static/image/cacert4-test.png"/>
 		<tar destfile="static.tar.gz" compression="gzip" basedir="work"
 			includes="../doc/tableStructure.sql,**,templates/**" />
 	</target>
@@ -116,7 +121,7 @@
 	<target name="develop" depends="bundle,static-bundle" />
 
 	<target name="release" depends="bundle,static-bundle-release" />
-	
+
 	<target depends="init,build-project" name="build-project-test">
 		<echo message="${ant.project.name}: ${ant.file}" />
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bintest"
@@ -145,6 +150,12 @@
 		</exec>
 	</target>
 	<target name="test" depends="build-project-test,generateKeys,FetchLocales,pack">
+		<delete failonerror="false">
+			<fileset dir=".">
+		    	<include name="jacoco.exec"/>
+		    	<include name="tester.exec"/>
+			</fileset>
+		</delete>
 		<mkdir dir="${junit.output.dir}" />
 		<junit fork="yes" printsummary="withOutAndErr">
 			<jvmarg value="-javaagent:/usr/share/java/jacocoagent.jar=destfile=tester.exec"/>
@@ -165,5 +176,36 @@
 			</fileset>
 			<report format="frames" todir="${junit.output.dir}" />
 		</junitreport>
+	</target>
+	<target name="generatecoco">
+		<jacoco:merge destfile="merged.exec">
+			<fileset dir="." includes="*.exec"/>
+		</jacoco:merge>
+		<jacoco:report>
+			<executiondata>
+				<file file="jacoco.exec" />
+				<file file="tester.exec" />
+			</executiondata>
+
+			<structure name="CAcert gigi">
+				<classfiles>
+					<fileset dir="bin/org/cacert/gigi"/>
+				</classfiles>
+				<sourcefiles encoding="UTF-8">
+					<fileset dir="src/org/cacert/gigi"/>
+				</sourcefiles>
+			</structure>
+			<structure name="CAcert testcases">
+				<classfiles>
+					<fileset dir="bintest/org/cacert/gigi"/>
+				</classfiles>
+				<sourcefiles encoding="UTF-8">
+					<fileset dir="tests/org/cacert/gigi"/>
+				</sourcefiles>
+			</structure>
+
+			<html destdir="cocoReport"/>
+
+		</jacoco:report>
 	</target>
 </project>
