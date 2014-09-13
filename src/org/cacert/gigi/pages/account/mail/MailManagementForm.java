@@ -13,7 +13,6 @@ import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
-import org.cacert.gigi.pages.account.ChangePasswordPage;
 
 public class MailManagementForm extends Form {
 
@@ -21,7 +20,7 @@ public class MailManagementForm extends Form {
 
     private User target;
     static {
-        t = new Template(ChangePasswordPage.class.getResource("MailManagementForm.templ"));
+        t = new Template(MailAddForm.class.getResource("MailManagementForm.templ"));
     }
 
     public MailManagementForm(HttpServletRequest hsr, User target) {

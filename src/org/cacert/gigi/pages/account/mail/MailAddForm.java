@@ -11,7 +11,6 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
-import org.cacert.gigi.pages.account.ChangePasswordPage;
 
 public class MailAddForm extends Form {
 
@@ -19,7 +18,7 @@ public class MailAddForm extends Form {
 
     private String mail;
     static {
-        t = new Template(ChangePasswordPage.class.getResource("MailAddForm.templ"));
+        t = new Template(MailAddForm.class.getResource("MailAddForm.templ"));
     }
 
     private User target;
