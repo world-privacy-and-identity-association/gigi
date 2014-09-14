@@ -1,5 +1,6 @@
 package org.cacert.gigi;
 
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.Locale;
 
@@ -98,7 +99,11 @@ public class TestUser extends ManagedTest {
         User u = new User();
         u.setFname("f");
         u.setLname("l");
+        u.setMname("m");
+        u.setSuffix("s");
         u.setEmail(createUniqueName() + "@example.org");
+        u.setDob(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 365));
+        u.setPreferredLocale(Locale.ENGLISH);
         u.insert(TEST_PASSWORD);
         try {
             u.insert(TEST_PASSWORD);
