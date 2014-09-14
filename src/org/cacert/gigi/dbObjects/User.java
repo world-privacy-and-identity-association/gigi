@@ -112,10 +112,6 @@ public class User implements IdCachable {
         this.email = email;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public void setFname(String fname) {
         this.name.fname = fname;
     }

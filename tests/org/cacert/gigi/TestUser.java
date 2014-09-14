@@ -3,6 +3,7 @@ package org.cacert.gigi;
 import java.sql.SQLException;
 import java.util.Locale;
 
+import org.cacert.gigi.dbObjects.Assurance;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.User;
@@ -90,6 +91,32 @@ public class TestUser extends ManagedTest {
         assertFalse(u.isValidName("aä c"));
         assertFalse(u.isValidName("aä d b"));
 
+    }
+
+    @Test
+    public void testDoubleInsert() {
+        User u = new User();
+        u.setFname("f");
+        u.setLname("l");
+        u.setEmail(createUniqueName() + "@example.org");
+        u.insert(TEST_PASSWORD);
+        try {
+            u.insert(TEST_PASSWORD);
+            fail("Error expected");
+        } catch (Error e) {
+            // expected
+        }
+        Assurance[] ma = u.getMadeAssurances();
+        Assurance[] ma2 = u.getMadeAssurances();
+        Assurance[] ra = u.getReceivedAssurances();
+        Assurance[] ra2 = u.getReceivedAssurances();
+        assertEquals(0, u.getCertificates().length);
+        assertEquals(0, ma.length);
+        assertEquals(0, ma2.length);
+        assertEquals(0, ra.length);
+        assertEquals(0, ra2.length);
+        assertSame(ma, ma2);
+        assertSame(ra, ra2);
     }
 
 }
