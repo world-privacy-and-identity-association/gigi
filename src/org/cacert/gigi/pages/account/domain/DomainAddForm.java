@@ -20,12 +20,12 @@ public class DomainAddForm extends Form {
 
     private User target;
 
-    PingconfigForm pcf;
+    PingConfigForm pcf;
 
     public DomainAddForm(HttpServletRequest hsr, User target) throws GigiApiException {
         super(hsr);
         this.target = target;
-        pcf = new PingconfigForm(hsr, null);
+        pcf = new PingConfigForm(hsr, null);
     }
 
     @Override

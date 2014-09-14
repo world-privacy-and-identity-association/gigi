@@ -19,7 +19,7 @@ import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.ping.SSLPinger;
 import org.cacert.gigi.util.RandomToken;
 
-public class PingconfigForm extends Form {
+public class PingConfigForm extends Form {
 
     public enum SSLType {
         DIRECT, XMPP, XMPP_SERVER, SMTP, IMAP;
@@ -50,9 +50,9 @@ public class PingconfigForm extends Form {
 
     private SSLType[] sslTypes = new SSLType[MAX_SSL_TESTS];
 
-    private final Template t = new Template(PingconfigForm.class.getResource("PingconfigForm.templ"));
+    private final Template t = new Template(PingConfigForm.class.getResource("PingConfigForm.templ"));
 
-    public PingconfigForm(HttpServletRequest hsr, Domain target) throws GigiApiException {
+    public PingConfigForm(HttpServletRequest hsr, Domain target) throws GigiApiException {
         super(hsr);
         this.target = target;
         if (target == null) {

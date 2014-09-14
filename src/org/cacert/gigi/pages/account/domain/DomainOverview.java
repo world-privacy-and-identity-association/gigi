@@ -36,7 +36,7 @@ public class DomainOverview extends Page {
             }
             new DomainPinglogForm(req, d).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
             try {
-                new PingconfigForm(req, d).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+                new PingConfigForm(req, d).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
             } catch (GigiApiException e) {
                 e.format(resp.getWriter(), getLanguage(req));
             }
