@@ -6,7 +6,7 @@ import java.util.Map;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Outputable;
 
-public class Name implements Outputable, Cloneable {
+public class Name implements Outputable {
 
     String fname;
 
@@ -99,15 +99,6 @@ public class Name implements Outputable, Cloneable {
                 (mname != null && text.equals(fname + " " + mname + " " + lname)) || //
                 (suffix != null && text.equals(fname + " " + lname + " " + suffix)) || //
                 (mname != null && suffix != null && text.equals(fname + " " + mname + " " + lname + " " + suffix));
-    }
-
-    @Override
-    protected Name clone() {
-        try {
-            return (Name) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new Error(e);
-        }
     }
 
 }
