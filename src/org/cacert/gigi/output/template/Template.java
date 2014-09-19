@@ -121,9 +121,15 @@ public class Template implements Outputable {
         } else if (s2.startsWith("=s,")) {
             String command = s2.substring(3);
             final LinkedList<String> store = new LinkedList<String>();
-            while (command.startsWith("$")) {
-                int idx = command.indexOf(",");
-                store.add(command.substring(0, idx));
+            while (command.startsWith("$") || command.startsWith("\"")) {
+                int idx;
+                if (command.startsWith("\"")) {
+                    idx = command.indexOf("\"", 1) + 1;
+                    store.add(command.substring(0, idx - 1));
+                } else {
+                    idx = command.indexOf(",");
+                    store.add(command.substring(0, idx));
+                }
                 command = command.substring(idx + 1);
             }
             final String text = command;
