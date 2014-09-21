@@ -2,6 +2,10 @@ package org.cacert.gigi.dbObjects;
 
 import java.util.HashMap;
 
+import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.database.GigiResultSet;
+
 public class Group {
 
     private static HashMap<String, Group> cache = new HashMap<>();
@@ -53,5 +57,21 @@ public class Group {
 
     public String getDatabaseName() {
         return dbName;
+    }
+
+    public User[] getMembers(int offset, int count) {
+        GigiPreparedStatement gps = DatabaseConnection.getInstance().prepare("SELECT user FROM user_groups WHERE permission=? AND deleted is NULL LIMIT ?,?");
+        gps.setString(1, dbName);
+        gps.setInt(2, offset);
+        gps.setInt(3, count);
+        GigiResultSet grs = gps.executeQuery();
+        grs.last();
+        User[] users = new User[grs.getRow()];
+        int i = 0;
+        grs.beforeFirst();
+        while (grs.next()) {
+            users[i++] = User.getById(grs.getInt(1));
+        }
+        return users;
     }
 }
