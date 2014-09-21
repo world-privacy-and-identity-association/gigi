@@ -206,11 +206,15 @@ public class Gigi extends HttpServlet {
                 return;
             }
             User currentPageUser = LoginPage.getUser(req);
-            if ( !p.isPermitted(currentPageUser) && hs.getAttribute("loggedin") == null) {
-                String request = req.getPathInfo();
-                request = request.split("\\?")[0];
-                hs.setAttribute(LoginPage.LOGIN_RETURNPATH, request);
-                resp.sendRedirect("/login");
+            if ( !p.isPermitted(currentPageUser)) {
+                if (hs.getAttribute("loggedin") == null) {
+                    String request = req.getPathInfo();
+                    request = request.split("\\?")[0];
+                    hs.setAttribute(LoginPage.LOGIN_RETURNPATH, request);
+                    resp.sendRedirect("/login");
+                    return;
+                }
+                resp.sendError(403);
                 return;
             }
             if (p.beforeTemplate(req, resp)) {
