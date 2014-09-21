@@ -4,6 +4,20 @@ import org.cacert.gigi.database.GigiResultSet;
 
 public class Assurance {
 
+    public enum AssuranceType {
+        FACE_TO_FACE("Face to Face Meeting"), TOPUP("TOPUP"), TTP_ASSISTED("TTP-Assisted");
+
+        private final String description;
+
+        private AssuranceType(String description) {
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
     private int id;
 
     private User from;

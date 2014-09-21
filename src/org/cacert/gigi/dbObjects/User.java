@@ -486,7 +486,7 @@ public class User implements IdCachable {
         return Collections.unmodifiableSet(groups);
     }
 
-    public void grantGroup(User granter, Group toGrant) throws GigiApiException {
+    public void grantGroup(User granter, Group toGrant) {
         groups.add(toGrant);
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO user_groups SET user=?, permission=?, grantedby=?");
         ps.setInt(1, getId());
@@ -495,7 +495,7 @@ public class User implements IdCachable {
         ps.execute();
     }
 
-    public void revokeGroup(User revoker, Group toRevoke) throws GigiApiException {
+    public void revokeGroup(User revoker, Group toRevoke) {
         groups.remove(toRevoke);
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE user_groups SET deleted=CURRENT_TIMESTAMP, revokedby=? WHERE deleted is NULL AND permission=? AND user=?");
         ps.setInt(1, revoker.getId());
