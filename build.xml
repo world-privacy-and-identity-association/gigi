@@ -151,7 +151,13 @@
 			<arg value="-noprompt" />
 		</exec>
 	</target>
-	<target name="test" depends="build-project-test,generateKeys,FetchLocales,pack">
+	<target name="reset-db">
+		<copy file="config/test.properties" tofile="config/gigi.properties"/>
+		<java classname="org.cacert.gigi.util.DatabaseManager">
+			<classpath refid="cacert-gigi.classpath" />
+		</java>
+	</target>
+	<target name="test" depends="build-project-test,generateKeys,FetchLocales,pack,reset-db">
 		<delete failonerror="false">
 			<fileset dir=".">
 				<include name="jacoco.exec"/>
