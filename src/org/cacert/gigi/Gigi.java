@@ -45,6 +45,7 @@ import org.cacert.gigi.pages.error.PageNotFound;
 import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.pages.wot.AssurePage;
 import org.cacert.gigi.pages.wot.MyPoints;
+import org.cacert.gigi.pages.wot.RequestTTPPage;
 import org.cacert.gigi.ping.PingerDaemon;
 import org.cacert.gigi.util.ServerConstants;
 
@@ -104,6 +105,7 @@ public class Gigi extends HttpServlet {
             putPage(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"), "Certificates");
             putPage(DomainOverview.PATH + "*", new DomainOverview("Domains"), "Certificates");
             putPage(MyPoints.PATH, new MyPoints("My Points"), "CAcert Web of Trust");
+            putPage(RequestTTPPage.PATH, new RequestTTPPage(), "CAcert Web of Trust");
             putPage("/wot/rules", new StaticPage("CAcert Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "CAcert Web of Trust");
             baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
             rootMenu = new Menu("Main");
