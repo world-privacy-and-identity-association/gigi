@@ -67,7 +67,7 @@ DROP TABLE IF EXISTS `emailPinglog`;
 CREATE TABLE `emailPinglog` (
   `when` datetime NOT NULL,
   `uid` int(11) NOT NULL,
-  `emailid` int(11) NOT NULL,
+  `email` varchar(255) NOT NULL,
   `type` enum('fast', 'active') NOT NULL,
   `status` enum('open', 'success', 'failed') NOT NULL,
   `result` varchar(255) NOT NULL

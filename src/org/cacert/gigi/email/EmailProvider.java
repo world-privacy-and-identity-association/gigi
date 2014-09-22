@@ -115,7 +115,7 @@ public abstract class EmailProvider {
                     pw.print("QUIT\r\n");
                     pw.flush();
 
-                    GigiPreparedStatement statmt = DatabaseConnection.getInstance().prepare("insert into `pinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
+                    GigiPreparedStatement statmt = DatabaseConnection.getInstance().prepare("insert into `emailPinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
                     statmt.setString(1, address);
                     statmt.setString(2, line);
                     statmt.setInt(3, forUid);
@@ -130,7 +130,7 @@ public abstract class EmailProvider {
 
             }
         }
-        GigiPreparedStatement statmt = DatabaseConnection.getInstance().prepare("insert into `pinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
+        GigiPreparedStatement statmt = DatabaseConnection.getInstance().prepare("insert into `emailPinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
         statmt.setString(1, address);
         statmt.setString(2, "Failed to make a connection to the mail server");
         statmt.setInt(3, forUid);
