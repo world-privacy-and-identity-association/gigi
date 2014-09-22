@@ -7,9 +7,11 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.pages.Page;
 
@@ -17,10 +19,20 @@ public class TTPAdminPage extends Page {
 
     public static final String PATH = "/admin/ttp";
 
-    private static final Group TTP_APPLICANT = Group.getByString("ttp-applicant");
+    public static final Group TTP_APPLICANT = Group.getByString("ttp-applicant");
 
     public TTPAdminPage() {
         super("TTP-Admin");
+    }
+
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        try {
+            Form.getForm(req, TTPAdminForm.class).submit(resp.getWriter(), req);
+        } catch (GigiApiException e) {
+            e.format(resp.getWriter(), getLanguage(req));
+        }
+        resp.sendRedirect(PATH);
     }
 
     @Override
@@ -28,11 +40,11 @@ public class TTPAdminPage extends Page {
         String path = req.getPathInfo();
         if (path != null && path.length() > PATH.length()) {
             int id = Integer.parseInt(path.substring(1 + PATH.length()));
-            resp.getWriter().println("processing: " + id); // TODO
             User u = User.getById(id);
             if ( !u.isInGroup(TTP_APPLICANT)) {
                 return;
             }
+            new TTPAdminForm(req, u).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
             return;
         }
         final User[] users = TTP_APPLICANT.getMembers(0, 30);
