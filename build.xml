@@ -154,6 +154,7 @@
 	<target name="reset-db">
 		<copy file="config/test.properties" tofile="config/gigi.properties"/>
 		<java classname="org.cacert.gigi.util.DatabaseManager">
+			<arg value="--test"/>
 			<classpath refid="cacert-gigi.classpath" />
 		</java>
 	</target>

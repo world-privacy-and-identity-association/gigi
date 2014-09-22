@@ -19,6 +19,13 @@ public class DatabaseManager {
     }
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException {
+        boolean test = false;
+        if (args.length >= 1 && args[0].equals("--test")) {
+            test = true;
+            String[] ne = new String[args.length - 1];
+            System.arraycopy(args, 1, ne, 0, ne.length);
+            args = ne;
+        }
         if (args.length == 0) {
             Properties p = new Properties();
             p.load(new FileReader("config/gigi.properties"));
@@ -30,10 +37,25 @@ public class DatabaseManager {
             System.err.println("Usage: com.mysql.jdbc.Driver jdbc:mysql://localhost/cacert user password");
             return;
         }
-        run(args, false);
+        run(args, test ? ImportType.TEST : ImportType.PRODUCTION);
     }
 
-    public static void run(String[] args, boolean truncate) throws ClassNotFoundException, SQLException, IOException {
+    public static enum ImportType {
+        /**
+         * Execute Script as-as
+         */
+        PRODUCTION,
+        /**
+         * Execute Script, but changing Engine=InnoDB to Engine=Memory
+         */
+        TEST,
+        /**
+         * Execute INSERT statements as-is, and TRUNCATE instead of DROPPING
+         */
+        TRUNCATE
+    }
+
+    public static void run(String[] args, ImportType truncate) throws ClassNotFoundException, SQLException, IOException {
         Class.forName(args[0]);
         Connection conn = DriverManager.getConnection(args[1], args[2], args[3]);
         conn.setAutoCommit(false);
@@ -41,26 +63,33 @@ public class DatabaseManager {
         addFile(stmt, new File("doc/tableStructure.sql"), truncate);
         File localData = new File("doc/sampleData.sql");
         if (localData.exists()) {
-            addFile(stmt, localData, false);
+            addFile(stmt, localData, ImportType.PRODUCTION);
         }
         stmt.executeBatch();
         conn.commit();
         stmt.close();
     }
 
-    private static void addFile(Statement stmt, File f, boolean truncate) throws IOException, SQLException {
+    private static void addFile(Statement stmt, File f, ImportType type) throws IOException, SQLException {
         String sql = readFile(f);
         sql = sql.replaceAll("--[^\n]+\n", "\n");
         String[] stmts = sql.split(";");
         Pattern p = Pattern.compile("\\s*DROP TABLE IF EXISTS `([^`]+)`");
         for (String string : stmts) {
             Matcher m = p.matcher(string);
-            if (m.matches()) {
+            string = string.trim();
+            if (string.equals("")) {
+                continue;
+            }
+            if (m.matches() && type == ImportType.TRUNCATE) {
                 String sql2 = "TRUNCATE `" + m.group(1) + "`";
                 stmt.addBatch(sql2);
+                continue;
             }
-            if ( !string.trim().equals("") && ( !truncate || string.contains("INSERT"))) {
-                stmt.addBatch(string.replace("ENGINE=Memory", ""));
+            if (type == ImportType.PRODUCTION || string.startsWith("INSERT")) {
+                stmt.addBatch(string);
+            } else if (type == ImportType.TEST) {
+                stmt.addBatch(string.replace("ENGINE=InnoDB", "ENGINE=Memory"));
             }
         }
     }

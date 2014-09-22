@@ -128,7 +128,7 @@ CREATE TABLE `certs` (
   `memid` int(11) NOT NULL DEFAULT '0',
   `serial` varchar(50) NOT NULL DEFAULT '',
   `CN` varchar(255) NOT NULL DEFAULT '',
-  `subject` text NOT NULL,
+  `subject` varchar(1024) NOT NULL,
   `keytype` char(2) NOT NULL DEFAULT 'NS',
   `codesign` tinyint(1) NOT NULL DEFAULT '0',
   `md` enum('md5','sha1','sha256','sha512') NOT NULL DEFAULT 'sha512',

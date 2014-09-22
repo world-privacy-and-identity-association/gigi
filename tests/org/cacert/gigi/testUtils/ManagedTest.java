@@ -48,6 +48,7 @@ import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.cacert.gigi.util.DatabaseManager;
 import org.cacert.gigi.util.ServerConstants;
 import org.cacert.gigi.util.SimpleSigner;
+import org.cacert.gigi.util.DatabaseManager.ImportType;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -149,7 +150,7 @@ public class ManagedTest extends ConfiguredTest {
         try {
             DatabaseManager.run(new String[] {
                     testProps.getProperty("sql.driver"), testProps.getProperty("sql.url"), testProps.getProperty("sql.user"), testProps.getProperty("sql.password")
-            }, true);
+            }, ImportType.TRUNCATE);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
