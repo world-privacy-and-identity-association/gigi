@@ -77,6 +77,12 @@ public abstract class EmailProvider {
             }
 
             for (String host : mxhosts) {
+                host = host.split(" ", 2)[1];
+                if (host.endsWith(".")) {
+                    host = host.substring(0, host.length() - 1);
+                } else {
+                    return "Strange MX records.";
+                }
                 try (Socket s = new Socket(host, 25); BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream())); PrintWriter pw = new PrintWriter(s.getOutputStream())) {
                     String line;
                     while ((line = br.readLine()) != null && line.startsWith("220-")) {

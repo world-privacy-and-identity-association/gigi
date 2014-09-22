@@ -52,8 +52,10 @@ public class Sendmail extends EmailProvider {
         // TODO
         SimpleDateFormat emailDate = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss ZZZZ (z)", Locale.ENGLISH);
         out.print("Date: " + emailDate.format(new Date(System.currentTimeMillis())) + "\r\n");
-        out.print("Sender: " + errorsto + "\r\n");
-        out.print("Errors-To: " + errorsto + "\r\n");
+        if (errorsto != null) {
+            out.print("Sender: " + errorsto + "\r\n");
+            out.print("Errors-To: " + errorsto + "\r\n");
+        }
         if (replyto != null) {
             out.print("Reply-To: " + replyto + "\r\n");
         } else {
