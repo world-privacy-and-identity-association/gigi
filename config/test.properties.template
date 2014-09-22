@@ -29,3 +29,10 @@ domain.http=you-intstallation-for-the-textfiles
 domain.dnstest=the.dns.zone
 domain.testns=the.authorativ.ns.for.domain.dnstest
 domain.local=a.domain.that.resolves.to.localhost
+
+
+email.address=somemail@yourdomain.org
+email.password=somemails-imap-password
+email.imap=imap.yourdomain.org
+email.imap.user=somemail-imap-useraccount
+email.non-address=some-non-existent-domain@yourdomain.org

@@ -4,13 +4,8 @@ import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -22,14 +17,10 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivateKey;
-import java.security.Signature;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 import java.util.Locale;
@@ -55,18 +46,13 @@ import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.cacert.gigi.util.DatabaseManager;
-import org.cacert.gigi.util.PEM;
 import org.cacert.gigi.util.ServerConstants;
 import org.cacert.gigi.util.SimpleSigner;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import sun.security.pkcs10.PKCS10;
-import sun.security.pkcs10.PKCS10Attributes;
-import sun.security.x509.X500Name;
-
-public class ManagedTest {
+public class ManagedTest extends ConfiguredTest {
 
     static {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
@@ -93,24 +79,16 @@ public class ManagedTest {
         return url;
     }
 
-    static Properties testProps = new Properties();
-
-    public static Properties getTestProps() {
-        return testProps;
-    }
-
     static {
         InitTruststore.run();
         HttpURLConnection.setFollowRedirects(false);
     }
 
     @BeforeClass
-    public static void connectToServer() {
+    public static void initEnvironment() {
         try {
-            testProps.load(new FileInputStream("config/test.properties"));
-            if ( !DatabaseConnection.isInited()) {
-                DatabaseConnection.init(testProps);
-            }
+            ConfiguredTest.initEnvironment();
+
             purgeDatabase();
             String type = testProps.getProperty("type");
             Properties mainProps = generateMainProps();
@@ -333,12 +311,6 @@ public class ManagedTest {
         return uid;
     }
 
-    static int count = 0;
-
-    public static String createUniqueName() {
-        return "test" + System.currentTimeMillis() + "a" + (count++) + "u";
-    }
-
     private static String stripCookie(String headerField) {
         return headerField.substring(0, headerField.indexOf(';'));
     }
@@ -445,47 +417,6 @@ public class ManagedTest {
             }
         }
         return m.group(1);
-    }
-
-    public static KeyPair generateKeypair() throws GeneralSecurityException {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-        kpg.initialize(4096);
-        KeyPair keyPair = null;
-        File f = new File("testKeypair");
-        if (f.exists()) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
-                keyPair = (KeyPair) ois.readObject();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            keyPair = kpg.generateKeyPair();
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f))) {
-                oos.writeObject(keyPair);
-                oos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return keyPair;
-    }
-
-    public static String generatePEMCSR(KeyPair kp, String dn) throws GeneralSecurityException, IOException {
-        return generatePEMCSR(kp, dn, new PKCS10Attributes());
-    }
-
-    public static String generatePEMCSR(KeyPair kp, String dn, PKCS10Attributes atts) throws GeneralSecurityException, IOException {
-        return generatePEMCSR(kp, dn, atts, "SHA256WithRSA");
-    }
-
-    public static String generatePEMCSR(KeyPair kp, String dn, PKCS10Attributes atts, String signature) throws GeneralSecurityException, IOException {
-        PKCS10 p10 = new PKCS10(kp.getPublic(), atts);
-        Signature s = Signature.getInstance(signature);
-        s.initSign(kp.getPrivate());
-        p10.encodeAndSign(new X500Name(dn), s);
-        return PEM.encode("CERTIFICATE REQUEST", p10.getEncoded());
     }
 
     public static String executeBasicWebInteraction(String cookie, String path, String query) throws MalformedURLException, UnsupportedEncodingException, IOException {
