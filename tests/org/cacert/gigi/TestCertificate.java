@@ -1,5 +1,7 @@
 package org.cacert.gigi;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -10,16 +12,15 @@ import java.util.Collection;
 import java.util.List;
 
 import org.cacert.gigi.dbObjects.Certificate;
-import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.dbObjects.Certificate.SANType;
 import org.cacert.gigi.dbObjects.Certificate.SubjectAlternateName;
+import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
 
 import sun.security.x509.GeneralNameInterface;
-import static org.junit.Assert.*;
 
 public class TestCertificate extends ManagedTest {
 

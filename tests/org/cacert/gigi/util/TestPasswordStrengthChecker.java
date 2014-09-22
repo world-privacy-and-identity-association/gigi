@@ -1,9 +1,9 @@
 package org.cacert.gigi.util;
 
+import static org.junit.Assert.*;
+
 import org.cacert.gigi.dbObjects.User;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class TestPasswordStrengthChecker {
 

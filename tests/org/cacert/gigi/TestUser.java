@@ -1,5 +1,7 @@
 package org.cacert.gigi;
 
+import static org.junit.Assert.*;
+
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.Locale;
@@ -11,8 +13,6 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class TestUser extends ManagedTest {
 

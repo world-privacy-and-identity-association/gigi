@@ -30,8 +30,8 @@ import javax.net.ssl.X509TrustManager;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Certificate;
-import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
+import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.PingTest;

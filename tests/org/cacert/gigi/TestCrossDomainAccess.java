@@ -23,7 +23,6 @@ import org.junit.Test;
 
 public class TestCrossDomainAccess extends ManagedTest {
 
-
     @Test
     public void testNoOriginHeader() throws MalformedURLException, IOException {
         URLConnection con = new URL("https://" + ServerConstants.getWwwHostNamePortSecure() + "/login").openConnection();

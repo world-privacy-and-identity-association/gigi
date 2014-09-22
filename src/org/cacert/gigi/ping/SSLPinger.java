@@ -19,11 +19,11 @@ import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
-import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLEngineResult.Status;
 import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLParameters;
+import javax.net.ssl.TrustManagerFactory;
 import javax.security.cert.X509Certificate;
 
 import org.cacert.gigi.dbObjects.Certificate;

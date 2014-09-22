@@ -1,5 +1,7 @@
 package org.cacert.gigi.util;
 
+import static org.junit.Assert.*;
+
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -10,8 +12,6 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class TestNotary extends ManagedTest {
 

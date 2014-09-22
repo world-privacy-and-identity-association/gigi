@@ -1,6 +1,7 @@
 package org.cacert.gigi.util;
 
 import java.sql.Date;
+
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;

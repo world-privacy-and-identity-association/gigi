@@ -1,7 +1,7 @@
 package org.cacert.gigi.pages.account;
 
-import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

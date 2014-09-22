@@ -1,6 +1,7 @@
 package org.cacert.gigi.dbObjects;
 
 import java.io.IOException;
+
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;

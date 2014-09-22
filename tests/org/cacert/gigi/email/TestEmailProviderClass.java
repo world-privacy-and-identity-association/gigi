@@ -6,7 +6,6 @@ import static org.junit.Assume.*;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.testUtils.ConfiguredTest;
 import org.junit.BeforeClass;
 import org.junit.Test;

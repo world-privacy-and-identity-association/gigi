@@ -1,5 +1,6 @@
 package org.cacert.gigi;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -10,9 +11,6 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
-
-import static org.hamcrest.CoreMatchers.*;
-
 import org.junit.Test;
 
 public class TestLanguage extends ManagedTest {

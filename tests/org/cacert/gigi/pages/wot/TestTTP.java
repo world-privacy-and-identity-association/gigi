@@ -1,5 +1,8 @@
 package org.cacert.gigi.pages.wot;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.net.URL;
 
@@ -10,9 +13,6 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
 
 public class TestTTP extends ManagedTest {
 

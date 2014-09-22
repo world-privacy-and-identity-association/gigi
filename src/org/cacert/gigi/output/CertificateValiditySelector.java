@@ -1,8 +1,8 @@
 package org.cacert.gigi.output;
 
 import java.io.PrintWriter;
-import java.text.ParseException;
 import java.sql.Date;
+import java.text.ParseException;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;

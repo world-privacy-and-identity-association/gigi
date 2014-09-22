@@ -1,8 +1,8 @@
 package org.cacert.gigi.email;
 
-import static org.junit.Assume.*;
-import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;

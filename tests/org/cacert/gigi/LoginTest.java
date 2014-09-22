@@ -1,9 +1,9 @@
 package org.cacert.gigi;
 
+import static org.junit.Assert.*;
+
 import java.io.IOException;
 import java.net.URL;
-
-import static org.junit.Assert.*;
 
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
