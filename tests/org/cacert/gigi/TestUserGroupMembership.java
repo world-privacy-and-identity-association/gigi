@@ -99,4 +99,29 @@ public class TestUserGroupMembership extends ManagedTest {
         assertTrue(u.isInGroup(ttpGroup));
         assertFalse(u.isInGroup(supporter));
     }
+
+    @Test
+    public void testListGroup() {
+        Group g = Group.getByString("supporter");
+        User ux = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
+        User ux2 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
+        assertEquals(0, g.getMembers(0, 10).length);
+        ux.grantGroup(ux, g);
+        assertEquals(1, g.getMembers(0, 10).length);
+        ux2.grantGroup(ux, g);
+        assertEquals(2, g.getMembers(0, 10).length);
+        ux2.revokeGroup(ux, g);
+        assertEquals(1, g.getMembers(0, 10).length);
+        ux.revokeGroup(ux, g);
+        assertEquals(0, g.getMembers(0, 10).length);
+
+    }
+
+    @Test
+    public void testGroupEquals() {
+        assertTrue(ttpGroup.equals(ttpGroup));
+        assertFalse(ttpGroup.equals(null));
+        assertFalse(ttpGroup.equals(""));
+        assertFalse(ttpGroup.equals(supporter));
+    }
 }
