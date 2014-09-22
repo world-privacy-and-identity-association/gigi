@@ -18,16 +18,19 @@
 	</path>
 	<path id="cacert-gigi.classpath">
 		<pathelement location="bin" />
+		<pathelement location="binutil" />
 		<pathelement location="${mysqlconnector}" />
 	</path>
 	<path id="cacert-gigi.test.classpath">
 		<pathelement location="bin" />
+		<pathelement location="binutil" />
 		<pathelement location="bintest" />
 		<path refid="JUnit 4.libraryclasspath" />
 		<pathelement location="${mysqlconnector}" />
 	</path>
 	<target name="init">
 		<mkdir dir="bin" />
+		<mkdir dir="binutil" />
 		<mkdir dir="bintest" />
 
 		<copy includeemptydirs="false" todir="bin">
@@ -80,6 +83,11 @@
 			<src path="lib/jetty" />
 			<src path="lib/jtar" />
 			<src path="src" />
+			<classpath refid="cacert-gigi.classpath" />
+		</javac>
+		<javac debug="true" debuglevel="${debuglevel}" destdir="binutil"
+			includeantruntime="false" source="${source}" target="${target}">
+			<compilerarg value="-XDignore.symbol.file"/>
 			<src path="util" />
 			<classpath refid="cacert-gigi.classpath" />
 		</javac>
@@ -90,7 +98,8 @@
 	</target>
 
 	<target depends="build" name="pack">
-		<jar destfile="gigi.jar" basedir="bin" manifest="Gigi.MF" />
+		<jar destfile="gigi.jar" basedir="bin" manifest="Gigi.MF" update="false"/>
+		<jar destfile="gigi.jar" basedir="bintest" update="on"/>
 	</target>
 
 	<target depends="test,native" name="bundle">
