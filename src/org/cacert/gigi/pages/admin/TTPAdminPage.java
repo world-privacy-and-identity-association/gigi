@@ -35,6 +35,8 @@ public class TTPAdminPage extends Page {
         resp.sendRedirect(PATH);
     }
 
+    private static final int PAGE_LEN = 30;
+
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = req.getPathInfo();
@@ -47,7 +49,13 @@ public class TTPAdminPage extends Page {
             new TTPAdminForm(req, u).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
             return;
         }
-        final User[] users = TTP_APPLICANT.getMembers(0, 30);
+        int offset = 0;
+        String offsetS = req.getParameter("offset");
+        if (offsetS != null) {
+            offset = Integer.parseInt(offsetS);
+        }
+
+        final User[] users = TTP_APPLICANT.getMembers(offset, PAGE_LEN + 1);
         HashMap<String, Object> vars = new HashMap<>();
         vars.put("users", new IterableDataset() {
 
@@ -55,7 +63,7 @@ public class TTPAdminPage extends Page {
 
             @Override
             public boolean next(Language l, Map<String, Object> vars) {
-                if (i >= users.length) {
+                if (i >= Math.min(PAGE_LEN, users.length)) {
                     return false;
                 }
                 vars.put("id", Integer.toString(users[i].getId()));
@@ -66,6 +74,9 @@ public class TTPAdminPage extends Page {
                 return true;
             }
         });
+        if (users.length == PAGE_LEN + 1) {
+            vars.put("next", Integer.toString(offset + 30));
+        }
         getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
     }
 
