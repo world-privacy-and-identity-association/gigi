@@ -1,6 +1,7 @@
 package org.cacert.gigi.testUtils;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -21,6 +22,7 @@ public abstract class PingTest extends ClientTest {
 
     protected static void updateService(String token, String value, String action) throws IOException, MalformedURLException {
         String manage = getTestProps().getProperty("domain.manage");
+        assumeNotNull(manage);
         String url = manage + "t1=" + token + "&t2=" + value + "&action=" + action;
         assertEquals(200, ((HttpURLConnection) new URL(url).openConnection()).getResponseCode());
     }

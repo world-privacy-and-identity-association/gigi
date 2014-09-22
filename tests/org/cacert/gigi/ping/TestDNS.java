@@ -1,6 +1,7 @@
 package org.cacert.gigi.ping;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 
 import java.io.IOException;
 import java.net.URL;
@@ -60,6 +61,7 @@ public class TestDNS extends PingTest {
     public void testEmailAndDNS(int dnsVariant, int emailVariant, boolean successDNS, boolean successMail) throws IOException, InterruptedException, SQLException, NamingException {
 
         String test = getTestProps().getProperty("domain.dnstest");
+        assumeNotNull(test);
 
         URL u = new URL("https://" + getServerName() + DomainOverview.PATH);
         Matcher m = initailizeDomainForm(u);
@@ -91,8 +93,11 @@ public class TestDNS extends PingTest {
 
     private String readDNS(String token) throws NamingException {
         String test = getTestProps().getProperty("domain.dnstest");
+        assumeNotNull(test);
         String targetDomain = token + "._cacert._auth." + test;
-        String[] data = DNSUtil.getTXTEntries(targetDomain, getTestProps().getProperty("domain.testns"));
+        String testns = getTestProps().getProperty("domain.testns");
+        assumeNotNull(testns);
+        String[] data = DNSUtil.getTXTEntries(targetDomain, testns);
         assertEquals(1, data.length);
         return data[0];
 

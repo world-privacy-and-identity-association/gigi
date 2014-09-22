@@ -1,6 +1,7 @@
 package org.cacert.gigi.ping;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -88,7 +89,7 @@ public class TestSSL extends PingTest {
 
     private void testEmailAndSSL(int sslVariant, int emailVariant, boolean successMail) throws IOException, InterruptedException, SQLException, GeneralSecurityException, GigiApiException {
         String test = getTestProps().getProperty("domain.local");
-
+        assumeNotNull(test);
         URL u = new URL("https://" + getServerName() + DomainOverview.PATH);
 
         initailizeDomainForm(u);

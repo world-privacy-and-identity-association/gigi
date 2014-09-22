@@ -1,6 +1,7 @@
 package org.cacert.gigi.ping;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.*;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -50,6 +51,7 @@ public class TestHTTP extends PingTest {
     public void testEmailAndHTTP(int httpVariant, int emailVariant, boolean successHTTP, boolean successMail) throws IOException, InterruptedException, SQLException {
 
         String test = getTestProps().getProperty("domain.http");
+        assumeNotNull(test);
 
         URL u = new URL("https://" + getServerName() + DomainOverview.PATH);
         Matcher m = initailizeDomainForm(u);
@@ -79,7 +81,9 @@ public class TestHTTP extends PingTest {
     }
 
     private String readHTTP(String token) throws IOException {
-        URL u = new URL("http://" + getTestProps().getProperty("domain.http") + "/cacert-" + token + ".txt");
+        String httpDom = getTestProps().getProperty("domain.http");
+        assumeNotNull(httpDom);
+        URL u = new URL("http://" + httpDom + "/cacert-" + token + ".txt");
         return IOUtils.readURL(new InputStreamReader(u.openStream())).trim();
 
     }
