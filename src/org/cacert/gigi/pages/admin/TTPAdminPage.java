@@ -82,6 +82,6 @@ public class TTPAdminPage extends Page {
 
     @Override
     public boolean isPermitted(User u) {
-        return u != null && u.isInGroup(Group.getByString("ttp-assuer"));
+        return u != null && u.isInGroup(Group.getByString("ttp-assurer"));
     }
 }

@@ -19,7 +19,7 @@ import org.junit.Test;
 
 public class TestUserGroupMembership extends ManagedTest {
 
-    private final Group ttpGroup = Group.getByString("ttp-assuer");
+    private final Group ttpGroup = Group.getByString("ttp-assurer");
 
     private final Group supporter = Group.getByString("supporter");
 
