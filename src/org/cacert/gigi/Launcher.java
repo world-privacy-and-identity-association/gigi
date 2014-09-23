@@ -50,6 +50,8 @@ public class Launcher {
     public static void main(String[] args) throws Exception {
         Locale.setDefault(Locale.ENGLISH);
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        System.setProperty("jdk.tls.ephemeralDHKeySize", "4096");
+
         GigiConfig conf = GigiConfig.parse(System.in);
         ServerConstants.init(conf.getMainProps());
         initEmails(conf);
