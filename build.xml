@@ -99,7 +99,7 @@
 
 	<target depends="build" name="pack">
 		<jar destfile="gigi.jar" basedir="bin" manifest="Gigi.MF" update="false"/>
-		<jar destfile="gigi.jar" basedir="bintest" update="on"/>
+		<jar destfile="gigi.jar" basedir="binutil" update="on"/>
 	</target>
 
 	<target depends="test,native" name="bundle">
