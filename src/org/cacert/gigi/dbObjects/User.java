@@ -124,7 +124,7 @@ public class User implements IdCachable {
         if (id != 0) {
             throw new Error("refusing to insert");
         }
-        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("insert into `users` set `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, " + "`suffix`=?, `dob`=?, `created`=NOW(), locked=0, `language`=?");
+        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("insert into `users` set `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, " + "`suffix`=?, `dob`=?, `created`=NOW(), `language`=?");
         query.setString(1, email);
         query.setString(2, PasswordHash.hash(password));
         query.setString(3, name.fname);

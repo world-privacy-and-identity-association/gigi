@@ -7,6 +7,7 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
+import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.DateSelector;
@@ -42,6 +43,10 @@ public class Notary {
         }
     }
 
+    public static final Group ASSURER_BLOCKED = Group.getByString("blockedassurer");
+
+    public static final Group ASSUREE_BLOCKED = Group.getByString("blockedassuree");
+
     /**
      * This method assures another user.
      * 
@@ -66,7 +71,15 @@ public class Notary {
      */
     public synchronized static void assure(User assurer, User assuree, Name assureeName, Date dob, int awarded, String location, String date) throws GigiApiException {
         GigiApiException gae = new GigiApiException();
-
+        if (assuree.isInGroup(ASSUREE_BLOCKED)) {
+            gae.mergeInto(new GigiApiException("The assuree is blocked."));
+        }
+        if (assurer.isInGroup(ASSURER_BLOCKED)) {
+            gae.mergeInto(new GigiApiException("The assurer is blocked."));
+        }
+        if ( !gae.isEmpty()) {
+            throw gae;
+        }
         if (date == null || date.equals("")) {
             gae.mergeInto(new GigiApiException("You must enter the date when you met the assuree."));
         } else {

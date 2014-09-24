@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
+import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.util.PasswordHash;
@@ -65,7 +66,7 @@ public class LoginPage extends Page {
     private void tryAuthWithUnpw(HttpServletRequest req) {
         String un = req.getParameter("username");
         String pw = req.getParameter("password");
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `password`, `id` FROM `users` WHERE `email`=? AND locked='0' AND verified='1'");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `password`, `id` FROM `users` WHERE `email`=? AND verified='1'");
         ps.setString(1, un);
         GigiResultSet rs = ps.executeQuery();
         if (rs.next()) {
@@ -82,7 +83,7 @@ public class LoginPage extends Page {
 
     private void tryAuthWithCertificate(HttpServletRequest req, X509Certificate x509Certificate) {
         String serial = x509Certificate.getSerialNumber().toString(16).toUpperCase();
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `certs` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` = " + "'0000-00-00 00:00:00'");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `certs` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` = '0000-00-00 00:00:00'");
         ps.setString(1, serial);
         GigiResultSet rs = ps.executeQuery();
         if (rs.next()) {
@@ -91,7 +92,12 @@ public class LoginPage extends Page {
         rs.close();
     }
 
+    private static final Group LOGIN_BLOCKED = Group.getByString("blockedlogin");
+
     private void loginSession(HttpServletRequest req, User user) {
+        if (user.isInGroup(LOGIN_BLOCKED)) {
+            return;
+        }
         req.getSession().invalidate();
         HttpSession hs = req.getSession();
         hs.setAttribute(LOGGEDIN, true);
