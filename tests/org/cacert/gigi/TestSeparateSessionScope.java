@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
 
@@ -26,7 +27,7 @@ public class TestSeparateSessionScope extends ManagedTest {
         String cookie = login(mail, TEST_PASSWORD);
         KeyPair kp = generateKeypair();
         String csr = generatePEMCSR(kp, "CN=felix@dogcraft.de");
-        Certificate c = new Certificate(user, "/CN=testmail@example.com", "sha256", csr, CSRType.CSR, CertificateProfile.getById(1));
+        Certificate c = new Certificate(User.getById(user), "/CN=testmail@example.com", "sha256", csr, CSRType.CSR, CertificateProfile.getById(1));
         final PrivateKey pk = kp.getPrivate();
         c.issue(null, "2y").waitFor(60000);
         final X509Certificate ce = c.cert();

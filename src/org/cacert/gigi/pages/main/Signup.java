@@ -185,7 +185,7 @@ public class Signup extends Form {
             ps.setString(4, regional ? "1" : "0");
             ps.setString(5, radius ? "1" : "0");
             ps.execute();
-            Notary.writeUserAgreement(memid, "CCA", "account creation", "", true, 0);
+            Notary.writeUserAgreement(buildup, "CCA", "account creation", "", true, 0);
 
             DatabaseConnection.getInstance().commitTransaction();
         } finally {

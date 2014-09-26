@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.cacert.gigi.util.ServerConstants;
@@ -49,7 +50,7 @@ public class TestCrossDomainAccess extends ManagedTest {
         int id = createVerifiedUser("Kurti", "Hansel", email, TEST_PASSWORD);
         KeyPair kp = generateKeypair();
         String key1 = generatePEMCSR(kp, "CN=" + email);
-        Certificate c = new Certificate(id, "/CN=" + email, "sha256", key1, CSRType.CSR, CertificateProfile.getById(1));
+        Certificate c = new Certificate(User.getById(id), "/CN=" + email, "sha256", key1, CSRType.CSR, CertificateProfile.getById(1));
         final PrivateKey pk = kp.getPrivate();
         c.issue(null, "2y").waitFor(60000);
         final X509Certificate ce = c.cert();

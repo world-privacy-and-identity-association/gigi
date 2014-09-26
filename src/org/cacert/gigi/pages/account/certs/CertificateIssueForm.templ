@@ -34,7 +34,12 @@
     <td>SANs</td>
     <td align="left"><textarea rows='5' name='SANs' placeholder="dns:my.domain.example.com, dns:*.example.com, email:my.email@example.com (or newline separated)"><?=$emails?></textarea></td>
   </tr>
-
+  <? if($orga) { ?>
+  <tr>
+    <td><?=_Departement?></td>
+    <td align="left"><input type='text' name='OU'/></td>
+  </tr>
+  <? } ?>
   <tr class="expertoff">
     <td class='check'>
       <input type="checkbox" id="expertbox" name="expertbox"/>

@@ -32,6 +32,7 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.PingTest;
@@ -138,7 +139,7 @@ public class TestSSL extends PingTest {
     private void createCertificate(String test, CertificateProfile profile) throws GeneralSecurityException, IOException, SQLException, InterruptedException, GigiApiException {
         kp = generateKeypair();
         String csr = generatePEMCSR(kp, "CN=" + test);
-        c = new Certificate(userid, "/CN=" + test, "sha256", csr, CSRType.CSR, profile);
+        c = new Certificate(User.getById(userid), "/CN=" + test, "sha256", csr, CSRType.CSR, profile);
         c.issue(null, "2y").waitFor(60000);
     }
 

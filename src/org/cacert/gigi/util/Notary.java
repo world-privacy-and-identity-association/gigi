@@ -14,9 +14,9 @@ import org.cacert.gigi.output.DateSelector;
 
 public class Notary {
 
-    public static void writeUserAgreement(int memid, String document, String method, String comment, boolean active, int secmemid) {
+    public static void writeUserAgreement(User member, String document, String method, String comment, boolean active, int secmemid) {
         GigiPreparedStatement q = DatabaseConnection.getInstance().prepare("insert into `user_agreements` set `memid`=?, `secmemid`=?," + " `document`=?,`date`=NOW(), `active`=?,`method`=?,`comment`=?");
-        q.setInt(1, memid);
+        q.setInt(1, member.getId());
         q.setInt(2, secmemid);
         q.setString(3, document);
         q.setInt(4, active ? 1 : 0);

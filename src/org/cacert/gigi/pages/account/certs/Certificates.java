@@ -56,7 +56,7 @@ public class Certificates extends Page {
         String serial = pi;
         try {
             Certificate c = Certificate.getBySerial(serial);
-            if (c == null || getUser(req).getId() != c.getOwnerId()) {
+            if (c == null || getUser(req).getId() != c.getOwner().getId()) {
                 resp.sendError(404);
                 return true;
             }
@@ -92,7 +92,7 @@ public class Certificates extends Page {
 
             String serial = pi;
             Certificate c = Certificate.getBySerial(serial);
-            if (c == null || LoginPage.getUser(req).getId() != c.getOwnerId()) {
+            if (c == null || LoginPage.getUser(req).getId() != c.getOwner().getId()) {
                 resp.sendError(404);
                 return;
             }

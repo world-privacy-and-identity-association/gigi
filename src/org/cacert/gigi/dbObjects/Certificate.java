@@ -108,7 +108,7 @@ public class Certificate {
 
     private int id;
 
-    private int ownerId;
+    private User owner;
 
     private String serial;
 
@@ -128,8 +128,8 @@ public class Certificate {
 
     private CertificateProfile profile;
 
-    public Certificate(int ownerId, String dn, String md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) {
-        this.ownerId = ownerId;
+    public Certificate(User owner, String dn, String md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) {
+        this.owner = owner;
         this.dn = dn;
         this.md = md;
         this.csr = csr;
@@ -150,7 +150,7 @@ public class Certificate {
         md = rs.getString(3);
         csrName = rs.getString(4);
         crtName = rs.getString(5);
-        ownerId = rs.getInt(6);
+        owner = User.getById(rs.getInt(6));
         profile = CertificateProfile.getById(rs.getInt(7));
         this.serial = serial;
 
@@ -233,13 +233,13 @@ public class Certificate {
         if (getStatus() != CertificateStatus.DRAFT) {
             throw new IllegalStateException();
         }
-        Notary.writeUserAgreement(ownerId, "CCA", "issue certificate", "", true, 0);
+        Notary.writeUserAgreement(owner, "CCA", "issue certificate", "", true, 0);
 
         GigiPreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO certs SET md=?, subject=?, csr_type=?, crt_name='', memid=?, profile=?");
         inserter.setString(1, md);
         inserter.setString(2, dn);
         inserter.setString(3, csrType.toString());
-        inserter.setInt(4, ownerId);
+        inserter.setInt(4, owner.getId());
         inserter.setInt(5, profile.getId());
         inserter.execute();
         id = inserter.lastInsertId();
@@ -315,8 +315,8 @@ public class Certificate {
         return md;
     }
 
-    public int getOwnerId() {
-        return ownerId;
+    public User getOwner() {
+        return owner;
     }
 
     public List<SubjectAlternateName> getSANs() {

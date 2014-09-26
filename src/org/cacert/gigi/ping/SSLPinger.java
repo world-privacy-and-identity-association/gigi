@@ -208,7 +208,7 @@ public class SSLPinger extends DomainPinger {
 
             BigInteger serial = first.getSerialNumber();
             Certificate c = Certificate.getBySerial(serial.toString(16));
-            if (c.getOwnerId() != subject.getId()) {
+            if (c.getOwner().getId() != subject.getId()) {
                 return "Owner mismatch";
             }
             return PING_SUCCEDED;
