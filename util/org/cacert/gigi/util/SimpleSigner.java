@@ -246,8 +246,8 @@ public class SimpleSigner {
                     cfg.print(san.getString("contents"));
                 }
                 cfg.println();
-                cfg.println("keyUsage=" + keyUsage);
-                cfg.println("extendedKeyUsage=" + ekeyUsage);
+                cfg.println("keyUsage=critical," + keyUsage);
+                cfg.println("extendedKeyUsage=critical," + ekeyUsage);
                 cfg.close();
 
                 int rootcert = rs.getInt("rootcert");
