@@ -1,6 +1,15 @@
+DROP TABLE IF EXISTS `certOwners`;
+CREATE TABLE `certOwners` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `modified` timestamp NULL DEFAULT NULL,
+  `deleted` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
   `email` varchar(255) NOT NULL DEFAULT '',
   `password` varchar(255) NOT NULL DEFAULT '',
   `fname` varchar(255) NOT NULL DEFAULT '',
@@ -15,19 +24,25 @@ CREATE TABLE `users` (
   `listme` int(1) NOT NULL DEFAULT '0',
   `contactinfo` varchar(255) NOT NULL DEFAULT '',
   `language` varchar(5) NOT NULL DEFAULT '',
-  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `deleted` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`),
   KEY `ccid` (`ccid`),
   KEY `regid` (`regid`),
   KEY `locid` (`locid`),
   KEY `email` (`email`),
-  KEY `stats_users_created` (`created`),
-  KEY `stats_users_verified` (`verified`),
-  KEY `userverified` (`verified`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+  KEY `stats_users_verified` (`verified`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+DROP TABLE IF EXISTS `organisations`;
+CREATE TABLE IF NOT EXISTS `organisations` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `state` varchar(2) NOT NULL,
+  `province` varchar(100) NOT NULL,
+  `city` varchar(100) NOT NULL,
+  `creator` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `domains`;
 CREATE TABLE `domains` (
@@ -159,7 +174,7 @@ CREATE TABLE `clientcerts` (
   `disablelogin` int(1) NOT NULL DEFAULT '0',
 
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `profiles`;
 CREATE TABLE `profiles` (
@@ -172,6 +187,7 @@ CREATE TABLE `profiles` (
   PRIMARY KEY (`id`),
   UNIQUE (`keyname`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
 INSERT INTO `profiles` SET rootcert=0, keyname='client', name='ssl-client (unassured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth';
 INSERT INTO `profiles` SET rootcert=0, keyname='mail',  name='mail (unassured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='emailProtection';
 INSERT INTO `profiles` SET rootcert=0, keyname='client-mail', name='ssl-client + mail (unassured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth, emailProtection';
@@ -181,6 +197,13 @@ INSERT INTO `profiles` SET rootcert=1, keyname='client-a', name='ssl-client (ass
 INSERT INTO `profiles` SET rootcert=1, keyname='mail-a',  name='mail (assured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='emailProtection';
 INSERT INTO `profiles` SET rootcert=1, keyname='client-mail-a', name='ssl-client + mail(assured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth, emailProtection';
 INSERT INTO `profiles` SET rootcert=1, keyname='server-a', name='ssl-server (assured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='serverAuth';
+INSERT INTO `profiles` SET rootcert=2, keyname='code-a', name='codesign (assured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='codeSigning, msCodeInd, msCodeCom';
+
+INSERT INTO `profiles` SET rootcert=3, keyname='client-orga', name='ssl-client (orga)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth';
+INSERT INTO `profiles` SET rootcert=3, keyname='mail-orga',  name='mail (orga)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='emailProtection';
+INSERT INTO `profiles` SET rootcert=3, keyname='client-mail-orga', name='ssl-client + mail(orga)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth, emailProtection';
+INSERT INTO `profiles` SET rootcert=3, keyname='server-orga', name='ssl-server (orga)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='serverAuth';
+INSERT INTO `profiles` SET rootcert=4, keyname='code-orga', name='codesign (orga)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='codeSigning, msCodeInd, msCodeCom';
 
 -- 0=unassured, 1=assured, 2=codesign, 3=orga, 4=orga-sign
 DROP TABLE IF EXISTS `subjectAlternativeNames`;
@@ -277,4 +300,14 @@ CREATE TABLE IF NOT EXISTS `user_groups` (
   `grantedby` int(11) NOT NULL,
   `revokedby` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `org_admin`;
+CREATE TABLE IF NOT EXISTS `org_admin` (
+  `orgid` int(11) NOT NULL,
+  `memid` int(11) NOT NULL,
+  `creator` int(11) NOT NULL,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `deleted` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`orgid`, `memid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

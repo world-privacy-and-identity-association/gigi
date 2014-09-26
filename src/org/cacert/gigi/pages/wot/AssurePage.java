@@ -75,7 +75,7 @@ public class AssurePage extends Page {
 
         GigiResultSet rs = null;
         try {
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id, verified FROM users WHERE email=? AND dob=? AND deleted=0");
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT users.id, verified FROM users inner join certOwners on certOwners.id=users.id WHERE email=? AND dob=? AND deleted is null");
             ps.setString(1, req.getParameter("email"));
             String day = req.getParameter("year") + "-" + req.getParameter("month") + "-" + req.getParameter("day");
             ps.setString(2, day);

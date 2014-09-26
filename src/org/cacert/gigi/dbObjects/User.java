@@ -16,9 +16,7 @@ import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PasswordHash;
 import org.cacert.gigi.util.PasswordStrengthChecker;
 
-public class User implements IdCachable {
-
-    private int id;
+public class User extends CertificateOwner {
 
     private Name name = new Name(null, null, null, null);
 
@@ -32,29 +30,23 @@ public class User implements IdCachable {
 
     private Set<Group> groups = new HashSet<>();
 
-    private User(int id) {
-        this.id = id;
-        updateName(id);
+    protected User(GigiResultSet rs) {
+        super(rs.getInt("id"));
+        updateName(rs);
     }
 
-    private void updateName(int id) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `fname`, `lname`,`mname`, `suffix`, `dob`, `email`, `language` FROM `users` WHERE id=?");
-        ps.setInt(1, id);
-        GigiResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            name = new Name(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4));
-            dob = rs.getDate(5);
-            email = rs.getString(6);
-            String localeStr = rs.getString(7);
-            if (localeStr == null || localeStr.equals("")) {
-                locale = Locale.getDefault();
-            } else {
-                locale = Language.getLocaleFromString(localeStr);
-            }
+    private void updateName(GigiResultSet rs) {
+        name = new Name(rs.getString("fname"), rs.getString("lname"), rs.getString("mname"), rs.getString("suffix"));
+        dob = rs.getDate("dob");
+        email = rs.getString("email");
+        String localeStr = rs.getString("language");
+        if (localeStr == null || localeStr.equals("")) {
+            locale = Locale.getDefault();
+        } else {
+            locale = Language.getLocaleFromString(localeStr);
         }
-        rs.close();
         GigiPreparedStatement psg = DatabaseConnection.getInstance().prepare("SELECT permission FROM user_groups WHERE user=? AND deleted is NULL");
-        psg.setInt(1, id);
+        psg.setInt(1, rs.getInt("id"));
         GigiResultSet rs2 = psg.executeQuery();
         while (rs2.next()) {
             groups.add(Group.getByString(rs2.getString(1)));
@@ -63,10 +55,6 @@ public class User implements IdCachable {
     }
 
     public User() {}
-
-    public int getId() {
-        return id;
-    }
 
     public String getFname() {
         return name.fname;
@@ -121,10 +109,8 @@ public class User implements IdCachable {
     }
 
     public void insert(String password) {
-        if (id != 0) {
-            throw new Error("refusing to insert");
-        }
-        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("insert into `users` set `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, " + "`suffix`=?, `dob`=?, `created`=NOW(), `language`=?");
+        int id = super.insert();
+        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("insert into `users` set `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, " + "`suffix`=?, `dob`=?, `language`=?, id=?");
         query.setString(1, email);
         query.setString(2, PasswordHash.hash(password));
         query.setString(3, name.fname);
@@ -133,16 +119,13 @@ public class User implements IdCachable {
         query.setString(6, name.suffix);
         query.setDate(7, new java.sql.Date(dob.getTime()));
         query.setString(8, locale.toString());
-        synchronized (User.class) {
-            query.execute();
-            id = query.lastInsertId();
-            myCache.put(this);
-        }
+        query.setInt(9, id);
+        query.execute();
     }
 
     public void changePassword(String oldPass, String newPass) throws GigiApiException {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `password` FROM users WHERE id=?");
-        ps.setInt(1, id);
+        ps.setInt(1, getId());
         GigiResultSet rs = ps.executeQuery();
         if ( !rs.next()) {
             throw new GigiApiException("User not found... very bad.");
@@ -154,7 +137,7 @@ public class User implements IdCachable {
         PasswordStrengthChecker.assertStrongPassword(newPass, this);
         ps = DatabaseConnection.getInstance().prepare("UPDATE users SET `password`=? WHERE id=?");
         ps.setString(1, PasswordHash.hash(newPass));
-        ps.setInt(2, id);
+        ps.setInt(2, getId());
         if (ps.executeUpdate() != 1) {
             throw new GigiApiException("Password update failed.");
         }
@@ -174,7 +157,7 @@ public class User implements IdCachable {
 
     public boolean hasPassedCATS() {
         GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `cats_passed` where `user_id`=?");
-        query.setInt(1, id);
+        query.setInt(1, getId());
         GigiResultSet rs = query.executeQuery();
         if (rs.next()) {
             return true;
@@ -185,7 +168,7 @@ public class User implements IdCachable {
 
     public int getAssurancePoints() {
         GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT sum(points) FROM `notary` where `to`=? AND `deleted`=0");
-        query.setInt(1, id);
+        query.setInt(1, getId());
         GigiResultSet rs = query.executeQuery();
         int points = 0;
         if (rs.next()) {
@@ -197,7 +180,7 @@ public class User implements IdCachable {
 
     public int getExperiencePoints() {
         GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT count(*) FROM `notary` where `from`=? AND `deleted`=0");
-        query.setInt(1, id);
+        query.setInt(1, getId());
         GigiResultSet rs = query.executeQuery();
         int points = 0;
         if (rs.next()) {
@@ -266,7 +249,7 @@ public class User implements IdCachable {
 
     public EmailAddress[] getEmails() {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM emails WHERE memid=? AND deleted=0");
-        ps.setInt(1, id);
+        ps.setInt(1, getId());
         GigiResultSet rs = ps.executeQuery();
         rs.last();
         int count = rs.getRow();
@@ -285,7 +268,7 @@ public class User implements IdCachable {
 
     public Domain[] getDomains() {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM domains WHERE memid=? AND deleted IS NULL");
-        ps.setInt(1, id);
+        ps.setInt(1, getId());
         GigiResultSet rs = ps.executeQuery();
         rs.last();
         int count = rs.getRow();
@@ -304,7 +287,7 @@ public class User implements IdCachable {
 
     public Certificate[] getCertificates() {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT serial FROM certs WHERE memid=? AND revoked=0");
-        ps.setInt(1, id);
+        ps.setInt(1, getId());
         GigiResultSet rs = ps.executeQuery();
         rs.last();
         int count = rs.getRow();
@@ -504,14 +487,12 @@ public class User implements IdCachable {
         ps.execute();
     }
 
-    private static ObjectCache<User> myCache = new ObjectCache<>();
-
     public static synchronized User getById(int id) {
-        User u = myCache.get(id);
-        if (u == null) {
-            myCache.put(u = new User(id));
+        CertificateOwner co = CertificateOwner.getById(id);
+        if (co instanceof User) {
+            return (User) co;
         }
-        return u;
+        return null;
     }
 
     public boolean canIssue(CertificateProfile p) {

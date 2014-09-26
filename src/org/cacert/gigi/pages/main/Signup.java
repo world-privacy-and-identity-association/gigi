@@ -120,7 +120,7 @@ public class Signup extends Form {
             return false;
         }
         GigiPreparedStatement q1 = DatabaseConnection.getInstance().prepare("select * from `emails` where `email`=? and `deleted`=0");
-        GigiPreparedStatement q2 = DatabaseConnection.getInstance().prepare("select * from `users` where `email`=? and `deleted`=0");
+        GigiPreparedStatement q2 = DatabaseConnection.getInstance().prepare("select * from certOwners inner join users on users.id=certOwners.id where `email`=? and `deleted`=0");
         q1.setString(1, buildup.getEmail());
         q2.setString(1, buildup.getEmail());
         GigiResultSet r1 = q1.executeQuery();
