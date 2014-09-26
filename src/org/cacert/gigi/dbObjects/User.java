@@ -513,4 +513,20 @@ public class User implements IdCachable {
         }
         return u;
     }
+
+    public boolean canIssue(CertificateProfile p) {
+        switch (p.getCAId()) {
+        case 0:
+            return true;
+        case 1:
+            return getAssurancePoints() > 50;
+        case 2:
+            return getAssurancePoints() > 50 && isInGroup(Group.getByString("codesigning"));
+        case 3:
+        case 4:
+            return false; // has an orga
+        default:
+            return false;
+        }
+    }
 }

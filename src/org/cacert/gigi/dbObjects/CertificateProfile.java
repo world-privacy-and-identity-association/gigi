@@ -14,14 +14,17 @@ public class CertificateProfile {
 
     private final String visibleName;
 
+    private final int caId;
+
     private static HashMap<String, CertificateProfile> byName = new HashMap<>();
 
     private static HashMap<Integer, CertificateProfile> byId = new HashMap<>();
 
-    private CertificateProfile(int id, String keyName, String visibleName) {
+    private CertificateProfile(int id, String keyName, String visibleName, int caId) {
         this.id = id;
         this.keyName = keyName;
         this.visibleName = visibleName;
+        this.caId = caId;
     }
 
     public int getId() {
@@ -36,11 +39,15 @@ public class CertificateProfile {
         return visibleName;
     }
 
+    public int getCAId() {
+        return caId;
+    }
+
     static {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id, keyname, name FROM `profiles`");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id, keyname, name, rootcert FROM `profiles`");
         GigiResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            CertificateProfile cp = new CertificateProfile(rs.getInt("id"), rs.getString("keyName"), rs.getString("name"));
+            CertificateProfile cp = new CertificateProfile(rs.getInt("id"), rs.getString("keyName"), rs.getString("name"), rs.getInt("rootcert"));
             byId.put(cp.getId(), cp);
             byName.put(cp.getKeyName(), cp);
         }

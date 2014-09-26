@@ -239,6 +239,11 @@ public class CertificateIssueForm extends Form {
                         selectedDigest = Digest.valueOf(hashAlg);
                     }
                     profile = CertificateProfile.getByName(req.getParameter("profile"));
+                    if ( !u.canIssue(profile)) {
+                        profile = CertificateProfile.getById(1);
+                        outputError(out, req, "Certificate Profile is invalid.");
+                        return false;
+                    }
 
                     String pDNS = null;
                     String pMail = null;
@@ -417,10 +422,14 @@ public class CertificateIssueForm extends Form {
 
             @Override
             public boolean next(Language l, Map<String, Object> vars) {
-                CertificateProfile cp = CertificateProfile.getById(i++);
-                if (cp == null) {
-                    return false;
-                }
+                CertificateProfile cp;
+                do {
+                    cp = CertificateProfile.getById(i++);
+                    if (cp == null) {
+                        return false;
+                    }
+                } while ( !u.canIssue(cp));
+
                 if (cp.getId() == profile.getId()) {
                     vars.put("selected", " selected");
                 } else {
