@@ -128,7 +128,10 @@ public class Certificate {
 
     private CertificateProfile profile;
 
-    public Certificate(User owner, String dn, String md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) {
+    public Certificate(User owner, String dn, String md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) throws GigiApiException {
+        if ( !owner.canIssue(profile)) {
+            throw new GigiApiException("You are not allowed to issue these certificates.");
+        }
         this.owner = owner;
         this.dn = dn;
         this.md = md;
