@@ -29,7 +29,7 @@ public class Notary {
         if (assurer.getId() == target.getId()) {
             throw new GigiApiException("You cannot assure yourself.");
         }
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `notary` where `to`=? and `from`=? AND `deleted`=0");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `notary` where `to`=? and `from`=? AND `deleted` IS NULL");
         ps.setInt(1, target.getId());
         ps.setInt(2, assurer.getId());
         GigiResultSet rs = ps.executeQuery();

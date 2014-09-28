@@ -83,7 +83,7 @@ public class LoginPage extends Page {
 
     private void tryAuthWithCertificate(HttpServletRequest req, X509Certificate x509Certificate) {
         String serial = x509Certificate.getSerialNumber().toString(16).toUpperCase();
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `certs` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` = '0000-00-00 00:00:00'");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `certs` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` is NULL");
         ps.setString(1, serial);
         GigiResultSet rs = ps.executeQuery();
         if (rs.next()) {

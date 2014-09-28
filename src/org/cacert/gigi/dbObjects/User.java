@@ -167,7 +167,7 @@ public class User extends CertificateOwner {
     }
 
     public int getAssurancePoints() {
-        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT sum(points) FROM `notary` where `to`=? AND `deleted`=0");
+        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT sum(points) FROM `notary` where `to`=? AND `deleted` is NULL");
         query.setInt(1, getId());
         GigiResultSet rs = query.executeQuery();
         int points = 0;
@@ -179,7 +179,7 @@ public class User extends CertificateOwner {
     }
 
     public int getExperiencePoints() {
-        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT count(*) FROM `notary` where `from`=? AND `deleted`=0");
+        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT count(*) FROM `notary` where `from`=? AND `deleted` is NULL");
         query.setInt(1, getId());
         GigiResultSet rs = query.executeQuery();
         int points = 0;
@@ -248,7 +248,7 @@ public class User extends CertificateOwner {
     }
 
     public EmailAddress[] getEmails() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM emails WHERE memid=? AND deleted=0");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM emails WHERE memid=? AND deleted is NULL");
         ps.setInt(1, getId());
         GigiResultSet rs = ps.executeQuery();
         rs.last();
@@ -286,7 +286,7 @@ public class User extends CertificateOwner {
     }
 
     public Certificate[] getCertificates() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT serial FROM certs WHERE memid=? AND revoked=0");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT serial FROM certs WHERE memid=? AND revoked IS NULL");
         ps.setInt(1, getId());
         GigiResultSet rs = ps.executeQuery();
         rs.last();
@@ -364,7 +364,7 @@ public class User extends CertificateOwner {
 
     public Assurance[] getReceivedAssurances() {
         if (receivedAssurances == null) {
-            GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM notary WHERE `to`=? AND deleted=0");
+            GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM notary WHERE `to`=? AND deleted IS NULL");
             query.setInt(1, getId());
             GigiResultSet res = query.executeQuery();
             res.last();
@@ -382,7 +382,7 @@ public class User extends CertificateOwner {
 
     public Assurance[] getMadeAssurances() {
         if (madeAssurances == null) {
-            GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM notary WHERE `from`=? AND deleted=0");
+            GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM notary WHERE `from`=? AND deleted is NULL");
             query.setInt(1, getId());
             GigiResultSet res = query.executeQuery();
             res.last();
