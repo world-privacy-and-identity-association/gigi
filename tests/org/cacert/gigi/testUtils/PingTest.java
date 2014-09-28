@@ -16,7 +16,7 @@ import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
-import org.junit.Before;
+import org.junit.After;
 
 public abstract class PingTest extends ClientTest {
 
@@ -50,7 +50,9 @@ public abstract class PingTest extends ClientTest {
         String newcontent = IOUtils.readURL(cookie(u.openConnection(), cookie));
         Pattern dlink = Pattern.compile(DomainOverview.PATH + "([0-9]+)'>");
         Matcher m1 = dlink.matcher(newcontent);
-        m1.find();
+        if ( !m1.find()) {
+            throw new Error(newcontent);
+        }
         URL u2 = new URL(u.toString() + m1.group(1));
         return u2;
     }
@@ -67,14 +69,8 @@ public abstract class PingTest extends ClientTest {
         return m;
     }
 
-    private static boolean first = true;
-
-    @Before
+    @After
     public void purgeDbAfterTest() throws SQLException, IOException {
-        if (first) {
-            first = false;
-            return;
-        }
         purgeDatabase();
     }
 
