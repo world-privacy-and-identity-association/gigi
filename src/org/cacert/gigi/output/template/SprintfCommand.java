@@ -28,8 +28,10 @@ public final class SprintfCommand implements Outputable {
             String var = myvars[j - 1];
             if (var.startsWith("$!")) {
                 Template.outputVar(out, l, vars, myvars[j - 1].substring(2), true);
+            } else if (var.startsWith("!\"")) {
+                out.print(var.substring(2));
             } else if (var.startsWith("\"")) {
-                out.print(var.substring(1));
+                out.print(HTMLEncoder.encodeHTML(var.substring(1)));
             } else {
                 Template.outputVar(out, l, vars, myvars[j - 1].substring(1), false);
             }
