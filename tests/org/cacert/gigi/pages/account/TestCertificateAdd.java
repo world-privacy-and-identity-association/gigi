@@ -174,7 +174,7 @@ public class TestCertificateAdd extends ManagedTest {
         final long MS_PER_DAY = 24 * 60 * 60 * 1000;
         now -= now % MS_PER_DAY;
         now += MS_PER_DAY;
-        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         Date start = new Date(now);

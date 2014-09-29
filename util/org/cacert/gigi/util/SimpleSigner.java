@@ -47,7 +47,7 @@ public class SimpleSigner {
 
     private static Thread runner;
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("YYMMddHHmmss'Z'");
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmmss'Z'");
 
     static {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));

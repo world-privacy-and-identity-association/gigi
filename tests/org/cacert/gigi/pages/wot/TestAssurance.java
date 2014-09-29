@@ -127,7 +127,7 @@ public class TestAssurance extends ManagedTest {
 
     @Test
     public void testAssureFormFuture() throws IOException {
-        SimpleDateFormat sdf = new SimpleDateFormat("YYYY");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
         int year = Integer.parseInt(sdf.format(new Date(System.currentTimeMillis()))) + 2;
         String error = getError("date=" + year + "-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
         assertTrue(error, !error.startsWith("</div>"));
