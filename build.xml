@@ -201,25 +201,32 @@
 		</jacoco:merge>
 		<jacoco:report>
 			<executiondata>
-				<file file="jacoco.exec" />
-				<file file="tester.exec" />
+				<file file="merged.exec" />
 			</executiondata>
 
 			<structure name="CAcert gigi">
 				<group name="Server">
 					<classfiles>
-						<fileset dir="bin/org/cacert/gigi" />
+						<fileset dir="bin">
+							<include name="org/cacert/gigi/**"/>
+						</fileset>
 					</classfiles>
 					<sourcefiles encoding="UTF-8">
-						<fileset dir="src/org/cacert/gigi" />
+						<fileset dir="src">
+							<include name="org/cacert/gigi/**"/>
+						</fileset>
 					</sourcefiles>
 				</group>
 				<group name="Testcases">
 					<classfiles>
-						<fileset dir="bintest/org/cacert/gigi" />
+						<fileset dir="bintest">
+							<include name="org/cacert/gigi/**"/>
+						</fileset>
 					</classfiles>
 					<sourcefiles encoding="UTF-8">
-						<fileset dir="tests/org/cacert/gigi" />
+						<fileset dir="tests">
+							<include name="org/cacert/gigi/**"/>
+						</fileset>
 					</sourcefiles>
 				</group>
 			</structure>
