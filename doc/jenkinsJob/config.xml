@@ -15,7 +15,7 @@
         <hudson.model.TextParameterDefinition>
           <name>JAVA_HOME</name>
           <description></description>
-          <defaultValue>/usr/local/jvm/openjdk-1.8.0-internal</defaultValue>
+          <defaultValue>/usr/lib/jvm/openjdk-8-jdk-gigi</defaultValue>
         </hudson.model.TextParameterDefinition>
         <hudson.model.TextParameterDefinition>
           <name>BRANCH</name>
@@ -71,7 +71,7 @@ KEYSIZE=4096
 EOT
 cat &lt;&lt;EOT &gt;config/test.properties
 type=autonomous
-java=/usr/local/jvm/openjdk-1.8.0-internal/bin/java -cp gigi.jar:$$$$SQL_CONNECTOR_PATH$$$$ org.cacert.gigi.Launcher
+java=/usr/lib/jvm/openjdk-8-jdk-gigi/bin/java -cp gigi.jar:/usr/share/java/mysql-connector-java.jar -javaagent:/usr/share/java/jacocoagent.jar org.cacert.gigi.Launcher
 serverPort.https=4448
 serverPort.http=8098
 mailPort=8473
@@ -88,15 +88,22 @@ domain.manage=http://$$$$YOUR_TESTSERVICE$$$$/dyn-txt.php?token=$$$$managementTo
 domain.http=$$$$YOUR_TESTSERVICE_HTTP$$$$
 domain.dnstest=$$$$YOUR_TESTSERVICE_ZONE$$$$
 domain.testns=$$$$YOUR_TESTSERVICE_AUTH_NAMESERVER$$$$
+domain.local=test.$$$$YOUR_LOOKUP_DOMAIN$$$$
+
+email.address=$$$$YOUR_IMAP_EMAIL$$$$
+email.password=$$$$YOUR_IMAP_PASSWORD$$$$
+email.imap=$$$$YOUR_IMAP_SERVER$$$$
+email.imap.user=$$$$YOUR_IMAP_USERNAME$$$$
+email.non-address=$$$$IMAP_NON_EXISTENT_ADDRESS$$$$
+
 EOT
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Ant plugin="ant@1.2">
-      <targets>$TARGET</targets>
+      <targets>$TARGET generatecoco</targets>
       <antOpts>-Dfile.encoding=UTF-8</antOpts>
       <buildFile>build.xml</buildFile>
-      <properties>juintexec=$$$$JUNIT_PATH$$$$
-mysqlconnector=$$$$SQL_CONNECTOR_PATH$$$$</properties>
+      <properties>juintexec=$$$$JUNIT_PATH$$$$</properties>
     </hudson.tasks.Ant>
   </builders>
   <publishers>
