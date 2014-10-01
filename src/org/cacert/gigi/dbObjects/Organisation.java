@@ -1,5 +1,8 @@
 package org.cacert.gigi.dbObjects;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
@@ -62,5 +65,34 @@ public class Organisation extends CertificateOwner {
             return (Organisation) co;
         }
         return null;
+    }
+
+    public void addAdmin(User admin, User actor) {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO org_admin SET orgid=?, memid=?, creator=?");
+        ps.setInt(1, getId());
+        ps.setInt(2, admin.getId());
+        ps.setInt(3, actor.getId());
+        ps.execute();
+    }
+
+    public void removeAdmin(User admin, User actor) {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE org_admin SET deleter=?, deleted=NOW() WHERE orgid=? AND memid=?");
+        ps.setInt(1, actor.getId());
+        ps.setInt(2, getId());
+        ps.setInt(3, admin.getId());
+        ps.execute();
+    }
+
+    public List<User> getAllAdmins() {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid FROM org_admin WHERE orgid=? AND deleted is null");
+        ps.setInt(1, getId());
+        GigiResultSet rs = ps.executeQuery();
+        rs.last();
+        ArrayList<User> al = new ArrayList<>(rs.getRow());
+        rs.beforeFirst();
+        while (rs.next()) {
+            al.add(User.getById(rs.getInt(1)));
+        }
+        return al;
     }
 }

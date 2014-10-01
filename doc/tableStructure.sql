@@ -308,6 +308,7 @@ CREATE TABLE IF NOT EXISTS `org_admin` (
   `memid` int(11) NOT NULL,
   `creator` int(11) NOT NULL,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `deleter` int(11) NULL DEFAULT NULL,
   `deleted` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`orgid`, `memid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
