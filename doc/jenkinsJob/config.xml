@@ -49,7 +49,11 @@
     </branches>
     <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
     <submoduleCfg class="list"/>
-    <extensions/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+        <relativeTargetDir>cacert-gigi</relativeTargetDir>
+      </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+    </extensions>
   </scm>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
@@ -65,7 +69,8 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>cat &lt;&lt;EOT &gt;keys/config
+      <command>cd cacert-gigi
+cat &lt;&lt;EOT &gt;keys/config
 DOMAIN=$$$$YOUR_LOOKUP_DOMAIN$$$$
 KEYSIZE=4096
 EOT
@@ -97,23 +102,28 @@ email.imap.user=$$$$YOUR_IMAP_USERNAME$$$$
 email.non-address=$$$$IMAP_NON_EXISTENT_ADDRESS$$$$
 
 EOT
+
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Ant plugin="ant@1.2">
       <targets>$TARGET generatecoco</targets>
       <antOpts>-Dfile.encoding=UTF-8</antOpts>
-      <buildFile>build.xml</buildFile>
+      <buildFile>cacert-gigi/build.xml</buildFile>
       <properties>juintexec=$$$$JUNIT_PATH$$$$</properties>
     </hudson.tasks.Ant>
+    <hudson.tasks.Shell>
+      <command>cd cacert-gigi
+dpkg-buildpackage -b -us -uc</command>
+    </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.junit.JUnitResultArchiver>
-      <testResults>junit/*.xml</testResults>
+      <testResults>cacert-gigi/junit/*.xml</testResults>
       <keepLongStdio>false</keepLongStdio>
       <testDataPublishers/>
     </hudson.tasks.junit.JUnitResultArchiver>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>natives/*.so,gigi.jar,gigi-linux_amd64.zip,static.tar.gz</artifacts>
+      <artifacts>cacert-gigi/natives/*.so,cacert-gigi/gigi.jar,cacert-gigi/gigi-linux_amd64.zip,cacert-gigi/static.tar.gz,*.deb</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
