@@ -1,0 +1,21 @@
+Source: cacert-gigi
+Section: java
+Priority: optional
+Maintainer: unknown <software@cacert.org>
+Build-Depends: debhelper (>= 8.0.0), openjdk-8-jdk-gigi
+Standards-Version: 3.9.4
+Homepage: http://cacert.org
+#Vcs-Git: git://git.debian.org/collab-maint/cacert-gigi.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/cacert-gigi.git;a=summary
+
+Package: cacert-gigi
+Architecture: all
+Depends: openjdk-8-jdk-gigi, cacert-gigi-setuid, ${shlibs:Depends}, ${misc:Depends}
+Description: CAcert Web-DB software.
+ This program is used to manage accounts and certificates.
+
+Package: cacert-gigi-setuid
+Architecture: any
+Depends: openjdk-8-jdk-gigi, ${shlibs:Depends}, ${misc:Depends}
+Description: CAcert Web-DB software's setuid native library.
+ It is used to drop privilleges after allocating ports.

@@ -6,6 +6,7 @@
 	</taskdef>
 
 	<property environment="env" />
+	<property name="PACKAGE" value="cacert-gigi" />
 	<property name="junit.output.dir" value="junit" />
 	<property name="debuglevel" value="source,lines,vars" />
 	<property name="target" value="1.8" />
@@ -234,5 +235,49 @@
 			<html destdir="cocoReport"/>
 
 		</jacoco:report>
+	</target>
+   	<target name="install-native" depends="native">
+		<mkdir dir="${env.DESTDIR}/usr/lib/jni"/>
+		<copy file="natives/libsetuid.so" todir="${env.DESTDIR}/usr/lib/jni"/>
+	</target>
+	<target name="install" depends="pack">
+		<mkdir dir="${env.DESTDIR}/usr/share/java"/>
+		<copy file="gigi.jar" tofile="${env.DESTDIR}/usr/share/java/gigi.jar"/>
+
+		<mkdir dir="${env.DESTDIR}/usr/bin"/>
+		<copy file="doc/scripts/gigi" tofile="${env.DESTDIR}/usr/bin/gigi"/>
+
+		<chmod file="${env.DESTDIR}/usr/bin/gigi" perm="+x"/>
+		<mkdir dir="${env.DESTDIR}/usr/share/dbconfig-common/data/${PACKAGE}/install/"/>
+                <copy file="doc/tableStructure.sql" tofile="${env.DESTDIR}/usr/share/dbconfig-common/data/${PACKAGE}/install/mysql.sql"/>
+
+		<mkdir dir="${env.DESTDIR}/usr/share/cacert-gigi/static"/>
+                <copy todir="${env.DESTDIR}/usr/share/cacert-gigi/static">
+			<fileset dir="static"/>
+		</copy>
+		<mkdir dir="${env.DESTDIR}/var/lib/cacert-gigi/doc"/>
+                <exec executable="ln">
+                  <arg value="-s"/>
+                  <arg value="/usr/share/dbconfig-common/data/${PACKAGE}/install/mysql.sql"/>
+                  <arg value="${env.DESTDIR}/var/lib/cacert-gigi/doc/tableStructure.sql"/>
+                </exec>
+		<mkdir dir="${env.DESTDIR}/var/lib/cacert-gigi/natives"/>
+		<delete failonerror="false" file="${env.DESTDIR}/var/lib/cacert-gigi/static"/>
+		<exec executable="ln">
+			<arg value="-s"/>
+			<arg value="/usr/share/cacert-gigi/static"/>
+			<arg value="${env.DESTDIR}/var/lib/cacert-gigi/static"/>
+		</exec>
+		<exec executable="ln">
+			<arg value="-s"/>
+			<arg value="/usr/lib/jni/libsetuid.so"/>
+			<arg value="${env.DESTDIR}/var/lib/cacert-gigi/natives/libsetuid.so"/>
+		</exec>
+
+                <mkdir dir="${env.DESTDIR}/etc/cacert-gigi"/>
+                <!--<copy todir="${env.DESTDIR}/DEBIAN">
+			<fileset dir="debian">
+			</fileset>
+		</copy>-->
 	</target>
 </project>

@@ -9,23 +9,28 @@ then
 GIGI_EXEC=/usr/share/java/gigi.jar
 #echo "GIGI_EXEC environment variable not set. Assumed path: $GIGI_EXEC" 
 fi
-
-if [ "$1" == "start" ] 
+cd /var/lib/cacert-gigi
+if [ "$1" == "start" ]
 then
-	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.Launcher 
+	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.Launcher
 elif [ "$1" == "signer" ] 
 then
-	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.SimpleSigner  
+	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.SimpleSigner
 elif [ "$1" == "reset-database" ] 
 then
-	 java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.DatabaseManager 
+	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.DatabaseManager
 elif [ "$1" == "fetch-locales" ] 
 then
 	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.FetchLocales
+elif [ "$1" == "signer-conf" ]
+then
+	mkdir /var/lib/cacert-gigi/config
+	cd /var/lib/cacert-gigi/config
+	tar x gigi.properties
 else
- echo "Usage: gigi <option>"
-echo "start - starts gigi"
-echo "signer - starts the simple signer"
-echo "reset-database - resets the database"
-echo "fetch-locales - (re)fetch the localisation"
+	echo "Usage: gigi <option>"
+	echo "start - starts gigi"
+	echo "signer - starts the simple signer"
+	echo "reset-database - resets the database"
+	echo "fetch-locales - (re)fetch the localisation"
 fi

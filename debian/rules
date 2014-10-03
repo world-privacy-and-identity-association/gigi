@@ -1,0 +1,32 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+%:
+	dh $@ 
+
+build:
+	ant pack
+
+override_dh_auto_clean:
+	echo i dont clean
+
+
+binary:
+	dh_testdir
+	dh_testroot
+	DESTDIR=debian/cacert-gigi ant install
+	DESTDIR=debian/cacert-gigi-setuid ant install-native
+	dh_installman debian/gigi.1
+	dh_installdebconf
+	dh_installchangelogs
+	dh_installinit --name=cacert-gigi
+	dh_installinit --name=cacert-gigi-signer
+	dh_shlibdeps
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_builddeb

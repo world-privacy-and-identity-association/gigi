@@ -12,3 +12,7 @@
 .DS_Store
 
 /bin
+/bintest
+/binutil
+/work
+static.tar.gz

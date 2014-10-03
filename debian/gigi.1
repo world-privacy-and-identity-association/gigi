@@ -1,0 +1,47 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2014 CAcert Software Team <software@cacert.org>,
+.\"
+.TH CACERT-GIGI 1 "September 25, 2014"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+cacert-gigi \- a starter for the CAcert-gigi system
+.SH SYNOPSIS
+.B cacert-gigi
+.RI {start|signer|reset-database|fetch-locales}
+.SH DESCRIPTION
+.B cacert-gigi
+is the starter for the CAcert-gigi system.
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics,
+.\" respectively.
+.SH OPTIONS
+.TP
+.B fetch-locales
+Fetch all Translations from http://translations.cacert.org/
+.TP
+.B reset-database
+Delete the whole database contents, resetting it to default.
+.TP
+.B signer
+Run the test-replacement signer (not forking).
+.TP
+.B start
+Run the usual webdb (not forking). You will need to pipe the config into this program.
+.\".SH SEE ALSO
+.\".BR bar (1),
+.\".BR baz (1).
+.\".br
+.\"The programs are documented fully by
+.\".IR "The Rise and Fall of a Fooish Bar" ,
+.\"available via the Info system.
