@@ -2,7 +2,7 @@ JAVA_HOME=/usr/lib/jvm/default-java
 SYSTEM= $(shell uname | awk '{print tolower($$0)}')
 JAVAH?=javah
 CC?=gcc
-CFLAGS?=-O3 -g -flto -Wall -Werror -Wextra -pedantic -fsanitize=address -fPIC
+CFLAGS?=-O3 -g -flto -Wall -Werror -Wextra -pedantic -fPIC
 CFLAGS+=-I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/$(SYSTEM)
 LDFLAGS?=-shared
 
