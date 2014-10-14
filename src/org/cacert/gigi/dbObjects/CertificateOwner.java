@@ -53,4 +53,80 @@ public abstract class CertificateOwner implements IdCachable {
         return id;
     }
 
+    public EmailAddress[] getEmails() {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM emails WHERE memid=? AND deleted is NULL");
+        ps.setInt(1, getId());
+        GigiResultSet rs = ps.executeQuery();
+        rs.last();
+        int count = rs.getRow();
+        EmailAddress[] data = new EmailAddress[count];
+        rs.beforeFirst();
+        for (int i = 0; i < data.length; i++) {
+            if ( !rs.next()) {
+                throw new Error("Internal sql api violation.");
+            }
+            data[i] = EmailAddress.getById(rs.getInt(1));
+        }
+        rs.close();
+        return data;
+
+    }
+
+    public Domain[] getDomains() {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM domains WHERE memid=? AND deleted IS NULL");
+        ps.setInt(1, getId());
+        GigiResultSet rs = ps.executeQuery();
+        rs.last();
+        int count = rs.getRow();
+        Domain[] data = new Domain[count];
+        rs.beforeFirst();
+        for (int i = 0; i < data.length; i++) {
+            if ( !rs.next()) {
+                throw new Error("Internal sql api violation.");
+            }
+            data[i] = Domain.getById(rs.getInt(1));
+        }
+        rs.close();
+        return data;
+
+    }
+
+    public Certificate[] getCertificates() {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT serial FROM certs WHERE memid=? AND revoked IS NULL");
+        ps.setInt(1, getId());
+        GigiResultSet rs = ps.executeQuery();
+        rs.last();
+        int count = rs.getRow();
+        Certificate[] data = new Certificate[count];
+        rs.beforeFirst();
+        for (int i = 0; i < data.length; i++) {
+            if ( !rs.next()) {
+                throw new Error("Internal sql api violation.");
+            }
+            data[i] = Certificate.getBySerial(rs.getString(1));
+        }
+        rs.close();
+        return data;
+
+    }
+
+    public boolean isValidDomain(String domainname) {
+        for (Domain d : getDomains()) {
+            String sfx = d.getSuffix();
+            if (domainname.equals(sfx) || domainname.endsWith("." + sfx)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isValidEmail(String email) {
+        for (EmailAddress em : getEmails()) {
+            if (em.getAddress().equals(email)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

@@ -44,6 +44,8 @@ import org.cacert.gigi.pages.account.mail.MailOverview;
 import org.cacert.gigi.pages.admin.TTPAdminPage;
 import org.cacert.gigi.pages.error.PageNotFound;
 import org.cacert.gigi.pages.main.RegisterPage;
+import org.cacert.gigi.pages.orga.CreateOrgPage;
+import org.cacert.gigi.pages.orga.ViewOrgPage;
 import org.cacert.gigi.pages.wot.AssurePage;
 import org.cacert.gigi.pages.wot.MyPoints;
 import org.cacert.gigi.pages.wot.RequestTTPPage;
@@ -108,6 +110,8 @@ public class Gigi extends HttpServlet {
             putPage(MyPoints.PATH, new MyPoints("My Points"), "CAcert Web of Trust");
             putPage(RequestTTPPage.PATH, new RequestTTPPage(), "CAcert Web of Trust");
             putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
+            putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Admin");
+            putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Admin");
             putPage("/wot/rules", new StaticPage("CAcert Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "CAcert Web of Trust");
             baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
             rootMenu = new Menu("Main");

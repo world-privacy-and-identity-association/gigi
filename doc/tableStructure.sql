@@ -294,7 +294,7 @@ DROP TABLE IF EXISTS `user_groups`;
 CREATE TABLE IF NOT EXISTS `user_groups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user` int(11) NOT NULL,
-  `permission` enum('supporter','arbitrator','blockedassuree','blockedassurer','blockedlogin','ttp-assurer','ttp-applicant', 'codesigning') NOT NULL,
+  `permission` enum('supporter','arbitrator','blockedassuree','blockedassurer','blockedlogin','ttp-assurer','ttp-applicant', 'codesigning', 'orgassurer') NOT NULL,
   `granted` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `deleted` timestamp NULL DEFAULT NULL,
   `grantedby` int(11) NOT NULL,
@@ -306,6 +306,7 @@ DROP TABLE IF EXISTS `org_admin`;
 CREATE TABLE IF NOT EXISTS `org_admin` (
   `orgid` int(11) NOT NULL,
   `memid` int(11) NOT NULL,
+  `master` enum('y', 'n') NOT NULL,
   `creator` int(11) NOT NULL,
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `deleter` int(11) NULL DEFAULT NULL,

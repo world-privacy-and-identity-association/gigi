@@ -17,11 +17,11 @@ public class TestOrga extends ManagedTest {
         User u4 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
         Organisation o1 = new Organisation("name", "ST", "prov", "city", u1);
         assertEquals(0, o1.getAllAdmins().size());
-        o1.addAdmin(u2, u1);
+        o1.addAdmin(u2, u1, false);
         assertEquals(1, o1.getAllAdmins().size());
-        o1.addAdmin(u3, u1);
+        o1.addAdmin(u3, u1, false);
         assertEquals(2, o1.getAllAdmins().size());
-        o1.addAdmin(u4, u1);
+        o1.addAdmin(u4, u1, false);
         assertEquals(3, o1.getAllAdmins().size());
         o1.removeAdmin(u3, u1);
         assertEquals(2, o1.getAllAdmins().size());
