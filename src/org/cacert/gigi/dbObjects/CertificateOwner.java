@@ -27,7 +27,7 @@ public abstract class CertificateOwner implements IdCachable {
             ps.setInt(1, id);
             GigiResultSet rs = ps.executeQuery();
             if ( !rs.next()) {
-                System.out.println("no " + id);
+                return null;
             }
             if (rs.getString("uid") != null) {
                 myCache.put(u = new User(rs));

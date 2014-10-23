@@ -100,13 +100,20 @@ public class Organisation extends CertificateOwner {
         return null;
     }
 
-    public void addAdmin(User admin, User actor, boolean master) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO org_admin SET orgid=?, memid=?, creator=?, master=?");
-        ps.setInt(1, getId());
-        ps.setInt(2, admin.getId());
-        ps.setInt(3, actor.getId());
-        ps.setString(4, master ? "y" : "n");
-        ps.execute();
+    public synchronized void addAdmin(User admin, User actor, boolean master) {
+        GigiPreparedStatement ps1 = DatabaseConnection.getInstance().prepare("SELECT 1 FROM org_admin WHERE orgid=? AND memid=? AND deleted is null");
+        ps1.setInt(1, getId());
+        ps1.setInt(2, admin.getId());
+        GigiResultSet result = ps1.executeQuery();
+        if (result.next()) {
+            return;
+        }
+        GigiPreparedStatement ps2 = DatabaseConnection.getInstance().prepare("INSERT INTO org_admin SET orgid=?, memid=?, creator=?, master=?");
+        ps2.setInt(1, getId());
+        ps2.setInt(2, admin.getId());
+        ps2.setInt(3, actor.getId());
+        ps2.setString(4, master ? "y" : "n");
+        ps2.execute();
     }
 
     public void removeAdmin(User admin, User actor) {

@@ -419,6 +419,16 @@ public class User extends CertificateOwner {
         return null;
     }
 
+    public static User getByEmail(String mail) {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT users.id FROM users inner join certOwners on certOwners.id=users.id WHERE email=? AND deleted is null");
+        ps.setString(1, mail);
+        GigiResultSet rs = ps.executeQuery();
+        if ( !rs.next()) {
+            return null;
+        }
+        return User.getById(rs.getInt(1));
+    }
+
     public boolean canIssue(CertificateProfile p) {
         switch (p.getCAId()) {
         case 0:

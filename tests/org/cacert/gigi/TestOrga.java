@@ -19,9 +19,15 @@ public class TestOrga extends ManagedTest {
         assertEquals(0, o1.getAllAdmins().size());
         o1.addAdmin(u2, u1, false);
         assertEquals(1, o1.getAllAdmins().size());
+        o1.addAdmin(u2, u1, false); // Insert double should be ignored
+        assertEquals(1, o1.getAllAdmins().size());
         o1.addAdmin(u3, u1, false);
         assertEquals(2, o1.getAllAdmins().size());
         o1.addAdmin(u4, u1, false);
+        assertEquals(3, o1.getAllAdmins().size());
+        o1.removeAdmin(u3, u1);
+        assertEquals(2, o1.getAllAdmins().size());
+        o1.addAdmin(u3, u1, false); // add again
         assertEquals(3, o1.getAllAdmins().size());
         o1.removeAdmin(u3, u1);
         assertEquals(2, o1.getAllAdmins().size());
@@ -29,4 +35,5 @@ public class TestOrga extends ManagedTest {
         o1.removeAdmin(u2, u1);
         assertEquals(0, o1.getAllAdmins().size());
     }
+
 }

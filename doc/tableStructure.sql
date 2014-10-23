@@ -311,5 +311,5 @@ CREATE TABLE IF NOT EXISTS `org_admin` (
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `deleter` int(11) NULL DEFAULT NULL,
   `deleted` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`orgid`, `memid`)
+  KEY (`orgid`, `memid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

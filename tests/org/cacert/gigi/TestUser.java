@@ -124,4 +124,13 @@ public class TestUser extends ManagedTest {
         assertSame(ra, ra2);
     }
 
+    @Test
+    public void testGetByMail() {
+        String email = createUniqueName() + "a@email.org";
+        int id = createVerifiedUser("aä", "b", email, TEST_PASSWORD);
+        User emailUser = User.getByEmail(email);
+        User u = User.getById(id);
+        assertSame(u, emailUser);
+    }
+
 }

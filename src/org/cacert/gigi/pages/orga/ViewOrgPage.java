@@ -21,6 +21,8 @@ public class ViewOrgPage extends Page {
 
     private final Template orgas = new Template(ViewOrgPage.class.getResource("ViewOrgs.templ"));
 
+    private final Template mainTempl = new Template(ViewOrgPage.class.getResource("EditOrg.templ"));
+
     public static final String DEFAULT_PATH = "/orga";
 
     public ViewOrgPage() {
@@ -35,7 +37,13 @@ public class ViewOrgPage extends Page {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            Form.getForm(req, CreateOrgForm.class).submit(resp.getWriter(), req);
+            if (req.getParameter("affiliate") != null) {
+                AffiliationForm form = Form.getForm(req, AffiliationForm.class);
+                form.submit(resp.getWriter(), req);
+                resp.sendRedirect(DEFAULT_PATH + "/" + form.getOrganisation().getId());
+            } else {
+                Form.getForm(req, CreateOrgForm.class).submit(resp.getWriter(), req);
+            }
         } catch (GigiApiException e) {
             e.format(resp.getWriter(), getLanguage(req));
         }
@@ -58,7 +66,6 @@ public class ViewOrgPage extends Page {
                     if (count >= orgas.length)
                         return false;
                     Organisation org = orgas[count++];
-                    System.out.println(org.getId());
                     vars.put("id", Integer.toString(org.getId()));
                     vars.put("name", org.getName());
                     vars.put("country", org.getState());
@@ -75,7 +82,9 @@ public class ViewOrgPage extends Page {
             resp.sendError(404);
             return;
         }
-        new CreateOrgForm(req, o).output(out, lang, new HashMap<String, Object>());
-        out.println(lang.getTranslation("WARNING: updating the data will revoke all issued certificates."));
+        HashMap<String, Object> vars = new HashMap<>();
+        vars.put("editForm", new CreateOrgForm(req, o));
+        vars.put("affForm", new AffiliationForm(req, o));
+        mainTempl.output(out, lang, vars);
     }
 }
