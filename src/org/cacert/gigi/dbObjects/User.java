@@ -1,9 +1,11 @@
 package org.cacert.gigi.dbObjects;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -409,6 +411,18 @@ public class User extends CertificateOwner {
         ps.setString(2, toRevoke.getDatabaseName());
         ps.setInt(3, getId());
         ps.execute();
+    }
+
+    public List<Organisation> getOrganisations() {
+        List<Organisation> orgas = new ArrayList<>();
+        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT orgid FROM org_admin WHERE `memid`=? AND deleted is NULL");
+        query.setInt(1, getId());
+        GigiResultSet res = query.executeQuery();
+
+        while (res.next()) {
+            orgas.add(Organisation.getById(res.getInt(1)));
+        }
+        return orgas;
     }
 
     public static synchronized User getById(int id) {

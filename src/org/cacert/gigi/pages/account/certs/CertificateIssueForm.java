@@ -9,7 +9,9 @@ import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -24,6 +26,7 @@ import org.cacert.gigi.dbObjects.Certificate.SANType;
 import org.cacert.gigi.dbObjects.Certificate.SubjectAlternateName;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Digest;
+import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.CertificateValiditySelector;
@@ -440,6 +443,23 @@ public class CertificateIssueForm extends Form {
                 return true;
             }
         });
+        final List<Organisation> orgs = u.getOrganisations();
+        vars2.put("orga", orgs.size() == 0 ? null : new IterableDataset() {
+
+            Iterator<Organisation> iter = orgs.iterator();
+
+            @Override
+            public boolean next(Language l, Map<String, Object> vars) {
+                if ( !iter.hasNext()) {
+                    return false;
+                }
+                Organisation orga = iter.next();
+                vars.put("key", orga.getId());
+                vars.put("name", orga.getName());
+                return true;
+            }
+        });
+
         t.output(out, l, vars2);
     }
 }
