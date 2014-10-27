@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -37,6 +38,13 @@ public class DevelLauncher {
                 mainProps.setProperty("port", args[i + 1]);
             }
             i++;
+        }
+        try {
+            String targetPort = mainProps.getProperty("http.port");
+            String targetHost = mainProps.getProperty("name.www");
+            URL u = new URL("http://" + targetHost + ":" + targetPort + "/kill");
+            u.openStream();
+        } catch (IOException e) {
         }
 
         ByteArrayOutputStream chunkConfig = new ByteArrayOutputStream();
@@ -74,6 +82,18 @@ public class DevelLauncher {
                     resp.getWriter().println("All caches cleared.");
                     System.out.println("Caches cleared.");
 
+                }
+
+                @Override
+                public boolean needsLogin() {
+                    return false;
+                }
+            });
+            pages.put("/kill", new Page("Kill") {
+
+                @Override
+                public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+                    System.exit(0);
                 }
 
                 @Override
