@@ -155,8 +155,12 @@ public class ManagedTest extends ConfiguredTest {
             e.printStackTrace();
         }
         System.out.println(" in " + (System.currentTimeMillis() - ms) + " ms");
-        String type = testProps.getProperty("type");
+        clearCaches();
+    }
+
+    public static void clearCaches() throws IOException {
         ObjectCache.clearAllCaches();
+        String type = testProps.getProperty("type");
         if (type.equals("local")) {
             URL u = new URL("https://" + getServerName() + "/manage");
             u.openConnection().getHeaderField("Location");

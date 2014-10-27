@@ -2,16 +2,19 @@
   <tr>
     <th><?=_Name?></th>
     <th><?=_Master?></th>
+    <th> </th>
   </tr>
 <? foreach($admins) { ?>
   <tr>
     <td><?=$name?></td>
     <td><?=$master?></td>
+    <td><button type="submit" name="del" value="<?=$e-mail?>">X</button> </td>
   </tr>
 <? } ?>
 </table>
 <?=_Add new admin?>:
 <input type="text" name="email">
 <?=_Master?>?
+<input type="hidden" name="affiliate" value="y">
 <input type="checkbox" name="master" value="y">
-<input type="submit" name="affiliate" value="<?=_Add?>">
+<input type="submit" value="<?=_Add?>">
