@@ -117,6 +117,10 @@ public class CertificateIssueForm extends Form {
 
     private CertificateProfile profile = CertificateProfile.getById(1);
 
+    private String ou = "";
+
+    private Organisation org = null;
+
     public CertificateIssueForm(HttpServletRequest hsr) {
         super(hsr);
         u = Page.getUser(hsr);
@@ -127,6 +131,11 @@ public class CertificateIssueForm extends Form {
 
     public Certificate getResult() {
         return result;
+    }
+
+    public static String escapeAVA(String value) {
+
+        return value.replace("\\", "\\\\").replace("/", "\\/");
     }
 
     @Override
@@ -242,6 +251,13 @@ public class CertificateIssueForm extends Form {
                         selectedDigest = Digest.valueOf(hashAlg);
                     }
                     profile = CertificateProfile.getByName(req.getParameter("profile"));
+                    Organisation neworg = Organisation.getById(Integer.parseInt(req.getParameter("org")));
+                    if (neworg == null || u.getOrganisations().contains(neworg)) {
+                        org = neworg;
+                    } else {
+                        outputError(out, req, "Selected Organisation is not part of your account.");
+                    }
+                    ou = req.getParameter("OU");
                     if ( !u.canIssue(profile)) {
                         profile = CertificateProfile.getById(1);
                         outputError(out, req, "Certificate Profile is invalid.");
@@ -282,7 +298,7 @@ public class CertificateIssueForm extends Form {
                     final StringBuffer subject = new StringBuffer();
                     if (server && pDNS != null) {
                         subject.append("/commonName=");
-                        subject.append(pDNS);
+                        subject.append(escapeAVA(pDNS));
                         if (pMail != null) {
                             outputError(out, req, "No email is included in this certificate.");
                         }
@@ -292,11 +308,23 @@ public class CertificateIssueForm extends Form {
                         }
                     } else {
                         subject.append("/commonName=");
-                        subject.append(CN);
+                        subject.append(escapeAVA(CN));
                         if (pMail != null) {
                             subject.append("/emailAddress=");
-                            subject.append(pMail);
+                            subject.append(escapeAVA(pMail));
                         }
+                    }
+                    if (org != null) {
+                        subject.append("/O=");
+                        subject.append(escapeAVA(org.getName()));
+                        subject.append("/C=");
+                        subject.append(escapeAVA(org.getState()));
+                        subject.append("/ST=");
+                        subject.append(escapeAVA(org.getProvince()));
+                        subject.append("/L=");
+                        subject.append(escapeAVA(org.getCity()));
+                        subject.append("/OU=");
+                        subject.append(escapeAVA(ou));
                     }
                     if (req.getParameter("CCA") == null) {
                         outputError(out, req, "You need to accept the CCA.");
@@ -416,6 +444,7 @@ public class CertificateIssueForm extends Form {
         }
 
         vars2.put("CN", CN);
+        vars2.put("department", ou);
         vars2.put("validity", issueDate);
         vars2.put("emails", content.toString());
         vars2.put("hashs", new HashAlgorithms(selectedDigest));
@@ -456,6 +485,11 @@ public class CertificateIssueForm extends Form {
                 Organisation orga = iter.next();
                 vars.put("key", orga.getId());
                 vars.put("name", orga.getName());
+                if (orga == org) {
+                    vars.put("selected", " selected");
+                } else {
+                    vars.put("selected", "");
+                }
                 return true;
             }
         });

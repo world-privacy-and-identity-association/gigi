@@ -32,7 +32,7 @@
     <td><select name="org" id='org'>
       <option value="-1"><?=_(none)?></option>
     <? foreach($orga) { ?>
-      <option value="<?=$key?>"><?=$name?></option>
+      <option value="<?=$key?>"<?=$!selected?>><?=$name?></option>
     <? } ?>
     </select></td>
   </tr>
@@ -41,7 +41,7 @@
     <td>
     <label for='CN'><?=_Your name?></label>
     </td>
-    <td><input type='text' id='CN' name='CN' value='<?=$CN?>'></td>
+    <td><input type='text' id='CN' name='CN' value='<?=$CN?>'/></td>
   </tr>
   <tr>
     <td>SANs</td>
@@ -50,7 +50,7 @@
   <? if($orga) { ?>
   <tr>
     <td><?=_Departement?></td>
-    <td align="left"><input type='text' name='OU'/></td>
+    <td align="left"><input type='text' name='OU' value='<?=$department?>'/></td>
   </tr>
   <? } ?>
   <tr class="expertoff">
