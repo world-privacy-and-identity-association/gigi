@@ -3,6 +3,7 @@ package org.cacert.gigi.pages.orga;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 
 public class ViewOrgPage extends Page {
@@ -31,12 +33,16 @@ public class ViewOrgPage extends Page {
 
     @Override
     public boolean isPermitted(User u) {
-        return u != null && u.isInGroup(CreateOrgPage.ORG_ASSURER);
+        return u != null && (u.isInGroup(CreateOrgPage.ORG_ASSURER) || u.getOrganisations().size() != 0);
     }
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
+            User u = LoginPage.getUser(req);
+            if ( !u.isInGroup(CreateOrgPage.ORG_ASSURER)) {
+                return;
+            }
             if (req.getParameter("affiliate") != null) {
                 AffiliationForm form = Form.getForm(req, AffiliationForm.class);
                 form.submit(resp.getWriter(), req);
@@ -51,34 +57,29 @@ public class ViewOrgPage extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        User u = LoginPage.getUser(req);
         String idS = req.getPathInfo();
         Language lang = getLanguage(req);
         PrintWriter out = resp.getWriter();
         if (idS.length() < DEFAULT_PATH.length() + 2) {
             final Organisation[] orgas = Organisation.getOrganisations(0, 30);
             HashMap<String, Object> map = new HashMap<>();
-            map.put("orgas", new IterableDataset() {
-
-                int count = 0;
-
-                @Override
-                public boolean next(Language l, Map<String, Object> vars) {
-                    if (count >= orgas.length)
-                        return false;
-                    Organisation org = orgas[count++];
-                    vars.put("id", Integer.toString(org.getId()));
-                    vars.put("name", org.getName());
-                    vars.put("country", org.getState());
-                    return true;
-                }
-            });
+            final List<Organisation> myOrgs = u.getOrganisations();
+            final boolean orgAss = u.isInGroup(CreateOrgPage.ORG_ASSURER);
+            if (orgAss) {
+                map.put("orgas", makeOrgDataset(orgas));
+            } else {
+                map.put("orgas", makeOrgDataset(myOrgs.toArray(new Organisation[myOrgs.size()])));
+            }
             this.orgas.output(out, lang, map);
             return;
         }
         idS = idS.substring(DEFAULT_PATH.length() + 1);
         int id = Integer.parseInt(idS);
         Organisation o = Organisation.getById(id);
-        if (o == null) {
+        final List<Organisation> myOrgs = u.getOrganisations();
+        final boolean orgAss = u.isInGroup(CreateOrgPage.ORG_ASSURER);
+        if (o == null || ( !orgAss && !myOrgs.contains(o))) {
             resp.sendError(404);
             return;
         }
@@ -86,5 +87,23 @@ public class ViewOrgPage extends Page {
         vars.put("editForm", new CreateOrgForm(req, o));
         vars.put("affForm", new AffiliationForm(req, o));
         mainTempl.output(out, lang, vars);
+    }
+
+    private IterableDataset makeOrgDataset(final Organisation[] orgas) {
+        return new IterableDataset() {
+
+            int count = 0;
+
+            @Override
+            public boolean next(Language l, Map<String, Object> vars) {
+                if (count >= orgas.length)
+                    return false;
+                Organisation org = orgas[count++];
+                vars.put("id", Integer.toString(org.getId()));
+                vars.put("name", org.getName());
+                vars.put("country", org.getState());
+                return true;
+            }
+        };
     }
 }
