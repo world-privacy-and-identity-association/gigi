@@ -56,7 +56,7 @@ public class DevelLauncher {
         dos.flush();
         InputStream oldin = System.in;
         System.setIn(new ByteArrayInputStream(chunkConfig.toByteArray()));
-        Launcher.main(args);
+        Launcher.boot();
         addDevelPage();
         System.setIn(oldin);
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
