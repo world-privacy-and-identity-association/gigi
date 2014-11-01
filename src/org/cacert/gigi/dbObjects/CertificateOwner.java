@@ -130,7 +130,7 @@ public abstract class CertificateOwner implements IdCachable {
     }
 
     public void delete() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE certowners set deleted=NOW() WHERE id=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE certOwners set deleted=NOW() WHERE id=?");
         ps.setInt(1, getId());
         ps.execute();
         myCache.remove(this);

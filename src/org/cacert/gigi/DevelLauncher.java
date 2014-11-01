@@ -66,7 +66,7 @@ public class DevelLauncher {
         System.exit(0);
     }
 
-    private static void addDevelPage() {
+    public static void addDevelPage() {
         try {
             Field instF = Gigi.class.getDeclaredField("instance");
             Field pageF = Gigi.class.getDeclaredField("pages");

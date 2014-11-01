@@ -84,6 +84,9 @@ public class Launcher {
                 Log.getLogger(Launcher.class).warn("Couldn't set uid!");
             }
         }
+        if (conf.getMainProps().containsKey("testrunner")) {
+            DevelLauncher.addDevelPage();
+        }
     }
 
     private static ServerConnector createConnector(GigiConfig conf, Server s, HttpConfiguration httpConfig, boolean doHttps) throws GeneralSecurityException, IOException {

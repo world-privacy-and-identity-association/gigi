@@ -161,14 +161,13 @@ public class ManagedTest extends ConfiguredTest {
     public static void clearCaches() throws IOException {
         ObjectCache.clearAllCaches();
         String type = testProps.getProperty("type");
-        if (type.equals("local")) {
-            URL u = new URL("https://" + getServerName() + "/manage");
-            u.openConnection().getHeaderField("Location");
-        }
+        URL u = new URL("https://" + getServerName() + "/manage");
+        u.openConnection().getHeaderField("Location");
     }
 
     private static Properties generateMainProps() {
         Properties mainProps = new Properties();
+        mainProps.setProperty("testrunner", "true");
         mainProps.setProperty("host", "127.0.0.1");
         mainProps.setProperty("name.secure", testProps.getProperty("name.secure"));
         mainProps.setProperty("name.www", testProps.getProperty("name.www"));
