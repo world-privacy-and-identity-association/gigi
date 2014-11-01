@@ -139,8 +139,6 @@ CREATE TABLE `certs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `memid` int(11) NOT NULL DEFAULT '0',
   `serial` varchar(50) NOT NULL DEFAULT '',
-  `CN` varchar(255) NOT NULL DEFAULT '',
-  `subject` varchar(1024) NOT NULL,
   `keytype` char(2) NOT NULL DEFAULT 'NS',
   `codesign` tinyint(1) NOT NULL DEFAULT '0',
   `md` enum('md5','sha1','sha256','sha512') NOT NULL DEFAULT 'sha512',
@@ -167,6 +165,16 @@ CREATE TABLE `certs` (
   KEY `stats_emailcerts_expire` (`expire`),
   KEY `emailcrt` (`crt_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS `certAvas`;
+CREATE TABLE `certAvas` (
+  `certid` int(11) NOT NULL,
+  `name` varchar(20) NOT NULL,
+  `value` varchar(255) NOT NULL,
+
+  PRIMARY KEY (`certid`, `name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `clientcerts`;
 CREATE TABLE `clientcerts` (

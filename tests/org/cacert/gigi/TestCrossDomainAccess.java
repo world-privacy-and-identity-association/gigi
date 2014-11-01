@@ -50,7 +50,7 @@ public class TestCrossDomainAccess extends ManagedTest {
         int id = createVerifiedUser("Kurti", "Hansel", email, TEST_PASSWORD);
         KeyPair kp = generateKeypair();
         String key1 = generatePEMCSR(kp, "CN=" + email);
-        Certificate c = new Certificate(User.getById(id), "/CN=" + email, "sha256", key1, CSRType.CSR, CertificateProfile.getById(1));
+        Certificate c = new Certificate(User.getById(id), Certificate.buildDN("CN", email), "sha256", key1, CSRType.CSR, CertificateProfile.getById(1));
         final PrivateKey pk = kp.getPrivate();
         c.issue(null, "2y").waitFor(60000);
         final X509Certificate ce = c.cert();

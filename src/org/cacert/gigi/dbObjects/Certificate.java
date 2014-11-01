@@ -11,8 +11,10 @@ import java.security.cert.X509Certificate;
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
@@ -112,8 +114,6 @@ public class Certificate {
 
     private String serial;
 
-    private String dn;
-
     private String md;
 
     private String csrName;
@@ -128,12 +128,20 @@ public class Certificate {
 
     private CertificateProfile profile;
 
-    public Certificate(User owner, String dn, String md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) throws GigiApiException {
+    private HashMap<String, String> dn;
+
+    private String dnString;
+
+    public Certificate(User owner, HashMap<String, String> dn, String md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) throws GigiApiException {
         if ( !owner.canIssue(profile)) {
             throw new GigiApiException("You are not allowed to issue these certificates.");
         }
         this.owner = owner;
         this.dn = dn;
+        if (dn.size() == 0) {
+            throw new GigiApiException("DN must not be empty");
+        }
+        dnString = stringifyDN(dn);
         this.md = md;
         this.csr = csr;
         this.csrType = csrType;
@@ -142,14 +150,16 @@ public class Certificate {
     }
 
     private Certificate(String serial) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id,subject, md, csr_name, crt_name,memid, profile FROM `certs` WHERE serial=?");
+        //
+        String concat = "group_concat(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')))";
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as subject, md, csr_name, crt_name,memid, profile FROM `certs` LEFT JOIN certAvas ON certAvas.certid=certs.id WHERE serial=? GROUP BY certs.id");
         ps.setString(1, serial);
         GigiResultSet rs = ps.executeQuery();
         if ( !rs.next()) {
             throw new IllegalArgumentException("Invalid mid " + serial);
         }
         this.id = rs.getInt(1);
-        dn = rs.getString(2);
+        dnString = rs.getString(2);
         md = rs.getString(3);
         csrName = rs.getString(4);
         crtName = rs.getString(5);
@@ -238,21 +248,14 @@ public class Certificate {
         }
         Notary.writeUserAgreement(owner, "CCA", "issue certificate", "", true, 0);
 
-        GigiPreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO certs SET md=?, subject=?, csr_type=?, crt_name='', memid=?, profile=?");
+        GigiPreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO certs SET md=?, csr_type=?, crt_name='', memid=?, profile=?");
         inserter.setString(1, md);
-        inserter.setString(2, dn);
-        inserter.setString(3, csrType.toString());
-        inserter.setInt(4, owner.getId());
-        inserter.setInt(5, profile.getId());
+        inserter.setString(2, csrType.toString());
+        inserter.setInt(3, owner.getId());
+        inserter.setInt(4, profile.getId());
         inserter.execute();
         id = inserter.lastInsertId();
-        File csrFile = KeyStorage.locateCsr(id);
-        csrName = csrFile.getPath();
-        FileOutputStream fos = new FileOutputStream(csrFile);
-        fos.write(csr.getBytes());
-        fos.close();
 
-        // TODO draft to insert SANs
         GigiPreparedStatement san = DatabaseConnection.getInstance().prepare("INSERT INTO subjectAlternativeNames SET certId=?, contents=?, type=?");
         for (SubjectAlternateName subjectAlternateName : sans) {
             san.setInt(1, id);
@@ -260,6 +263,19 @@ public class Certificate {
             san.setString(3, subjectAlternateName.getType().getOpensslName());
             san.execute();
         }
+
+        GigiPreparedStatement insertAVA = DatabaseConnection.getInstance().prepare("INSERT certAvas SET certid=?, name=?, value=?");
+        insertAVA.setInt(1, id);
+        for (Entry<String, String> e : dn.entrySet()) {
+            insertAVA.setString(2, e.getKey());
+            insertAVA.setString(3, e.getValue());
+            insertAVA.execute();
+        }
+        File csrFile = KeyStorage.locateCsr(id);
+        csrName = csrFile.getPath();
+        FileOutputStream fos = new FileOutputStream(csrFile);
+        fos.write(csr.getBytes());
+        fos.close();
 
         GigiPreparedStatement updater = DatabaseConnection.getInstance().prepare("UPDATE certs SET csr_name=? WHERE id=?");
         updater.setString(1, csrName);
@@ -311,7 +327,7 @@ public class Certificate {
     }
 
     public String getDistinguishedName() {
-        return dn;
+        return dnString;
     }
 
     public String getMessageDigest() {
@@ -340,4 +356,25 @@ public class Certificate {
         return null;
     }
 
+    public static String escapeAVA(String value) {
+
+        return value.replace("\\", "\\\\").replace("/", "\\/");
+    }
+
+    public static String stringifyDN(HashMap<String, String> contents) {
+        StringBuffer res = new StringBuffer();
+        for (Entry<String, String> i : contents.entrySet()) {
+            res.append("/" + i.getKey() + "=");
+            res.append(escapeAVA(i.getValue()));
+        }
+        return res.toString();
+    }
+
+    public static HashMap<String, String> buildDN(String... contents) {
+        HashMap<String, String> res = new HashMap<>();
+        for (int i = 0; i + 1 < contents.length; i += 2) {
+            res.put(contents[i], contents[i + 1]);
+        }
+        return res;
+    }
 }

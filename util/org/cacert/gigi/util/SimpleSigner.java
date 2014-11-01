@@ -18,12 +18,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.TimeZone;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
+import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.output.DateSelector;
 
@@ -77,7 +79,7 @@ public class SimpleSigner {
             throw new IllegalStateException("already running");
         }
         running = true;
-        readyCerts = DatabaseConnection.getInstance().prepare("SELECT certs.id AS id, certs.csr_name, certs.subject, jobs.id AS jobid, csr_type, md, keyUsage, extendedKeyUsage, executeFrom, executeTo, rootcert FROM jobs " + //
+        readyCerts = DatabaseConnection.getInstance().prepare("SELECT certs.id AS id, certs.csr_name, jobs.id AS jobid, csr_type, md, keyUsage, extendedKeyUsage, executeFrom, executeTo, rootcert FROM jobs " + //
                 "INNER JOIN certs ON certs.id=jobs.targetId " + //
                 "INNER JOIN profiles ON profiles.id=certs.profile " + //
                 "WHERE jobs.state='open' "//
@@ -257,7 +259,17 @@ public class SimpleSigner {
                 } else if (rootcert == 1) {
                     ca = "assured";
                 }
-
+                HashMap<String, String> subj = new HashMap<>();
+                GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT name, value FROM certAvas WHERE certId=?");
+                ps.setInt(1, rs.getInt("id"));
+                GigiResultSet rs2 = ps.executeQuery();
+                while (rs2.next()) {
+                    subj.put(rs2.getString("name"), rs2.getString("value"));
+                }
+                if (subj.size() == 0) {
+                    subj.put("CN", "<empty>");
+                    System.out.println("WARNING: DN was empty");
+                }
                 String[] call = new String[] {
                         "openssl", "ca",//
                         "-in",
@@ -280,7 +292,7 @@ public class SimpleSigner {
                         "../" + f.getName(),//
 
                         "-subj",
-                        rs.getString("subject"),//
+                        Certificate.stringifyDN(subj),//
                         "-config",
                         "../selfsign.config"//
 

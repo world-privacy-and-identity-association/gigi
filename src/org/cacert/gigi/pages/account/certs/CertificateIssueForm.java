@@ -133,11 +133,6 @@ public class CertificateIssueForm extends Form {
         return result;
     }
 
-    public static String escapeAVA(String value) {
-
-        return value.replace("\\", "\\\\").replace("/", "\\/");
-    }
-
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) {
         String csr = req.getParameter("CSR");
@@ -298,10 +293,9 @@ public class CertificateIssueForm extends Form {
                         outputError(out, req, "The real name entered cannot be verified with your account.");
                     }
 
-                    final StringBuffer subject = new StringBuffer();
+                    HashMap<String, String> subject = new HashMap<>();
                     if (server && pDNS != null) {
-                        subject.append("/commonName=");
-                        subject.append(escapeAVA(pDNS));
+                        subject.put("CN", pDNS);
                         if (pMail != null) {
                             outputError(out, req, "No email is included in this certificate.");
                         }
@@ -310,24 +304,17 @@ public class CertificateIssueForm extends Form {
                             outputError(out, req, "No real name is included in this certificate.");
                         }
                     } else {
-                        subject.append("/commonName=");
-                        subject.append(escapeAVA(CN));
+                        subject.put("CN", CN);
                         if (pMail != null) {
-                            subject.append("/emailAddress=");
-                            subject.append(escapeAVA(pMail));
+                            subject.put("EMAIL", pMail);
                         }
                     }
                     if (org != null) {
-                        subject.append("/O=");
-                        subject.append(escapeAVA(org.getName()));
-                        subject.append("/C=");
-                        subject.append(escapeAVA(org.getState()));
-                        subject.append("/ST=");
-                        subject.append(escapeAVA(org.getProvince()));
-                        subject.append("/L=");
-                        subject.append(escapeAVA(org.getCity()));
-                        subject.append("/OU=");
-                        subject.append(escapeAVA(ou));
+                        subject.put("O", org.getName());
+                        subject.put("C", org.getState());
+                        subject.put("ST", org.getProvince());
+                        subject.put("L", org.getCity());
+                        subject.put("OU", ou);
                     }
                     if (req.getParameter("CCA") == null) {
                         outputError(out, req, "You need to accept the CCA.");
@@ -336,7 +323,7 @@ public class CertificateIssueForm extends Form {
                         return false;
                     }
 
-                    result = new Certificate(LoginPage.getUser(req), subject.toString(), selectedDigest.toString(), //
+                    result = new Certificate(LoginPage.getUser(req), subject, selectedDigest.toString(), //
                             this.csr, this.csrType, profile, SANs.toArray(new SubjectAlternateName[SANs.size()]));
                     result.issue(issueDate.getFrom(), issueDate.getTo()).waitFor(60000);
                     return true;
