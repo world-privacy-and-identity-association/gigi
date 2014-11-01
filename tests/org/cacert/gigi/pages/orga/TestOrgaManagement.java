@@ -96,5 +96,7 @@ public class TestOrgaManagement extends ManagedTest {
         assertEquals(200, ((HttpURLConnection) uc).getResponseCode());
         uc = cookie(new URL("https://" + getServerName() + ViewOrgPage.DEFAULT_PATH + "/" + o2.getId()).openConnection(), session);
         assertEquals(200, ((HttpURLConnection) uc).getResponseCode());
+        o1.delete();
+        o2.delete();
     }
 }

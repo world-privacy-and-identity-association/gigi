@@ -23,7 +23,7 @@ public abstract class CertificateOwner implements IdCachable {
     public static synchronized CertificateOwner getById(int id) {
         CertificateOwner u = myCache.get(id);
         if (u == null) {
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT *, users.id AS uid, organisations.id AS oid FROM certOwners LEFT JOIN users ON users.id=certOwners.id LEFT JOIN organisations ON organisations.id = certOwners.id WHERE certOwners.id=?");
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT *, users.id AS uid, organisations.id AS oid FROM certOwners LEFT JOIN users ON users.id=certOwners.id LEFT JOIN organisations ON organisations.id = certOwners.id WHERE certOwners.id=? AND deleted is null");
             ps.setInt(1, id);
             GigiResultSet rs = ps.executeQuery();
             if ( !rs.next()) {
@@ -129,4 +129,10 @@ public abstract class CertificateOwner implements IdCachable {
         return false;
     }
 
+    public void delete() {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE certowners set deleted=NOW() WHERE id=?");
+        ps.setInt(1, getId());
+        ps.execute();
+        myCache.remove(this);
+    }
 }

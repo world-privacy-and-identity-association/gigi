@@ -138,7 +138,7 @@ public class Organisation extends CertificateOwner {
     }
 
     public static Organisation[] getOrganisations(int offset, int count) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM organisations LIMIT ?,?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certOwners.id FROM organisations inner join certOwners on certOwners.id=organisations.id where certOwners.deleted is null LIMIT ?,?");
         ps.setInt(1, offset);
         ps.setInt(2, count);
         GigiResultSet res = ps.executeQuery();

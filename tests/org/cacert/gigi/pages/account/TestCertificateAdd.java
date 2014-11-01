@@ -310,7 +310,7 @@ public class TestCertificateAdd extends ManagedTest {
         }
 
         String profileKey = extractPattern(result, Pattern.compile("<option value=\"([^\"]*)\" selected>"));
-        String resultingCN = extractPattern(result, Pattern.compile("<input [^>]*name='CN' [^>]*value='([^']*)'>"));
+        String resultingCN = extractPattern(result, Pattern.compile("<input [^>]*name='CN' [^>]*value='([^']*)'/>"));
         String txt = extractPattern(result, Pattern.compile("<textarea [^>]*name='SANs' [^>]*>([^<]*)</textarea>"));
         String md = extractPattern(result, Pattern.compile("<input type=\"radio\" [^>]*name=\"hash_alg\" value=\"([^\"]*)\" checked='checked'/>"));
         return new String[] {

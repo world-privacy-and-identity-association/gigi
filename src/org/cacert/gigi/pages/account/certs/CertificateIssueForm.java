@@ -251,11 +251,14 @@ public class CertificateIssueForm extends Form {
                         selectedDigest = Digest.valueOf(hashAlg);
                     }
                     profile = CertificateProfile.getByName(req.getParameter("profile"));
-                    Organisation neworg = Organisation.getById(Integer.parseInt(req.getParameter("org")));
-                    if (neworg == null || u.getOrganisations().contains(neworg)) {
-                        org = neworg;
-                    } else {
-                        outputError(out, req, "Selected Organisation is not part of your account.");
+                    String newOrgStr = req.getParameter("org");
+                    if (newOrgStr != null) {
+                        Organisation neworg = Organisation.getById(Integer.parseInt(newOrgStr));
+                        if (neworg == null || u.getOrganisations().contains(neworg)) {
+                            org = neworg;
+                        } else {
+                            outputError(out, req, "Selected Organisation is not part of your account.");
+                        }
                     }
                     ou = req.getParameter("OU");
                     if ( !u.canIssue(profile)) {
