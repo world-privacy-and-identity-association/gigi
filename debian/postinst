@@ -31,13 +31,9 @@ case "$1" in
     ;;
 esac
 
-#. /usr/share/debconf/confmodule
-#. /usr/share/dbconfig-common/dpkg/postinst.mysql
-
-# you can set the default database encoding to something else
-#dbc_mysql_createdb_encoding="UTF8"
-#dbc_generate_include=sh:/etc/cacert-gigi/debian-db.sh
-#dbc_go cacert-gigi $@
+if [ -f /usr/share/debconf/confmodule ]; then
+    . /usr/share/debconf/confmodule
+fi
 
 gigi fetch-locales
 

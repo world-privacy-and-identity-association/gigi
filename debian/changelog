@@ -1,5 +1,5 @@
-cacert-gigi (0.1-1) unstable; urgency=low
+cacert-gigi (0.1) unstable; urgency=low
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * Initial Release
 
- -- unknown <software@cacert.org>  Thu, 25 Sep 2014 03:19:20 +0200
+ -- CAcert Software Team <cacert-devel@cacert.org>  Thu, 25 Sep 2014 03:19:20 +0200
