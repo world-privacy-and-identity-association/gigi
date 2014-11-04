@@ -21,21 +21,6 @@ override_dh_auto_build: build
 
 override_dh_auto_install:
 	DESTDIR=debian/cacert-gigi ant install
+	DESTDIR=debian/cacert-gigi-testing ant install-testing
 	DESTDIR=debian/cacert-gigi-setuid ant install-native
 
-binarya:
-	dh_testdir
-	dh_testroot
-	dh_installman debian/gigi.1
-	dh_installdebconf
-	dh_installchangelogs
-	dh_installinit --name=cacert-gigi
-	dh_installinit --name=cacert-gigi-signer
-	dh_installdocs
-	dh_strip
-	dh_shlibdeps
-	dh_compress
-	dh_fixperms
-	dh_installdeb
-	dh_gencontrol
-	dh_builddeb

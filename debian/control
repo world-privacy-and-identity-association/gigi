@@ -11,8 +11,16 @@ Homepage: http://cacert.org
 Package: cacert-gigi
 Architecture: all
 Depends: openjdk-8-jdk-gigi, cacert-gigi-setuid, ${shlibs:Depends}, ${misc:Depends}
+Conflicts: cacert-gigi-testing
 Description: CAcert Web-DB software.
  This program is used to manage accounts and certificates.
+
+Package: cacert-gigi-testing
+Architecture: all
+Depends:  openjdk-8-jdk-gigi, cacert-gigi-setuid, ${shlibs:Depends}, ${misc:Depends}
+Conflicts: cacert-gigi
+Description: CAcert Web-DB software testing version.
+ This program is the release to the testing server.
 
 Package: cacert-gigi-setuid
 Architecture: any

@@ -240,7 +240,23 @@
 		<mkdir dir="${env.DESTDIR}/usr/lib/jni"/>
 		<copy file="natives/libsetuid.so" todir="${env.DESTDIR}/usr/lib/jni"/>
 	</target>
-	<target name="install" depends="pack">
+        <target name="install" depends="install-common">
+		<mkdir dir="${env.DESTDIR}/usr/share/cacert-gigi/static"/>
+                <copy todir="${env.DESTDIR}/usr/share/cacert-gigi/static">
+			<fileset dir="static"/>
+		</copy>
+                <delete file="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4-test.png"/>
+        </target>
+        <target name="install-testing" depends="install-common">
+		<mkdir dir="${env.DESTDIR}/usr/share/cacert-gigi/static"/>
+                <copy todir="${env.DESTDIR}/usr/share/cacert-gigi/static">
+			<fileset dir="static"/>
+		</copy>
+                <move file="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4-test.png" tofile="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4.png"/>
+                <delete file="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4-test.png"/>
+        </target>
+
+	<target name="install-common" depends="pack">
 		<mkdir dir="${env.DESTDIR}/usr/share/java"/>
 		<copy file="gigi.jar" tofile="${env.DESTDIR}/usr/share/java/gigi.jar"/>
 
@@ -251,10 +267,6 @@
 		<mkdir dir="${env.DESTDIR}/usr/share/dbconfig-common/data/${PACKAGE}/install/"/>
                 <copy file="doc/tableStructure.sql" tofile="${env.DESTDIR}/usr/share/dbconfig-common/data/${PACKAGE}/install/mysql.sql"/>
 
-		<mkdir dir="${env.DESTDIR}/usr/share/cacert-gigi/static"/>
-                <copy todir="${env.DESTDIR}/usr/share/cacert-gigi/static">
-			<fileset dir="static"/>
-		</copy>
 		<mkdir dir="${env.DESTDIR}/var/lib/cacert-gigi/doc"/>
                 <exec executable="ln">
                   <arg value="-s"/>
