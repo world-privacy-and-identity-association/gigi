@@ -59,9 +59,10 @@ public class TestMyDetailsEdit extends ManagedTest {
         assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "mname=&fname=Kurti&lname=Hansel&suffix=" + newName + "&day=1&month=1&year=2000&processDetails", 0));
         User u = User.getById(id);
         assertEquals(newName, u.getSuffix());
-        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "mname=&fname=Kurti&lname=Hansel&suffix=&day=1&month=1&year=2000&processDetails", 0));
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "mname=&fname=Kurti&lname=Hansel&suffix=&day=1&month=1&year=2000&processDetails", 0));
+        clearCaches();
         u = User.getById(id);
-        assertEquals(newName, u.getSuffix());
+        assertEquals("", u.getSuffix());
     }
 
     @Test
@@ -74,9 +75,9 @@ public class TestMyDetailsEdit extends ManagedTest {
 
     @Test
     public void testUnsetLname() throws IOException {
-        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=&fname=Kurti&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=&fname=Kurti&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
         User u = User.getById(id);
-        assertEquals("Hansel", u.getLname());
+        assertEquals("", u.getLname());
     }
 
     @Test
@@ -85,9 +86,10 @@ public class TestMyDetailsEdit extends ManagedTest {
         assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "mname=" + newName + "&fname=Kurti&lname=Hansel&suffix=&day=1&month=1&year=2000&processDetails", 0));
         User u = User.getById(id);
         assertEquals(newName, u.getMname());
-        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=Hansel&fname=Kurti&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=Hansel&fname=Kurti&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
+        clearCaches();
         u = User.getById(id);
-        assertEquals(newName, u.getMname());
+        assertEquals("", u.getMname());
 
     }
 
