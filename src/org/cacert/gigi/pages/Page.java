@@ -102,10 +102,6 @@ public abstract class Page implements PermissionCheckable {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public static Language getLanguage(ServletRequest req) {
         HttpSession session = ((HttpServletRequest) req).getSession();
         Locale sessval = (Locale) session.getAttribute(Language.SESSION_ATTRIB_NAME);

@@ -29,6 +29,7 @@ import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.LogoutPage;
 import org.cacert.gigi.pages.MainPage;
+import org.cacert.gigi.pages.Manager;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.PolicyIndex;
 import org.cacert.gigi.pages.RootCertPage;
@@ -78,10 +79,13 @@ public class Gigi extends HttpServlet {
 
     private KeyStore truststore;
 
+    private boolean testing;
+
     public Gigi(Properties conf, KeyStore truststore) {
         if (instance != null) {
             throw new IllegalStateException("Multiple Gigi instances!");
         }
+        testing = conf.getProperty("testing") != null;
         instance = this;
         DatabaseConnection.init(conf);
         this.truststore = truststore;
@@ -112,6 +116,10 @@ public class Gigi extends HttpServlet {
             putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
             putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Admin");
             putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Admin");
+            if (testing) {
+                putPage(Manager.PATH + "/*", Manager.getInstance(), "Admin");
+            }
+
             putPage("/wot/rules", new StaticPage("CAcert Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "CAcert Web of Trust");
             baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
             rootMenu = new Menu("Main");

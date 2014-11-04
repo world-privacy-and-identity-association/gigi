@@ -1,0 +1,32 @@
+<div>
+Batch create users:
+<div>
+  Email: 
+  <input type="text" name="prefix"/> NNN@
+  <input type="text" name="suffix"/>
+</div>
+Amount:  <input type="slider" name="amount"/> <input type="submit" name="create" value="Create Users"/>
+</div>
+<div>
+Add privillege:
+Email: <input type="text" name="email"/> 
+<select name="priv">
+<option>supporter</option>
+<option>arbitrator</option>
+<option>blockedassuree</option>
+<option>blockedassurer</option>
+<option>blockedlogin</option>
+<option>ttp-assurer</option>
+<option>ttp-applicant</option>
+<option>codesigning</option>
+<option>orgassurer</option>
+</select>
+<input type="submit" name="addpriv" value="Grant Privillege"/>
+<input type="submit" name="delpriv" value="Revoke Privillege"/>
+</div>
+
+<div>
+Recive Mails:
+Email: <input type="text" name="femail"/>
+<input type="submit" value="Recieve Mails" name="fetch"/>
+</div>
