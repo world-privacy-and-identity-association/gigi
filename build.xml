@@ -25,6 +25,7 @@
 	<path id="cacert-gigi.test.classpath">
 		<pathelement location="bin" />
 		<pathelement location="binutil" />
+		<pathelement location="binutil-testing" />
 		<pathelement location="bintest" />
 		<path refid="JUnit 4.libraryclasspath" />
 		<pathelement location="${mysqlconnector}" />
@@ -32,6 +33,7 @@
 	<target name="init">
 		<mkdir dir="bin" />
 		<mkdir dir="binutil" />
+		<mkdir dir="binutil-testing" />
 		<mkdir dir="bintest" />
 
 		<copy includeemptydirs="false" todir="bin">
@@ -58,6 +60,12 @@
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
+		<copy includeemptydirs="false" todir="binutil-testing">
+			<fileset dir="util-testing">
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
 		<copy includeemptydirs="false" todir="bintest">
 			<fileset dir="tests">
 				<exclude name="**/*.launch" />
@@ -74,7 +82,7 @@
 
 	</target>
 	<target depends="clean,clean-test" name="cleanall" />
-	<target depends="build-project, native" name="build" />
+	<target depends="build-project, build-testing, native" name="build" />
 	<target depends="init" name="build-project">
 		<echo message="${ant.project.name}: ${ant.file}" />
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bin"
@@ -93,14 +101,27 @@
 			<classpath refid="cacert-gigi.classpath" />
 		</javac>
 	</target>
+	<target depends="init, build-project" name="build-testing">
+		<javac debug="true" debuglevel="${debuglevel}" destdir="binutil-testing"
+			includeantruntime="false" source="${source}" target="${target}">
+			<src path="util-testing" />
+			<classpath refid="cacert-gigi.classpath" />
+		</javac>
+	</target>
 
 	<target name="native">
 		<exec executable="make" dir="natives"/>
 	</target>
 
-	<target depends="build" name="pack">
+	<target depends="build-project" name="pack">
 		<jar destfile="gigi.jar" basedir="bin" manifest="Gigi.MF" update="false"/>
 		<jar destfile="gigi.jar" basedir="binutil" update="on"/>
+	</target>
+
+	<target depends="build-testing" name="pack-testing">
+		<jar destfile="gigi-testing.jar" basedir="bin" manifest="Gigi.MF" update="false"/>
+		<jar destfile="gigi-testing.jar" basedir="binutil" update="on"/>
+		<jar destfile="gigi-testing.jar" basedir="binutil-testing" update="on"/>
 	</target>
 
 	<target depends="test,native" name="bundle">
@@ -134,7 +155,7 @@
 
 	<target name="release" depends="bundle,static-bundle-release" />
 
-	<target depends="init,build-project" name="build-project-test">
+	<target depends="init,build-testing" name="build-project-test">
 		<echo message="${ant.project.name}: ${ant.file}" />
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bintest"
 			includeantruntime="false" source="${source}" target="${target}">
@@ -161,14 +182,14 @@
 			<arg value="-noprompt" />
 		</exec>
 	</target>
-	<target name="reset-db">
+	<target name="reset-db" depends="build-project">
 		<copy file="config/test.properties" tofile="config/gigi.properties"/>
 		<java classname="org.cacert.gigi.util.DatabaseManager">
 			<arg value="--test"/>
-			<classpath refid="cacert-gigi.classpath" />
+			<classpath refid="cacert-gigi.test.classpath" />
 		</java>
 	</target>
-	<target name="test" depends="build-project-test,generateKeys,FetchLocales,pack,reset-db">
+	<target name="test" depends="build-project-test,generateKeys,FetchLocales,pack-testing,pack,reset-db">
 		<delete failonerror="false">
 			<fileset dir=".">
 				<include name="jacoco.exec"/>
@@ -236,43 +257,44 @@
 
 		</jacoco:report>
 	</target>
-   	<target name="install-native" depends="native">
+	<target name="install-native" depends="native">
 		<mkdir dir="${env.DESTDIR}/usr/lib/jni"/>
 		<copy file="natives/libsetuid.so" todir="${env.DESTDIR}/usr/lib/jni"/>
 	</target>
-        <target name="install" depends="install-common">
-		<mkdir dir="${env.DESTDIR}/usr/share/cacert-gigi/static"/>
-                <copy todir="${env.DESTDIR}/usr/share/cacert-gigi/static">
-			<fileset dir="static"/>
+	<target name="install" depends="install-common">
+		<mkdir dir="${env.DESTDIR}/usr/share/cacert-gigi/static" />
+		<copy todir="${env.DESTDIR}/usr/share/cacert-gigi/static">
+			<fileset dir="static" />
 		</copy>
-                <delete file="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4-test.png"/>
-        </target>
-        <target name="install-testing" depends="install-common">
-		<mkdir dir="${env.DESTDIR}/usr/share/cacert-gigi/static"/>
-                <copy todir="${env.DESTDIR}/usr/share/cacert-gigi/static">
-			<fileset dir="static"/>
+		<delete file="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4-test.png" />
+		<copy file="gigi.jar" tofile="${env.DESTDIR}/usr/share/java/gigi.jar"/>
+	</target>
+	<target name="install-testing" depends="install-common">
+		<mkdir dir="${env.DESTDIR}/usr/share/cacert-gigi/static" />
+		<copy todir="${env.DESTDIR}/usr/share/cacert-gigi/static">
+			<fileset dir="static" />
 		</copy>
-                <move file="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4-test.png" tofile="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4.png"/>
-                <delete file="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4-test.png"/>
-        </target>
+		<move file="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4-test.png" tofile="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4.png" />
+		<delete file="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4-test.png" />
+		<copy file="gigi-testing.jar" tofile="${env.DESTDIR}/usr/share/java/gigi.jar"/>
+	</target>
 
 	<target name="install-common" depends="pack">
-		<mkdir dir="${env.DESTDIR}/usr/share/java"/>
-		<copy file="gigi.jar" tofile="${env.DESTDIR}/usr/share/java/gigi.jar"/>
+		<mkdir dir="${env.DESTDIR}/usr/share/java" />
 
 		<mkdir dir="${env.DESTDIR}/usr/bin"/>
 		<copy file="doc/scripts/gigi" tofile="${env.DESTDIR}/usr/bin/gigi"/>
 
 		<chmod file="${env.DESTDIR}/usr/bin/gigi" perm="+x"/>
 		<mkdir dir="${env.DESTDIR}/usr/share/dbconfig-common/data/${PACKAGE}/install/"/>
-                <copy file="doc/tableStructure.sql" tofile="${env.DESTDIR}/usr/share/dbconfig-common/data/${PACKAGE}/install/mysql.sql"/>
+		<copy file="doc/tableStructure.sql" tofile="${env.DESTDIR}/usr/share/dbconfig-common/data/${PACKAGE}/install/mysql.sql"/>
 
 		<mkdir dir="${env.DESTDIR}/var/lib/cacert-gigi/doc"/>
-                <exec executable="ln">
-                  <arg value="-s"/>
-                  <arg value="/usr/share/dbconfig-common/data/${PACKAGE}/install/mysql.sql"/>
-                  <arg value="${env.DESTDIR}/var/lib/cacert-gigi/doc/tableStructure.sql"/>
-                </exec>
+		<exec executable="ln">
+			<arg value="-s"/>
+			<arg value="/usr/share/dbconfig-common/data/${PACKAGE}/install/mysql.sql"/>
+			<arg value="${env.DESTDIR}/var/lib/cacert-gigi/doc/tableStructure.sql"/>
+		</exec>
 		<mkdir dir="${env.DESTDIR}/var/lib/cacert-gigi/natives"/>
 		<delete failonerror="false" file="${env.DESTDIR}/var/lib/cacert-gigi/static"/>
 		<exec executable="ln">
@@ -286,8 +308,8 @@
 			<arg value="${env.DESTDIR}/var/lib/cacert-gigi/natives/libsetuid.so"/>
 		</exec>
 
-                <mkdir dir="${env.DESTDIR}/etc/cacert-gigi"/>
-                <!--<copy todir="${env.DESTDIR}/DEBIAN">
+		<mkdir dir="${env.DESTDIR}/etc/cacert-gigi"/>
+		<!--<copy todir="${env.DESTDIR}/DEBIAN">
 			<fileset dir="debian">
 			</fileset>
 		</copy>-->

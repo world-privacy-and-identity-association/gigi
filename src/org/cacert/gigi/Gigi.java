@@ -29,7 +29,6 @@ import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.LogoutPage;
 import org.cacert.gigi.pages.MainPage;
-import org.cacert.gigi.pages.Manager;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.PolicyIndex;
 import org.cacert.gigi.pages.RootCertPage;
@@ -117,7 +116,14 @@ public class Gigi extends HttpServlet {
             putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Admin");
             putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Admin");
             if (testing) {
-                putPage(Manager.PATH + "/*", Manager.getInstance(), "Admin");
+                try {
+                    Class<?> manager = Class.forName("org.cacert.gigi.pages.Manager");
+                    Page p = (Page) manager.getMethod("getInstance").invoke(null);
+                    String pa = (String) manager.getField("PATH").get(null);
+                    putPage(pa + "/*", p, "Admin");
+                } catch (ReflectiveOperationException e) {
+                    e.printStackTrace();
+                }
             }
 
             putPage("/wot/rules", new StaticPage("CAcert Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "CAcert Web of Trust");
