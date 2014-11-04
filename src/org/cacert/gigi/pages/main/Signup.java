@@ -164,11 +164,14 @@ public class Signup extends Form {
             run(req, pw1);
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (GigiApiException e) {
+            outputError(out, req, e.getMessage());
+            return false;
         }
         return true;
     }
 
-    private void run(HttpServletRequest req, String password) throws SQLException {
+    private void run(HttpServletRequest req, String password) throws SQLException, GigiApiException {
         try {
             DatabaseConnection.getInstance().beginTransaction();
             buildup.setPreferredLocale(Page.getLanguage(req).getLocale());

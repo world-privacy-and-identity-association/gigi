@@ -50,7 +50,7 @@ public class TestObjectCache extends ManagedTest {
     }
 
     @Test
-    public void testEmailCache() {
+    public void testEmailCache() throws GigiApiException {
         EmailAddress em = new EmailAddress(User.getById(uid), createUniqueName() + "@example.org");
         em.insert(Language.getInstance(Locale.ENGLISH));
 

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
@@ -37,6 +38,9 @@ public class MailAddForm extends Form {
             addr.insert(Page.getLanguage(req));
         } catch (IllegalArgumentException e) {
             out.println("<div class='formError'>Error: Invalid address!</div>");
+            return false;
+        } catch (GigiApiException e) {
+            e.format(out, Page.getLanguage(req));
             return false;
         }
         return true;
