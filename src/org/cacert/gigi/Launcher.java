@@ -264,6 +264,7 @@ public class Launcher {
         scf.setRenegotiationAllowed(false);
 
         scf.setProtocol("TLS");
+        scf.setIncludeProtocols("TLSv1", "TLSv1.1", "TLSv1.2");
         scf.setTrustStore(conf.getTrustStore());
         KeyStore privateStore = conf.getPrivateStore();
         scf.setKeyStorePassword(conf.getPrivateStorePw());
