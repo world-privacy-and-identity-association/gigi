@@ -120,7 +120,7 @@ public class Gigi extends HttpServlet {
                     Class<?> manager = Class.forName("org.cacert.gigi.pages.Manager");
                     Page p = (Page) manager.getMethod("getInstance").invoke(null);
                     String pa = (String) manager.getField("PATH").get(null);
-                    putPage(pa + "/*", p, "Admin");
+                    putPage(pa + "/*", p, "Gigi test server");
                 } catch (ReflectiveOperationException e) {
                     e.printStackTrace();
                 }
