@@ -308,7 +308,7 @@
 			<arg value="${env.DESTDIR}/var/lib/cacert-gigi/natives/libsetuid.so"/>
 		</exec>
 
-		<mkdir dir="${env.DESTDIR}/etc/cacert-gigi"/>
+		<mkdir dir="${env.DESTDIR}/etc/cacert/gigi"/>
 		<!--<copy todir="${env.DESTDIR}/DEBIAN">
 			<fileset dir="debian">
 			</fileset>

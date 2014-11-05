@@ -9,25 +9,27 @@ then
 GIGI_EXEC=/usr/share/java/gigi.jar
 #echo "GIGI_EXEC environment variable not set. Assumed path: $GIGI_EXEC" 
 fi
+
 cd /var/lib/cacert-gigi
+
 if [ "$1" == "start" ]
 then
 	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.Launcher
 elif [ "$1" == "start-daemon" ]
 then
-	if [ ! -e /etc/cacert-gigi/conf.tar ]; then
+	if [ ! -e /etc/cacert/gigi/conf.tar ]; then
 		echo "Config missing."
 		exit 1;
 	fi
-	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.Launcher < /etc/cacert-gigi/conf.tar >> /var/log/cacert-gigi.log 2>&1 &
+	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.Launcher < /etc/cacert/gigi/conf.tar >> /var/log/cacert-gigi.log 2>&1 &
 	echo $! > /var/run/cacert-gigi.pid
-elif [ "$1" == "signer" ] 
+elif [ "$1" == "signer" ]
 then
 	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.SimpleSigner
-elif [ "$1" == "reset-database" ] 
+elif [ "$1" == "reset-database" ]
 then
 	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.DatabaseManager
-elif [ "$1" == "fetch-locales" ] 
+elif [ "$1" == "fetch-locales" ]
 then
 	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.FetchLocales
 elif [ "$1" == "signer-conf" ]

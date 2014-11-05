@@ -26,10 +26,14 @@ SCRIPTNAME=/etc/init.d/$NAME
 DIR=/var/lib/cacert-gigi
 
 # Exit if the package is not installed
-[ -x "$DAEMON" ] || exit 0
+[ -r "/usr/share/java/gigi.jar" ] || exit 0
 
 # Read configuration variable file if it is present
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
+if [ "$START_DAEMON" = "0" ]; then
+    echo "Not starting $NAME (as configured in /etc/default/$NAME)";
+    exit 0;
+fi
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
@@ -44,15 +48,15 @@ DIR=/var/lib/cacert-gigi
 #
 do_start()
 {
-        if [ ! -f /var/lib/cacert-gigi/config/gigi.properties ]; then
-                echo Missing signer-configfile
-                return 2
-        fi
+	if [ ! -f /var/lib/cacert-gigi/config/gigi.properties ]; then
+		echo Missing signer-configfile
+		return 2
+	fi
 	# Return
 	#   0 if daemon has been started
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
-	start-stop-daemon -b --start --quiet --pidfile $PIDFILE -d $DIR --startas $DAEMON --test > /dev/null \
+	start-stop-daemon --start --quiet --pidfile $PIDFILE -d $DIR --startas $DAEMON --test > /dev/null \
 		|| return 1
 	start-stop-daemon -b --start --quiet --pidfile $PIDFILE --make-pidfile -d $DIR --startas $DAEMON -- \
 		$DAEMON_ARGS \
