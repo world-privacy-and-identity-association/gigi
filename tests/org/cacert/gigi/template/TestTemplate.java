@@ -56,6 +56,7 @@ public class TestTemplate {
         assertEquals("This val\"> val3<\" the val4> textl", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=s,$!var,$!var2,$!var3,This %s %s the %s text?>l"));
 
         assertEquals("This blargh&lt;&gt;!, <>! textl", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=s,\"blargh<>!\",!\"<>!\",This %s, %s text?>l"));
+        assertEquals("This blargh&lt;&gt;!, <>!l", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=s,\"blargh<>!\",!\"<>!\",This %s, %s?>l"));
     }
 
     @Test

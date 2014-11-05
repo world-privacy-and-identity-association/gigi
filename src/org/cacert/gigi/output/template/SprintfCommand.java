@@ -21,7 +21,7 @@ public final class SprintfCommand implements Outputable {
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-        String[] parts = l.getTranslation(text).split("%s");
+        String[] parts = l.getTranslation(text).split("%s", -1);
         String[] myvars = store.toArray(new String[store.size()]);
         out.print(HTMLEncoder.encodeHTML(parts[0]));
         for (int j = 1; j < parts.length; j++) {
