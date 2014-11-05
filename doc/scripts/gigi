@@ -13,6 +13,14 @@ cd /var/lib/cacert-gigi
 if [ "$1" == "start" ]
 then
 	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.Launcher
+elif [ "$1" == "start-daemon" ]
+then
+	if [ ! -e /etc/cacert-gigi/conf.tar ]; then
+		echo "Config missing."
+		exit 1;
+	fi
+	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.Launcher < /etc/cacert-gigi/conf.tar >> /var/log/cacert-gigi.log 2>&1 &
+	echo $! > /var/run/cacert-gigi.pid
 elif [ "$1" == "signer" ] 
 then
 	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.SimpleSigner
