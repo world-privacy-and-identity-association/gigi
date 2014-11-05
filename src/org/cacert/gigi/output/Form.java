@@ -34,7 +34,7 @@ public abstract class Form implements Outputable {
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-        out.println("<form method='POST' autocomplete='off'>");
+        out.println("<form method='POST'>");
         failed = false;
         outputContent(out, l, vars);
         out.print("<input type='hidden' name='" + CSRF_FIELD + "' value='");

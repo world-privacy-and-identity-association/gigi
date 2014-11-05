@@ -3,21 +3,45 @@ package org.cacert.gigi.pages;
 import static org.cacert.gigi.Gigi.*;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.Form;
 import org.cacert.gigi.util.PasswordHash;
 
 public class LoginPage extends Page {
+
+    public class LoginForm extends Form {
+
+        public LoginForm(HttpServletRequest hsr) {
+            super(hsr);
+        }
+
+        @Override
+        public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+            tryAuthWithUnpw(req);
+            return false;
+        }
+
+        @Override
+        protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
+            getDefaultTemplate().output(out, l, vars);
+        }
+
+    }
 
     public static final String LOGIN_RETURNPATH = "login-returnpath";
 
@@ -27,7 +51,7 @@ public class LoginPage extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.getWriter().println("<form method='POST' action='/login'>" + "<input type='text' name='username'>" + "<input type='password' name='password'> <input type='submit' value='login'></form>");
+        new LoginForm(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
     }
 
     @Override
@@ -39,7 +63,10 @@ public class LoginPage extends Page {
                 tryAuthWithCertificate(req, cert[0]);
             }
             if (req.getMethod().equals("POST")) {
-                tryAuthWithUnpw(req);
+                try {
+                    Form.getForm(req, LoginForm.class).submit(resp.getWriter(), req);
+                } catch (GigiApiException e) {
+                }
             }
         }
 

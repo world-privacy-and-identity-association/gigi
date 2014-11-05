@@ -801,3 +801,10 @@ pre{
 pre.string{
 	display: inline;
 }
+
+.loginbox {background:#F5F7F7;border:2px solid #cccccc;margin:0px auto;height:auto;width:300px;padding:1em;text-align:center;}
+.loginbox .smalltext {font-size:10px;}
+.loginbox label {width:100px;display:block;float:left;}
+.loginbox text {width:166px;display:block;float:left;}
+.loginbox br {clear:left;}
+.loginbox h1 {font-size:1.9em;text-align:center;}

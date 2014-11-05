@@ -331,12 +331,21 @@ public class ManagedTest extends ConfiguredTest {
     public static String login(String email, String pw) throws IOException {
         URL u = new URL("https://" + getServerName() + "/login");
         HttpURLConnection huc = (HttpURLConnection) u.openConnection();
+
+        String csrf = getCSRF(huc);
+        String headerField = stripCookie(huc.getHeaderField("Set-Cookie"));
+
+        huc = (HttpURLConnection) u.openConnection();
+        cookie(huc, headerField);
         huc.setDoOutput(true);
         OutputStream os = huc.getOutputStream();
-        String data = "username=" + URLEncoder.encode(email, "UTF-8") + "&password=" + URLEncoder.encode(pw, "UTF-8");
+        String data = "username=" + URLEncoder.encode(email, "UTF-8") + "&password=" + URLEncoder.encode(pw, "UTF-8") + "&csrf=" + URLEncoder.encode(csrf, "UTF-8");
         os.write(data.getBytes());
         os.flush();
-        String headerField = huc.getHeaderField("Set-Cookie");
+        headerField = huc.getHeaderField("Set-Cookie");
+        if (headerField == null) {
+            return "";
+        }
         return stripCookie(headerField);
     }
 
