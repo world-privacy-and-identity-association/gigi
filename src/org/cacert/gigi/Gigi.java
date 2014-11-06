@@ -113,8 +113,8 @@ public class Gigi extends HttpServlet {
             putPage(MyPoints.PATH, new MyPoints("My Points"), "CAcert Web of Trust");
             putPage(RequestTTPPage.PATH, new RequestTTPPage(), "CAcert Web of Trust");
             putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
-            putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Admin");
-            putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Admin");
+            putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Organisation Admin");
+            putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Organisation Admin");
             if (testing) {
                 try {
                     Class<?> manager = Class.forName("org.cacert.gigi.pages.Manager");
