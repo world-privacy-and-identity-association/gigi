@@ -44,6 +44,7 @@ public class TTPAdminPage extends Page {
             int id = Integer.parseInt(path.substring(1 + PATH.length()));
             User u = User.getById(id);
             if ( !u.isInGroup(TTP_APPLICANT)) {
+                resp.sendError(404);
                 return;
             }
             new TTPAdminForm(req, u).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
