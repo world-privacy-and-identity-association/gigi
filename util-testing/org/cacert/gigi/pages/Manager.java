@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.sql.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -15,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
@@ -23,13 +27,58 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.util.Notary;
 
 public class Manager extends Page {
 
     public static final String PATH = "/manager";
 
+    Field f;
+
     private Manager() {
         super("Test Manager");
+        try {
+            f = EmailAddress.class.getDeclaredField("hash");
+            f.setAccessible(true);
+        } catch (ReflectiveOperationException e) {
+            throw new Error(e);
+        }
+    }
+
+    public User[] getAssurers() {
+        if (assurers != null) {
+            return assurers;
+        }
+        assurers = new User[10];
+        try {
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?");
+            for (int i = 0; i < assurers.length; i++) {
+                String mail = "test-assurer" + i + "@example.com";
+                User u = User.getByEmail(mail);
+                if (u == null) {
+                    createUser(mail);
+                    u = User.getByEmail(mail);
+                    passCATS(u);
+                    ps.setInt(1, u.getId());
+                    ps.setInt(2, u.getId());
+                    ps.setInt(3, 100);
+                    ps.setString(4, "Manager init code");
+                    ps.setString(5, "1990-01-01");
+                    ps.execute();
+                }
+                assurers[i] = u;
+
+            }
+        } catch (ReflectiveOperationException | GigiApiException e) {
+            e.printStackTrace();
+        }
+        return assurers;
+    }
+
+    private void passCATS(User u) {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO cats_passed SET user_id=?, variant_id=3");
+        ps.setInt(1, u.getId());
+        ps.execute();
     }
 
     private static Manager instance;
@@ -91,27 +140,10 @@ public class Manager extends Page {
                 out.print("100 at most, please.");
                 return;
             }
-            Field f = EmailAddress.class.getDeclaredField("hash");
-            f.setAccessible(true);
             for (int i = 0; i < amount; i++) {
                 String email = mailPrefix + i + "@" + domain;
-                User u = new User();
-                u.setFname("Först");
-                u.setMname("Müddle");
-                u.setLname("Läst");
-                u.setSuffix("Süffix");
-                u.setEmail(email);
-                u.setDob(new Date(System.currentTimeMillis() - 366 * 18));
-                u.setPreferredLocale(Locale.ENGLISH);
-                u.insert("xvXV12°§");
-                EmailAddress ea = new EmailAddress(u, email);
-                ea.insert(Language.getInstance(Locale.ENGLISH));
-                String hash = (String) f.get(ea);
-
-                ea.verify(hash);
+                createUser(email);
             }
-
-            f.setAccessible(false);
         } catch (ReflectiveOperationException e) {
             out.println("failed");
             e.printStackTrace();
@@ -120,6 +152,27 @@ public class Manager extends Page {
             e.printStackTrace();
         }
     }
+
+    private void createUser(String email) throws GigiApiException, IllegalAccessException {
+        User u = new User();
+        u.setFname("Först");
+        u.setMname("Müddle");
+        u.setLname("Läst");
+        u.setSuffix("Süffix");
+        u.setEmail(email);
+        Calendar gc = GregorianCalendar.getInstance();
+        gc.set(1990, 0, 1);
+        u.setDob(new Date(gc.getTime().getTime()));
+        u.setPreferredLocale(Locale.ENGLISH);
+        u.insert("xvXV12°§");
+        EmailAddress ea = new EmailAddress(u, email);
+        ea.insert(Language.getInstance(Locale.ENGLISH));
+        String hash = (String) f.get(ea);
+
+        ea.verify(hash);
+    }
+
+    User[] assurers;
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -140,6 +193,28 @@ public class Manager extends Page {
         } else if (req.getParameter("fetch") != null) {
             String mail = req.getParameter("femail");
             fetchMails(req, resp, mail);
+        } else if (req.getParameter("cats") != null) {
+            String mail = req.getParameter("catsEmail");
+            User byEmail = User.getByEmail(mail);
+            if (byEmail == null) {
+                resp.getWriter().println("User not found.");
+                return;
+            }
+            passCATS(byEmail);
+        } else if (req.getParameter("assure") != null) {
+            String mail = req.getParameter("assureEmail");
+            User byEmail = User.getByEmail(mail);
+            if (byEmail == null) {
+                resp.getWriter().println("User not found.");
+                return;
+            }
+            try {
+                for (int i = 0; i < getAssurers().length; i++) {
+                    Notary.assure(getAssurers()[i], byEmail, byEmail.getName(), byEmail.getDob(), 10, "Testmanager Assure up code", "2014-11-06");
+                }
+            } catch (GigiApiException e) {
+                throw new Error(e);
+            }
         }
     }
 
@@ -175,6 +250,7 @@ public class Manager extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        getAssurers();
         String pi = req.getPathInfo().substring(PATH.length());
         if (pi.length() > 1 && pi.startsWith("/fetch-")) {
             String mail = pi.substring(pi.indexOf('-', 2) + 1);
