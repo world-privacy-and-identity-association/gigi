@@ -93,8 +93,8 @@ public class Signup extends Form {
     @Override
     public synchronized boolean submit(PrintWriter out, HttpServletRequest req) {
         update(req);
-        if (buildup.getFname().equals("") || buildup.getLname().equals("")) {
-            outputError(out, req, "First and/or last names were blank.");
+        if (buildup.getLname().trim().equals("")) {
+            outputError(out, req, "Last name were blank.");
         }
         if ( !myDoB.isValid()) {
             outputError(out, req, "Invalid date of birth");

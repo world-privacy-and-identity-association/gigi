@@ -67,17 +67,17 @@ public class TestMyDetailsEdit extends ManagedTest {
 
     @Test
     public void testUnsetFname() throws IOException {
-        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "fname=&lname=Hansel&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "fname=&lname=Hansel&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
         User u = User.getById(id);
-        assertEquals("Kurti", u.getFname());
+        assertEquals("", u.getFname());
 
     }
 
     @Test
     public void testUnsetLname() throws IOException {
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=&fname=Kurti&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
+        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=&fname=Kurti&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
         User u = User.getById(id);
-        assertEquals("", u.getLname());
+        assertEquals("Hansel", u.getLname());
     }
 
     @Test

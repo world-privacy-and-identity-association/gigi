@@ -42,8 +42,8 @@ public class MyDetailsForm extends Form {
                 String newLname = req.getParameter("lname").trim();
                 String newMname = req.getParameter("mname").trim();
                 String newSuffix = req.getParameter("suffix").trim();
-                if (newFname.isEmpty() && !target.getFname().isEmpty()) {
-                    throw new GigiApiException("Names couldn't be removed.");
+                if (newLname.isEmpty()) {
+                    throw new GigiApiException("Last name cannot be empty.");
                 }
                 target.setFname(newFname);
                 target.setLname(newLname);
