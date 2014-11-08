@@ -77,7 +77,7 @@ KEYSIZE=4096
 EOT
 cat &lt;&lt;EOT &gt;config/test.properties
 type=autonomous
-java=/usr/lib/jvm/openjdk-8-jdk-gigi/bin/java -cp gigi-testing.jar:/usr/share/java/mysql-connector-java.jar -javaagent:/usr/share/java/jacocoagent.jar org.cacert.gigi.Launcher
+java=/usr/lib/jvm/openjdk-8-jdk-gigi/bin/java -cp bintest:gigi-testing.jar:/usr/share/java/mysql-connector-java.jar -javaagent:/usr/share/java/jacocoagent.jar org.cacert.gigi.Launcher
 serverPort.https=4448
 serverPort.http=8098
 mailPort=8473
@@ -111,7 +111,7 @@ EOT
       <antOpts>-Dfile.encoding=UTF-8</antOpts>
       <buildFile>cacert-gigi/build.xml</buildFile>
       <properties>juintexec=$$$$JUNIT_PATH$$$$
-test_nic=$$$$YOUR_TESTSERVICE_NIC$$$$</properties>
+test_nic=$$$$YOUR_TESTSERVICE_NIC$$$$\n$$$$YOUR_LOOKUP_DOMAIN$$$$</properties>
     </hudson.tasks.Ant>
     <hudson.tasks.Shell>
       <command>cd cacert-gigi

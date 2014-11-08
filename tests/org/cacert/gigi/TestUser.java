@@ -70,18 +70,18 @@ public class TestUser extends ManagedTest {
         User u = User.getById(id);
         new EmailAddress(u, uq + "b@email.org").insert(Language.getInstance(Locale.ENGLISH));
         new EmailAddress(u, uq + "c@email.org").insert(Language.getInstance(Locale.ENGLISH));
-        new Domain(u, uq + "a.testdomain.org").insert();
-        new Domain(u, uq + "b.testdomain.org").insert();
-        new Domain(u, uq + "c.testdomain.org").insert();
+        new Domain(u, uq + "a-testdomain.org").insert();
+        new Domain(u, uq + "b-testdomain.org").insert();
+        new Domain(u, uq + "c-testdomain.org").insert();
         assertEquals(3, u.getEmails().length);
         assertEquals(3, u.getDomains().length);
-        assertTrue(u.isValidDomain(uq + "a.testdomain.org"));
-        assertTrue(u.isValidDomain(uq + "b.testdomain.org"));
-        assertTrue(u.isValidDomain(uq + "c.testdomain.org"));
-        assertTrue(u.isValidDomain("a." + uq + "a.testdomain.org"));
-        assertTrue(u.isValidDomain("*." + uq + "a.testdomain.org"));
-        assertFalse(u.isValidDomain("a" + uq + "a.testdomain.org"));
-        assertFalse(u.isValidDomain("b" + uq + "a.testdomain.org"));
+        assertTrue(u.isValidDomain(uq + "a-testdomain.org"));
+        assertTrue(u.isValidDomain(uq + "b-testdomain.org"));
+        assertTrue(u.isValidDomain(uq + "c-testdomain.org"));
+        assertTrue(u.isValidDomain("a." + uq + "a-testdomain.org"));
+        assertTrue(u.isValidDomain("*." + uq + "a-testdomain.org"));
+        assertFalse(u.isValidDomain("a" + uq + "a-testdomain.org"));
+        assertFalse(u.isValidDomain("b" + uq + "a-testdomain.org"));
 
         assertTrue(u.isValidEmail(uq + "a@email.org"));
         assertTrue(u.isValidEmail(uq + "b@email.org"));

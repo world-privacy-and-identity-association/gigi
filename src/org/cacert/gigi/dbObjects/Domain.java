@@ -1,14 +1,21 @@
 package org.cacert.gigi.dbObjects;
 
+import java.io.IOException;
+import java.net.IDN;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration.PingType;
+import org.cacert.gigi.util.PublicSuffixes;
 
 public class Domain implements IdCachable {
 
@@ -60,6 +67,17 @@ public class Domain implements IdCachable {
 
     private int id;
 
+    private static final Set<String> IDNEnabledTLDs;
+    static {
+        Properties CPS = new Properties();
+        try {
+            CPS.load(Domain.class.getResourceAsStream("CPS.properties"));
+            IDNEnabledTLDs = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(CPS.getProperty("IDN-enabled").split(","))));
+        } catch (IOException e) {
+            throw new Error(e);
+        }
+    }
+
     private Domain(int id) {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid, domain FROM `domains` WHERE id=? AND deleted IS NULL");
         ps.setInt(1, id);
@@ -75,16 +93,72 @@ public class Domain implements IdCachable {
     }
 
     public Domain(User owner, String suffix) throws GigiApiException {
+        checkCertifyableDomain(suffix, owner.isInGroup(Group.getByString("codesign")));
         this.owner = owner;
         this.suffix = suffix;
 
     }
 
+    public static void checkCertifyableDomain(String s, boolean hasPunycodeRight) throws GigiApiException {
+        String[] parts = s.split("\\.", -1);
+        if (parts.length < 2) {
+            throw new GigiApiException("Domain does not contain '.'.");
+        }
+        for (int i = parts.length - 1; i >= 0; i--) {
+            if ( !isVaildDomainPart(parts[i], hasPunycodeRight)) {
+                throw new GigiApiException("Syntax error in Domain");
+            }
+        }
+        String publicSuffix = PublicSuffixes.getInstance().getRegistrablePart(s);
+        if ( !s.equals(publicSuffix)) {
+            throw new GigiApiException("You may only register a domain with exactly one lable before the public suffix.");
+        }
+        checkPunycode(parts[0], s.substring(parts[0].length() + 1));
+    }
+
+    private static void checkPunycode(String label, String domainContext) throws GigiApiException {
+        if (label.charAt(2) != '-' || label.charAt(3) != '-') {
+            return; // is no punycode
+        }
+        if ( !IDNEnabledTLDs.contains(domainContext)) {
+            throw new GigiApiException("Punycode label could not be positively verified.");
+        }
+        if ( !label.startsWith("xn--")) {
+            throw new GigiApiException("Unknown ACE prefix.");
+        }
+        try {
+            String unicode = IDN.toUnicode(label);
+            if (unicode.startsWith("xn--")) {
+                throw new GigiApiException("Punycode label could not be positively verified.");
+            }
+        } catch (IllegalArgumentException e) {
+            throw new GigiApiException("Punycode label could not be positively verified.");
+        }
+    }
+
+    public static boolean isVaildDomainPart(String s, boolean allowPunycode) {
+        if ( !s.matches("[a-z0-9-]+")) {
+            return false;
+        }
+        if (s.charAt(0) == '-' || s.charAt(s.length() - 1) == '-') {
+            return false;
+        }
+        if (s.length() > 63) {
+            return false;
+        }
+        boolean canBePunycode = s.length() >= 4 && s.charAt(2) == '-' && s.charAt(3) == '-';
+        if (canBePunycode && !allowPunycode) {
+            return false;
+        }
+        return true;
+    }
+
     private static void checkInsert(String suffix) throws GigiApiException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `domains` WHERE (domain=RIGHT(?,LENGTH(domain))  OR RIGHT(domain,LENGTH(?))=?) AND deleted IS NULL");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `domains` WHERE (domain=? OR (CONCAT('.', domain)=RIGHT(?,LENGTH(domain)+1)  OR RIGHT(domain,LENGTH(?)+1)=CONCAT('.',?))) AND deleted IS NULL");
         ps.setString(1, suffix);
         ps.setString(2, suffix);
         ps.setString(3, suffix);
+        ps.setString(4, suffix);
         GigiResultSet rs = ps.executeQuery();
         boolean existed = rs.next();
         rs.close();

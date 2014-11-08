@@ -20,8 +20,8 @@ public class TestDomain extends ManagedTest {
 
     @Test
     public void testAdd() throws IOException {
-        assertNull(addDomain(session, uniq + ".tld"));
-        assertNotNull(addDomain(session, uniq + ".tld"));
+        assertNull(addDomain(session, uniq + ".de"));
+        assertNotNull(addDomain(session, uniq + ".de"));
     }
 
     public static String addDomain(String session, String domain) throws IOException {
