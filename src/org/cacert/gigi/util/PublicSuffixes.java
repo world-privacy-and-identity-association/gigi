@@ -3,9 +3,7 @@ package org.cacert.gigi.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.IDN;
-import java.net.URL;
 import java.util.HashSet;
 
 public class PublicSuffixes {
@@ -21,10 +19,9 @@ public class PublicSuffixes {
     private static PublicSuffixes instance;
 
     private static void generateDefault() throws IOException {
-        URL u = new URL(url);
-        HttpURLConnection huc = (HttpURLConnection) u.openConnection();
-        BufferedReader br = new BufferedReader(new InputStreamReader(huc.getInputStream(), "UTF-8"));
-        instance = new PublicSuffixes(br);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(PublicSuffixes.class.getResourceAsStream("effective_tld_names.dat"), "UTF-8"))) {
+            instance = new PublicSuffixes(br);
+        }
     }
 
     public static PublicSuffixes getInstance() {

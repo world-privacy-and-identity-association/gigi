@@ -73,6 +73,36 @@ public class TestDomain extends ManagedTest {
     }
 
     @Test
+    public void testPrefixCheck() throws InterruptedException, GigiApiException {
+        String uni = createUniqueName() + "un.tld";
+        Domain d0 = new Domain(us, uni);
+        d0.insert();
+        d0.delete();
+        Domain d = new Domain(us, "pref." + uni);
+        d.insert();
+
+        Domain d2 = new Domain(us, uni);
+        try {
+            d2.insert();
+            fail("Prefix match failed");
+        } catch (GigiApiException e) {
+        }
+        d2 = new Domain(us, "a.pref." + uni);
+        try {
+            d2.insert();
+            fail("Prefix match failed");
+        } catch (GigiApiException e) {
+        }
+        d2 = new Domain(us, "pref." + uni);
+        try {
+            d2.insert();
+            fail("exact match failed");
+        } catch (GigiApiException e) {
+        }
+
+    }
+
+    @Test
     public void testDoubleDomainPrefix() throws InterruptedException, GigiApiException {
         Domain d = new Domain(us, "pref.aexample.org");
         d.insert();

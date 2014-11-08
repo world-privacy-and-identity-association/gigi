@@ -23,10 +23,10 @@
 		<pathelement location="${mysqlconnector}" />
 	</path>
 	<path id="cacert-gigi.test.classpath">
+		<pathelement location="bintest" />
 		<pathelement location="bin" />
 		<pathelement location="binutil" />
 		<pathelement location="binutil-testing" />
-		<pathelement location="bintest" />
 		<path refid="JUnit 4.libraryclasspath" />
 		<pathelement location="${mysqlconnector}" />
 	</path>
@@ -113,12 +113,12 @@
 		<exec executable="make" dir="natives"/>
 	</target>
 
-	<target depends="build-project" name="pack">
+	<target depends="build-project, update-effective-tlds" name="pack">
 		<jar destfile="gigi.jar" basedir="bin" manifest="Gigi.MF" update="false"/>
 		<jar destfile="gigi.jar" basedir="binutil" update="on"/>
 	</target>
 
-	<target depends="build-testing" name="pack-testing">
+	<target depends="build-testing,update-effective-tlds" name="pack-testing">
 		<jar destfile="gigi-testing.jar" basedir="bin" manifest="Gigi.MF" update="false"/>
 		<jar destfile="gigi-testing.jar" basedir="binutil" update="on"/>
 		<jar destfile="gigi-testing.jar" basedir="binutil-testing" update="on"/>
@@ -155,7 +155,7 @@
 
 	<target name="release" depends="bundle,static-bundle-release" />
 
-	<target depends="init,build-testing" name="build-project-test">
+	<target depends="init,build-testing,update-effective-tlds" name="build-project-test">
 		<echo message="${ant.project.name}: ${ant.file}" />
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bintest"
 			includeantruntime="false" source="${source}" target="${target}">
@@ -163,6 +163,10 @@
 			<src path="tests" />
 			<classpath refid="cacert-gigi.test.classpath" />
 		</javac>
+		<concat destfile="bintest/org/cacert/gigi/util/effective_tld_names.dat">
+			<path path="bin/org/cacert/gigi/util/effective_tld_names.dat"/>
+			<footer>${test_nic}</footer>
+		</concat>
 	</target>
 	<target name="check-locale">
 		<available file="locale/de.xml" property="locale.present" />
@@ -313,5 +317,13 @@
 			<fileset dir="debian">
 			</fileset>
 		</copy>-->
+	</target>
+	<target name="update-effective-tlds">
+		<mkdir dir="bin/org/cacert/gigi/util"/>
+		<exec executable="wget" dir="bin/org/cacert/gigi/util">
+			<arg value="-N"/>
+			<arg value="-q"/>
+			<arg value="https://publicsuffix.org/list/effective_tld_names.dat"/>
+		</exec>
 	</target>
 </project>

@@ -69,14 +69,15 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>cd cacert-gigi
+      <command>rm -f *.deb
+cd cacert-gigi
 cat &lt;&lt;EOT &gt;keys/config
 DOMAIN=$$$$YOUR_LOOKUP_DOMAIN$$$$
 KEYSIZE=4096
 EOT
 cat &lt;&lt;EOT &gt;config/test.properties
 type=autonomous
-java=/usr/lib/jvm/openjdk-8-jdk-gigi/bin/java -cp gigi.jar:/usr/share/java/mysql-connector-java.jar -javaagent:/usr/share/java/jacocoagent.jar org.cacert.gigi.Launcher
+java=/usr/lib/jvm/openjdk-8-jdk-gigi/bin/java -cp gigi-testing.jar:/usr/share/java/mysql-connector-java.jar -javaagent:/usr/share/java/jacocoagent.jar org.cacert.gigi.Launcher
 serverPort.https=4448
 serverPort.http=8098
 mailPort=8473
@@ -109,7 +110,8 @@ EOT
       <targets>$TARGET generatecoco</targets>
       <antOpts>-Dfile.encoding=UTF-8</antOpts>
       <buildFile>cacert-gigi/build.xml</buildFile>
-      <properties>juintexec=$$$$JUNIT_PATH$$$$</properties>
+      <properties>juintexec=$$$$JUNIT_PATH$$$$
+test_nic=$$$$YOUR_TESTSERVICE_NIC$$$$</properties>
     </hudson.tasks.Ant>
     <hudson.tasks.Shell>
       <command>cd cacert-gigi
@@ -123,7 +125,7 @@ dpkg-buildpackage -b -us -uc</command>
       <testDataPublishers/>
     </hudson.tasks.junit.JUnitResultArchiver>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>cacert-gigi/natives/*.so,cacert-gigi/gigi.jar,cacert-gigi/gigi-linux_amd64.zip,cacert-gigi/static.tar.gz,*.deb</artifacts>
+      <artifacts>cacert-gigi/natives/*.so,cacert-gigi/gigi*.jar,cacert-gigi/gigi-linux_amd64.zip,*.deb</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

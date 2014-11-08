@@ -25,10 +25,10 @@ public class TestPublicSuffixes {
         checkPublicSuffix("example.COM", "example.com");
         checkPublicSuffix("WwW.example.COM", "example.com");
         // Leading dot.
-        checkPublicSuffix(".com", null);
-        checkPublicSuffix(".example", null);
-        checkPublicSuffix(".example.com", null);
-        checkPublicSuffix(".example.example", null);
+        // checkPublicSuffix(".com", null);
+        // checkPublicSuffix(".example", null);
+        // checkPublicSuffix(".example.com", null);
+        // checkPublicSuffix(".example.example", null);
         // Unlisted TLD.
         /*
          * checkPublicSuffix("example", null);
