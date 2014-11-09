@@ -37,10 +37,10 @@ public class TestPublicSuffixes {
          * checkPublicSuffix("a.b.example.example", "example.example");
          */
         // Listed, but non-Internet, TLD.
-        // checkPublicSuffix("local", null);
-        // checkPublicSuffix("example.local", null);
-        // checkPublicSuffix("b.example.local", null);
-        // checkPublicSuffix("a.b.example.local", null);
+        checkPublicSuffix("local", null);
+        checkPublicSuffix("example.local", null);
+        checkPublicSuffix("b.example.local", null);
+        checkPublicSuffix("a.b.example.local", null);
         // TLD with only 1 rule.
         checkPublicSuffix("biz", null);
         checkPublicSuffix("domain.biz", "domain.biz");

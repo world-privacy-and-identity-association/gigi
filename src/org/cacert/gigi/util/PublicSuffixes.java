@@ -18,16 +18,16 @@ public class PublicSuffixes {
 
     private static PublicSuffixes instance;
 
-    private static void generateDefault() throws IOException {
+    private static PublicSuffixes generateDefault() throws IOException {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(PublicSuffixes.class.getResourceAsStream("effective_tld_names.dat"), "UTF-8"))) {
-            instance = new PublicSuffixes(br);
+            return new PublicSuffixes(br);
         }
     }
 
-    public static PublicSuffixes getInstance() {
+    public synchronized static PublicSuffixes getInstance() {
         if (instance == null) {
             try {
-                generateDefault();
+                instance = generateDefault();
             } catch (IOException e) {
                 throw new Error(e);
             }
@@ -44,7 +44,11 @@ public class PublicSuffixes {
             if (line.isEmpty()) {
                 continue;
             }
-            line = line.split("\\s", 2)[0];
+            String[] lineParts = line.split("\\s", 2);
+            if (lineParts.length == 0) {
+                throw new Error("split had strange behavior");
+            }
+            line = lineParts[0];
             if (line.startsWith("*.")) {
                 String data = line.substring(2);
                 if (data.contains("*") || data.contains("!")) {
