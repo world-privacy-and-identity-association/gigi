@@ -96,8 +96,14 @@ public class Gigi extends HttpServlet {
     public void init() throws ServletException {
         if ( !firstInstanceInited) {
             putPage("/error", new PageNotFound(), null);
-            putPage("/login", new LoginPage("CAcert - Login"), "CAcert.org");
-            getMenu("CAcert.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePort() + "/login", "CAcert - Login (Certificate)"));
+            putPage("/login", new LoginPage("Password Login"), "CAcert.org");
+            getMenu("CAcert.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePort() + "/login", "Certificate Login") {
+
+                @Override
+                public boolean isPermitted(User u) {
+                    return u == null;
+                }
+            });
             putPage("/", new MainPage("CAcert - Home"), null);
             putPage("/roots", new RootCertPage(truststore), "CAcert.org");
             putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
