@@ -278,6 +278,9 @@ public class Gigi extends HttpServlet {
             vars.put("static", getStaticTemplateVar(isSecure));
             vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
             vars.put("content", content);
+            if (currentPageUser != null) {
+                vars.put("loggedInAs", currentPageUser.getName().toString());
+            }
             resp.setContentType("text/html; charset=utf-8");
             baseTemplate.output(resp.getWriter(), Page.getLanguage(req), vars);
         } else {
