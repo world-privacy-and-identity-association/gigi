@@ -97,6 +97,7 @@ public class Gigi extends HttpServlet {
         if ( !firstInstanceInited) {
             putPage("/error", new PageNotFound(), null);
             putPage("/login", new LoginPage("CAcert - Login"), "CAcert.org");
+            getMenu("CAcert.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePort() + "/login", "CAcert - Login (Certificate)"));
             putPage("/", new MainPage("CAcert - Home"), null);
             putPage("/roots", new RootCertPage(truststore), "CAcert.org");
             putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
@@ -163,6 +164,12 @@ public class Gigi extends HttpServlet {
         if (category == null) {
             return;
         }
+        Menu m = getMenu(category);
+        m.addItem(new PageMenuItem(p));
+
+    }
+
+    private Menu getMenu(String category) {
         Menu m = null;
         for (Menu menu : categories) {
             if (menu.getMenuName().equals(category)) {
@@ -174,8 +181,7 @@ public class Gigi extends HttpServlet {
             m = new Menu(category);
             categories.add(m);
         }
-        m.addItem(new PageMenuItem(p));
-
+        return m;
     }
 
     private static String staticTemplateVarHttp;
