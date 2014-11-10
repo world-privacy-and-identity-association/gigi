@@ -42,6 +42,7 @@ import org.cacert.gigi.pages.account.certs.Certificates;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.pages.account.mail.MailOverview;
 import org.cacert.gigi.pages.admin.TTPAdminPage;
+import org.cacert.gigi.pages.error.AccessDenied;
 import org.cacert.gigi.pages.error.PageNotFound;
 import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.pages.orga.CreateOrgPage;
@@ -95,6 +96,7 @@ public class Gigi extends HttpServlet {
     @Override
     public void init() throws ServletException {
         if ( !firstInstanceInited) {
+            putPage("/denied", new AccessDenied(), null);
             putPage("/error", new PageNotFound(), null);
             putPage("/login", new LoginPage("Password Login"), "CAcert.org");
             getMenu("CAcert.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePort() + "/login", "Certificate Login") {

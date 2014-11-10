@@ -205,6 +205,7 @@ public class Launcher {
         servlet.addServlet(webAppServlet, "/*");
         ErrorPageErrorHandler epeh = new ErrorPageErrorHandler();
         epeh.addErrorPage(404, "/error");
+        epeh.addErrorPage(403, "/denied");
         servlet.setErrorHandler(epeh);
 
         HandlerList hl = new HandlerList();

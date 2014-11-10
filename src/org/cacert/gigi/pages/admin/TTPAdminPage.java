@@ -14,6 +14,7 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.pages.error.PageNotFound;
 
 public class TTPAdminPage extends Page {
 
@@ -40,10 +41,11 @@ public class TTPAdminPage extends Page {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = req.getPathInfo();
-        if (path != null && path.length() > PATH.length()) {
+        if (path != null && path.length() > PATH.length() + 1) {
             int id = Integer.parseInt(path.substring(1 + PATH.length()));
             User u = User.getById(id);
-            if ( !u.isInGroup(TTP_APPLICANT)) {
+            if (u == null || !u.isInGroup(TTP_APPLICANT)) {
+                req.setAttribute(PageNotFound.MESSAGE_ATTRIBUTE, "The TTP-request is not available anymore.");
                 resp.sendError(404);
                 return;
             }
