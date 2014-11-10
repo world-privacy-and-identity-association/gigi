@@ -39,9 +39,11 @@ import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.EmailAddress;
+import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.pages.Manager;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
@@ -181,6 +183,7 @@ public class ManagedTest extends ConfiguredTest {
         mainProps.setProperty("sql.url", testProps.getProperty("sql.url"));
         mainProps.setProperty("sql.user", testProps.getProperty("sql.user"));
         mainProps.setProperty("sql.password", testProps.getProperty("sql.password"));
+        mainProps.setProperty("testing", "true");
         return mainProps;
     }
 
@@ -286,6 +289,13 @@ public class ManagedTest extends ConfiguredTest {
         } catch (IOException e) {
             throw new Error(e);
         }
+    }
+
+    public static void grant(String email, Group g) throws IOException {
+        HttpURLConnection huc = (HttpURLConnection) new URL("https://" + getServerName() + Manager.PATH).openConnection();
+        huc.setDoOutput(true);
+        huc.getOutputStream().write(("addpriv=y&priv=" + URLEncoder.encode(g.getDatabaseName(), "UTF-8") + "&email=" + URLEncoder.encode(email, "UTF-8")).getBytes());
+        assertEquals(200, huc.getResponseCode());
     }
 
     /**
