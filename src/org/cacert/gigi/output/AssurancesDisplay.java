@@ -1,6 +1,5 @@
 package org.cacert.gigi.output;
 
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Map;
 
@@ -18,7 +17,7 @@ public class AssurancesDisplay implements Outputable {
     public String assuranceArray;
 
     static {
-        template = new Template(new InputStreamReader(AssurancesDisplay.class.getResourceAsStream("AssurancesDisplay.templ")));
+        template = new Template(AssurancesDisplay.class.getResource("AssurancesDisplay.templ"));
     }
 
     public AssurancesDisplay(String assuranceArray, boolean assurer) {

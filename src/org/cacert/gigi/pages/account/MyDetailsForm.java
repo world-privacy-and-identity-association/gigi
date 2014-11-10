@@ -1,6 +1,5 @@
 package org.cacert.gigi.pages.account;
 
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Map;
 
@@ -21,7 +20,7 @@ public class MyDetailsForm extends Form {
 
     private static Template templ;
     static {
-        templ = new Template(new InputStreamReader(MyDetailsForm.class.getResourceAsStream("MyDetailsForm.templ")));
+        templ = new Template(MyDetailsForm.class.getResource("MyDetailsForm.templ"));
     }
 
     private User target;
