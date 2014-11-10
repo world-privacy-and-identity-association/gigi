@@ -1,6 +1,7 @@
 package org.cacert.gigi.pages.admin;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Form;
 import org.cacert.gigi.output.template.IterableDataset;
+import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.error.PageNotFound;
 
@@ -45,7 +47,8 @@ public class TTPAdminPage extends Page {
             int id = Integer.parseInt(path.substring(1 + PATH.length()));
             User u = User.getById(id);
             if (u == null || !u.isInGroup(TTP_APPLICANT)) {
-                req.setAttribute(PageNotFound.MESSAGE_ATTRIBUTE, "The TTP-request is not available anymore.");
+                SprintfCommand command = new SprintfCommand("The TTP-request is not available anymore. You might want to go %sback%s.", Arrays.asList("!\"<a href='" + PATH + "'>", "!\"</a>"));
+                req.setAttribute(PageNotFound.MESSAGE_ATTRIBUTE, command);
                 resp.sendError(404);
                 return;
             }

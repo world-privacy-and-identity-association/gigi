@@ -1,7 +1,7 @@
 package org.cacert.gigi.output.template;
 
 import java.io.PrintWriter;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
@@ -12,17 +12,17 @@ public final class SprintfCommand implements Outputable {
 
     private final String text;
 
-    private final LinkedList<String> store;
+    private final String[] store;
 
-    public SprintfCommand(String text, LinkedList<String> store) {
+    public SprintfCommand(String text, List<String> store) {
         this.text = text;
-        this.store = store;
+        this.store = store.toArray(new String[store.size()]);
     }
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         String[] parts = l.getTranslation(text).split("%s", -1);
-        String[] myvars = store.toArray(new String[store.size()]);
+        String[] myvars = store;
         out.print(HTMLEncoder.encodeHTML(parts[0]));
         for (int j = 1; j < parts.length; j++) {
             String var = myvars[j - 1];
