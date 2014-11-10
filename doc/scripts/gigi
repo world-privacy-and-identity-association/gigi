@@ -15,6 +15,9 @@ cd /var/lib/cacert-gigi
 if [ "$1" == "start" ]
 then
 	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.Launcher
+elif [ "$1" == "debug" ]
+then
+	java -cp $JDBC_DRIVER:$GIGI_EXEC -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 org.cacert.gigi.Launcher
 elif [ "$1" == "start-daemon" ]
 then
 	if [ ! -e /etc/cacert/gigi/conf.tar ]; then
@@ -39,8 +42,12 @@ then
 	tar x gigi.properties
 else
 	echo "Usage: gigi <option>"
-	echo "start - starts gigi"
-	echo "signer - starts the simple signer"
-	echo "reset-database - resets the database"
+	echo "debug - starts gigi in debug mode (on port 8000, with config from stdin)"
 	echo "fetch-locales - (re)fetch the localisation"
+	echo "reset-database - resets the database"
+	echo "signer - starts the simple signer"
+	echo "signer-conf - extract config for simple signer (and reset-database) from the tar from stdin"
+	echo "start - starts gigi"
+	echo "start-daemon - starts gigi in background (using config from /etc/cacert/gigi/conf.tar)"
+
 fi

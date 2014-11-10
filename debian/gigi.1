@@ -27,6 +27,9 @@ is the starter for the CAcert-gigi system.
 .\" respectively.
 .SH OPTIONS
 .TP
+.B debug
+Run the usual webdb (not forking) with opening jdwp on port 8000. You will need to pipe the config into this program.
+.TP
 .B fetch-locales
 Fetch all Translations from http://translations.cacert.org/
 .TP
@@ -36,12 +39,11 @@ Delete the whole database contents, resetting it to default.
 .B signer
 Run the test-replacement signer (not forking).
 .TP
+.B signer-conf
+Configure the (internal) signer and the "reset-database"-tool with the config from stdin.
+.TP
 .B start
 Run the usual webdb (not forking). You will need to pipe the config into this program.
-.\".SH SEE ALSO
-.\".BR bar (1),
-.\".BR baz (1).
-.\".br
-.\"The programs are documented fully by
-.\".IR "The Rise and Fall of a Fooish Bar" ,
-.\"available via the Info system.
+.TP
+.B start-daemon
+Run the usual webdb (forking). You will not need to pipe the config into this program. It reads the config from /etc/cacert/gigi/conf.tar
