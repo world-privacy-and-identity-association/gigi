@@ -115,6 +115,7 @@ public class LoginPage extends Page {
         GigiResultSet rs = ps.executeQuery();
         if (rs.next()) {
             loginSession(req, User.getById(rs.getInt(1)));
+            req.getSession().setAttribute(CERT_SERIAL, serial);
         }
         rs.close();
     }

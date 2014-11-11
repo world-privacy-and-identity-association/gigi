@@ -3,6 +3,7 @@ package org.cacert.gigi;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.KeyStore;
+import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -58,6 +59,8 @@ public class Gigi extends HttpServlet {
     private boolean firstInstanceInited = false;
 
     public static final String LOGGEDIN = "loggedin";
+
+    public static final String CERT_SERIAL = "org.cacert.gigi.serial";
 
     public static final String USER = "user";
 
@@ -227,6 +230,16 @@ public class Gigi extends HttpServlet {
             return;
         }
         HttpSession hs = req.getSession();
+        String clientSerial = (String) hs.getAttribute(CERT_SERIAL);
+        if (clientSerial != null) {
+            X509Certificate[] cert = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
+            if (cert == null || cert[0] == null || !cert[0].getSerialNumber().toString(16).toUpperCase().equals(clientSerial)) {
+                hs.invalidate();
+                resp.sendError(403, "Certificate mismatch.");
+                return;
+            }
+
+        }
         if (req.getParameter("lang") != null) {
             Locale l = Language.getLocaleFromString(req.getParameter("lang"));
             Language lu = Language.getInstance(l);
