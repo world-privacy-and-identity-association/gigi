@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.template.Outputable;
 
 public class DateSelector implements Outputable {
 

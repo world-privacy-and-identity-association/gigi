@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.output.Outputable;
 
 public final class ForeachStatement implements Outputable {
 

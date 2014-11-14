@@ -11,9 +11,9 @@ import java.util.Map;
 
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.output.Outputable;
-import org.cacert.gigi.output.template.HashAlgorithms;
+import org.cacert.gigi.output.HashAlgorithms;
 import org.cacert.gigi.output.template.IterableDataset;
+import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.OutputableArrayIterable;
 import org.cacert.gigi.output.template.Template;
 import org.junit.Test;

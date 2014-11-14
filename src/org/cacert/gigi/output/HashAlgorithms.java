@@ -1,9 +1,10 @@
-package org.cacert.gigi.output.template;
+package org.cacert.gigi.output;
 
 import java.util.Map;
 
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.template.IterableDataset;
 
 public class HashAlgorithms implements IterableDataset {
 

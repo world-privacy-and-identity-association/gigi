@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.output.Outputable;
 import org.cacert.gigi.util.HTMLEncoder;
 
 public final class TranslateCommand implements Outputable {

@@ -6,6 +6,7 @@ import java.util.Map;
 import org.cacert.gigi.dbObjects.Assurance;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.IterableDataset;
+import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.Template;
 
 public class AssurancesDisplay implements Outputable {

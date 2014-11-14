@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.output.Form;
+import org.cacert.gigi.output.template.Form;
 
 public class OneFormPage extends Page {
 

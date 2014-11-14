@@ -1,4 +1,4 @@
-package org.cacert.gigi.output;
+package org.cacert.gigi.output.template;
 
 import java.io.IOException;
 import java.io.PrintWriter;

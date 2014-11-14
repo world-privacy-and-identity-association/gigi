@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.output.Outputable;
+import org.cacert.gigi.output.template.Outputable;
 
 public class Name implements Outputable {
 

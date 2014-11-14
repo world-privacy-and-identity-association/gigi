@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.output.Outputable;
 import org.cacert.gigi.util.HTMLEncoder;
 
 public final class SprintfCommand implements Outputable {

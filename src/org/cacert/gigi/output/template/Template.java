@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 
 import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.output.Outputable;
 import org.cacert.gigi.util.HTMLEncoder;
 
 public class Template implements Outputable {

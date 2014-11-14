@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.output.Form;
+import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.Page;
 
 public class CreateOrgPage extends Page {

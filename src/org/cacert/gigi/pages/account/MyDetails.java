@@ -7,7 +7,7 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cacert.gigi.output.Form;
+import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.Page;
 
 public class MyDetails extends Page {

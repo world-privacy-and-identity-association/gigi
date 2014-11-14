@@ -13,7 +13,7 @@ import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration.PingType;
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.output.Form;
+import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.ping.SSLPinger;
