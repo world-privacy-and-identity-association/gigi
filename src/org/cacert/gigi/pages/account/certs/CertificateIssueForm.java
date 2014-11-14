@@ -290,7 +290,7 @@ public class CertificateIssueForm extends Form {
                     SANs = filteredSANs;
                     if ( !u.isValidName(CN) && !server && !CN.equals(DEFAULT_CN)) {
                         CN = DEFAULT_CN;
-                        outputError(out, req, "The real name entered cannot be verified with your account.");
+                        outputError(out, req, "The name entered, does not match the details in your account. You cannot issue certificates with this name. Enter a name that matches the one that has been assured in your account.");
                     }
 
                     HashMap<String, String> subject = new HashMap<>();
@@ -301,7 +301,7 @@ public class CertificateIssueForm extends Form {
                         }
                         if (CN.equals("")) {
                             CN = "";
-                            outputError(out, req, "No real name is included in this certificate.");
+                            outputError(out, req, "No real name is included in this certificate. The real name, you entered will be ignored.");
                         }
                     } else {
                         subject.put("CN", CN);
