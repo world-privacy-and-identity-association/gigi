@@ -62,6 +62,8 @@ public class Gigi extends HttpServlet {
 
     public static final String CERT_SERIAL = "org.cacert.gigi.serial";
 
+    public static final String CERT_ISSUER = "org.cacert.gigi.issuer";
+
     public static final String USER = "user";
 
     private static final long serialVersionUID = -6386785421902852904L;
@@ -233,7 +235,9 @@ public class Gigi extends HttpServlet {
         String clientSerial = (String) hs.getAttribute(CERT_SERIAL);
         if (clientSerial != null) {
             X509Certificate[] cert = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
-            if (cert == null || cert[0] == null || !cert[0].getSerialNumber().toString(16).toUpperCase().equals(clientSerial)) {
+            if (cert == null || cert[0] == null//
+                    || !cert[0].getSerialNumber().toString(16).toUpperCase().equals(clientSerial) //
+                    || !cert[0].getIssuerDN().equals(hs.getAttribute(CERT_ISSUER))) {
                 hs.invalidate();
                 resp.sendError(403, "Certificate mismatch.");
                 return;

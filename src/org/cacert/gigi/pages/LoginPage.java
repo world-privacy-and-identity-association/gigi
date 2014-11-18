@@ -116,6 +116,7 @@ public class LoginPage extends Page {
         if (rs.next()) {
             loginSession(req, User.getById(rs.getInt(1)));
             req.getSession().setAttribute(CERT_SERIAL, serial);
+            req.getSession().setAttribute(CERT_ISSUER, x509Certificate.getIssuerDN());
         }
         rs.close();
     }
