@@ -41,20 +41,14 @@
 				<exclude name="**/*.launch" />
 				<exclude name="**/*.java" />
 			</fileset>
-		</copy>
-		<copy includeemptydirs="false" todir="bin">
 			<fileset dir="lib/jetty">
 				<exclude name="**/*.launch" />
 				<exclude name="**/*.java" />
 			</fileset>
-		</copy>
-		<copy includeemptydirs="false" todir="bin">
 			<fileset dir="src">
 				<exclude name="**/*.launch" />
 				<exclude name="**/*.java" />
 			</fileset>
-		</copy>
-		<copy includeemptydirs="false" todir="bin">
 			<fileset dir="util">
 				<exclude name="**/*.launch" />
 				<exclude name="**/*.java" />
@@ -91,6 +85,7 @@
 			<src path="lib/servlet-api" />
 			<src path="lib/jetty" />
 			<src path="lib/jtar" />
+			<src path="lib/scrypt" />
 			<src path="src" />
 			<classpath refid="cacert-gigi.classpath" />
 		</javac>
@@ -208,6 +203,7 @@
 				<fileset dir="tests">
 					<include name="**/*.java" />
 					<exclude name="**/testUtils/**" />
+					<exclude name="**/com/lambdaworks/crypto/test/CryptoTestUtil.java"/>
 				</fileset>
 			</batchtest>
 			<classpath refid="cacert-gigi.test.classpath" />
