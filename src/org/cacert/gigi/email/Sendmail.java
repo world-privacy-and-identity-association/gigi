@@ -29,22 +29,22 @@ public class Sendmail extends EmailProvider {
         Socket smtp = new Socket("localhost", 25);
         PrintWriter out = new PrintWriter(smtp.getOutputStream());
         BufferedReader in = new BufferedReader(new InputStreamReader(smtp.getInputStream()));
-        readResponse(in);
+        readSMTPResponse(in, 220);
         out.print("HELO www.cacert.org\r\n");
         out.flush();
-        readResponse(in);
+        readSMTPResponse(in, 250);
         out.print("MAIL FROM:<returns@cacert.org>\r\n");
         out.flush();
-        readResponse(in);
+        readSMTPResponse(in, 250);
         bits = to.split(",");
         for (String user : bits) {
             out.print("RCPT TO:<" + user.trim() + ">\r\n");
             out.flush();
-            readResponse(in);
+            readSMTPResponse(in, 250);
         }
         out.print("DATA\r\n");
         out.flush();
-        readResponse(in);
+        readSMTPResponse(in, 250);
         out.print("X-Mailer: CAcert.org Website\r\n");
         // if (array_key_exists("REMOTE_ADDR", $_SERVER)) {
         // out.print("X-OriginatingIP: ".$_SERVER["REMOTE_ADDR"]."\r\n");
@@ -87,18 +87,23 @@ public class Sendmail extends EmailProvider {
             smtp.close();
             return;
         }
-        readResponse(in);
+        readSMTPResponse(in, 250);
         out.print("QUIT\n");
         out.flush();
-        readResponse(in);
+        readSMTPResponse(in, 221);
         smtp.close();
     }
 
-    private static void readResponse(BufferedReader in) throws IOException {
+    public static boolean readSMTPResponse(BufferedReader in, int code) throws IOException {
         String line;
-        while ((line = in.readLine()) != null && line.matches("\\d+-")) {
-            System.out.println(line);
+        while ((line = in.readLine()) != null) {
+            if (line.startsWith(code + " ")) {
+                return true;
+            } else if ( !line.startsWith(code + "-")) {
+                return false;
+            }
         }
+        return false;
 
     }
 

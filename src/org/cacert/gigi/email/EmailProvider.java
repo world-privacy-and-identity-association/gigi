@@ -10,10 +10,13 @@ import java.security.Key;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
 import javax.naming.NamingException;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.cacert.gigi.crypto.SMIME;
 import org.cacert.gigi.database.DatabaseConnection;
@@ -75,6 +78,7 @@ public abstract class EmailProvider {
             } catch (NamingException e1) {
                 return "MX lookup for your hostname failed.";
             }
+            sortMX(mxhosts);
 
             for (String host : mxhosts) {
                 host = host.split(" ", 2)[1];
@@ -83,37 +87,60 @@ public abstract class EmailProvider {
                 } else {
                     return "Strange MX records.";
                 }
-                try (Socket s = new Socket(host, 25); BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream())); PrintWriter pw = new PrintWriter(s.getOutputStream())) {
+                try (Socket s = new Socket(host, 25); BufferedReader br0 = new BufferedReader(new InputStreamReader(s.getInputStream())); PrintWriter pw0 = new PrintWriter(s.getOutputStream())) {
+                    BufferedReader br = br0;
+                    PrintWriter pw = pw0;
                     String line;
-                    while ((line = br.readLine()) != null && line.startsWith("220-")) {
-                    }
-                    if (line == null || !line.startsWith("220")) {
+                    if ( !Sendmail.readSMTPResponse(br, 220)) {
                         continue;
                     }
 
-                    pw.print("HELO www.cacert.org\r\n");
+                    pw.print("EHLO www.cacert.org\r\n");
                     pw.flush();
-
-                    while ((line = br.readLine()) != null && line.startsWith("220")) {
-                    }
-
-                    if (line == null || !line.startsWith("250")) {
+                    boolean starttls = false;
+                    do {
+                        line = br.readLine();
+                        if (line == null)
+                            break;
+                        starttls |= line.substring(4).equals("STARTTLS");
+                    } while (line.startsWith("250-"));
+                    if (line == null || !line.startsWith("250 ")) {
                         continue;
                     }
+
+                    if (starttls) {
+                        pw.print("STARTTLS\r\n");
+                        pw.flush();
+                        if ( !Sendmail.readSMTPResponse(br, 220)) {
+                            continue;
+                        }
+                        Socket s1 = ((SSLSocketFactory) SSLSocketFactory.getDefault()).createSocket(s, host, 25, true);
+                        br = new BufferedReader(new InputStreamReader(s1.getInputStream()));
+                        pw = new PrintWriter(s1.getOutputStream());
+                        pw.print("EHLO www.cacert.org\r\n");
+                        pw.flush();
+                        if ( !Sendmail.readSMTPResponse(br, 250)) {
+                            continue;
+                        }
+                    }
+
                     pw.print("MAIL FROM: <returns@cacert.org>\r\n");
                     pw.flush();
 
-                    line = br.readLine();
-
-                    if (line == null || !line.startsWith("250")) {
+                    if ( !Sendmail.readSMTPResponse(br, 250)) {
                         continue;
                     }
                     pw.print("RCPT TO: <" + address + ">\r\n");
                     pw.flush();
 
-                    line = br.readLine();
+                    if ( !Sendmail.readSMTPResponse(br, 250)) {
+                        continue;
+                    }
                     pw.print("QUIT\r\n");
                     pw.flush();
+                    if ( !Sendmail.readSMTPResponse(br, 221)) {
+                        continue;
+                    }
 
                     GigiPreparedStatement statmt = DatabaseConnection.getInstance().prepare("insert into `emailPinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
                     statmt.setString(1, address);
@@ -136,6 +163,18 @@ public abstract class EmailProvider {
         statmt.setInt(3, forUid);
         statmt.execute();
         return FAIL;
+    }
+
+    private static void sortMX(String[] mxhosts) {
+        Arrays.sort(mxhosts, new Comparator<String>() {
+
+            @Override
+            public int compare(String o1, String o2) {
+                int i1 = Integer.parseInt(o1.split(" ")[0]);
+                int i2 = Integer.parseInt(o2.split(" ")[0]);
+                return Integer.compare(i1, i2);
+            }
+        });
     }
 
 }
