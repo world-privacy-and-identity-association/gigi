@@ -24,9 +24,9 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Menu;
 import org.cacert.gigi.output.PageMenuItem;
 import org.cacert.gigi.output.SimpleMenuItem;
+import org.cacert.gigi.output.template.Form.CSRFException;
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.Template;
-import org.cacert.gigi.output.template.Form.CSRFException;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.LogoutPage;
 import org.cacert.gigi.pages.MainPage;
@@ -43,6 +43,9 @@ import org.cacert.gigi.pages.account.certs.Certificates;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.pages.account.mail.MailOverview;
 import org.cacert.gigi.pages.admin.TTPAdminPage;
+import org.cacert.gigi.pages.admin.support.FindDomainPage;
+import org.cacert.gigi.pages.admin.support.FindUserPage;
+import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
 import org.cacert.gigi.pages.error.AccessDenied;
 import org.cacert.gigi.pages.error.PageNotFound;
 import org.cacert.gigi.pages.main.RegisterPage;
@@ -129,6 +132,9 @@ public class Gigi extends HttpServlet {
             putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
             putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Organisation Admin");
             putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Organisation Admin");
+            putPage(FindDomainPage.PATH, new FindDomainPage("Find Domain"), "System Admin");
+            putPage(FindUserPage.PATH, new FindUserPage("Find User"), "System Admin");
+            putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage("Support: User Details"), null);
             if (testing) {
                 try {
                     Class<?> manager = Class.forName("org.cacert.gigi.pages.Manager");

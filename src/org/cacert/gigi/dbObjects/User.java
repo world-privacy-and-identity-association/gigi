@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -443,6 +444,18 @@ public class User extends CertificateOwner {
         return User.getById(rs.getInt(1));
     }
 
+    public static User[] findByEmail(String mail) {
+        LinkedList<User> results = new LinkedList<User>();
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT users.id FROM users inner join certOwners on certOwners.id=users.id WHERE users.email LIKE ? AND deleted is null GROUP BY users.id ASC LIMIT 100");
+        ps.setString(1, mail);
+        GigiResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            results.add(User.getById(rs.getInt(1)));
+            System.out.println("Found user");
+        }
+        return results.toArray(new User[results.size()]);
+    }
+
     public boolean canIssue(CertificateProfile p) {
         switch (p.getCAId()) {
         case 0:
@@ -458,4 +471,5 @@ public class User extends CertificateOwner {
             return false;
         }
     }
+
 }

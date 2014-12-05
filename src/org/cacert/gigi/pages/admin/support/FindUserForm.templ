@@ -1,0 +1,24 @@
+<? if($usertable) {?>
+<p>Multiple users where found.</p>
+<table class="dataTable wrapper">
+<tr>
+<th>Id</th><th>E-Mail</th></tr>
+<? foreach($usertable) {?>
+	<tr><td><a href="/support/user/<?=$usrid?>"><?=$usrid?></a></td><td><a href="/support/user/<?=$usrid?>"><?=$usermail?></a></td></tr>
+<? } ?>
+</table>
+<? } ?>
+<? if($first) {?>
+<table class="wrapper dataTable">
+  <tbody><tr>
+    <th colspan="2"><?=_Find User?></th>
+  </tr>
+  <tr>
+    <td><?=_Email?>:</td>
+    <td><input name="email" value="" size="30" title="<?=_use % as wildcard?>" placeholder="<?=_use % as wildcard?>" type="text"/></td>
+  </tr>
+  <tr>
+    <td colspan="2"><input name="process" value="<?=_Next?>" type="submit"/></td>
+  </tr>
+</tbody></table>
+<? } ?>
