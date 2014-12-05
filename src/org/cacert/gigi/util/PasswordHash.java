@@ -3,9 +3,14 @@ package org.cacert.gigi.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import com.lambdaworks.crypto.SCryptUtil;
+
 public class PasswordHash {
 
     public static boolean verifyHash(String password, String hash) {
+        if (hash.contains("$")) {
+            return SCryptUtil.check(password, hash);
+        }
         String newhash = sha1(password);
         boolean match = true;
         if (newhash.length() != hash.length()) {
@@ -33,6 +38,6 @@ public class PasswordHash {
     }
 
     public static String hash(String password) {
-        return sha1(password);
+        return SCryptUtil.scrypt(password, 1 << 14, 8, 1);
     }
 }
