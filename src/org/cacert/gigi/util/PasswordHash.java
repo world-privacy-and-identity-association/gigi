@@ -7,9 +7,28 @@ import com.lambdaworks.crypto.SCryptUtil;
 
 public class PasswordHash {
 
-    public static boolean verifyHash(String password, String hash) {
+    /**
+     * Verifies a password hash.
+     * 
+     * @param password
+     *            The password that should result in the given hash.
+     * @param hash
+     *            The hash to verify the password against.
+     * @return <ul>
+     *         <li><code>null</code>, if the password was valid</li>
+     *         <li><code>hash</code>, if the password is valid and the hash
+     *         doesn't need to be updated</li>
+     *         <li>a new hash, if the password is valid but the hash in the
+     *         database needs to be updated.</li>
+     *         </ul>
+     */
+    public static String verifyHash(String password, String hash) {
         if (hash.contains("$")) {
-            return SCryptUtil.check(password, hash);
+            if (SCryptUtil.check(password, hash)) {
+                return hash;
+            } else {
+                return null;
+            }
         }
         String newhash = sha1(password);
         boolean match = true;
@@ -19,7 +38,11 @@ public class PasswordHash {
         for (int i = 0; i < newhash.length(); i++) {
             match &= newhash.charAt(i) == hash.charAt(i);
         }
-        return match;
+        if (match) {
+            return hash(password);
+        } else {
+            return null;
+        }
     }
 
     private static String sha1(String password) {

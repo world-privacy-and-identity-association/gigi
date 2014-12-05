@@ -97,7 +97,15 @@ public class LoginPage extends Page {
         ps.setString(1, un);
         GigiResultSet rs = ps.executeQuery();
         if (rs.next()) {
-            if (PasswordHash.verifyHash(pw, rs.getString(1))) {
+            String dbHash = rs.getString(1);
+            String hash = PasswordHash.verifyHash(pw, dbHash);
+            if (hash != null) {
+                if ( !hash.equals(dbHash)) {
+                    GigiPreparedStatement gps = DatabaseConnection.getInstance().prepare("UPDATE `users` SET `password`=? WHERE `email`=?");
+                    gps.setString(1, hash);
+                    gps.setString(2, un);
+                    gps.executeUpdate();
+                }
                 loginSession(req, User.getById(rs.getInt(2)));
             }
         }

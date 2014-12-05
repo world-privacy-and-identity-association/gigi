@@ -132,7 +132,7 @@ public class User extends CertificateOwner {
         if ( !rs.next()) {
             throw new GigiApiException("User not found... very bad.");
         }
-        if ( !PasswordHash.verifyHash(oldPass, rs.getString(1))) {
+        if (PasswordHash.verifyHash(oldPass, rs.getString(1)) == null) {
             throw new GigiApiException("Old password does not match.");
         }
         rs.close();
