@@ -270,4 +270,16 @@ public class Domain implements IdCachable {
         return em;
     }
 
+    public static int searchUserIdByDomain(String domain) {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid FROM domains WHERE domain = ?");
+        ps.setString(1, domain);
+        GigiResultSet res = ps.executeQuery();
+        res.beforeFirst();
+        if (res.next()) {
+            return res.getInt(1);
+        } else {
+            return -1;
+        }
+    }
+
 }
