@@ -27,6 +27,7 @@ public abstract class OneFormPage extends Page {
             }
         } catch (GigiApiException e) {
             e.format(resp.getWriter(), getLanguage(req));
+            doGet(req, resp);
         }
     }
 
