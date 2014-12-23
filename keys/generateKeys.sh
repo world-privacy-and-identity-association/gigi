@@ -35,6 +35,16 @@ authorityKeyIdentifier = keyid:always,issuer:always
 #authorityInfoAccess = OCSP;URI:http://ocsp.my.host/
 TESTCA
 
+cat <<TESTCA > test_reqClient.cnf
+basicConstraints = critical,CA:false
+keyUsage = keyEncipherment, digitalSignature
+extendedKeyUsage=clientAuth
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+#crlDistributionPoints=URI:http://www.my.host/ca.crl
+#authorityInfoAccess = OCSP;URI:http://ocsp.my.host/
+TESTCA
+
 cat <<TESTCA > test_reqMail.cnf
 basicConstraints = critical,CA:false
 keyUsage = keyEncipherment, digitalSignature
@@ -110,10 +120,17 @@ genserver secure "/CN=secure.${DOMAIN}" test_req.cnf
 genserver static "/CN=static.${DOMAIN}" test_req.cnf
 genserver api "/CN=api.${DOMAIN}" test_req.cnf
 
+genserver signer_client "/CN=CAcert signer handler 1" test_reqClient.cnf
+genserver signer_server "/CN=CAcert signer 1" test_req.cnf
+
 # then the email signing key
 genserver mail "/emailAddress=support@${DOMAIN}" test_reqMail.cnf
 
 keytool -list -keystore ../config/keystore.pkcs12 -storetype pkcs12 -storepass "$PRIVATEPW"
 
-rm test_ca.cnf test_subca.cnf test_req.cnf test_reqMail.cnf
+rm test_ca.cnf test_subca.cnf test_req.cnf test_reqMail.cnf test_reqClient.cnf
 rm env.chain.crt
+
+cat root.crt env.crt > ca.crt
+tar cf signer_bundle.tar root.crt env.crt signer_client.crt signer_client.key signer_server.crt signer_server.key ca.crt
+rm ca.crt
