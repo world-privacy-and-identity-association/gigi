@@ -115,4 +115,26 @@ public class TestTemplate {
 
     }
 
+    @Test
+    public void testInvalidBracketContent() {
+        try {
+            assertEquals("", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<? } ?>"));
+            fail("should throw an error");
+        } catch (Error e) {
+
+        }
+    }
+
+    @Test
+    public void testIfElse() {
+        vars.put("b", Boolean.TRUE);
+        assertEquals("true", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<? if($b){ ?>true<? } else{?>false<?}?>"));
+        vars.put("b", Boolean.FALSE);
+        assertEquals("false", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<? if($b){ ?>true<? } else{?>false<?}?>"));
+
+        vars.put("b", new Object());
+        assertEquals("true", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<? if($b){ ?>true<? } else{?>false<?}?>"));
+        vars.put("b", null);
+        assertEquals("false", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<? if($b){ ?>true<? } else{?>false<?}?>"));
+    }
 }
