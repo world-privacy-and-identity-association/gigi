@@ -15,7 +15,7 @@ A template is constructed from a charstream. Everything that is not in "<?" to "
 - <?=s,!"some data",My %s text?> will insert "some data" into the translated text literally (not HTML-escaped)
   
 - <? if($variable) { ?>
-  Output/execute the text until "<? } ?>" only if $variable not null or Boolean.FALSE.
+  Output/execute the text until "<? } ?>" only if $variable is Boolean.TRUE (<=> !Boolean.FALSE) or not null. 
   
 - <? foreach($variable) { ?>
   If $variable is an "IterableDataset"
