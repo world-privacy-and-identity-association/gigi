@@ -120,15 +120,15 @@ public class Gigi extends HttpServlet {
             putPage(LogoutPage.PATH, new LogoutPage("Logout"), "My Account");
             putPage("/secure", new TestSecure(), null);
             putPage(Verify.PATH, new Verify(), null);
-            putPage(AssurePage.PATH + "/*", new AssurePage(), "CAcert Web of Trust");
+            putPage(AssurePage.PATH + "/*", new AssurePage(), "Web of Trust");
             putPage(Certificates.PATH + "/*", new Certificates(), "Certificates");
             putPage(MyDetails.PATH, new MyDetails(), "My Account");
             putPage(RegisterPage.PATH, new RegisterPage(), "CAcert.org");
             putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
             putPage(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"), "Certificates");
             putPage(DomainOverview.PATH + "*", new DomainOverview("Domains"), "Certificates");
-            putPage(MyPoints.PATH, new MyPoints("My Points"), "CAcert Web of Trust");
-            putPage(RequestTTPPage.PATH, new RequestTTPPage(), "CAcert Web of Trust");
+            putPage(MyPoints.PATH, new MyPoints("My Points"), "Web of Trust");
+            putPage(RequestTTPPage.PATH, new RequestTTPPage(), "Web of Trust");
             putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
             putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Organisation Admin");
             putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Organisation Admin");
@@ -146,7 +146,7 @@ public class Gigi extends HttpServlet {
                 }
             }
 
-            putPage("/wot/rules", new StaticPage("CAcert Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "CAcert Web of Trust");
+            putPage("/wot/rules", new StaticPage("Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "Web of Trust");
             baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
             rootMenu = new Menu("Main");
             Menu about = new Menu("About CAcert.org");
