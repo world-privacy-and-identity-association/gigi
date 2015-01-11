@@ -1,6 +1,11 @@
 <table align="center" valign="middle" border="0" cellspacing="0" cellpadding="0" class="wrapper dataTable">
   <tr>
-    <th colspan="2"><?=_New Organisation?></th>
+    <th colspan="2">
+    <? if($edit) { ?>
+    <?=_Edit Organisation?>
+    <? } else { ?>
+    <?=_New Organisation?>
+    <? } ?></th>
   </tr>
   <tr>
     <td><?=_Organisation Name?>:</td>
@@ -28,6 +33,12 @@
     <td><?=_Comments?>:</td>
     <td><textarea name="comments" cols="60" rows="10"></textarea></td>
   </tr>
+  <? if($edit) { ?>
+  <tr>
+    <td></td>
+    <td><?=_WARNING: updating the data will revoke all issued certificates.?></td>
+  </tr>
+  <? } ?>
   <tr>
     <td colspan="2"><input type="submit" value="<?=_Submit?>"></td>
   </tr>

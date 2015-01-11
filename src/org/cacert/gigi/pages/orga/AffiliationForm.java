@@ -30,14 +30,17 @@ public class AffiliationForm extends Form {
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
-        User toRemove = User.getByEmail(req.getParameter("del"));
-        if (toRemove != null) {
-            o.removeAdmin(toRemove, LoginPage.getUser(req));
+        if (req.getParameter("del") != null) {
+            User toRemove = User.getByEmail(req.getParameter("del"));
+            if (toRemove != null) {
+                o.removeAdmin(toRemove, LoginPage.getUser(req));
+            }
         }
-
-        User byEmail = User.getByEmail(req.getParameter("email"));
-        if (byEmail != null) {
-            o.addAdmin(byEmail, LoginPage.getUser(req), req.getParameter("master") != null);
+        if (req.getParameter("do_affiliate") != null) {
+            User byEmail = User.getByEmail(req.getParameter("email"));
+            if (byEmail != null) {
+                o.addAdmin(byEmail, LoginPage.getUser(req), req.getParameter("master") != null);
+            }
         }
         return true;
     }

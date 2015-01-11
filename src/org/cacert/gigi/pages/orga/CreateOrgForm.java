@@ -26,12 +26,15 @@ public class CreateOrgForm extends Form {
 
     private String l = "";
 
+    private boolean isEdit = false;
+
     public CreateOrgForm(HttpServletRequest hsr) {
         super(hsr);
     }
 
     public CreateOrgForm(HttpServletRequest hsr, Organisation t) {
         super(hsr);
+        isEdit = true;
         result = t;
         o = t.getName();
         c = t.getState();
@@ -64,6 +67,9 @@ public class CreateOrgForm extends Form {
         vars.put("C", c);
         vars.put("ST", st);
         vars.put("L", this.l);
+        if (isEdit) {
+            vars.put("edit", true);
+        }
         t.output(out, l, vars);
     }
 }
