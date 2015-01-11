@@ -72,8 +72,8 @@ public class TestOrgaManagement extends ManagedTest {
     @Test
     public void testNonAssurerSeeOnlyOwn() throws IOException {
         User u2 = User.getById(createVerifiedUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
-        Organisation o1 = new Organisation("name21", "DE", "sder", "Rostov", u);
-        Organisation o2 = new Organisation("name12", "DE", "sder", "Rostov", u);
+        Organisation o1 = new Organisation("name21", "DE", "sder", "Rostov", "email", u);
+        Organisation o2 = new Organisation("name12", "DE", "sder", "Rostov", "email", u);
         o1.addAdmin(u2, u2, false);
         String session2 = login(u2.getEmail(), TEST_PASSWORD);
 

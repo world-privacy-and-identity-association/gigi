@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS `organisations` (
   `state` varchar(2) NOT NULL,
   `province` varchar(100) NOT NULL,
   `city` varchar(100) NOT NULL,
+  `contactEmail` varchar(100) NOT NULL,
   `creator` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -143,6 +144,7 @@ CREATE TABLE `certs` (
   `codesign` tinyint(1) NOT NULL DEFAULT '0',
   `md` enum('md5','sha1','sha256','sha512') NOT NULL DEFAULT 'sha512',
   `profile` int(3) NOT NULL,
+  `caid` int(3) NULL DEFAULT NULL,
 
   `csr_name` varchar(255) NOT NULL DEFAULT '',
   `csr_type` enum('CSR', 'SPKAC') NOT NULL,
@@ -221,7 +223,16 @@ CREATE TABLE `subjectAlternativeNames` (
   `type` enum('email','DNS') NOT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
-
+DROP TABLE IF EXISTS `cacerts`;
+CREATE TABLE `cacerts` (
+  `id` int(3) NOT NULL AUTO_INCREMENT,
+  `keyname` varchar(60) NOT NULL,
+  `subroot` int(2) NOT NULL,
+  `validFrom` datetime NULL DEFAULT NULL,
+  `validTo` datetime NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE (`keyname`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 
 DROP TABLE IF EXISTS `jobs`;

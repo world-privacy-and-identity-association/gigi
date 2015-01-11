@@ -15,7 +15,7 @@ public class TestOrga extends ManagedTest {
         User u2 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
         User u3 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
         User u4 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
-        Organisation o1 = new Organisation("name", "ST", "prov", "city", u1);
+        Organisation o1 = new Organisation("name", "ST", "prov", "city", "email", u1);
         assertEquals(0, o1.getAllAdmins().size());
         o1.addAdmin(u2, u1, false);
         assertEquals(1, o1.getAllAdmins().size());

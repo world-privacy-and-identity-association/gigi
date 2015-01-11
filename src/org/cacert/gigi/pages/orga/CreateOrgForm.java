@@ -26,6 +26,8 @@ public class CreateOrgForm extends Form {
 
     private String l = "";
 
+    private String email = "";
+
     private boolean isEdit = false;
 
     public CreateOrgForm(HttpServletRequest hsr) {
@@ -40,6 +42,7 @@ public class CreateOrgForm extends Form {
         c = t.getState();
         st = t.getProvince();
         l = t.getCity();
+        email = t.getContactEmail();
     }
 
     @Override
@@ -48,11 +51,12 @@ public class CreateOrgForm extends Form {
         c = req.getParameter("C");
         st = req.getParameter("ST");
         l = req.getParameter("L");
+        email = req.getParameter("contact");
         if (result != null) {
             result.update(o, c, st, l);
             return true;
         }
-        Organisation ne = new Organisation(o, c, st, l, LoginPage.getUser(req));
+        Organisation ne = new Organisation(o, c, st, l, email, LoginPage.getUser(req));
         result = ne;
         return true;
     }

@@ -49,19 +49,23 @@ public class Organisation extends CertificateOwner {
 
     private String city;
 
-    public Organisation(String name, String state, String province, String city, User creator) {
+    private String email;
+
+    public Organisation(String name, String state, String province, String city, String email, User creator) {
         this.name = name;
         this.state = state;
         this.province = province;
         this.city = city;
+        this.email = email;
         int id = super.insert();
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO organisations SET id=?, name=?, state=?, province=?, city=?, creator=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO organisations SET id=?, name=?, state=?, province=?, city=?, contactEmail=?, creator=?");
         ps.setInt(1, id);
         ps.setString(2, name);
         ps.setString(3, state);
         ps.setString(4, province);
         ps.setString(5, city);
-        ps.setInt(6, creator.getId());
+        ps.setString(6, email);
+        ps.setInt(7, creator.getId());
         synchronized (Organisation.class) {
             ps.execute();
         }
@@ -74,6 +78,7 @@ public class Organisation extends CertificateOwner {
         state = rs.getString("state");
         province = rs.getString("province");
         city = rs.getString("city");
+        city = rs.getString("contactEmail");
     }
 
     public String getName() {
@@ -90,6 +95,10 @@ public class Organisation extends CertificateOwner {
 
     public String getCity() {
         return city;
+    }
+
+    public String getContactEmail() {
+        return email;
     }
 
     public static synchronized Organisation getById(int id) {
