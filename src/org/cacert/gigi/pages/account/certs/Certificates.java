@@ -110,7 +110,7 @@ public class Certificates extends Page {
 
         HashMap<String, Object> vars = new HashMap<String, Object>();
         User us = LoginPage.getUser(req);
-        vars.put("certs", new CertificateIterable(us.getCertificates()));
+        vars.put("certs", new CertificateIterable(us.getCertificates(false)));
         certTable.output(out, getLanguage(req), vars);
     }
 

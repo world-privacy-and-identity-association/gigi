@@ -115,7 +115,7 @@ public class TestUser extends ManagedTest {
         Assurance[] ma2 = u.getMadeAssurances();
         Assurance[] ra = u.getReceivedAssurances();
         Assurance[] ra2 = u.getReceivedAssurances();
-        assertEquals(0, u.getCertificates().length);
+        assertEquals(0, u.getCertificates(false).length);
         assertEquals(0, ma.length);
         assertEquals(0, ma2.length);
         assertEquals(0, ra.length);

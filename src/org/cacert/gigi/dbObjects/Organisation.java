@@ -153,7 +153,7 @@ public class Organisation extends CertificateOwner {
     }
 
     public void update(String o, String c, String st, String l) {
-        for (Certificate cert : getCertificates()) {
+        for (Certificate cert : getCertificates(false)) {
             if (cert.getStatus() == CertificateStatus.ISSUED) {
                 cert.revoke();
             }
