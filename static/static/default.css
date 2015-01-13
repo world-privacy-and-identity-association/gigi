@@ -782,7 +782,12 @@ pre{
 	margin-left: 1%;
 	margin-right: 1%;
 }
-
+.dataTable td nobr input {
+	width: auto;
+}
+.centertext {
+	text-align: center;
+}
 .dataTable th {
 	background: #e2e2e2;
 	font-weight: bold;
