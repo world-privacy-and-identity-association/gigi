@@ -1,5 +1,8 @@
 package org.cacert.gigi.output;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import org.cacert.gigi.dbObjects.Certificate;
@@ -27,10 +30,17 @@ public class CertificateIterable implements IterableDataset {
         vars.put("serial", c.getSerial());
         vars.put("digest", c.getMessageDigest());
         vars.put("profile", c.getProfile().getVisibleName());
-
-        vars.put("issued", "TODO"); // TODO output dates
-        vars.put("revoked", "TODO");
-        vars.put("expire", "TODO");
+        X509Certificate cert;
+        try {
+            cert = c.cert();
+            vars.put("issued", DateSelector.getDateFormat().format(cert.getNotBefore()));
+            vars.put("expire", DateSelector.getDateFormat().format(cert.getNotAfter()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
+        vars.put("revoked", "TODO");// TODO output date
         return true;
     }
 }
