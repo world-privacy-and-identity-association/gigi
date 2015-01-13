@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.EmailAddress;
+import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
@@ -92,5 +93,13 @@ public class SupportUserDetailsPage extends Page {
             }
         });
         getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
+    }
+
+    @Override
+    public boolean isPermitted(User u) {
+        if (u == null) {
+            return false;
+        }
+        return u.isInGroup(Group.getByString("supporter"));
     }
 }

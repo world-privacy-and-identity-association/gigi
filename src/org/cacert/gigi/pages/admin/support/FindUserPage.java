@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
@@ -61,6 +62,14 @@ public class FindUserPage extends Page {
             e.format(resp.getWriter(), Page.getLanguage(req));
             doGet(req, resp);
         }
+    }
+
+    @Override
+    public boolean isPermitted(User u) {
+        if (u == null) {
+            return false;
+        }
+        return u.isInGroup(Group.getByString("supporter"));
     }
 
 }
