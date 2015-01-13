@@ -62,4 +62,8 @@ public class CertificateProfile {
         return byName.get(name);
     }
 
+    public static CertificateProfile[] getAll() {
+        return byId.values().toArray(new CertificateProfile[byId.size()]);
+    }
+
 }
