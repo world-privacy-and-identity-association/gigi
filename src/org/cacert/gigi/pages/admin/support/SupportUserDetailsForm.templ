@@ -1,0 +1,119 @@
+<table class="wrapper dataTable centertext">
+        <tbody><tr>
+            <th colspan="2"><?=$mail?>'s Account Details</th>
+        </tr>
+        <tr>
+            <td>Email:</td>
+            <td><?=$mail?></td>
+        </tr>
+        <tr>
+            <td><?=_First Name?>:</td>
+            <td>
+                <input type="text" value="<?=$fname?>" name="fname">
+           </td>
+        </tr>
+        <tr>
+            <td><?=_Middle Name?>:</td>
+            <td><input type="text" value="<?=$mname?>" name="mname"></td>
+        </tr>
+        <tr>
+            <td><?=_Last Name?>:</td>
+            <td>
+                <input type="text" value="<?=$lname?>" name="lname">
+            </td>
+        </tr>
+        <tr>
+            <td><?=_Suffix?>:</td>
+            <td><input type="text" value="<?=$suffix?>" name="suffix"></td>
+        </tr>
+        <tr>
+            <td><?=_Date of Birth?>:</td>
+            <td>
+                       <?=$dob?>
+            </td>
+        </tr>
+        <tr>
+            <td><?=_Trainings?>:</td>
+            <td><a href="./<?=$id?>/trainings"><?=_Show?></a></td>
+        </tr>
+        <tr>
+            <td><?=_Is Assurer?>:</td>
+            <td>
+            <? if($assurer) { ?>
+            <?=_Yes?>
+            <? } else { ?>
+            <?=_No?>
+            <? } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><?=_Blocked Assurer?>:</td>
+            <td>
+            <? if($blockedassurer) { ?>
+            <?=_Yes?>
+            <? } else { ?>
+            <?=_No?>
+            <? } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><?=_Account Locking?>:</td>
+            <td>
+            <? if($locked) { ?>
+            <?=_Yes?>
+            <? } else { ?>
+            <?=_No?>
+            <? } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><?=_Code Signing?>:</td>
+            <td><? if($codesign) { ?>
+            <?=_Yes?>
+            <? } else { ?>
+            <?=_No?>
+            <? } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><?=_Org Assurer?>:</td>
+            <td>
+	<? if($orgassurer) { ?>
+            <?=_Yes?>
+            <? } else { ?>
+            <?=_No?>
+            <? } ?>
+</td>
+        </tr>
+        <tr>
+            <td><?=_TTP Admin?>:</td>
+            <td>
+<? if($ttpadmin) { ?>
+            <?=_Yes?>
+            <? } else { ?>
+            <?=_No?>
+            <? } ?>
+</td>
+        </tr>
+           <tr>
+            <td><?=_Change Password?>:</td>
+            <td><?=_Change Password?></td>
+        </tr>
+        <tr>
+            <td><?=_Delete Account?>:</td>
+            <td><?=_Delete Account?></td>
+        </tr>
+            <tr>
+            <td><?=_Show Lost Password Details?></td>
+        </tr>
+            <tr>
+            <td><?=_Assurance Points?>:</td>
+            <td><?=$assurancepoints?></td>
+        </tr>
+            <tr>
+            <td colspan="2"><a href="./<?=$id?>/history"><?=_Show account history?></a></td>
+        </tr>
+        <tr><td colspan="2"><input type="submit" value="<?=_Update?>"/></td></tr>
+    </tbody>
+</table>
+<br/>

@@ -1,0 +1,41 @@
+<?=$details?>
+<table class="wrapper dataTable centertext">
+        <tbody><tr>
+            <th><?=_Alternate Verified Email Addresses?></th>
+        </tr>
+        <? foreach($emails) {?>
+        <tr>
+            <td><?=$secmail?></td>
+        </tr>
+        <? } ?>
+        </tbody>
+</table>
+<br/>
+<table class="wrapper dataTable">
+        <tbody><tr>
+            <th colspan="6"><?=_Certificates?></td>
+        </tr>
+        <tr>
+            <th><?=_Cert Type?></th>
+            <th><?=_Total?></th>
+            <th><?=_Valid?></th>
+            <th><?=_Expired?></th>
+            <th><?=_Revoked?></th>
+            <th><?=_Latest Expire?></th>
+        </tr>
+      	<? foreach($types) { ?>
+        <tr>
+            <td><?=$profile?></th>
+                <td><?=$total?></td>
+            <td><?=$valid?></td>
+            <td><?=$exp?></td>
+            <td><?=$rev?></td>
+            <td><?=$lastdate?></td>
+            </tr>
+            <? } ?>
+        <tr>
+            <td colspan="6" class="title">
+                    <input value="revoke certificates" type="submit">
+            </td>
+        </tr>
+    </tbody></table>
