@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
@@ -41,12 +42,14 @@ public class SupportUserDetailsForm extends Form {
         vars.put("suffix", user.getSuffix());
         vars.put("assurer", user.canAssure());
         vars.put("dob", new DateSelector("dobd", "dobm", "doby", user.getDob()));
-        vars.put("blockedassurer", false); // TODO Fill all following "false"
-        vars.put("locked", false);
-        vars.put("codesign", false);
-        vars.put("orgassurer", false);
-        vars.put("ttpadmin", false);
+        vars.put("blockedassurer", user.isInGroup(Group.getByString("blockedassurer")));
+        vars.put("codesign", user.isInGroup(Group.getByString("codesigning")));
+        vars.put("orgassurer", user.isInGroup(Group.getByString("orgassurer")));
         vars.put("assurancepoints", user.getAssurancePoints());
+        vars.put("blockedassuree", user.isInGroup(Group.getByString("blockedassuree")));
+        vars.put("ttpassurer", user.isInGroup(Group.getByString("ttpassurer")));
+        vars.put("ttpapplicant", user.isInGroup(Group.getByString("ttpapplicant")));
+        vars.put("blockedlogin", user.isInGroup(Group.getByString("blockedlogin")));
         vars.put("id", user.getId());
         t.output(out, l, vars);
     }
