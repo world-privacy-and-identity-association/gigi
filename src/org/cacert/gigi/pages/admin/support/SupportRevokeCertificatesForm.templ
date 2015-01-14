@@ -1,0 +1,28 @@
+<table class="wrapper dataTable">
+        <tbody><tr>
+            <th colspan="6"><?=_Certificates?></td>
+        </tr>
+        <tr>
+            <th><?=_Cert Type?></th>
+            <th><?=_Total?></th>
+            <th><?=_Valid?></th>
+            <th><?=_Expired?></th>
+            <th><?=_Revoked?></th>
+            <th><?=_Latest Expire?></th>
+        </tr>
+      	<? foreach($types) { ?>
+        <tr>
+            <td><?=$profile?></th>
+                <td><?=$total?></td>
+            <td><?=$valid?></td>
+            <td><?=$exp?></td>
+            <td><?=$rev?></td>
+            <td><?=$lastdate?></td>
+            </tr>
+            <? } ?>
+        <tr>
+            <th colspan="6">
+                    <input value="<?=_revoke certificates?>" type="submit">
+            </th>
+        </tr>
+    </tbody></table>
