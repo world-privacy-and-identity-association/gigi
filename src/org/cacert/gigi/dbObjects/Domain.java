@@ -93,7 +93,7 @@ public class Domain implements IdCachable {
     }
 
     public Domain(User owner, String suffix) throws GigiApiException {
-        checkCertifyableDomain(suffix, owner.isInGroup(Group.getByString("codesign")));
+        checkCertifyableDomain(suffix, owner.isInGroup(Group.CODESIGNING));
         this.owner = owner;
         this.suffix = suffix;
 
