@@ -321,3 +321,13 @@ CREATE TABLE IF NOT EXISTS `org_admin` (
   `deleted` timestamp NULL DEFAULT NULL,
   KEY (`orgid`, `memid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `adminLog`;
+CREATE TABLE `adminLog` (
+  `when` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `uid` int(11) unsigned NOT NULL,
+  `admin` int(11) unsigned NOT NULL,
+  `type` varchar(100) NOT NULL DEFAULT '',
+  `information` varchar(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (`when`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
