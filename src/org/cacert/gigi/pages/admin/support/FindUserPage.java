@@ -69,7 +69,7 @@ public class FindUserPage extends Page {
         if (u == null) {
             return false;
         }
-        return u.isInGroup(Group.getByString("supporter"));
+        return u.isInGroup(Group.SUPPORTER);
     }
 
 }
