@@ -146,6 +146,10 @@ public class User extends CertificateOwner {
         }
     }
 
+    public void setName(Name name) {
+        this.name = name;
+    }
+
     public boolean canAssure() {
         if ( !isOfAge(14)) { // PoJAM
             return false;
