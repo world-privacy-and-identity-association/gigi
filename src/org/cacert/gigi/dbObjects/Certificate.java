@@ -295,7 +295,7 @@ public class Certificate {
 
     public X509Certificate cert() throws IOException, GeneralSecurityException {
         CertificateStatus status = getStatus();
-        if (status != CertificateStatus.ISSUED) {
+        if (status != CertificateStatus.REVOKED && status != CertificateStatus.ISSUED) {
             throw new IllegalStateException(status + " is not wanted here.");
         }
         InputStream is = null;

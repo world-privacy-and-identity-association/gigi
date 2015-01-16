@@ -6,6 +6,7 @@ import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.IterableDataset;
 
@@ -30,11 +31,16 @@ public class CertificateIterable implements IterableDataset {
         vars.put("serial", c.getSerial());
         vars.put("digest", c.getMessageDigest());
         vars.put("profile", c.getProfile().getVisibleName());
-        X509Certificate cert;
         try {
-            cert = c.cert();
-            vars.put("issued", DateSelector.getDateFormat().format(cert.getNotBefore()));
-            vars.put("expire", DateSelector.getDateFormat().format(cert.getNotAfter()));
+            CertificateStatus st = c.getStatus();
+            if (st == CertificateStatus.ISSUED || st == CertificateStatus.REVOKED) {
+                X509Certificate cert = c.cert();
+                vars.put("issued", DateSelector.getDateFormat().format(cert.getNotBefore()));
+                vars.put("expire", DateSelector.getDateFormat().format(cert.getNotAfter()));
+            } else {
+                vars.put("issued", l.getTranslation("N/A"));
+                vars.put("expire", l.getTranslation("N/A"));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (GeneralSecurityException e) {
