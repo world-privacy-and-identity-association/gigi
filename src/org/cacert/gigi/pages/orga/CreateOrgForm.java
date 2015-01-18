@@ -53,7 +53,7 @@ public class CreateOrgForm extends Form {
         l = req.getParameter("L");
         email = req.getParameter("contact");
         if (result != null) {
-            result.update(o, c, st, l);
+            result.update(o, c, st, l, email);
             return true;
         }
         Organisation ne = new Organisation(o, c, st, l, email, LoginPage.getUser(req));
@@ -71,6 +71,7 @@ public class CreateOrgForm extends Form {
         vars.put("C", c);
         vars.put("ST", st);
         vars.put("L", this.l);
+        vars.put("email", email);
         if (isEdit) {
             vars.put("edit", true);
         }

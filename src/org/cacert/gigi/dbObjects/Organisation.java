@@ -161,18 +161,20 @@ public class Organisation extends CertificateOwner {
         return resu;
     }
 
-    public void update(String o, String c, String st, String l) {
+    public void update(String o, String c, String st, String l, String mail) {
         for (Certificate cert : getCertificates(false)) {
             if (cert.getStatus() == CertificateStatus.ISSUED) {
                 cert.revoke();
             }
         }
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE organisations SET name=?, state=?, province=?, city=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE organisations SET name=?, state=?, province=?, city=?, contactEmail=?");
         ps.setString(1, o);
         ps.setString(2, c);
         ps.setString(3, st);
         ps.setString(4, l);
+        ps.setString(5, mail);
         ps.execute();
+        email = mail;
         name = o;
         state = c;
         province = st;

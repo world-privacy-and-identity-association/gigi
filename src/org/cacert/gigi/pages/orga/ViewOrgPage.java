@@ -43,10 +43,11 @@ public class ViewOrgPage extends Page {
             if ( !u.isInGroup(CreateOrgPage.ORG_ASSURER)) {
                 return;
             }
-            if (req.getParameter("affiliate") != null) {
+            if (req.getParameter("do_affiliate") != null || req.getParameter("del") != null) {
                 AffiliationForm form = Form.getForm(req, AffiliationForm.class);
-                form.submit(resp.getWriter(), req);
-                resp.sendRedirect(DEFAULT_PATH + "/" + form.getOrganisation().getId());
+                if (form.submit(resp.getWriter(), req)) {
+                    resp.sendRedirect(DEFAULT_PATH + "/" + form.getOrganisation().getId());
+                }
             } else {
                 Form.getForm(req, CreateOrgForm.class).submit(resp.getWriter(), req);
             }
@@ -96,8 +97,9 @@ public class ViewOrgPage extends Page {
 
             @Override
             public boolean next(Language l, Map<String, Object> vars) {
-                if (count >= orgas.length)
+                if (count >= orgas.length) {
                     return false;
+                }
                 Organisation org = orgas[count++];
                 vars.put("id", Integer.toString(org.getId()));
                 vars.put("name", org.getName());

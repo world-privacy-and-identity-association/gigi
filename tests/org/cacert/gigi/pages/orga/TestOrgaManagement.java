@@ -32,22 +32,23 @@ public class TestOrgaManagement extends ManagedTest {
 
     @Test
     public void testAdd() throws IOException {
-        executeBasicWebInteraction(session, CreateOrgPage.DEFAULT_PATH, "O=name&contact=&L=K%C3%B6ln&ST=%C3%9C%C3%96%C3%84%C3%9F&C=DE&comments=jkl%C3%B6loiuzfdfgjlh%C3%B6", 0);
+        executeBasicWebInteraction(session, CreateOrgPage.DEFAULT_PATH, "O=name&contact=mail&L=K%C3%B6ln&ST=%C3%9C%C3%96%C3%84%C3%9F&C=DE&comments=jkl%C3%B6loiuzfdfgjlh%C3%B6", 0);
         Organisation[] orgs = Organisation.getOrganisations(0, 30);
         assertEquals(1, orgs.length);
+        assertEquals("mail", orgs[0].getContactEmail());
         assertEquals("name", orgs[0].getName());
         assertEquals("Köln", orgs[0].getCity());
         assertEquals("ÜÖÄß", orgs[0].getProvince());
 
         User u2 = User.getById(createVerifiedUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
-        executeBasicWebInteraction(session, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "email=" + URLEncoder.encode(u2.getEmail(), "UTF-8") + "&affiliate=y&master=y", 1);
+        executeBasicWebInteraction(session, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "email=" + URLEncoder.encode(u2.getEmail(), "UTF-8") + "&do_affiliate=y&master=y", 1);
         List<Affiliation> allAdmins = orgs[0].getAllAdmins();
         assertEquals(1, allAdmins.size());
         Affiliation affiliation = allAdmins.get(0);
         assertSame(u2, affiliation.getTarget());
         assertTrue(affiliation.isMaster());
 
-        executeBasicWebInteraction(session, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "email=" + URLEncoder.encode(u.getEmail(), "UTF-8") + "&affiliate=y", 1);
+        executeBasicWebInteraction(session, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "email=" + URLEncoder.encode(u.getEmail(), "UTF-8") + "&do_affiliate=y", 1);
         allAdmins = orgs[0].getAllAdmins();
         assertEquals(2, allAdmins.size());
         Affiliation affiliation2 = allAdmins.get(0);
@@ -57,10 +58,10 @@ public class TestOrgaManagement extends ManagedTest {
         assertSame(u.getId(), affiliation2.getTarget().getId());
         assertFalse(affiliation2.isMaster());
 
-        executeBasicWebInteraction(session, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "del=" + URLEncoder.encode(u.getEmail(), "UTF-8") + "&email=&affiliate=y", 1);
+        executeBasicWebInteraction(session, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "del=" + URLEncoder.encode(u.getEmail(), "UTF-8") + "&email=&do_affiliate=y", 1);
         assertEquals(1, orgs[0].getAllAdmins().size());
 
-        executeBasicWebInteraction(session, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "del=" + URLEncoder.encode(u2.getEmail(), "UTF-8") + "&email=&affiliate=y", 1);
+        executeBasicWebInteraction(session, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "del=" + URLEncoder.encode(u2.getEmail(), "UTF-8") + "&email=&do_affiliate=y", 1);
         assertEquals(0, orgs[0].getAllAdmins().size());
 
         executeBasicWebInteraction(session, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "O=name1&contact=&L=K%C3%B6ln&ST=%C3%9C%C3%96%C3%84%C3%9F&C=DE&comments=jkl%C3%B6loiuzfdfgjlh%C3%B6", 0);

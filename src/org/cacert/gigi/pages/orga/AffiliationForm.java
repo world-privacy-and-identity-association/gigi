@@ -16,6 +16,7 @@ import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
+import org.cacert.gigi.pages.Page;
 
 public class AffiliationForm extends Form {
 
@@ -34,15 +35,17 @@ public class AffiliationForm extends Form {
             User toRemove = User.getByEmail(req.getParameter("del"));
             if (toRemove != null) {
                 o.removeAdmin(toRemove, LoginPage.getUser(req));
+                return true;
             }
-        }
-        if (req.getParameter("do_affiliate") != null) {
+        } else if (req.getParameter("do_affiliate") != null) {
             User byEmail = User.getByEmail(req.getParameter("email"));
             if (byEmail != null) {
                 o.addAdmin(byEmail, LoginPage.getUser(req), req.getParameter("master") != null);
+                return true;
             }
         }
-        return true;
+        out.println(Page.getLanguage(req).getTranslation("No action could have been carried out."));
+        return false;
     }
 
     @Override
@@ -54,8 +57,9 @@ public class AffiliationForm extends Form {
 
             @Override
             public boolean next(Language l, Map<String, Object> vars) {
-                if ( !iter.hasNext())
+                if ( !iter.hasNext()) {
                     return false;
+                }
                 Affiliation aff = iter.next();
                 vars.put("name", aff.getTarget().getName());
                 vars.put("master", aff.isMaster() ? l.getTranslation("master") : "");
