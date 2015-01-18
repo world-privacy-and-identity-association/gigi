@@ -78,7 +78,7 @@ public class Organisation extends CertificateOwner {
         state = rs.getString("state");
         province = rs.getString("province");
         city = rs.getString("city");
-        city = rs.getString("contactEmail");
+        email = rs.getString("contactEmail");
     }
 
     public String getName() {
