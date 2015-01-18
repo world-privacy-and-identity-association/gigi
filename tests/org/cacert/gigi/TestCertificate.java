@@ -130,7 +130,9 @@ public class TestCertificate extends ManagedTest {
         if (status != CertificateStatus.ISSUED) {
             try {
                 c.cert();
-                fail(status + " is in invalid state");
+                if (status != CertificateStatus.REVOKED) {
+                    fail(status + " is in invalid state");
+                }
             } catch (IllegalStateException ise) {
 
             }
