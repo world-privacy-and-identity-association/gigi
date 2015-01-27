@@ -42,14 +42,14 @@ public class SupportUserDetailsForm extends Form {
         vars.put("suffix", user.getSuffix());
         vars.put("assurer", user.canAssure());
         vars.put("dob", new DateSelector("dobd", "dobm", "doby", user.getDob()));
-        vars.put("blockedassurer", user.isInGroup(Group.getByString("blockedassurer")));
-        vars.put("codesign", user.isInGroup(Group.getByString("codesigning")));
-        vars.put("orgassurer", user.isInGroup(Group.getByString("orgassurer")));
+        vars.put("blockedassurer", user.isInGroup(Group.BLOCKEDASSURER));
+        vars.put("codesign", user.isInGroup(Group.CODESIGNING));
+        vars.put("orgassurer", user.isInGroup(Group.ORGASSURER));
         vars.put("assurancepoints", user.getAssurancePoints());
-        vars.put("blockedassuree", user.isInGroup(Group.getByString("blockedassuree")));
-        vars.put("ttpassurer", user.isInGroup(Group.getByString("ttpassurer")));
-        vars.put("ttpapplicant", user.isInGroup(Group.getByString("ttpapplicant")));
-        vars.put("blockedlogin", user.isInGroup(Group.getByString("blockedlogin")));
+        vars.put("blockedassuree", user.isInGroup(Group.BLOCKEDASSUREE));
+        vars.put("ttpassurer", user.isInGroup(Group.TTP_ASSURER));
+        vars.put("ttpapplicant", user.isInGroup(Group.TTP_APPLICANT));
+        vars.put("blockedlogin", user.isInGroup(Group.BLOCKEDLOGIN));
         vars.put("id", user.getId());
         t.output(out, l, vars);
     }
