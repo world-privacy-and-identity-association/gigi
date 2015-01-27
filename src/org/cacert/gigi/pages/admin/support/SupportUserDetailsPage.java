@@ -50,6 +50,7 @@ public class SupportUserDetailsPage extends Page {
             }
         });
         vars.put("certifrevoke", new SupportRevokeCertificatesForm(req, user));
+        vars.put("tickethandling", new SupportEnterTicketForm(req));
         getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
     }
 
