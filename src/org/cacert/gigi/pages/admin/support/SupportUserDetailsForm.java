@@ -50,6 +50,7 @@ public class SupportUserDetailsForm extends Form {
         vars.put("ttpassurer", user.isInGroup(Group.TTP_ASSURER));
         vars.put("ttpapplicant", user.isInGroup(Group.TTP_APPLICANT));
         vars.put("blockedlogin", user.isInGroup(Group.BLOCKEDLOGIN));
+        vars.put("supporter", user.isInGroup(Group.SUPPORTER));
         vars.put("id", user.getId());
         t.output(out, l, vars);
     }
