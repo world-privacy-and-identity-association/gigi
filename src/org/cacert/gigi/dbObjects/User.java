@@ -455,7 +455,6 @@ public class User extends CertificateOwner {
         GigiResultSet rs = ps.executeQuery();
         while (rs.next()) {
             results.add(User.getById(rs.getInt(1)));
-            System.out.println("Found user");
         }
         return results.toArray(new User[results.size()]);
     }
