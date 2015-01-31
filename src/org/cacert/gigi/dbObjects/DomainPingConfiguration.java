@@ -1,12 +1,17 @@
 package org.cacert.gigi.dbObjects;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.cacert.gigi.Gigi;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
+import org.cacert.gigi.output.template.Scope;
+import org.cacert.gigi.output.template.SprintfCommand;
 
 public class DomainPingConfiguration implements IdCachable {
 
@@ -89,7 +94,8 @@ public class DomainPingConfiguration implements IdCachable {
             Gigi.notifyPinger(this);
             return;
         }
-        throw new GigiApiException("Reping is only allowed after 5 minutes");
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("data", new Date(lastExecution.getTime() + 5 * 60 * 1000));
+        throw new GigiApiException(new Scope(new SprintfCommand("Reping is only allowed after 5 minutes, yours end at %s.", Arrays.asList("$data")), data));
     }
-
 }
