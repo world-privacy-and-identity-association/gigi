@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.dbObjects.DomainPingConfiguration;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Menu;
@@ -400,7 +401,17 @@ public class Gigi extends HttpServlet {
         return instance.reveresePages.get(p).replaceFirst("/?\\*$", "");
     }
 
-    public static void notifyPinger() {
+    /**
+     * Requests Pinging of domains.
+     * 
+     * @param toReping
+     *            if not null, the {@link DomainPingConfiguration} to test, if
+     *            null, just re-check if there is something to do.
+     */
+    public static void notifyPinger(DomainPingConfiguration toReping) {
+        if (toReping != null) {
+            instance.pinger.queue(toReping);
+        }
         instance.pinger.interrupt();
     }
 

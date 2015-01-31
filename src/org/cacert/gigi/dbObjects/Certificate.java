@@ -219,10 +219,10 @@ public class Certificate {
 
         crtName = rs.getString(1);
         serial = rs.getString(4);
-        if (rs.getTime(2) == null) {
+        if (rs.getTimestamp(2) == null) {
             return CertificateStatus.DRAFT;
         }
-        if (rs.getTime(2) != null && rs.getTime(3) == null) {
+        if (rs.getTimestamp(2) != null && rs.getTimestamp(3) == null) {
             return CertificateStatus.ISSUED;
         }
         return CertificateStatus.REVOKED;

@@ -1,5 +1,9 @@
 package org.cacert.gigi.dbObjects;
 
+import java.util.Date;
+
+import org.cacert.gigi.Gigi;
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
@@ -59,10 +63,33 @@ public class DomainPingConfiguration implements IdCachable {
         return res;
     }
 
-    public void requestReping() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE pingconfig set reping='y' WHERE id=?");
+    public Date getLastExecution() {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `when` AS stamp from domainPinglog WHERE configId=? ORDER BY `when` DESC LIMIT 1");
         ps.setInt(1, id);
-        ps.execute();
+        GigiResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return new Date(rs.getTimestamp("stamp").getTime());
+        }
+        return new Date(0);
+    }
+
+    public Date getLastSuccess() {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `when` AS stamp from domainPinglog WHERE configId=? AND state='success' ORDER BY `when` DESC LIMIT 1");
+        ps.setInt(1, id);
+        GigiResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return new Date(rs.getTimestamp("stamp").getTime());
+        }
+        return new Date(0);
+    }
+
+    public synchronized void requestReping() throws GigiApiException {
+        Date lastExecution = getLastExecution();
+        if (lastExecution.getTime() + 5 * 60 * 1000 < System.currentTimeMillis()) {
+            Gigi.notifyPinger(this);
+            return;
+        }
+        throw new GigiApiException("Reping is only allowed after 5 minutes");
     }
 
 }
