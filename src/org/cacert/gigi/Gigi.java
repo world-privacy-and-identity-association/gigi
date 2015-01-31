@@ -69,6 +69,8 @@ public class Gigi extends HttpServlet {
 
     public static final String USER = "user";
 
+    public static final String LOGIN_METHOD = "org.cacert.gigi.loginMethod";
+
     private static final long serialVersionUID = -6386785421902852904L;
 
     private Template baseTemplate;
@@ -303,17 +305,20 @@ public class Gigi extends HttpServlet {
 
                 }
             };
+            Language lang = Page.getLanguage(req);
+
             vars.put(Menu.USER_VALUE, currentPageUser);
             vars.put("menu", rootMenu);
-            vars.put("title", Page.getLanguage(req).getTranslation(p.getTitle()));
+            vars.put("title", lang.getTranslation(p.getTitle()));
             vars.put("static", getStaticTemplateVar(isSecure));
             vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
             vars.put("content", content);
             if (currentPageUser != null) {
                 vars.put("loggedInAs", currentPageUser.getName().toString());
+                vars.put("loginMethod", lang.getTranslation((String) req.getSession().getAttribute(LOGIN_METHOD)));
             }
             resp.setContentType("text/html; charset=utf-8");
-            baseTemplate.output(resp.getWriter(), Page.getLanguage(req), vars);
+            baseTemplate.output(resp.getWriter(), lang, vars);
         } else {
             resp.sendError(404, "Page not found.");
         }
