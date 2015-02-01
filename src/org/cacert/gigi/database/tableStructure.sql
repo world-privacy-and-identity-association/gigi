@@ -341,3 +341,10 @@ CREATE TABLE `adminLog` (
   `information` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`when`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `schemeVersion`;
+CREATE TABLE `schemeVersion` (
+  `version` int(5) NOT NULL,
+  PRIMARY KEY (`version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+INSERT INTO schemeVersion(version)  VALUES(1);

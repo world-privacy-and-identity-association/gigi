@@ -1,5 +1,7 @@
 package org.cacert.gigi.database;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -9,7 +11,11 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Properties;
 
+import org.cacert.gigi.database.SQLFileManager.ImportType;
+
 public class DatabaseConnection {
+
+    public static final int CURRENT_SCHEMA_VERSION = 1;
 
     public static final int CONNECTION_TIMEOUT = 24 * 60 * 60;
 
@@ -96,6 +102,41 @@ public class DatabaseConnection {
             throw new Error("Re-initiaizing is forbidden.");
         }
         credentials = conf;
+        GigiResultSet rs = getInstance().prepare("SELECT version FROM schemeVersion ORDER BY version DESC LIMIT 1").executeQuery();
+        int version = 0;
+        if (rs.next()) {
+            version = rs.getInt(1);
+        }
+        if (version == CURRENT_SCHEMA_VERSION) {
+            return; // Good to go
+        }
+        if (version > CURRENT_SCHEMA_VERSION) {
+            throw new Error("Invalid database version. Please fix this.");
+        }
+        upgrade(version);
+    }
+
+    private static void upgrade(int version) {
+        try {
+            Statement s = getInstance().c.createStatement();
+            while (version < CURRENT_SCHEMA_VERSION) {
+                InputStream resourceAsStream = DatabaseConnection.class.getResourceAsStream("upgrade/from_" + version + ".sql");
+                if (resourceAsStream == null) {
+                    throw new Error("Upgrade script from version " + version + " was not found.");
+                }
+                SQLFileManager.addFile(s, resourceAsStream, ImportType.PRODUCTION);
+                version++;
+            }
+            s.addBatch("INSERT INTO schemeVersion SET version='" + version + "'");
+            System.out.println("UPGRADING Database to version " + version);
+            s.executeBatch();
+            System.out.println("done.");
+            s.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void beginTransaction() throws SQLException {

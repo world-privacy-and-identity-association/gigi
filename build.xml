@@ -121,7 +121,7 @@
 
 	<target depends="test,native" name="bundle">
 		<zip destfile="gigi-linux_amd64.zip" basedir="."
-			includes="gigi.jar,native/*.so,doc/tableStructure.sql,static/**,templates/**" />
+			includes="gigi.jar,native/*.so,src/org/cacert/gigi/database/tableStructure.sql,static/**,templates/**" />
 	</target>
 	<target name="static-bundle">
 		<mkdir dir="work"/>
@@ -132,7 +132,7 @@
 		<move file="work/static/static/images/cacert4-test.png" tofile="work/static/static/images/cacert4.png"/>
 		<delete file="work/static/static/image/cacert4-test.png"/>
 		<tar destfile="static.tar.gz" compression="gzip" basedir="work"
-			includes="../doc/tableStructure.sql,**,templates/**" />
+			includes="../src/org/cacert/gigi/database/tableStructure.sql,**,templates/**" />
 	</target>
 
 	<target name="static-bundle-release">
@@ -143,7 +143,7 @@
 		</copy>
 		<delete file="work/static/static/image/cacert4-test.png"/>
 		<tar destfile="static.tar.gz" compression="gzip" basedir="work"
-			includes="../doc/tableStructure.sql,**,templates/**" />
+			includes="../src/org/cacert/gigi/database/tableStructure.sql,**,templates/**" />
 	</target>
 
 	<target name="develop" depends="bundle,static-bundle" />
@@ -287,7 +287,7 @@
 
 		<chmod file="${env.DESTDIR}/usr/bin/gigi" perm="+x"/>
 		<mkdir dir="${env.DESTDIR}/usr/share/dbconfig-common/data/${PACKAGE}/install/"/>
-		<copy file="doc/tableStructure.sql" tofile="${env.DESTDIR}/usr/share/dbconfig-common/data/${PACKAGE}/install/mysql.sql"/>
+		<copy file="src/org/cacert/gigi/database/tableStructure.sql" tofile="${env.DESTDIR}/usr/share/dbconfig-common/data/${PACKAGE}/install/mysql.sql"/>
 
 		<mkdir dir="${env.DESTDIR}/var/lib/cacert-gigi/doc"/>
 		<exec executable="ln">
