@@ -136,4 +136,10 @@ public class TestMailManagement extends ManagedTest {
         u2 = User.getById(u2.getId());
         assertNotEquals(u2.getEmails().length, 0);
     }
+
+    @Test
+    public void testMailDeleteWebPrimary() throws MalformedURLException, UnsupportedEncodingException, IOException {
+        assertNotNull(executeBasicWebInteraction(cookie, path, "delete&delid[]=" + u.getEmails()[0].getId(), 0));
+        assertNotEquals(u.getEmails().length, 0);
+    }
 }
