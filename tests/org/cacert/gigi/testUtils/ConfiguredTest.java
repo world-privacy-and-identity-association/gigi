@@ -20,7 +20,11 @@ import sun.security.pkcs10.PKCS10;
 import sun.security.pkcs10.PKCS10Attributes;
 import sun.security.x509.X500Name;
 
-public class ConfiguredTest {
+/**
+ * Base class for a Testsuite that makes use of the config variables that define
+ * the environment.
+ */
+public abstract class ConfiguredTest {
 
     static Properties testProps = new Properties();
 

@@ -14,14 +14,10 @@ import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.pages.account.mail.MailOverview;
-import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.testUtils.ClientTest;
 import org.junit.Test;
 
-public class TestMailManagement extends ManagedTest {
-
-    private User u = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "uni@example.org", TEST_PASSWORD));
-
-    private String cookie;
+public class TestMailManagement extends ClientTest {
 
     private String path = MailOverview.DEFAULT_PATH;
 
@@ -135,5 +131,11 @@ public class TestMailManagement extends ManagedTest {
         assertNotNull(executeBasicWebInteraction(cookie, path, "delete&delid[]=" + em.getId(), 0));
         u2 = User.getById(u2.getId());
         assertNotEquals(u2.getEmails().length, 0);
+    }
+
+    @Test
+    public void testMailDeleteWebPrimary() throws MalformedURLException, UnsupportedEncodingException, IOException {
+        assertNotNull(executeBasicWebInteraction(cookie, path, "delete&delid[]=" + u.getEmails()[0].getId(), 0));
+        assertNotEquals(u.getEmails().length, 0);
     }
 }

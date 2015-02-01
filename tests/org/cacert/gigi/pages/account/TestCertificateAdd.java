@@ -31,11 +31,10 @@ import java.util.regex.Pattern;
 
 import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.dbObjects.Digest;
-import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.certs.CertificateAdd;
 import org.cacert.gigi.pages.account.certs.CertificateIssueForm;
+import org.cacert.gigi.testUtils.ClientTest;
 import org.cacert.gigi.testUtils.IOUtils;
-import org.cacert.gigi.testUtils.ManagedTest;
 import org.cacert.gigi.util.PEM;
 import org.junit.Test;
 
@@ -53,18 +52,14 @@ import sun.security.x509.RFC822Name;
 import sun.security.x509.SubjectAlternativeNameExtension;
 import sun.security.x509.X509Key;
 
-public class TestCertificateAdd extends ManagedTest {
+public class TestCertificateAdd extends ClientTest {
 
     KeyPair kp = generateKeypair();
-
-    User u = User.getById(createVerifiedUser("testuser", "testname", uniq + "@testdom.com", TEST_PASSWORD));
-
-    String session = login(uniq + "@testdom.com", TEST_PASSWORD);
 
     String csrf;
 
     public TestCertificateAdd() throws GeneralSecurityException, IOException {
-        TestDomain.addDomain(session, uniq + ".tld");
+        TestDomain.addDomain(cookie, uniq + ".tld");
 
     }
 
@@ -86,13 +81,13 @@ public class TestCertificateAdd extends ManagedTest {
     public void testSimpleMail() throws IOException, GeneralSecurityException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
             CertificateIssueForm.OID_KEY_USAGE_EMAIL_PROTECTION
-        }, new DNSName("a." + uniq + ".tld"), new DNSName("b." + uniq + ".tld"), new RFC822Name(uniq + "@testdom.com"));
+        }, new DNSName("a." + uniq + ".tld"), new DNSName("b." + uniq + ".tld"), new RFC822Name(email));
 
-        String pem = generatePEMCSR(kp, "CN=testuser testname", atts, "SHA384WithRSA");
+        String pem = generatePEMCSR(kp, "CN=a b", atts, "SHA384WithRSA");
 
         String[] res = fillOutForm("CSR=" + URLEncoder.encode(pem, "UTF-8"));
         assertArrayEquals(new String[] {
-                "mail", "testuser testname", "dns:a." + uniq + ".tld\ndns:b." + uniq + ".tld\nemail:" + uniq + "@testdom.com\n", Digest.SHA384.toString()
+                "mail", "a b", "dns:a." + uniq + ".tld\ndns:b." + uniq + ".tld\nemail:" + email + "\n", Digest.SHA384.toString()
         }, res);
     }
 
@@ -100,13 +95,13 @@ public class TestCertificateAdd extends ManagedTest {
     public void testSimpleClient() throws IOException, GeneralSecurityException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
             CertificateIssueForm.OID_KEY_USAGE_SSL_CLIENT
-        }, new RFC822Name(uniq + "@testdom.com"));
+        }, new RFC822Name(email));
 
-        String pem = generatePEMCSR(kp, "CN=testuser testname,email=" + uniq + "@testdom.com", atts, "SHA512WithRSA");
+        String pem = generatePEMCSR(kp, "CN=a b,email=" + email, atts, "SHA512WithRSA");
 
         String[] res = fillOutForm("CSR=" + URLEncoder.encode(pem, "UTF-8"));
         assertArrayEquals(new String[] {
-                "client", "testuser testname", "email:" + uniq + "@testdom.com\n", Digest.SHA512.toString()
+                "client", "a b", "email:" + email + "\n", Digest.SHA512.toString()
         }, res);
     }
 
@@ -120,21 +115,21 @@ public class TestCertificateAdd extends ManagedTest {
     public void testIssue() throws IOException, GeneralSecurityException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
             CertificateIssueForm.OID_KEY_USAGE_SSL_CLIENT
-        }, new RFC822Name(uniq + "@testdom.com"));
+        }, new RFC822Name(email));
 
-        String pem = generatePEMCSR(kp, "CN=testuser testname,email=" + uniq + "@testdom.com", atts, "SHA512WithRSA");
+        String pem = generatePEMCSR(kp, "CN=a b,email=" + email, atts, "SHA512WithRSA");
 
         String[] res = fillOutForm("CSR=" + URLEncoder.encode(pem, "UTF-8"));
         assertArrayEquals(new String[] {
-                "client", "testuser testname", "email:" + uniq + "@testdom.com\n", Digest.SHA512.toString()
+                "client", "a b", "email:" + email + "\n", Digest.SHA512.toString()
         }, res);
 
         HttpURLConnection huc = (HttpURLConnection) ncert.openConnection();
-        huc.setRequestProperty("Cookie", session);
+        huc.setRequestProperty("Cookie", cookie);
         huc.setDoOutput(true);
         OutputStream out = huc.getOutputStream();
         out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes());
-        out.write(("&profile=client&CN=testuser+testname&SANs=" + URLEncoder.encode("email:" + uniq + "@testdom.com\n", "UTF-8")).getBytes());
+        out.write(("&profile=client&CN=a+b&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes());
         out.write(("&hash_alg=SHA512&CCA=y").getBytes());
         URLConnection uc = authenticate(new URL(huc.getHeaderField("Location") + ".crt"));
         String crt = IOUtils.readURL(new InputStreamReader(uc.getInputStream(), "UTF-8"));
@@ -151,9 +146,9 @@ public class TestCertificateAdd extends ManagedTest {
         uc = authenticate(new URL(huc.getHeaderField("Location")));
         String gui = IOUtils.readURL(uc);
         assertThat(gui, containsString("clientAuth"));
-        assertThat(gui, containsString("CN=testuser testname"));
+        assertThat(gui, containsString("CN=a b"));
         assertThat(gui, containsString("SHA512withRSA"));
-        assertThat(gui, containsString("RFC822Name: " + uniq + "@testdom.com"));
+        assertThat(gui, containsString("RFC822Name: " + email));
 
     }
 
@@ -207,17 +202,17 @@ public class TestCertificateAdd extends ManagedTest {
     private X509Certificate createCertWithValidity(String validity) throws IOException, GeneralSecurityException, UnsupportedEncodingException, MalformedURLException, CertificateException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
             CertificateIssueForm.OID_KEY_USAGE_SSL_CLIENT
-        }, new RFC822Name(uniq + "@testdom.com"));
+        }, new RFC822Name(email));
 
-        String pem = generatePEMCSR(kp, "CN=testuser testname", atts, "SHA512WithRSA");
+        String pem = generatePEMCSR(kp, "CN=a b", atts, "SHA512WithRSA");
         fillOutForm("CSR=" + URLEncoder.encode(pem, "UTF-8"));
 
         HttpURLConnection huc = (HttpURLConnection) ncert.openConnection();
-        huc.setRequestProperty("Cookie", session);
+        huc.setRequestProperty("Cookie", cookie);
         huc.setDoOutput(true);
         OutputStream out = huc.getOutputStream();
         out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes());
-        out.write(("&profile=client&CN=testuser+testname&SANs=" + URLEncoder.encode("email:" + uniq + "@testdom.com\n", "UTF-8")).getBytes());
+        out.write(("&profile=client&CN=a+b&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes());
         out.write(("&hash_alg=SHA512&CCA=y&").getBytes());
         out.write(validity.getBytes());
 
@@ -235,13 +230,13 @@ public class TestCertificateAdd extends ManagedTest {
 
     private URLConnection authenticate(URL url) throws IOException {
         URLConnection uc = url.openConnection();
-        uc.setRequestProperty("Cookie", session);
+        uc.setRequestProperty("Cookie", cookie);
         return uc;
     }
 
     protected String testSPKAC(boolean correctChallange) throws GeneralSecurityException, IOException {
         HttpURLConnection uc = (HttpURLConnection) ncert.openConnection();
-        uc.setRequestProperty("Cookie", session);
+        uc.setRequestProperty("Cookie", cookie);
         String s = IOUtils.readURL(uc);
 
         csrf = extractPattern(s, Pattern.compile("<input [^>]*name='csrf' [^>]*value='([^']*)'>"));
@@ -285,7 +280,7 @@ public class TestCertificateAdd extends ManagedTest {
 
     private String[] fillOutForm(String pem) throws IOException {
         HttpURLConnection uc = (HttpURLConnection) ncert.openConnection();
-        uc.setRequestProperty("Cookie", session);
+        uc.setRequestProperty("Cookie", cookie);
         csrf = getCSRF(uc);
         return fillOutFormDirect(pem);
 
@@ -294,7 +289,7 @@ public class TestCertificateAdd extends ManagedTest {
     private String[] fillOutFormDirect(String pem) throws IOException {
 
         HttpURLConnection uc = (HttpURLConnection) ncert.openConnection();
-        uc.setRequestProperty("Cookie", session);
+        uc.setRequestProperty("Cookie", cookie);
         uc.setDoOutput(true);
         uc.getOutputStream().write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" + pem).getBytes());
         uc.getOutputStream().flush();

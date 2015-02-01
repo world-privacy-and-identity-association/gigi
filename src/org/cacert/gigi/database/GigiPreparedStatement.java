@@ -23,9 +23,12 @@ public class GigiPreparedStatement {
         }
     }
 
-    public int executeUpdate() {
+    public void executeUpdate() {
         try {
-            return target.executeUpdate();
+            int updated = target.executeUpdate();
+            if (updated != 1) {
+                throw new Error("FATAL: multiple or no data updated: " + updated);
+            }
         } catch (SQLException e) {
             handleSQL(e);
             throw new Error(e);

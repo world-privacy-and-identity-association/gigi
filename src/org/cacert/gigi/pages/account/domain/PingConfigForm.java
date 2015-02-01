@@ -133,7 +133,7 @@ public class PingConfigForm extends Form {
 
             }
         }
-        Gigi.notifyPinger();
+        Gigi.notifyPinger(null);
         return false;
     }
 

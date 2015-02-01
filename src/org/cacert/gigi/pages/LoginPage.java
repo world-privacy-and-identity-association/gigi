@@ -107,6 +107,7 @@ public class LoginPage extends Page {
                     gps.executeUpdate();
                 }
                 loginSession(req, User.getById(rs.getInt(2)));
+                req.getSession().setAttribute(LOGIN_METHOD, "Password");
             }
         }
         rs.close();
@@ -125,6 +126,7 @@ public class LoginPage extends Page {
             loginSession(req, User.getById(rs.getInt(1)));
             req.getSession().setAttribute(CERT_SERIAL, serial);
             req.getSession().setAttribute(CERT_ISSUER, x509Certificate.getIssuerDN());
+            req.getSession().setAttribute(LOGIN_METHOD, "Certificate");
         }
         rs.close();
     }

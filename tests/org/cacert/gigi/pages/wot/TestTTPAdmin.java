@@ -10,21 +10,14 @@ import java.net.URL;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.admin.TTPAdminPage;
-import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.testUtils.ClientTest;
 import org.junit.Test;
 
-public class TestTTPAdmin extends ManagedTest {
-
-    User us;
-
-    String cookie;
+public class TestTTPAdmin extends ClientTest {
 
     User us2;
 
     public TestTTPAdmin() throws IOException {
-        String email = uniq + "@example.com";
-        us = User.getById(createVerifiedUser("fn", "ln", email, TEST_PASSWORD));
-        cookie = login(email, TEST_PASSWORD);
         us2 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@example.com", TEST_PASSWORD));
     }
 
@@ -40,14 +33,14 @@ public class TestTTPAdmin extends ManagedTest {
 
     public void testTTPAdmin(boolean hasRight) throws IOException {
         if (hasRight) {
-            grant(us.getEmail(), Group.getByString("ttp-assurer"));
+            grant(email, Group.getByString("ttp-assurer"));
         }
-        grant(us.getEmail(), TTPAdminPage.TTP_APPLICANT);
-        cookie = login(us.getEmail(), TEST_PASSWORD);
+        grant(u.getEmail(), TTPAdminPage.TTP_APPLICANT);
+        cookie = login(u.getEmail(), TEST_PASSWORD);
 
         assertEquals( !hasRight ? 403 : 200, fetchStatusCode("https://" + getServerName() + TTPAdminPage.PATH));
         assertEquals( !hasRight ? 403 : 200, fetchStatusCode("https://" + getServerName() + TTPAdminPage.PATH + "/"));
-        assertEquals( !hasRight ? 403 : 200, fetchStatusCode("https://" + getServerName() + TTPAdminPage.PATH + "/" + us.getId()));
+        assertEquals( !hasRight ? 403 : 200, fetchStatusCode("https://" + getServerName() + TTPAdminPage.PATH + "/" + u.getId()));
         assertEquals( !hasRight ? 403 : 404, fetchStatusCode("https://" + getServerName() + TTPAdminPage.PATH + "/" + us2.getId()));
         assertEquals( !hasRight ? 403 : 404, fetchStatusCode("https://" + getServerName() + TTPAdminPage.PATH + "/" + 100));
     }

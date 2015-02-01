@@ -55,6 +55,10 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+/**
+ * Base class for test suites who require a launched Gigi instance. The instance
+ * is cleared once per test suite.
+ */
 public class ManagedTest extends ConfiguredTest {
 
     static {
@@ -62,7 +66,7 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     /**
-     * Some password that fullfills the password criteria.
+     * Some password that fulfills the password criteria.
      */
     protected static final String TEST_PASSWORD = "xvXV12°§";
 

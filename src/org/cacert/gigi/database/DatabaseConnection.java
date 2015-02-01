@@ -34,7 +34,7 @@ public class DatabaseConnection {
     private void tryConnect() {
         try {
             c = DriverManager.getConnection(credentials.getProperty("sql.url") + "?zeroDateTimeBehavior=convertToNull", credentials.getProperty("sql.user"), credentials.getProperty("sql.password"));
-            PreparedStatement ps = c.prepareStatement("SET SESSION wait_timeout=?;");
+            PreparedStatement ps = c.prepareStatement("SET SESSION wait_timeout=?, time_zone='+0:00';");
             ps.setInt(1, CONNECTION_TIMEOUT);
             ps.execute();
             ps.close();

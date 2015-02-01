@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.dbObjects.DomainPingConfiguration;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Menu;
@@ -68,6 +69,8 @@ public class Gigi extends HttpServlet {
     public static final String CERT_ISSUER = "org.cacert.gigi.issuer";
 
     public static final String USER = "user";
+
+    public static final String LOGIN_METHOD = "org.cacert.gigi.loginMethod";
 
     private static final long serialVersionUID = -6386785421902852904L;
 
@@ -303,17 +306,20 @@ public class Gigi extends HttpServlet {
 
                 }
             };
+            Language lang = Page.getLanguage(req);
+
             vars.put(Menu.USER_VALUE, currentPageUser);
             vars.put("menu", rootMenu);
-            vars.put("title", Page.getLanguage(req).getTranslation(p.getTitle()));
+            vars.put("title", lang.getTranslation(p.getTitle()));
             vars.put("static", getStaticTemplateVar(isSecure));
             vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
             vars.put("content", content);
             if (currentPageUser != null) {
                 vars.put("loggedInAs", currentPageUser.getName().toString());
+                vars.put("loginMethod", lang.getTranslation((String) req.getSession().getAttribute(LOGIN_METHOD)));
             }
             resp.setContentType("text/html; charset=utf-8");
-            baseTemplate.output(resp.getWriter(), Page.getLanguage(req), vars);
+            baseTemplate.output(resp.getWriter(), lang, vars);
         } else {
             resp.sendError(404, "Page not found.");
         }
@@ -395,7 +401,17 @@ public class Gigi extends HttpServlet {
         return instance.reveresePages.get(p).replaceFirst("/?\\*$", "");
     }
 
-    public static void notifyPinger() {
+    /**
+     * Requests Pinging of domains.
+     * 
+     * @param toReping
+     *            if not null, the {@link DomainPingConfiguration} to test, if
+     *            null, just re-check if there is something to do.
+     */
+    public static void notifyPinger(DomainPingConfiguration toReping) {
+        if (toReping != null) {
+            instance.pinger.queue(toReping);
+        }
         instance.pinger.interrupt();
     }
 

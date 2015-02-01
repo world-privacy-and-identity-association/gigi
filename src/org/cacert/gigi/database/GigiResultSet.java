@@ -3,7 +3,6 @@ package org.cacert.gigi.database;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.sql.Timestamp;
 
 public class GigiResultSet {
@@ -59,15 +58,6 @@ public class GigiResultSet {
         }
     }
 
-    public Time getTime(int columnIndex) {
-        try {
-            return target.getTime(columnIndex);
-        } catch (SQLException e) {
-            handleSQL(e);
-            throw new Error(e);
-        }
-    }
-
     public String getString(String columnLabel) {
         try {
             return target.getString(columnLabel);
@@ -107,15 +97,6 @@ public class GigiResultSet {
     public Timestamp getTimestamp(String columnLabel) {
         try {
             return target.getTimestamp(columnLabel);
-        } catch (SQLException e) {
-            handleSQL(e);
-            throw new Error(e);
-        }
-    }
-
-    public Time getTime(String columnLabel) {
-        try {
-            return target.getTime(columnLabel);
         } catch (SQLException e) {
             handleSQL(e);
             throw new Error(e);
