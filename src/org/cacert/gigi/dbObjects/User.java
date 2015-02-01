@@ -468,7 +468,7 @@ public class User extends CertificateOwner {
             return getAssurancePoints() > 50 && isInGroup(Group.getByString("codesigning"));
         case 3:
         case 4:
-            return false; // has an orga
+            return getOrganisations().size() > 0;
         default:
             return false;
         }
