@@ -18,7 +18,13 @@ import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.junit.After;
 
+/**
+ * Base class for test suites that check extensively if the domain-ping
+ * functionality wroks as expected.
+ */
 public abstract class PingTest extends ClientTest {
+
+    protected String csrf;
 
     protected static void updateService(String token, String value, String action) throws IOException, MalformedURLException {
         String manage = getTestProps().getProperty("domain.manage");

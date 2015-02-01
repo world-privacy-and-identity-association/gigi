@@ -14,14 +14,10 @@ import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.pages.account.mail.MailOverview;
-import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.testUtils.ClientTest;
 import org.junit.Test;
 
-public class TestMailManagement extends ManagedTest {
-
-    private User u = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "uni@example.org", TEST_PASSWORD));
-
-    private String cookie;
+public class TestMailManagement extends ClientTest {
 
     private String path = MailOverview.DEFAULT_PATH;
 

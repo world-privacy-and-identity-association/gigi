@@ -10,15 +10,11 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.testUtils.ClientTest;
 import org.cacert.gigi.testUtils.IOUtils;
-import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
 
-public class TestTTP extends ManagedTest {
-
-    User u = User.getById(createVerifiedUser("fn", "ln", "test-" + createUniqueName() + "@example.org", TEST_PASSWORD));
-
-    String cookie = login(u.getEmail(), TEST_PASSWORD);
+public class TestTTP extends ClientTest {
 
     URL ttpPage = new URL("https://" + getServerName() + RequestTTPPage.PATH);
 

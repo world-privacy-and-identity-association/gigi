@@ -6,15 +6,10 @@ import java.io.IOException;
 import java.net.URLEncoder;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.testUtils.ClientTest;
 import org.junit.Test;
 
-public class TestChangePassword extends ManagedTest {
-
-    User u = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "uni@example.org", TEST_PASSWORD));
-
-    String cookie;
+public class TestChangePassword extends ClientTest {
 
     String path = ChangePasswordPage.PATH;
 
