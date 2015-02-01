@@ -141,9 +141,7 @@ public class User extends CertificateOwner {
         ps = DatabaseConnection.getInstance().prepare("UPDATE users SET `password`=? WHERE id=?");
         ps.setString(1, PasswordHash.hash(newPass));
         ps.setInt(2, getId());
-        if (ps.executeUpdate() != 1) {
-            throw new GigiApiException("Password update failed.");
-        }
+        ps.executeUpdate();
     }
 
     public void setName(Name name) {
