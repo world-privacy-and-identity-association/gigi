@@ -15,8 +15,6 @@ public class DNSUtil {
     static {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
-        // env.put(Context.AUTHORITATIVE, "true");
-        // env.put(Context.PROVIDER_URL, "dns://ns.dyn.dogcraft.de");
         try {
             context = new InitialDirContext(env);
         } catch (NamingException e) {
