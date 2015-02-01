@@ -11,6 +11,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.Signature;
 import java.util.Properties;
+import java.util.TimeZone;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.util.PEM;
@@ -36,6 +37,7 @@ public abstract class ConfiguredTest {
 
     @BeforeClass
     public static void initEnvironment() throws IOException {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         if (envInited) {
             return;
         }
