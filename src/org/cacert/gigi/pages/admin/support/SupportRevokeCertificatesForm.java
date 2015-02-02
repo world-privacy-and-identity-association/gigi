@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.CertificateProfile;
-import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.dbObjects.SupportedUser;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.template.Form;
@@ -22,18 +22,22 @@ public class SupportRevokeCertificatesForm extends Form {
 
     private static Template t;
 
-    private User user;
+    private SupportedUser user;
     static {
         t = new Template(SupportRevokeCertificatesForm.class.getResource("SupportRevokeCertificatesForm.templ"));
     }
 
-    public SupportRevokeCertificatesForm(HttpServletRequest hsr, User user) {
+    public SupportRevokeCertificatesForm(HttpServletRequest hsr, SupportedUser user) {
         super(hsr);
         this.user = user;
     }
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+        if (user.getTicket() != null) {
+            user.revokeAllCertificates();
+            return true;
+        }
         return false;
     }
 

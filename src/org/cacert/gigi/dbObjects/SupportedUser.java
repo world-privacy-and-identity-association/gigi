@@ -14,6 +14,7 @@ public class SupportedUser {
     public SupportedUser(User target, User supporter, String ticket) {
         this.supporter = supporter;
         this.target = target;
+        this.ticket = ticket;
     }
 
     public void setName(String fname, String mname, String lname, String suffix) {
@@ -41,6 +42,18 @@ public class SupportedUser {
         prep.setString(3, type);
         prep.setString(4, ticket);
         prep.executeUpdate();
+    }
+
+    public int getId() {
+        return target.getId();
+    }
+
+    public Certificate[] getCertificates(boolean includeRevoked) {
+        return target.getCertificates(includeRevoked);
+    }
+
+    public String getTicket() {
+        return ticket;
     }
 
 }
