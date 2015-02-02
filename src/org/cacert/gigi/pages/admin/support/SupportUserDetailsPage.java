@@ -7,10 +7,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.pages.Page;
 
@@ -31,6 +33,7 @@ public class SupportUserDetailsPage extends Page {
         SupportUserDetailsForm f = new SupportUserDetailsForm(req, user);
         HashMap<String, Object> vars = new HashMap<String, Object>();
         vars.put("details", f);
+        vars.put("ticketNo", req.getSession().getAttribute("ticketNo" + user.getId()));
         final EmailAddress[] addrs = user.getEmails();
         vars.put("emails", new IterableDataset() {
 
@@ -50,8 +53,23 @@ public class SupportUserDetailsPage extends Page {
             }
         });
         vars.put("certifrevoke", new SupportRevokeCertificatesForm(req, user));
-        vars.put("tickethandling", new SupportEnterTicketForm(req));
+        vars.put("tickethandling", new SupportEnterTicketForm(req, user));
         getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
+    }
+
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (req.getParameter("setTicket") != null) {
+            try {
+                if ( !Form.getForm(req, SupportEnterTicketForm.class).submit(resp.getWriter(), req)) {
+                    throw new GigiApiException("Invalid ticket number!");
+                }
+            } catch (GigiApiException e) {
+                e.printStackTrace();
+                e.format(resp.getWriter(), getLanguage(req));
+            }
+        }
+        super.doPost(req, resp);
     }
 
     @Override
