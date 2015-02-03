@@ -17,13 +17,19 @@ public abstract class Form implements Outputable {
 
     public static final String CSRF_FIELD = "csrf";
 
-    private String csrf;
+    private final String csrf;
+
+    private final String action;
 
     public Form(HttpServletRequest hsr) {
+        this(hsr, null);
+    }
+
+    public Form(HttpServletRequest hsr, String action) {
         csrf = RandomToken.generateToken(32);
+        this.action = action;
         HttpSession hs = hsr.getSession();
         hs.setAttribute("form/" + getClass().getName() + "/" + csrf, this);
-
     }
 
     public abstract boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException;
@@ -34,7 +40,11 @@ public abstract class Form implements Outputable {
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-        out.println("<form method='POST'>");
+        if (action == null) {
+            out.println("<form method='POST'>");
+        } else {
+            out.println("<form method='POST' action='" + action + "'>");
+        }
         failed = false;
         outputContent(out, l, vars);
         out.print("<input type='hidden' name='" + CSRF_FIELD + "' value='");

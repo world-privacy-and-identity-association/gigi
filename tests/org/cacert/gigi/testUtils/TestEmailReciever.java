@@ -5,6 +5,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -59,6 +61,22 @@ public class TestEmailReciever extends EmailProvider implements Runnable {
             Matcher m = link.matcher(getMessage());
             m.find();
             return m.group(0);
+        }
+
+        public void verify() throws IOException {
+            String[] parts = extractLink().split("\\?");
+            URL u = new URL("https://" + ManagedTest.getServerName() + "/verify?" + parts[1]);
+
+            URLConnection csrfConn = u.openConnection();
+            String csrf = ManagedTest.getCSRF(csrfConn, 0);
+
+            u = new URL("https://" + ManagedTest.getServerName() + "/verify");
+            URLConnection uc = u.openConnection();
+            ManagedTest.cookie(uc, ManagedTest.stripCookie(csrfConn.getHeaderField("Set-Cookie")));
+            uc.setDoOutput(true);
+            uc.getOutputStream().write((parts[1] + "&csrf=" + csrf).getBytes());
+            uc.connect();
+            uc.getInputStream().close();
         }
 
     }

@@ -121,8 +121,7 @@ public class TestSSL extends PingTest {
 
         TestMail mail = getMailReciever().recieve();
         if (emailVariant == 0) {
-            String link = mail.extractLink();
-            new URL(link).openConnection().getHeaderField("");
+            mail.verify();
         }
         waitForPings(3);
 

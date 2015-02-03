@@ -276,11 +276,7 @@ public class ManagedTest extends ConfiguredTest {
         registerUser(firstName, lastName, email, password);
         try {
             TestMail tm = ter.recieve();
-            String verifyLink = tm.extractLink();
-            String[] parts = verifyLink.split("\\?");
-            URL u = new URL("https://" + getServerName() + "/verify?" + parts[1]);
-            u.openStream().close();
-
+            tm.verify();
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM users where email=?");
             ps.setString(1, email);
             GigiResultSet rs = ps.executeQuery();
@@ -329,7 +325,7 @@ public class ManagedTest extends ConfiguredTest {
         return uid;
     }
 
-    private static String stripCookie(String headerField) {
+    static String stripCookie(String headerField) {
         return headerField.substring(0, headerField.indexOf(';'));
     }
 
