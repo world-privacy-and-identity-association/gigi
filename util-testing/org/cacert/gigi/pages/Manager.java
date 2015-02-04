@@ -178,6 +178,7 @@ public class Manager extends Page {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (req.getParameter("create") != null) {
             batchCreateUsers(req.getParameter("prefix"), req.getParameter("suffix"), Integer.parseInt(req.getParameter("amount")), resp.getWriter());
+            resp.getWriter().println("User batch created.");
         } else if (req.getParameter("addpriv") != null || req.getParameter("delpriv") != null) {
             User u = User.getByEmail(req.getParameter("email"));
             if (u == null) {
@@ -186,10 +187,11 @@ public class Manager extends Page {
             }
             if (req.getParameter("addpriv") != null) {
                 u.grantGroup(u, Group.getByString(req.getParameter("priv")));
+                resp.getWriter().println("Privilege granted");
             } else {
                 u.revokeGroup(u, Group.getByString(req.getParameter("priv")));
+                resp.getWriter().println("Privilege revoked");
             }
-
         } else if (req.getParameter("fetch") != null) {
             String mail = req.getParameter("femail");
             fetchMails(req, resp, mail);
@@ -201,6 +203,7 @@ public class Manager extends Page {
                 return;
             }
             passCATS(byEmail);
+            resp.getWriter().println("User has been passed CATS");
         } else if (req.getParameter("assure") != null) {
             String mail = req.getParameter("assureEmail");
             User byEmail = User.getByEmail(mail);
@@ -215,6 +218,7 @@ public class Manager extends Page {
             } catch (GigiApiException e) {
                 throw new Error(e);
             }
+            resp.getWriter().println("User has been assured.");
         }
     }
 
@@ -229,8 +233,9 @@ public class Manager extends Page {
 
                 @Override
                 public boolean next(Language l, Map<String, Object> vars) {
-                    if ( !s.hasNext())
+                    if ( !s.hasNext()) {
                         return false;
+                    }
                     vars.put("body", s.next().replaceAll("(https?://\\S+)", "<a href=\"$1\">$1</a>"));
                     return true;
                 }
