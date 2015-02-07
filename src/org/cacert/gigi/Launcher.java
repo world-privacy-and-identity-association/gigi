@@ -195,6 +195,7 @@ public class Launcher {
 
     private static ContextHandler generateGigiServletContext(ServletHolder webAppServlet) {
         final ResourceHandler rh = new ResourceHandler();
+        rh.setEtags(true);
         rh.setResourceBase("static/www");
 
         HandlerWrapper hw = new PolicyRedirector();
@@ -220,6 +221,7 @@ public class Launcher {
 
     private static Handler generateStaticContext() {
         final ResourceHandler rh = new ResourceHandler();
+        rh.setEtags(true);
         rh.setResourceBase("static/static");
 
         ContextHandler ch = new ContextHandler();
