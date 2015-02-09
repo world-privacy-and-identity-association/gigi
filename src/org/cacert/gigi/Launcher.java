@@ -25,6 +25,7 @@ import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.natives.SetUID;
 import org.cacert.gigi.util.CipherInfo;
 import org.cacert.gigi.util.ServerConstants;
+import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
@@ -194,8 +195,7 @@ public class Launcher {
     }
 
     private static ContextHandler generateGigiServletContext(ServletHolder webAppServlet) {
-        final ResourceHandler rh = new ResourceHandler();
-        rh.setEtags(true);
+        final ResourceHandler rh = generateResourceHandler();
         rh.setResourceBase("static/www");
 
         HandlerWrapper hw = new PolicyRedirector();
@@ -220,8 +220,7 @@ public class Launcher {
     }
 
     private static Handler generateStaticContext() {
-        final ResourceHandler rh = new ResourceHandler();
-        rh.setEtags(true);
+        final ResourceHandler rh = generateResourceHandler();
         rh.setResourceBase("static/static");
 
         ContextHandler ch = new ContextHandler();
@@ -231,6 +230,19 @@ public class Launcher {
         });
 
         return ch;
+    }
+
+    private static ResourceHandler generateResourceHandler() {
+        ResourceHandler rh = new ResourceHandler() {
+
+            @Override
+            public void handle(String target, org.eclipse.jetty.server.Request baseRequest, javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response) throws IOException, javax.servlet.ServletException {
+                response.setDateHeader(HttpHeader.EXPIRES.asString(), System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7);
+                super.handle(target, baseRequest, request, response);
+            }
+        };
+        rh.setEtags(true);
+        return rh;
     }
 
     private static Handler generateAPIContext() {
