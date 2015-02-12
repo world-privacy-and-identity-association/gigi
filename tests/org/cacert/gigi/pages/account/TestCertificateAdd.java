@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.pages.account.certs.CertificateAdd;
-import org.cacert.gigi.pages.account.certs.CertificateIssueForm;
+import org.cacert.gigi.pages.account.certs.CertificateRequest;
 import org.cacert.gigi.testUtils.ClientTest;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.util.PEM;
@@ -66,7 +66,7 @@ public class TestCertificateAdd extends ClientTest {
     @Test
     public void testSimpleServer() throws IOException, GeneralSecurityException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
-            CertificateIssueForm.OID_KEY_USAGE_SSL_SERVER
+            CertificateRequest.OID_KEY_USAGE_SSL_SERVER
         }, new DNSName(uniq + ".tld"));
 
         String pem = generatePEMCSR(kp, "CN=a." + uniq + ".tld", atts);
@@ -80,7 +80,7 @@ public class TestCertificateAdd extends ClientTest {
     @Test
     public void testSimpleMail() throws IOException, GeneralSecurityException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
-            CertificateIssueForm.OID_KEY_USAGE_EMAIL_PROTECTION
+            CertificateRequest.OID_KEY_USAGE_EMAIL_PROTECTION
         }, new DNSName("a." + uniq + ".tld"), new DNSName("b." + uniq + ".tld"), new RFC822Name(email));
 
         String pem = generatePEMCSR(kp, "CN=a b", atts, "SHA384WithRSA");
@@ -94,7 +94,7 @@ public class TestCertificateAdd extends ClientTest {
     @Test
     public void testSimpleClient() throws IOException, GeneralSecurityException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
-            CertificateIssueForm.OID_KEY_USAGE_SSL_CLIENT
+            CertificateRequest.OID_KEY_USAGE_SSL_CLIENT
         }, new RFC822Name(email));
 
         String pem = generatePEMCSR(kp, "CN=a b,email=" + email, atts, "SHA512WithRSA");
@@ -114,7 +114,7 @@ public class TestCertificateAdd extends ClientTest {
     @Test
     public void testIssue() throws IOException, GeneralSecurityException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
-            CertificateIssueForm.OID_KEY_USAGE_SSL_CLIENT
+            CertificateRequest.OID_KEY_USAGE_SSL_CLIENT
         }, new RFC822Name(email));
 
         String pem = generatePEMCSR(kp, "CN=a b,email=" + email, atts, "SHA512WithRSA");
@@ -201,7 +201,7 @@ public class TestCertificateAdd extends ClientTest {
 
     private X509Certificate createCertWithValidity(String validity) throws IOException, GeneralSecurityException, UnsupportedEncodingException, MalformedURLException, CertificateException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
-            CertificateIssueForm.OID_KEY_USAGE_SSL_CLIENT
+            CertificateRequest.OID_KEY_USAGE_SSL_CLIENT
         }, new RFC822Name(email));
 
         String pem = generatePEMCSR(kp, "CN=a b", atts, "SHA512WithRSA");
@@ -251,7 +251,7 @@ public class TestCertificateAdd extends ClientTest {
                 fail("Should not succeed with wrong challange.");
             }
             assertArrayEquals(new String[] {
-                    "client", CertificateIssueForm.DEFAULT_CN, "", Digest.SHA512.toString()
+                    "client", CertificateRequest.DEFAULT_CN, "", Digest.SHA512.toString()
             }, res);
         } catch (Error e) {
             assertTrue(e.getMessage().startsWith("<div>Challenge mismatch"));
