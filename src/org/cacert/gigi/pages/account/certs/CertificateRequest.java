@@ -10,6 +10,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -173,11 +174,7 @@ public class CertificateRequest {
             }
 
         }
-        GigiApiException error = new GigiApiException();
-        this.SANs = verifySANs(error, false, SANs);
-        if ( !error.isEmpty()) {
-            throw error;
-        }
+        this.SANs = SANs;
         pk = parsed.getSubjectPublicKeyInfo();
         String sign = getSignatureAlgorithm(data);
         guessDigest(sign);
@@ -197,7 +194,7 @@ public class CertificateRequest {
         pk = parsed.getPubkey();
         String sign = getSignatureAlgorithm(data);
         guessDigest(sign);
-
+        this.SANs = new HashSet<>();
         this.csr = "SPKAC=" + cleanedSPKAC;
         this.csrType = CSRType.SPKAC;
 
@@ -314,9 +311,9 @@ public class CertificateRequest {
         return true;
     }
 
-    private Set<SubjectAlternateName> verifySANs(GigiApiException error, boolean server, TreeSet<SubjectAlternateName> parseSANBox) {
+    private Set<SubjectAlternateName> verifySANs(GigiApiException error, boolean server, Set<SubjectAlternateName> sANs2) {
         Set<SubjectAlternateName> filteredSANs = new LinkedHashSet<>();
-        for (SubjectAlternateName san : parseSANBox) {
+        for (SubjectAlternateName san : sANs2) {
             if (san.getType() == SANType.DNS) {
                 if (u.isValidDomain(san.getName()) && server) {
                     if (pDNS == null) {
@@ -374,6 +371,7 @@ public class CertificateRequest {
                 subject.put("EMAIL", pMail);
             }
         }
+        this.SANs = verifySANs(error, server, SANs);
         if (org != null) {
             subject.put("O", org.getName());
             subject.put("C", org.getState());

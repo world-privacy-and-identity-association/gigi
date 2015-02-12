@@ -83,16 +83,18 @@ public class CertificateIssueForm extends Form {
                     if (req.getParameter("CCA") == null) {
                         error.mergeInto(new GigiApiException("You need to accept the CCA."));
                     }
+                    Certificate result = null;
                     try {
                         result = cr.draft();
                     } catch (GigiApiException e) {
                         error.mergeInto(e);
                     }
-                    if ( !error.isEmpty()) {
+                    if ( !error.isEmpty() || result == null) {
                         error.format(out, Page.getLanguage(req));
                         return false;
                     }
                     result.issue(issueDate.getFrom(), issueDate.getTo()).waitFor(60000);
+                    this.result = result;
                     return true;
                 } else {
                     throw new GigiApiException("Error no action.");

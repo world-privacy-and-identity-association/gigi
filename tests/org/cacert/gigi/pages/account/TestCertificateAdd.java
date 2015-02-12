@@ -87,7 +87,7 @@ public class TestCertificateAdd extends ClientTest {
 
         String[] res = fillOutForm("CSR=" + URLEncoder.encode(pem, "UTF-8"));
         assertArrayEquals(new String[] {
-                "mail", "a b", "dns:a." + uniq + ".tld\ndns:b." + uniq + ".tld\nemail:" + email + "\n", Digest.SHA384.toString()
+                "mail", "a b", "email:" + email + "\ndns:a." + uniq + ".tld\ndns:b." + uniq + ".tld\n", Digest.SHA384.toString()
         }, res);
     }
 

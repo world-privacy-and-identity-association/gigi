@@ -129,6 +129,7 @@ public class Launcher {
         secureContextFactory.setNeedClientAuth(false);
         final SslContextFactory staticContextFactory = generateSSLContextFactory(conf, "static");
         final SslContextFactory apiContextFactory = generateSSLContextFactory(conf, "api");
+        apiContextFactory.setWantClientAuth(true);
         try {
             secureContextFactory.start();
             staticContextFactory.start();

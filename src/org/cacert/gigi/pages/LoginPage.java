@@ -58,9 +58,9 @@ public class LoginPage extends Page {
     public boolean beforeTemplate(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String redir = (String) req.getSession().getAttribute(LOGIN_RETURNPATH);
         if (req.getSession().getAttribute("loggedin") == null) {
-            X509Certificate[] cert = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
-            if (cert != null && cert[0] != null) {
-                tryAuthWithCertificate(req, cert[0]);
+            X509Certificate cert = getCertificateFromRequest(req);
+            if (cert != null) {
+                tryAuthWithCertificate(req, cert);
             }
             if (req.getMethod().equals("POST")) {
                 try {
@@ -118,17 +118,40 @@ public class LoginPage extends Page {
     }
 
     private void tryAuthWithCertificate(HttpServletRequest req, X509Certificate x509Certificate) {
-        String serial = x509Certificate.getSerialNumber().toString(16).toUpperCase();
+        String serial = extractSerialFormCert(x509Certificate);
+        User user = fetchUserBySerial(serial);
+        if (user == null) {
+            return;
+        }
+        loginSession(req, user);
+        req.getSession().setAttribute(CERT_SERIAL, serial);
+        req.getSession().setAttribute(CERT_ISSUER, x509Certificate.getIssuerDN());
+        req.getSession().setAttribute(LOGIN_METHOD, "Certificate");
+    }
+
+    public static String extractSerialFormCert(X509Certificate x509Certificate) {
+        return x509Certificate.getSerialNumber().toString(16).toUpperCase();
+    }
+
+    public static User fetchUserBySerial(String serial) {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `certs` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` is NULL");
         ps.setString(1, serial);
         GigiResultSet rs = ps.executeQuery();
+        User user = null;
         if (rs.next()) {
-            loginSession(req, User.getById(rs.getInt(1)));
-            req.getSession().setAttribute(CERT_SERIAL, serial);
-            req.getSession().setAttribute(CERT_ISSUER, x509Certificate.getIssuerDN());
-            req.getSession().setAttribute(LOGIN_METHOD, "Certificate");
+            user = User.getById(rs.getInt(1));
         }
         rs.close();
+        return user;
+    }
+
+    public static X509Certificate getCertificateFromRequest(HttpServletRequest req) {
+        X509Certificate[] cert = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
+        X509Certificate uc = null;
+        if (cert != null && cert[0] != null) {
+            uc = cert[0];
+        }
+        return uc;
     }
 
     private static final Group LOGIN_BLOCKED = Group.getByString("blockedlogin");
