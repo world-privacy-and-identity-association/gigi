@@ -36,13 +36,15 @@ public class Template implements Outputable {
         }
 
         public TemplateBlock getBlock(String reqType) {
-            if (endType == null && reqType == null)
+            if (endType == null && reqType == null) {
                 return block;
+            }
             if (endType == null || reqType == null) {
                 throw new Error("Invalid block type: " + endType);
             }
-            if (endType.equals(reqType))
+            if (endType.equals(reqType)) {
                 return block;
+            }
             throw new Error("Invalid block type: " + endType);
         }
     }
@@ -149,30 +151,17 @@ public class Template implements Outputable {
     private Outputable parseCommand(String s2) {
         if (s2.startsWith("=_")) {
             final String raw = s2.substring(2);
-            return new TranslateCommand(raw);
+            if ( !s2.contains("$") && !s2.contains("!'")) {
+                return new TranslateCommand(raw);
+            } else {
+                return new SprintfCommand(raw);
+            }
         } else if (s2.startsWith("=$")) {
             final String raw = s2.substring(2);
             return new OutputVariableCommand(raw);
-        } else if (s2.startsWith("=s,")) {
-            String command = s2.substring(3);
-            final LinkedList<String> store = new LinkedList<String>();
-            while (command.startsWith("$") || command.startsWith("\"") || command.startsWith("!\"")) {
-                int idx;
-                if (command.startsWith("\"") || command.startsWith("!\"")) {
-                    idx = command.indexOf("\"", command.charAt(0) == '!' ? 2 : 1) + 1;
-                    store.add(command.substring(0, idx - 1));
-                } else {
-                    idx = command.indexOf(",");
-                    store.add(command.substring(0, idx));
-                }
-                command = command.substring(idx + 1);
-            }
-            final String text = command;
-            return new SprintfCommand(text, store);
         } else {
-            System.out.println("Unknown processing instruction: " + s2);
+            throw new Error("Unknown processing instruction: " + s2);
         }
-        return null;
     }
 
     @Override

@@ -49,14 +49,14 @@ public class TestTemplate {
         vars.put("var", "val\">");
         vars.put("var2", "val3<\"");
         vars.put("var3", "val4>");
-        assertEquals("This val&quot;&gt; textl", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=s,$var,$var2,$var3,This %s text?>l"));
-        assertEquals("This val\"> textl", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=s,$!var,$!var2,$!var3,This %s text?>l"));
+        assertEquals("This val&quot;&gt; textl", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=_This ${var} text?>l"));
+        assertEquals("This val\"> textl", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=_This $!{var} text?>l"));
 
-        assertEquals("This val&quot;&gt; val3&lt;&quot; the val4&gt; textl", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=s,$var,$var2,$var3,This %s %s the %s text?>l"));
-        assertEquals("This val\"> val3<\" the val4> textl", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=s,$!var,$!var2,$!var3,This %s %s the %s text?>l"));
+        assertEquals("This val&quot;&gt; val3&lt;&quot; the val4&gt; textl", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=_This ${var} ${var2} the ${var3} text?>l"));
+        assertEquals("This val\"> val3<\" the val4> textl", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=_This $!{var} $!{var2} the $!{var3} text?>l"));
 
-        assertEquals("This blargh&lt;&gt;!, <>! textl", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=s,\"blargh<>!\",!\"<>!\",This %s, %s text?>l"));
-        assertEquals("This blargh&lt;&gt;!, <>!l", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=s,\"blargh<>!\",!\"<>!\",This %s, %s?>l"));
+        assertEquals("This blargh&lt;&gt;!, <>! textl", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=_This !'blargh&lt;&gt;!', !'<>! 'text?>l"));
+        assertEquals("This blargh&lt;&gt;!, <>!l", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<?=_This !'blargh&lt;&gt;!', !'<>!'?>l"));
     }
 
     @Test
