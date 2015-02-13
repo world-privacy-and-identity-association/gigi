@@ -6,9 +6,9 @@
 	<div id="noActiveX" style="color:red">
 		<p><?=_Could not initialize ActiveX object required for certificate generation.?></p>
 		<p><?=_You have to enable ActiveX for this to work. On Windows Vista, Windows 7 and later versions you have to add this website to the list of trusted sites in the internet settings.?></p>
-		<p><?=s,$normalhost,$securehost,Go to "Extras -> Internet Options -> Security -> Trusted Websites",
+		<p><?=_Go to "Extras -> Internet Options -> Security -> Trusted Websites",
  click on "Custom Level", set "ActiveX control elements that are not marked as safe initialized on start
- in scripts" to "Confirm" and click "OK". Now click "Sites", add "%s" and "%s" to your list of trusted
+ in scripts" to "Confirm" and click "OK". Now click "Sites", add "$normalhost" and "$securehost" to your list of trusted
  sites and make the changes come into effect by clicking "Close" and "OK".?></p>
 	</div>
 
@@ -37,7 +37,7 @@
 				<?=_Minimum Size?>: <span id="keySizeMin"></span>,
 				<?=_Maximum Size?>: <span id="keySizeMax"></span>,
 				<?=_Step?>: <span id="keySizeStep"></span></p>
-			<p style="color:red"><?=s,$minsize,Please note that RSA key sizes smaller than %d bit will not be accepted by CAcert?>
+			<p style="color:red"><?=_Please note that RSA key sizes smaller than $minsize bit will not be accepted by CAcert?>
 			</p>
 		</fieldset>
 
