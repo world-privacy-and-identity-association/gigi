@@ -19,6 +19,7 @@ import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSession;
+import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.api.GigiAPI;
 import org.cacert.gigi.email.EmailProvider;
@@ -44,6 +45,7 @@ import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class Launcher {
@@ -237,9 +239,9 @@ public class Launcher {
         ResourceHandler rh = new ResourceHandler() {
 
             @Override
-            public void handle(String target, org.eclipse.jetty.server.Request baseRequest, javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response) throws IOException, javax.servlet.ServletException {
+            protected void doResponseHeaders(HttpServletResponse response, Resource resource, String mimeType) {
+                super.doResponseHeaders(response, resource, mimeType);
                 response.setDateHeader(HttpHeader.EXPIRES.asString(), System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7);
-                super.handle(target, baseRequest, request, response);
             }
         };
         rh.setEtags(true);
