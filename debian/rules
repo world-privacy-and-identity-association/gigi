@@ -15,7 +15,7 @@ override_dh_auto_clean:
 
 override_dh_installinit:
 	dh_installinit --name=cacert-gigi
-        dh_installinit --name=cacert-gigi-signer
+	dh_installinit --name=cacert-gigi-signer
 
 override_dh_auto_build: build
 
