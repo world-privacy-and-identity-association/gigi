@@ -58,7 +58,9 @@ public class SimpleSigner {
 
     public static void main(String[] args) throws IOException, SQLException, InterruptedException {
         Properties p = new Properties();
-        p.load(new FileReader("config/gigi.properties"));
+        try (FileReader reader = new FileReader("config/gigi.properties")) {
+            p.load(reader);
+        }
         DatabaseConnection.init(p);
 
         runSigner();
