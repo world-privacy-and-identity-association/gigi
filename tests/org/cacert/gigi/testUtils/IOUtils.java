@@ -38,6 +38,7 @@ public class IOUtils {
             while ((len = in.read(buffer)) > 0) {
                 caw.write(buffer, 0, len);
             }
+            in.close();
             return new String(caw.toCharArray());
         } catch (IOException e) {
             throw new Error(e);
@@ -53,6 +54,7 @@ public class IOUtils {
             while ((len = in.read(buffer)) > 0) {
                 baos.write(buffer, 0, len);
             }
+            in.close();
             return baos.toByteArray();
         } catch (IOException e) {
             throw new Error(e);

@@ -42,7 +42,9 @@ public abstract class ConfiguredTest {
             return;
         }
         envInited = true;
-        testProps.load(new FileInputStream("config/test.properties"));
+        try (FileInputStream inStream = new FileInputStream("config/test.properties")) {
+            testProps.load(inStream);
+        }
         if ( !DatabaseConnection.isInited()) {
             DatabaseConnection.init(testProps);
         }

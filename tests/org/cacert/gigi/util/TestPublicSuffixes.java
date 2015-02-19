@@ -24,29 +24,35 @@ public class TestPublicSuffixes {
      */
     @Parameters(name = "publicSuffix({0}) = {1}")
     public static Iterable<String[]> genParams() throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(TestPublicSuffixes.class.getResourceAsStream("TestPublicSuffixes.txt"), "UTF-8"));
-        ArrayList<String[]> result = new ArrayList<>();
-        String line;
-        while ((line = br.readLine()) != null) {
-            if (line.startsWith("//") || line.isEmpty()) {
-                continue;
-            }
-            String parseSuffix = "checkPublicSuffix(";
-            if (line.startsWith(parseSuffix)) {
-                String data = line.substring(parseSuffix.length(), line.length() - 2);
-                String[] parts = data.split(", ");
-                if (parts.length != 2) {
-                    throw new Error("Syntax error in public suffix test data file: " + line);
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new InputStreamReader(TestPublicSuffixes.class.getResourceAsStream("TestPublicSuffixes.txt"), "UTF-8"));
+            ArrayList<String[]> result = new ArrayList<>();
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith("//") || line.isEmpty()) {
+                    continue;
                 }
-                result.add(new String[] {
-                        parse(parts[0]), parse(parts[1])
-                });
-            } else {
-                throw new Error("Unparsable line: " + line);
+                String parseSuffix = "checkPublicSuffix(";
+                if (line.startsWith(parseSuffix)) {
+                    String data = line.substring(parseSuffix.length(), line.length() - 2);
+                    String[] parts = data.split(", ");
+                    if (parts.length != 2) {
+                        throw new Error("Syntax error in public suffix test data file: " + line);
+                    }
+                    result.add(new String[] {
+                            parse(parts[0]), parse(parts[1])
+                    });
+                } else {
+                    throw new Error("Unparsable line: " + line);
+                }
+            }
+            return result;
+        } finally {
+            if (br != null) {
+                br.close();
             }
         }
-
-        return result;
     }
 
     private static String parse(String data) {
