@@ -120,11 +120,12 @@ public class DatabaseConnection {
         try {
             Statement s = getInstance().c.createStatement();
             while (version < CURRENT_SCHEMA_VERSION) {
-                InputStream resourceAsStream = DatabaseConnection.class.getResourceAsStream("upgrade/from_" + version + ".sql");
-                if (resourceAsStream == null) {
-                    throw new Error("Upgrade script from version " + version + " was not found.");
+                try (InputStream resourceAsStream = DatabaseConnection.class.getResourceAsStream("upgrade/from_" + version + ".sql")) {
+                    if (resourceAsStream == null) {
+                        throw new Error("Upgrade script from version " + version + " was not found.");
+                    }
+                    SQLFileManager.addFile(s, resourceAsStream, ImportType.PRODUCTION);
                 }
-                SQLFileManager.addFile(s, resourceAsStream, ImportType.PRODUCTION);
                 version++;
             }
             s.addBatch("INSERT INTO schemeVersion SET version='" + version + "'");

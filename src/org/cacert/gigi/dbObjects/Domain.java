@@ -1,6 +1,7 @@
 package org.cacert.gigi.dbObjects;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.IDN;
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,8 +71,8 @@ public class Domain implements IdCachable {
     private static final Set<String> IDNEnabledTLDs;
     static {
         Properties CPS = new Properties();
-        try {
-            CPS.load(Domain.class.getResourceAsStream("CPS.properties"));
+        try (InputStream resourceAsStream = Domain.class.getResourceAsStream("CPS.properties")) {
+            CPS.load(resourceAsStream);
             IDNEnabledTLDs = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(CPS.getProperty("IDN-enabled").split(","))));
         } catch (IOException e) {
             throw new Error(e);

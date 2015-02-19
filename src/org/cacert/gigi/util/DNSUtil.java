@@ -40,6 +40,7 @@ public class DNSUtil {
         Attributes dnsLookup = context.getAttributes(name, new String[] {
             "TXT"
         });
+        context.close();
 
         return extractTextEntries(dnsLookup.get("TXT"));
     }

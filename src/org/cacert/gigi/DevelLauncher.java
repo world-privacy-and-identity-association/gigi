@@ -32,7 +32,9 @@ public class DevelLauncher {
 
     public static void main(String[] args) throws Exception {
         Properties mainProps = new Properties();
-        mainProps.load(new FileInputStream("config/gigi.properties"));
+        try (FileInputStream inStream = new FileInputStream("config/gigi.properties")) {
+            mainProps.load(inStream);
+        }
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("--port")) {
                 mainProps.setProperty("port", args[i + 1]);
