@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Outputable;
+import org.cacert.gigi.util.HTMLEncoder;
 
 public class Name implements Outputable {
 
@@ -27,10 +28,10 @@ public class Name implements Outputable {
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         out.println("<span class=\"accountdetail\">");
         out.print("<span class=\"fname\">");
-        out.print(fname);
+        out.print(HTMLEncoder.encodeHTML(fname));
         out.print("</span> ");
         out.print("<span class=\"lname\">");
-        out.print(lname);
+        out.print(HTMLEncoder.encodeHTML(lname));
         out.print("</span>");
         out.println("</span>");
     }

@@ -141,7 +141,7 @@ public class Signup extends Form {
         r3.close();
         String mailResult = EmailProvider.FAIL;
         try {
-            mailResult = EmailProvider.getInstance().checkEmailServer(0, buildup.getEmail());
+            mailResult = HTMLEncoder.encodeHTML(EmailProvider.getInstance().checkEmailServer(0, buildup.getEmail()));
         } catch (IOException e) {
         }
         if ( !mailResult.equals(EmailProvider.OK)) {
