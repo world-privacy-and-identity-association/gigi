@@ -168,10 +168,10 @@ public class Domain implements IdCachable {
     }
 
     public void insert() throws GigiApiException {
-        if (id != 0) {
-            throw new GigiApiException("already inserted.");
-        }
         synchronized (Domain.class) {
+            if (id != 0) {
+                throw new GigiApiException("already inserted.");
+            }
             checkInsert(suffix);
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `domains` SET memid=?, domain=?");
             ps.setInt(1, owner.getId());

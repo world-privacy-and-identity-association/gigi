@@ -46,10 +46,10 @@ public class EmailAddress implements IdCachable {
     }
 
     public void insert(Language l) throws GigiApiException {
-        if (id != 0) {
-            throw new IllegalStateException("already inserted.");
-        }
         try {
+            if (id != 0) {
+                throw new IllegalStateException("already inserted.");
+            }
             GigiPreparedStatement psCheck = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `emails` WHERE email=? AND deleted is NULL");
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `emails` SET memid=?, hash=?, email=?");
             ps.setInt(1, owner.getId());

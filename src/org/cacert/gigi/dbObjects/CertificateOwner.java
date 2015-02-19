@@ -41,10 +41,10 @@ public abstract class CertificateOwner implements IdCachable {
     }
 
     protected int insert() {
-        if (id != 0) {
-            throw new Error("refusing to insert");
-        }
         synchronized (User.class) {
+            if (id != 0) {
+                throw new Error("refusing to insert");
+            }
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO certOwners() VALUES()");
             ps.execute();
             id = ps.lastInsertId();

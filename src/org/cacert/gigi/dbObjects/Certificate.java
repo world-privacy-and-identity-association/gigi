@@ -206,7 +206,7 @@ public class Certificate {
 
     }
 
-    public CertificateStatus getStatus() {
+    public synchronized CertificateStatus getStatus() {
         if (id == 0) {
             return CertificateStatus.DRAFT;
         }
