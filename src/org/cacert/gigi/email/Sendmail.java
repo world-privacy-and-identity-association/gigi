@@ -65,7 +65,7 @@ public class Sendmail extends EmailProvider {
         out.print("To: " + to + "\r\n");
         if (NON_ASCII.matcher(subject).matches()) {
 
-            out.print("Subject: =?utf-8?B?" + Base64.getEncoder().encodeToString(subject.getBytes()) + "?=\r\n");
+            out.print("Subject: =?utf-8?B?" + Base64.getEncoder().encodeToString(subject.getBytes("UTF-8")) + "?=\r\n");
         } else {
             out.print("Subject: " + subject + "\r\n");
         }
