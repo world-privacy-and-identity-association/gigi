@@ -274,7 +274,7 @@ public class Certificate {
         File csrFile = KeyStorage.locateCsr(id);
         csrName = csrFile.getPath();
         FileOutputStream fos = new FileOutputStream(csrFile);
-        fos.write(csr.getBytes());
+        fos.write(csr.getBytes("UTF-8"));
         fos.close();
 
         GigiPreparedStatement updater = DatabaseConnection.getInstance().prepare("UPDATE certs SET csr_name=? WHERE id=?");

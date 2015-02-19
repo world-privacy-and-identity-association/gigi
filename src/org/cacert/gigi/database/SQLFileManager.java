@@ -56,6 +56,6 @@ public class SQLFileManager {
         while ((len = f.read(buf)) > 0) {
             baos.write(buf, 0, len);
         }
-        return new String(baos.toByteArray());
+        return new String(baos.toByteArray(), "UTF-8");
     }
 }

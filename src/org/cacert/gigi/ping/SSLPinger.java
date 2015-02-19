@@ -76,7 +76,7 @@ public class SSLPinger extends DomainPinger {
         InputStream is = s.getInputStream();
         OutputStream os = s.getOutputStream();
         scanFor(is, "\n");
-        os.write("ENABLE STARTTLS\r\n".getBytes());
+        os.write("ENABLE STARTTLS\r\n".getBytes("UTF-8"));
         os.flush();
         scanFor(is, "\n");
     }
@@ -87,7 +87,7 @@ public class SSLPinger extends DomainPinger {
         OutputStream os = s.getOutputStream();
         os.write(("<stream:stream to=\"" + domain + "\" xmlns=\"jabber:" + (server ? "server" : "client") + "\"" + " xmlns:stream=\"http://etherx.jabber.org/streams\" version=\"1.0\">").getBytes());
         os.flush();
-        os.write("<starttls xmlns=\"urn:ietf:params:xml:ns:xmpp-tls\"/>".getBytes());
+        os.write("<starttls xmlns=\"urn:ietf:params:xml:ns:xmpp-tls\"/>".getBytes("UTF-8"));
         os.flush();
         scanFor(is, "<proceed");
         scanFor(is, ">");
@@ -109,13 +109,13 @@ public class SSLPinger extends DomainPinger {
         Socket s = sch.socket();
         InputStream is = s.getInputStream();
         readSMTP(is);
-        s.getOutputStream().write("EHLO ssl.pinger\r\n".getBytes());
+        s.getOutputStream().write("EHLO ssl.pinger\r\n".getBytes("UTF-8"));
         s.getOutputStream().flush();
         readSMTP(is);
-        s.getOutputStream().write("HELP\r\n".getBytes());
+        s.getOutputStream().write("HELP\r\n".getBytes("UTF-8"));
         s.getOutputStream().flush();
         readSMTP(is);
-        s.getOutputStream().write("STARTTLS\r\n".getBytes());
+        s.getOutputStream().write("STARTTLS\r\n".getBytes("UTF-8"));
         s.getOutputStream().flush();
         readSMTP(is);
     }

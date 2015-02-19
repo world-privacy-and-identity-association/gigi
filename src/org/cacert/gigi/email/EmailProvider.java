@@ -87,7 +87,7 @@ public abstract class EmailProvider {
                 } else {
                     return "Strange MX records.";
                 }
-                try (Socket s = new Socket(host, 25); BufferedReader br0 = new BufferedReader(new InputStreamReader(s.getInputStream())); PrintWriter pw0 = new PrintWriter(s.getOutputStream())) {
+                try (Socket s = new Socket(host, 25); BufferedReader br0 = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8")); PrintWriter pw0 = new PrintWriter(s.getOutputStream())) {
                     BufferedReader br = br0;
                     PrintWriter pw = pw0;
                     String line;
@@ -100,8 +100,9 @@ public abstract class EmailProvider {
                     boolean starttls = false;
                     do {
                         line = br.readLine();
-                        if (line == null)
+                        if (line == null) {
                             break;
+                        }
                         starttls |= line.substring(4).equals("STARTTLS");
                     } while (line.startsWith("250-"));
                     if (line == null || !line.startsWith("250 ")) {
@@ -115,7 +116,7 @@ public abstract class EmailProvider {
                             continue;
                         }
                         Socket s1 = ((SSLSocketFactory) SSLSocketFactory.getDefault()).createSocket(s, host, 25, true);
-                        br = new BufferedReader(new InputStreamReader(s1.getInputStream()));
+                        br = new BufferedReader(new InputStreamReader(s1.getInputStream(), "UTF-8"));
                         pw = new PrintWriter(s1.getOutputStream());
                         pw.print("EHLO www.cacert.org\r\n");
                         pw.flush();

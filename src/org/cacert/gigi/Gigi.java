@@ -2,6 +2,7 @@ package org.cacert.gigi;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
@@ -149,7 +150,11 @@ public class Gigi extends HttpServlet {
                 }
             }
 
-            putPage("/wot/rules", new StaticPage("Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "Web of Trust");
+            try {
+                putPage("/wot/rules", new StaticPage("Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "Web of Trust");
+            } catch (UnsupportedEncodingException e) {
+                new ServletException(e);
+            }
             baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
             rootMenu = new Menu("Main");
             Menu about = new Menu("About CAcert.org");
