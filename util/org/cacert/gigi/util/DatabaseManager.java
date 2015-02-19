@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -26,7 +27,9 @@ public class DatabaseManager {
         }
         if (args.length == 0) {
             Properties p = new Properties();
-            p.load(new FileReader("config/gigi.properties"));
+            try (FileReader reader = new FileReader("config/gigi.properties")) {
+                p.load(reader);
+            }
             args = new String[] {
                     p.getProperty("sql.driver"), p.getProperty("sql.url"), p.getProperty("sql.user"), p.getProperty("sql.password")
             };
@@ -43,14 +46,20 @@ public class DatabaseManager {
         Connection conn = DriverManager.getConnection(args[1], args[2], args[3]);
         conn.setAutoCommit(false);
         Statement stmt = conn.createStatement();
-        SQLFileManager.addFile(stmt, DatabaseConnection.class.getResourceAsStream("tableStructure.sql"), truncate);
+        try (InputStream structure = DatabaseConnection.class.getResourceAsStream("tableStructure.sql")) {
+            SQLFileManager.addFile(stmt, structure, truncate);
+        }
         File localData = new File("doc/sampleData.sql");
         if (localData.exists()) {
-            SQLFileManager.addFile(stmt, new FileInputStream(localData), ImportType.PRODUCTION);
+            try (FileInputStream f = new FileInputStream(localData)) {
+                SQLFileManager.addFile(stmt, f, ImportType.PRODUCTION);
+            }
         }
         stmt.executeBatch();
         conn.commit();
         stmt.close();
+
+        conn.close();
     }
 
 }
