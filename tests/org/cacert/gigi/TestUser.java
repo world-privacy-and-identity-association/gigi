@@ -31,7 +31,9 @@ public class TestUser extends ManagedTest {
         u.insert("password");
         int id = u.getId();
         User u2 = User.getById(id);
-        assertEquals(u, u2);
+        assertEquals(u.getName(), u2.getName());
+        assertEquals(u.getDob().toString(), u2.getDob().toString());
+        assertEquals(u.getEmail(), u2.getEmail());
     }
 
     @Test

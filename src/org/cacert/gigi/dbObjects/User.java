@@ -195,20 +195,6 @@ public class User extends CertificateOwner {
         return points;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if ( !(obj instanceof User)) {
-            return false;
-        }
-        User s = (User) obj;
-        return name.equals(s.name) && email.equals(s.email) && dob.toString().equals(s.dob.toString()); // This
-                                                                                                        // is
-                                                                                                        // due
-                                                                                                        // to
-                                                                                                        // day
-                                                                                                        // cutoff
-    }
-
     /**
      * Gets the maximum allowed points NOW. Note that an assurance needs to
      * re-check PoJam as it has taken place in the past.
