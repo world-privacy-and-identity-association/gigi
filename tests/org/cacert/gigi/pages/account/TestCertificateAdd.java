@@ -128,9 +128,9 @@ public class TestCertificateAdd extends ClientTest {
         huc.setRequestProperty("Cookie", cookie);
         huc.setDoOutput(true);
         OutputStream out = huc.getOutputStream();
-        out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes());
-        out.write(("&profile=client&CN=a+b&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes());
-        out.write(("&hash_alg=SHA512&CCA=y").getBytes());
+        out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes("UTF-8"));
+        out.write(("&profile=client&CN=a+b&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes("UTF-8"));
+        out.write(("&hash_alg=SHA512&CCA=y").getBytes("UTF-8"));
         URLConnection uc = authenticate(new URL(huc.getHeaderField("Location") + ".crt"));
         String crt = IOUtils.readURL(new InputStreamReader(uc.getInputStream(), "UTF-8"));
 
@@ -211,10 +211,10 @@ public class TestCertificateAdd extends ClientTest {
         huc.setRequestProperty("Cookie", cookie);
         huc.setDoOutput(true);
         OutputStream out = huc.getOutputStream();
-        out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes());
-        out.write(("&profile=client&CN=a+b&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes());
-        out.write(("&hash_alg=SHA512&CCA=y&").getBytes());
-        out.write(validity.getBytes());
+        out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes("UTF-8"));
+        out.write(("&profile=client&CN=a+b&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes("UTF-8"));
+        out.write(("&hash_alg=SHA512&CCA=y&").getBytes("UTF-8"));
+        out.write(validity.getBytes("UTF-8"));
 
         String certurl = huc.getHeaderField("Location");
         if (certurl == null) {
@@ -224,7 +224,7 @@ public class TestCertificateAdd extends ClientTest {
         String crt = IOUtils.readURL(new InputStreamReader(uc.getInputStream(), "UTF-8"));
 
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        X509Certificate parsed = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(crt.getBytes()));
+        X509Certificate parsed = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(crt.getBytes("UTF-8")));
         return parsed;
     }
 
@@ -291,7 +291,7 @@ public class TestCertificateAdd extends ClientTest {
         HttpURLConnection uc = (HttpURLConnection) ncert.openConnection();
         uc.setRequestProperty("Cookie", cookie);
         uc.setDoOutput(true);
-        uc.getOutputStream().write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" + pem).getBytes());
+        uc.getOutputStream().write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" + pem).getBytes("UTF-8"));
         uc.getOutputStream().flush();
 
         return extractFormData(uc);

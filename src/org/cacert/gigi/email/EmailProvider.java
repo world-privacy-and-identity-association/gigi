@@ -3,6 +3,7 @@ package org.cacert.gigi.email;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
@@ -87,7 +88,8 @@ public abstract class EmailProvider {
                 } else {
                     return "Strange MX records.";
                 }
-                try (Socket s = new Socket(host, 25); BufferedReader br0 = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8")); PrintWriter pw0 = new PrintWriter(s.getOutputStream())) {
+                try (Socket s = new Socket(host, 25); BufferedReader br0 = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));//
+                        PrintWriter pw0 = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"))) {
                     BufferedReader br = br0;
                     PrintWriter pw = pw0;
                     String line;

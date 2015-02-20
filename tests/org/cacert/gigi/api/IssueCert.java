@@ -37,7 +37,7 @@ public class IssueCert extends ClientTest {
         authenticateClientCert(pk, ce, connection);
         connection.setDoOutput(true);
         OutputStream os = connection.getOutputStream();
-        os.write(("csr=" + URLEncoder.encode(generatePEMCSR(kp, "CN=a b"), "UTF-8")).getBytes());
+        os.write(("csr=" + URLEncoder.encode(generatePEMCSR(kp, "CN=a b"), "UTF-8")).getBytes("UTF-8"));
         os.flush();
         assertEquals(connection.getResponseCode(), 200);
         String cert = IOUtils.readURL(new InputStreamReader(connection.getInputStream(), "UTF-8"));

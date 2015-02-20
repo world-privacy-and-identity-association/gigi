@@ -70,7 +70,7 @@ public class TestAssurance extends ManagedTest {
         URLConnection uc = u.openConnection();
         uc.setDoOutput(true);
         uc.addRequestProperty("Cookie", cookie);
-        uc.getOutputStream().write(("search&" + query).getBytes());
+        uc.getOutputStream().write(("search&" + query).getBytes("UTF-8"));
         uc.getOutputStream().flush();
 
         return IOUtils.readURL(uc);
@@ -86,7 +86,7 @@ public class TestAssurance extends ManagedTest {
     public void testAssureFormNoCSRF() throws IOException {
         // override csrf
         HttpURLConnection uc = (HttpURLConnection) buildupAssureFormConnection(false);
-        uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10").getBytes());
+        uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         assertEquals(500, uc.getResponseCode());
     }
@@ -95,7 +95,7 @@ public class TestAssurance extends ManagedTest {
     public void testAssureFormWrongCSRF() throws IOException {
         // override csrf
         HttpURLConnection uc = (HttpURLConnection) buildupAssureFormConnection(false);
-        uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10&csrf=aragc").getBytes());
+        uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10&csrf=aragc").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         assertEquals(500, uc.getResponseCode());
     }
@@ -119,7 +119,7 @@ public class TestAssurance extends ManagedTest {
 
         assertNull(executeBasicWebInteraction(assureeCookie, MyDetails.PATH, newName + "&" + newDob + "&processDetails", 0));
 
-        uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10").getBytes());
+        uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
         assertTrue(error, !error.startsWith("</div>"));
@@ -189,7 +189,7 @@ public class TestAssurance extends ManagedTest {
 
     private String getError(String query) throws MalformedURLException, IOException {
         URLConnection uc = buildupAssureFormConnection(true);
-        uc.getOutputStream().write((query).getBytes());
+        uc.getOutputStream().write((query).getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
         return error;
@@ -200,14 +200,14 @@ public class TestAssurance extends ManagedTest {
         URLConnection uc = u.openConnection();
         uc.addRequestProperty("Cookie", cookie);
         uc.setDoOutput(true);
-        uc.getOutputStream().write(("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1910&search").getBytes());
+        uc.getOutputStream().write(("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1910&search").getBytes("UTF-8"));
 
         String csrf = getCSRF(uc);
         uc = u.openConnection();
         uc.addRequestProperty("Cookie", cookie);
         uc.setDoOutput(true);
         if (doCSRF) {
-            uc.getOutputStream().write(("csrf=" + csrf + "&").getBytes());
+            uc.getOutputStream().write(("csrf=" + csrf + "&").getBytes("UTF-8"));
         }
         return uc;
     }

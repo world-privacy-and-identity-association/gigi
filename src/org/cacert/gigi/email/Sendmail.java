@@ -28,7 +28,7 @@ public class Sendmail extends EmailProvider {
 
         Socket smtp = new Socket("localhost", 25);
         PrintWriter out = new PrintWriter(smtp.getOutputStream());
-        BufferedReader in = new BufferedReader(new InputStreamReader(smtp.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(smtp.getInputStream(), "UTF-8"));
         readSMTPResponse(in, 220);
         out.print("HELO www.cacert.org\r\n");
         out.flush();

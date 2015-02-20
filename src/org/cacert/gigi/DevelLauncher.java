@@ -54,7 +54,7 @@ public class DevelLauncher {
         byte[] cacerts = Files.readAllBytes(Paths.get("config/cacerts.jks"));
         byte[] keystore = Files.readAllBytes(Paths.get("config/keystore.pkcs12"));
 
-        DevelLauncher.writeGigiConfig(dos, "changeit".getBytes(), "changeit".getBytes(), mainProps, cacerts, keystore);
+        DevelLauncher.writeGigiConfig(dos, "changeit".getBytes("UTF-8"), "changeit".getBytes("UTF-8"), mainProps, cacerts, keystore);
         dos.flush();
         InputStream oldin = System.in;
         System.setIn(new ByteArrayInputStream(chunkConfig.toByteArray()));

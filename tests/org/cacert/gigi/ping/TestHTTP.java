@@ -105,7 +105,7 @@ public class TestHTTP extends PingTest {
         String httpDom = getTestProps().getProperty("domain.http");
         assumeNotNull(httpDom);
         URL u = new URL("http://" + httpDom + "/cacert-" + token + ".txt");
-        return IOUtils.readURL(new InputStreamReader(u.openStream())).trim();
+        return IOUtils.readURL(new InputStreamReader(u.openStream(), "UTF-8")).trim();
 
     }
 }

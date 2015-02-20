@@ -85,7 +85,7 @@ public class SSLPinger extends DomainPinger {
         Socket s = sch.socket();
         InputStream is = s.getInputStream();
         OutputStream os = s.getOutputStream();
-        os.write(("<stream:stream to=\"" + domain + "\" xmlns=\"jabber:" + (server ? "server" : "client") + "\"" + " xmlns:stream=\"http://etherx.jabber.org/streams\" version=\"1.0\">").getBytes());
+        os.write(("<stream:stream to=\"" + domain + "\" xmlns=\"jabber:" + (server ? "server" : "client") + "\"" + " xmlns:stream=\"http://etherx.jabber.org/streams\" version=\"1.0\">").getBytes("UTF-8"));
         os.flush();
         os.write("<starttls xmlns=\"urn:ietf:params:xml:ns:xmpp-tls\"/>".getBytes("UTF-8"));
         os.flush();

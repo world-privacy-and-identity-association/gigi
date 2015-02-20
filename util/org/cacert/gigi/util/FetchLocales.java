@@ -3,6 +3,7 @@ package org.cacert.gigi.util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Scanner;
@@ -43,7 +44,7 @@ public class FetchLocales {
             doc.appendChild(doc.createElement("translations"));
             URL fetch = new URL(PO_URL_TEMPLATE.replace("%", lang));
             URLConnection uc = fetch.openConnection();
-            Scanner sc = new Scanner(uc.getInputStream());
+            Scanner sc = new Scanner(new InputStreamReader(uc.getInputStream(), "UTF-8"));
             String s = readLine(sc);
             StringBuffer contents = new StringBuffer();
             String id = "";

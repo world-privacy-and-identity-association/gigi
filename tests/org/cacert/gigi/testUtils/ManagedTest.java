@@ -114,10 +114,10 @@ public class ManagedTest extends ConfiguredTest {
             byte[] cacerts = Files.readAllBytes(Paths.get("config/cacerts.jks"));
             byte[] keystore = Files.readAllBytes(Paths.get("config/keystore.pkcs12"));
 
-            DevelLauncher.writeGigiConfig(toGigi, "changeit".getBytes(), "changeit".getBytes(), mainProps, cacerts, keystore);
+            DevelLauncher.writeGigiConfig(toGigi, "changeit".getBytes("UTF-8"), "changeit".getBytes("UTF-8"), mainProps, cacerts, keystore);
             toGigi.flush();
 
-            final BufferedReader br = new BufferedReader(new InputStreamReader(gigi.getErrorStream()));
+            final BufferedReader br = new BufferedReader(new InputStreamReader(gigi.getErrorStream(), "UTF-8"));
             String line;
             while ((line = br.readLine()) != null && !line.contains("Server:main: Started")) {
             }
@@ -246,7 +246,7 @@ public class ManagedTest extends ConfiguredTest {
         String csrf = getCSRF(csrfConn);
         uc.addRequestProperty("Cookie", headerField);
         uc.setDoOutput(true);
-        uc.getOutputStream().write((param + "&csrf=" + csrf).getBytes());
+        uc.getOutputStream().write((param + "&csrf=" + csrf).getBytes("UTF-8"));
         String d = IOUtils.readURL(uc);
         return d;
     }
@@ -295,7 +295,7 @@ public class ManagedTest extends ConfiguredTest {
     public static void grant(String email, Group g) throws IOException {
         HttpURLConnection huc = (HttpURLConnection) new URL("https://" + getServerName() + Manager.PATH).openConnection();
         huc.setDoOutput(true);
-        huc.getOutputStream().write(("addpriv=y&priv=" + URLEncoder.encode(g.getDatabaseName(), "UTF-8") + "&email=" + URLEncoder.encode(email, "UTF-8")).getBytes());
+        huc.getOutputStream().write(("addpriv=y&priv=" + URLEncoder.encode(g.getDatabaseName(), "UTF-8") + "&email=" + URLEncoder.encode(email, "UTF-8")).getBytes("UTF-8"));
         assertEquals(200, huc.getResponseCode());
     }
 
@@ -351,7 +351,7 @@ public class ManagedTest extends ConfiguredTest {
         huc.setDoOutput(true);
         OutputStream os = huc.getOutputStream();
         String data = "username=" + URLEncoder.encode(email, "UTF-8") + "&password=" + URLEncoder.encode(pw, "UTF-8") + "&csrf=" + URLEncoder.encode(csrf, "UTF-8");
-        os.write(data.getBytes());
+        os.write(data.getBytes("UTF-8"));
         os.flush();
         headerField = huc.getHeaderField("Set-Cookie");
         if (headerField == null) {
@@ -458,7 +458,7 @@ public class ManagedTest extends ConfiguredTest {
         OutputStream os = uc.getOutputStream();
         os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
         + query//
-        ).getBytes());
+        ).getBytes("UTF-8"));
         os.flush();
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
         return error;

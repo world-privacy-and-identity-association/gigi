@@ -21,7 +21,7 @@ public class TestSPKAC {
 
     @Test
     public void testParse() throws GeneralSecurityException, IOException {
-        String spkac = IOUtils.readURL(new InputStreamReader(TestSPKAC.class.getResourceAsStream("sampleSPKAC.txt")));
+        String spkac = IOUtils.readURL(new InputStreamReader(TestSPKAC.class.getResourceAsStream("sampleSPKAC.txt"), "UTF-8"));
         SPKAC parsed = new SPKAC(Base64.getDecoder().decode(spkac.replaceAll("[\r\n]", "")));
         assertEquals("i am in the testcase", parsed.getChallenge());
         RSAKey k = ((RSAKey) parsed.getPubkey());
@@ -33,7 +33,7 @@ public class TestSPKAC {
 
     @Test
     public void testAddData() throws GeneralSecurityException, IOException {
-        String spkac = IOUtils.readURL(new InputStreamReader(TestSPKAC.class.getResourceAsStream("sampleSPKAC.txt")));
+        String spkac = IOUtils.readURL(new InputStreamReader(TestSPKAC.class.getResourceAsStream("sampleSPKAC.txt"), "UTF-8"));
         byte[] data = Base64.getDecoder().decode(spkac.replaceAll("[\r\n]", ""));
         byte[] tampered = new byte[data.length + 1];
         System.arraycopy(data, 0, tampered, 0, data.length);

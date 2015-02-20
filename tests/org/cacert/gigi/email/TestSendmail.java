@@ -7,6 +7,7 @@ import static org.junit.Assume.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
@@ -52,7 +53,7 @@ public class TestSendmail extends ConfiguredTest {
         EmailProvider.getInstance().sendmail(succmail, subj, msg, "system@cacert.org", "system@cacert.org", "Testtarget", "Testsender", null, false);
 
         Socket s = SSLSocketFactory.getDefault().createSocket(imap, 993);
-        PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
+        PrintWriter pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"), true);
         BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
         pw.println("a001 login " + imapuser + " " + pass);
         imapUntil(br, "a001");

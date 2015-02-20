@@ -74,7 +74,7 @@ public class TestEmailReciever extends EmailProvider implements Runnable {
             URLConnection uc = u.openConnection();
             ManagedTest.cookie(uc, ManagedTest.stripCookie(csrfConn.getHeaderField("Set-Cookie")));
             uc.setDoOutput(true);
-            uc.getOutputStream().write((parts[1] + "&csrf=" + csrf).getBytes());
+            uc.getOutputStream().write((parts[1] + "&csrf=" + csrf).getBytes("UTF-8"));
             uc.connect();
             uc.getInputStream().close();
         }

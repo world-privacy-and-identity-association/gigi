@@ -50,7 +50,7 @@ public abstract class PingTest extends ClientTest {
         URLConnection openConnection = u.openConnection();
         openConnection.setRequestProperty("Cookie", cookie);
         openConnection.setDoOutput(true);
-        openConnection.getOutputStream().write(content.getBytes());
+        openConnection.getOutputStream().write(content.getBytes("UTF-8"));
         openConnection.getHeaderField("Location");
 
         String newcontent = IOUtils.readURL(cookie(u.openConnection(), cookie));
