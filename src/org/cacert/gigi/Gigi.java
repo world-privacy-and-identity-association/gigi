@@ -153,7 +153,7 @@ public class Gigi extends HttpServlet {
             try {
                 putPage("/wot/rules", new StaticPage("Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "Web of Trust");
             } catch (UnsupportedEncodingException e) {
-                new ServletException(e);
+                throw new ServletException(e);
             }
             baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
             rootMenu = new Menu("Main");
