@@ -349,24 +349,29 @@ public class CertificateRequest {
         }
 
         boolean server = profile.getKeyName().equals("server");
-        if ( !u.isValidName(CN) && !server && !CN.equals(DEFAULT_CN)) {
-            this.CN = DEFAULT_CN;
-            error.mergeInto(new GigiApiException("The name entered, does not match the details in your account. You cannot issue certificates with this name. Enter a name that matches the one that has been assured in your account."));
-        }
 
         HashMap<String, String> subject = new HashMap<>();
-        if (server && pDNS != null) {
-            subject.put("CN", pDNS);
+        if (server) {
+            if (pDNS != null) {
+                subject.put("CN", pDNS);
+            } else {
+                error.mergeInto(new GigiApiException("Server Certificates require a DNS name."));
+            }
             if (pMail != null) {
                 error.mergeInto(new GigiApiException("No email is included in this certificate."));
             }
-            if (CN.equals("")) {
+            if ( !CN.equals("")) {
                 CN = "";
+                this.CN = "";
                 error.mergeInto(new GigiApiException("No real name is included in this certificate. The real name, you entered will be ignored."));
             }
         } else {
-            u.isValidName(CN);
-            subject.put("CN", CN);
+            if ( !u.isValidName(CN) && !CN.equals(DEFAULT_CN)) {
+                this.CN = DEFAULT_CN;
+                error.mergeInto(new GigiApiException("The name entered, does not match the details in your account. You cannot issue certificates with this name. Enter a name that matches the one that has been assured in your account."));
+            }
+
+            subject.put("CN", this.CN);
             if (pMail != null) {
                 subject.put("EMAIL", pMail);
             }
