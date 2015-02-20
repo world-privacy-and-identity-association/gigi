@@ -58,7 +58,12 @@ public class Menu implements IMenuItem {
         if (obj instanceof Menu) {
             return menuName.equals(((Menu) obj).getMenuName());
         }
-        return super.equals(obj);
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return menuName.hashCode();
     }
 
     public String getMenuName() {
