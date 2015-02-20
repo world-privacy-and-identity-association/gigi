@@ -21,18 +21,21 @@ public class PolicyIndex extends Page {
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
         out.println("<ul>");
-        for (File f : root.listFiles()) {
-            String name = f.getName();
-            if ( !name.endsWith(".html")) {
-                continue;
-            }
-            String display = name.replaceFirst("\\.html$", "");
+        File[] files = root.listFiles();
+        if (files != null) {
+            for (File f : files) {
+                String name = f.getName();
+                if ( !name.endsWith(".html")) {
+                    continue;
+                }
+                String display = name.replaceFirst("\\.html$", "");
 
-            out.print("<li><a href='");
-            out.print(name);
-            out.print("'>");
-            out.print(display);
-            out.println("</a></li>");
+                out.print("<li><a href='");
+                out.print(name);
+                out.print("'>");
+                out.print(display);
+                out.println("</a></li>");
+            }
         }
         out.println("</ul>");
     }

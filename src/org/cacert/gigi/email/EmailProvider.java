@@ -119,7 +119,7 @@ public abstract class EmailProvider {
                         }
                         Socket s1 = ((SSLSocketFactory) SSLSocketFactory.getDefault()).createSocket(s, host, 25, true);
                         br = new BufferedReader(new InputStreamReader(s1.getInputStream(), "UTF-8"));
-                        pw = new PrintWriter(s1.getOutputStream());
+                        pw = new PrintWriter(new OutputStreamWriter(s1.getOutputStream(), "UTF-8"));
                         pw.print("EHLO www.cacert.org\r\n");
                         pw.flush();
                         if ( !Sendmail.readSMTPResponse(br, 250)) {

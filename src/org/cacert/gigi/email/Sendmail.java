@@ -3,6 +3,7 @@ package org.cacert.gigi.email;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
@@ -26,7 +27,7 @@ public class Sendmail extends EmailProvider {
 
         String[] bits = from.split(",");
 
-        try (Socket smtp = new Socket("localhost", 25); PrintWriter out = new PrintWriter(smtp.getOutputStream()); BufferedReader in = new BufferedReader(new InputStreamReader(smtp.getInputStream(), "UTF-8"));) {
+        try (Socket smtp = new Socket("localhost", 25); PrintWriter out = new PrintWriter(new OutputStreamWriter(smtp.getOutputStream(), "UTF-8")); BufferedReader in = new BufferedReader(new InputStreamReader(smtp.getInputStream(), "UTF-8"));) {
             readSMTPResponse(in, 220);
             out.print("HELO www.cacert.org\r\n");
             out.flush();

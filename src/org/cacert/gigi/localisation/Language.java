@@ -27,12 +27,15 @@ public class Language {
     static {
         LinkedList<Locale> supported = new LinkedList<>();
         File locales = new File("locale");
-        for (File f : locales.listFiles()) {
-            if ( !f.getName().endsWith(".xml")) {
-                continue;
+        File[] listFiles = locales.listFiles();
+        if (listFiles != null) {
+            for (File f : listFiles) {
+                if ( !f.getName().endsWith(".xml")) {
+                    continue;
+                }
+                String language = f.getName().split("\\.", 2)[0];
+                supported.add(getLocaleFromString(language));
             }
-            String language = f.getName().split("\\.", 2)[0];
-            supported.add(getLocaleFromString(language));
         }
         Collections.sort(supported, new Comparator<Locale>() {
 
