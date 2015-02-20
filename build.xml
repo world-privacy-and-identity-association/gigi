@@ -79,7 +79,7 @@
 	<target depends="build-project, build-testing, native" name="build" />
 	<target depends="init" name="build-project">
 		<echo message="${ant.project.name}: ${ant.file}" />
-		<javac debug="true" debuglevel="${debuglevel}" destdir="bin"
+		<javac encoding="UTF-8" debug="true" debuglevel="${debuglevel}" destdir="bin"
 			includeantruntime="false" source="${source}" target="${target}">
 			<compilerarg value="-XDignore.symbol.file"/>
 			<src path="lib/servlet-api" />
@@ -89,7 +89,7 @@
 			<src path="src" />
 			<classpath refid="cacert-gigi.classpath" />
 		</javac>
-		<javac debug="true" debuglevel="${debuglevel}" destdir="binutil"
+		<javac encoding="UTF-8" debug="true" debuglevel="${debuglevel}" destdir="binutil"
 			includeantruntime="false" source="${source}" target="${target}">
 			<compilerarg value="-XDignore.symbol.file"/>
 			<src path="util" />
@@ -97,7 +97,7 @@
 		</javac>
 	</target>
 	<target depends="init, build-project" name="build-testing">
-		<javac debug="true" debuglevel="${debuglevel}" destdir="binutil-testing"
+		<javac encoding="UTF-8" debug="true" debuglevel="${debuglevel}" destdir="binutil-testing"
 			includeantruntime="false" source="${source}" target="${target}">
 			<src path="util-testing" />
 			<classpath refid="cacert-gigi.classpath" />
@@ -152,7 +152,7 @@
 
 	<target depends="init,build-testing,update-effective-tlds" name="build-project-test">
 		<echo message="${ant.project.name}: ${ant.file}" />
-		<javac debug="true" debuglevel="${debuglevel}" destdir="bintest"
+		<javac encoding="UTF-8" debug="true" debuglevel="${debuglevel}" destdir="bintest"
 			includeantruntime="false" source="${source}" target="${target}">
 			<compilerarg value="-XDignore.symbol.file"/>
 			<src path="tests" />
