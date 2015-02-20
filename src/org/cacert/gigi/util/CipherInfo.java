@@ -256,7 +256,7 @@ public class CipherInfo implements Comparable<CipherInfo> {
         }
         boolean mySHA = macName.startsWith("SHA");
         boolean oSHA = o.macName.startsWith("SHA");
-        if (mySHA && !oSHA) {
+        if ( !mySHA && oSHA) {
             return -1;
         }
         if (mySHA && !oSHA) {
