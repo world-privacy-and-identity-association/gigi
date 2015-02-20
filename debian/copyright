@@ -12,11 +12,15 @@ License: GPL-2.0+
 
 Files: src/org/cacert/gigi/output/template
 Copyright: 2015 CAcert Software Team <cacert-devel@cacert.org>
-License: BSD
+License: BSD or GPL-2.0+
 
 Files: src/org/cacert/gigi/localisation
 Copyright: 2015 CAcert Software Team <cacert-devel@cacert.org>
-License: BSD
+License: BSD or GPL-2.0+
+
+Files: src/org/cacert/gigi/database
+Copyright: 2015 CAcert Software Team <cacert-devel@cacert.org>
+License: BSD or GPL-2.0+
 
 License: BSD
  Copyright (c) 2015, CAcert
