@@ -36,13 +36,16 @@ public class DNSUtil {
         env.put(Context.AUTHORITATIVE, "true");
         env.put(Context.PROVIDER_URL, "dns://" + server);
         InitialDirContext context = new InitialDirContext(env);
+        try {
 
-        Attributes dnsLookup = context.getAttributes(name, new String[] {
-            "TXT"
-        });
-        context.close();
+            Attributes dnsLookup = context.getAttributes(name, new String[] {
+                "TXT"
+            });
+            return extractTextEntries(dnsLookup.get("TXT"));
+        } finally {
+            context.close();
+        }
 
-        return extractTextEntries(dnsLookup.get("TXT"));
     }
 
     private static String[] extractTextEntries(Attribute nsRecords) throws NamingException {

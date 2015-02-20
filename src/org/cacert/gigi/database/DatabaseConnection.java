@@ -41,10 +41,13 @@ public class DatabaseConnection {
         try {
             c = DriverManager.getConnection(credentials.getProperty("sql.url") + "?zeroDateTimeBehavior=convertToNull", credentials.getProperty("sql.user"), credentials.getProperty("sql.password"));
             PreparedStatement ps = c.prepareStatement("SET SESSION wait_timeout=?, time_zone='+0:00';");
-            ps.setInt(1, CONNECTION_TIMEOUT);
-            ps.execute();
-            ps.close();
-            adHoc = c.createStatement();
+            try {
+                ps.setInt(1, CONNECTION_TIMEOUT);
+                ps.execute();
+                adHoc = c.createStatement();
+            } finally {
+                ps.close();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -119,20 +122,23 @@ public class DatabaseConnection {
     private static void upgrade(int version) {
         try {
             Statement s = getInstance().c.createStatement();
-            while (version < CURRENT_SCHEMA_VERSION) {
-                try (InputStream resourceAsStream = DatabaseConnection.class.getResourceAsStream("upgrade/from_" + version + ".sql")) {
-                    if (resourceAsStream == null) {
-                        throw new Error("Upgrade script from version " + version + " was not found.");
+            try {
+                while (version < CURRENT_SCHEMA_VERSION) {
+                    try (InputStream resourceAsStream = DatabaseConnection.class.getResourceAsStream("upgrade/from_" + version + ".sql")) {
+                        if (resourceAsStream == null) {
+                            throw new Error("Upgrade script from version " + version + " was not found.");
+                        }
+                        SQLFileManager.addFile(s, resourceAsStream, ImportType.PRODUCTION);
                     }
-                    SQLFileManager.addFile(s, resourceAsStream, ImportType.PRODUCTION);
+                    version++;
                 }
-                version++;
+                s.addBatch("INSERT INTO schemeVersion SET version='" + version + "'");
+                System.out.println("UPGRADING Database to version " + version);
+                s.executeBatch();
+                System.out.println("done.");
+            } finally {
+                s.close();
             }
-            s.addBatch("INSERT INTO schemeVersion SET version='" + version + "'");
-            System.out.println("UPGRADING Database to version " + version);
-            s.executeBatch();
-            System.out.println("done.");
-            s.close();
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (IOException e) {
