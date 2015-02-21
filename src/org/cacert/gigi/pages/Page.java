@@ -104,24 +104,27 @@ public abstract class Page implements PermissionCheckable {
 
     public static Language getLanguage(ServletRequest req) {
         HttpSession session = ((HttpServletRequest) req).getSession();
-        Locale sessval = (Locale) session.getAttribute(Language.SESSION_ATTRIB_NAME);
-        if (sessval != null) {
-            Language l = Language.getInstance(sessval);
-            if (l != null) {
-                return l;
+        synchronized (session) {
+
+            Locale sessval = (Locale) session.getAttribute(Language.SESSION_ATTRIB_NAME);
+            if (sessval != null) {
+                Language l = Language.getInstance(sessval);
+                if (l != null) {
+                    return l;
+                }
             }
-        }
-        Enumeration<Locale> langs = req.getLocales();
-        while (langs.hasMoreElements()) {
-            Locale c = langs.nextElement();
-            Language l = Language.getInstance(c);
-            if (l != null) {
-                session.setAttribute(Language.SESSION_ATTRIB_NAME, l.getLocale());
-                return l;
+            Enumeration<Locale> langs = req.getLocales();
+            while (langs.hasMoreElements()) {
+                Locale c = langs.nextElement();
+                Language l = Language.getInstance(c);
+                if (l != null) {
+                    session.setAttribute(Language.SESSION_ATTRIB_NAME, l.getLocale());
+                    return l;
+                }
             }
+            session.setAttribute(Language.SESSION_ATTRIB_NAME, Locale.ENGLISH);
+            return Language.getInstance(Locale.ENGLISH);
         }
-        session.setAttribute(Language.SESSION_ATTRIB_NAME, Locale.ENGLISH);
-        return Language.getInstance(Locale.ENGLISH);
     }
 
     public static String translate(ServletRequest req, String string) {
