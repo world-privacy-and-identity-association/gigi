@@ -4,23 +4,23 @@ Source: <https://github.com/CAcertOrg/cacert-gigi>
 
 Files: *
 Copyright: 2014 CAcert Software Team <cacert-devel@cacert.org>
-License: GPL-2.0+
+License: GPL-2.0
 
 Files: debian/*
 Copyright: 2014 CAcert Software Team <cacert-devel@cacert.org>
-License: GPL-2.0+
+License: GPL-2.0
 
 Files: src/org/cacert/gigi/output/template
 Copyright: 2015 CAcert Software Team <cacert-devel@cacert.org>
-License: BSD or GPL-2.0+
+License: GPL-2.0 or BSD
 
 Files: src/org/cacert/gigi/localisation
 Copyright: 2015 CAcert Software Team <cacert-devel@cacert.org>
-License: BSD or GPL-2.0+
+License: GPL-2.0 or BSD
 
 Files: src/org/cacert/gigi/database
 Copyright: 2015 CAcert Software Team <cacert-devel@cacert.org>
-License: BSD or GPL-2.0+
+License: GPL-2.0 or BSD
 
 License: BSD
  Copyright (c) 2015, CAcert
@@ -48,11 +48,10 @@ License: BSD
  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
  THE POSSIBILITY OF SUCH DAMAGE.
 
-License: GPL-2.0+
+License: GPL-2.0
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ the Free Software Foundation; only version 2 of the License.
  .
  This package is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
