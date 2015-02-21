@@ -94,8 +94,11 @@ public class TestEmailReciever extends EmailProvider implements Runnable {
         s.setSoTimeout(1000 * 60 * 60);
         dis = new DataInputStream(s.getInputStream());
         dos = new DataOutputStream(s.getOutputStream());
-        new Thread(this).start();
         setInstance(this);
+    }
+
+    public void start() {
+        new Thread(this).start();
     }
 
     LinkedBlockingQueue<TestMail> mails = new LinkedBlockingQueue<TestEmailReciever.TestMail>();

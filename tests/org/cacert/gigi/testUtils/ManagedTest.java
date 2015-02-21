@@ -104,6 +104,7 @@ public class ManagedTest extends ConfiguredTest {
                 url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort.https");
                 String[] parts = testProps.getProperty("mail").split(":", 2);
                 ter = new TestEmailReciever(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])));
+                ter.start();
                 return;
             }
             url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort.https");
