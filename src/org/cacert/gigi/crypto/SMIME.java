@@ -8,8 +8,9 @@ import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.cert.X509Certificate;
-import java.util.Base64;
 import java.util.Random;
+
+import org.cacert.gigi.util.PEM;
 
 import sun.security.pkcs.ContentInfo;
 import sun.security.pkcs.PKCS7;
@@ -71,7 +72,7 @@ public class SMIME {
         ByteArrayOutputStream bOut = new DerOutputStream();
         p7.encodeSignedData(bOut);
 
-        mimeEncode(contents, Base64.getEncoder().encodeToString(bOut.toByteArray()).replaceAll("(.{64})(?=.)", "$1\n"), to);
+        mimeEncode(contents, PEM.formatBase64(bOut.toByteArray()), to);
     }
 
     private static Random r = new Random();

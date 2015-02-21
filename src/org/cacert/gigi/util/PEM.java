@@ -1,12 +1,15 @@
 package org.cacert.gigi.util;
 
 import java.util.Base64;
+import java.util.regex.Pattern;
 
 public class PEM {
 
+    public static final Pattern LINE = Pattern.compile("(.{64})(?=.)");
+
     public static String encode(String type, byte[] data) {
         return "-----BEGIN " + type + "-----\n" + //
-                Base64.getEncoder().encodeToString(data).replaceAll("(.{64})(?=.)", "$1\n") + //
+                formatBase64(data) + //
                 "\n-----END " + type + "-----";
     }
 
@@ -17,5 +20,9 @@ public class PEM {
         // Base64 decode the data
         return Base64.getDecoder().decode(data);
 
+    }
+
+    public static String formatBase64(byte[] bytes) {
+        return LINE.matcher(Base64.getEncoder().encodeToString(bytes)).replaceAll("$1\n");
     }
 }

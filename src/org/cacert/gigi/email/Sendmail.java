@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import org.cacert.gigi.util.PEM;
 import org.cacert.gigi.util.ServerConstants;
 
 public class Sendmail extends EmailProvider {
@@ -74,7 +75,7 @@ public class Sendmail extends EmailProvider {
             // out.print(chunk_split(base64_encode(recode("html..utf-8",
             // $message)))."\r\n.\r\n");
             headers.append("\r\n");
-            headers.append(Base64.getEncoder().encodeToString(message.getBytes("UTF-8")).replaceAll("(.{64})(?=.)", "$1\r\n"));
+            headers.append(PEM.formatBase64(message.getBytes("UTF-8")));
             headers.append("\r\n");
 
             try {
