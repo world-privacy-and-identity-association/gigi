@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.*;
 
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -94,6 +95,9 @@ public class TestSendmail extends ConfiguredTest {
         String line = "";
         while ( !line.startsWith(target)) {
             line = br.readLine();
+            if (line == null) {
+                throw new EOFException();
+            }
             response.append(line);
         }
         return response.toString();

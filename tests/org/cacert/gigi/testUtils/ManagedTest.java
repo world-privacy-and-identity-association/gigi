@@ -53,6 +53,7 @@ import org.cacert.gigi.util.ServerConstants;
 import org.cacert.gigi.util.SimpleSigner;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 
 /**
@@ -278,6 +279,7 @@ public class ManagedTest extends ConfiguredTest {
         registerUser(firstName, lastName, email, password);
         try {
             TestMail tm = ter.recieve();
+            Assert.assertNotNull(tm);
             tm.verify();
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM users where email=?");
             ps.setString(1, email);
@@ -469,6 +471,7 @@ public class ManagedTest extends ConfiguredTest {
         EmailAddress adrr = new EmailAddress(u, createUniqueName() + "test@test.tld");
         adrr.insert(Language.getInstance(Locale.ENGLISH));
         TestMail testMail = getMailReciever().recieve();
+        Assert.assertNotNull(testMail);
         assertEquals(adrr.getAddress(), testMail.getTo());
         String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);
         adrr.verify(hash);

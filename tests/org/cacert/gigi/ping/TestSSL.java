@@ -37,6 +37,7 @@ import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.PingTest;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TestSSL extends PingTest {
@@ -121,6 +122,7 @@ public class TestSSL extends PingTest {
 
         TestMail mail = getMailReciever().recieve();
         if (emailVariant == 0) {
+            Assert.assertNotNull(mail);
             mail.verify();
         }
         waitForPings(3);

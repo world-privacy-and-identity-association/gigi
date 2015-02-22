@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import org.cacert.gigi.testUtils.InitTruststore;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,6 +50,7 @@ public class RegisterPageTest extends ManagedTest {
 
     private void assertSuccessfullRegMail() {
         TestMail tm = waitForMail();
+        Assert.assertNotNull(tm);
         String link = tm.extractLink();
         assertTrue(link, link.startsWith("https://"));
     }

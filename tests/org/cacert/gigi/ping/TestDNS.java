@@ -18,6 +18,7 @@ import org.cacert.gigi.testUtils.PingTest;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.cacert.gigi.util.DNSUtil;
 import org.cacert.gigi.util.RandomToken;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TestDNS extends PingTest {
@@ -78,6 +79,7 @@ public class TestDNS extends PingTest {
 
         TestMail mail = getMailReciever().recieve();
         if (emailVariant == 0) {
+            Assert.assertNotNull(mail);
             mail.verify();
         }
 

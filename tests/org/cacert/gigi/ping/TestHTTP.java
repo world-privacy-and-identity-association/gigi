@@ -23,6 +23,7 @@ import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.PingTest;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.cacert.gigi.util.RandomToken;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TestHTTP extends PingTest {
@@ -73,6 +74,7 @@ public class TestHTTP extends PingTest {
 
         TestMail mail = getMailReciever().recieve();
         if (emailVariant == 0) {
+            Assert.assertNotNull(mail);
             mail.verify();
         }
         waitForPings(2);

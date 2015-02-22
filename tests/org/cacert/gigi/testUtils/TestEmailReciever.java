@@ -104,7 +104,8 @@ public class TestEmailReciever extends EmailProvider implements Runnable {
     LinkedBlockingQueue<TestMail> mails = new LinkedBlockingQueue<TestEmailReciever.TestMail>();
 
     public TestMail recieve() throws InterruptedException {
-        return mails.poll(5, TimeUnit.SECONDS);
+        TestMail poll = mails.poll(5, TimeUnit.SECONDS);
+        return poll;
     }
 
     @Override
