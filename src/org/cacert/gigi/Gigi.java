@@ -94,94 +94,98 @@ public class Gigi extends HttpServlet {
     private boolean testing;
 
     public Gigi(Properties conf, KeyStore truststore) {
-        if (instance != null) {
-            throw new IllegalStateException("Multiple Gigi instances!");
+        synchronized (Gigi.class) {
+            if (instance != null) {
+                throw new IllegalStateException("Multiple Gigi instances!");
+            }
+            testing = conf.getProperty("testing") != null;
+            instance = this;
+            DatabaseConnection.init(conf);
+            this.truststore = truststore;
+            pinger = new PingerDaemon(truststore);
+            pinger.start();
         }
-        testing = conf.getProperty("testing") != null;
-        instance = this;
-        DatabaseConnection.init(conf);
-        this.truststore = truststore;
-        pinger = new PingerDaemon(truststore);
-        pinger.start();
     }
 
     @Override
-    public void init() throws ServletException {
-        if ( !firstInstanceInited) {
-            putPage("/denied", new AccessDenied(), null);
-            putPage("/error", new PageNotFound(), null);
-            putPage("/login", new LoginPage("Password Login"), "CAcert.org");
-            getMenu("CAcert.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePort() + "/login", "Certificate Login") {
-
-                @Override
-                public boolean isPermitted(User u) {
-                    return u == null;
-                }
-            });
-            putPage("/", new MainPage("CAcert - Home"), null);
-            putPage("/roots", new RootCertPage(truststore), "CAcert.org");
-            putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
-            putPage(LogoutPage.PATH, new LogoutPage("Logout"), "My Account");
-            putPage("/secure", new TestSecure(), null);
-            putPage(Verify.PATH, new Verify(), null);
-            putPage(AssurePage.PATH + "/*", new AssurePage(), "Web of Trust");
-            putPage(Certificates.PATH + "/*", new Certificates(), "Certificates");
-            putPage(MyDetails.PATH, new MyDetails(), "My Account");
-            putPage(RegisterPage.PATH, new RegisterPage(), "CAcert.org");
-            putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
-            putPage(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"), "Certificates");
-            putPage(DomainOverview.PATH + "*", new DomainOverview("Domains"), "Certificates");
-            putPage(MyPoints.PATH, new MyPoints("My Points"), "Web of Trust");
-            putPage(RequestTTPPage.PATH, new RequestTTPPage(), "Web of Trust");
-            putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
-            putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Organisation Admin");
-            putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Organisation Admin");
-            putPage(FindDomainPage.PATH, new FindDomainPage("Find Domain"), "System Admin");
-            putPage(FindUserPage.PATH, new FindUserPage("Find User"), "System Admin");
-            putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage("Support: User Details"), null);
-            if (testing) {
-                try {
-                    Class<?> manager = Class.forName("org.cacert.gigi.pages.Manager");
-                    Page p = (Page) manager.getMethod("getInstance").invoke(null);
-                    String pa = (String) manager.getField("PATH").get(null);
-                    putPage(pa + "/*", p, "Gigi test server");
-                } catch (ReflectiveOperationException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            try {
-                putPage("/wot/rules", new StaticPage("Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "Web of Trust");
-            } catch (UnsupportedEncodingException e) {
-                throw new ServletException(e);
-            }
-            baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
-            rootMenu = new Menu("Main");
-            Menu about = new Menu("About CAcert.org");
-            categories.add(about);
-
-            about.addItem(new SimpleMenuItem("//blog.cacert.org/", "CAcert News"));
-            about.addItem(new SimpleMenuItem("//wiki.cacert.org/", "Wiki Documentation"));
-            putPage(PolicyIndex.DEFAULT_PATH, new PolicyIndex(), "About CAcert.org");
-            about.addItem(new SimpleMenuItem("//wiki.cacert.org/FAQ/Privileges", "Point System"));
-            about.addItem(new SimpleMenuItem("//bugs.cacert.org/", "Bug Database"));
-            about.addItem(new SimpleMenuItem("//wiki.cacert.org/Board", "CAcert Board"));
-            about.addItem(new SimpleMenuItem("//lists.cacert.org/wws", "Mailing Lists"));
-            about.addItem(new SimpleMenuItem("//blog.CAcert.org/feed", "RSS News Feed"));
-
-            Menu languages = new Menu("Translations");
-            for (Locale l : Language.getSupportedLocales()) {
-                languages.addItem(new SimpleMenuItem("?lang=" + l.toString(), l.getDisplayName(l)));
-            }
-            categories.add(languages);
-            for (Menu menu : categories) {
-                menu.prepare();
-                rootMenu.addItem(menu);
-            }
-
-            rootMenu.prepare();
-            firstInstanceInited = true;
+    public synchronized void init() throws ServletException {
+        if (firstInstanceInited) {
+            super.init();
+            return;
         }
+        putPage("/denied", new AccessDenied(), null);
+        putPage("/error", new PageNotFound(), null);
+        putPage("/login", new LoginPage("Password Login"), "CAcert.org");
+        getMenu("CAcert.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePort() + "/login", "Certificate Login") {
+
+            @Override
+            public boolean isPermitted(User u) {
+                return u == null;
+            }
+        });
+        putPage("/", new MainPage("CAcert - Home"), null);
+        putPage("/roots", new RootCertPage(truststore), "CAcert.org");
+        putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
+        putPage(LogoutPage.PATH, new LogoutPage("Logout"), "My Account");
+        putPage("/secure", new TestSecure(), null);
+        putPage(Verify.PATH, new Verify(), null);
+        putPage(AssurePage.PATH + "/*", new AssurePage(), "Web of Trust");
+        putPage(Certificates.PATH + "/*", new Certificates(), "Certificates");
+        putPage(MyDetails.PATH, new MyDetails(), "My Account");
+        putPage(RegisterPage.PATH, new RegisterPage(), "CAcert.org");
+        putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
+        putPage(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"), "Certificates");
+        putPage(DomainOverview.PATH + "*", new DomainOverview("Domains"), "Certificates");
+        putPage(MyPoints.PATH, new MyPoints("My Points"), "Web of Trust");
+        putPage(RequestTTPPage.PATH, new RequestTTPPage(), "Web of Trust");
+        putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
+        putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Organisation Admin");
+        putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Organisation Admin");
+        putPage(FindDomainPage.PATH, new FindDomainPage("Find Domain"), "System Admin");
+        putPage(FindUserPage.PATH, new FindUserPage("Find User"), "System Admin");
+        putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage("Support: User Details"), null);
+        if (testing) {
+            try {
+                Class<?> manager = Class.forName("org.cacert.gigi.pages.Manager");
+                Page p = (Page) manager.getMethod("getInstance").invoke(null);
+                String pa = (String) manager.getField("PATH").get(null);
+                putPage(pa + "/*", p, "Gigi test server");
+            } catch (ReflectiveOperationException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            putPage("/wot/rules", new StaticPage("Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "Web of Trust");
+        } catch (UnsupportedEncodingException e) {
+            throw new ServletException(e);
+        }
+        baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
+        rootMenu = new Menu("Main");
+        Menu about = new Menu("About CAcert.org");
+        categories.add(about);
+
+        about.addItem(new SimpleMenuItem("//blog.cacert.org/", "CAcert News"));
+        about.addItem(new SimpleMenuItem("//wiki.cacert.org/", "Wiki Documentation"));
+        putPage(PolicyIndex.DEFAULT_PATH, new PolicyIndex(), "About CAcert.org");
+        about.addItem(new SimpleMenuItem("//wiki.cacert.org/FAQ/Privileges", "Point System"));
+        about.addItem(new SimpleMenuItem("//bugs.cacert.org/", "Bug Database"));
+        about.addItem(new SimpleMenuItem("//wiki.cacert.org/Board", "CAcert Board"));
+        about.addItem(new SimpleMenuItem("//lists.cacert.org/wws", "Mailing Lists"));
+        about.addItem(new SimpleMenuItem("//blog.CAcert.org/feed", "RSS News Feed"));
+
+        Menu languages = new Menu("Translations");
+        for (Locale l : Language.getSupportedLocales()) {
+            languages.addItem(new SimpleMenuItem("?lang=" + l.toString(), l.getDisplayName(l)));
+        }
+        categories.add(languages);
+        for (Menu menu : categories) {
+            menu.prepare();
+            rootMenu.addItem(menu);
+        }
+
+        rootMenu.prepare();
+        firstInstanceInited = true;
         super.init();
     }
 
@@ -192,7 +196,7 @@ public class Gigi extends HttpServlet {
             return;
         }
         Menu m = getMenu(category);
-        m.addItem(new PageMenuItem(p));
+        m.addItem(new PageMenuItem(p, path.replaceFirst("/?\\*$", "")));
 
     }
 
@@ -211,26 +215,23 @@ public class Gigi extends HttpServlet {
         return m;
     }
 
-    private static String staticTemplateVarHttp;
+    private static String staticTemplateVarHttp = "http://" + ServerConstants.getStaticHostNamePort();
 
-    private static String staticTemplateVarHttps;
+    private static String staticTemplateVarHttps = "https://" + ServerConstants.getStaticHostNamePortSecure();
 
     private static String getStaticTemplateVar(boolean https) {
         if (https) {
-            if (staticTemplateVarHttps == null) {
-                staticTemplateVarHttps = "https://" + ServerConstants.getStaticHostNamePortSecure();
-            }
             return staticTemplateVarHttps;
         } else {
-            if (staticTemplateVarHttp == null) {
-                staticTemplateVarHttp = "http://" + ServerConstants.getStaticHostNamePort();
-            }
             return staticTemplateVarHttp;
         }
     }
 
     @Override
     protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+        if ( !firstInstanceInited) {
+            return;
+        }
         boolean isSecure = req.getServerPort() == ServerConstants.getSecurePort();
         addXSSHeaders(resp, isSecure);
         // Firefox only sends this, if it's a cross domain access; safari sends
@@ -358,52 +359,42 @@ public class Gigi extends HttpServlet {
         hsr.addHeader("Access-Control-Allow-Origin", "https://" + ServerConstants.getWwwHostNamePortSecure() + " https://" + ServerConstants.getSecureHostNamePort());
         hsr.addHeader("Access-Control-Max-Age", "60");
         if (doHttps) {
-            hsr.addHeader("Content-Security-Policy", getHttpsCSP());
+            hsr.addHeader("Content-Security-Policy", httpsCSP);
         } else {
-            hsr.addHeader("Content-Security-Policy", getHttpCSP());
+            hsr.addHeader("Content-Security-Policy", httpCSP);
         }
         hsr.addHeader("Strict-Transport-Security", "max-age=31536000");
 
     }
 
-    private static String httpsCSP = null;
+    private static String httpsCSP = genHttpsCSP();
 
-    private static String httpCSP = null;
+    private static String httpCSP = genHttpCSP();
 
-    private static String getHttpsCSP() {
-        if (httpsCSP == null) {
-            StringBuffer csp = new StringBuffer();
-            csp.append("default-src 'none'");
-            csp.append(";font-src https://" + ServerConstants.getStaticHostNamePortSecure());
-            csp.append(";img-src https://" + ServerConstants.getStaticHostNamePortSecure());
-            csp.append(";media-src 'none'; object-src 'none'");
-            csp.append(";script-src https://" + ServerConstants.getStaticHostNamePortSecure());
-            csp.append(";style-src https://" + ServerConstants.getStaticHostNamePortSecure());
-            csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://" + ServerConstants.getWwwHostNamePortSecure());
-            csp.append(";report-url https://api.cacert.org/security/csp/report");
-            httpsCSP = csp.toString();
-        }
-        return httpsCSP;
+    private static String genHttpsCSP() {
+        StringBuffer csp = new StringBuffer();
+        csp.append("default-src 'none'");
+        csp.append(";font-src https://" + ServerConstants.getStaticHostNamePortSecure());
+        csp.append(";img-src https://" + ServerConstants.getStaticHostNamePortSecure());
+        csp.append(";media-src 'none'; object-src 'none'");
+        csp.append(";script-src https://" + ServerConstants.getStaticHostNamePortSecure());
+        csp.append(";style-src https://" + ServerConstants.getStaticHostNamePortSecure());
+        csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://" + ServerConstants.getWwwHostNamePortSecure());
+        csp.append(";report-url https://api.cacert.org/security/csp/report");
+        return csp.toString();
     }
 
-    private static String getHttpCSP() {
-        if (httpCSP == null) {
-            StringBuffer csp = new StringBuffer();
-            csp.append("default-src 'none'");
-            csp.append(";font-src http://" + ServerConstants.getStaticHostNamePort());
-            csp.append(";img-src http://" + ServerConstants.getStaticHostNamePort());
-            csp.append(";media-src 'none'; object-src 'none'");
-            csp.append(";script-src http://" + ServerConstants.getStaticHostNamePort());
-            csp.append(";style-src http://" + ServerConstants.getStaticHostNamePort());
-            csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://" + ServerConstants.getWwwHostNamePort());
-            csp.append(";report-url http://api.cacert.org/security/csp/report");
-            httpCSP = csp.toString();
-        }
-        return httpCSP;
-    }
-
-    public static String getPathByPage(Page p) {
-        return instance.reveresePages.get(p).replaceFirst("/?\\*$", "");
+    private static String genHttpCSP() {
+        StringBuffer csp = new StringBuffer();
+        csp.append("default-src 'none'");
+        csp.append(";font-src http://" + ServerConstants.getStaticHostNamePort());
+        csp.append(";img-src http://" + ServerConstants.getStaticHostNamePort());
+        csp.append(";media-src 'none'; object-src 'none'");
+        csp.append(";script-src http://" + ServerConstants.getStaticHostNamePort());
+        csp.append(";style-src http://" + ServerConstants.getStaticHostNamePort());
+        csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://" + ServerConstants.getWwwHostNamePort());
+        csp.append(";report-url http://api.cacert.org/security/csp/report");
+        return csp.toString();
     }
 
     /**

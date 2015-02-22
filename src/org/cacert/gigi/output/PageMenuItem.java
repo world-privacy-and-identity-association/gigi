@@ -1,17 +1,15 @@
 package org.cacert.gigi.output;
 
-import org.cacert.gigi.Gigi;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.ServerConstants;
-
 
 public class PageMenuItem extends SimpleMenuItem {
 
     private Page p;
 
-    public PageMenuItem(Page p) {
-        super("https://" + ServerConstants.getWwwHostNamePortSecure() + Gigi.getPathByPage(p), p.getTitle());
+    public PageMenuItem(Page p, String path) {
+        super("https://" + ServerConstants.getWwwHostNamePortSecure() + path, p.getTitle());
         this.p = p;
     }
 
