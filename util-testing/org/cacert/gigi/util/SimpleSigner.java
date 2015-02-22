@@ -3,9 +3,11 @@ package org.cacert.gigi.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.math.BigInteger;
@@ -236,7 +238,7 @@ public class SimpleSigner {
                 GigiResultSet san = getSANSs.executeQuery();
 
                 File f = new File("keys", "SANFile" + System.currentTimeMillis() + (counter++) + ".cfg");
-                PrintWriter cfg = new PrintWriter(f);
+                PrintWriter cfg = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
                 boolean first = true;
                 while (san.next()) {
                     if ( !first) {

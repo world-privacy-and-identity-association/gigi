@@ -54,7 +54,7 @@ public class TestSendmail extends ConfiguredTest {
 
         Socket s = SSLSocketFactory.getDefault().createSocket(imap, 993);
         PrintWriter pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"), true);
-        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));
         pw.println("a001 login " + imapuser + " " + pass);
         imapUntil(br, "a001");
         pw.println("a002 select inbox");

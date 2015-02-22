@@ -42,7 +42,7 @@ public class IssueCert extends ClientTest {
         assertEquals(connection.getResponseCode(), 200);
         String cert = IOUtils.readURL(new InputStreamReader(connection.getInputStream(), "UTF-8"));
         CertificateFactory cf = CertificateFactory.getInstance("X509");
-        Collection<? extends java.security.cert.Certificate> certs = cf.generateCertificates(new ByteArrayInputStream(cert.getBytes()));
+        Collection<? extends java.security.cert.Certificate> certs = cf.generateCertificates(new ByteArrayInputStream(cert.getBytes("UTF-8")));
         assertEquals("a b", ((X500Name) ((X509Certificate) certs.iterator().next()).getSubjectDN()).getCommonName());
     }
 }
