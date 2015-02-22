@@ -53,41 +53,41 @@ public class TestSendmail extends ConfiguredTest {
         String msg = "msg-" + createUniqueName();
         EmailProvider.getInstance().sendmail(succmail, subj, msg, "system@cacert.org", "system@cacert.org", "Testtarget", "Testsender", null, false);
 
-        Socket s = SSLSocketFactory.getDefault().createSocket(imap, 993);
-        PrintWriter pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"), true);
-        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));
-        pw.println("a001 login " + imapuser + " " + pass);
-        imapUntil(br, "a001");
-        pw.println("a002 select inbox");
-        String overview = imapUntil(br, "a002");
-        overview = overview.replaceFirst(".*\\* ([0-9]+) EXISTS.*", "$1");
-        int cont = Integer.parseInt(overview);
+        try (Socket s = SSLSocketFactory.getDefault().createSocket(imap, 993);//
+                PrintWriter pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"), true);//
+                BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"))) {
+            pw.println("a001 login " + imapuser + " " + pass);
+            imapUntil(br, "a001");
+            pw.println("a002 select inbox");
+            String overview = imapUntil(br, "a002");
+            overview = overview.replaceFirst(".*\\* ([0-9]+) EXISTS.*", "$1");
+            int cont = Integer.parseInt(overview);
 
-        int msgid = -1;
-        for (int i = 1; i <= cont; i++) {
-            pw.println("m003" + i + " fetch " + i + " body[header]");
-            String body = imapUntil(br, "m003" + i);
-            if (body.contains(subj)) {
-                msgid = i;
-                break;
+            int msgid = -1;
+            for (int i = 1; i <= cont; i++) {
+                pw.println("m003" + i + " fetch " + i + " body[header]");
+                String body = imapUntil(br, "m003" + i);
+                if (body.contains(subj)) {
+                    msgid = i;
+                    break;
+                }
             }
+            assertNotEquals( -1, msgid);
+            pw.println("a003 fetch " + msgid + " body[]");
+            String body = imapUntil(br, "a003");
+            pw.println("delete store " + msgid + " +flags \\deleted");
+            imapUntil(br, "delete");
+            pw.println("exp expunge");
+            imapUntil(br, "exp");
+            pw.println("log logout");
+            imapUntil(br, "log");
+            assertThat(body, containsString("From: support@cacert.local"));
+            assertThat(body, containsString("To: gigi-testuser@dogcraft.de"));
+            assertThat(body, containsString("Subject: " + subj));
+            assertThat(body, containsString(Base64.getEncoder().encodeToString(msg.getBytes("UTF-8"))));
+
+            // TODO maybe verify signature
         }
-        assertNotEquals( -1, msgid);
-        pw.println("a003 fetch " + msgid + " body[]");
-        String body = imapUntil(br, "a003");
-        pw.println("delete store " + msgid + " +flags \\deleted");
-        imapUntil(br, "delete");
-        pw.println("exp expunge");
-        imapUntil(br, "exp");
-        pw.println("log logout");
-        imapUntil(br, "log");
-        assertThat(body, containsString("From: support@cacert.local"));
-        assertThat(body, containsString("To: gigi-testuser@dogcraft.de"));
-        assertThat(body, containsString("Subject: " + subj));
-        assertThat(body, containsString(Base64.getEncoder().encodeToString(msg.getBytes("UTF-8"))));
-
-        // TODO maybe verify signature
-
     }
 
     private String imapUntil(BufferedReader br, String target) throws IOException {
