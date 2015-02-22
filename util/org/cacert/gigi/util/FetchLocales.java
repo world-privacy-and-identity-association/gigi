@@ -35,7 +35,9 @@ public class FetchLocales {
     public static void main(String[] args) throws IOException, ParserConfigurationException, TransformerException {
         System.out.println("downloading locales ...");
         File locale = new File("locale");
-        locale.mkdir();
+        if ( !locale.mkdir()) {
+            throw new IOException("Could not create locales directory.");
+        }
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();

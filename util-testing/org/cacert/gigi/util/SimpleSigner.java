@@ -305,7 +305,9 @@ public class SimpleSigner {
                 Process p1 = Runtime.getRuntime().exec(call, null, new File("keys/unassured.ca"));
 
                 int waitFor = p1.waitFor();
-                f.delete();
+                if ( !f.delete()) {
+                    System.err.println("Could not delete SAN-File " + f.getAbsolutePath());
+                }
                 if (waitFor == 0) {
                     try (InputStream is = new FileInputStream(crt)) {
                         CertificateFactory cf = CertificateFactory.getInstance("X.509");
