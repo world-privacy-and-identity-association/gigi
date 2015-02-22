@@ -141,6 +141,7 @@ public class ManagedTest extends ConfiguredTest {
                 throw new Error("Server startup failed");
             }
             ter = new TestEmailReciever(new InetSocketAddress("localhost", 8473));
+            ter.start();
             SimpleSigner.runSigner();
         } catch (IOException e) {
             throw new Error(e);

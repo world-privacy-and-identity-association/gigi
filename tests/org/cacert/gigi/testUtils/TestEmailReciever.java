@@ -98,7 +98,7 @@ public class TestEmailReciever extends EmailProvider implements Runnable {
     }
 
     public void start() {
-        new Thread(this).start();
+        new Thread(this, "Mail reciever").start();
     }
 
     LinkedBlockingQueue<TestMail> mails = new LinkedBlockingQueue<TestEmailReciever.TestMail>();
