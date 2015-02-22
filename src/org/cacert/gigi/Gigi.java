@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -61,7 +62,121 @@ import org.cacert.gigi.util.ServerConstants;
 
 public class Gigi extends HttpServlet {
 
-    private boolean firstInstanceInited = false;
+    private class MenuBuilder {
+
+        private LinkedList<Menu> categories = new LinkedList<Menu>();
+
+        private HashMap<String, Page> pages = new HashMap<String, Page>();
+
+        private Menu rootMenu;
+
+        public MenuBuilder() {}
+
+        private void putPage(String path, Page p, String category) {
+            pages.put(path, p);
+            if (category == null) {
+                return;
+            }
+            Menu m = getMenu(category);
+            m.addItem(new PageMenuItem(p, path.replaceFirst("/?\\*$", "")));
+
+        }
+
+        private Menu getMenu(String category) {
+            Menu m = null;
+            for (Menu menu : categories) {
+                if (menu.getMenuName().equals(category)) {
+                    m = menu;
+                    break;
+                }
+            }
+            if (m == null) {
+                m = new Menu(category);
+                categories.add(m);
+            }
+            return m;
+        }
+
+        public Menu generateMenu() throws ServletException {
+            putPage("/denied", new AccessDenied(), null);
+            putPage("/error", new PageNotFound(), null);
+            putPage("/login", new LoginPage("Password Login"), "CAcert.org");
+            getMenu("CAcert.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePort() + "/login", "Certificate Login") {
+
+                @Override
+                public boolean isPermitted(User u) {
+                    return u == null;
+                }
+            });
+            putPage("/", new MainPage("CAcert - Home"), null);
+            putPage("/roots", new RootCertPage(truststore), "CAcert.org");
+            putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
+            putPage(LogoutPage.PATH, new LogoutPage("Logout"), "My Account");
+            putPage("/secure", new TestSecure(), null);
+            putPage(Verify.PATH, new Verify(), null);
+            putPage(AssurePage.PATH + "/*", new AssurePage(), "Web of Trust");
+            putPage(Certificates.PATH + "/*", new Certificates(), "Certificates");
+            putPage(MyDetails.PATH, new MyDetails(), "My Account");
+            putPage(RegisterPage.PATH, new RegisterPage(), "CAcert.org");
+            putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
+            putPage(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"), "Certificates");
+            putPage(DomainOverview.PATH + "*", new DomainOverview("Domains"), "Certificates");
+            putPage(MyPoints.PATH, new MyPoints("My Points"), "Web of Trust");
+            putPage(RequestTTPPage.PATH, new RequestTTPPage(), "Web of Trust");
+            putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
+            putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Organisation Admin");
+            putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Organisation Admin");
+            putPage(FindDomainPage.PATH, new FindDomainPage("Find Domain"), "System Admin");
+            putPage(FindUserPage.PATH, new FindUserPage("Find User"), "System Admin");
+            putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage("Support: User Details"), null);
+            if (testing) {
+                try {
+                    Class<?> manager = Class.forName("org.cacert.gigi.pages.Manager");
+                    Page p = (Page) manager.getMethod("getInstance").invoke(null);
+                    String pa = (String) manager.getField("PATH").get(null);
+                    putPage(pa + "/*", p, "Gigi test server");
+                } catch (ReflectiveOperationException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            try {
+                putPage("/wot/rules", new StaticPage("Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "Web of Trust");
+            } catch (UnsupportedEncodingException e) {
+                throw new ServletException(e);
+            }
+            baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
+            rootMenu = new Menu("Main");
+            Menu about = new Menu("About CAcert.org");
+            categories.add(about);
+
+            about.addItem(new SimpleMenuItem("//blog.cacert.org/", "CAcert News"));
+            about.addItem(new SimpleMenuItem("//wiki.cacert.org/", "Wiki Documentation"));
+            putPage(PolicyIndex.DEFAULT_PATH, new PolicyIndex(), "About CAcert.org");
+            about.addItem(new SimpleMenuItem("//wiki.cacert.org/FAQ/Privileges", "Point System"));
+            about.addItem(new SimpleMenuItem("//bugs.cacert.org/", "Bug Database"));
+            about.addItem(new SimpleMenuItem("//wiki.cacert.org/Board", "CAcert Board"));
+            about.addItem(new SimpleMenuItem("//lists.cacert.org/wws", "Mailing Lists"));
+            about.addItem(new SimpleMenuItem("//blog.CAcert.org/feed", "RSS News Feed"));
+
+            Menu languages = new Menu("Translations");
+            for (Locale l : Language.getSupportedLocales()) {
+                languages.addItem(new SimpleMenuItem("?lang=" + l.toString(), l.getDisplayName(l)));
+            }
+            categories.add(languages);
+            for (Menu menu : categories) {
+                menu.prepare();
+                rootMenu.addItem(menu);
+            }
+
+            rootMenu.prepare();
+            return rootMenu;
+        }
+
+        public Map<String, Page> getPages() {
+            return Collections.unmodifiableMap(pages);
+        }
+    }
 
     public static final String LOGGEDIN = "loggedin";
 
@@ -75,23 +190,21 @@ public class Gigi extends HttpServlet {
 
     private static final long serialVersionUID = -6386785421902852904L;
 
-    private Template baseTemplate;
-
-    private LinkedList<Menu> categories = new LinkedList<Menu>();
-
-    private HashMap<String, Page> pages = new HashMap<String, Page>();
-
-    private HashMap<Page, String> reveresePages = new HashMap<Page, String>();
-
-    private Menu rootMenu;
-
     private static Gigi instance;
+
+    private Template baseTemplate;
 
     private PingerDaemon pinger;
 
     private KeyStore truststore;
 
     private boolean testing;
+
+    private Menu rootMenu;
+
+    private Map<String, Page> pages;
+
+    private boolean firstInstanceInited = false;
 
     public Gigi(Properties conf, KeyStore truststore) {
         synchronized (Gigi.class) {
@@ -113,106 +226,35 @@ public class Gigi extends HttpServlet {
             super.init();
             return;
         }
-        putPage("/denied", new AccessDenied(), null);
-        putPage("/error", new PageNotFound(), null);
-        putPage("/login", new LoginPage("Password Login"), "CAcert.org");
-        getMenu("CAcert.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePort() + "/login", "Certificate Login") {
+        MenuBuilder mb = new MenuBuilder();
+        rootMenu = mb.generateMenu();
+        pages = mb.getPages();
 
-            @Override
-            public boolean isPermitted(User u) {
-                return u == null;
-            }
-        });
-        putPage("/", new MainPage("CAcert - Home"), null);
-        putPage("/roots", new RootCertPage(truststore), "CAcert.org");
-        putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
-        putPage(LogoutPage.PATH, new LogoutPage("Logout"), "My Account");
-        putPage("/secure", new TestSecure(), null);
-        putPage(Verify.PATH, new Verify(), null);
-        putPage(AssurePage.PATH + "/*", new AssurePage(), "Web of Trust");
-        putPage(Certificates.PATH + "/*", new Certificates(), "Certificates");
-        putPage(MyDetails.PATH, new MyDetails(), "My Account");
-        putPage(RegisterPage.PATH, new RegisterPage(), "CAcert.org");
-        putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
-        putPage(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"), "Certificates");
-        putPage(DomainOverview.PATH + "*", new DomainOverview("Domains"), "Certificates");
-        putPage(MyPoints.PATH, new MyPoints("My Points"), "Web of Trust");
-        putPage(RequestTTPPage.PATH, new RequestTTPPage(), "Web of Trust");
-        putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
-        putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Organisation Admin");
-        putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Organisation Admin");
-        putPage(FindDomainPage.PATH, new FindDomainPage("Find Domain"), "System Admin");
-        putPage(FindUserPage.PATH, new FindUserPage("Find User"), "System Admin");
-        putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage("Support: User Details"), null);
-        if (testing) {
-            try {
-                Class<?> manager = Class.forName("org.cacert.gigi.pages.Manager");
-                Page p = (Page) manager.getMethod("getInstance").invoke(null);
-                String pa = (String) manager.getField("PATH").get(null);
-                putPage(pa + "/*", p, "Gigi test server");
-            } catch (ReflectiveOperationException e) {
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            putPage("/wot/rules", new StaticPage("Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "Web of Trust");
-        } catch (UnsupportedEncodingException e) {
-            throw new ServletException(e);
-        }
-        baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
-        rootMenu = new Menu("Main");
-        Menu about = new Menu("About CAcert.org");
-        categories.add(about);
-
-        about.addItem(new SimpleMenuItem("//blog.cacert.org/", "CAcert News"));
-        about.addItem(new SimpleMenuItem("//wiki.cacert.org/", "Wiki Documentation"));
-        putPage(PolicyIndex.DEFAULT_PATH, new PolicyIndex(), "About CAcert.org");
-        about.addItem(new SimpleMenuItem("//wiki.cacert.org/FAQ/Privileges", "Point System"));
-        about.addItem(new SimpleMenuItem("//bugs.cacert.org/", "Bug Database"));
-        about.addItem(new SimpleMenuItem("//wiki.cacert.org/Board", "CAcert Board"));
-        about.addItem(new SimpleMenuItem("//lists.cacert.org/wws", "Mailing Lists"));
-        about.addItem(new SimpleMenuItem("//blog.CAcert.org/feed", "RSS News Feed"));
-
-        Menu languages = new Menu("Translations");
-        for (Locale l : Language.getSupportedLocales()) {
-            languages.addItem(new SimpleMenuItem("?lang=" + l.toString(), l.getDisplayName(l)));
-        }
-        categories.add(languages);
-        for (Menu menu : categories) {
-            menu.prepare();
-            rootMenu.addItem(menu);
-        }
-
-        rootMenu.prepare();
         firstInstanceInited = true;
         super.init();
     }
 
-    private void putPage(String path, Page p, String category) {
-        pages.put(path, p);
-        reveresePages.put(p, path);
-        if (category == null) {
-            return;
+    private Page getPage(String pathInfo) {
+        if (pathInfo.endsWith("/") && !pathInfo.equals("/")) {
+            pathInfo = pathInfo.substring(0, pathInfo.length() - 1);
         }
-        Menu m = getMenu(category);
-        m.addItem(new PageMenuItem(p, path.replaceFirst("/?\\*$", "")));
+        Page page = pages.get(pathInfo);
+        if (page != null) {
+            return page;
+        }
+        page = pages.get(pathInfo + "/*");
+        if (page != null) {
+            return page;
+        }
+        int idx = pathInfo.lastIndexOf('/');
+        pathInfo = pathInfo.substring(0, idx);
 
-    }
+        page = pages.get(pathInfo + "/*");
+        if (page != null) {
+            return page;
+        }
+        return null;
 
-    private Menu getMenu(String category) {
-        Menu m = null;
-        for (Menu menu : categories) {
-            if (menu.getMenuName().equals(category)) {
-                m = menu;
-                break;
-            }
-        }
-        if (m == null) {
-            m = new Menu(category);
-            categories.add(m);
-        }
-        return m;
     }
 
     private static String staticTemplateVarHttp = "http://" + ServerConstants.getStaticHostNamePort();
@@ -229,9 +271,6 @@ public class Gigi extends HttpServlet {
 
     @Override
     protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-        if ( !firstInstanceInited) {
-            return;
-        }
         boolean isSecure = req.getServerPort() == ServerConstants.getSecurePort();
         addXSSHeaders(resp, isSecure);
         // Firefox only sends this, if it's a cross domain access; safari sends
@@ -329,29 +368,6 @@ public class Gigi extends HttpServlet {
         } else {
             resp.sendError(404, "Page not found.");
         }
-
-    }
-
-    private Page getPage(String pathInfo) {
-        if (pathInfo.endsWith("/") && !pathInfo.equals("/")) {
-            pathInfo = pathInfo.substring(0, pathInfo.length() - 1);
-        }
-        Page page = pages.get(pathInfo);
-        if (page != null) {
-            return page;
-        }
-        page = pages.get(pathInfo + "/*");
-        if (page != null) {
-            return page;
-        }
-        int idx = pathInfo.lastIndexOf('/');
-        pathInfo = pathInfo.substring(0, idx);
-
-        page = pages.get(pathInfo + "/*");
-        if (page != null) {
-            return page;
-        }
-        return null;
 
     }
 

@@ -14,7 +14,9 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -75,7 +77,7 @@ public class DevelLauncher {
             instF.setAccessible(true);
             pageF.setAccessible(true);
             Object gigi = instF.get(null);
-            HashMap<String, Page> pages = (HashMap<String, Page>) pageF.get(gigi);
+            HashMap<String, Page> pages = new HashMap<>((Map<String, Page>) pageF.get(gigi));
             pages.put("/manage", new Page("Page-manager") {
 
                 @Override
@@ -103,6 +105,7 @@ public class DevelLauncher {
                     return false;
                 }
             });
+            pageF.set(gigi, Collections.unmodifiableMap(pages));
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
