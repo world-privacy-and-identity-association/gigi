@@ -44,23 +44,27 @@ public class DatabaseManager {
 
     public static void run(String[] args, ImportType truncate) throws ClassNotFoundException, SQLException, IOException {
         Class.forName(args[0]);
-        Connection conn = DriverManager.getConnection(args[1], args[2], args[3]);
-        conn.setAutoCommit(false);
-        Statement stmt = conn.createStatement();
-        try (InputStream structure = DatabaseConnection.class.getResourceAsStream("tableStructure.sql")) {
-            SQLFileManager.addFile(stmt, structure, truncate);
-        }
-        File localData = new File("doc/sampleData.sql");
-        if (localData.exists()) {
-            try (FileInputStream f = new FileInputStream(localData)) {
-                SQLFileManager.addFile(stmt, f, ImportType.PRODUCTION);
+        final Connection conn = DriverManager.getConnection(args[1], args[2], args[3]);
+        try {
+            conn.setAutoCommit(false);
+            Statement stmt = conn.createStatement();
+            try {
+                try (InputStream structure = DatabaseConnection.class.getResourceAsStream("tableStructure.sql")) {
+                    SQLFileManager.addFile(stmt, structure, truncate);
+                }
+                File localData = new File("doc/sampleData.sql");
+                if (localData.exists()) {
+                    try (FileInputStream f = new FileInputStream(localData)) {
+                        SQLFileManager.addFile(stmt, f, ImportType.PRODUCTION);
+                    }
+                }
+                stmt.executeBatch();
+                conn.commit();
+            } finally {
+                stmt.close();
             }
+        } finally {
+            conn.close();
         }
-        stmt.executeBatch();
-        conn.commit();
-        stmt.close();
-
-        conn.close();
     }
-
 }

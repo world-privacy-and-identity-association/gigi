@@ -35,24 +35,25 @@ public class TestSSL extends ManagedTest {
         SSLContext sc = SSLContext.getDefault();
         SSLEngine se = sc.createSSLEngine();
         String[] serverParts = getServerName().split(":", 2);
-        SocketChannel s = SocketChannel.open(new InetSocketAddress(serverParts[0], Integer.parseInt(serverParts[1])));
+        try (SocketChannel s = SocketChannel.open(new InetSocketAddress(serverParts[0], Integer.parseInt(serverParts[1])))) {
 
-        in = ByteBuffer.allocate(se.getSession().getApplicationBufferSize());
-        inC = ByteBuffer.allocate(se.getSession().getPacketBufferSize());
-        inC.limit(0);
-        out = ByteBuffer.allocate(se.getSession().getApplicationBufferSize());
-        outC = ByteBuffer.allocate(se.getSession().getPacketBufferSize());
-        outC.limit(0);
-        se.setUseClientMode(true);
-        se.beginHandshake();
+            in = ByteBuffer.allocate(se.getSession().getApplicationBufferSize());
+            inC = ByteBuffer.allocate(se.getSession().getPacketBufferSize());
+            inC.limit(0);
+            out = ByteBuffer.allocate(se.getSession().getApplicationBufferSize());
+            outC = ByteBuffer.allocate(se.getSession().getPacketBufferSize());
+            outC.limit(0);
+            se.setUseClientMode(true);
+            se.beginHandshake();
 
-        work(se, s);
-        se.beginHandshake();
-        try {
             work(se, s);
-            throw new Error("Client re-negotiation succeded (possible DoS vulnerability");
-        } catch (EOFException e) {
-            // Cool, server closed connection
+            se.beginHandshake();
+            try {
+                work(se, s);
+                throw new Error("Client re-negotiation succeded (possible DoS vulnerability");
+            } catch (EOFException e) {
+                // Cool, server closed connection
+            }
         }
 
     }

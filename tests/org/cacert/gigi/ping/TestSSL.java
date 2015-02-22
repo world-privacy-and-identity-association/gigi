@@ -143,8 +143,7 @@ public class TestSSL extends PingTest {
     }
 
     private boolean acceptSSLServer(SSLServerSocket sss) throws IOException {
-        try {
-            Socket s = sss.accept();
+        try (Socket s = sss.accept()) {
             s.getOutputStream().write('b');
             s.getOutputStream().close();
             return true;
