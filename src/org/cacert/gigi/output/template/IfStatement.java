@@ -16,7 +16,7 @@ public final class IfStatement implements Outputable {
     public IfStatement(String variable, TemplateBlock body) {
         this.variable = variable;
         this.iftrue = body;
-        iffalse = null;
+        this.iffalse = null;
     }
 
     public IfStatement(String variable, TemplateBlock iftrue, TemplateBlock iffalse) {
@@ -28,10 +28,12 @@ public final class IfStatement implements Outputable {
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         Object o = vars.get(variable);
-        if ( !(o == null || o == Boolean.FALSE)) {
+
+        if ( !(o == null || Boolean.FALSE.equals(o))) {
             iftrue.output(out, l, vars);
         } else if (iffalse != null) {
             iffalse.output(out, l, vars);
         }
     }
+
 }
