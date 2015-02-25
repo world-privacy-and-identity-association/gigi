@@ -169,7 +169,7 @@ public class ManagedTest extends ConfiguredTest {
 
     public static void clearCaches() throws IOException {
         ObjectCache.clearAllCaches();
-        String type = testProps.getProperty("type");
+        // String type = testProps.getProperty("type");
         URL u = new URL("https://" + getServerName() + "/manage");
         u.openConnection().getHeaderField("Location");
     }
@@ -219,15 +219,19 @@ public class ManagedTest extends ConfiguredTest {
 
     @After
     public void clearAcceptLanguage() {
-        acceptLanguage = null;
+        ManagedTest.setAcceptLanguage(null);
     }
 
     public TestMail waitForMail() {
-        try {
-            return ter.recieve();
-        } catch (InterruptedException e) {
-            throw new Error(e);
+        TestMail mail = null;
+        while (null == mail) {
+            try {
+                mail = ter.recieve();
+            } catch (InterruptedException e) {
+                throw new Error(e);
+            }
         }
+        return mail;
     }
 
     public static TestEmailReciever getMailReciever() {

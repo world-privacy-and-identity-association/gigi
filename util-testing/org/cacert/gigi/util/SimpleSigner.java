@@ -274,36 +274,40 @@ public class SimpleSigner {
                     subj.put("CN", "<empty>");
                     System.out.println("WARNING: DN was empty");
                 }
-                String[] call = new String[] {
-                        "openssl", "ca",//
-                        "-in",
-                        "../../" + csrname,//
-                        "-cert",
-                        "../" + ca + ".crt",//
-                        "-keyfile",
-                        "../" + ca + ".key",//
-                        "-out",
-                        "../../" + crt.getPath(),//
-                        "-utf8",
-                        "-startdate",
-                        sdf.format(fromDate),//
-                        "-enddate",
-                        sdf.format(toDate),//
-                        "-batch",//
-                        "-md",
-                        rs.getString("md"),//
-                        "-extfile",
-                        "../" + f.getName(),//
+                String[] call;
+                synchronized (sdf) {
+                    call = new String[] {
+                            "openssl", "ca",//
+                            "-in",
+                            "../../" + csrname,//
+                            "-cert",
+                            "../" + ca + ".crt",//
+                            "-keyfile",
+                            "../" + ca + ".key",//
+                            "-out",
+                            "../../" + crt.getPath(),//
+                            "-utf8",
+                            "-startdate",
+                            sdf.format(fromDate),//
+                            "-enddate",
+                            sdf.format(toDate),//
+                            "-batch",//
+                            "-md",
+                            rs.getString("md"),//
+                            "-extfile",
+                            "../" + f.getName(),//
 
-                        "-subj",
-                        Certificate.stringifyDN(subj),//
-                        "-config",
-                        "../selfsign.config"//
+                            "-subj",
+                            Certificate.stringifyDN(subj),//
+                            "-config",
+                            "../selfsign.config"//
+                    };
+                }
 
-                };
                 if (ct == CSRType.SPKAC) {
                     call[2] = "-spkac";
                 }
+
                 Process p1 = Runtime.getRuntime().exec(call, null, new File("keys/unassured.ca"));
 
                 int waitFor = p1.waitFor();

@@ -21,6 +21,7 @@ import java.security.cert.CertificateException;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Properties;
+import java.util.Random;
 
 import javax.net.ssl.SSLSocketFactory;
 
@@ -38,6 +39,8 @@ import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
 
 public class TestSendmail extends ConfiguredTest {
+
+    private static final Random rng = new Random();
 
     @Test
     public void testSendmail() throws IOException, GeneralSecurityException {
@@ -110,7 +113,7 @@ public class TestSendmail extends ConfiguredTest {
         X509CertInfo info = new X509CertInfo();
         // Add all mandatory attributes
         info.set(X509CertInfo.VERSION, new CertificateVersion(CertificateVersion.V3));
-        info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(new java.util.Random().nextInt() & 0x7fffffff));
+        info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(rng.nextInt() & 0x7fffffff));
         AlgorithmId algID = AlgorithmId.get("SHA256WithRSA");
         info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(algID));
         info.set(X509CertInfo.SUBJECT, new X500Name("EMAIL=system@cacert.org"));
