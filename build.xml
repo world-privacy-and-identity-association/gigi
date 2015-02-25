@@ -196,7 +196,7 @@
 			</fileset>
 		</delete>
 		<mkdir dir="${junit.output.dir}" />
-		<junit fork="yes" printsummary="withOutAndErr">
+		<junit maxmemory="2g" fork="yes" printsummary="withOutAndErr">
 			<jvmarg value="-javaagent:/usr/share/java/jacocoagent.jar=destfile=tester.exec"/>
 			<formatter type="xml" />
 			<batchtest fork="yes" todir="${junit.output.dir}">
