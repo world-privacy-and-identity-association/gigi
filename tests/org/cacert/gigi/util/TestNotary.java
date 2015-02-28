@@ -28,7 +28,7 @@ public class TestNotary extends ManagedTest {
         };
 
         try {
-            Notary.assure(assurer, users[0], users[0].getName(), users[0].getDob(), -1, "test-notary", "2014-01-01");
+            Notary.assure(assurer, users[0], users[0].getName(), users[0].getDoB(), -1, "test-notary", "2014-01-01");
             fail("This shouldn't have passed");
         } catch (GigiApiException e) {
             // expected
@@ -37,7 +37,7 @@ public class TestNotary extends ManagedTest {
             assertEquals(result[i], assurer.getMaxAssurePoints());
 
             assuranceFail(assurer, users[i], result[i] + 1, "test-notary", "2014-01-01");
-            Notary.assure(assurer, users[i], users[i].getName(), users[i].getDob(), result[i], "test-notary", "2014-01-01");
+            Notary.assure(assurer, users[i], users[i].getName(), users[i].getDoB(), result[i], "test-notary", "2014-01-01");
             assuranceFail(assurer, users[i], result[i], "test-notary", "2014-01-01");
         }
 
@@ -49,7 +49,7 @@ public class TestNotary extends ManagedTest {
 
     private void assuranceFail(User assurer, User user, int i, String location, String date) throws SQLException {
         try {
-            Notary.assure(assurer, user, user.getName(), user.getDob(), i, location, date);
+            Notary.assure(assurer, user, user.getName(), user.getDoB(), i, location, date);
             fail("This shouldn't have passed");
         } catch (GigiApiException e) {
             // expected
@@ -71,7 +71,7 @@ public class TestNotary extends ManagedTest {
         for (int i = 0; i < users.length; i++) {
             assuranceFail(assurer, users[i], -1, "test-notary", "2014-01-01");
             assuranceFail(assurer, users[i], 11, "test-notary", "2014-01-01");
-            Notary.assure(assurer, users[i], users[i].getName(), users[i].getDob(), 10, "test-notary", "2014-01-01");
+            Notary.assure(assurer, users[i], users[i].getName(), users[i].getDoB(), 10, "test-notary", "2014-01-01");
             assuranceFail(assurer, users[i], 10, "test-notary", "2014-01-01");
         }
     }
@@ -106,7 +106,7 @@ public class TestNotary extends ManagedTest {
         assuranceFail(assuree, assuranceUser, 10, "notary-junit-test", "2014-01-01");
 
         // valid
-        Notary.assure(assuranceUser, assuree, assuree.getName(), assuree.getDob(), 10, "notary-junit-test", "2014-01-01");
+        Notary.assure(assuranceUser, assuree, assuree.getName(), assuree.getDoB(), 10, "notary-junit-test", "2014-01-01");
 
         // assure double
         assuranceFail(assuranceUser, assuree, 10, "notary-junit-test", "2014-01-01");

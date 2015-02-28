@@ -39,7 +39,7 @@ public class TTPAdminForm extends Form {
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
         vars.put("name", u.getName());
         vars.put("email", u.getEmail());
-        vars.put("DoB", DateSelector.getDateFormat().format(u.getDob()));
+        vars.put("DoB", DateSelector.getDateFormat().format(u.getDoB()));
         vars.put("uid", Integer.toString(u.getId()));
         t.output(out, l, vars);
     }

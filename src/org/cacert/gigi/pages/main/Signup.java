@@ -36,12 +36,12 @@ public class Signup extends Form {
     public Signup(HttpServletRequest hsr) {
         super(hsr);
         t = new Template(Signup.class.getResource("Signup.templ"));
-        buildup.setFname("");
-        buildup.setMname("");
-        buildup.setLname("");
+        buildup.setFName("");
+        buildup.setMName("");
+        buildup.setLName("");
         buildup.setSuffix("");
         buildup.setEmail("");
-        buildup.setDob(new Date(0));
+        buildup.setDoB(new Date(0));
     }
 
     DateSelector myDoB = new DateSelector("day", "month", "year");
@@ -49,9 +49,9 @@ public class Signup extends Form {
     @Override
     public void outputContent(PrintWriter out, Language l, Map<String, Object> outerVars) {
         HashMap<String, Object> vars = new HashMap<String, Object>();
-        vars.put("fname", HTMLEncoder.encodeHTML(buildup.getFname()));
-        vars.put("mname", HTMLEncoder.encodeHTML(buildup.getMname()));
-        vars.put("lname", HTMLEncoder.encodeHTML(buildup.getLname()));
+        vars.put("fname", HTMLEncoder.encodeHTML(buildup.getFName()));
+        vars.put("mname", HTMLEncoder.encodeHTML(buildup.getMName()));
+        vars.put("lname", HTMLEncoder.encodeHTML(buildup.getLName()));
         vars.put("suffix", HTMLEncoder.encodeHTML(buildup.getSuffix()));
         vars.put("dob", myDoB);
         vars.put("email", HTMLEncoder.encodeHTML(buildup.getEmail()));
@@ -66,13 +66,13 @@ public class Signup extends Form {
 
     private void update(HttpServletRequest r) {
         if (r.getParameter("fname") != null) {
-            buildup.setFname(r.getParameter("fname"));
+            buildup.setFName(r.getParameter("fname"));
         }
         if (r.getParameter("lname") != null) {
-            buildup.setLname(r.getParameter("lname"));
+            buildup.setLName(r.getParameter("lname"));
         }
         if (r.getParameter("mname") != null) {
-            buildup.setMname(r.getParameter("mname"));
+            buildup.setMName(r.getParameter("mname"));
         }
         if (r.getParameter("suffix") != null) {
             buildup.setSuffix(r.getParameter("suffix"));
@@ -93,7 +93,7 @@ public class Signup extends Form {
     @Override
     public synchronized boolean submit(PrintWriter out, HttpServletRequest req) {
         update(req);
-        if (buildup.getLname().trim().equals("")) {
+        if (buildup.getLName().trim().equals("")) {
             outputError(out, req, "Last name were blank.");
         }
         if ( !myDoB.isValid()) {
@@ -175,7 +175,7 @@ public class Signup extends Form {
         try {
             DatabaseConnection.getInstance().beginTransaction();
             buildup.setPreferredLocale(Page.getLanguage(req).getLocale());
-            buildup.setDob(myDoB.getDate());
+            buildup.setDoB(myDoB.getDate());
             buildup.insert(password);
             int memid = buildup.getId();
             EmailAddress ea = new EmailAddress(buildup, buildup.getEmail());

@@ -36,12 +36,12 @@ public class SupportUserDetailsForm extends Form {
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
         vars.put("mail", user.getEmail());
-        vars.put("fname", user.getFname());
-        vars.put("mname", user.getMname());
-        vars.put("lname", user.getLname());
+        vars.put("fname", user.getFName());
+        vars.put("mname", user.getMName());
+        vars.put("lname", user.getLName());
         vars.put("suffix", user.getSuffix());
         vars.put("assurer", user.canAssure());
-        vars.put("dob", new DateSelector("dobd", "dobm", "doby", user.getDob()));
+        vars.put("dob", new DateSelector("dobd", "dobm", "doby", user.getDoB()));
         vars.put("blockedassurer", user.isInGroup(Group.BLOCKEDASSURER));
         vars.put("codesign", user.isInGroup(Group.CODESIGNING));
         vars.put("orgassurer", user.isInGroup(Group.ORGASSURER));

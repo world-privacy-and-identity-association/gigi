@@ -105,7 +105,7 @@ public class Notary {
             gae.mergeInto(e);
         }
 
-        if ( !assuree.getName().equals(assureeName) || !assuree.getDob().equals(dob)) {
+        if ( !assuree.getName().equals(assureeName) || !assuree.getDoB().equals(dob)) {
             gae.mergeInto(new GigiApiException("The person you are assuring changed his personal details."));
         }
         if (awarded > assurer.getMaxAssurePoints() || awarded < 0) {

@@ -34,7 +34,7 @@ public class AssuranceForm extends Form {
         super(hsr);
         this.assuree = assuree;
         assureeName = this.assuree.getName();
-        dob = this.assuree.getDob();
+        dob = this.assuree.getDoB();
     }
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -48,8 +48,8 @@ public class AssuranceForm extends Form {
         res.put("nameExplicit", assuree.getName());
         res.put("name", assuree.getName().toString());
         res.put("maxpoints", assuree.getMaxAssurePoints());
-        res.put("dob", sdf.format(assuree.getDob()));
-        res.put("dobFmt2", sdf2.format(assuree.getDob()));
+        res.put("dob", sdf.format(assuree.getDoB()));
+        res.put("dobFmt2", sdf2.format(assuree.getDoB()));
         templ.output(out, l, res);
     }
 

@@ -59,13 +59,13 @@ public class PasswordStrengthChecker {
         if (contained(pw, u.getEmail())) {
             light -= 2;
         }
-        if (contained(pw, u.getFname())) {
+        if (contained(pw, u.getFName())) {
             light -= 2;
         }
-        if (contained(pw, u.getLname())) {
+        if (contained(pw, u.getLName())) {
             light -= 2;
         }
-        if (contained(pw, u.getMname())) {
+        if (contained(pw, u.getMName())) {
             light -= 2;
         }
         if (contained(pw, u.getSuffix())) {

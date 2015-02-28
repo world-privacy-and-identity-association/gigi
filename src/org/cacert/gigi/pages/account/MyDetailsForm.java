@@ -30,7 +30,7 @@ public class MyDetailsForm extends Form {
     public MyDetailsForm(HttpServletRequest hsr, User target) {
         super(hsr);
         this.target = target;
-        this.ds = new DateSelector("day", "month", "year", target.getDob());
+        this.ds = new DateSelector("day", "month", "year", target.getDoB());
     }
 
     @Override
@@ -44,12 +44,12 @@ public class MyDetailsForm extends Form {
                 if (newLname.isEmpty()) {
                     throw new GigiApiException("Last name cannot be empty.");
                 }
-                target.setFname(newFname);
-                target.setLname(newLname);
-                target.setMname(newMname);
+                target.setFName(newFname);
+                target.setLName(newLname);
+                target.setMName(newMname);
                 target.setSuffix(newSuffix);
                 ds.update(req);
-                target.setDob(ds.getDate());
+                target.setDoB(ds.getDate());
                 target.updateUserData();
             } else {
                 throw new GigiApiException("No change after assurance allowed.");
@@ -66,16 +66,16 @@ public class MyDetailsForm extends Form {
 
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
-        vars.put("fname", HTMLEncoder.encodeHTML(target.getFname()));
-        vars.put("mname", target.getMname() == null ? "" : HTMLEncoder.encodeHTML(target.getMname()));
-        vars.put("lname", HTMLEncoder.encodeHTML(target.getLname()));
+        vars.put("fname", HTMLEncoder.encodeHTML(target.getFName()));
+        vars.put("mname", target.getMName() == null ? "" : HTMLEncoder.encodeHTML(target.getMName()));
+        vars.put("lname", HTMLEncoder.encodeHTML(target.getLName()));
         vars.put("suffix", target.getSuffix() == null ? "" : HTMLEncoder.encodeHTML(target.getSuffix()));
         vars.put("details", "");
         if (target.getAssurancePoints() == 0) {
             vars.put("DoB", ds);
             templ.output(out, l, vars);
         } else {
-            vars.put("DoB", DateSelector.getDateFormat().format(target.getDob()));
+            vars.put("DoB", DateSelector.getDateFormat().format(target.getDoB()));
             assured.output(out, l, vars);
         }
     }

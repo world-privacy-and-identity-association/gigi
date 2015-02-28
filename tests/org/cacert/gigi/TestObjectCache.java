@@ -24,14 +24,14 @@ public class TestObjectCache extends ManagedTest {
         assertThat(User.getById(uid), is(sameInstance(User.getById(uid))));
 
         User u = new User();
-        u.setFname("fname");
-        u.setMname("mname");
+        u.setFName("fname");
+        u.setMName("mname");
         u.setSuffix("suffix");
-        u.setLname("lname");
+        u.setLName("lname");
         u.setEmail(createUniqueName() + "@example.org");
         Calendar c = Calendar.getInstance();
         c.set(1950, 1, 1);
-        u.setDob(new Date(c.getTime().getTime()));
+        u.setDoB(new Date(c.getTime().getTime()));
         u.setPreferredLocale(Locale.ENGLISH);
         u.insert(TEST_PASSWORD);
 

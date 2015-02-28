@@ -59,15 +59,15 @@ public class User extends CertificateOwner {
 
     public User() {}
 
-    public String getFname() {
+    public String getFName() {
         return name.fname;
     }
 
-    public String getLname() {
+    public String getLName() {
         return name.lname;
     }
 
-    public String getMname() {
+    public String getMName() {
         return name.mname;
     }
 
@@ -75,7 +75,7 @@ public class User extends CertificateOwner {
         return name;
     }
 
-    public void setMname(String mname) {
+    public void setMName(String mname) {
         this.name.mname = mname;
     }
 
@@ -87,11 +87,11 @@ public class User extends CertificateOwner {
         this.name.suffix = suffix;
     }
 
-    public Date getDob() {
+    public Date getDoB() {
         return dob;
     }
 
-    public void setDob(Date dob) {
+    public void setDoB(Date dob) {
         this.dob = dob;
     }
 
@@ -103,11 +103,11 @@ public class User extends CertificateOwner {
         this.email = email;
     }
 
-    public void setFname(String fname) {
+    public void setFName(String fname) {
         this.name.fname = fname;
     }
 
-    public void setLname(String lname) {
+    public void setLName(String lname) {
         this.name.lname = lname;
     }
 
@@ -323,15 +323,17 @@ public class User extends CertificateOwner {
 
     public void updateUserData() throws GigiApiException {
         synchronized (Notary.class) {
+            // FIXME: No assurance, not no points.
             if (getAssurancePoints() != 0) {
                 throw new GigiApiException("No change after assurance allowed.");
             }
+
             GigiPreparedStatement update = DatabaseConnection.getInstance().prepare("UPDATE users SET fname=?, lname=?, mname=?, suffix=?, dob=? WHERE id=?");
-            update.setString(1, getFname());
-            update.setString(2, getLname());
-            update.setString(3, getMname());
+            update.setString(1, getFName());
+            update.setString(2, getLName());
+            update.setString(3, getMName());
             update.setString(4, getSuffix());
-            update.setDate(5, getDob());
+            update.setDate(5, getDoB());
             update.setInt(6, getId());
             update.executeUpdate();
         }

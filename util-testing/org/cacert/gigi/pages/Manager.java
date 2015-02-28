@@ -155,14 +155,14 @@ public class Manager extends Page {
 
     private void createUser(String email) throws GigiApiException, IllegalAccessException {
         User u = new User();
-        u.setFname("Först");
-        u.setMname("Müddle");
-        u.setLname("Läst");
+        u.setFName("Först");
+        u.setMName("Müddle");
+        u.setLName("Läst");
         u.setSuffix("Süffix");
         u.setEmail(email);
         Calendar gc = GregorianCalendar.getInstance();
         gc.set(1990, 0, 1);
-        u.setDob(new Date(gc.getTime().getTime()));
+        u.setDoB(new Date(gc.getTime().getTime()));
         u.setPreferredLocale(Locale.ENGLISH);
         u.insert("xvXV12°§");
         EmailAddress ea = new EmailAddress(u, email);
@@ -213,7 +213,7 @@ public class Manager extends Page {
             }
             try {
                 for (int i = 0; i < getAssurers().length; i++) {
-                    Notary.assure(getAssurers()[i], byEmail, byEmail.getName(), byEmail.getDob(), 10, "Testmanager Assure up code", "2014-11-06");
+                    Notary.assure(getAssurers()[i], byEmail, byEmail.getName(), byEmail.getDoB(), 10, "Testmanager Assure up code", "2014-11-06");
                 }
             } catch (GigiApiException e) {
                 throw new Error(e);

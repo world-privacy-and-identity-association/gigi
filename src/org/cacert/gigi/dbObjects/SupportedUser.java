@@ -24,7 +24,7 @@ public class SupportedUser {
 
     public void setDob(Date dob) {
         writeSELog("SE dob change");
-        target.setDob(dob);
+        target.setDoB(dob);
     }
 
     public void revokeAllCertificates() {

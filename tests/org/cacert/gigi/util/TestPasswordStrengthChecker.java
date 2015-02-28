@@ -11,9 +11,9 @@ public class TestPasswordStrengthChecker {
 
     public TestPasswordStrengthChecker() {
         u = new User();
-        u.setFname("fname");
-        u.setLname("lname");
-        u.setMname("mname");
+        u.setFName("fname");
+        u.setLName("lname");
+        u.setMName("mname");
         u.setEmail("email");
         u.setSuffix("suffix");
     }

@@ -19,20 +19,20 @@ public class TestUser extends ManagedTest {
     @Test
     public void testStoreAndLoad() throws SQLException {
         User u = new User();
-        u.setFname("user");
-        u.setLname("last");
-        u.setMname("");
+        u.setFName("user");
+        u.setLName("last");
+        u.setMName("");
         u.setSuffix("");
         u.setPreferredLocale(Locale.ENGLISH);
         long dob = System.currentTimeMillis();
         dob -= dob % (1000 * 60 * 60 * 24);
-        u.setDob(new java.sql.Date(dob));
+        u.setDoB(new java.sql.Date(dob));
         u.setEmail(createUniqueName() + "a@email.org");
         u.insert("password");
         int id = u.getId();
         User u2 = User.getById(id);
         assertEquals(u.getName(), u2.getName());
-        assertEquals(u.getDob().toString(), u2.getDob().toString());
+        assertEquals(u.getDoB().toString(), u2.getDoB().toString());
         assertEquals(u.getEmail(), u2.getEmail());
     }
 
@@ -41,9 +41,9 @@ public class TestUser extends ManagedTest {
         int id = createVerifiedUser("aä", "b", createUniqueName() + "a@email.org", TEST_PASSWORD);
 
         User u = User.getById(id);
-        assertEquals("aä", u.getFname());
-        assertEquals("b", u.getLname());
-        assertEquals("", u.getMname());
+        assertEquals("aä", u.getFName());
+        assertEquals("b", u.getLName());
+        assertEquals("", u.getMName());
     }
 
     @Test
@@ -59,9 +59,9 @@ public class TestUser extends ManagedTest {
         assertTrue(u.hasPassedCATS());
         assertEquals(10, u.getMaxAssurePoints());
 
-        assertEquals("aä", u.getFname());
-        assertEquals("b", u.getLname());
-        assertEquals("", u.getMname());
+        assertEquals("aä", u.getFName());
+        assertEquals("b", u.getLName());
+        assertEquals("", u.getMName());
     }
 
     @Test
@@ -99,12 +99,12 @@ public class TestUser extends ManagedTest {
     @Test
     public void testDoubleInsert() {
         User u = new User();
-        u.setFname("f");
-        u.setLname("l");
-        u.setMname("m");
+        u.setFName("f");
+        u.setLName("l");
+        u.setMName("m");
         u.setSuffix("s");
         u.setEmail(createUniqueName() + "@example.org");
-        u.setDob(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 365));
+        u.setDoB(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 365));
         u.setPreferredLocale(Locale.ENGLISH);
         u.insert(TEST_PASSWORD);
         try {

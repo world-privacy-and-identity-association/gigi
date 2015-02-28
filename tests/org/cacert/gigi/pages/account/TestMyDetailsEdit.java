@@ -26,7 +26,7 @@ public class TestMyDetailsEdit extends ManagedTest {
         String newName = createUniqueName();
         assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "fname=" + newName + "&lname=Hansel&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
         User u = User.getById(id);
-        assertEquals(newName, u.getFname());
+        assertEquals(newName, u.getFName());
     }
 
     @Test
@@ -34,7 +34,7 @@ public class TestMyDetailsEdit extends ManagedTest {
         String newName = createUniqueName();
         assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=" + newName + "&fname=Kurti&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
         User u = User.getById(id);
-        assertEquals(newName, u.getLname());
+        assertEquals(newName, u.getLName());
     }
 
     @Test
@@ -42,7 +42,7 @@ public class TestMyDetailsEdit extends ManagedTest {
         String newName = createUniqueName();
         assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "mname=" + newName + "&fname=Kurti&lname=Hansel&suffix=&day=1&month=1&year=2000&processDetails", 0));
         User u = User.getById(id);
-        assertEquals(newName, u.getMname());
+        assertEquals(newName, u.getMName());
     }
 
     @Test
@@ -69,7 +69,7 @@ public class TestMyDetailsEdit extends ManagedTest {
     public void testUnsetFname() throws IOException {
         assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "fname=&lname=Hansel&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
         User u = User.getById(id);
-        assertEquals("", u.getFname());
+        assertEquals("", u.getFName());
 
     }
 
@@ -77,7 +77,7 @@ public class TestMyDetailsEdit extends ManagedTest {
     public void testUnsetLname() throws IOException {
         assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=&fname=Kurti&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
         User u = User.getById(id);
-        assertEquals("Hansel", u.getLname());
+        assertEquals("Hansel", u.getLName());
     }
 
     @Test
@@ -85,11 +85,11 @@ public class TestMyDetailsEdit extends ManagedTest {
         String newName = createUniqueName();
         assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "mname=" + newName + "&fname=Kurti&lname=Hansel&suffix=&day=1&month=1&year=2000&processDetails", 0));
         User u = User.getById(id);
-        assertEquals(newName, u.getMname());
+        assertEquals(newName, u.getMName());
         assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=Hansel&fname=Kurti&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
         clearCaches();
         u = User.getById(id);
-        assertEquals("", u.getMname());
+        assertEquals("", u.getMName());
 
     }
 
@@ -102,7 +102,7 @@ public class TestMyDetailsEdit extends ManagedTest {
         cal.set(Calendar.DAY_OF_MONTH, Calendar.FEBRUARY);
         cal.set(Calendar.MONTH, 1);
         Date d = new Date(cal.getTimeInMillis());
-        assertEquals(d.toString(), u.getDob().toString());
+        assertEquals(d.toString(), u.getDoB().toString());
     }
 
     @Test
