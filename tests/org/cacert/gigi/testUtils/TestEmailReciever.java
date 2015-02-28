@@ -103,9 +103,44 @@ public final class TestEmailReciever extends EmailProvider implements Runnable {
 
     LinkedBlockingQueue<TestMail> mails = new LinkedBlockingQueue<TestEmailReciever.TestMail>();
 
-    public TestMail recieve() throws InterruptedException {
-        TestMail poll = mails.poll(5, TimeUnit.SECONDS);
+    /**
+     * Retrieves an outgoing mail from the system. The method will return a
+     * {@link TestMail} or fail.
+     * 
+     * @return The intercepted {@link TestMail}
+     * @see #poll()
+     */
+    public TestMail receive() {
+        TestMail poll;
+
+        try {
+            poll = mails.poll(60, TimeUnit.SECONDS);
+
+        } catch (InterruptedException e) {
+            throw new AssertionError("Interrupted while recieving mails");
+        }
+        if (poll == null) {
+            throw new AssertionError("Mail recieving timed out");
+        }
+
         return poll;
+    }
+
+    /**
+     * Retrieves an outgoing mail from the system or returns <code>null</code>
+     * if there was no mail sent in 30 seconds.
+     * 
+     * @return The intercepted {@link TestMail} or <code>null</code> if no mail
+     *         has been sent.
+     * @see #receive()
+     */
+    public TestMail poll() {
+        try {
+            return mails.poll(60, TimeUnit.SECONDS);
+
+        } catch (InterruptedException e) {
+            throw new AssertionError("Interrupted while recieving mails");
+        }
     }
 
     @Override

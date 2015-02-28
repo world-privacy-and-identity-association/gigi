@@ -23,7 +23,6 @@ import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.PingTest;
 import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
 import org.cacert.gigi.util.RandomToken;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class TestHTTP extends PingTest {
@@ -72,9 +71,8 @@ public class TestHTTP extends PingTest {
                 "&adddomain&csrf=" + csrf;
         URL u2 = sendDomainForm(u, content);
 
-        TestMail mail = getMailReciever().recieve();
+        TestMail mail = getMailReciever().receive();
         if (emailVariant == 0) {
-            Assert.assertNotNull(mail);
             mail.verify();
         }
         waitForPings(2);

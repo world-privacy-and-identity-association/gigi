@@ -53,7 +53,6 @@ import org.cacert.gigi.util.ServerConstants;
 import org.cacert.gigi.util.SimpleSigner;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 
 /**
@@ -222,18 +221,6 @@ public class ManagedTest extends ConfiguredTest {
         ManagedTest.setAcceptLanguage(null);
     }
 
-    public TestMail waitForMail() {
-        TestMail mail = null;
-        while (null == mail) {
-            try {
-                mail = ter.recieve();
-            } catch (InterruptedException e) {
-                throw new Error(e);
-            }
-        }
-        return mail;
-    }
-
     public static TestEmailReciever getMailReciever() {
         return ter;
     }
@@ -283,9 +270,7 @@ public class ManagedTest extends ConfiguredTest {
     public static int createVerifiedUser(String firstName, String lastName, String email, String password) {
         registerUser(firstName, lastName, email, password);
         try {
-            TestMail tm = ter.recieve();
-            Assert.assertNotNull(tm);
-            tm.verify();
+            ter.receive().verify();
 
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM users where email=?");
             ps.setString(1, email);
@@ -297,8 +282,6 @@ public class ManagedTest extends ConfiguredTest {
             }
 
             throw new Error();
-        } catch (InterruptedException e) {
-            throw new Error(e);
         } catch (IOException e) {
             throw new Error(e);
         }
@@ -482,8 +465,7 @@ public class ManagedTest extends ConfiguredTest {
     public static EmailAddress createVerifiedEmail(User u) throws InterruptedException, GigiApiException {
         EmailAddress adrr = new EmailAddress(u, createUniqueName() + "test@test.tld");
         adrr.insert(Language.getInstance(Locale.ENGLISH));
-        TestMail testMail = getMailReciever().recieve();
-        Assert.assertNotNull(testMail);
+        TestMail testMail = getMailReciever().receive();
         assertEquals(adrr.getAddress(), testMail.getTo());
         String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);
         adrr.verify(hash);

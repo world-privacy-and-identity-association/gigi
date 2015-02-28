@@ -10,8 +10,6 @@ import java.util.regex.Pattern;
 
 import org.cacert.gigi.testUtils.InitTruststore;
 import org.cacert.gigi.testUtils.ManagedTest;
-import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,14 +42,12 @@ public class RegisterPageTest extends ManagedTest {
         data = fetchStartErrorMessage(runRegister(query));
         assertNotNull(data);
 
-        assertNull(getMailReciever().recieve());
+        assertNull(getMailReciever().poll());
 
     }
 
     private void assertSuccessfullRegMail() {
-        TestMail tm = waitForMail();
-        Assert.assertNotNull(tm);
-        String link = tm.extractLink();
+        String link = getMailReciever().receive().extractLink();
         assertTrue(link, link.startsWith("https://"));
     }
 
