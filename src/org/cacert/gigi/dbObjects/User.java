@@ -312,7 +312,7 @@ public class User extends CertificateOwner {
         return receivedAssurances;
     }
 
-    public Assurance[] getMadeAssurances() {
+    public synchronized Assurance[] getMadeAssurances() {
         if (madeAssurances == null) {
             GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM notary WHERE `from`=? AND deleted is NULL");
             query.setInt(1, getId());
@@ -331,11 +331,11 @@ public class User extends CertificateOwner {
         return madeAssurances;
     }
 
-    public void invalidateMadeAssurances() {
+    public synchronized void invalidateMadeAssurances() {
         madeAssurances = null;
     }
 
-    public void invalidateReceivedAssurances() {
+    public synchronized void invalidateReceivedAssurances() {
         receivedAssurances = null;
     }
 
