@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 import org.cacert.gigi.email.EmailProvider;
 
-public final class TestEmailReciever extends EmailProvider implements Runnable {
+public final class TestEmailReceiver extends EmailProvider implements Runnable {
 
     public class TestMail {
 
@@ -87,7 +87,7 @@ public final class TestEmailReciever extends EmailProvider implements Runnable {
 
     private DataOutputStream dos;
 
-    public TestEmailReciever(SocketAddress target) throws IOException {
+    public TestEmailReceiver(SocketAddress target) throws IOException {
         s = new Socket();
         s.connect(target);
         s.setKeepAlive(true);
@@ -101,7 +101,7 @@ public final class TestEmailReciever extends EmailProvider implements Runnable {
         new Thread(this, "Mail reciever").start();
     }
 
-    LinkedBlockingQueue<TestMail> mails = new LinkedBlockingQueue<TestEmailReciever.TestMail>();
+    LinkedBlockingQueue<TestMail> mails = new LinkedBlockingQueue<TestEmailReceiver.TestMail>();
 
     /**
      * Retrieves an outgoing mail from the system. The method will return a

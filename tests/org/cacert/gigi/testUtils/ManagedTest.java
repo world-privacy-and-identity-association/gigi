@@ -47,7 +47,7 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.pages.Manager;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.main.RegisterPage;
-import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
+import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
 import org.cacert.gigi.util.DatabaseManager;
 import org.cacert.gigi.util.ServerConstants;
 import org.cacert.gigi.util.SimpleSigner;
@@ -70,7 +70,7 @@ public class ManagedTest extends ConfiguredTest {
      */
     protected static final String TEST_PASSWORD = "xvXV12°§";
 
-    private static TestEmailReciever ter;
+    private static TestEmailReceiver ter;
 
     private static Process gigi;
 
@@ -103,7 +103,7 @@ public class ManagedTest extends ConfiguredTest {
             if (type.equals("local")) {
                 url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort.https");
                 String[] parts = testProps.getProperty("mail").split(":", 2);
-                ter = new TestEmailReciever(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])));
+                ter = new TestEmailReceiver(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])));
                 ter.start();
                 return;
             }
@@ -139,7 +139,7 @@ public class ManagedTest extends ConfiguredTest {
             if (line == null) {
                 throw new Error("Server startup failed");
             }
-            ter = new TestEmailReciever(new InetSocketAddress("localhost", 8473));
+            ter = new TestEmailReceiver(new InetSocketAddress("localhost", 8473));
             ter.start();
             SimpleSigner.runSigner();
         } catch (IOException e) {
@@ -221,7 +221,7 @@ public class ManagedTest extends ConfiguredTest {
         ManagedTest.setAcceptLanguage(null);
     }
 
-    public static TestEmailReciever getMailReciever() {
+    public static TestEmailReceiver getMailReciever() {
         return ter;
     }
 

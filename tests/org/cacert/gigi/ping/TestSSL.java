@@ -36,7 +36,7 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.PingTest;
-import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
+import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
 import org.junit.Test;
 
 public class TestSSL extends PingTest {

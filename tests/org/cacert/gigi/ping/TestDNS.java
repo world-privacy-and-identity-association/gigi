@@ -15,7 +15,7 @@ import javax.naming.NamingException;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.PingTest;
-import org.cacert.gigi.testUtils.TestEmailReciever.TestMail;
+import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
 import org.cacert.gigi.util.DNSUtil;
 import org.cacert.gigi.util.RandomToken;
 import org.junit.Test;
