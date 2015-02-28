@@ -89,6 +89,9 @@ public class SCryptUtil {
             int N = (int) Math.pow(2, params >> 16 & 0xffff);
             int r = (int) params >> 8 & 0xff;
             int p = (int) params & 0xff;
+            if (r == 0 || p == 0) {
+                return false;
+            }
 
             byte[] derived1 = SCrypt.scrypt(passwd.getBytes("UTF-8"), salt, N, r, p, 32);
 
