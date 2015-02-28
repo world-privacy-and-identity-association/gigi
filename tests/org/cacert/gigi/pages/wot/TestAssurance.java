@@ -27,20 +27,17 @@ public class TestAssurance extends ManagedTest {
 
     private String assureeM;
 
-    private int assurer;
-
-    private int assuree;
-
     private String cookie;
 
     @Before
     public void setup() throws IOException {
         assurerM = createUniqueName() + "@cacert-test.org";
         assureeM = createUniqueName() + "@cacert-test.org";
-        assurer = createAssuranceUser("a", "b", assurerM, TEST_PASSWORD);
-        assuree = createVerifiedUser("a", "c", assureeM, TEST_PASSWORD);
-        cookie = login(assurerM, TEST_PASSWORD);
 
+        createAssuranceUser("a", "b", assurerM, TEST_PASSWORD);
+        createVerifiedUser("a", "c", assureeM, TEST_PASSWORD);
+
+        cookie = login(assurerM, TEST_PASSWORD);
     }
 
     @Test

@@ -77,7 +77,12 @@ public class DevelLauncher {
             instF.setAccessible(true);
             pageF.setAccessible(true);
             Object gigi = instF.get(null);
-            HashMap<String, Page> pages = new HashMap<>((Map<String, Page>) pageF.get(gigi));
+
+            // Check if we got a proper map (as much as we can tell)
+            Object pagesObj = pageF.get(gigi);
+            @SuppressWarnings("unchecked")
+            HashMap<String, Page> pages = pagesObj instanceof Map ? new HashMap<>((Map<String, Page>) pagesObj) : null;
+
             pages.put("/manage", new Page("Page-manager") {
 
                 @Override

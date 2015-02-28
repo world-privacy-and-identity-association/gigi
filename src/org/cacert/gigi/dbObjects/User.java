@@ -27,7 +27,9 @@ public class User extends CertificateOwner {
 
     private String email;
 
-    private Assurance[] receivedAssurances, madeAssurances;
+    private Assurance[] receivedAssurances;
+
+    private Assurance[] madeAssurances;
 
     private Locale locale;
 
@@ -255,33 +257,35 @@ public class User extends CertificateOwner {
     }
 
     public void updateDefaultEmail(EmailAddress newMail) throws GigiApiException {
-        EmailAddress[] adrs = getEmails();
-        for (int i = 0; i < adrs.length; i++) {
-            if (adrs[i].getAddress().equals(newMail.getAddress())) {
-                if ( !adrs[i].isVerified()) {
+        for (EmailAddress email : getEmails()) {
+            if (email.getAddress().equals(newMail.getAddress())) {
+                if ( !email.isVerified()) {
                     throw new GigiApiException("Email not verified.");
                 }
+
                 GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE users SET email=? WHERE id=?");
                 ps.setString(1, newMail.getAddress());
                 ps.setInt(2, getId());
                 ps.execute();
-                email = newMail.getAddress();
+
+                this.email = newMail.getAddress();
                 return;
             }
         }
+
         throw new GigiApiException("Given address not an address of the user.");
     }
 
-    public void deleteEmail(EmailAddress mail) throws GigiApiException {
-        if (getEmail().equals(mail.getAddress())) {
+    public void deleteEmail(EmailAddress delMail) throws GigiApiException {
+        if (getEmail().equals(delMail.getAddress())) {
             throw new GigiApiException("Can't delete user's default e-mail.");
         }
-        EmailAddress[] emails = getEmails();
-        for (int i = 0; i < emails.length; i++) {
-            if (emails[i].getId() == mail.getId()) {
+
+        for (EmailAddress email : getEmails()) {
+            if (email.getId() == delMail.getId()) {
                 GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE emails SET deleted=? WHERE id=?");
                 ps.setDate(1, new Date(System.currentTimeMillis()));
-                ps.setInt(2, mail.getId());
+                ps.setInt(2, delMail.getId());
                 ps.execute();
                 return;
             }
@@ -467,6 +471,7 @@ public class User extends CertificateOwner {
     }
 
     public boolean canIssue(CertificateProfile p) {
+        // FIXME: Use descriptive constants
         switch (p.getCAId()) {
         case 0:
             return true;
