@@ -8,7 +8,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
 
-class TestEmailProvider extends EmailProvider {
+/**
+ * This class intercepts emails so that the test cases can evaluate them
+ * automatically.
+ */
+public class TestEmailProvider extends EmailProvider {
 
     private ServerSocket servs;
 

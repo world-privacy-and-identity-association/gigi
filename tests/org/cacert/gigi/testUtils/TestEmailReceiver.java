@@ -13,9 +13,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cacert.gigi.email.EmailProvider;
+import org.cacert.gigi.email.TestEmailProvider;
 
+/**
+ * This class reveives emails from the current system under test. It is the
+ * counterpart to the {@link TestEmailProvider} who is loaded into the system to
+ * intercept the emails. This class resides in the VM that executes the
+ * testcases and supplies the intercepted emails to the current test case.
+ */
 public final class TestEmailReceiver extends EmailProvider implements Runnable {
 
+    /**
+     * An email that has been intercepted.
+     */
     public class TestMail {
 
         String to;
@@ -87,6 +97,16 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable {
 
     private DataOutputStream dos;
 
+    /**
+     * Creates a new TestEmailReceiver based on the address where the
+     * {@link TestEmailProvider} is listening. This class is only ready after
+     * {@link #start()} has been called.
+     * 
+     * @param target
+     *            the address where the {@link TestEmailProvider} is listening.
+     * @throws IOException
+     *             if the connection cannot be opened
+     */
     public TestEmailReceiver(SocketAddress target) throws IOException {
         s = new Socket();
         s.connect(target);
@@ -97,11 +117,16 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable {
         setInstance(this);
     }
 
+    /**
+     * Spawns a new {@link Thread} that reads incoming {@link TestMail}s.
+     * 
+     * @see #destroy()
+     */
     public void start() {
         new Thread(this, "Mail reciever").start();
     }
 
-    LinkedBlockingQueue<TestMail> mails = new LinkedBlockingQueue<TestEmailReceiver.TestMail>();
+    private LinkedBlockingQueue<TestMail> mails = new LinkedBlockingQueue<TestEmailReceiver.TestMail>();
 
     /**
      * Retrieves an outgoing mail from the system. The method will return a
@@ -182,28 +207,59 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable {
 
     String error = "FAIL";
 
+    /**
+     * Sets the error that will be sent back to incoming "fast mail checks" that
+     * only check for the availability of a mailbox.
+     * 
+     * @param error
+     *            the error Massage to return in
+     *            {@link EmailProvider#checkEmailServer(int, String)}
+     */
     public void setEmailCheckError(String error) {
         this.error = error;
     }
 
-    Pattern approveRegex = Pattern.compile(".*");
+    private Pattern approveRegex = Pattern.compile(".*");
 
+    /**
+     * Specifies a pattern that will be used for incoming
+     * {@link EmailProvider#checkEmailServer(int, String)} calls to determine
+     * whether the mailbox should exist.
+     * 
+     * @param approveRegex
+     *            the regex that will perform the check
+     */
     public void setApproveRegex(Pattern approveRegex) {
         this.approveRegex = approveRegex;
     }
 
+    /**
+     * Removes all queued mails.
+     */
     public void clearMails() {
         mails.clear();
     }
 
+    /**
+     * Resets this class to its initial state
+     * 
+     * @see #clearMails()
+     * @see #setApproveRegex(Pattern)
+     * @see #setEmailCheckError(String)
+     */
     public void reset() {
         clearMails();
         error = "FAIL";
         approveRegex = Pattern.compile(".*");
     }
 
-    boolean closed = false;
+    private boolean closed = false;
 
+    /**
+     * stops reading for incoming messages
+     * 
+     * @see #start()
+     */
     public void destroy() {
         try {
             closed = true;
