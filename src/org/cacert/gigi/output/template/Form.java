@@ -109,5 +109,7 @@ public abstract class Form implements Outputable {
 
     public static class CSRFException extends IOException {
 
+        private static final long serialVersionUID = 59708247477988362L;
+
     }
 }

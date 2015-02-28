@@ -286,12 +286,14 @@ public class ManagedTest extends ConfiguredTest {
             TestMail tm = ter.recieve();
             Assert.assertNotNull(tm);
             tm.verify();
+
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM users where email=?");
             ps.setString(1, email);
             GigiResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
             }
+
             throw new Error();
         } catch (InterruptedException e) {
             throw new Error(e);

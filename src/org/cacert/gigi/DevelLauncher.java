@@ -92,7 +92,9 @@ public class DevelLauncher {
                 public boolean needsLogin() {
                     return false;
                 }
+
             });
+
             pages.put("/kill", new Page("Kill") {
 
                 @Override
@@ -105,6 +107,7 @@ public class DevelLauncher {
                     return false;
                 }
             });
+
             pageF.set(gigi, Collections.unmodifiableMap(pages));
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();

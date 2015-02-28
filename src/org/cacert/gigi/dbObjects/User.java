@@ -42,12 +42,14 @@ public class User extends CertificateOwner {
         name = new Name(rs.getString("fname"), rs.getString("lname"), rs.getString("mname"), rs.getString("suffix"));
         dob = rs.getDate("dob");
         email = rs.getString("email");
+
         String localeStr = rs.getString("language");
         if (localeStr == null || localeStr.equals("")) {
             locale = Locale.getDefault();
         } else {
             locale = Language.getLocaleFromString(localeStr);
         }
+
         GigiPreparedStatement psg = DatabaseConnection.getInstance().prepare("SELECT permission FROM user_groups WHERE user=? AND deleted is NULL");
         psg.setInt(1, rs.getInt("id"));
         GigiResultSet rs2 = psg.executeQuery();
@@ -224,6 +226,7 @@ public class User extends CertificateOwner {
         if (exp >= 50) {
             points += 5;
         }
+
         return points;
     }
 
@@ -421,6 +424,7 @@ public class User extends CertificateOwner {
         if (co instanceof User) {
             return (User) co;
         }
+
         return null;
     }
 

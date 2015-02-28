@@ -13,6 +13,8 @@ import org.cacert.gigi.output.template.TranslateCommand;
 
 public class GigiApiException extends Exception {
 
+    private static final long serialVersionUID = -164928670180852588L;
+
     private SQLException e;
 
     private LinkedList<Outputable> messages = new LinkedList<>();

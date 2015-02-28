@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 import org.cacert.gigi.email.EmailProvider;
 
-public class TestEmailReciever extends EmailProvider implements Runnable {
+public final class TestEmailReciever extends EmailProvider implements Runnable {
 
     public class TestMail {
 

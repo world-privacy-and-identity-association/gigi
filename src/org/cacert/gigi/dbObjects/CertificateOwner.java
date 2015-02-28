@@ -6,6 +6,8 @@ import org.cacert.gigi.database.GigiResultSet;
 
 public abstract class CertificateOwner implements IdCachable {
 
+    private static ObjectCache<CertificateOwner> myCache = new ObjectCache<>();
+
     private int id;
 
     public CertificateOwner(int id) {
@@ -17,8 +19,6 @@ public abstract class CertificateOwner implements IdCachable {
     public int getId() {
         return id;
     }
-
-    private static ObjectCache<CertificateOwner> myCache = new ObjectCache<>();
 
     public static synchronized CertificateOwner getById(int id) {
         CertificateOwner u = myCache.get(id);
@@ -122,6 +122,7 @@ public abstract class CertificateOwner implements IdCachable {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -131,6 +132,7 @@ public abstract class CertificateOwner implements IdCachable {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -140,4 +142,5 @@ public abstract class CertificateOwner implements IdCachable {
         ps.execute();
         myCache.remove(this);
     }
+
 }

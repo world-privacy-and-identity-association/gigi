@@ -22,6 +22,8 @@ import org.cacert.gigi.util.PEM;
 
 public class GigiAPI extends HttpServlet {
 
+    private static final long serialVersionUID = 659963677032635817L;
+
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String pi = req.getPathInfo();
