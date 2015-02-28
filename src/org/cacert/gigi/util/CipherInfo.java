@@ -272,6 +272,15 @@ public class CipherInfo implements Comparable<CipherInfo> {
         return suiteName.compareTo(o.suiteName);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof CipherInfo) {
+            return 0 == this.compareTo((CipherInfo) o);
+        }
+
+        return false;
+    }
+
     static String[] cipherRanking = null;
 
     public static String[] getCompleteRanking() {
