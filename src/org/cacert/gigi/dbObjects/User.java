@@ -52,11 +52,12 @@ public class User extends CertificateOwner {
 
         GigiPreparedStatement psg = DatabaseConnection.getInstance().prepare("SELECT permission FROM user_groups WHERE user=? AND deleted is NULL");
         psg.setInt(1, rs.getInt("id"));
-        GigiResultSet rs2 = psg.executeQuery();
-        while (rs2.next()) {
-            groups.add(Group.getByString(rs2.getString(1)));
+
+        try (GigiResultSet rs2 = psg.executeQuery()) {
+            while (rs2.next()) {
+                groups.add(Group.getByString(rs2.getString(1)));
+            }
         }
-        rs2.close();
     }
 
     public User() {}
@@ -131,14 +132,15 @@ public class User extends CertificateOwner {
     public void changePassword(String oldPass, String newPass) throws GigiApiException {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `password` FROM users WHERE id=?");
         ps.setInt(1, getId());
-        GigiResultSet rs = ps.executeQuery();
-        if ( !rs.next()) {
-            throw new GigiApiException("User not found... very bad.");
+        try (GigiResultSet rs = ps.executeQuery()) {
+            if ( !rs.next()) {
+                throw new GigiApiException("User not found... very bad.");
+            }
+            if (PasswordHash.verifyHash(oldPass, rs.getString(1)) == null) {
+                throw new GigiApiException("Old password does not match.");
+            }
         }
-        if (PasswordHash.verifyHash(oldPass, rs.getString(1)) == null) {
-            throw new GigiApiException("Old password does not match.");
-        }
-        rs.close();
+
         PasswordStrengthChecker.assertStrongPassword(newPass, this);
         ps = DatabaseConnection.getInstance().prepare("UPDATE users SET `password`=? WHERE id=?");
         ps.setString(1, PasswordHash.hash(newPass));
@@ -165,36 +167,43 @@ public class User extends CertificateOwner {
     public boolean hasPassedCATS() {
         GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `cats_passed` where `user_id`=?");
         query.setInt(1, getId());
-        GigiResultSet rs = query.executeQuery();
-        if (rs.next()) {
-            return true;
-        } else {
-            return false;
+        try (GigiResultSet rs = query.executeQuery()) {
+            if (rs.next()) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
     public int getAssurancePoints() {
         GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT sum(points) FROM `notary` where `to`=? AND `deleted` is NULL");
         query.setInt(1, getId());
-        GigiResultSet rs = query.executeQuery();
-        int points = 0;
-        if (rs.next()) {
-            points = rs.getInt(1);
+
+        try (GigiResultSet rs = query.executeQuery()) {
+            int points = 0;
+
+            if (rs.next()) {
+                points = rs.getInt(1);
+            }
+
+            return points;
         }
-        rs.close();
-        return points;
     }
 
     public int getExperiencePoints() {
         GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT count(*) FROM `notary` where `from`=? AND `deleted` is NULL");
         query.setInt(1, getId());
-        GigiResultSet rs = query.executeQuery();
-        int points = 0;
-        if (rs.next()) {
-            points = rs.getInt(1) * 2;
+
+        try (GigiResultSet rs = query.executeQuery()) {
+            int points = 0;
+
+            if (rs.next()) {
+                points = rs.getInt(1) * 2;
+            }
+
+            return points;
         }
-        rs.close();
-        return points;
     }
 
     /**
@@ -280,21 +289,22 @@ public class User extends CertificateOwner {
         throw new GigiApiException("Email not one of user's email addresses.");
     }
 
-    public Assurance[] getReceivedAssurances() {
+    public synchronized Assurance[] getReceivedAssurances() {
         if (receivedAssurances == null) {
             GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM notary WHERE `to`=? AND deleted IS NULL");
             query.setInt(1, getId());
-            GigiResultSet res = query.executeQuery();
-            res.last();
-            Assurance[] assurances = new Assurance[res.getRow()];
-            res.beforeFirst();
-            for (int i = 0; i < assurances.length; i++) {
-                res.next();
-                assurances[i] = new Assurance(res);
+
+            try (GigiResultSet res = query.executeQuery()) {
+                List<Assurance> assurances = new LinkedList<Assurance>();
+
+                while (res.next()) {
+                    assurances.add(new Assurance(res));
+                }
+
+                this.receivedAssurances = assurances.toArray(new Assurance[0]);
             }
-            this.receivedAssurances = assurances;
-            return assurances;
         }
+
         return receivedAssurances;
     }
 
@@ -302,17 +312,18 @@ public class User extends CertificateOwner {
         if (madeAssurances == null) {
             GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM notary WHERE `from`=? AND deleted is NULL");
             query.setInt(1, getId());
-            GigiResultSet res = query.executeQuery();
-            res.last();
-            Assurance[] assurances = new Assurance[res.getRow()];
-            res.beforeFirst();
-            for (int i = 0; i < assurances.length; i++) {
-                res.next();
-                assurances[i] = new Assurance(res);
+
+            try (GigiResultSet res = query.executeQuery()) {
+                List<Assurance> assurances = new LinkedList<Assurance>();
+
+                while (res.next()) {
+                    assurances.add(new Assurance(res));
+                }
+
+                this.madeAssurances = assurances.toArray(new Assurance[0]);
             }
-            this.madeAssurances = assurances;
-            return assurances;
         }
+
         return madeAssurances;
     }
 
@@ -354,17 +365,19 @@ public class User extends CertificateOwner {
     public boolean wantsDirectoryListing() {
         GigiPreparedStatement get = DatabaseConnection.getInstance().prepare("SELECT listme FROM users WHERE id=?");
         get.setInt(1, getId());
-        GigiResultSet exec = get.executeQuery();
-        exec.next();
-        return exec.getBoolean("listme");
+        try (GigiResultSet exec = get.executeQuery()) {
+            return exec.next() && exec.getBoolean("listme");
+        }
     }
 
     public String getContactInformation() {
         GigiPreparedStatement get = DatabaseConnection.getInstance().prepare("SELECT contactinfo FROM users WHERE id=?");
         get.setInt(1, getId());
-        GigiResultSet exec = get.executeQuery();
-        exec.next();
-        return exec.getString("contactinfo");
+
+        try (GigiResultSet exec = get.executeQuery()) {
+            exec.next();
+            return exec.getString("contactinfo");
+        }
     }
 
     public void setDirectoryListing(boolean on) {
@@ -411,12 +424,13 @@ public class User extends CertificateOwner {
         List<Organisation> orgas = new ArrayList<>();
         GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT orgid FROM org_admin WHERE `memid`=? AND deleted is NULL");
         query.setInt(1, getId());
-        GigiResultSet res = query.executeQuery();
+        try (GigiResultSet res = query.executeQuery()) {
+            while (res.next()) {
+                orgas.add(Organisation.getById(res.getInt(1)));
+            }
 
-        while (res.next()) {
-            orgas.add(Organisation.getById(res.getInt(1)));
+            return orgas;
         }
-        return orgas;
     }
 
     public static synchronized User getById(int id) {
@@ -429,24 +443,27 @@ public class User extends CertificateOwner {
     }
 
     public static User getByEmail(String mail) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT users.id FROM users inner join certOwners on certOwners.id=users.id WHERE email=? AND deleted is null");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT users.id FROM users INNER JOIN certOwners ON certOwners.id = users.id WHERE email=? AND deleted IS NULL");
         ps.setString(1, mail);
-        GigiResultSet rs = ps.executeQuery();
-        if ( !rs.next()) {
-            return null;
+        try (GigiResultSet rs = ps.executeQuery()) {
+            if ( !rs.next()) {
+                return null;
+            }
+
+            return User.getById(rs.getInt(1));
         }
-        return User.getById(rs.getInt(1));
     }
 
     public static User[] findByEmail(String mail) {
         LinkedList<User> results = new LinkedList<User>();
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT users.id FROM users inner join certOwners on certOwners.id=users.id WHERE users.email LIKE ? AND deleted is null GROUP BY users.id ASC LIMIT 100");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT users.id FROM users INNER JOIN certOwners ON certOwners.id = users.id WHERE users.email LIKE ? AND deleted IS NULL GROUP BY users.id ASC LIMIT 100");
         ps.setString(1, mail);
-        GigiResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            results.add(User.getById(rs.getInt(1)));
+        try (GigiResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                results.add(User.getById(rs.getInt(1)));
+            }
+            return results.toArray(new User[results.size()]);
         }
-        return results.toArray(new User[results.size()]);
     }
 
     public boolean canIssue(CertificateProfile p) {

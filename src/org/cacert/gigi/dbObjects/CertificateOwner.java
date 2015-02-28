@@ -1,5 +1,7 @@
 package org.cacert.gigi.dbObjects;
 
+import java.util.LinkedList;
+
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
@@ -25,16 +27,17 @@ public abstract class CertificateOwner implements IdCachable {
         if (u == null) {
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT *, users.id AS uid, organisations.id AS oid FROM certOwners LEFT JOIN users ON users.id=certOwners.id LEFT JOIN organisations ON organisations.id = certOwners.id WHERE certOwners.id=? AND deleted is null");
             ps.setInt(1, id);
-            GigiResultSet rs = ps.executeQuery();
-            if ( !rs.next()) {
-                return null;
-            }
-            if (rs.getString("uid") != null) {
-                myCache.put(u = new User(rs));
-            } else if (rs.getString("oid") != null) {
-                myCache.put(u = new Organisation(rs));
-            } else {
-                System.err.print("Malformed cert owner: " + id);
+            try (GigiResultSet rs = ps.executeQuery()) {
+                if ( !rs.next()) {
+                    return null;
+                }
+                if (rs.getString("uid") != null) {
+                    myCache.put(u = new User(rs));
+                } else if (rs.getString("oid") != null) {
+                    myCache.put(u = new Organisation(rs));
+                } else {
+                    System.err.print("Malformed cert owner: " + id);
+                }
             }
         }
         return u;
@@ -50,45 +53,38 @@ public abstract class CertificateOwner implements IdCachable {
             id = ps.lastInsertId();
             myCache.put(this);
         }
+
         return id;
     }
 
     public EmailAddress[] getEmails() {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM emails WHERE memid=? AND deleted is NULL");
         ps.setInt(1, getId());
-        GigiResultSet rs = ps.executeQuery();
-        rs.last();
-        int count = rs.getRow();
-        EmailAddress[] data = new EmailAddress[count];
-        rs.beforeFirst();
-        for (int i = 0; i < data.length; i++) {
-            if ( !rs.next()) {
-                throw new Error("Internal sql api violation.");
-            }
-            data[i] = EmailAddress.getById(rs.getInt(1));
-        }
-        rs.close();
-        return data;
 
+        try (GigiResultSet rs = ps.executeQuery()) {
+            LinkedList<EmailAddress> data = new LinkedList<EmailAddress>();
+
+            while (rs.next()) {
+                data.add(EmailAddress.getById(rs.getInt(1)));
+            }
+
+            return data.toArray(new EmailAddress[0]);
+        }
     }
 
     public Domain[] getDomains() {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM domains WHERE memid=? AND deleted IS NULL");
         ps.setInt(1, getId());
-        GigiResultSet rs = ps.executeQuery();
-        rs.last();
-        int count = rs.getRow();
-        Domain[] data = new Domain[count];
-        rs.beforeFirst();
-        for (int i = 0; i < data.length; i++) {
-            if ( !rs.next()) {
-                throw new Error("Internal sql api violation.");
-            }
-            data[i] = Domain.getById(rs.getInt(1));
-        }
-        rs.close();
-        return data;
 
+        try (GigiResultSet rs = ps.executeQuery()) {
+            LinkedList<Domain> data = new LinkedList<Domain>();
+
+            while (rs.next()) {
+                data.add(Domain.getById(rs.getInt(1)));
+            }
+
+            return data.toArray(new Domain[0]);
+        }
     }
 
     public Certificate[] getCertificates(boolean includeRevoked) {
@@ -99,20 +95,16 @@ public abstract class CertificateOwner implements IdCachable {
             ps = DatabaseConnection.getInstance().prepare("SELECT serial FROM certs WHERE memid=? AND revoked IS NULL");
         }
         ps.setInt(1, getId());
-        GigiResultSet rs = ps.executeQuery();
-        rs.last();
-        int count = rs.getRow();
-        Certificate[] data = new Certificate[count];
-        rs.beforeFirst();
-        for (int i = 0; i < data.length; i++) {
-            if ( !rs.next()) {
-                throw new Error("Internal sql api violation.");
-            }
-            data[i] = Certificate.getBySerial(rs.getString(1));
-        }
-        rs.close();
-        return data;
 
+        try (GigiResultSet rs = ps.executeQuery()) {
+            LinkedList<Certificate> data = new LinkedList<Certificate>();
+
+            while (rs.next()) {
+                data.add(Certificate.getBySerial(rs.getString(1)));
+            }
+
+            return data.toArray(new Certificate[0]);
+        }
     }
 
     public boolean isValidDomain(String domainname) {
@@ -137,7 +129,7 @@ public abstract class CertificateOwner implements IdCachable {
     }
 
     public void delete() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE certOwners set deleted=NOW() WHERE id=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE certOwners SET deleted=NOW() WHERE id=?");
         ps.setInt(1, getId());
         ps.execute();
         myCache.remove(this);

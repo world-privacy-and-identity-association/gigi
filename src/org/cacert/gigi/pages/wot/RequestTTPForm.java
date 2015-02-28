@@ -41,7 +41,13 @@ public class RequestTTPForm extends Form {
             }
             country = COUNTRIES[cid];
         }
-        User u = LoginPage.getUser(req);
+
+        User uReq = LoginPage.getUser(req);
+
+        if ( !u.equals(uReq)) {
+            return false;
+        }
+
         u.grantGroup(u, TTP_APPLICANT);
 
         return false;

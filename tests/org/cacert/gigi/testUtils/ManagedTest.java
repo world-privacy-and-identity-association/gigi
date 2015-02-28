@@ -289,9 +289,11 @@ public class ManagedTest extends ConfiguredTest {
 
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM users where email=?");
             ps.setString(1, email);
-            GigiResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
+
+            try (GigiResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
             }
 
             throw new Error();
@@ -325,14 +327,17 @@ public class ManagedTest extends ConfiguredTest {
      */
     public static int createAssuranceUser(String firstName, String lastName, String email, String password) {
         int uid = createVerifiedUser(firstName, lastName, email, password);
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?");
-        ps.setInt(1, uid);
-        ps.setInt(2, 0);
-        ps.execute();
-        ps = DatabaseConnection.getInstance().prepare("INSERT INTO `notary` SET `from`=?, `to`=?, points='100'");
-        ps.setInt(1, uid);
-        ps.setInt(2, uid);
-        ps.execute();
+
+        GigiPreparedStatement ps1 = DatabaseConnection.getInstance().prepare("INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?");
+        ps1.setInt(1, uid);
+        ps1.setInt(2, 0);
+        ps1.execute();
+
+        GigiPreparedStatement ps2 = DatabaseConnection.getInstance().prepare("INSERT INTO `notary` SET `from`=?, `to`=?, points='100'");
+        ps2.setInt(1, uid);
+        ps2.setInt(2, uid);
+        ps2.execute();
+
         return uid;
     }
 
