@@ -43,13 +43,7 @@ public class DevelLauncher {
             }
             i++;
         }
-        try {
-            String targetPort = mainProps.getProperty("http.port");
-            String targetHost = mainProps.getProperty("name.www");
-            URL u = new URL("http://" + targetHost + ":" + targetPort + "/kill");
-            u.openStream();
-        } catch (IOException e) {
-        }
+        killPreviousInstance(mainProps);
 
         ByteArrayOutputStream chunkConfig = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(chunkConfig);
@@ -68,6 +62,16 @@ public class DevelLauncher {
         System.out.println("Press enter to shutdown.");
         br.readLine();
         System.exit(0);
+    }
+
+    private static void killPreviousInstance(Properties mainProps) {
+        try {
+            String targetPort = mainProps.getProperty("http.port");
+            String targetHost = mainProps.getProperty("name.www");
+            URL u = new URL("http://" + targetHost + ":" + targetPort + "/kill");
+            u.openStream();
+        } catch (IOException e) {
+        }
     }
 
     public static void addDevelPage() {
@@ -102,6 +106,14 @@ public class DevelLauncher {
 
             pages.put("/kill", new Page("Kill") {
 
+                /**
+                 * The contained call to {@link System#exit(int)} is mainly
+                 * needed to kill this instance immediately if another
+                 * {@link DevelLauncher} is booting up to free all ports This is
+                 * required for fast development cycles.
+                 * 
+                 * @see #killPreviousInstance(Properties)
+                 */
                 @Override
                 public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
                     System.exit(0);
