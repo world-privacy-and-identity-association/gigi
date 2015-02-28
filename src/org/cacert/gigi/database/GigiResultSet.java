@@ -1,11 +1,12 @@
 package org.cacert.gigi.database;
 
+import java.io.Closeable;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class GigiResultSet {
+public class GigiResultSet implements Closeable {
 
     ResultSet target;
 
