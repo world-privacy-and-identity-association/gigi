@@ -281,6 +281,21 @@ public class CipherInfo implements Comparable<CipherInfo> {
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((cipher == null) ? 0 : cipher.hashCode());
+        result = prime * result + ((cipherChaining == null) ? 0 : cipherChaining.hashCode());
+        result = prime * result + ((cipherPadding == null) ? 0 : cipherPadding.hashCode());
+        result = prime * result + ((keyExchange == null) ? 0 : keyExchange.hashCode());
+        result = prime * result + keySize;
+        result = prime * result + ((macName == null) ? 0 : macName.hashCode());
+        result = prime * result + macSize;
+        result = prime * result + ((suiteName == null) ? 0 : suiteName.hashCode());
+        return result;
+    }
+
     static String[] cipherRanking = null;
 
     public static String[] getCompleteRanking() {
