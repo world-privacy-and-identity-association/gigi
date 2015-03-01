@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,8 +29,6 @@ import org.kamranzafar.jtar.TarOutputStream;
 
 public class DevelLauncher {
 
-    public static final boolean DEVEL = true;
-
     public static void main(String[] args) throws Exception {
         Properties mainProps = new Properties();
         try (FileInputStream inStream = new FileInputStream("config/gigi.properties")) {
@@ -54,7 +51,7 @@ public class DevelLauncher {
         dos.flush();
         InputStream oldin = System.in;
         System.setIn(new ByteArrayInputStream(chunkConfig.toByteArray()));
-        Launcher.boot();
+        new Launcher().boot();
         addDevelPage();
         System.setIn(oldin);
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
@@ -153,13 +150,4 @@ public class DevelLauncher {
         tos.write(data);
     }
 
-    public static void writeChunk(DataOutputStream dos, byte[] chunk) throws IOException {
-        dos.writeInt(chunk.length);
-        dos.write(chunk);
-    }
-
-    public static void launch(Properties props, File cacerts, File keystore) throws IOException {
-        ByteArrayOutputStream config = new ByteArrayOutputStream();
-        props.store(config, "");
-    }
 }

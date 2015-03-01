@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.util.HTMLEncoder;
 
@@ -63,7 +62,7 @@ public class Template implements Outputable {
         try {
             Reader r = new InputStreamReader(u.openStream(), "UTF-8");
             try {
-                if (u.getProtocol().equals("file") && DevelLauncher.DEVEL) {
+                if (u.getProtocol().equals("file")) {
                     source = new File(u.toURI());
                     lastLoaded = source.lastModified() + 1000;
                 }
@@ -166,17 +165,15 @@ public class Template implements Outputable {
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-        if (source != null && DevelLauncher.DEVEL) {
-            if (lastLoaded < source.lastModified()) {
-                try {
-                    System.out.println("Reloading template.... " + source);
-                    InputStreamReader r = new InputStreamReader(new FileInputStream(source), "UTF-8");
-                    data = parse(r).getBlock(null);
-                    r.close();
-                    lastLoaded = source.lastModified() + 1000;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        if (source != null && lastLoaded < source.lastModified()) {
+            try {
+                System.out.println("Reloading template.... " + source);
+                InputStreamReader r = new InputStreamReader(new FileInputStream(source), "UTF-8");
+                data = parse(r).getBlock(null);
+                r.close();
+                lastLoaded = source.lastModified() + 1000;
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         data.output(out, l, vars);

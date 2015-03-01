@@ -120,7 +120,7 @@ public class ManagedTest extends ConfiguredTest {
 
             final BufferedReader br = new BufferedReader(new InputStreamReader(gigi.getErrorStream(), "UTF-8"));
             String line;
-            while ((line = br.readLine()) != null && !line.contains("Server:main: Started")) {
+            while ((line = br.readLine()) != null && !line.contains("System successfully started.")) {
             }
             new Thread() {
 
