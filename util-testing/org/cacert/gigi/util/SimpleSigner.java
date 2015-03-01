@@ -47,7 +47,7 @@ public class SimpleSigner {
 
     private static GigiPreparedStatement finishJob;
 
-    private static boolean running = true;
+    private static volatile boolean running = true;
 
     private static Thread runner;
 
@@ -68,14 +68,17 @@ public class SimpleSigner {
         runSigner();
     }
 
-    public synchronized static void stopSigner() throws InterruptedException {
-        if (runner == null) {
-            throw new IllegalStateException("already stopped");
+    public static void stopSigner() throws InterruptedException {
+        Thread capturedRunner;
+        synchronized (SimpleSigner.class) {
+            if (runner == null) {
+                throw new IllegalStateException("already stopped");
+            }
+            capturedRunner = runner;
+            running = false;
+            SimpleSigner.class.notifyAll();
         }
-        running = false;
-        runner.interrupt();
-        runner.join();
-        runner = null;
+        capturedRunner.join();
     }
 
     public synchronized static void runSigner() throws SQLException, IOException, InterruptedException {
@@ -111,7 +114,7 @@ public class SimpleSigner {
         runner.start();
     }
 
-    private static void work() {
+    private synchronized static void work() {
         try {
             gencrl();
         } catch (IOException e2) {
@@ -119,11 +122,13 @@ public class SimpleSigner {
         } catch (InterruptedException e2) {
             e2.printStackTrace();
         }
+
         while (running) {
             try {
                 signCertificates();
                 revokeCertificates();
-                Thread.sleep(5000);
+
+                SimpleSigner.class.wait(5000);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (SQLException e) {
@@ -131,6 +136,7 @@ public class SimpleSigner {
             } catch (InterruptedException e1) {
             }
         }
+        runner = null;
     }
 
     private static void revokeCertificates() throws SQLException, IOException, InterruptedException {
