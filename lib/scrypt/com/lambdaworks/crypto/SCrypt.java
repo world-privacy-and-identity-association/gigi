@@ -103,6 +103,12 @@ public class SCrypt {
         if (N < 2 || (N & (N - 1)) != 0) {
             throw new IllegalArgumentException("N must be a power of 2 greater than 1");
         }
+        if (r <= 0) {
+            throw new IllegalArgumentException("Parameter r zero or negative");
+        }
+        if (p <= 0) {
+            throw new IllegalArgumentException("Parameter p zero or negative");
+        }
 
         if (N > MAX_VALUE / 128 / r) {
             throw new IllegalArgumentException("Parameter N is too large");
