@@ -18,7 +18,7 @@ import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration.PingType;
 import org.cacert.gigi.util.PublicSuffixes;
 
-public class Domain implements IdCachable {
+public class Domain implements IdCachable, Verifyable {
 
     public class DomainPingExecution {
 
@@ -233,7 +233,7 @@ public class Domain implements IdCachable {
         configs = null;
     }
 
-    public void verify(String hash) throws GigiApiException {
+    public synchronized void verify(String hash) throws GigiApiException {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE domainPinglog SET state='success' WHERE challenge=? AND configId IN (SELECT id FROM pingconfig WHERE domainId=?)");
         ps.setString(1, hash);
         ps.setInt(2, id);

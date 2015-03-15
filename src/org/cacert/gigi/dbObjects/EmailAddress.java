@@ -11,7 +11,7 @@ import org.cacert.gigi.email.MailProbe;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.util.RandomToken;
 
-public class EmailAddress implements IdCachable {
+public class EmailAddress implements IdCachable, Verifyable {
 
     private String address;
 
