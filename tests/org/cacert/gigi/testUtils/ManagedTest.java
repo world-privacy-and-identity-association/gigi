@@ -311,6 +311,12 @@ public class ManagedTest extends ConfiguredTest {
     public static int createAssuranceUser(String firstName, String lastName, String email, String password) {
         int uid = createVerifiedUser(firstName, lastName, email, password);
 
+        makeAssurer(uid);
+
+        return uid;
+    }
+
+    public static void makeAssurer(int uid) {
         GigiPreparedStatement ps1 = DatabaseConnection.getInstance().prepare("INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?");
         ps1.setInt(1, uid);
         ps1.setInt(2, 0);
@@ -320,8 +326,6 @@ public class ManagedTest extends ConfiguredTest {
         ps2.setInt(1, uid);
         ps2.setInt(2, uid);
         ps2.execute();
-
-        return uid;
     }
 
     static String stripCookie(String headerField) {

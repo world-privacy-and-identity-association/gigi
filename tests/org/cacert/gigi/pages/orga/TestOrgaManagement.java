@@ -22,6 +22,7 @@ public class TestOrgaManagement extends ClientTest {
 
     public TestOrgaManagement() throws IOException {
         u.grantGroup(u, Group.getByString("orgassurer"));
+        makeAssurer(u.getId());
         clearCaches();
         cookie = login(email, TEST_PASSWORD);
     }
@@ -36,7 +37,7 @@ public class TestOrgaManagement extends ClientTest {
         assertEquals("Köln", orgs[0].getCity());
         assertEquals("ÜÖÄß", orgs[0].getProvince());
 
-        User u2 = User.getById(createVerifiedUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
+        User u2 = User.getById(createAssuranceUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
         executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "email=" + URLEncoder.encode(u2.getEmail(), "UTF-8") + "&do_affiliate=y&master=y", 1);
         List<Affiliation> allAdmins = orgs[0].getAllAdmins();
         assertEquals(1, allAdmins.size());
