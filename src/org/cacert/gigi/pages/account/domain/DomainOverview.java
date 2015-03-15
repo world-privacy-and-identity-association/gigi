@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Domain;
-import org.cacert.gigi.dbObjects.DomainPingConfiguration;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.Page;
@@ -62,26 +61,25 @@ public class DomainOverview extends Page {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        User u = getUser(req);
         String pi = req.getPathInfo();
         if (pi.length() - PATH.length() > 0) {
-            int i = Integer.parseInt(pi.substring(PATH.length()));
-            Domain d = Domain.getById(i);
-            if (u.getId() != d.getOwner().getId()) {
-                return;
-            }
-            int reping = Integer.parseInt(req.getParameter("configId"));
-            DomainPingConfiguration dpc = DomainPingConfiguration.getById(reping);
-            if (dpc.getTarget() != d) {
-                return;
-            }
             try {
-                dpc.requestReping();
+                if (req.getParameter("configId") != null) {
+                    if ( !Form.getForm(req, DomainPinglogForm.class).submit(resp.getWriter(), req)) {
+                        // error?
+                    }
+
+                } else {
+                    if ( !Form.getForm(req, PingConfigForm.class).submit(resp.getWriter(), req)) {
+
+                    }
+                }
             } catch (GigiApiException e) {
                 e.format(resp.getWriter(), getLanguage(req));
                 return;
             }
-            resp.sendRedirect(PATH + i);
+
+            resp.sendRedirect(pi);
         }
         if (req.getParameter("adddomain") != null) {
             DomainAddForm f = Form.getForm(req, DomainAddForm.class);
