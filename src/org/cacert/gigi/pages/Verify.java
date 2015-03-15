@@ -14,8 +14,13 @@ import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Verifyable;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.output.template.SprintfCommand;
 
 public class Verify extends Page {
+
+    private static final SprintfCommand emailAddressVerified = new SprintfCommand("Email address ${subject} verified");
+
+    private static final SprintfCommand domainVerified = new SprintfCommand("Domain ${subject} verified");
 
     private class VerificationForm extends Form {
 
@@ -27,24 +32,32 @@ public class Verify extends Page {
 
         private Verifyable target;
 
+        String subject;
+
         public VerificationForm(HttpServletRequest hsr) {
             super(hsr, PATH);
             hash = hsr.getParameter("hash");
             type = hsr.getParameter("type");
             id = hsr.getParameter("id");
             if ("email".equals(type)) {
-                target = EmailAddress.getById(Integer.parseInt(id));
-            } else if ("domain".equals("type")) {
-                target = Domain.getById(Integer.parseInt(id));
+                EmailAddress addr = EmailAddress.getById(Integer.parseInt(id));
+                subject = addr.getAddress();
+                target = addr;
+            } else if ("domain".equals(type)) {
+                Domain domain = Domain.getById(Integer.parseInt(id));
+                subject = domain.getSuffix();
+                target = domain;
             }
         }
 
         @Override
         public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+            HashMap<String, Object> data = new HashMap<>();
+            data.put("subject", subject);
             if ("email".equals(type)) {
                 try {
                     target.verify(hash);
-                    out.println("Email verification completed.");
+                    emailAddressVerified.output(out, getLanguage(req), data);
                 } catch (IllegalArgumentException e) {
                     out.println(translate(req, "The email address is invalid."));
                 } catch (GigiApiException e) {
@@ -53,7 +66,7 @@ public class Verify extends Page {
             } else if ("domain".equals(type)) {
                 try {
                     target.verify(hash);
-                    out.println("Domain verification completed.");
+                    domainVerified.output(out, getLanguage(req), data);
                 } catch (IllegalArgumentException e) {
                     out.println(translate(req, "The domain is invalid."));
                 } catch (GigiApiException e) {
@@ -68,11 +81,8 @@ public class Verify extends Page {
             vars.put("hash", hash);
             vars.put("id", id);
             vars.put("type", type);
-            if (target instanceof EmailAddress) {
-                vars.put("subject", ((EmailAddress) target).getAddress());
-            } else if (target instanceof Domain) {
-                vars.put("subject", ((Domain) target).getSuffix());
-            }
+
+            vars.put("subject", subject);
             getDefaultTemplate().output(out, l, vars);
         }
     }
