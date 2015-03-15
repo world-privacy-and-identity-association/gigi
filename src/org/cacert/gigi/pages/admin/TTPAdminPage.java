@@ -47,7 +47,7 @@ public class TTPAdminPage extends Page {
             int id = Integer.parseInt(path.substring(1 + PATH.length()));
             User u = User.getById(id);
             if (u == null || !u.isInGroup(TTP_APPLICANT)) {
-                SprintfCommand command = new SprintfCommand("The TTP-request is not available anymore. You might want to go {0}back{1}.", Arrays.asList("!\"<a href='" + PATH + "'>", "!\"</a>"));
+                SprintfCommand command = new SprintfCommand("The TTP-request is not available anymore. You might want to go {0}back{1}.", Arrays.asList("!'<a href=\"" + PATH + "\">", "!'</a>"));
                 req.setAttribute(PageNotFound.MESSAGE_ATTRIBUTE, command);
                 resp.sendError(404);
                 return;
