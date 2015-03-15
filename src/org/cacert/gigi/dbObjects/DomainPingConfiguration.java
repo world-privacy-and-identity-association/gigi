@@ -96,6 +96,6 @@ public class DomainPingConfiguration implements IdCachable {
         }
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("data", new Date(lastExecution.getTime() + 5 * 60 * 1000));
-        throw new GigiApiException(new Scope(new SprintfCommand("Reping is only allowed after 5 minutes, yours end at %s.", Arrays.asList("$data")), data));
+        throw new GigiApiException(new Scope(new SprintfCommand("Reping is only allowed after 5 minutes, yours end at {0}.", Arrays.asList("$data")), data));
     }
 }

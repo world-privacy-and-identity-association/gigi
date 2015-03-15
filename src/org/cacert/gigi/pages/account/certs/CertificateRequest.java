@@ -334,7 +334,7 @@ public class CertificateRequest {
             HashMap<String, Object> vars = new HashMap<>();
             vars.put("SAN", san.getType().toString().toLowerCase() + ":" + san.getName());
             error.mergeInto(new GigiApiException(new Scope(new SprintfCommand(//
-                    "The requested Subject alternate name \"%s\" has been removed.", Arrays.asList("$SAN")), vars)));
+                    "The requested Subject alternate name \"{0}\" has been removed.", Arrays.asList("$SAN")), vars)));
         }
         return filteredSANs;
     }
