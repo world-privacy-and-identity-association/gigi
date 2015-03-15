@@ -27,10 +27,15 @@ public class DomainOverview extends Page {
         String pi = req.getPathInfo();
         if (pi.length() - PATH.length() > 0) {
             int i = Integer.parseInt(pi.substring(PATH.length()));
-            Domain d = Domain.getById(i);
+            Domain d;
+            try {
+                d = Domain.getById(i);
+            } catch (IllegalArgumentException e) {
+                resp.getWriter().println(getLanguage(req).getTranslation("Access denied"));
+                return;
+            }
             if (u.getId() != d.getOwner().getId()) {
-                System.out.println(u.getId());
-                System.out.println(d.getOwner().getId());
+                resp.getWriter().println(getLanguage(req).getTranslation("Access denied"));
                 return;
             }
             new DomainPinglogForm(req, d).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
