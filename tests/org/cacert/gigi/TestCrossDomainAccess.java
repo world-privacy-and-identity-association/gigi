@@ -8,8 +8,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.PrivateKey;
 import java.sql.SQLException;
 
+import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.Certificate.CSRType;
+import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.cacert.gigi.util.ServerConstants;
@@ -39,7 +45,15 @@ public class TestCrossDomainAccess extends ManagedTest {
 
     @Test
     public void testCorrectOriginHeaderFromHttpsToSecure() throws MalformedURLException, IOException, GeneralSecurityException, SQLException, InterruptedException, GigiApiException {
+        User u = User.getById(createVerifiedUser("fn", "ln", "testmail@example.com", TEST_PASSWORD));
+        KeyPair kp = generateKeypair();
+        String key = generatePEMCSR(kp, "CN=testmail@example.com");
+        Certificate c = new Certificate(u, Certificate.buildDN("CN", "testmail@example.com"), "sha256", key, CSRType.CSR, CertificateProfile.getById(1));
+        final PrivateKey pk = kp.getPrivate();
+        c.issue(null, "2y").waitFor(60000);
+
         URLConnection con = new URL("https://" + ServerConstants.getSecureHostNamePort()).openConnection();
+        authenticateClientCert(pk, c.cert(), (HttpURLConnection) con);
         con.setRequestProperty("Origin", "https://" + ServerConstants.getWwwHostNamePortSecure());
         String contains = IOUtils.readURL(con);
         assertTrue( !contains.contains("No cross domain access allowed."));
