@@ -313,16 +313,19 @@ public class User extends CertificateOwner {
             if (getAssurancePoints() != 0) {
                 throw new GigiApiException("No change after assurance allowed.");
             }
-
-            GigiPreparedStatement update = DatabaseConnection.getInstance().prepare("UPDATE users SET fname=?, lname=?, mname=?, suffix=?, dob=? WHERE id=?");
-            update.setString(1, name.getFname());
-            update.setString(2, name.getLname());
-            update.setString(3, name.getMname());
-            update.setString(4, name.getSuffix());
-            update.setDate(5, getDoB());
-            update.setInt(6, getId());
-            update.executeUpdate();
+            rawUpdateUserData();
         }
+    }
+
+    protected void rawUpdateUserData() {
+        GigiPreparedStatement update = DatabaseConnection.getInstance().prepare("UPDATE users SET fname=?, lname=?, mname=?, suffix=?, dob=? WHERE id=?");
+        update.setString(1, name.getFname());
+        update.setString(2, name.getLname());
+        update.setString(3, name.getMname());
+        update.setString(4, name.getSuffix());
+        update.setDate(5, getDoB());
+        update.setInt(6, getId());
+        update.executeUpdate();
     }
 
     public Locale getPreferredLocale() {
