@@ -9,13 +9,13 @@ import org.cacert.gigi.util.HTMLEncoder;
 
 public class Name implements Outputable {
 
-    String fname;
+    private String fname;
 
-    String mname;
+    private String mname;
 
-    String lname;
+    private String lname;
 
-    String suffix;
+    private String suffix;
 
     public Name(String fname, String lname, String mname, String suffix) {
         this.fname = fname;
@@ -100,6 +100,22 @@ public class Name implements Outputable {
                 (mname != null && text.equals(fname + " " + mname + " " + lname)) || //
                 (suffix != null && text.equals(fname + " " + lname + " " + suffix)) || //
                 (mname != null && suffix != null && text.equals(fname + " " + mname + " " + lname + " " + suffix));
+    }
+
+    public String getFname() {
+        return fname;
+    }
+
+    public String getLname() {
+        return lname;
+    }
+
+    public String getMname() {
+        return mname;
+    }
+
+    public String getSuffix() {
+        return suffix;
     }
 
 }

@@ -3,6 +3,7 @@ package org.cacert.gigi.util;
 import java.util.regex.Pattern;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 
 public class PasswordStrengthChecker {
@@ -55,20 +56,21 @@ public class PasswordStrengthChecker {
         if (pw == null) {
             return 0;
         }
+        Name name = u.getName();
         int light = checkpwlight(pw);
         if (contained(pw, u.getEmail())) {
             light -= 2;
         }
-        if (contained(pw, u.getFName())) {
+        if (contained(pw, name.getFname())) {
             light -= 2;
         }
-        if (contained(pw, u.getLName())) {
+        if (contained(pw, name.getLname())) {
             light -= 2;
         }
-        if (contained(pw, u.getMName())) {
+        if (contained(pw, name.getMname())) {
             light -= 2;
         }
-        if (contained(pw, u.getSuffix())) {
+        if (contained(pw, name.getSuffix())) {
             light -= 2;
         }
         // TODO dictionary check

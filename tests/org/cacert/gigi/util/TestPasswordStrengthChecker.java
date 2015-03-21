@@ -2,6 +2,7 @@ package org.cacert.gigi.util;
 
 import static org.junit.Assert.*;
 
+import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.junit.Test;
 
@@ -11,11 +12,8 @@ public class TestPasswordStrengthChecker {
 
     public TestPasswordStrengthChecker() {
         u = new User();
-        u.setFName("fname");
-        u.setLName("lname");
-        u.setMName("mname");
+        u.setName(new Name("fname", "lname", "mname", "suffix"));
         u.setEmail("email");
-        u.setSuffix("suffix");
     }
 
     @Test

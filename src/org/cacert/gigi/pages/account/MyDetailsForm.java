@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
@@ -44,10 +45,7 @@ public class MyDetailsForm extends Form {
                 if (newLname.isEmpty()) {
                     throw new GigiApiException("Last name cannot be empty.");
                 }
-                target.setFName(newFname);
-                target.setLName(newLname);
-                target.setMName(newMname);
-                target.setSuffix(newSuffix);
+                target.setName(new Name(newFname, newLname, newMname, newSuffix));
                 ds.update(req);
                 target.setDoB(ds.getDate());
                 target.updateUserData();
@@ -66,10 +64,11 @@ public class MyDetailsForm extends Form {
 
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
-        vars.put("fname", HTMLEncoder.encodeHTML(target.getFName()));
-        vars.put("mname", target.getMName() == null ? "" : HTMLEncoder.encodeHTML(target.getMName()));
-        vars.put("lname", HTMLEncoder.encodeHTML(target.getLName()));
-        vars.put("suffix", target.getSuffix() == null ? "" : HTMLEncoder.encodeHTML(target.getSuffix()));
+        Name name = target.getName();
+        vars.put("fname", HTMLEncoder.encodeHTML(name.getFname()));
+        vars.put("mname", name.getMname() == null ? "" : HTMLEncoder.encodeHTML(name.getMname()));
+        vars.put("lname", HTMLEncoder.encodeHTML(name.getLname()));
+        vars.put("suffix", name.getSuffix() == null ? "" : HTMLEncoder.encodeHTML(name.getSuffix()));
         vars.put("details", "");
         if (target.getAssurancePoints() == 0) {
             vars.put("DoB", ds);

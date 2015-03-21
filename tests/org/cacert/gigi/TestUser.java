@@ -9,6 +9,7 @@ import java.util.Locale;
 import org.cacert.gigi.dbObjects.Assurance;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.EmailAddress;
+import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.testUtils.ManagedTest;
@@ -19,10 +20,7 @@ public class TestUser extends ManagedTest {
     @Test
     public void testStoreAndLoad() throws SQLException {
         User u = new User();
-        u.setFName("user");
-        u.setLName("last");
-        u.setMName("");
-        u.setSuffix("");
+        u.setName(new Name("user", "last", "", ""));
         u.setPreferredLocale(Locale.ENGLISH);
         long dob = System.currentTimeMillis();
         dob -= dob % (1000 * 60 * 60 * 24);
@@ -40,10 +38,11 @@ public class TestUser extends ManagedTest {
     public void testWebStoreAndLoad() throws SQLException {
         int id = createVerifiedUser("aä", "b", createUniqueName() + "a@email.org", TEST_PASSWORD);
 
-        User u = User.getById(id);
-        assertEquals("aä", u.getFName());
-        assertEquals("b", u.getLName());
-        assertEquals("", u.getMName());
+        Name u = User.getById(id).getName();
+
+        assertEquals("aä", u.getFname());
+        assertEquals("b", u.getLname());
+        assertEquals("", u.getMname());
     }
 
     @Test
@@ -58,10 +57,10 @@ public class TestUser extends ManagedTest {
         assertEquals(2, expPoints);
         assertTrue(u.hasPassedCATS());
         assertEquals(10, u.getMaxAssurePoints());
-
-        assertEquals("aä", u.getFName());
-        assertEquals("b", u.getLName());
-        assertEquals("", u.getMName());
+        Name name = u.getName();
+        assertEquals("aä", name.getFname());
+        assertEquals("b", name.getLname());
+        assertEquals("", name.getMname());
     }
 
     @Test
@@ -99,10 +98,7 @@ public class TestUser extends ManagedTest {
     @Test
     public void testDoubleInsert() {
         User u = new User();
-        u.setFName("f");
-        u.setLName("l");
-        u.setMName("m");
-        u.setSuffix("s");
+        u.setName(new Name("f", "k", "m", "s"));
         u.setEmail(createUniqueName() + "@example.org");
         u.setDoB(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 365));
         u.setPreferredLocale(Locale.ENGLISH);

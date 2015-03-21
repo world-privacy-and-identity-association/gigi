@@ -64,32 +64,8 @@ public class User extends CertificateOwner {
 
     public User() {}
 
-    public String getFName() {
-        return name.fname;
-    }
-
-    public String getLName() {
-        return name.lname;
-    }
-
-    public String getMName() {
-        return name.mname;
-    }
-
     public Name getName() {
         return name;
-    }
-
-    public void setMName(String mname) {
-        this.name.mname = mname;
-    }
-
-    public String getSuffix() {
-        return name.suffix;
-    }
-
-    public void setSuffix(String suffix) {
-        this.name.suffix = suffix;
     }
 
     public Date getDoB() {
@@ -108,23 +84,15 @@ public class User extends CertificateOwner {
         this.email = email;
     }
 
-    public void setFName(String fname) {
-        this.name.fname = fname;
-    }
-
-    public void setLName(String lname) {
-        this.name.lname = lname;
-    }
-
     public void insert(String password) {
         int id = super.insert();
         GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("insert into `users` set `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, " + "`suffix`=?, `dob`=?, `language`=?, id=?");
         query.setString(1, email);
         query.setString(2, PasswordHash.hash(password));
-        query.setString(3, name.fname);
-        query.setString(4, name.mname);
-        query.setString(5, name.lname);
-        query.setString(6, name.suffix);
+        query.setString(3, name.getFname());
+        query.setString(4, name.getMname());
+        query.setString(5, name.getLname());
+        query.setString(6, name.getSuffix());
         query.setDate(7, new java.sql.Date(dob.getTime()));
         query.setString(8, locale.toString());
         query.setInt(9, id);
@@ -347,10 +315,10 @@ public class User extends CertificateOwner {
             }
 
             GigiPreparedStatement update = DatabaseConnection.getInstance().prepare("UPDATE users SET fname=?, lname=?, mname=?, suffix=?, dob=? WHERE id=?");
-            update.setString(1, getFName());
-            update.setString(2, getLName());
-            update.setString(3, getMName());
-            update.setString(4, getSuffix());
+            update.setString(1, name.getFname());
+            update.setString(2, name.getLname());
+            update.setString(3, name.getMname());
+            update.setString(4, name.getSuffix());
             update.setDate(5, getDoB());
             update.setInt(6, getId());
             update.executeUpdate();

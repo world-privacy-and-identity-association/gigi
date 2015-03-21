@@ -10,6 +10,7 @@ import java.util.Locale;
 
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.EmailAddress;
+import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.testUtils.ManagedTest;
@@ -24,10 +25,7 @@ public class TestObjectCache extends ManagedTest {
         assertThat(User.getById(uid), is(sameInstance(User.getById(uid))));
 
         User u = new User();
-        u.setFName("fname");
-        u.setMName("mname");
-        u.setSuffix("suffix");
-        u.setLName("lname");
+        u.setName(new Name("fname", "lname", "mname", "suffix"));
         u.setEmail(createUniqueName() + "@example.org");
         Calendar c = Calendar.getInstance();
         c.set(1950, 1, 1);

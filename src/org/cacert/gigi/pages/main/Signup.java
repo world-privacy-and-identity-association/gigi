@@ -14,6 +14,7 @@ import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.EmailAddress;
+import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
@@ -36,10 +37,7 @@ public class Signup extends Form {
     public Signup(HttpServletRequest hsr) {
         super(hsr);
         t = new Template(Signup.class.getResource("Signup.templ"));
-        buildup.setFName("");
-        buildup.setMName("");
-        buildup.setLName("");
-        buildup.setSuffix("");
+        buildup.setName(new Name("", "", "", ""));
         buildup.setEmail("");
         buildup.setDoB(new Date(0));
     }
@@ -49,10 +47,11 @@ public class Signup extends Form {
     @Override
     public void outputContent(PrintWriter out, Language l, Map<String, Object> outerVars) {
         HashMap<String, Object> vars = new HashMap<String, Object>();
-        vars.put("fname", HTMLEncoder.encodeHTML(buildup.getFName()));
-        vars.put("mname", HTMLEncoder.encodeHTML(buildup.getMName()));
-        vars.put("lname", HTMLEncoder.encodeHTML(buildup.getLName()));
-        vars.put("suffix", HTMLEncoder.encodeHTML(buildup.getSuffix()));
+        Name buildupName = buildup.getName();
+        vars.put("fname", HTMLEncoder.encodeHTML(buildupName.getFname()));
+        vars.put("mname", HTMLEncoder.encodeHTML(buildupName.getMname()));
+        vars.put("lname", HTMLEncoder.encodeHTML(buildupName.getLname()));
+        vars.put("suffix", HTMLEncoder.encodeHTML(buildupName.getSuffix()));
         vars.put("dob", myDoB);
         vars.put("email", HTMLEncoder.encodeHTML(buildup.getEmail()));
         vars.put("general", general ? " checked=\"checked\"" : "");
@@ -65,21 +64,26 @@ public class Signup extends Form {
     }
 
     private void update(HttpServletRequest r) {
+        String fname = buildup.getName().getFname();
+        String lname = buildup.getName().getLname();
+        String mname = buildup.getName().getMname();
+        String suffix = buildup.getName().getSuffix();
         if (r.getParameter("fname") != null) {
-            buildup.setFName(r.getParameter("fname"));
+            fname = r.getParameter("fname");
         }
         if (r.getParameter("lname") != null) {
-            buildup.setLName(r.getParameter("lname"));
+            lname = r.getParameter("lname");
         }
         if (r.getParameter("mname") != null) {
-            buildup.setMName(r.getParameter("mname"));
+            mname = r.getParameter("mname");
         }
         if (r.getParameter("suffix") != null) {
-            buildup.setSuffix(r.getParameter("suffix"));
+            suffix = r.getParameter("suffix");
         }
         if (r.getParameter("email") != null) {
             buildup.setEmail(r.getParameter("email"));
         }
+        buildup.setName(new Name(fname, lname, mname, suffix));
         general = "1".equals(r.getParameter("general"));
         country = "1".equals(r.getParameter("country"));
         regional = "1".equals(r.getParameter("regional"));
@@ -93,7 +97,7 @@ public class Signup extends Form {
     @Override
     public synchronized boolean submit(PrintWriter out, HttpServletRequest req) {
         update(req);
-        if (buildup.getLName().trim().equals("")) {
+        if (buildup.getName().getLname().trim().equals("")) {
             outputError(out, req, "Last name were blank.");
         }
         if ( !myDoB.isValid()) {

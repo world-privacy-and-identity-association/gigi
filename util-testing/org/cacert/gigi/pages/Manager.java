@@ -21,6 +21,7 @@ import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Group;
+import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
@@ -155,10 +156,7 @@ public class Manager extends Page {
 
     private void createUser(String email) throws GigiApiException, IllegalAccessException {
         User u = new User();
-        u.setFName("Först");
-        u.setMName("Müddle");
-        u.setLName("Läst");
-        u.setSuffix("Süffix");
+        u.setName(new Name("Först", "Läst", "Müddle", "Süffix"));
         u.setEmail(email);
         Calendar gc = GregorianCalendar.getInstance();
         gc.set(1990, 0, 1);

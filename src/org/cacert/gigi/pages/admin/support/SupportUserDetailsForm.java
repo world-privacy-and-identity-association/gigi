@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Group;
+import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
@@ -35,11 +36,12 @@ public class SupportUserDetailsForm extends Form {
 
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
+        Name name = user.getName();
         vars.put("mail", user.getEmail());
-        vars.put("fname", user.getFName());
-        vars.put("mname", user.getMName());
-        vars.put("lname", user.getLName());
-        vars.put("suffix", user.getSuffix());
+        vars.put("fname", name.getFname());
+        vars.put("mname", name.getMname());
+        vars.put("lname", name.getLname());
+        vars.put("suffix", name.getSuffix());
         vars.put("assurer", user.canAssure());
         vars.put("dob", new DateSelector("dobd", "dobm", "doby", user.getDoB()));
         vars.put("blockedassurer", user.isInGroup(Group.BLOCKEDASSURER));
