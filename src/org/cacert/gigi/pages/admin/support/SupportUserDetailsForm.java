@@ -15,8 +15,6 @@ import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Template;
 
-import sun.security.pkcs11.Secmod.DbMode;
-
 public class SupportUserDetailsForm extends Form {
 
     private static Template t;
