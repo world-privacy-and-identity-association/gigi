@@ -18,14 +18,22 @@ public class SupportedUser {
         this.ticket = ticket;
     }
 
-    public void setName(String fname, String mname, String lname, String suffix) throws GigiApiException {
+    public boolean setName(Name newName) throws GigiApiException {
+        if (newName.equals(target.getName())) {
+            return false;
+        }
         writeSELog("SE Name change");
-        target.setName(new Name(fname, lname, mname, suffix));
+        target.setName(newName);
+        return true;
     }
 
-    public void setDob(Date dob) throws GigiApiException {
+    public boolean setDob(Date dob) throws GigiApiException {
+        if (dob.toString().equals(target.getDoB().toString())) {
+            return false;
+        }
         writeSELog("SE dob change");
         target.setDoB(dob);
+        return true;
     }
 
     public void revokeAllCertificates() throws GigiApiException {
@@ -62,6 +70,10 @@ public class SupportedUser {
 
     public User getTargetUser() {
         return target;
+    }
+
+    public void submitSupportAction() throws GigiApiException {
+        target.rawUpdateUserData();
     }
 
 }
