@@ -339,7 +339,7 @@ CREATE TABLE `adminLog` (
   `admin` int(11) unsigned NOT NULL,
   `type` varchar(100) NOT NULL DEFAULT '',
   `information` varchar(50) NOT NULL DEFAULT '',
-  PRIMARY KEY (`when`)
+  KEY (`when`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `schemeVersion`;
@@ -347,4 +347,4 @@ CREATE TABLE `schemeVersion` (
   `version` int(5) NOT NULL,
   PRIMARY KEY (`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-INSERT INTO schemeVersion(version)  VALUES(1);
+INSERT INTO schemeVersion(version)  VALUES(2);

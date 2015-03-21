@@ -15,7 +15,7 @@ import org.cacert.gigi.database.SQLFileManager.ImportType;
 
 public class DatabaseConnection {
 
-    public static final int CURRENT_SCHEMA_VERSION = 1;
+    public static final int CURRENT_SCHEMA_VERSION = 2;
 
     public static final int CONNECTION_TIMEOUT = 24 * 60 * 60;
 

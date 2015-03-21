@@ -1,0 +1,3 @@
+ALTER TABLE adminLog DROP PRIMARY KEY;
+ALTER TABLE `adminLog` ADD INDEX(`when`);
+
