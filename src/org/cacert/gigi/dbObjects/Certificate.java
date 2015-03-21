@@ -347,6 +347,9 @@ public class Certificate {
     }
 
     public static Certificate getBySerial(String serial) {
+        if (serial == null || "".equals(serial)) {
+            return null;
+        }
         // TODO caching?
         try {
             return new Certificate(serial);

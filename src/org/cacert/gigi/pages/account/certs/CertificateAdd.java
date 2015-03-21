@@ -30,6 +30,9 @@ public class CertificateAdd extends Page {
         if (f.submit(resp.getWriter(), req)) {
             Certificate c = f.getResult();
             String ser = c.getSerial();
+            if (ser.isEmpty()) {
+                resp.getWriter().println("C");
+            }
             resp.sendRedirect(Certificates.PATH + "/" + ser);
         }
         f.output(resp.getWriter(), getLanguage(req), Collections.<String,Object>emptyMap());
