@@ -160,12 +160,7 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable {
      * @see #receive()
      */
     public TestMail poll() {
-        try {
-            return mails.poll(60, TimeUnit.SECONDS);
-
-        } catch (InterruptedException e) {
-            throw new AssertionError("Interrupted while recieving mails");
-        }
+        return mails.poll();
     }
 
     @Override
