@@ -31,10 +31,10 @@ public class SupportUserDetailsPage extends Page {
         String[] idP = req.getPathInfo().split("/");
         id = Integer.parseInt(idP[idP.length - 1]);
         final User user = User.getById(id);
-        SupportUserDetailsForm f = new SupportUserDetailsForm(req, user);
+        String ticket = (String) req.getSession().getAttribute("ticketNo" + user.getId());
+        SupportUserDetailsForm f = new SupportUserDetailsForm(req, new SupportedUser(user, getUser(req), ticket));
         HashMap<String, Object> vars = new HashMap<String, Object>();
         vars.put("details", f);
-        String ticket = (String) req.getSession().getAttribute("ticketNo" + user.getId());
         vars.put("ticketNo", ticket);
         final EmailAddress[] addrs = user.getEmails();
         vars.put("emails", new IterableDataset() {
@@ -69,6 +69,10 @@ public class SupportUserDetailsPage extends Page {
                 }
             } else if (req.getParameter("revokeall") != null) {
                 if ( !Form.getForm(req, SupportRevokeCertificatesForm.class).submit(resp.getWriter(), req)) {
+                    throw new GigiApiException("No ticket number set.");
+                }
+            } else if (req.getParameter("detailupdate") != null) {
+                if ( !Form.getForm(req, SupportUserDetailsForm.class).submit(resp.getWriter(), req)) {
                     throw new GigiApiException("No ticket number set.");
                 }
             }

@@ -2,6 +2,7 @@ package org.cacert.gigi.dbObjects;
 
 import java.sql.Date;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 
@@ -17,17 +18,17 @@ public class SupportedUser {
         this.ticket = ticket;
     }
 
-    public void setName(String fname, String mname, String lname, String suffix) {
+    public void setName(String fname, String mname, String lname, String suffix) throws GigiApiException {
         writeSELog("SE Name change");
         target.setName(new Name(fname, lname, mname, suffix));
     }
 
-    public void setDob(Date dob) {
+    public void setDob(Date dob) throws GigiApiException {
         writeSELog("SE dob change");
         target.setDoB(dob);
     }
 
-    public void revokeAllCertificates() {
+    public void revokeAllCertificates() throws GigiApiException {
         writeSELog("SE Revoke certificates");
         Certificate[] certs = target.getCertificates(false);
         for (int i = 0; i < certs.length; i++) {
@@ -35,7 +36,10 @@ public class SupportedUser {
         }
     }
 
-    public void writeSELog(String type) {
+    private void writeSELog(String type) throws GigiApiException {
+        if (ticket == null) {
+            throw new GigiApiException("No ticket set!");
+        }
         GigiPreparedStatement prep = DatabaseConnection.getInstance().prepare("INSERT INTO adminLog SET uid=?, admin=?, type=?, information=?");
         prep.setInt(1, target.getId());
         prep.setInt(2, supporter.getId());
@@ -54,6 +58,10 @@ public class SupportedUser {
 
     public String getTicket() {
         return ticket;
+    }
+
+    public User getTargetUser() {
+        return target;
     }
 
 }

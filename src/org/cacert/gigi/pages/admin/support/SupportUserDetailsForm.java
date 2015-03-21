@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Name;
+import org.cacert.gigi.dbObjects.SupportedUser;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
@@ -18,24 +19,26 @@ public class SupportUserDetailsForm extends Form {
 
     private static Template t;
 
-    private User user;
+    private SupportedUser user;
 
     static {
         t = new Template(FindDomainForm.class.getResource("SupportUserDetailsForm.templ"));
     }
 
-    public SupportUserDetailsForm(HttpServletRequest hsr, User user) {
+    public SupportUserDetailsForm(HttpServletRequest hsr, SupportedUser user) {
         super(hsr);
         this.user = user;
     }
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+
         return false;
     }
 
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
+        User user = this.user.getTargetUser();
         Name name = user.getName();
         vars.put("mail", user.getEmail());
         vars.put("fname", name.getFname());
