@@ -24,7 +24,7 @@ public class DateSelector implements Outputable {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTF"));
         cal.setTime(date);
         this.day = cal.get(Calendar.DAY_OF_MONTH);
-        this.month = cal.get(Calendar.MONTH);
+        this.month = cal.get(Calendar.MONTH) + 1;
         this.year = cal.get(Calendar.YEAR);
     }
 
