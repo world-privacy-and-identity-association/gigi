@@ -12,6 +12,7 @@ import java.net.URLEncoder;
 
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.pages.admin.support.FindUserPage;
+import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
 import org.cacert.gigi.testUtils.ClientTest;
 import org.junit.Test;
 
@@ -36,6 +37,6 @@ public class TestSEAdminPage extends ClientTest {
         os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
                 + "process&email=" + URLEncoder.encode(mail, "UTF-8")).getBytes("UTF-8"));
         os.flush();
-        assertEquals("https://" + getServerName() + "/support/user/" + id, uc.getHeaderField("Location"));
+        assertEquals("https://" + getServerName() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
     }
 }
