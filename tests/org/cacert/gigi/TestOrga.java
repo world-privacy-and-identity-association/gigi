@@ -10,7 +10,7 @@ import org.junit.Test;
 public class TestOrga extends ManagedTest {
 
     @Test
-    public void testAddRm() {
+    public void testAddRm() throws GigiApiException {
         User u1 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
         User u2 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
         User u3 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));

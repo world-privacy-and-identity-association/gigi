@@ -40,17 +40,20 @@ public class ViewOrgPage extends Page {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             User u = LoginPage.getUser(req);
-            if ( !u.isInGroup(CreateOrgPage.ORG_ASSURER)) {
-                return;
-            }
             if (req.getParameter("do_affiliate") != null || req.getParameter("del") != null) {
                 AffiliationForm form = Form.getForm(req, AffiliationForm.class);
                 if (form.submit(resp.getWriter(), req)) {
                     resp.sendRedirect(DEFAULT_PATH + "/" + form.getOrganisation().getId());
                 }
+                return;
             } else {
+                if ( !u.isInGroup(CreateOrgPage.ORG_ASSURER)) {
+                    resp.sendError(403, "Access denied");
+                    return;
+                }
                 Form.getForm(req, CreateOrgForm.class).submit(resp.getWriter(), req);
             }
+
         } catch (GigiApiException e) {
             e.format(resp.getWriter(), getLanguage(req));
         }

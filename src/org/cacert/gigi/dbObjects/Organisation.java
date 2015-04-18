@@ -3,6 +3,7 @@ package org.cacert.gigi.dbObjects;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
@@ -51,7 +52,10 @@ public class Organisation extends CertificateOwner {
 
     private String email;
 
-    public Organisation(String name, String state, String province, String city, String email, User creator) {
+    public Organisation(String name, String state, String province, String city, String email, User creator) throws GigiApiException {
+        if ( !creator.isInGroup(Group.ORGASSURER)) {
+            throw new GigiApiException("Only org-assurers may create organisations.");
+        }
         this.name = name;
         this.state = state;
         this.province = province;
@@ -109,7 +113,13 @@ public class Organisation extends CertificateOwner {
         return null;
     }
 
-    public synchronized void addAdmin(User admin, User actor, boolean master) {
+    public synchronized void addAdmin(User admin, User actor, boolean master) throws GigiApiException {
+        if ( !admin.canAssure()) {
+            throw new GigiApiException("Cannot add non-assurer.");
+        }
+        if ( !actor.isInGroup(Group.ORGASSURER) && !isMaster(actor)) {
+            throw new GigiApiException("Only org assurer or master-admin may add admins to an organisation.");
+        }
         GigiPreparedStatement ps1 = DatabaseConnection.getInstance().prepare("SELECT 1 FROM org_admin WHERE orgid=? AND memid=? AND deleted is null");
         ps1.setInt(1, getId());
         ps1.setInt(2, admin.getId());
@@ -125,7 +135,10 @@ public class Organisation extends CertificateOwner {
         ps2.execute();
     }
 
-    public void removeAdmin(User admin, User actor) {
+    public void removeAdmin(User admin, User actor) throws GigiApiException {
+        if ( !actor.isInGroup(Group.ORGASSURER) && !isMaster(actor)) {
+            throw new GigiApiException("Only org assurer or master-admin may delete admins from an organisation.");
+        }
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE org_admin SET deleter=?, deleted=NOW() WHERE orgid=? AND memid=?");
         ps.setInt(1, actor.getId());
         ps.setInt(2, getId());
@@ -179,5 +192,14 @@ public class Organisation extends CertificateOwner {
         state = c;
         province = st;
         city = l;
+    }
+
+    public boolean isMaster(User u) {
+        for (Affiliation i : getAllAdmins()) {
+            if (i.isMaster() && i.getTarget() == u) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -10,6 +10,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.List;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.Organisation.Affiliation;
@@ -21,7 +22,7 @@ import org.junit.Test;
 public class TestOrgaManagement extends ClientTest {
 
     public TestOrgaManagement() throws IOException {
-        u.grantGroup(u, Group.getByString("orgassurer"));
+        u.grantGroup(u, Group.ORGASSURER);
         makeAssurer(u.getId());
         clearCaches();
         cookie = login(email, TEST_PASSWORD);
@@ -68,11 +69,11 @@ public class TestOrgaManagement extends ClientTest {
     }
 
     @Test
-    public void testNonAssurerSeeOnlyOwn() throws IOException {
-        User u2 = User.getById(createVerifiedUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
+    public void testNonAssurerSeeOnlyOwn() throws IOException, GigiApiException {
+        User u2 = User.getById(createAssuranceUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
         Organisation o1 = new Organisation("name21", "DE", "sder", "Rostov", "email", u);
         Organisation o2 = new Organisation("name12", "DE", "sder", "Rostov", "email", u);
-        o1.addAdmin(u2, u2, false);
+        o1.addAdmin(u2, u, false);
         String session2 = login(u2.getEmail(), TEST_PASSWORD);
 
         URLConnection uc = new URL("https://" + getServerName() + ViewOrgPage.DEFAULT_PATH).openConnection();
@@ -96,5 +97,37 @@ public class TestOrgaManagement extends ClientTest {
         assertEquals(200, ((HttpURLConnection) uc).getResponseCode());
         o1.delete();
         o2.delete();
+    }
+
+    @Test
+    public void testAffiliationRights() throws IOException, GigiApiException {
+        User u2 = User.getById(createAssuranceUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
+        User u3 = User.getById(createAssuranceUser("testmaster", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
+        User u4_dummy = User.getById(createVerifiedUser("testmaster", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
+        Organisation o1 = new Organisation("name21", "DE", "sder", "Rostov", "email", u);
+        o1.addAdmin(u3, u, true);
+        try {
+            // must fail because u4 is no assurer
+            o1.addAdmin(u4_dummy, u3, false);
+            fail("No exception!");
+        } catch (GigiApiException e) {
+        }
+        o1.addAdmin(u2, u3, false);
+        try {
+            // must fail because u2 may not add admins
+            o1.addAdmin(u3, u2, false);
+            fail("No exception!");
+        } catch (GigiApiException e) {
+        }
+        try {
+            // must fail because u4 is no assurer
+            o1.addAdmin(u4_dummy, u, false);
+            fail("No exception!");
+        } catch (GigiApiException e) {
+        }
+        o1.removeAdmin(u2, u3);
+        o1.removeAdmin(u3, u3);
+        assertEquals(0, o1.getAllAdmins().size());
+        o1.delete();
     }
 }
