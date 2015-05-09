@@ -6,14 +6,18 @@ import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.dbObjects.CACertificate;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.CertificateIterable;
+import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
@@ -24,6 +28,31 @@ public class Certificates extends Page {
     private Template certDisplay = new Template(Certificates.class.getResource("CertificateDisplay.templ"));
 
     public static final String PATH = "/account/certs";
+
+    static class TrustchainIterable implements IterableDataset {
+
+        CACertificate cert;
+
+        public TrustchainIterable(CACertificate cert) {
+            this.cert = cert;
+        }
+
+        @Override
+        public boolean next(Language l, Map<String, Object> vars) {
+            if (cert == null) {
+                return false;
+            }
+            vars.put("name", cert.getKeyname());
+            vars.put("link", cert.getLink());
+            if (cert.isSelfsigned()) {
+                cert = null;
+                return true;
+            }
+            cert = cert.getParent();
+            return true;
+        }
+
+    }
 
     public Certificates() {
         super("Certificates");
@@ -67,6 +96,16 @@ public class Certificates extends Page {
             ServletOutputStream out = resp.getOutputStream();
             if (crt) {
                 out.println(PEM.encode("CERTIFICATE", cert.getEncoded()));
+                if (req.getParameter("chain") != null) {
+                    CACertificate ca = c.getParent();
+                    while ( !ca.isSelfsigned()) {
+                        out.println(PEM.encode("CERTIFICATE", ca.getCertificate().getEncoded()));
+                        ca = ca.getParent();
+                    }
+                    if (req.getParameter("noAnchor") == null) {
+                        out.println(PEM.encode("CERTIFICATE", ca.getCertificate().getEncoded()));
+                    }
+                }
             } else if (cer) {
                 out.write(cert.getEncoded());
             }
@@ -98,6 +137,7 @@ public class Certificates extends Page {
             }
             HashMap<String, Object> vars = new HashMap<>();
             vars.put("serial", URLEncoder.encode(serial, "UTF-8"));
+            vars.put("trustchain", new TrustchainIterable(c.getParent()));
             try {
                 vars.put("cert", c.cert());
             } catch (GeneralSecurityException e) {

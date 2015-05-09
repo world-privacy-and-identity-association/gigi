@@ -132,6 +132,8 @@ public class Certificate {
 
     private String dnString;
 
+    private CACertificate ca;
+
     public Certificate(User owner, HashMap<String, String> dn, String md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) throws GigiApiException {
         if ( !owner.canIssue(profile)) {
             throw new GigiApiException("You are not allowed to issue these certificates.");
@@ -210,7 +212,7 @@ public class Certificate {
         if (id == 0) {
             return CertificateStatus.DRAFT;
         }
-        GigiPreparedStatement searcher = DatabaseConnection.getInstance().prepare("SELECT crt_name, created, revoked, serial FROM certs WHERE id=?");
+        GigiPreparedStatement searcher = DatabaseConnection.getInstance().prepare("SELECT crt_name, created, revoked, serial, caid FROM certs WHERE id=?");
         searcher.setInt(1, id);
         GigiResultSet rs = searcher.executeQuery();
         if ( !rs.next()) {
@@ -219,6 +221,7 @@ public class Certificate {
 
         crtName = rs.getString(1);
         serial = rs.getString(4);
+        ca = CACertificate.getById(rs.getInt("caid"));
         if (rs.getTimestamp(2) == null) {
             return CertificateStatus.DRAFT;
         }
@@ -291,6 +294,14 @@ public class Certificate {
         }
         return Job.revoke(this);
 
+    }
+
+    public CACertificate getParent() {
+        CertificateStatus status = getStatus();
+        if (status != CertificateStatus.REVOKED && status != CertificateStatus.ISSUED) {
+            throw new IllegalStateException(status + " is not wanted here.");
+        }
+        return ca;
     }
 
     public X509Certificate cert() throws IOException, GeneralSecurityException {

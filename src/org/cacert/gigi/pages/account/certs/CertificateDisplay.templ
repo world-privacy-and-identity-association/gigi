@@ -1,4 +1,9 @@
-<a href='<?=$serial?>.crt'><?=_PEM encoded Certificate?></a><br/>
+<a href='<?=$serial?>.crt'><?=_PEM encoded Certificate?></a>
+<? foreach($trustchain) { ?>
+ <?=_issued by?> <a href='<?=$link?>'><?=$name?></a>
+<? } ?><br/>
+<a href='<?=$serial?>.crt?chain'><?=_PEM encoded Certificate Cain?></a><br/>
+<a href='<?=$serial?>.crt?chain&noAnchor'><?=_PEM encoded Certificate Cain (Excluding Anchor)?></a><br/>
 <a href='<?=$serial?>.cer'><?=_DER encoded Certificate?></a><br/>
 <a href='<?=$serial?>.cer?install'><?=_Install into browser.?></a><br/>
 <pre>

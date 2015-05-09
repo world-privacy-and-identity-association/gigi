@@ -226,7 +226,7 @@ DROP TABLE IF EXISTS `cacerts`;
 CREATE TABLE `cacerts` (
   `id` int(3) NOT NULL AUTO_INCREMENT,
   `keyname` varchar(60) NOT NULL,
-  `subroot` int(2) NOT NULL,
+  `parentRoot` int(3) NOT NULL,
   `validFrom` datetime NULL DEFAULT NULL,
   `validTo` datetime NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -347,4 +347,4 @@ CREATE TABLE `schemeVersion` (
   `version` int(5) NOT NULL,
   PRIMARY KEY (`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-INSERT INTO schemeVersion(version)  VALUES(2);
+INSERT INTO schemeVersion(version)  VALUES(3);
