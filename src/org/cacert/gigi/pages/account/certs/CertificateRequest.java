@@ -342,7 +342,7 @@ public class CertificateRequest {
     public Certificate draft() throws GigiApiException {
 
         GigiApiException error = new GigiApiException();
-        if ( !u.canIssue(this.profile)) {
+        if ( !this.profile.canBeIssuedBy(u)) {
             this.profile = CertificateProfile.getById(1);
             error.mergeInto(new GigiApiException("Certificate Profile is invalid."));
             throw error;

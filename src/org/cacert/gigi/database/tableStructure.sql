@@ -189,32 +189,13 @@ DROP TABLE IF EXISTS `profiles`;
 CREATE TABLE `profiles` (
   `id` int(3) NOT NULL AUTO_INCREMENT,
   `keyname` varchar(60) NOT NULL,
-  `keyUsage` varchar(100) NOT NULL,
-  `extendedKeyUsage` varchar(100) NOT NULL,
-  `rootcert` int(2) NOT NULL DEFAULT '1',
+  `include` varchar(200) NOT NULL,
+  `requires` varchar(200) NOT NULL,
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE (`keyname`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
-INSERT INTO `profiles` SET rootcert=0, keyname='client', name='ssl-client (unassured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth';
-INSERT INTO `profiles` SET rootcert=0, keyname='mail',  name='mail (unassured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='emailProtection';
-INSERT INTO `profiles` SET rootcert=0, keyname='client-mail', name='ssl-client + mail (unassured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth, emailProtection';
-INSERT INTO `profiles` SET rootcert=0, keyname='server', name='ssl-server (unassured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='serverAuth';
-
-INSERT INTO `profiles` SET rootcert=1, keyname='client-a', name='ssl-client (assured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth';
-INSERT INTO `profiles` SET rootcert=1, keyname='mail-a',  name='mail (assured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='emailProtection';
-INSERT INTO `profiles` SET rootcert=1, keyname='client-mail-a', name='ssl-client + mail(assured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth, emailProtection';
-INSERT INTO `profiles` SET rootcert=1, keyname='server-a', name='ssl-server (assured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='serverAuth';
-INSERT INTO `profiles` SET rootcert=2, keyname='code-a', name='codesign (assured)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='codeSigning, msCodeInd, msCodeCom';
-
-INSERT INTO `profiles` SET rootcert=3, keyname='client-orga', name='ssl-client (orga)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth';
-INSERT INTO `profiles` SET rootcert=3, keyname='mail-orga',  name='mail (orga)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='emailProtection';
-INSERT INTO `profiles` SET rootcert=3, keyname='client-mail-orga', name='ssl-client + mail(orga)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='clientAuth, emailProtection';
-INSERT INTO `profiles` SET rootcert=3, keyname='server-orga', name='ssl-server (orga)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='serverAuth';
-INSERT INTO `profiles` SET rootcert=4, keyname='code-orga', name='codesign (orga)', keyUsage='digitalSignature, keyEncipherment, keyAgreement', extendedKeyUsage='codeSigning, msCodeInd, msCodeCom';
-
--- 0=unassured, 1=assured, 2=codesign, 3=orga, 4=orga-sign
 DROP TABLE IF EXISTS `subjectAlternativeNames`;
 CREATE TABLE `subjectAlternativeNames` (
   `certId` int(11) NOT NULL,
@@ -347,4 +328,4 @@ CREATE TABLE `schemeVersion` (
   `version` int(5) NOT NULL,
   PRIMARY KEY (`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-INSERT INTO schemeVersion(version)  VALUES(3);
+INSERT INTO schemeVersion(version)  VALUES(4);

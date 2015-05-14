@@ -441,21 +441,4 @@ public class User extends CertificateOwner {
         }
     }
 
-    public boolean canIssue(CertificateProfile p) {
-        // FIXME: Use descriptive constants
-        switch (p.getCAId()) {
-        case 0:
-            return true;
-        case 1:
-            return getAssurancePoints() > 50;
-        case 2:
-            return getAssurancePoints() > 50 && isInGroup(Group.getByString("codesigning"));
-        case 3:
-        case 4:
-            return getOrganisations().size() > 0;
-        default:
-            return false;
-        }
-    }
-
 }

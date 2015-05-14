@@ -160,7 +160,7 @@ public class CertificateIssueForm extends Form {
                     if (cp == null) {
                         return false;
                     }
-                } while ( !u.canIssue(cp));
+                } while ( !cp.canBeIssuedBy(u));
 
                 if (cp.getId() == cr.getProfile().getId()) {
                     vars.put("selected", " selected");

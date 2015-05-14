@@ -135,7 +135,7 @@ public class Certificate {
     private CACertificate ca;
 
     public Certificate(User owner, HashMap<String, String> dn, String md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) throws GigiApiException {
-        if ( !owner.canIssue(profile)) {
+        if ( !profile.canBeIssuedBy(owner)) {
             throw new GigiApiException("You are not allowed to issue these certificates.");
         }
         this.owner = owner;
