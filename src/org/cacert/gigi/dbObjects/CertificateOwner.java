@@ -57,21 +57,6 @@ public abstract class CertificateOwner implements IdCachable {
         return id;
     }
 
-    public EmailAddress[] getEmails() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM emails WHERE memid=? AND deleted is NULL");
-        ps.setInt(1, getId());
-
-        try (GigiResultSet rs = ps.executeQuery()) {
-            LinkedList<EmailAddress> data = new LinkedList<EmailAddress>();
-
-            while (rs.next()) {
-                data.add(EmailAddress.getById(rs.getInt(1)));
-            }
-
-            return data.toArray(new EmailAddress[0]);
-        }
-    }
-
     public Domain[] getDomains() {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM domains WHERE memid=? AND deleted IS NULL");
         ps.setInt(1, getId());
@@ -118,15 +103,7 @@ public abstract class CertificateOwner implements IdCachable {
         return false;
     }
 
-    public boolean isValidEmail(String email) {
-        for (EmailAddress em : getEmails()) {
-            if (em.getAddress().equals(email)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    public abstract boolean isValidEmail(String email);
 
     public void delete() {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE certOwners SET deleted=NOW() WHERE id=?");

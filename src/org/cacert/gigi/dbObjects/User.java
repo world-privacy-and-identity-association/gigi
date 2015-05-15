@@ -441,4 +441,30 @@ public class User extends CertificateOwner {
         }
     }
 
+    public EmailAddress[] getEmails() {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM emails WHERE memid=? AND deleted is NULL");
+        ps.setInt(1, getId());
+
+        try (GigiResultSet rs = ps.executeQuery()) {
+            LinkedList<EmailAddress> data = new LinkedList<EmailAddress>();
+
+            while (rs.next()) {
+                data.add(EmailAddress.getById(rs.getInt(1)));
+            }
+
+            return data.toArray(new EmailAddress[0]);
+        }
+    }
+
+    @Override
+    public boolean isValidEmail(String email) {
+        for (EmailAddress em : getEmails()) {
+            if (em.getAddress().equals(email)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

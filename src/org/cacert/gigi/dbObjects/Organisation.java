@@ -202,4 +202,9 @@ public class Organisation extends CertificateOwner {
         }
         return false;
     }
+
+    @Override
+    public boolean isValidEmail(String email) {
+        return isValidDomain(email.split("@", 2)[1]);
+    }
 }

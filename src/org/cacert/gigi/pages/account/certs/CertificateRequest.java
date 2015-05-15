@@ -23,6 +23,7 @@ import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.Certificate.SANType;
 import org.cacert.gigi.dbObjects.Certificate.SubjectAlternateName;
+import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.CertificateProfile.PropertyTemplate;
 import org.cacert.gigi.dbObjects.Digest;
@@ -296,14 +297,29 @@ public class CertificateRequest {
         if (newOrgStr != null) {
             Organisation neworg = Organisation.getById(Integer.parseInt(newOrgStr));
             if (neworg == null || u.getOrganisations().contains(neworg)) {
-                org = neworg;
+                PropertyTemplate orga = profile.getTemplates().get("orga");
+                if (orga != null) {
+                    org = neworg;
+                } else {
+                    org = null;
+                    error.mergeInto(new GigiApiException("No organisations for this certificate profile."));
+                }
             } else {
-                error.mergeInto(new GigiApiException("Selected Organisation is not part of your account."));
+                error.mergeInto(new GigiApiException("Selected organisation is not part of your account."));
             }
         }
+
         this.ou = ou;
 
-        verifySANs(error, profile, parseSANBox(SANsStr));
+        if ( !this.profile.canBeIssuedBy(u)) {
+            this.profile = CertificateProfile.getById(1);
+            error.mergeInto(new GigiApiException("Certificate Profile is invalid."));
+            throw error;
+        }
+
+        CertificateOwner owner = org != null ? org : u;
+
+        verifySANs(error, profile, parseSANBox(SANsStr), owner);
 
         if ( !error.isEmpty()) {
             throw error;
@@ -311,7 +327,7 @@ public class CertificateRequest {
         return true;
     }
 
-    private void verifySANs(GigiApiException error, CertificateProfile p, Set<SubjectAlternateName> sANs2) {
+    private void verifySANs(GigiApiException error, CertificateProfile p, Set<SubjectAlternateName> sANs2, CertificateOwner owner) {
         Set<SubjectAlternateName> filteredSANs = new LinkedHashSet<>();
         PropertyTemplate domainTemp = p.getTemplates().get("domain");
         PropertyTemplate emailTemp = p.getTemplates().get("email");
@@ -319,7 +335,7 @@ public class CertificateRequest {
         pMail = null;
         for (SubjectAlternateName san : sANs2) {
             if (san.getType() == SANType.DNS) {
-                if (domainTemp != null && u.isValidDomain(san.getName())) {
+                if (domainTemp != null && owner.isValidDomain(san.getName())) {
                     if (pDNS != null && !domainTemp.isMultiple()) {
                         // remove
                     } else {
@@ -331,7 +347,7 @@ public class CertificateRequest {
                     }
                 }
             } else if (san.getType() == SANType.EMAIL) {
-                if (emailTemp != null && u.isValidEmail(san.getName())) {
+                if (emailTemp != null && owner.isValidEmail(san.getName())) {
                     if (pMail != null && !emailTemp.isMultiple()) {
                         // remove
                     } else {
@@ -355,13 +371,6 @@ public class CertificateRequest {
     public synchronized Certificate draft() throws GigiApiException {
 
         GigiApiException error = new GigiApiException();
-        if ( !this.profile.canBeIssuedBy(u)) {
-            this.profile = CertificateProfile.getById(1);
-            error.mergeInto(new GigiApiException("Certificate Profile is invalid."));
-            throw error;
-        }
-
-        verifySANs(error, profile, SANs);
 
         HashMap<String, String> subject = new HashMap<>();
         PropertyTemplate domainTemp = profile.getTemplates().get("domain");
@@ -378,8 +387,13 @@ public class CertificateRequest {
         // primary domain. (domainTemp != null)
 
         String verifiedCN = null;
-
-        verifiedCN = verifyName(error, nameTemp, wotUserTemp, verifiedCN);
+        if (org == null) {
+            verifiedCN = verifyName(error, nameTemp, wotUserTemp, verifiedCN);
+        } else {
+            if ( !name.equals("")) {
+                verifiedCN = name;
+            }
+        }
         if (pDNS == null && domainTemp != null && domainTemp.isRequired()) {
             error.mergeInto(new GigiApiException("Server Certificates require a DNS name."));
         } else if (domainTemp != null && verifiedCN == null) {
@@ -404,25 +418,13 @@ public class CertificateRequest {
             }
         }
 
-        PropertyTemplate orga = profile.getTemplates().get("orga");
-        if (orga != null) {
-            if (orga.isMultiple() || !orga.isRequired()) {
-                error.mergeInto(new GigiApiException("This is an internal error."));
-            } else if (org == null) {
-                error.mergeInto(new GigiApiException("You need to select an organisation for this profile type."));
-            } else {
-                subject.put("O", org.getName());
-                subject.put("C", org.getState());
-                subject.put("ST", org.getProvince());
-                subject.put("L", org.getCity());
-                if (ou != null) {
-                    subject.put("OU", ou);
-                }
-            }
-        } else {
-            if (org != null) {
-                org = null;
-                error.mergeInto(new GigiApiException("You may only include organisations in orga-certs."));
+        if (org != null) {
+            subject.put("O", org.getName());
+            subject.put("C", org.getState());
+            subject.put("ST", org.getProvince());
+            subject.put("L", org.getCity());
+            if (ou != null) {
+                subject.put("OU", ou);
             }
         }
         System.out.println(subject);
