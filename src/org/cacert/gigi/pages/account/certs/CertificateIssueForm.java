@@ -143,7 +143,7 @@ public class CertificateIssueForm extends Form {
             content.append('\n');
         }
 
-        vars2.put("CN", cr.getCN());
+        vars2.put("CN", cr.getName());
         vars2.put("department", cr.getOu());
         vars2.put("validity", issueDate);
         vars2.put("emails", content.toString());

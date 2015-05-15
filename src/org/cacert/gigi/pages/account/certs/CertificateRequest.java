@@ -24,6 +24,7 @@ import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.Certificate.SANType;
 import org.cacert.gigi.dbObjects.Certificate.SubjectAlternateName;
 import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.dbObjects.CertificateProfile.PropertyTemplate;
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
@@ -87,7 +88,7 @@ public class CertificateRequest {
 
     private String csr;
 
-    public String CN = DEFAULT_CN;
+    public String name = DEFAULT_CN;
 
     private Set<SubjectAlternateName> SANs;
 
@@ -119,7 +120,7 @@ public class CertificateRequest {
                     if (value.contains(".") && !value.contains(" ")) {
                         SANs.add(new SubjectAlternateName(SANType.DNS, value));
                     } else {
-                        CN = value;
+                        name = value;
                     }
                 } else if (a.getObjectIdentifier().equals((Object) PKIXExtensions.SubjectAlternativeName_Id)) {
                     // TODO? parse invalid SANs
@@ -231,9 +232,9 @@ public class CertificateRequest {
         }
     }
 
-    private TreeSet<SubjectAlternateName> parseSANBox(String SANs) {
+    private Set<SubjectAlternateName> parseSANBox(String SANs) {
         String[] SANparts = SANs.split("[\r\n]+|, *");
-        TreeSet<SubjectAlternateName> parsedNames = new TreeSet<>();
+        Set<SubjectAlternateName> parsedNames = new LinkedHashSet<>();
         for (String SANline : SANparts) {
             String[] parts = SANline.split(":", 2);
             if (parts.length == 1) {
@@ -265,8 +266,8 @@ public class CertificateRequest {
         return SANs;
     }
 
-    public String getCN() {
-        return CN;
+    public String getName() {
+        return name;
     }
 
     public Organisation getOrg() {
@@ -285,9 +286,9 @@ public class CertificateRequest {
         return profile;
     }
 
-    public boolean update(String CNin, String hashAlg, String profileStr, String newOrgStr, String ou, String SANsStr, PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public synchronized boolean update(String nameIn, String hashAlg, String profileStr, String newOrgStr, String ou, String SANsStr, PrintWriter out, HttpServletRequest req) throws GigiApiException {
         GigiApiException error = new GigiApiException();
-        this.CN = CNin;
+        this.name = nameIn;
         if (hashAlg != null) {
             selectedDigest = Digest.valueOf(hashAlg);
         }
@@ -302,8 +303,7 @@ public class CertificateRequest {
         }
         this.ou = ou;
 
-        boolean server = profile.getKeyName().equals("server");
-        SANs = verifySANs(error, server, parseSANBox(SANsStr));
+        verifySANs(error, profile, parseSANBox(SANsStr));
 
         if ( !error.isEmpty()) {
             throw error;
@@ -311,24 +311,36 @@ public class CertificateRequest {
         return true;
     }
 
-    private Set<SubjectAlternateName> verifySANs(GigiApiException error, boolean server, Set<SubjectAlternateName> sANs2) {
+    private void verifySANs(GigiApiException error, CertificateProfile p, Set<SubjectAlternateName> sANs2) {
         Set<SubjectAlternateName> filteredSANs = new LinkedHashSet<>();
+        PropertyTemplate domainTemp = p.getTemplates().get("domain");
+        PropertyTemplate emailTemp = p.getTemplates().get("email");
+        pDNS = null;
+        pMail = null;
         for (SubjectAlternateName san : sANs2) {
             if (san.getType() == SANType.DNS) {
-                if (u.isValidDomain(san.getName()) && server) {
-                    if (pDNS == null) {
-                        pDNS = san.getName();
+                if (domainTemp != null && u.isValidDomain(san.getName())) {
+                    if (pDNS != null && !domainTemp.isMultiple()) {
+                        // remove
+                    } else {
+                        if (pDNS == null) {
+                            pDNS = san.getName();
+                        }
+                        filteredSANs.add(san);
+                        continue;
                     }
-                    filteredSANs.add(san);
-                    continue;
                 }
             } else if (san.getType() == SANType.EMAIL) {
-                if (u.isValidEmail(san.getName()) && !server) {
-                    if (pMail == null) {
-                        pMail = san.getName();
+                if (emailTemp != null && u.isValidEmail(san.getName())) {
+                    if (pMail != null && !emailTemp.isMultiple()) {
+                        // remove
+                    } else {
+                        if (pMail == null) {
+                            pMail = san.getName();
+                        }
+                        filteredSANs.add(san);
+                        continue;
                     }
-                    filteredSANs.add(san);
-                    continue;
                 }
             }
             HashMap<String, Object> vars = new HashMap<>();
@@ -336,10 +348,11 @@ public class CertificateRequest {
             error.mergeInto(new GigiApiException(new Scope(new SprintfCommand(//
                     "The requested Subject alternate name \"{0}\" has been removed.", Arrays.asList("${SAN}")), vars)));
         }
-        return filteredSANs;
+        SANs = filteredSANs;
     }
 
-    public Certificate draft() throws GigiApiException {
+    // domain email name name=WoTUser orga
+    public synchronized Certificate draft() throws GigiApiException {
 
         GigiApiException error = new GigiApiException();
         if ( !this.profile.canBeIssuedBy(u)) {
@@ -348,47 +361,183 @@ public class CertificateRequest {
             throw error;
         }
 
-        boolean server = profile.getKeyName().equals("server");
+        verifySANs(error, profile, SANs);
 
         HashMap<String, String> subject = new HashMap<>();
-        if (server) {
-            if (pDNS != null) {
-                subject.put("CN", pDNS);
+        PropertyTemplate domainTemp = profile.getTemplates().get("domain");
+        PropertyTemplate emailTemp = profile.getTemplates().get("email");
+        PropertyTemplate nameTemp = profile.getTemplates().get("name");
+        PropertyTemplate wotUserTemp = profile.getTemplates().get("name=WoTUser");
+
+        // Ok, let's determine the CN
+        // the CN is
+        // 1. the user's "real name", iff the real name is to be included i.e.
+        // not empty (name), or to be forced to WOTUser
+
+        // 2. the user's "primary domain", iff "1." doesn't match and there is a
+        // primary domain. (domainTemp != null)
+
+        String verifiedCN = null;
+
+        verifiedCN = verifyName(error, nameTemp, wotUserTemp, verifiedCN);
+        if (pDNS == null && domainTemp != null && domainTemp.isRequired()) {
+            error.mergeInto(new GigiApiException("Server Certificates require a DNS name."));
+        } else if (domainTemp != null && verifiedCN == null) {
+            // user may add domains
+            verifiedCN = pDNS;
+        }
+        if (verifiedCN != null) {
+            subject.put("CN", verifiedCN);
+        }
+
+        if (pMail != null) {
+            if (emailTemp != null) {
+                subject.put("EMAIL", pMail);
             } else {
-                error.mergeInto(new GigiApiException("Server Certificates require a DNS name."));
-            }
-            if (pMail != null) {
-                error.mergeInto(new GigiApiException("No email is included in this certificate."));
-            }
-            if ( !CN.equals("")) {
-                CN = "";
-                this.CN = "";
-                error.mergeInto(new GigiApiException("No real name is included in this certificate. The real name, you entered will be ignored."));
+                // verify SANs should prevent this
+                pMail = null;
+                error.mergeInto(new GigiApiException("You may not include an email in this certificate."));
             }
         } else {
-            if ( !u.isValidName(CN) && !CN.equals(DEFAULT_CN)) {
-                this.CN = DEFAULT_CN;
-                error.mergeInto(new GigiApiException("The name entered, does not match the details in your account. You cannot issue certificates with this name. Enter a name that matches the one that has been assured in your account."));
-            }
-
-            subject.put("CN", this.CN);
-            if (pMail != null) {
-                subject.put("EMAIL", pMail);
+            if (emailTemp != null && emailTemp.isRequired()) {
+                error.mergeInto(new GigiApiException("You need to include an email in this certificate."));
             }
         }
-        this.SANs = verifySANs(error, server, SANs);
-        if (org != null) {
-            subject.put("O", org.getName());
-            subject.put("C", org.getState());
-            subject.put("ST", org.getProvince());
-            subject.put("L", org.getCity());
-            subject.put("OU", ou);
-        }
 
+        PropertyTemplate orga = profile.getTemplates().get("orga");
+        if (orga != null) {
+            if (orga.isMultiple() || !orga.isRequired()) {
+                error.mergeInto(new GigiApiException("This is an internal error."));
+            } else if (org == null) {
+                error.mergeInto(new GigiApiException("You need to select an organisation for this profile type."));
+            } else {
+                subject.put("O", org.getName());
+                subject.put("C", org.getState());
+                subject.put("ST", org.getProvince());
+                subject.put("L", org.getCity());
+                if (ou != null) {
+                    subject.put("OU", ou);
+                }
+            }
+        } else {
+            if (org != null) {
+                org = null;
+                error.mergeInto(new GigiApiException("You may only include organisations in orga-certs."));
+            }
+        }
+        System.out.println(subject);
         if ( !error.isEmpty()) {
             throw error;
         }
         return new Certificate(u, subject, selectedDigest.toString(), //
                 this.csr, this.csrType, profile, SANs.toArray(new SubjectAlternateName[SANs.size()]));
+    }
+
+    private String verifyName(GigiApiException error, PropertyTemplate nameTemp, PropertyTemplate wotUserTemp, String verifiedCN) {
+        // real names,
+        // possible configurations: name {y,null,?}, name=WoTUser {y,null}
+        // semantics:
+        // y * -> real
+        // null y -> default
+        // null null -> null
+        // ? y -> real, default
+        // ? null -> real, null
+        boolean realIsOK = false;
+        boolean nullIsOK = false;
+        boolean defaultIsOK = false;
+        if (wotUserTemp != null && ( !wotUserTemp.isRequired() || wotUserTemp.isMultiple())) {
+            error.mergeInto(new GigiApiException("Internal configuration error detected."));
+        }
+        if (nameTemp != null && nameTemp.isRequired() && !nameTemp.isMultiple()) {
+            realIsOK = true;
+        } else if (nameTemp == null) {
+            defaultIsOK = wotUserTemp != null;
+            nullIsOK = !defaultIsOK;
+        } else if (nameTemp != null && !nameTemp.isRequired() && !nameTemp.isMultiple()) {
+            realIsOK = true;
+            defaultIsOK = wotUserTemp != null;
+            nullIsOK = !defaultIsOK;
+        } else {
+            error.mergeInto(new GigiApiException("Internal configuration error detected."));
+        }
+        if (u.isValidName(name)) {
+            if (realIsOK) {
+                verifiedCN = name;
+            } else {
+                error.mergeInto(new GigiApiException("Your real name is not allowed in this certificate."));
+                if (defaultIsOK) {
+                    name = DEFAULT_CN;
+                } else if (nullIsOK) {
+                    name = "";
+                }
+            }
+        } else if (name.equals(DEFAULT_CN)) {
+            if (defaultIsOK) {
+                verifiedCN = name;
+            } else {
+                error.mergeInto(new GigiApiException("The default name is not allowed in this certificate."));
+                if (nullIsOK) {
+                    name = "";
+                } else if (realIsOK) {
+                    name = u.getName().toString();
+                }
+            }
+        } else if (name.equals("")) {
+            if (nullIsOK) {
+                verifiedCN = name;
+            } else {
+                error.mergeInto(new GigiApiException("A name is required in this certificate."));
+                if (defaultIsOK) {
+                    name = DEFAULT_CN;
+                } else if (realIsOK) {
+                    name = u.getName().toString();
+                }
+            }
+        } else {
+            error.mergeInto(new GigiApiException("The name you entered was invalid."));
+
+        }
+        if (wotUserTemp != null) {
+            if ( !wotUserTemp.isRequired() || wotUserTemp.isMultiple()) {
+                error.mergeInto(new GigiApiException("Internal configuration error detected."));
+            }
+            if ( !name.equals(DEFAULT_CN)) {
+                name = DEFAULT_CN;
+                error.mergeInto(new GigiApiException("You may not change the name for this certificate type."));
+            } else {
+                verifiedCN = DEFAULT_CN;
+            }
+
+        } else {
+            if (nameTemp != null) {
+                if (name.equals("")) {
+                    if (nameTemp.isRequired()) {
+                        // nothing, but required
+                        name = DEFAULT_CN;
+                        error.mergeInto(new GigiApiException("No name entered, but one was required."));
+                    } else {
+                        // nothing and not required
+
+                    }
+                } else if (u.isValidName(name)) {
+                    verifiedCN = name;
+                } else {
+                    if (nameTemp.isRequired()) {
+                        error.mergeInto(new GigiApiException("The name entered, does not match the details in your account. You cannot issue certificates with this name. Enter a name that matches the one that has been assured in your account, because a name is required for this certificate type."));
+                    } else if (name.equals(DEFAULT_CN)) {
+                        verifiedCN = DEFAULT_CN;
+                    } else {
+                        name = DEFAULT_CN;
+                        error.mergeInto(new GigiApiException("The name entered, does not match the details in your account. You cannot issue certificates with this name. Enter a name that matches the one that has been assured in your account or keep the default name."));
+                    }
+                }
+            } else {
+                if ( !name.equals("")) {
+                    name = "";
+                    error.mergeInto(new GigiApiException("No real name is included in this certificate. The real name, you entered will be ignored."));
+                }
+            }
+        }
+        return verifiedCN;
     }
 }
