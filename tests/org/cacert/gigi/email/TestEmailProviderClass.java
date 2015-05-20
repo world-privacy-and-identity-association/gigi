@@ -4,7 +4,15 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.*;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Properties;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.cacert.gigi.testUtils.ConfiguredTest;
 import org.junit.BeforeClass;
@@ -37,9 +45,30 @@ public class TestEmailProviderClass extends ConfiguredTest {
     }
 
     @BeforeClass
-    public static void initMailsystem() {
+    public static void initMailsystem() throws NoSuchAlgorithmException, KeyManagementException {
         Properties prop = new Properties();
         prop.setProperty("emailProvider", "org.cacert.gigi.email.Sendmail");
         EmailProvider.initSystem(prop, null, null);
+        SSLContext c = SSLContext.getInstance("TLS");
+        c.init(null, new TrustManager[] {
+            new X509TrustManager() {
+
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                @Override
+                public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+
+                }
+            }
+        }, null);
+        SSLContext.setDefault(c);
     }
 }
