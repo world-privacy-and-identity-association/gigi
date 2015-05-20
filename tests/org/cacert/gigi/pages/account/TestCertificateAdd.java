@@ -129,7 +129,7 @@ public class TestCertificateAdd extends ClientTest {
         huc.setDoOutput(true);
         OutputStream out = huc.getOutputStream();
         out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes("UTF-8"));
-        out.write(("&profile=client&CN=a+b&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes("UTF-8"));
+        out.write(("&CN=CAcert+WoT+User&profile=client&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes("UTF-8"));
         out.write(("&hash_alg=SHA512&CCA=y").getBytes("UTF-8"));
         URLConnection uc = authenticate(new URL(huc.getHeaderField("Location") + ".crt"));
         String crt = IOUtils.readURL(new InputStreamReader(uc.getInputStream(), "UTF-8"));
@@ -146,7 +146,7 @@ public class TestCertificateAdd extends ClientTest {
         uc = authenticate(new URL(huc.getHeaderField("Location")));
         String gui = IOUtils.readURL(uc);
         assertThat(gui, containsString("clientAuth"));
-        assertThat(gui, containsString("CN=a b"));
+        assertThat(gui, containsString("CN=CAcert WoT User"));
         assertThat(gui, containsString("SHA512withRSA"));
         assertThat(gui, containsString("RFC822Name: " + email));
 
@@ -213,7 +213,7 @@ public class TestCertificateAdd extends ClientTest {
         huc.setDoOutput(true);
         OutputStream out = huc.getOutputStream();
         out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes("UTF-8"));
-        out.write(("&profile=client&CN=a+b&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes("UTF-8"));
+        out.write(("&profile=client&CN=" + CertificateRequest.DEFAULT_CN + "&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes("UTF-8"));
         out.write(("&hash_alg=SHA512&CCA=y&").getBytes("UTF-8"));
         out.write(validity.getBytes("UTF-8"));
 

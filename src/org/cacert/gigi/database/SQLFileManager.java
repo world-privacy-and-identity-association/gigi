@@ -36,6 +36,9 @@ public class SQLFileManager {
             if (string.equals("")) {
                 continue;
             }
+            if ((string.contains("profiles") || string.contains("cacerts")) && type != ImportType.PRODUCTION) {
+                continue;
+            }
             if (m.matches() && type == ImportType.TRUNCATE) {
                 String sql2 = "TRUNCATE `" + m.group(1) + "`";
                 stmt.addBatch(sql2);

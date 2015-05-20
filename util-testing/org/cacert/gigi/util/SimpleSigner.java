@@ -86,7 +86,7 @@ public class SimpleSigner {
             throw new IllegalStateException("already running");
         }
         running = true;
-        readyCerts = DatabaseConnection.getInstance().prepare("SELECT certs.id AS id, certs.csr_name, jobs.id AS jobid, csr_type, md, keyUsage, extendedKeyUsage, executeFrom, executeTo, rootcert FROM jobs " + //
+        readyCerts = DatabaseConnection.getInstance().prepare("SELECT certs.id AS id, certs.csr_name, jobs.id AS jobid, csr_type, md, executeFrom, executeTo, profile FROM jobs " + //
                 "INNER JOIN certs ON certs.id=jobs.targetId " + //
                 "INNER JOIN profiles ON profiles.id=certs.profile " + //
                 "WHERE jobs.state='open' "//
@@ -95,7 +95,7 @@ public class SimpleSigner {
         getSANSs = DatabaseConnection.getInstance().prepare("SELECT contents, type FROM subjectAlternativeNames " + //
                 "WHERE certId=?");
 
-        updateMail = DatabaseConnection.getInstance().prepare("UPDATE certs SET crt_name=?," + " created=NOW(), serial=? WHERE id=?");
+        updateMail = DatabaseConnection.getInstance().prepare("UPDATE certs SET crt_name=?," + " created=NOW(), serial=?, caid=1 WHERE id=?");
         warnMail = DatabaseConnection.getInstance().prepare("UPDATE jobs SET warning=warning+1, state=IF(warning<3, 'open','error') WHERE id=?");
 
         revoke = DatabaseConnection.getInstance().prepare("SELECT certs.id, certs.csr_name,jobs.id FROM jobs INNER JOIN certs ON jobs.targetId=certs.id" + " WHERE jobs.state='open' AND task='revoke'");
@@ -200,12 +200,14 @@ public class SimpleSigner {
     private static int counter = 0;
 
     private static void signCertificates() throws SQLException {
+        System.out.println("Checking...");
         GigiResultSet rs = readyCerts.executeQuery();
 
         Calendar c = Calendar.getInstance();
         c.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         while (rs.next()) {
+            System.out.println("Task");
             String csrname = rs.getString("csr_name");
             int id = rs.getInt("id");
             System.out.println("sign: " + csrname);
@@ -213,9 +215,6 @@ public class SimpleSigner {
                 String csrType = rs.getString("csr_type");
                 CSRType ct = CSRType.valueOf(csrType);
                 File crt = KeyStorage.locateCrt(id);
-
-                String keyUsage = rs.getString("keyUsage");
-                String ekeyUsage = rs.getString("extendedKeyUsage");
 
                 Timestamp from = rs.getTimestamp("executeFrom");
                 String length = rs.getString("executeTo");
@@ -258,15 +257,16 @@ public class SimpleSigner {
                     cfg.print(san.getString("contents"));
                 }
                 cfg.println();
-                cfg.println("keyUsage=critical," + keyUsage);
-                cfg.println("extendedKeyUsage=critical," + ekeyUsage);
+                // TODO look them up!
+                cfg.println("keyUsage=critical," + "digitalSignature, keyEncipherment, keyAgreement");
+                cfg.println("extendedKeyUsage=critical," + "clientAuth");
                 cfg.close();
 
-                int rootcert = rs.getInt("rootcert");
+                int profile = rs.getInt("profile");
                 String ca = "unassured";
-                if (rootcert == 0) {
+                if (profile == 1) {
                     ca = "unassured";
-                } else if (rootcert == 1) {
+                } else if (profile != 1) {
                     ca = "assured";
                 }
                 HashMap<String, String> subj = new HashMap<>();
@@ -274,12 +274,17 @@ public class SimpleSigner {
                 ps.setInt(1, rs.getInt("id"));
                 GigiResultSet rs2 = ps.executeQuery();
                 while (rs2.next()) {
-                    subj.put(rs2.getString("name"), rs2.getString("value"));
+                    String name = rs2.getString("name");
+                    if (name.equals("EMAIL")) {
+                        name = "emailAddress";
+                    }
+                    subj.put(name, rs2.getString("value"));
                 }
                 if (subj.size() == 0) {
                     subj.put("CN", "<empty>");
                     System.out.println("WARNING: DN was empty");
                 }
+                System.out.println(subj);
                 String[] call;
                 synchronized (sdf) {
                     call = new String[] {
@@ -308,6 +313,10 @@ public class SimpleSigner {
                             "-config",
                             "../selfsign.config"//
                     };
+                    for (String string : call) {
+                        System.out.print(" " + string);
+                    }
+                    System.out.println();
                 }
 
                 if (ct == CSRType.SPKAC) {
@@ -317,9 +326,11 @@ public class SimpleSigner {
                 Process p1 = Runtime.getRuntime().exec(call, null, new File("keys/unassured.ca"));
 
                 int waitFor = p1.waitFor();
-                if ( !f.delete()) {
-                    System.err.println("Could not delete SAN-File " + f.getAbsolutePath());
-                }
+                /*
+                 * if ( !f.delete()) {
+                 * System.err.println("Could not delete SAN-File " +
+                 * f.getAbsolutePath()); }
+                 */
                 if (waitFor == 0) {
                     try (InputStream is = new FileInputStream(crt)) {
                         CertificateFactory cf = CertificateFactory.getInstance("X.509");

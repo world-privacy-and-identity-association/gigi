@@ -106,7 +106,16 @@ public class CertificateRequest {
     private String pDNS, pMail;
 
     public CertificateRequest(User issuer, String csr) throws IOException, GeneralSecurityException, GigiApiException {
+        this(issuer, csr, (CertificateProfile) null);
+    }
+
+    public CertificateRequest(User issuer, String csr, CertificateProfile cp) throws GeneralSecurityException, IOException, IOException {
         u = issuer;
+        if (cp != null) {
+            profile = cp;
+        } else if (u.getAssurancePoints() > 50) {
+            profile = CertificateProfile.getByName("client-a");
+        }
         byte[] data = PEM.decode("(NEW )?CERTIFICATE REQUEST", csr);
         PKCS10 parsed = new PKCS10(data);
         PKCS10Attributes atts = parsed.getAttributes();
@@ -152,18 +161,22 @@ public class CertificateRequest {
                     }
                 } else if (c instanceof ExtendedKeyUsageExtension) {
                     ExtendedKeyUsageExtension ekue = (ExtendedKeyUsageExtension) c;
+                    String appendix = "";
+                    if (u.getAssurancePoints() >= 50) {
+                        appendix = "-a";
+                    }
                     for (String s : ekue.getExtendedKeyUsage()) {
                         if (s.equals(OID_KEY_USAGE_SSL_SERVER.toString())) {
                             // server
-                            profile = CertificateProfile.getByName("server");
+                            profile = CertificateProfile.getByName("server" + appendix);
                         } else if (s.equals(OID_KEY_USAGE_SSL_CLIENT.toString())) {
                             // client
-                            profile = CertificateProfile.getByName("client");
+                            profile = CertificateProfile.getByName("client" + appendix);
                         } else if (s.equals(OID_KEY_USAGE_CODESIGN.toString())) {
                             // code sign
                         } else if (s.equals(OID_KEY_USAGE_EMAIL_PROTECTION.toString())) {
                             // emailProtection
-                            profile = CertificateProfile.getByName("mail");
+                            profile = CertificateProfile.getByName("mail" + appendix);
                         } else if (s.equals(OID_KEY_USAGE_TIMESTAMP.toString())) {
                             // timestamp
                         } else if (s.equals(OID_KEY_USAGE_OCSP.toString())) {
@@ -377,6 +390,7 @@ public class CertificateRequest {
         PropertyTemplate emailTemp = profile.getTemplates().get("email");
         PropertyTemplate nameTemp = profile.getTemplates().get("name");
         PropertyTemplate wotUserTemp = profile.getTemplates().get("name=WoTUser");
+        verifySANs(error, profile, SANs, org != null ? org : u);
 
         // Ok, let's determine the CN
         // the CN is
@@ -443,7 +457,7 @@ public class CertificateRequest {
         // null y -> default
         // null null -> null
         // ? y -> real, default
-        // ? null -> real, null
+        // ? null -> real, default, null
         boolean realIsOK = false;
         boolean nullIsOK = false;
         boolean defaultIsOK = false;
@@ -457,12 +471,12 @@ public class CertificateRequest {
             nullIsOK = !defaultIsOK;
         } else if (nameTemp != null && !nameTemp.isRequired() && !nameTemp.isMultiple()) {
             realIsOK = true;
-            defaultIsOK = wotUserTemp != null;
-            nullIsOK = !defaultIsOK;
+            defaultIsOK = true;
+            nullIsOK = wotUserTemp == null;
         } else {
             error.mergeInto(new GigiApiException("Internal configuration error detected."));
         }
-        if (u.isValidName(name)) {
+        if (name != null && u.isValidName(name)) {
             if (realIsOK) {
                 verifiedCN = name;
             } else {
@@ -473,7 +487,7 @@ public class CertificateRequest {
                     name = "";
                 }
             }
-        } else if (name.equals(DEFAULT_CN)) {
+        } else if (name != null && name.equals(DEFAULT_CN)) {
             if (defaultIsOK) {
                 verifiedCN = name;
             } else {
@@ -484,9 +498,9 @@ public class CertificateRequest {
                     name = u.getName().toString();
                 }
             }
-        } else if (name.equals("")) {
+        } else if (name == null || name.equals("")) {
             if (nullIsOK) {
-                verifiedCN = name;
+                verifiedCN = "";
             } else {
                 error.mergeInto(new GigiApiException("A name is required in this certificate."));
                 if (defaultIsOK) {

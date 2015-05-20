@@ -16,6 +16,7 @@ import org.cacert.gigi.pages.admin.support.FindUserPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
 import org.cacert.gigi.testUtils.ClientTest;
 import org.cacert.gigi.testUtils.IOUtils;
+import org.cacert.gigi.util.ServerConstants;
 import org.junit.Test;
 
 public class TestSEAdminPageUserMailSearch extends ClientTest {
@@ -39,7 +40,7 @@ public class TestSEAdminPageUserMailSearch extends ClientTest {
         os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
                 + "process&email=" + URLEncoder.encode(mail, "UTF-8")).getBytes("UTF-8"));
         os.flush();
-        assertEquals("https://" + getServerName() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getWwwHostNamePort() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
     }
 
     @Test
@@ -57,7 +58,7 @@ public class TestSEAdminPageUserMailSearch extends ClientTest {
         os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
                 + "process&email=" + URLEncoder.encode("%@example.tld", "UTF-8")).getBytes("UTF-8"));
         os.flush();
-        assertEquals("https://" + getServerName() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getWwwHostNamePort() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
     }
 
     @Test

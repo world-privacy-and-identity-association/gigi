@@ -19,6 +19,7 @@ import org.cacert.gigi.pages.admin.support.FindDomainPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
 import org.cacert.gigi.testUtils.ClientTest;
 import org.cacert.gigi.testUtils.IOUtils;
+import org.cacert.gigi.util.ServerConstants;
 import org.junit.Test;
 
 public class TestSEAdminPageUserDomainSearch extends ClientTest {
@@ -46,7 +47,7 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
         os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
                 + "process&domain=" + URLEncoder.encode(domainName, "UTF-8")).getBytes("UTF-8"));
         os.flush();
-        assertEquals("https://" + getServerName() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getWwwHostNamePort() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
     }
 
     @Test
@@ -68,7 +69,7 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
         os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
                 + "process&domain=#" + d.getId()).getBytes("UTF-8"));
         os.flush();
-        assertEquals("https://" + getServerName() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getWwwHostNamePort() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
     }
 
     @Test

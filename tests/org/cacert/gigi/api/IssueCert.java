@@ -12,7 +12,6 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Collection;
 
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
@@ -28,8 +27,8 @@ public class IssueCert extends ClientTest {
     @Test
     public void testIssueCert() throws Exception {
         KeyPair kp = generateKeypair();
-        String key1 = generatePEMCSR(kp, "CN=testmail@example.com");
-        Certificate c = new Certificate(u, Certificate.buildDN("CN", "testmail@example.com"), "sha256", key1, CSRType.CSR, CertificateProfile.getById(1));
+        String key1 = generatePEMCSR(kp, "EMAIL=testmail@example.com");
+        Certificate c = new Certificate(u, Certificate.buildDN("EMAIL", "testmail@example.com"), "sha256", key1, CSRType.CSR, CertificateProfile.getById(1));
         final PrivateKey pk = kp.getPrivate();
         c.issue(null, "2y").waitFor(60000);
         final X509Certificate ce = c.cert();
@@ -37,12 +36,12 @@ public class IssueCert extends ClientTest {
         authenticateClientCert(pk, ce, connection);
         connection.setDoOutput(true);
         OutputStream os = connection.getOutputStream();
-        os.write(("csr=" + URLEncoder.encode(generatePEMCSR(kp, "CN=a b"), "UTF-8")).getBytes("UTF-8"));
+        os.write(("profile=client&csr=" + URLEncoder.encode(generatePEMCSR(kp, "EMAIL=" + email + ",CN=CAcert WoT User"), "UTF-8")).getBytes("UTF-8"));
         os.flush();
         assertEquals(connection.getResponseCode(), 200);
         String cert = IOUtils.readURL(new InputStreamReader(connection.getInputStream(), "UTF-8"));
         CertificateFactory cf = CertificateFactory.getInstance("X509");
-        Collection<? extends java.security.cert.Certificate> certs = cf.generateCertificates(new ByteArrayInputStream(cert.getBytes("UTF-8")));
-        assertEquals("a b", ((X500Name) ((X509Certificate) certs.iterator().next()).getSubjectDN()).getCommonName());
+        java.security.cert.Certificate xcert = cf.generateCertificate(new ByteArrayInputStream(cert.getBytes("UTF-8")));
+        assertEquals("CAcert WoT User", ((X500Name) ((X509Certificate) xcert).getSubjectDN()).getCommonName());
     }
 }
