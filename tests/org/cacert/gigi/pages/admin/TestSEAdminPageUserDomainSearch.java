@@ -47,7 +47,7 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
         os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
                 + "process&domain=" + URLEncoder.encode(domainName, "UTF-8")).getBytes("UTF-8"));
         os.flush();
-        assertEquals("https://" + ServerConstants.getWwwHostNamePort() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
     }
 
     @Test
@@ -69,7 +69,7 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
         os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
                 + "process&domain=#" + d.getId()).getBytes("UTF-8"));
         os.flush();
-        assertEquals("https://" + ServerConstants.getWwwHostNamePort() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
     }
 
     @Test

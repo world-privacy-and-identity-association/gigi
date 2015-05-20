@@ -40,7 +40,7 @@ public class TestSEAdminPageUserMailSearch extends ClientTest {
         os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
                 + "process&email=" + URLEncoder.encode(mail, "UTF-8")).getBytes("UTF-8"));
         os.flush();
-        assertEquals("https://" + ServerConstants.getWwwHostNamePort() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
     }
 
     @Test
@@ -58,7 +58,7 @@ public class TestSEAdminPageUserMailSearch extends ClientTest {
         os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
                 + "process&email=" + URLEncoder.encode("%@example.tld", "UTF-8")).getBytes("UTF-8"));
         os.flush();
-        assertEquals("https://" + ServerConstants.getWwwHostNamePort() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
     }
 
     @Test
