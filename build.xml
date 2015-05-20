@@ -188,7 +188,7 @@
 			<classpath refid="cacert-gigi.test.classpath" />
 		</java>
 	</target>
-	<target name="test" depends="build-project-test,generateKeys,FetchLocales,pack-testing,pack,reset-db">
+	<target name="test" depends="build-project-test,FetchLocales,pack-testing,pack,reset-db">
 		<delete failonerror="false">
 			<fileset dir=".">
 				<include name="jacoco.exec"/>
