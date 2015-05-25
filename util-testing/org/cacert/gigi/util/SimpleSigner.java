@@ -1,35 +1,69 @@
 package org.cacert.gigi.util;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.math.BigInteger;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TimeZone;
 
+import javax.security.auth.x500.X500Principal;
+
+import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
+import org.cacert.gigi.dbObjects.Certificate.SANType;
+import org.cacert.gigi.dbObjects.Certificate.SubjectAlternateName;
+import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.output.DateSelector;
+import org.cacert.gigi.testUtils.IOUtils;
+
+import sun.security.pkcs10.PKCS10;
+import sun.security.util.DerOutputStream;
+import sun.security.util.DerValue;
+import sun.security.util.ObjectIdentifier;
+import sun.security.x509.AVA;
+import sun.security.x509.AlgorithmId;
+import sun.security.x509.GeneralNameInterface;
+import sun.security.x509.RDN;
+import sun.security.x509.X500Name;
 
 public class SimpleSigner {
 
@@ -59,6 +93,19 @@ public class SimpleSigner {
     }
 
     public static void main(String[] args) throws IOException, SQLException, InterruptedException {
+        if (false) {
+            try {
+                KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+                kpg.initialize(2048);
+                KeyPair kp = kpg.generateKeyPair();
+                X500Principal xp = new X500Principal(genX500Name(Certificate.buildDN("CN", "uiae")).getEncoded());
+                byte[] i = generateCert(kp.getPublic(), kp.getPrivate(), Certificate.buildDN("CN", "uiae"), xp, Arrays.<SubjectAlternateName>asList(), new Date(), new Date(System.currentTimeMillis() + 1000 * 60 * 60), Digest.SHA512, "clientAuth");
+                System.out.println(Base64.getMimeEncoder().encodeToString(i));
+            } catch (GeneralSecurityException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
         Properties p = new Properties();
         try (Reader reader = new InputStreamReader(new FileInputStream("config/gigi.properties"), "UTF-8")) {
             p.load(reader);
@@ -200,14 +247,11 @@ public class SimpleSigner {
     private static int counter = 0;
 
     private static void signCertificates() throws SQLException {
-        System.out.println("Checking...");
         GigiResultSet rs = readyCerts.executeQuery();
 
         Calendar c = Calendar.getInstance();
         c.setTimeZone(TimeZone.getTimeZone("UTC"));
-
         while (rs.next()) {
-            System.out.println("Task");
             String csrname = rs.getString("csr_name");
             int id = rs.getInt("id");
             System.out.println("sign: " + csrname);
@@ -242,33 +286,29 @@ public class SimpleSigner {
                 getSANSs.setInt(1, id);
                 GigiResultSet san = getSANSs.executeQuery();
 
-                File f = new File("keys", "SANFile" + System.currentTimeMillis() + (counter++) + ".cfg");
-                PrintWriter cfg = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), "UTF-8"));
                 boolean first = true;
+                LinkedList<SubjectAlternateName> altnames = new LinkedList<>();
                 while (san.next()) {
-                    if ( !first) {
-                        cfg.print(", ");
-                    } else {
-                        cfg.print("subjectAltName=");
-                    }
                     first = false;
-                    cfg.print(san.getString("type"));
-                    cfg.print(":");
-                    cfg.print(san.getString("contents"));
+                    altnames.add(new SubjectAlternateName(SANType.valueOf(san.getString("type").toUpperCase()), san.getString("contents")));
                 }
-                cfg.println();
                 // TODO look them up!
-                cfg.println("keyUsage=critical," + "digitalSignature, keyEncipherment, keyAgreement");
-                cfg.println("extendedKeyUsage=critical," + "clientAuth");
-                cfg.close();
+                // cfg.println("keyUsage=critical," +
+                // "digitalSignature, keyEncipherment, keyAgreement");
+                // cfg.println("extendedKeyUsage=critical," + "clientAuth");
+                // cfg.close();
 
                 int profile = rs.getInt("profile");
-                String ca = "unassured";
-                if (profile == 1) {
-                    ca = "unassured";
-                } else if (profile != 1) {
-                    ca = "assured";
+                CertificateProfile cp = CertificateProfile.getById(profile);
+                String s = cp.getId() + "";
+                while (s.length() < 4) {
+                    s = "0" + s;
                 }
+                s += "-" + cp.getKeyName() + ".cfg";
+                Properties caP = new Properties();
+                caP.load(new FileInputStream("signer/profiles/" + s));
+                String ca = caP.getProperty("ca") + "_2015_1";
+
                 HashMap<String, String> subj = new HashMap<>();
                 GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT name, value FROM certAvas WHERE certId=?");
                 ps.setInt(1, rs.getInt("id"));
@@ -285,82 +325,61 @@ public class SimpleSigner {
                     System.out.println("WARNING: DN was empty");
                 }
                 System.out.println(subj);
-                String[] call;
-                synchronized (sdf) {
-                    call = new String[] {
-                            "openssl", "ca",//
-                            "-in",
-                            "../../" + csrname,//
-                            "-cert",
-                            "../" + ca + ".crt",//
-                            "-keyfile",
-                            "../" + ca + ".key",//
-                            "-out",
-                            "../../" + crt.getPath(),//
-                            "-utf8",
-                            "-startdate",
-                            sdf.format(fromDate),//
-                            "-enddate",
-                            sdf.format(toDate),//
-                            "-batch",//
-                            "-md",
-                            rs.getString("md"),//
-                            "-extfile",
-                            "../" + f.getName(),//
 
-                            "-subj",
-                            Certificate.stringifyDN(subj),//
-                            "-config",
-                            "../selfsign.config"//
-                    };
-                    for (String string : call) {
-                        System.out.print(" " + string);
-                    }
-                    System.out.println();
-                }
-
+                PublicKey pk;
+                byte[] data = IOUtils.readURL(new FileInputStream(csrname));
                 if (ct == CSRType.SPKAC) {
-                    call[2] = "-spkac";
-                }
-
-                Process p1 = Runtime.getRuntime().exec(call, null, new File("keys/unassured.ca"));
-
-                int waitFor = p1.waitFor();
-                /*
-                 * if ( !f.delete()) {
-                 * System.err.println("Could not delete SAN-File " +
-                 * f.getAbsolutePath()); }
-                 */
-                if (waitFor == 0) {
-                    try (InputStream is = new FileInputStream(crt)) {
-                        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-                        X509Certificate crtp = (X509Certificate) cf.generateCertificate(is);
-                        BigInteger serial = crtp.getSerialNumber();
-                        updateMail.setString(1, crt.getPath());
-                        updateMail.setString(2, serial.toString(16));
-                        updateMail.setInt(3, id);
-                        updateMail.execute();
-
-                        finishJob.setInt(1, rs.getInt("jobid"));
-                        finishJob.execute();
-                        System.out.println("signed: " + id);
-                        continue;
-                    }
+                    SPKAC sp = new SPKAC(data);
+                    pk = sp.getPubkey();
                 } else {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(p1.getErrorStream(), "UTF-8"));
-                    String s;
-                    while ((s = br.readLine()) != null) {
-                        System.out.println(s);
-                    }
+                    PKCS10 p10 = new PKCS10(PEM.decode("(NEW )?CERTIFICATE REQUEST", new String(data)));
+                    pk = p10.getSubjectPublicKeyInfo();
                 }
+                PrivateKey i = loadOpensslKey(new File("signer/ca/" + ca + "/ca.key"));
+
+                String[] call;
+                X509Certificate root = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new FileInputStream("signer/ca/" + ca + "/ca.crt"));
+                byte[] cert = generateCert(pk, i, subj, root.getSubjectX500Principal(), altnames, fromDate, toDate, Digest.valueOf(rs.getString("md").toUpperCase()), caP.getProperty("eku"));
+                PrintWriter out = new PrintWriter(crt);
+                out.println("-----BEGIN CERTIFICATE-----");
+                out.println(Base64.getMimeEncoder().encodeToString(cert));
+                out.println("-----END CERTIFICATE-----");
+                out.close();
+                synchronized (sdf) {
+                    /*
+                     * call = new String[] { "openssl", "ca",// "-in", "../../"
+                     * + csrname,// "-cert", "../" + ca + ".crt",// "-keyfile",
+                     * "../" + ca + ".key",// "-out", "../../" +
+                     * crt.getPath(),// "-utf8", "-startdate",
+                     * sdf.format(fromDate),// "-enddate", sdf.format(toDate),//
+                     * "-batch",// "-md", rs.getString("md"),// "-extfile",
+                     * "../" + f.getName(),// "-subj",
+                     * Certificate.stringifyDN(subj),// "-config",
+                     * "../selfsign.config"// };
+                     */
+                }
+
+                try (InputStream is = new FileInputStream(crt)) {
+                    CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                    X509Certificate crtp = (X509Certificate) cf.generateCertificate(is);
+                    BigInteger serial = crtp.getSerialNumber();
+                    updateMail.setString(1, crt.getPath());
+                    updateMail.setString(2, serial.toString(16));
+                    updateMail.setInt(3, id);
+                    updateMail.execute();
+
+                    finishJob.setInt(1, rs.getInt("jobid"));
+                    finishJob.execute();
+                    System.out.println("signed: " + id);
+                    continue;
+                }
+
             } catch (GeneralSecurityException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
                 e.printStackTrace();
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
             }
             System.out.println("Error with: " + id);
             warnMail.setInt(1, rs.getInt("jobid"));
@@ -368,5 +387,218 @@ public class SimpleSigner {
 
         }
         rs.close();
+    }
+
+    private static PrivateKey loadOpensslKey(File f) throws FileNotFoundException, IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+        byte[] p8b = PEM.decode("RSA PRIVATE KEY", new String(IOUtils.readURL(new FileInputStream(f))));
+        DerOutputStream dos = new DerOutputStream();
+        dos.putInteger(0);
+        new AlgorithmId(new ObjectIdentifier(new int[] {
+                1, 2, 840, 113549, 1, 1, 1
+        })).encode(dos);
+        dos.putOctetString(p8b);
+        byte[] ctx = dos.toByteArray();
+        dos.reset();
+        dos.write(DerValue.tag_Sequence, ctx);
+        PKCS8EncodedKeySpec p8 = new PKCS8EncodedKeySpec(dos.toByteArray());
+        PrivateKey i = KeyFactory.getInstance("RSA").generatePrivate(p8);
+        return i;
+    }
+
+    private static synchronized byte[] generateCert(PublicKey pk, PrivateKey prk, Map<String, String> subj, X500Principal issuer, List<SubjectAlternateName> altnames, Date fromDate, Date toDate, Digest digest, String eku) throws IOException, GeneralSecurityException {
+        File f = Paths.get("signer", "serial").toFile();
+        if ( !f.exists()) {
+            FileOutputStream fos = new FileOutputStream(f);
+            fos.write("1".getBytes());
+            fos.close();
+        }
+        try (FileInputStream fr = new FileInputStream(f)) {
+            byte[] serial = IOUtils.readURL(fr);
+            BigInteger ser = new BigInteger(new String(serial).trim());
+            ser = ser.add(BigInteger.ONE);
+
+            PrintWriter pw = new PrintWriter(f);
+            pw.println(ser);
+            pw.close();
+            if (digest != Digest.SHA256 && digest != Digest.SHA512) {
+                System.err.println("assuming sha256 either way ;-): " + digest);
+                digest = Digest.SHA256;
+            }
+            ObjectIdentifier sha512withrsa = new ObjectIdentifier(new int[] {
+                    1, 2, 840, 113549, 1, 1, digest == Digest.SHA256 ? 11 : 13
+            });
+            AlgorithmId aid = new AlgorithmId(sha512withrsa);
+            Signature s = Signature.getInstance(digest == Digest.SHA256 ? "SHA256withRSA" : "SHA512withRSA");
+
+            DerOutputStream cert = new DerOutputStream();
+            DerOutputStream content = new DerOutputStream();
+            {
+                DerOutputStream version = new DerOutputStream();
+                version.putInteger(2); // v3
+                content.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 0), version);
+            }
+            content.putInteger(ser); // Serial
+            aid.encode(content);
+
+            {
+                content.write(issuer.getEncoded());
+            }
+            {
+                DerOutputStream notAround = new DerOutputStream();
+                notAround.putUTCTime(fromDate);
+                notAround.putUTCTime(toDate);
+                content.write(DerValue.tag_Sequence, notAround);
+            }
+            {
+
+                X500Name xn = genX500Name(subj);
+                content.write(xn.getEncoded());
+            }
+            {
+                content.write(pk.getEncoded());
+            }
+            {
+                DerOutputStream extensions = new DerOutputStream();
+                {
+                    addExtension(extensions, new ObjectIdentifier(new int[] {
+                            2, 5, 29, 17
+                    }), generateSAN(altnames));
+                    addExtension(extensions, new ObjectIdentifier(new int[] {
+                            2, 5, 29, 15
+                    }), generateKU());
+                    addExtension(extensions, new ObjectIdentifier(new int[] {
+                            2, 5, 29, 37
+                    }), generateEKU(eku));
+                }
+                DerOutputStream extensionsSeq = new DerOutputStream();
+                extensionsSeq.write(DerValue.tag_Sequence, extensions);
+                content.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 3), extensionsSeq);
+            }
+
+            DerOutputStream contentSeq = new DerOutputStream();
+
+            contentSeq.write(DerValue.tag_Sequence, content.toByteArray());
+
+            s.initSign(prk);
+            s.update(contentSeq.toByteArray());
+
+            aid.encode(contentSeq);
+            contentSeq.putBitString(s.sign());
+            cert.write(DerValue.tag_Sequence, contentSeq);
+
+            X509Certificate c = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(cert.toByteArray()));
+            // c.verify(pk); only for self-signeds
+
+            return cert.toByteArray();
+        }
+
+    }
+
+    private static byte[] generateKU() throws IOException {
+        DerOutputStream dos = new DerOutputStream();
+        dos.putBitString(new byte[] {
+            (byte) 0b10101000
+        });
+        return dos.toByteArray();
+    }
+
+    private static byte[] generateEKU(String eku) throws IOException {
+
+        DerOutputStream dos = new DerOutputStream();
+        for (String name : eku.split(",")) {
+            ObjectIdentifier oid;
+            switch (name) {
+            case "serverAuth":
+                oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.1");
+                break;
+            case "clientAuth":
+                oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.2");
+                break;
+            case "codeSigning":
+                oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.3");
+                break;
+            case "emailProtection":
+                oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.4");
+                break;
+
+            default:
+                throw new Error(name);
+            }
+            dos.putOID(oid);
+        }
+        byte[] data = dos.toByteArray();
+        dos.reset();
+        dos.write(DerValue.tag_Sequence, data);
+        return dos.toByteArray();
+    }
+
+    private static X500Name genX500Name(Map<String, String> subj) throws IOException {
+        LinkedList<RDN> rdns = new LinkedList<>();
+        for (Entry<String, String> i : subj.entrySet()) {
+            RDN rdn = genRDN(i);
+            rdns.add(rdn);
+        }
+        return new X500Name(rdns.toArray(new RDN[rdns.size()]));
+    }
+
+    private static RDN genRDN(Entry<String, String> i) throws IOException {
+        DerOutputStream dos = new DerOutputStream();
+        dos.putUTF8String(i.getValue());
+        int[] oid;
+        String key = i.getKey();
+        switch (key) {
+        case "CN":
+            oid = new int[] {
+                    2, 5, 4, 3
+            };
+            break;
+        case "EMAIL":
+        case "emailAddress":
+            oid = new int[] {
+                    1, 2, 840, 113549, 1, 9, 1
+            };
+            break;
+        case "O":
+            oid = new int[] {
+                    2, 5, 4, 10
+            };
+            break;
+        case "OU":
+            oid = new int[] {
+                    2, 5, 4, 11
+            };
+            break;
+        default:
+            throw new Error("unknown RDN-type: " + key);
+        }
+        RDN rdn = new RDN(new AVA(new ObjectIdentifier(oid), new DerValue(dos.toByteArray())));
+        return rdn;
+    }
+
+    private static void addExtension(DerOutputStream extensions, ObjectIdentifier oid, byte[] extContent) throws IOException {
+        DerOutputStream SANs = new DerOutputStream();
+        SANs.putOID(oid);
+        SANs.putOctetString(extContent);
+
+        extensions.write(DerValue.tag_Sequence, SANs);
+    }
+
+    private static byte[] generateSAN(List<SubjectAlternateName> altnames) throws IOException {
+        DerOutputStream SANContent = new DerOutputStream();
+        for (SubjectAlternateName san : altnames) {
+            byte type = 0;
+            if (san.getType() == SANType.DNS) {
+                type = (byte) GeneralNameInterface.NAME_DNS;
+            } else if (san.getType() == SANType.EMAIL) {
+                type = (byte) GeneralNameInterface.NAME_RFC822;
+            } else {
+                throw new Error("" + san.getType());
+            }
+            SANContent.write(DerValue.createTag(DerValue.TAG_CONTEXT, false, type), san.getName().getBytes());
+        }
+        DerOutputStream SANSeqContent = new DerOutputStream();
+        SANSeqContent.write(DerValue.tag_Sequence, SANContent);
+        byte[] byteArray = SANSeqContent.toByteArray();
+        return byteArray;
     }
 }
