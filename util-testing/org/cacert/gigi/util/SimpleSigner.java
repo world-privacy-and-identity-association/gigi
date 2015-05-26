@@ -192,30 +192,11 @@ public class SimpleSigner {
         while (rs.next()) {
             int id = rs.getInt(1);
             File crt = KeyStorage.locateCrt(id);
-            String[] call = new String[] {
-                    "openssl", "ca",//
-                    "-cert",
-                    "../unassured.crt",//
-                    "-keyfile",
-                    "../unassured.key",//
-                    "-revoke",
-                    "../../" + crt.getPath(),//
-                    "-batch",//
-                    "-config",
-                    "../selfsign.config"
-
-            };
-            Process p1 = Runtime.getRuntime().exec(call, null, new File("keys/unassured.ca"));
-            System.out.println("revoking: " + crt.getPath());
-            if (p1.waitFor() == 0) {
-                worked = true;
-                revokeCompleted.setInt(1, id);
-                revokeCompleted.execute();
-                finishJob.setInt(1, rs.getInt(3));
-                finishJob.execute();
-            } else {
-                System.out.println("Failed");
-            }
+            worked = true;
+            revokeCompleted.setInt(1, id);
+            revokeCompleted.execute();
+            finishJob.setInt(1, rs.getInt(3));
+            finishJob.execute();
         }
         if (worked) {
             gencrl();
@@ -223,6 +204,9 @@ public class SimpleSigner {
     }
 
     private static void gencrl() throws IOException, InterruptedException {
+        if (true) {
+            return;
+        }
         String[] call = new String[] {
                 "openssl", "ca",//
                 "-cert",
