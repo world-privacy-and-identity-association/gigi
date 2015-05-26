@@ -106,7 +106,7 @@ public class TestSSL extends PingTest {
                 sss.close();
             }
         }
-        String content = "newdomain=" + URLEncoder.encode(test, "UTF-8") + //
+        String content = "adddomain&newdomain=" + URLEncoder.encode(test, "UTF-8") + //
                 "&emailType=y&email=2&SSLType=y" + //
                 "&ssl-type-0=direct&ssl-port-0=" + port + //
                 "&ssl-type-1=direct&ssl-port-1=" + port2 + //
