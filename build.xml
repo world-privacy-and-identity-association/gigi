@@ -99,6 +99,7 @@
 	<target depends="init, build-project" name="build-testing">
 		<javac encoding="UTF-8" debug="true" debuglevel="${debuglevel}" destdir="binutil-testing"
 			includeantruntime="false" source="${source}" target="${target}">
+			<compilerarg value="-XDignore.symbol.file"/>
 			<src path="util-testing" />
 			<classpath refid="cacert-gigi.classpath" />
 		</javac>
