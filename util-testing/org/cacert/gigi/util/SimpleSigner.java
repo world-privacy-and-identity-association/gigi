@@ -53,7 +53,6 @@ import org.cacert.gigi.dbObjects.Certificate.SubjectAlternateName;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.output.DateSelector;
-import org.cacert.gigi.testUtils.IOUtils;
 
 import sun.security.pkcs10.PKCS10;
 import sun.security.util.DerOutputStream;
