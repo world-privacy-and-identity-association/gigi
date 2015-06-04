@@ -5,7 +5,7 @@ mail=localhost:8474
 
 # ==== OR ===
 type=autonomous
-java=java -cp bin;/path/to/mysqlConnector.jar org.cacert.gigi.Launcher
+java=java -cp bin;/path/to/mysqlConnector.jar org.cacert.gigi.TestLauncher
 serverPort.https=4443
 serverPort.http=8098
 mailPort=8473
