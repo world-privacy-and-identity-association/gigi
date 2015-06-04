@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
@@ -39,7 +38,7 @@ public class TTPAdminForm extends Form {
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
         vars.put("name", u.getName());
         vars.put("email", u.getEmail());
-        vars.put("DoB", DateSelector.getDateFormat().format(u.getDoB()));
+        vars.put("DoB", u.getDoB());
         vars.put("uid", Integer.toString(u.getId()));
         t.output(out, l, vars);
     }

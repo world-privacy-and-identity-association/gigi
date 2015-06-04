@@ -13,7 +13,6 @@ import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.SupportedUser;
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
@@ -78,7 +77,7 @@ public class SupportRevokeCertificatesForm extends Form {
                 if (lastExpire == Long.MIN_VALUE) {
                     vars.put("lastdate", "-");
                 } else {
-                    vars.put("lastdate", DateSelector.getDateFormat().format(new Date(lastExpire)));
+                    vars.put("lastdate", new Date(lastExpire));
                 }
                 typeIndex++;
                 return true;

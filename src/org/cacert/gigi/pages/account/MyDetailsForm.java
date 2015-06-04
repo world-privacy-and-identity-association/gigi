@@ -74,7 +74,7 @@ public class MyDetailsForm extends Form {
             vars.put("DoB", ds);
             templ.output(out, l, vars);
         } else {
-            vars.put("DoB", DateSelector.getDateFormat().format(target.getDoB()));
+            vars.put("DoB", target.getDoB());
             assured.output(out, l, vars);
         }
     }
