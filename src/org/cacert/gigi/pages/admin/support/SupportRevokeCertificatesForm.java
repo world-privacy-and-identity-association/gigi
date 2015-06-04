@@ -69,6 +69,7 @@ public class SupportRevokeCertificatesForm extends Form {
                         }
                         if (certs[i].getStatus() == CertificateStatus.REVOKED) {
                             revoked++;
+                            continue;
                         }
                         certs[i].cert().checkValidity();
                         lastExpire = Math.max(lastExpire, certs[i].cert().getNotAfter().getTime());
