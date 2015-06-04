@@ -30,6 +30,7 @@ import org.cacert.gigi.output.SimpleMenuItem;
 import org.cacert.gigi.output.template.Form.CSRFException;
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.pages.HandlesMixedRequest;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.LogoutPage;
 import org.cacert.gigi.pages.MainPage;
@@ -337,7 +338,7 @@ public class Gigi extends HttpServlet {
                 public void output(PrintWriter out, Language l, Map<String, Object> vars) {
                     try {
                         if (req.getMethod().equals("POST")) {
-                            if (req.getQueryString() != null) {
+                            if (req.getQueryString() != null && !(p instanceof HandlesMixedRequest)) {
                                 return;
                             }
                             p.doPost(req, resp);

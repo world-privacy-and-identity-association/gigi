@@ -1,4 +1,3 @@
-<form method="post">
 <table class="wrapper dataTable">
 <thead><tr>
 <th><?=_Renew/Revoke/Delete?></th>
@@ -15,7 +14,9 @@
 <tbody>
 <? foreach($certs) {?>
 <tr>
-	<td><input type='checkbox' name='certs[]' value='<?=$serial?>'></td>
+	<td>
+	<? if($isNotRevoked) { ?><input type='checkbox' name='certs[]' value='<?=$serial?>'><? } ?>
+	</td>
 	<td><?=$state?></td>
 	<td><?=$CN?></td>
 	<td><a href='/account/certs/<?=$serial?>'><?=$serial?></a></td>
@@ -29,4 +30,3 @@
 <? } ?>
 </tbody>
 </table>
-</form>

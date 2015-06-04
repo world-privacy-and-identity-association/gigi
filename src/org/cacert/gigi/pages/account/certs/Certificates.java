@@ -14,16 +14,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.dbObjects.CACertificate;
 import org.cacert.gigi.dbObjects.Certificate;
-import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.output.CertificateIterable;
+import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.pages.HandlesMixedRequest;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.PEM;
 
-public class Certificates extends Page {
+public class Certificates extends Page implements HandlesMixedRequest {
 
     private Template certDisplay = new Template(Certificates.class.getResource("CertificateDisplay.templ"));
 
@@ -120,7 +120,18 @@ public class Certificates extends Page {
         return true;
     }
 
-    private Template certTable = new Template(CertificateIterable.class.getResource("CertificateTable.templ"));
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (req.getQueryString() != null && !req.getQueryString().equals("") && !req.getQueryString().equals("withRevoked")) {
+            return;// Block actions by get parameters.
+        }
+        if ( !req.getPathInfo().equals(PATH)) {
+            resp.sendError(500);
+            return;
+        }
+        Form.getForm(req, CertificateModificationForm.class).submit(resp.getWriter(), req);
+        doGet(req, resp);
+    }
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -149,9 +160,7 @@ public class Certificates extends Page {
         }
 
         HashMap<String, Object> vars = new HashMap<String, Object>();
-        User us = LoginPage.getUser(req);
-        vars.put("certs", new CertificateIterable(us.getCertificates(false)));
-        certTable.output(out, getLanguage(req), vars);
+        new CertificateModificationForm(req, req.getParameter("withRevoked") != null).output(out, getLanguage(req), vars);
     }
 
 }

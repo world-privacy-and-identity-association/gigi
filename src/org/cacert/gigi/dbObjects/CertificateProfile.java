@@ -14,7 +14,7 @@ import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 
-public class CertificateProfile {
+public class CertificateProfile implements IdCachable {
 
     private final int id;
 

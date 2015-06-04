@@ -54,7 +54,7 @@ public class Template implements Outputable {
 
     private File source;
 
-    private static final Pattern CONTROL_PATTERN = Pattern.compile(" ?([a-z]+)\\(\\$([^)]+)\\) ?\\{ ?");
+    private static final Pattern CONTROL_PATTERN = Pattern.compile(" ?([a-zA-Z]+)\\(\\$([^)]+)\\) ?\\{ ?");
 
     private static final Pattern ELSE_PATTERN = Pattern.compile(" ?\\} ?else ?\\{ ?");
 

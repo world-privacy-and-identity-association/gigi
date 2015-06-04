@@ -33,6 +33,7 @@ public class CertificateIterable implements IterableDataset {
         vars.put("profile", c.getProfile().getVisibleName());
         try {
             CertificateStatus st = c.getStatus();
+            vars.put("isNotRevoked", st != CertificateStatus.REVOKED);
             if (st == CertificateStatus.ISSUED || st == CertificateStatus.REVOKED) {
                 X509Certificate cert = c.cert();
                 vars.put("issued", DateSelector.getDateFormat().format(cert.getNotBefore()));
