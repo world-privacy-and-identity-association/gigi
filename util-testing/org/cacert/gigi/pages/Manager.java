@@ -25,6 +25,8 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Group;
@@ -240,13 +242,21 @@ public class Manager extends Page {
 
                 CertificateRequest cr = new CertificateRequest(u, Base64.getEncoder().encodeToString(res), "challange");
                 cr.update(CertificateRequest.DEFAULT_CN, Digest.SHA512.toString(), "client", null, "", "email:" + u.getEmail(), resp.getWriter(), req);
-                cr.draft().issue(null, "2y");
-                resp.getWriter().println("added certificate");
+                Certificate draft = cr.draft();
+                draft.issue(null, "2y").waitFor(10000);
+                if (draft.getStatus() == CertificateStatus.ISSUED) {
+                    resp.getWriter().println("added certificate");
+                } else {
+                    resp.getWriter().println("signer failed");
+                }
             } catch (GeneralSecurityException e1) {
                 e1.printStackTrace();
                 resp.getWriter().println("error");
             } catch (GigiApiException e) {
                 e.format(resp.getWriter(), Language.getInstance(Locale.ENGLISH));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                resp.getWriter().println("interrupted");
             }
 
         }
