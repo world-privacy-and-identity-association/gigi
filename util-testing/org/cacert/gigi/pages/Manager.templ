@@ -1,4 +1,4 @@
-<div>
+<form method='post'>
 Batch create users:
 <div>
   Email: 
@@ -6,9 +6,9 @@ Batch create users:
   <input type="text" name="suffix"/>
 </div>
 Amount:  <input type="slider" name="amount"/> <input type="submit" name="create" value="Create Users"/>
-</div>
-<div>
-Add privillege:
+</form>
+<form method='post'>
+Add privilege:
 Email: <input type="text" name="email"/> 
 <select name="priv">
 <option>supporter</option>
@@ -23,23 +23,30 @@ Email: <input type="text" name="email"/>
 </select>
 <input type="submit" name="addpriv" value="Grant Privillege"/>
 <input type="submit" name="delpriv" value="Revoke Privillege"/>
-</div>
+</form>
 
-<div>
-Recive Mails:
+<form method='post'>
+Receive Mails:
 Email: <input type="text" name="femail"/>
-<input type="submit" value="Recieve Mails" name="fetch"/>
-</div>
+<input type="submit" value="Receive Mails" name="fetch"/>
+</form>
 
-<div>
+<form method='post'>
 Add CATs entry:
 Email: <input type="text" name="catsEmail"/>
 <input type="submit" value="Add CATs" name="cats"/>
-</div>
+</form>
 
 
-<div>
+<form method='post'>
 Add 100 Assurance points:
 Email: <input type="text" name="assureEmail"/>
 <input type="submit" value="Assure 100 Points" name="assure"/>
-</div>
+</form>
+
+<form method='post'>
+Add verified Email:
+Email: <input type="text" name="addEmailEmail"/>
+new Email: <input type="text" name="addEmailNew"/>
+<input type="submit" value="Assure 100 Points" name="addEmail"/>
+</form>

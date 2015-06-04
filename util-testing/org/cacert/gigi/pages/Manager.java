@@ -25,7 +25,6 @@ import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.util.Notary;
@@ -57,6 +56,7 @@ public class Manager extends Page {
                 String mail = "test-assurer" + i + "@example.com";
                 User u = User.getByEmail(mail);
                 if (u == null) {
+                    System.out.println("Creating assurer");
                     createUser(mail);
                     u = User.getByEmail(mail);
                     passCATS(u);
@@ -112,24 +112,6 @@ public class Manager extends Page {
                 mails.put(to, hismails = new LinkedList<>());
             }
             hismails.addFirst(subject + "\n" + message);
-        }
-
-    }
-
-    public class ManagementForm extends Form {
-
-        public ManagementForm(HttpServletRequest hsr) {
-            super(hsr);
-        }
-
-        @Override
-        public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
-            return false;
-        }
-
-        @Override
-        protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
-            getDefaultTemplate().output(out, l, vars);
         }
 
     }
@@ -217,6 +199,24 @@ public class Manager extends Page {
                 throw new Error(e);
             }
             resp.getWriter().println("User has been assured.");
+        } else if (req.getParameter("addEmail") != null) {
+            User u = User.getByEmail(req.getParameter("addEmailEmail"));
+            EmailAddress ea = new EmailAddress(u, req.getParameter("addEmailNew"));
+            try {
+                ea.insert(Language.getInstance(Locale.ENGLISH));
+                String hash = (String) f.get(ea);
+                ea.verify(hash);
+                resp.getWriter().println("Email added and verified");
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+                resp.getWriter().println("An internal error occured.");
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+                resp.getWriter().println("An internal error occured.");
+            } catch (GigiApiException e) {
+                e.format(resp.getWriter(), Language.getInstance(Locale.ENGLISH));
+            }
+
         }
     }
 
@@ -246,6 +246,8 @@ public class Manager extends Page {
         }
     }
 
+    private Template form = new Template(Manager.class.getResource("Manager.templ"));
+
     @Override
     public boolean needsLogin() {
         return false;
@@ -261,6 +263,6 @@ public class Manager extends Page {
             return;
         }
 
-        new ManagementForm(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+        form.output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
     }
 }
