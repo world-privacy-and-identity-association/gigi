@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.SupportedUser;
 import org.cacert.gigi.localisation.Language;
@@ -55,6 +56,7 @@ public class SupportRevokeCertificatesForm extends Form {
                 }
                 int valid = 0;
                 int total = 0;
+                int revoked = 0;
                 long lastExpire = Long.MIN_VALUE;
                 for (int i = 0; i < certs.length; i++) {
                     try {
@@ -62,6 +64,12 @@ public class SupportRevokeCertificatesForm extends Form {
                             continue;
                         }
                         total++;
+                        if (certs[i].getStatus() == CertificateStatus.DRAFT) {
+                            continue;
+                        }
+                        if (certs[i].getStatus() == CertificateStatus.REVOKED) {
+                            revoked++;
+                        }
                         certs[i].cert().checkValidity();
                         lastExpire = Math.max(lastExpire, certs[i].cert().getNotAfter().getTime());
                         valid++;
@@ -73,7 +81,7 @@ public class SupportRevokeCertificatesForm extends Form {
                 vars.put("profile", profiles[typeIndex].getVisibleName());
                 vars.put("valid", valid);
                 vars.put("exp", total - valid);
-                vars.put("rev", "TODO");
+                vars.put("rev", revoked);
                 if (lastExpire == Long.MIN_VALUE) {
                     vars.put("lastdate", "-");
                 } else {
