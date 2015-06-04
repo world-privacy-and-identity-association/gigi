@@ -27,9 +27,17 @@ public class SupportUserDetailsPage extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        int id;
+        int id = -1;
         String[] idP = req.getPathInfo().split("/");
-        id = Integer.parseInt(idP[idP.length - 1]);
+        try {
+            if (req.getPathInfo().endsWith("history") || req.getPathInfo().endsWith("trainings")) {
+                id = Integer.parseInt(idP[idP.length - 2]);
+            } else {
+                id = Integer.parseInt(idP[idP.length - 1]);
+            }
+        } catch (NumberFormatException e) {
+            resp.sendError(404);
+        }
         final User user = User.getById(id);
         String ticket = (String) req.getSession().getAttribute("ticketNo" + user.getId());
         SupportUserDetailsForm f = new SupportUserDetailsForm(req, new SupportedUser(user, getUser(req), ticket));

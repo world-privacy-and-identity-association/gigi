@@ -253,6 +253,17 @@ public class Gigi extends HttpServlet {
         if (page != null) {
             return page;
         }
+
+        idx = pathInfo.lastIndexOf('/');
+        if (idx == -1) {
+            return null;
+        }
+        pathInfo = pathInfo.substring(0, idx);
+
+        page = pages.get(pathInfo + "/*");
+        if (page != null) {
+            return page;
+        }
         return null;
 
     }
