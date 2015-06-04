@@ -1,0 +1,8 @@
+Your ticket:
+<iframe width="100" height="100" id='devel-reload-ifr'></iframe>
+
+<script type='text/javascript'>
+setInterval(function(){
+	document.getElementById("devel-reload-ifr").src="/ticket?"+new Date().getTime();
+}, 5000);
+</script>
