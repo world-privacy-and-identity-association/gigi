@@ -15,7 +15,7 @@
 <? foreach($certs) {?>
 <tr>
 	<td>
-	<? if($isNotRevoked) { ?><input type='checkbox' name='certs[]' value='<?=$serial?>'><? } ?>
+	<? if($revokable) { ?><input type='checkbox' name='certs[]' value='<?=$serial?>'><? } ?>
 	</td>
 	<td><?=$state?></td>
 	<td><?=$CN?></td>
