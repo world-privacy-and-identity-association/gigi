@@ -1,5 +1,8 @@
 package org.cacert.gigi;
 
+import static org.cacert.gigi.Gigi.*;
+
+import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -20,9 +23,14 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.dbObjects.ObjectCache;
+import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.RandomToken;
+import org.cacert.gigi.util.ServerConstants;
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarHeader;
 import org.kamranzafar.jtar.TarOutputStream;
@@ -52,7 +60,9 @@ public class DevelLauncher {
         InputStream oldin = System.in;
         System.setIn(new ByteArrayInputStream(chunkConfig.toByteArray()));
         new Launcher().boot();
-        addDevelPage();
+        final String token = RandomToken.generateToken(32);
+        addDevelPage(token);
+        Desktop.getDesktop().browse(new URL("http://" + ServerConstants.getWwwHostNamePort() + "/ticket?token=" + token).toURI());
         System.setIn(oldin);
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
         System.out.println("Cacert-gigi system sucessfully started.");
@@ -71,7 +81,7 @@ public class DevelLauncher {
         }
     }
 
-    public static void addDevelPage() {
+    public static void addDevelPage(String token) {
         try {
             Field instF = Gigi.class.getDeclaredField("instance");
             Field pageF = Gigi.class.getDeclaredField("pages");
@@ -122,10 +132,39 @@ public class DevelLauncher {
                 }
             });
 
+            if (token != null) {
+                addTicketPage(pages, token);
+            }
+
             pageF.set(gigi, Collections.unmodifiableMap(pages));
         } catch (ReflectiveOperationException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void addTicketPage(HashMap<String, Page> pages, final String token) {
+        pages.put("/ticket", new Page("ticket") {
+
+            boolean used = false;
+
+            @Override
+            public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+                if ( !used && token.equals(req.getParameter("token"))) {
+                    HttpSession sess = req.getSession();
+                    User user = User.getById(1);
+                    sess.setAttribute(LOGGEDIN, true);
+                    sess.setAttribute(Language.SESSION_ATTRIB_NAME, user.getPreferredLocale());
+                    sess.setAttribute(USER, user);
+                    req.getSession().setAttribute(LOGIN_METHOD, "Ticket");
+                    resp.sendRedirect("/");
+                }
+            }
+
+            @Override
+            public boolean needsLogin() {
+                return false;
+            }
+        });
     }
 
     public static void writeGigiConfig(OutputStream target, byte[] keystorepw, byte[] truststorepw, Properties mainprop, byte[] cacerts, byte[] keystore) throws IOException {
