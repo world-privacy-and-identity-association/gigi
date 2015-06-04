@@ -42,12 +42,16 @@ public class CertificateIterable implements IterableDataset {
                 vars.put("issued", l.getTranslation("N/A"));
                 vars.put("expire", l.getTranslation("N/A"));
             }
+            if (st == CertificateStatus.REVOKED) {
+                vars.put("revoked", DateSelector.getDateFormat().format(c.getRevocationDate()));
+            } else {
+                vars.put("revoked", "n/a");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
-        vars.put("revoked", "TODO");// TODO output date
         return true;
     }
 }

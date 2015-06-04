@@ -407,4 +407,17 @@ public class Certificate {
         }
         return res;
     }
+
+    public java.util.Date getRevocationDate() {
+        if (getStatus() == CertificateStatus.REVOKED) {
+            GigiPreparedStatement prep = DatabaseConnection.getInstance().prepare("SELECT revoked FROM certs WHERE id=?");
+            prep.setInt(1, getId());
+            GigiResultSet res = prep.executeQuery();
+            res.beforeFirst();
+            if (res.next()) {
+                return new java.util.Date(res.getDate("revoked").getTime());
+            }
+        }
+        return null;
+    }
 }
