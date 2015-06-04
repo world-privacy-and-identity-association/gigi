@@ -30,11 +30,7 @@ public class SupportUserDetailsPage extends Page {
         int id = -1;
         String[] idP = req.getPathInfo().split("/");
         try {
-            if (req.getPathInfo().endsWith("history") || req.getPathInfo().endsWith("trainings")) {
-                id = Integer.parseInt(idP[idP.length - 2]);
-            } else {
-                id = Integer.parseInt(idP[idP.length - 1]);
-            }
+            id = Integer.parseInt(idP[idP.length - 1]);
         } catch (NumberFormatException e) {
             resp.sendError(404);
         }

@@ -247,24 +247,18 @@ public class Gigi extends HttpServlet {
             return page;
         }
         int idx = pathInfo.lastIndexOf('/');
-        pathInfo = pathInfo.substring(0, idx);
 
-        page = pages.get(pathInfo + "/*");
+        page = pages.get(pathInfo.substring(0, idx) + "/*");
         if (page != null) {
             return page;
         }
 
-        idx = pathInfo.lastIndexOf('/');
-        if (idx == -1) {
+        int lIdx = pathInfo.lastIndexOf('/', idx);
+        if (lIdx == -1) {
             return null;
         }
-        pathInfo = pathInfo.substring(0, idx);
-
-        page = pages.get(pathInfo + "/*");
-        if (page != null) {
-            return page;
-        }
-        return null;
+        page = pages.get(pathInfo.substring(0, lIdx) + "/" + pathInfo.substring(idx));
+        return page;
 
     }
 
