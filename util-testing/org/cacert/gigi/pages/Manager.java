@@ -3,7 +3,12 @@ package org.cacert.gigi.pages;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.Signature;
 import java.sql.Date;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -17,8 +22,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Name;
@@ -27,7 +34,10 @@ import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.pages.account.certs.CertificateRequest;
 import org.cacert.gigi.util.Notary;
+
+import sun.security.x509.X509Key;
 
 public class Manager extends Page {
 
@@ -213,6 +223,28 @@ public class Manager extends Page {
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
                 resp.getWriter().println("An internal error occured.");
+            } catch (GigiApiException e) {
+                e.format(resp.getWriter(), Language.getInstance(Locale.ENGLISH));
+            }
+        } else if (req.getParameter("addCert") != null) {
+            User u = User.getByEmail(req.getParameter("addCertEmail"));
+            try {
+                KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+                kpg.initialize(4096);
+                KeyPair kp = kpg.generateKeyPair();
+                SPKAC s = new SPKAC((X509Key) kp.getPublic(), "challange");
+                Signature sign = Signature.getInstance("SHA512withRSA");
+                sign.initSign(kp.getPrivate());
+
+                byte[] res = s.getEncoded(sign);
+
+                CertificateRequest cr = new CertificateRequest(u, Base64.getEncoder().encodeToString(res), "challange");
+                cr.update(CertificateRequest.DEFAULT_CN, Digest.SHA512.toString(), "client", null, "", "email:" + u.getEmail(), resp.getWriter(), req);
+                cr.draft().issue(null, "2y");
+                resp.getWriter().println("added certificate");
+            } catch (GeneralSecurityException e1) {
+                e1.printStackTrace();
+                resp.getWriter().println("error");
             } catch (GigiApiException e) {
                 e.format(resp.getWriter(), Language.getInstance(Locale.ENGLISH));
             }
