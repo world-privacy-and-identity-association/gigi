@@ -312,7 +312,13 @@ public class SimpleSigner {
                 PublicKey pk;
                 byte[] data = IOUtils.readURL(new FileInputStream(csrname));
                 if (ct == CSRType.SPKAC) {
-                    SPKAC sp = new SPKAC(data);
+                    String dt = new String(data);
+                    if (dt.startsWith("SPKAC=")) {
+                        dt = dt.substring(6);
+                        data = dt.getBytes();
+                        System.out.println(dt);
+                    }
+                    SPKAC sp = new SPKAC(Base64.getDecoder().decode(data));
                     pk = sp.getPubkey();
                 } else {
                     PKCS10 p10 = new PKCS10(PEM.decode("(NEW )?CERTIFICATE REQUEST", new String(data)));
