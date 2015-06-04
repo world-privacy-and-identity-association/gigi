@@ -151,23 +151,19 @@ public class Certificate {
         this.sans = Arrays.asList(sans);
     }
 
-    private Certificate(String serial) {
+    private Certificate(GigiResultSet rs) {
         //
-        String concat = "group_concat(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')))";
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as subject, md, csr_name, crt_name,memid, profile FROM `certs` LEFT JOIN certAvas ON certAvas.certid=certs.id WHERE serial=? GROUP BY certs.id");
-        ps.setString(1, serial);
-        GigiResultSet rs = ps.executeQuery();
         if ( !rs.next()) {
             throw new IllegalArgumentException("Invalid mid " + serial);
         }
-        this.id = rs.getInt(1);
-        dnString = rs.getString(2);
-        md = rs.getString(3);
-        csrName = rs.getString(4);
-        crtName = rs.getString(5);
-        owner = User.getById(rs.getInt(6));
-        profile = CertificateProfile.getById(rs.getInt(7));
-        this.serial = serial;
+        this.id = rs.getInt("id");
+        dnString = rs.getString("subject");
+        md = rs.getString("md");
+        csrName = rs.getString("csr_name");
+        crtName = rs.getString("crt_name");
+        owner = User.getById(rs.getInt("memid"));
+        profile = CertificateProfile.getById(rs.getInt("profile"));
+        this.serial = rs.getString("serial");
 
         GigiPreparedStatement ps2 = DatabaseConnection.getInstance().prepare("SELECT contents, type FROM `subjectAlternativeNames` WHERE certId=?");
         ps2.setInt(1, id);
@@ -363,7 +359,27 @@ public class Certificate {
         }
         // TODO caching?
         try {
-            return new Certificate(serial);
+            String concat = "group_concat(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')))";
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as subject, md, csr_name, crt_name,memid, profile, certs.serial FROM `certs` LEFT JOIN certAvas ON certAvas.certid=certs.id WHERE serial=? GROUP BY certs.id");
+            ps.setString(1, serial);
+            GigiResultSet rs = ps.executeQuery();
+            return new Certificate(rs);
+        } catch (IllegalArgumentException e) {
+
+        }
+        return null;
+    }
+
+    public static Certificate getById(int id) {
+
+        // TODO caching?
+        try {
+            String concat = "group_concat(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')))";
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as subject, md, csr_name, crt_name,memid, profile, certs.serial FROM `certs` LEFT JOIN certAvas ON certAvas.certid=certs.id WHERE certs.id=? GROUP BY certs.id");
+            ps.setInt(1, id);
+            GigiResultSet rs = ps.executeQuery();
+
+            return new Certificate(rs);
         } catch (IllegalArgumentException e) {
 
         }

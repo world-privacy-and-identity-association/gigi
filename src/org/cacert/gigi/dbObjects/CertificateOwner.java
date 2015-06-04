@@ -75,9 +75,9 @@ public abstract class CertificateOwner implements IdCachable {
     public Certificate[] getCertificates(boolean includeRevoked) {
         GigiPreparedStatement ps;
         if (includeRevoked) {
-            ps = DatabaseConnection.getInstance().prepare("SELECT serial FROM certs WHERE memid=?");
+            ps = DatabaseConnection.getInstance().prepare("SELECT id FROM certs WHERE memid=?");
         } else {
-            ps = DatabaseConnection.getInstance().prepare("SELECT serial FROM certs WHERE memid=? AND revoked IS NULL");
+            ps = DatabaseConnection.getInstance().prepare("SELECT id FROM certs WHERE memid=? AND revoked IS NULL");
         }
         ps.setInt(1, getId());
 
@@ -85,7 +85,7 @@ public abstract class CertificateOwner implements IdCachable {
             LinkedList<Certificate> data = new LinkedList<Certificate>();
 
             while (rs.next()) {
-                data.add(Certificate.getBySerial(rs.getString(1)));
+                data.add(Certificate.getById(rs.getInt(1)));
             }
 
             return data.toArray(new Certificate[0]);
