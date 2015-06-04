@@ -80,6 +80,8 @@ public class SimpleSigner {
 
     private static GigiPreparedStatement finishJob;
 
+    private static GigiPreparedStatement locateCA;
+
     private static volatile boolean running = true;
 
     private static Thread runner;
@@ -141,13 +143,15 @@ public class SimpleSigner {
         getSANSs = DatabaseConnection.getInstance().prepare("SELECT contents, type FROM subjectAlternativeNames " + //
                 "WHERE certId=?");
 
-        updateMail = DatabaseConnection.getInstance().prepare("UPDATE certs SET crt_name=?," + " created=NOW(), serial=?, caid=1 WHERE id=?");
+        updateMail = DatabaseConnection.getInstance().prepare("UPDATE certs SET crt_name=?," + " created=NOW(), serial=?, caid=? WHERE id=?");
         warnMail = DatabaseConnection.getInstance().prepare("UPDATE jobs SET warning=warning+1, state=IF(warning<3, 'open','error') WHERE id=?");
 
         revoke = DatabaseConnection.getInstance().prepare("SELECT certs.id, certs.csr_name,jobs.id FROM jobs INNER JOIN certs ON jobs.targetId=certs.id" + " WHERE jobs.state='open' AND task='revoke'");
         revokeCompleted = DatabaseConnection.getInstance().prepare("UPDATE certs SET revoked=NOW() WHERE id=?");
 
         finishJob = DatabaseConnection.getInstance().prepare("UPDATE jobs SET state='done' WHERE id=?");
+
+        locateCA = DatabaseConnection.getInstance().prepare("SELECT id FROM cacerts WHERE keyname=?");
 
         runner = new Thread() {
 
@@ -349,12 +353,19 @@ public class SimpleSigner {
                 }
 
                 try (InputStream is = new FileInputStream(crt)) {
+                    locateCA.setString(1, ca);
+                    GigiResultSet caRs = locateCA.executeQuery();
+                    if ( !caRs.next()) {
+                        throw new Error("ca " + ca + " was not found");
+                    }
+
                     CertificateFactory cf = CertificateFactory.getInstance("X.509");
                     X509Certificate crtp = (X509Certificate) cf.generateCertificate(is);
                     BigInteger serial = crtp.getSerialNumber();
                     updateMail.setString(1, crt.getPath());
                     updateMail.setString(2, serial.toString(16));
-                    updateMail.setInt(3, id);
+                    updateMail.setInt(3, caRs.getInt("id"));
+                    updateMail.setInt(4, id);
                     updateMail.execute();
 
                     finishJob.setInt(1, rs.getInt("jobid"));
