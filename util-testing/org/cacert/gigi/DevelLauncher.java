@@ -169,6 +169,11 @@ public class DevelLauncher {
             Template t = new Template(DevelLauncher.class.getResource("DevelTicketWait.templ"));
 
             @Override
+            public boolean needsLogin() {
+                return false;
+            }
+
+            @Override
             public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
                 resp.setHeader("content-security-policy", "");
                 t.output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
