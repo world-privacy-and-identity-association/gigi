@@ -5,6 +5,7 @@ import java.sql.Date;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 
 public class SupportedUser {
 
@@ -39,8 +40,11 @@ public class SupportedUser {
     public void revokeAllCertificates() throws GigiApiException {
         writeSELog("SE Revoke certificates");
         Certificate[] certs = target.getCertificates(false);
+        // TODO Check for open jobs!
         for (int i = 0; i < certs.length; i++) {
-            certs[i].revoke();
+            if (certs[i].getStatus() == CertificateStatus.ISSUED) {
+                certs[i].revoke();
+            }
         }
     }
 
