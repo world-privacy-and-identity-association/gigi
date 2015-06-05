@@ -19,15 +19,15 @@ import org.cacert.gigi.database.GigiResultSet;
 
 public class CACertificate implements IdCachable {
 
-    final String keyname;
+    private final String keyname;
 
-    final int id;
+    private final int id;
 
-    CACertificate parent = null;
+    private CACertificate parent = null;
 
-    final X509Certificate cert;
+    private final X509Certificate cert;
 
-    final String link;
+    private final String link;
 
     private CACertificate(int id) {
         this.id = id;
@@ -172,4 +172,5 @@ public class CACertificate implements IdCachable {
     public boolean isSelfsigned() {
         return this == getParent();
     }
+
 }

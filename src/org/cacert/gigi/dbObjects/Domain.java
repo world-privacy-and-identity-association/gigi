@@ -69,6 +69,7 @@ public class Domain implements IdCachable, Verifyable {
     private int id;
 
     private static final Set<String> IDNEnabledTLDs;
+
     static {
         Properties CPS = new Properties();
         try (InputStream resourceAsStream = Domain.class.getResourceAsStream("CPS.properties")) {
@@ -261,7 +262,7 @@ public class Domain implements IdCachable, Verifyable {
 
     }
 
-    private static ObjectCache<Domain> myCache = new ObjectCache<>();
+    private static final ObjectCache<Domain> myCache = new ObjectCache<>();
 
     public static synchronized Domain getById(int id) throws IllegalArgumentException {
         Domain em = myCache.get(id);

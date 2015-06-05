@@ -16,4 +16,5 @@ public enum Digest {
     public static Digest getDefault() {
         return SHA256;
     }
+
 }

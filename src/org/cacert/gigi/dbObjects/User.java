@@ -33,7 +33,7 @@ public class User extends CertificateOwner {
 
     private Locale locale;
 
-    private Set<Group> groups = new HashSet<>();
+    private final Set<Group> groups = new HashSet<>();
 
     protected User(GigiResultSet rs) {
         super(rs.getInt("id"));

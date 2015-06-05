@@ -6,9 +6,9 @@ import java.util.HashSet;
 
 public class ObjectCache<T extends IdCachable> {
 
-    private HashMap<Integer, WeakReference<T>> hashmap = new HashMap<>();
+    private final HashMap<Integer, WeakReference<T>> hashmap = new HashMap<>();
 
-    private static HashSet<ObjectCache<?>> caches = new HashSet<>();
+    private static final HashSet<ObjectCache<? extends IdCachable>> caches = new HashSet<>();
 
     protected ObjectCache() {
         caches.add(this);
@@ -27,7 +27,7 @@ public class ObjectCache<T extends IdCachable> {
     }
 
     public static void clearAllCaches() {
-        for (ObjectCache<?> objectCache : caches) {
+        for (ObjectCache<? extends IdCachable> objectCache : caches) {
             objectCache.hashmap.clear();
         }
     }

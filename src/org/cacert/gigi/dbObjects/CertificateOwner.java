@@ -8,7 +8,7 @@ import org.cacert.gigi.database.GigiResultSet;
 
 public abstract class CertificateOwner implements IdCachable {
 
-    private static ObjectCache<CertificateOwner> myCache = new ObjectCache<>();
+    private static final ObjectCache<CertificateOwner> myCache = new ObjectCache<>();
 
     private int id;
 

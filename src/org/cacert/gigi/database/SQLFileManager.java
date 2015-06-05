@@ -12,11 +12,11 @@ public class SQLFileManager {
 
     public static enum ImportType {
         /**
-         * Execute Script as-as
+         * Execute Script as-is
          */
         PRODUCTION,
         /**
-         * Execute Script, but changing Engine=InnoDB to Engine=Memory
+         * Execute Script, but change Engine=InnoDB to Engine=Memory
          */
         TEST,
         /**

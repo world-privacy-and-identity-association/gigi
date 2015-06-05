@@ -22,9 +22,9 @@ public class CertificateProfile implements IdCachable {
 
     private final String visibleName;
 
-    private static HashMap<String, CertificateProfile> byName = new HashMap<>();
+    private static final HashMap<String, CertificateProfile> byName = new HashMap<>();
 
-    private static HashMap<Integer, CertificateProfile> byId = new HashMap<>();
+    private static final HashMap<Integer, CertificateProfile> byId = new HashMap<>();
 
     private final Map<String, PropertyTemplate> pt;
 
@@ -252,4 +252,5 @@ public class CertificateProfile implements IdCachable {
         }
         return true;
     }
+
 }

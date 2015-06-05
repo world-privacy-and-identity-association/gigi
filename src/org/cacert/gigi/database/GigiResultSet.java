@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 
 public class GigiResultSet implements Closeable {
 
-    ResultSet target;
+    private ResultSet target;
 
     public GigiResultSet(ResultSet target) {
         this.target = target;

@@ -9,7 +9,9 @@ import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 
 public class SupportedUser {
 
-    private User target, supporter;
+    private User target;
+
+    private User supporter;
 
     private String ticket;
 

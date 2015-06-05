@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 
 public class GigiPreparedStatement {
 
-    PreparedStatement target;
+    private PreparedStatement target;
 
     public GigiPreparedStatement(PreparedStatement preparedStatement) {
         target = preparedStatement;
@@ -106,4 +106,5 @@ public class GigiPreparedStatement {
         // TODO Auto-generated method stub
 
     }
+
 }
