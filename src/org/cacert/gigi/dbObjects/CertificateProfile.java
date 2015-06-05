@@ -22,9 +22,9 @@ public class CertificateProfile implements IdCachable {
 
     private final String visibleName;
 
-    private static final HashMap<String, CertificateProfile> byName = new HashMap<>();
+    private static final Map<String, CertificateProfile> byName;
 
-    private static final HashMap<Integer, CertificateProfile> byId = new HashMap<>();
+    private static final Map<Integer, CertificateProfile> byId;
 
     private final Map<String, PropertyTemplate> pt;
 
@@ -176,13 +176,17 @@ public class CertificateProfile implements IdCachable {
     }
 
     static {
+        final HashMap<String, CertificateProfile> myName = new HashMap<String, CertificateProfile>();
+        final HashMap<Integer, CertificateProfile> myId = new HashMap<Integer, CertificateProfile>();
+
         for (File f : new File("config/profiles").listFiles()) {
             Properties p = new Properties();
             try {
                 p.load(new FileInputStream(f));
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new Error("Unable to load profile from " + f.getName(), e);
             }
+
             String[] parts = f.getName().split("\\.")[0].split("-", 2);
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT keyname, include, requires, name FROM `profiles` WHERE id=?");
             ps.setInt(1, Integer.parseInt(parts[0]));
@@ -207,16 +211,18 @@ public class CertificateProfile implements IdCachable {
                 insert.setInt(5, Integer.parseInt(parts[0]));
                 insert.execute();
             }
-
         }
+
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id, keyname, name, requires, include FROM `profiles`");
         GigiResultSet rs = ps.executeQuery();
         while (rs.next()) {
             CertificateProfile cp = new CertificateProfile(rs.getInt("id"), rs.getString("keyName"), rs.getString("name"), rs.getString("requires"), rs.getString("include"));
-            byId.put(cp.getId(), cp);
-            byName.put(cp.getKeyName(), cp);
+            myId.put(cp.getId(), cp);
+            myName.put(cp.getKeyName(), cp);
         }
 
+        byName = Collections.unmodifiableMap(myName);
+        byId = Collections.unmodifiableMap(myId);
     }
 
     public static CertificateProfile getById(int id) {
