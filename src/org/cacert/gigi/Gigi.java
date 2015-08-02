@@ -21,6 +21,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.dbObjects.CACertificate;
+import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
@@ -227,6 +229,10 @@ public class Gigi extends HttpServlet {
             super.init();
             return;
         }
+        // ensure those static initializers are finished
+        CACertificate.getById(1);
+        CertificateProfile.getById(1);
+
         MenuBuilder mb = new MenuBuilder();
         rootMenu = mb.generateMenu();
         pages = mb.getPages();
