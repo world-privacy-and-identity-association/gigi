@@ -188,6 +188,11 @@ public class DevelLauncher {
                 if ( !ticketUsed) {
                     HttpSession sess = req.getSession();
                     User user = User.getById(1);
+                    if (user == null) {
+                        resp.getWriter().println("ticket consumed but no user available for that action");
+                        ticketUsed = true;
+                        return true;
+                    }
                     sess.setAttribute(LOGGEDIN, true);
                     sess.setAttribute(Language.SESSION_ATTRIB_NAME, user.getPreferredLocale());
                     sess.setAttribute(USER, user);

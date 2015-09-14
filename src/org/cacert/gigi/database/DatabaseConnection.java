@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.StringJoiner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.cacert.gigi.database.SQLFileManager.ImportType;
 
@@ -39,15 +41,8 @@ public class DatabaseConnection {
 
     private void tryConnect() {
         try {
-            c = DriverManager.getConnection(credentials.getProperty("sql.url") + "?zeroDateTimeBehavior=convertToNull", credentials.getProperty("sql.user"), credentials.getProperty("sql.password"));
-            PreparedStatement ps = c.prepareStatement("SET SESSION wait_timeout=?, time_zone='+0:00';");
-            try {
-                ps.setInt(1, CONNECTION_TIMEOUT);
-                ps.execute();
-                adHoc = c.createStatement();
-            } finally {
-                ps.close();
-            }
+            c = DriverManager.getConnection(credentials.getProperty("sql.url") + "?socketTimeout=" + CONNECTION_TIMEOUT, credentials.getProperty("sql.user"), credentials.getProperty("sql.password"));
+            adHoc = c.createStatement();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -55,10 +50,26 @@ public class DatabaseConnection {
 
     public GigiPreparedStatement prepare(String query) {
         ensureOpen();
+        query = preprocessQuery(query);
         GigiPreparedStatement statement = statements.get(query);
         if (statement == null) {
             try {
-                statement = new GigiPreparedStatement(c.prepareStatement(query, Statement.RETURN_GENERATED_KEYS));
+                statement = new GigiPreparedStatement(c.prepareStatement(query, query.startsWith("SELECT ") ? Statement.NO_GENERATED_KEYS : Statement.RETURN_GENERATED_KEYS));
+            } catch (SQLException e) {
+                throw new Error(e);
+            }
+            statements.put(query, statement);
+        }
+        return statement;
+    }
+
+    public GigiPreparedStatement prepareScrollable(String query) {
+        ensureOpen();
+        query = preprocessQuery(query);
+        GigiPreparedStatement statement = statements.get(query);
+        if (statement == null) {
+            try {
+                statement = new GigiPreparedStatement(c.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY));
             } catch (SQLException e) {
                 throw new Error(e);
             }
@@ -105,7 +116,7 @@ public class DatabaseConnection {
             throw new Error("Re-initiaizing is forbidden.");
         }
         credentials = conf;
-        GigiResultSet rs = getInstance().prepare("SELECT version FROM schemeVersion ORDER BY version DESC LIMIT 1").executeQuery();
+        GigiResultSet rs = getInstance().prepare("SELECT version FROM \"schemeVersion\" ORDER BY version DESC LIMIT 1;").executeQuery();
         int version = 0;
         if (rs.next()) {
             version = rs.getInt(1);
@@ -117,6 +128,10 @@ public class DatabaseConnection {
             throw new Error("Invalid database version. Please fix this.");
         }
         upgrade(version);
+    }
+
+    public void beginTransaction() throws SQLException {
+        c.setAutoCommit(false);
     }
 
     private static void upgrade(int version) {
@@ -146,10 +161,6 @@ public class DatabaseConnection {
         }
     }
 
-    public void beginTransaction() throws SQLException {
-        c.setAutoCommit(false);
-    }
-
     public void commitTransaction() throws SQLException {
         c.commit();
         c.setAutoCommit(true);
@@ -164,5 +175,40 @@ public class DatabaseConnection {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static final String preprocessQuery(String originalQuery) {
+        originalQuery = originalQuery.replace('`', '"');
+        if (originalQuery.matches("^INSERT INTO [^ ]+ SET .*")) {
+            Pattern p = Pattern.compile("INSERT INTO ([^ ]+) SET (.*)");
+            Matcher m = p.matcher(originalQuery);
+            if (m.matches()) {
+                String replacement = "INSERT INTO " + toIdentifier(m.group(1));
+                String[] parts = m.group(2).split(",");
+                StringJoiner columns = new StringJoiner(", ");
+                StringJoiner values = new StringJoiner(", ");
+                for (int i = 0; i < parts.length; i++) {
+                    String[] split = parts[i].split("=", 2);
+                    columns.add(toIdentifier(split[0]));
+                    values.add(split[1]);
+                }
+                replacement += "(" + columns.toString() + ") VALUES(" + values.toString() + ")";
+                return replacement;
+            }
+        }
+
+        //
+        return originalQuery;
+    }
+
+    private static CharSequence toIdentifier(String ident) {
+        ident = ident.trim();
+        if ( !ident.startsWith("\"")) {
+            ident = "\"" + ident;
+        }
+        if ( !ident.endsWith("\"")) {
+            ident = ident + "\"";
+        }
+        return ident;
     }
 }

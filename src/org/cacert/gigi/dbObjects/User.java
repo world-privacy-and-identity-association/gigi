@@ -52,7 +52,7 @@ public class User extends CertificateOwner {
             locale = Language.getLocaleFromString(localeStr);
         }
 
-        GigiPreparedStatement psg = DatabaseConnection.getInstance().prepare("SELECT permission FROM user_groups WHERE user=? AND deleted is NULL");
+        GigiPreparedStatement psg = DatabaseConnection.getInstance().prepare("SELECT `permission` FROM `user_groups` WHERE `user`=? AND `deleted` is NULL");
         psg.setInt(1, rs.getInt("id"));
 
         try (GigiResultSet rs2 = psg.executeQuery()) {
@@ -86,7 +86,7 @@ public class User extends CertificateOwner {
 
     public void insert(String password) {
         int id = super.insert();
-        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("insert into `users` set `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, " + "`suffix`=?, `dob`=?, `language`=?, id=?");
+        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("INSERT INTO `users` SET `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, " + "`suffix`=?, `dob`=?, `language`=?, id=?");
         query.setString(1, email);
         query.setString(2, PasswordHash.hash(password));
         query.setString(3, name.getFname());
@@ -100,7 +100,7 @@ public class User extends CertificateOwner {
     }
 
     public void changePassword(String oldPass, String newPass) throws GigiApiException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `password` FROM users WHERE id=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `password` FROM `users` WHERE `id`=?");
         ps.setInt(1, getId());
         try (GigiResultSet rs = ps.executeQuery()) {
             if ( !rs.next()) {
@@ -251,9 +251,8 @@ public class User extends CertificateOwner {
 
         for (EmailAddress email : getEmails()) {
             if (email.getId() == delMail.getId()) {
-                GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE emails SET deleted=? WHERE id=?");
-                ps.setDate(1, new Date(System.currentTimeMillis()));
-                ps.setInt(2, delMail.getId());
+                GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `emails` SET `deleted`=CURRENT_TIMESTAMP WHERE `id`=?");
+                ps.setInt(1, delMail.getId());
                 ps.execute();
                 return;
             }
@@ -263,7 +262,7 @@ public class User extends CertificateOwner {
 
     public synchronized Assurance[] getReceivedAssurances() {
         if (receivedAssurances == null) {
-            GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM notary WHERE `to`=? AND deleted IS NULL");
+            GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT * FROM `notary` WHERE `to`=? AND `deleted` IS NULL");
             query.setInt(1, getId());
 
             try (GigiResultSet res = query.executeQuery()) {
@@ -379,7 +378,7 @@ public class User extends CertificateOwner {
 
     public void grantGroup(User granter, Group toGrant) {
         groups.add(toGrant);
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO user_groups SET user=?, permission=?, grantedby=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `user_groups` SET `user`=?, `permission`=?::`userGroup`, `grantedby`=?");
         ps.setInt(1, getId());
         ps.setString(2, toGrant.getDatabaseName());
         ps.setInt(3, granter.getId());
@@ -388,7 +387,7 @@ public class User extends CertificateOwner {
 
     public void revokeGroup(User revoker, Group toRevoke) {
         groups.remove(toRevoke);
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE user_groups SET deleted=CURRENT_TIMESTAMP, revokedby=? WHERE deleted is NULL AND permission=? AND user=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `user_groups` SET `deleted`=CURRENT_TIMESTAMP, `revokedby`=? WHERE `deleted` IS NULL AND `permission`=?::`userGroup` AND `user`=?");
         ps.setInt(1, revoker.getId());
         ps.setString(2, toRevoke.getDatabaseName());
         ps.setInt(3, getId());
@@ -397,7 +396,7 @@ public class User extends CertificateOwner {
 
     public List<Organisation> getOrganisations() {
         List<Organisation> orgas = new ArrayList<>();
-        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT orgid FROM org_admin WHERE `memid`=? AND deleted is NULL");
+        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("SELECT `orgid` FROM `org_admin` WHERE `memid`=? AND `deleted` IS NULL");
         query.setInt(1, getId());
         try (GigiResultSet res = query.executeQuery()) {
             while (res.next()) {
@@ -418,7 +417,7 @@ public class User extends CertificateOwner {
     }
 
     public static User getByEmail(String mail) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT users.id FROM users INNER JOIN certOwners ON certOwners.id = users.id WHERE email=? AND deleted IS NULL");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `users`.`id` FROM `users` INNER JOIN `certOwners` ON `certOwners`.`id` = `users`.`id` WHERE `email`=? AND `deleted` IS NULL");
         ps.setString(1, mail);
         try (GigiResultSet rs = ps.executeQuery()) {
             if ( !rs.next()) {
@@ -431,7 +430,7 @@ public class User extends CertificateOwner {
 
     public static User[] findByEmail(String mail) {
         LinkedList<User> results = new LinkedList<User>();
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT users.id FROM users INNER JOIN certOwners ON certOwners.id = users.id WHERE users.email LIKE ? AND deleted IS NULL GROUP BY users.id ASC LIMIT 100");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `users`.`id` FROM `users` INNER JOIN `certOwners` ON `certOwners`.`id` = `users`.`id` WHERE `users`.`email` LIKE ? AND `deleted` IS NULL GROUP BY `users`.`id` LIMIT 100");
         ps.setString(1, mail);
         try (GigiResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -442,7 +441,7 @@ public class User extends CertificateOwner {
     }
 
     public EmailAddress[] getEmails() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM emails WHERE memid=? AND deleted is NULL");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `id` FROM `emails` WHERE `memid`=? AND `deleted` IS NULL");
         ps.setInt(1, getId());
 
         try (GigiResultSet rs = ps.executeQuery()) {

@@ -53,7 +53,7 @@ public class TestOrgaManagement extends ClientTest {
         if (affiliation2.getTarget().getId() == u2.getId()) {
             affiliation2 = allAdmins.get(1);
         }
-        assertSame(u.getId(), affiliation2.getTarget().getId());
+        assertEquals(u.getId(), affiliation2.getTarget().getId());
         assertFalse(affiliation2.isMaster());
 
         executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "del=" + URLEncoder.encode(u.getEmail(), "UTF-8") + "&email=&do_affiliate=y", 1);

@@ -22,7 +22,7 @@ public class EmailAddress implements IdCachable, Verifyable {
     private String hash = null;
 
     private EmailAddress(int id) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid, email, hash FROM `emails` WHERE id=? AND deleted is NULL");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid`, `email`, `hash` FROM `emails` WHERE `id`=? AND `deleted` IS NULL");
         ps.setInt(1, id);
 
         GigiResultSet rs = ps.executeQuery();

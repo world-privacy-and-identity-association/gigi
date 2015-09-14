@@ -145,10 +145,11 @@ public abstract class EmailProvider {
                         continue;
                     }
 
-                    GigiPreparedStatement statmt = DatabaseConnection.getInstance().prepare("insert into `emailPinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
+                    GigiPreparedStatement statmt = DatabaseConnection.getInstance().prepare("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`=?, `uid`=?, `type`='fast', `status`=?::`pingState`");
                     statmt.setString(1, address);
                     statmt.setString(2, line);
                     statmt.setInt(3, forUid);
+                    statmt.setString(4, "success");
                     statmt.execute();
 
                     if (line == null || !line.startsWith("250")) {
@@ -160,10 +161,11 @@ public abstract class EmailProvider {
 
             }
         }
-        GigiPreparedStatement statmt = DatabaseConnection.getInstance().prepare("insert into `emailPinglog` set `when`=NOW(), `email`=?, `result`=?, `uid`=?");
+        GigiPreparedStatement statmt = DatabaseConnection.getInstance().prepare("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`=?, `uid`=?, `type`='fast', `status`=?::`pingState`");
         statmt.setString(1, address);
         statmt.setString(2, "Failed to make a connection to the mail server");
         statmt.setInt(3, forUid);
+        statmt.setString(4, "failed");
         statmt.execute();
         return FAIL;
     }

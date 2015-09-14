@@ -123,8 +123,8 @@ public class Signup extends Form {
         if (isFailed(out)) {
             return false;
         }
-        GigiPreparedStatement q1 = DatabaseConnection.getInstance().prepare("select * from `emails` where `email`=? and `deleted` IS NULL");
-        GigiPreparedStatement q2 = DatabaseConnection.getInstance().prepare("select * from certOwners inner join users on users.id=certOwners.id where `email`=? and `deleted` IS NULL");
+        GigiPreparedStatement q1 = DatabaseConnection.getInstance().prepare("SELECT * FROM `emails` WHERE `email`=? AND `deleted` IS NULL");
+        GigiPreparedStatement q2 = DatabaseConnection.getInstance().prepare("SELECT * FROM `certOwners` INNER JOIN `users` ON `users`.`id`=`certOwners`.`id` WHERE `email`=? AND `deleted` IS NULL");
         q1.setString(1, buildup.getEmail());
         q2.setString(1, buildup.getEmail());
         GigiResultSet r1 = q1.executeQuery();
@@ -134,7 +134,7 @@ public class Signup extends Form {
         }
         r1.close();
         r2.close();
-        GigiPreparedStatement q3 = DatabaseConnection.getInstance().prepare("select `domain` from `baddomains` where `domain`=RIGHT(?, LENGTH(`domain`))");
+        GigiPreparedStatement q3 = DatabaseConnection.getInstance().prepare("SELECT `domain` FROM `baddomains` WHERE `domain`=RIGHT(?, LENGTH(`domain`))");
         q3.setString(1, buildup.getEmail());
 
         GigiResultSet r3 = q3.executeQuery();
@@ -185,12 +185,12 @@ public class Signup extends Form {
             EmailAddress ea = new EmailAddress(buildup, buildup.getEmail());
             ea.insert(Page.getLanguage(req));
 
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("insert into `alerts` set `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?");
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `alerts` SET `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?");
             ps.setInt(1, memid);
-            ps.setString(2, general ? "1" : "0");
-            ps.setString(3, country ? "1" : "0");
-            ps.setString(4, regional ? "1" : "0");
-            ps.setString(5, radius ? "1" : "0");
+            ps.setBoolean(2, general);
+            ps.setBoolean(3, country);
+            ps.setBoolean(4, regional);
+            ps.setBoolean(5, radius);
             ps.execute();
             Notary.writeUserAgreement(buildup, "CCA", "account creation", "", true, 0);
 

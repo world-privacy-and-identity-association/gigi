@@ -165,7 +165,7 @@ public class Certificate {
         profile = CertificateProfile.getById(rs.getInt("profile"));
         this.serial = rs.getString("serial");
 
-        GigiPreparedStatement ps2 = DatabaseConnection.getInstance().prepare("SELECT contents, type FROM `subjectAlternativeNames` WHERE certId=?");
+        GigiPreparedStatement ps2 = DatabaseConnection.getInstance().prepare("SELECT `contents`, `type` FROM `subjectAlternativeNames` WHERE `certId`=?");
         ps2.setInt(1, id);
         GigiResultSet rs2 = ps2.executeQuery();
         sans = new LinkedList<>();
@@ -247,15 +247,15 @@ public class Certificate {
         }
         Notary.writeUserAgreement(owner, "CCA", "issue certificate", "", true, 0);
 
-        GigiPreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO certs SET md=?, csr_type=?, crt_name='', memid=?, profile=?");
-        inserter.setString(1, md);
+        GigiPreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO certs SET md=?::`mdType`, csr_type=?::`csrType`, crt_name='', memid=?, profile=?");
+        inserter.setString(1, md.toLowerCase());
         inserter.setString(2, csrType.toString());
         inserter.setInt(3, owner.getId());
         inserter.setInt(4, profile.getId());
         inserter.execute();
         id = inserter.lastInsertId();
 
-        GigiPreparedStatement san = DatabaseConnection.getInstance().prepare("INSERT INTO subjectAlternativeNames SET certId=?, contents=?, type=?");
+        GigiPreparedStatement san = DatabaseConnection.getInstance().prepare("INSERT INTO `subjectAlternativeNames` SET `certId`=?, contents=?, type=?::`SANType`");
         for (SubjectAlternateName subjectAlternateName : sans) {
             san.setInt(1, id);
             san.setString(2, subjectAlternateName.getName());
@@ -263,7 +263,7 @@ public class Certificate {
             san.execute();
         }
 
-        GigiPreparedStatement insertAVA = DatabaseConnection.getInstance().prepare("INSERT certAvas SET certid=?, name=?, value=?");
+        GigiPreparedStatement insertAVA = DatabaseConnection.getInstance().prepare("INSERT INTO `certAvas` SET certid=?, name=?, value=?");
         insertAVA.setInt(1, id);
         for (Entry<String, String> e : dn.entrySet()) {
             insertAVA.setString(2, e.getKey());
@@ -276,7 +276,7 @@ public class Certificate {
             fos.write(csr.getBytes("UTF-8"));
         }
 
-        GigiPreparedStatement updater = DatabaseConnection.getInstance().prepare("UPDATE certs SET csr_name=? WHERE id=?");
+        GigiPreparedStatement updater = DatabaseConnection.getInstance().prepare("UPDATE `certs` SET `csr_name`=? WHERE id=?");
         updater.setString(1, csrName);
         updater.setInt(2, id);
         updater.execute();
@@ -359,8 +359,8 @@ public class Certificate {
         }
         // TODO caching?
         try {
-            String concat = "group_concat(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')))";
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as subject, md, csr_name, crt_name,memid, profile, certs.serial FROM `certs` LEFT JOIN certAvas ON certAvas.certid=certs.id WHERE serial=? GROUP BY certs.id");
+            String concat = "string_agg(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')), '')";
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as `subject`, `md`, `csr_name`, `crt_name`,`memid`, `profile`, `certs`.`serial` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certid`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`");
             ps.setString(1, serial);
             GigiResultSet rs = ps.executeQuery();
             return new Certificate(rs);

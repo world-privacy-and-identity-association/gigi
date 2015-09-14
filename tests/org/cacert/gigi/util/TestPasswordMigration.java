@@ -20,8 +20,8 @@ public class TestPasswordMigration extends ManagedTest {
 
     @Test
     public void testPasswordMigration() throws IOException {
-        GigiPreparedStatement stmt = DatabaseConnection.getInstance().prepare("UPDATE users SET `password`=SHA1(?) WHERE id=?");
-        stmt.setString(1, "a");
+        GigiPreparedStatement stmt = DatabaseConnection.getInstance().prepare("UPDATE users SET `password`=? WHERE id=?");
+        stmt.setString(1, PasswordHash.sha1("a"));
         stmt.setInt(2, ru.getUser().getId());
         stmt.execute();
         String cookie = login(ru.getUser().getEmail(), "a");

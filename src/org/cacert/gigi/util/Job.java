@@ -33,7 +33,7 @@ public class Job {
 
     public static Job sign(Certificate targetId, Date start, String period) throws GigiApiException {
         CertificateValiditySelector.checkValidityLength(period);
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `jobs` SET targetId=?, task=?, executeFrom=?, executeTo=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `jobs` SET targetId=?, task=?::`jobType`, executeFrom=?, executeTo=?");
         ps.setInt(1, targetId.getId());
         ps.setString(2, JobType.SIGN.getName());
         ps.setDate(3, start);
@@ -44,7 +44,7 @@ public class Job {
 
     public static Job revoke(Certificate targetId) {
 
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `jobs` SET targetId=?, task=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `jobs` SET targetId=?, task=?::`jobType`");
         ps.setInt(1, targetId.getId());
         ps.setString(2, JobType.REVOKE.getName());
         ps.execute();

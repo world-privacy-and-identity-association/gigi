@@ -28,7 +28,7 @@ public class DomainPingConfiguration implements IdCachable {
     private String info;
 
     private DomainPingConfiguration(int id) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id, domainid, type, info FROM pingconfig WHERE id=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `id`, `domainid`, `type`, `info` FROM `pingconfig` WHERE `id`=?");
         ps.setInt(1, id);
 
         GigiResultSet rs = ps.executeQuery();

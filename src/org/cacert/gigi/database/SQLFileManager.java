@@ -27,9 +27,10 @@ public class SQLFileManager {
 
     public static void addFile(Statement stmt, InputStream f, ImportType type) throws IOException, SQLException {
         String sql = readFile(f);
-        sql = sql.replaceAll("--[^\n]+\n", "\n");
+        sql = sql.replaceAll("--[^\n]*\n", "\n");
+        sql = sql.replaceAll("#[^\n]*\n", "\n");
         String[] stmts = sql.split(";");
-        Pattern p = Pattern.compile("\\s*DROP TABLE IF EXISTS `([^`]+)`");
+        Pattern p = Pattern.compile("\\s*DROP TABLE IF EXISTS \"([^\"]+)\"");
         for (String string : stmts) {
             Matcher m = p.matcher(string);
             string = string.trim();
@@ -39,8 +40,9 @@ public class SQLFileManager {
             if ((string.contains("profiles") || string.contains("cacerts")) && type != ImportType.PRODUCTION) {
                 continue;
             }
+            string = DatabaseConnection.preprocessQuery(string);
             if (m.matches() && type == ImportType.TRUNCATE) {
-                String sql2 = "TRUNCATE `" + m.group(1) + "`";
+                String sql2 = "DELETE FROM \"" + m.group(1) + "\"";
                 stmt.addBatch(sql2);
                 continue;
             }

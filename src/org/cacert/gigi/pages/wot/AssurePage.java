@@ -2,6 +2,8 @@ package org.cacert.gigi.pages.wot;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Date;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -75,19 +77,20 @@ public class AssurePage extends Page {
 
         GigiResultSet rs = null;
         try {
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT users.id, verified FROM users inner join certOwners on certOwners.id=users.id WHERE email=? AND dob=? AND deleted is null");
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `users`.`id`, `verified` FROM `users` INNER JOIN `certOwners` ON `certOwners`.`id`=`users`.`id` WHERE `email`=? AND `dob`=? AND `deleted` IS NULL");
             ps.setString(1, req.getParameter("email"));
-            String day = req.getParameter("year") + "-" + req.getParameter("month") + "-" + req.getParameter("day");
-            ps.setString(2, day);
+            Calendar c = Calendar.getInstance();
+            c.set(Integer.parseInt(req.getParameter("year")), Integer.parseInt(req.getParameter("month")) - 1, Integer.parseInt(req.getParameter("day")));
+            ps.setDate(2, new Date(c.getTimeInMillis()));
             rs = ps.executeQuery();
             int id = 0;
             if (rs.next()) {
                 id = rs.getInt(1);
-                int verified = rs.getInt(2);
+                boolean verified = rs.getBoolean(2);
                 if (rs.next()) {
                     out.println("Error, ambigous user. Please contact support@cacert.org.");
                 } else {
-                    if (verified == 0) {
+                    if ( !verified) {
                         out.println(translate(req, "User is not yet verified. Please try again in 24 hours!"));
                     } else if (getUser(req).getId() == id) {
 

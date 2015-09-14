@@ -120,14 +120,14 @@ public class Organisation extends CertificateOwner {
         if ( !actor.isInGroup(Group.ORGASSURER) && !isMaster(actor)) {
             throw new GigiApiException("Only org assurer or master-admin may add admins to an organisation.");
         }
-        GigiPreparedStatement ps1 = DatabaseConnection.getInstance().prepare("SELECT 1 FROM org_admin WHERE orgid=? AND memid=? AND deleted is null");
+        GigiPreparedStatement ps1 = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `org_admin` WHERE `orgid`=? AND `memid`=? AND `deleted` IS NULL");
         ps1.setInt(1, getId());
         ps1.setInt(2, admin.getId());
         GigiResultSet result = ps1.executeQuery();
         if (result.next()) {
             return;
         }
-        GigiPreparedStatement ps2 = DatabaseConnection.getInstance().prepare("INSERT INTO org_admin SET orgid=?, memid=?, creator=?, master=?");
+        GigiPreparedStatement ps2 = DatabaseConnection.getInstance().prepare("INSERT INTO `org_admin` SET `orgid`=?, `memid`=?, `creator`=?, `master`=?::`yesno`");
         ps2.setInt(1, getId());
         ps2.setInt(2, admin.getId());
         ps2.setInt(3, actor.getId());
@@ -147,7 +147,7 @@ public class Organisation extends CertificateOwner {
     }
 
     public List<Affiliation> getAllAdmins() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid, master FROM org_admin WHERE orgid=? AND deleted is null");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepareScrollable("SELECT `memid`, `master` FROM `org_admin` WHERE `orgid`=? AND `deleted` IS NULL");
         ps.setInt(1, getId());
         GigiResultSet rs = ps.executeQuery();
         rs.last();
@@ -160,7 +160,7 @@ public class Organisation extends CertificateOwner {
     }
 
     public static Organisation[] getOrganisations(int offset, int count) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certOwners.id FROM organisations inner join certOwners on certOwners.id=organisations.id where certOwners.deleted is null LIMIT ?,?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepareScrollable("SELECT `certOwners`.`id` FROM `organisations` INNER JOIN `certOwners` ON `certOwners`.`id`=`organisations`.`id` WHERE `certOwners`.`deleted` IS NULL OFFSET ? LIMIT ?");
         ps.setInt(1, offset);
         ps.setInt(2, count);
         GigiResultSet res = ps.executeQuery();
@@ -180,7 +180,7 @@ public class Organisation extends CertificateOwner {
                 cert.revoke();
             }
         }
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE organisations SET name=?, state=?, province=?, city=?, contactEmail=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `organisations` SET `name`=?, `state`=?, `province`=?, `city`=?, `contactEmail`=?");
         ps.setString(1, o);
         ps.setString(2, c);
         ps.setString(3, st);

@@ -25,7 +25,7 @@ public abstract class CertificateOwner implements IdCachable {
     public static synchronized CertificateOwner getById(int id) {
         CertificateOwner u = myCache.get(id);
         if (u == null) {
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT *, users.id AS uid, organisations.id AS oid FROM certOwners LEFT JOIN users ON users.id=certOwners.id LEFT JOIN organisations ON organisations.id = certOwners.id WHERE certOwners.id=? AND deleted is null");
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT *, `users`.`id` AS uid, `organisations`.`id` AS oid FROM `certOwners` LEFT JOIN `users` ON `users`.`id`=`certOwners`.`id` LEFT JOIN `organisations` ON `organisations`.`id` = `certOwners`.`id` WHERE `certOwners`.`id`=? AND `deleted` is null");
             ps.setInt(1, id);
             try (GigiResultSet rs = ps.executeQuery()) {
                 if ( !rs.next()) {
@@ -48,7 +48,7 @@ public abstract class CertificateOwner implements IdCachable {
             if (id != 0) {
                 throw new Error("refusing to insert");
             }
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO certOwners() VALUES()");
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `certOwners` DEFAULT VALUES");
             ps.execute();
             id = ps.lastInsertId();
             myCache.put(this);
@@ -58,7 +58,7 @@ public abstract class CertificateOwner implements IdCachable {
     }
 
     public Domain[] getDomains() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM domains WHERE memid=? AND deleted IS NULL");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `id` FROM `domains` WHERE `memid`=? AND `deleted` IS NULL");
         ps.setInt(1, getId());
 
         try (GigiResultSet rs = ps.executeQuery()) {
@@ -106,7 +106,7 @@ public abstract class CertificateOwner implements IdCachable {
     public abstract boolean isValidEmail(String email);
 
     public void delete() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE certOwners SET deleted=NOW() WHERE id=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `certOwners` SET `deleted`=NOW() WHERE `id`=?");
         ps.setInt(1, getId());
         ps.execute();
         myCache.remove(this);

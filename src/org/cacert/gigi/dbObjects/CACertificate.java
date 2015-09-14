@@ -31,7 +31,7 @@ public class CACertificate implements IdCachable {
 
     private CACertificate(int id) {
         this.id = id;
-        GigiPreparedStatement conn = DatabaseConnection.getInstance().prepare("SELECT keyname, parentRoot, link FROM cacerts WHERE id = ?");
+        GigiPreparedStatement conn = DatabaseConnection.getInstance().prepare("SELECT `keyname`, `parentRoot`, `link` FROM `cacerts` WHERE `id`=?");
         conn.setInt(1, id);
         GigiResultSet res = conn.executeQuery();
         if ( !res.next()) {
@@ -109,7 +109,7 @@ public class CACertificate implements IdCachable {
 
                 X500Principal subj = toInsert.getSubjectX500Principal();
                 boolean self = toInsert.getIssuerX500Principal().equals(subj);
-                GigiPreparedStatement q = DatabaseConnection.getInstance().prepare("SELECT id, parentRoot FROM cacerts WHERE keyname=?");
+                GigiPreparedStatement q = DatabaseConnection.getInstance().prepare("SELECT `id`, `parentRoot` FROM `cacerts` WHERE `keyname`=?");
                 q.setString(1, names.get(subj));
                 GigiResultSet res = q.executeQuery();
                 int id;
@@ -128,14 +128,14 @@ public class CACertificate implements IdCachable {
                         link = "http://g2.crt.cacert.org/g2/" + parts[1] + "/" + parts[0] + "-" + parts[2] + ".crt";
 
                     }
-                    GigiPreparedStatement q2 = DatabaseConnection.getInstance().prepare("INSERT INTO cacerts SET parentRoot=?, keyname=?, link=?");
+                    GigiPreparedStatement q2 = DatabaseConnection.getInstance().prepare("INSERT INTO `cacerts` SET `parentRoot`=?, `keyname`=?, `link`=?");
                     q2.setInt(1, self ? 0 : inserted.get(toInsert.getIssuerX500Principal()));
                     q2.setString(2, keyname);
                     q2.setString(3, link);
                     q2.execute();
                     id = q2.lastInsertId();
                     if (self) {
-                        GigiPreparedStatement q3 = DatabaseConnection.getInstance().prepare("UPDATE cacerts SET parentRoot=?, id=?");
+                        GigiPreparedStatement q3 = DatabaseConnection.getInstance().prepare("UPDATE `cacerts` SET `parentRoot`=?, `id`=?");
                         q3.setInt(1, id);
                         q3.setInt(2, id);
                         q3.execute();

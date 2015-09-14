@@ -82,7 +82,7 @@ public class TestUserGroupMembership extends ManagedTest {
     }
 
     private GigiResultSet fetchGroupRowsFor(User u) throws SQLException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT * FROM user_groups WHERE user=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT * FROM `user_groups` WHERE `user`=?");
         ps.setInt(1, u.getId());
         GigiResultSet rs = ps.executeQuery();
         return rs;

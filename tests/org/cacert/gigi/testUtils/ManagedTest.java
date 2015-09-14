@@ -273,7 +273,7 @@ public class ManagedTest extends ConfiguredTest {
         try {
             ter.receive().verify();
 
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id FROM users where email=?");
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `id` FROM `users` WHERE `email`=?");
             ps.setString(1, email);
 
             try (GigiResultSet rs = ps.executeQuery()) {

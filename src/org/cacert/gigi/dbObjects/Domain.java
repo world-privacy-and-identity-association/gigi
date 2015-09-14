@@ -81,7 +81,7 @@ public class Domain implements IdCachable, Verifyable {
     }
 
     private Domain(int id) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid, domain FROM `domains` WHERE id=? AND deleted IS NULL");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid`, `domain` FROM `domains` WHERE `id`=? AND `deleted` IS NULL");
         ps.setInt(1, id);
 
         GigiResultSet rs = ps.executeQuery();
@@ -156,7 +156,7 @@ public class Domain implements IdCachable, Verifyable {
     }
 
     private static void checkInsert(String suffix) throws GigiApiException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `domains` WHERE (domain=? OR (CONCAT('.', domain)=RIGHT(?,LENGTH(domain)+1)  OR RIGHT(domain,LENGTH(?)+1)=CONCAT('.',?))) AND deleted IS NULL");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `domains` WHERE (`domain`=? OR (CONCAT('.', `domain`)=RIGHT(?,LENGTH(`domain`)+1)  OR RIGHT(`domain`,LENGTH(?)+1)=CONCAT('.',?))) AND `deleted` IS NULL");
         ps.setString(1, suffix);
         ps.setString(2, suffix);
         ps.setString(3, suffix);
@@ -188,7 +188,7 @@ public class Domain implements IdCachable, Verifyable {
         if (id == 0) {
             throw new GigiApiException("not inserted.");
         }
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `domains` SET deleted=CURRENT_TIMESTAMP WHERE id=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `domains` SET `deleted`=CURRENT_TIMESTAMP WHERE `id`=?");
         ps.setInt(1, id);
         ps.execute();
     }
@@ -226,7 +226,7 @@ public class Domain implements IdCachable, Verifyable {
     }
 
     public void addPing(PingType type, String config) throws GigiApiException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO pingconfig SET domainid=?, type=?, info=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `pingconfig` `SET` `domainid`=?, `type`=?, `info`=?");
         ps.setInt(1, id);
         ps.setString(2, type.toString().toLowerCase());
         ps.setString(3, config);
@@ -235,21 +235,21 @@ public class Domain implements IdCachable, Verifyable {
     }
 
     public synchronized void verify(String hash) throws GigiApiException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE domainPinglog SET state='success' WHERE challenge=? AND configId IN (SELECT id FROM pingconfig WHERE domainId=?)");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `domainPinglog` `SET` `state`='success' WHERE `challenge`=? AND `configId` `IN` (SELECT `id` FROM `pingconfig` WHERE `domainId`=?)");
         ps.setString(1, hash);
         ps.setInt(2, id);
         ps.executeUpdate();
     }
 
     public boolean isVerified() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM domainPinglog INNER JOIN pingconfig ON pingconfig.id=domainPinglog.configId WHERE domainid=? AND state='success'");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `domainPinglog` INNER JOIN `pingconfig` ON `pingconfig`.`id`=`domainPinglog`.`configId` WHERE `domainid`=? AND `state`='success'");
         ps.setInt(1, id);
         GigiResultSet rs = ps.executeQuery();
         return rs.next();
     }
 
     public DomainPingExecution[] getPings() throws GigiApiException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT state, type, info, result, configId FROM domainPinglog INNER JOIN pingconfig ON pingconfig.id=domainPinglog.configid WHERE pingconfig.domainid=? ORDER BY `when` DESC;");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `state`, `type`, `info`, `result`, `configId` FROM `domainPinglog` INNER JOIN `pingconfig` ON `pingconfig`.`id`=`domainPinglog`.`configid` WHERE `pingconfig`.`domainid`=? ORDER BY `when` DESC;");
         ps.setInt(1, id);
         GigiResultSet rs = ps.executeQuery();
         rs.last();
@@ -273,10 +273,9 @@ public class Domain implements IdCachable, Verifyable {
     }
 
     public static int searchUserIdByDomain(String domain) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT memid FROM domains WHERE domain = ?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `domains` WHERE `domain` = ?");
         ps.setString(1, domain);
         GigiResultSet res = ps.executeQuery();
-        res.beforeFirst();
         if (res.next()) {
             return res.getInt(1);
         } else {

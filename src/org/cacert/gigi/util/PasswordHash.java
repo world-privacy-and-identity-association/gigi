@@ -46,7 +46,7 @@ public class PasswordHash {
         }
     }
 
-    private static String sha1(String password) {
+    public static String sha1(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA1");
             byte[] digest = md.digest(password.getBytes("UTF-8"));

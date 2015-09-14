@@ -22,7 +22,7 @@ public enum Group {
     }
 
     public User[] getMembers(int offset, int count) {
-        GigiPreparedStatement gps = DatabaseConnection.getInstance().prepare("SELECT user FROM user_groups WHERE permission=? AND deleted is NULL LIMIT ?,?");
+        GigiPreparedStatement gps = DatabaseConnection.getInstance().prepareScrollable("SELECT `user` FROM `user_groups` WHERE `permission`=?::`userGroup` AND `deleted` IS NULL OFFSET ? LIMIT ?");
         gps.setString(1, dbName);
         gps.setInt(2, offset);
         gps.setInt(3, count);

@@ -188,7 +188,7 @@ public class CertificateProfile implements IdCachable {
             }
 
             String[] parts = f.getName().split("\\.")[0].split("-", 2);
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT keyname, include, requires, name FROM `profiles` WHERE id=?");
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `keyname`, `include`, `requires`, `name` FROM `profiles` WHERE `id`=?");
             ps.setInt(1, Integer.parseInt(parts[0]));
             GigiResultSet rs = ps.executeQuery();
 
@@ -203,7 +203,7 @@ public class CertificateProfile implements IdCachable {
                     throw new Error("Config error. Certificate Profile mismatch");
                 }
             } else {
-                GigiPreparedStatement insert = DatabaseConnection.getInstance().prepare("INSERT INTO `profiles` SET keyname=?, include=?, requires=?, name=?, id=?");
+                GigiPreparedStatement insert = DatabaseConnection.getInstance().prepare("INSERT INTO `profiles` SET `keyname`=?, `include`=?, `requires`=?, `name`=?, `id`=?");
                 insert.setString(1, parts[1]);
                 insert.setString(2, p.getProperty("include"));
                 insert.setString(3, p.getProperty("requires", ""));
@@ -213,7 +213,7 @@ public class CertificateProfile implements IdCachable {
             }
         }
 
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT id, keyname, name, requires, include FROM `profiles`");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `id`, `keyname`, `name`, `requires`, `include` FROM `profiles`");
         GigiResultSet rs = ps.executeQuery();
         while (rs.next()) {
             CertificateProfile cp = new CertificateProfile(rs.getInt("id"), rs.getString("keyName"), rs.getString("name"), rs.getString("requires"), rs.getString("include"));

@@ -134,12 +134,17 @@ public class LoginPage extends Page {
     }
 
     public static User fetchUserBySerial(String serial) {
+        if ( !serial.matches("[A-Fa-f0-9]+")) {
+            throw new Error("serial malformed.");
+        }
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `certs` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` is NULL");
-        ps.setString(1, serial);
+        ps.setString(1, serial.toLowerCase());
         GigiResultSet rs = ps.executeQuery();
         User user = null;
         if (rs.next()) {
             user = User.getById(rs.getInt(1));
+        } else {
+            System.out.println("User with serial " + serial + " not found.");
         }
         rs.close();
         return user;

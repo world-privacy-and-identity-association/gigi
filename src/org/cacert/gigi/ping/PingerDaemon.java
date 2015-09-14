@@ -31,8 +31,8 @@ public class PingerDaemon extends Thread {
 
     @Override
     public void run() {
-        searchNeededPings = DatabaseConnection.getInstance().prepare("SELECT pingconfig.id FROM pingconfig LEFT JOIN domainPinglog ON domainPinglog.configId=pingconfig.id INNER JOIN domains ON domains.id=pingconfig.domainid WHERE ( domainPinglog.configId IS NULL) AND domains.deleted IS NULL GROUP BY pingconfig.id");
-        enterPingResult = DatabaseConnection.getInstance().prepare("INSERT INTO domainPinglog SET configId=?, state=?, result=?, challenge=?");
+        searchNeededPings = DatabaseConnection.getInstance().prepare("SELECT `pingconfig`.`id` FROM `pingconfig` LEFT JOIN `domainPinglog` ON `domainPinglog`.`configId` = `pingconfig`.`id` INNER JOIN `domains` ON `domains`.`id` = `pingconfig`.`domainid` WHERE ( `domainPinglog`.`configId` IS NULL) AND `domains`.`deleted` IS NULL GROUP BY `pingconfig`.`id`");
+        enterPingResult = DatabaseConnection.getInstance().prepare("INSERT INTO `domainPinglog` SET `configId`=?, `state`=?, `result`=?, `challenge`=?");
         pingers.put(PingType.EMAIL, new EmailPinger());
         pingers.put(PingType.SSL, new SSLPinger(truststore));
         pingers.put(PingType.HTTP, new HTTPFetch());
