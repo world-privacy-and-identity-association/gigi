@@ -11,7 +11,7 @@
 	<property name="debuglevel" value="source,lines,vars" />
 	<property name="target" value="1.8" />
 	<property name="source" value="1.8" />
-	<property name="mysqlconnector" value="/usr/share/java/mysql-connector-java.jar" />
+	<property name="sqlconnector" value="/usr/share/java/postgresql-jdbc4.jar" />
 	<property name="juintexec" value="/usr/share/java" />
 	<path id="JUnit 4.libraryclasspath">
 		<pathelement location="${juintexec}/junit4.jar" />
@@ -20,7 +20,7 @@
 	<path id="cacert-gigi.classpath">
 		<pathelement location="bin" />
 		<pathelement location="binutil" />
-		<pathelement location="${mysqlconnector}" />
+		<pathelement location="${sqlconnector}" />
 	</path>
 	<path id="cacert-gigi.test.classpath">
 		<pathelement location="bintest" />
@@ -28,7 +28,7 @@
 		<pathelement location="binutil" />
 		<pathelement location="binutil-testing" />
 		<path refid="JUnit 4.libraryclasspath" />
-		<pathelement location="${mysqlconnector}" />
+		<pathelement location="${sqlconnector}" />
 	</path>
 	<target name="init">
 		<mkdir dir="bin" />
