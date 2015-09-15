@@ -80,7 +80,9 @@ public class PingerDaemon extends Thread {
             }
             enterPingResult.setInt(1, conf.getId());
             Domain target = conf.getTarget();
+            System.err.println("Executing " + dp + " on " + target + " (" + System.currentTimeMillis() + ")");
             String resp = dp.ping(target, config, target.getOwner());
+            System.err.println("done (" + System.currentTimeMillis() + ")");
             enterPingResult.setString(2, DomainPinger.PING_STILL_PENDING == resp ? "open" : DomainPinger.PING_SUCCEDED.equals(resp) ? "success" : "failed");
             enterPingResult.setString(3, resp);
             enterPingResult.setString(4, token);

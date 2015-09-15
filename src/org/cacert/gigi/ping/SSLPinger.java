@@ -45,8 +45,9 @@ public class SSLPinger extends DomainPinger {
     @Override
     public String ping(Domain domain, String configuration, User u) {
         try (SocketChannel sch = SocketChannel.open()) {
+            sch.socket().setSoTimeout(5000);
             String[] parts = configuration.split(":", 2);
-            sch.connect(new InetSocketAddress(domain.getSuffix(), Integer.parseInt(parts[0])));
+            sch.socket().connect(new InetSocketAddress(domain.getSuffix(), Integer.parseInt(parts[0])), 5000);
             if (parts.length == 2) {
                 switch (parts[1]) {
                 case "xmpp":
