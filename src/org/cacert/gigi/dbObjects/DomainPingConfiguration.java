@@ -69,7 +69,7 @@ public class DomainPingConfiguration implements IdCachable {
     }
 
     public Date getLastExecution() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `when` AS stamp from domainPinglog WHERE configId=? ORDER BY `when` DESC LIMIT 1");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `when` AS stamp from `domainPinglog` WHERE `configId`=? ORDER BY `when` DESC LIMIT 1");
         ps.setInt(1, id);
         GigiResultSet rs = ps.executeQuery();
         if (rs.next()) {
@@ -79,7 +79,7 @@ public class DomainPingConfiguration implements IdCachable {
     }
 
     public Date getLastSuccess() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `when` AS stamp from domainPinglog WHERE configId=? AND state='success' ORDER BY `when` DESC LIMIT 1");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `when` AS stamp from `domainPinglog` WHERE `configId`=? AND state='success' ORDER BY `when` DESC LIMIT 1");
         ps.setInt(1, id);
         GigiResultSet rs = ps.executeQuery();
         if (rs.next()) {

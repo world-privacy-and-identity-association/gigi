@@ -226,7 +226,7 @@ public class Domain implements IdCachable, Verifyable {
     }
 
     public void addPing(PingType type, String config) throws GigiApiException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `pingconfig` `SET` `domainid`=?, `type`=?, `info`=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `pingconfig` SET `domainid`=?, `type`=?::`pingType`, `info`=?");
         ps.setInt(1, id);
         ps.setString(2, type.toString().toLowerCase());
         ps.setString(3, config);
@@ -235,7 +235,7 @@ public class Domain implements IdCachable, Verifyable {
     }
 
     public synchronized void verify(String hash) throws GigiApiException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `domainPinglog` `SET` `state`='success' WHERE `challenge`=? AND `configId` `IN` (SELECT `id` FROM `pingconfig` WHERE `domainId`=?)");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `domainPinglog` SET `state`='success' WHERE `challenge`=? AND `configId` IN (SELECT `id` FROM `pingconfig` WHERE `domainid`=?)");
         ps.setString(1, hash);
         ps.setInt(2, id);
         ps.executeUpdate();
@@ -249,7 +249,7 @@ public class Domain implements IdCachable, Verifyable {
     }
 
     public DomainPingExecution[] getPings() throws GigiApiException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `state`, `type`, `info`, `result`, `configId` FROM `domainPinglog` INNER JOIN `pingconfig` ON `pingconfig`.`id`=`domainPinglog`.`configid` WHERE `pingconfig`.`domainid`=? ORDER BY `when` DESC;");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepareScrollable("SELECT `state`, `type`, `info`, `result`, `configId` FROM `domainPinglog` INNER JOIN `pingconfig` ON `pingconfig`.`id`=`domainPinglog`.`configId` WHERE `pingconfig`.`domainid`=? ORDER BY `when` DESC;");
         ps.setInt(1, id);
         GigiResultSet rs = ps.executeQuery();
         rs.last();

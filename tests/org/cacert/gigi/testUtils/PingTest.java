@@ -34,7 +34,7 @@ public abstract class PingTest extends ClientTest {
     }
 
     protected void waitForPings(int count) throws SQLException, InterruptedException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT COUNT(*) FROM domainPinglog");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT COUNT(*) FROM `domainPinglog`");
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() - start < 10000) {
             GigiResultSet rs = ps.executeQuery();
