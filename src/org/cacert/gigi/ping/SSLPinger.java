@@ -147,6 +147,7 @@ public class SSLPinger extends DomainPinger {
 
     private String test(SocketChannel sch, String domain, User subject) {
         try {
+            sch.socket().setSoTimeout(5000);
             SSLContext sc = SSLContext.getInstance("SSL");
             try {
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");

@@ -39,22 +39,31 @@ public class PingerDaemon extends Thread {
         pingers.put(PingType.DNS, new DNSPinger());
 
         while (true) {
-            synchronized (this) {
-                DomainPingConfiguration conf;
-                while ((conf = toExecute.peek()) != null) {
-                    handle(conf);
-                    toExecute.remove();
-                }
-                notifyAll();
-            }
-
-            GigiResultSet rs = searchNeededPings.executeQuery();
-            while (rs.next()) {
-                handle(DomainPingConfiguration.getById(rs.getInt("id")));
-            }
             try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
+                boolean worked = false;
+                synchronized (this) {
+                    DomainPingConfiguration conf;
+                    while ((conf = toExecute.peek()) != null) {
+                        worked = true;
+                        handle(conf);
+                        toExecute.remove();
+                    }
+                    notifyAll();
+                }
+
+                GigiResultSet rs = searchNeededPings.executeQuery();
+                while (rs.next()) {
+                    worked = true;
+                    handle(DomainPingConfiguration.getById(rs.getInt("id")));
+                }
+                try {
+                    if ( !worked) {
+                        Thread.sleep(5000);
+                    }
+                } catch (InterruptedException e) {
+                }
+            } catch (Throwable t) {
+                t.printStackTrace();
             }
         }
     }
