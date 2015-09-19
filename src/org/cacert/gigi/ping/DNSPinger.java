@@ -12,13 +12,14 @@ import org.cacert.gigi.util.DNSUtil;
 public class DNSPinger extends DomainPinger {
 
     @Override
-    public String ping(Domain domain, String expToken, User u) {
+    public void ping(Domain domain, String expToken, User u, int confId) {
         String[] tokenParts = expToken.split(":", 2);
         List<String> nameservers;
         try {
             nameservers = Arrays.asList(DNSUtil.getNSNames(domain.getSuffix()));
         } catch (NamingException e) {
-            return "No authorative nameserver found.";
+            enterPingResult(confId, "error", "No authorative nameserver found.", null);
+            return;
         }
         StringBuffer result = new StringBuffer();
         result.append("failed: ");
@@ -49,8 +50,9 @@ public class DNSPinger extends DomainPinger {
 
         }
         if ( !failed) {
-            return PING_SUCCEDED;
+            enterPingResult(confId, PING_SUCCEDED, "", null);
+        } else {
+            enterPingResult(confId, "error", result.toString(), null);
         }
-        return result.toString();
     }
 }

@@ -6,20 +6,21 @@ import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.MailProbe;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.util.RandomToken;
 
 public class EmailPinger extends DomainPinger {
 
     @Override
-    public String ping(Domain domain, String configuration, User u) {
-        String[] parts = configuration.split(":", 2);
-        String mail = parts[0] + "@" + domain.getSuffix();
+    public void ping(Domain domain, String configuration, User u, int confId) {
+        String mail = configuration + "@" + domain.getSuffix();
+        String token = RandomToken.generateToken(16);
         try {
-            MailProbe.sendMailProbe(Language.getInstance(u.getPreferredLocale()), "domain", domain.getId(), parts[1], mail);
+            enterPingResult(confId, PING_STILL_PENDING, "", token);
+            MailProbe.sendMailProbe(Language.getInstance(u.getPreferredLocale()), "domain", domain.getId(), token, mail);
         } catch (IOException e) {
             e.printStackTrace();
-            return "Mail connection interrupted";
+            updatePingResult(confId, "error", "Mail connection interrupted", token);
         }
-        return PING_STILL_PENDING;
     }
 
 }

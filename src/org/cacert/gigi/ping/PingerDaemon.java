@@ -19,8 +19,6 @@ public class PingerDaemon extends Thread {
 
     private GigiPreparedStatement searchNeededPings;
 
-    private GigiPreparedStatement enterPingResult;
-
     private KeyStore truststore;
 
     private Queue<DomainPingConfiguration> toExecute = new LinkedList<>();
@@ -32,7 +30,6 @@ public class PingerDaemon extends Thread {
     @Override
     public void run() {
         searchNeededPings = DatabaseConnection.getInstance().prepare("SELECT `pingconfig`.`id` FROM `pingconfig` LEFT JOIN `domainPinglog` ON `domainPinglog`.`configId` = `pingconfig`.`id` INNER JOIN `domains` ON `domains`.`id` = `pingconfig`.`domainid` WHERE ( `domainPinglog`.`configId` IS NULL) AND `domains`.`deleted` IS NULL GROUP BY `pingconfig`.`id`");
-        enterPingResult = DatabaseConnection.getInstance().prepare("INSERT INTO `domainPinglog` SET `configId`=?, `state`=?::`pingState`, `result`=?, `challenge`=?");
         pingers.put(PingType.EMAIL, new EmailPinger());
         pingers.put(PingType.SSL, new SSLPinger(truststore));
         pingers.put(PingType.HTTP, new HTTPFetch());
@@ -73,20 +70,19 @@ public class PingerDaemon extends Thread {
         String config = conf.getInfo();
         DomainPinger dp = pingers.get(type);
         if (dp != null) {
-            String token = null;
             if (dp instanceof EmailPinger) {
+                String token = null;
                 token = RandomToken.generateToken(16);
                 config = config + ":" + token;
             }
-            enterPingResult.setInt(1, conf.getId());
             Domain target = conf.getTarget();
             System.err.println("Executing " + dp + " on " + target + " (" + System.currentTimeMillis() + ")");
-            String resp = dp.ping(target, config, target.getOwner());
+            try {
+                dp.ping(target, config, target.getOwner(), conf.getId());
+            } catch (Throwable t) {
+                DomainPinger.enterPingResult(conf.getId(), "error", "exception", null);
+            }
             System.err.println("done (" + System.currentTimeMillis() + ")");
-            enterPingResult.setString(2, DomainPinger.PING_STILL_PENDING == resp ? "open" : DomainPinger.PING_SUCCEDED.equals(resp) ? "success" : "failed");
-            enterPingResult.setString(3, resp);
-            enterPingResult.setString(4, token);
-            enterPingResult.execute();
         }
     }
 

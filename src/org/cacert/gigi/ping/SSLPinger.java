@@ -43,7 +43,7 @@ public class SSLPinger extends DomainPinger {
     }
 
     @Override
-    public String ping(Domain domain, String configuration, User u) {
+    public void ping(Domain domain, String configuration, User u, int confId) {
         try (SocketChannel sch = SocketChannel.open()) {
             sch.socket().setSoTimeout(5000);
             String[] parts = configuration.split(":", 2);
@@ -65,9 +65,12 @@ public class SSLPinger extends DomainPinger {
 
                 }
             }
-            return test(sch, domain.getSuffix(), u);
+            String res = test(sch, domain.getSuffix(), u);
+            enterPingResult(confId, res, res, null);
+            return;
         } catch (IOException e) {
-            return "Connecton failed";
+            enterPingResult(confId, "error", "connection Failed", null);
+            return;
         }
 
     }
@@ -210,6 +213,9 @@ public class SSLPinger extends DomainPinger {
 
             BigInteger serial = first.getSerialNumber();
             Certificate c = Certificate.getBySerial(serial.toString(16));
+            if (c == null) {
+                return "Certificate not found";
+            }
             if (c.getOwner().getId() != subject.getId()) {
                 return "Owner mismatch";
             }

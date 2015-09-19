@@ -12,26 +12,31 @@ import org.cacert.gigi.dbObjects.User;
 public class HTTPFetch extends DomainPinger {
 
     @Override
-    public String ping(Domain domain, String expToken, User user) {
+    public void ping(Domain domain, String expToken, User user, int confId) {
         try {
             String[] tokenParts = expToken.split(":", 2);
             URL u = new URL("http://" + domain.getSuffix() + "/cacert-" + tokenParts[0] + ".txt");
             HttpURLConnection huc = (HttpURLConnection) u.openConnection();
             if (huc.getResponseCode() != 200) {
-                return "Invalid status code.";
+                enterPingResult(confId, "error", "Invaild status code " + huc.getResponseCode() + ".", null);
+                return;
             }
             BufferedReader br = new BufferedReader(new InputStreamReader(huc.getInputStream(), "UTF-8"));
             String line = br.readLine();
             if (line == null) {
-                return "No response from your server.";
+                enterPingResult(confId, "error", "Empty document.", null);
+                return;
             }
             if (line.trim().equals(tokenParts[1])) {
-                return PING_SUCCEDED;
+                enterPingResult(confId, PING_SUCCEDED, "", null);
+                return;
             }
-            return "Challange tokens differed.";
+            enterPingResult(confId, "error", "Challange tokens differed.", null);
+            return;
         } catch (IOException e) {
             e.printStackTrace();
-            return "Connection closed.";
+            enterPingResult(confId, "error", "Exception: connection closed.", null);
+            return;
         }
     }
 }
