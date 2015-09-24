@@ -41,6 +41,41 @@ import org.junit.Test;
 
 public class TestSSL extends PingTest {
 
+    public abstract static class AsyncTask<T> {
+
+        T res;
+
+        Thread runner;
+
+        Exception ex;
+
+        public T join() throws InterruptedException {
+            runner.join();
+            if (ex != null) {
+                throw new Error(ex);
+            }
+            return res;
+        }
+
+        public void start() {
+            runner = new Thread() {
+
+                @Override
+                public void run() {
+                    try {
+                        res = AsyncTask.this.run();
+                    } catch (Exception e) {
+                        ex = e;
+                    }
+                }
+            };
+            runner.start();
+        }
+
+        public abstract T run() throws Exception;
+
+    }
+
     private KeyPair kp;
 
     private Certificate c;
@@ -96,9 +131,9 @@ public class TestSSL extends PingTest {
         initailizeDomainForm(u);
 
         createCertificate(test, CertificateProfile.getByName(sslVariant == 1 ? "client" : "server"));
-        SSLServerSocket sss = createSSLServer(kp.getPrivate(), c.cert());
+        final SSLServerSocket sss = createSSLServer(kp.getPrivate(), c.cert());
         int port = sss.getLocalPort();
-        SSLServerSocket sss2 = createSSLServer(kp.getPrivate(), c.cert());
+        final SSLServerSocket sss2 = createSSLServer(kp.getPrivate(), c.cert());
         int port2 = sss2.getLocalPort();
         if (sslVariant == 3 || sslVariant == 2) {
             sss2.close();
@@ -115,9 +150,21 @@ public class TestSSL extends PingTest {
                 "&adddomain&csrf=" + csrf;
         URL u2 = sendDomainForm(u, content);
         boolean firstSucceeds = sslVariant != 0 && sslVariant != 2;
-        assertTrue(firstSucceeds ^ acceptSSLServer(sss));
+        AsyncTask<Boolean> ass = new AsyncTask<Boolean>() {
+
+            @Override
+            public Boolean run() throws Exception {
+                return acceptSSLServer(sss);
+            }
+        };
+        ass.start();
+        System.out.println(port + " and " + port2 + " ready");
+        System.err.println(port + " and " + port2 + " ready");
+        boolean accept2 = acceptSSLServer(sss2);
+        boolean accept1 = ass.join();
+        assertTrue(firstSucceeds ^ accept1);
         boolean secondsSucceeds = sslVariant != 0;
-        assertTrue(secondsSucceeds ^ acceptSSLServer(sss2));
+        assertTrue(secondsSucceeds ^ accept2);
 
         TestMail mail = getMailReciever().receive();
         if (emailVariant == 0) {
@@ -219,6 +266,13 @@ public class TestSSL extends PingTest {
 
         SSLServerSocketFactory sssf = sc.getServerSocketFactory();
         return (SSLServerSocket) sssf.createServerSocket(0);
+    }
+
+    public static void main(String[] args) throws Exception {
+        initEnvironment();
+        TestSSL t1 = new TestSSL();
+        t1.sslAndMailSuccess();
+        tearDownServer();
     }
 
 }
