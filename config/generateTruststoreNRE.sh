@@ -19,7 +19,7 @@ for i in ca/{,un}assured_*; do
   import ${i%.crt}
 done
 
-for i in keys/*.pkcs12; do
+for i in ../keys/*.pkcs12; do
   importP $i
 done
 
