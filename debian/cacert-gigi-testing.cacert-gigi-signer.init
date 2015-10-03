@@ -1,8 +1,8 @@
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          cacert-gigi-signer
-# Required-Start:    $local_fs $network $remote_fs $syslog mysql
-# Required-Stop:     $local_fs $network $remote_fs $syslog mysql
+# Required-Start:    $local_fs $network $remote_fs $syslog postgresql
+# Required-Stop:     $local_fs $network $remote_fs $syslog postgresql
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: <Enter a short description of the software>
@@ -20,7 +20,7 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="cacert-gigi-signer"
 NAME=cacert-gigi-signer
 DAEMON=`which java`
-DAEMON_ARGS="-cp /usr/share/java/mysql-connector-java.jar:/usr/share/java/gigi.jar org.cacert.gigi.util.SimpleSigner"
+DAEMON_ARGS="-cp /usr/share/java/postgresql-jdbc4.jar:/usr/share/java/gigi.jar org.cacert.gigi.util.SimpleSigner"
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 DIR=/var/lib/cacert-gigi
