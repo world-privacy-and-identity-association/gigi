@@ -188,11 +188,11 @@ CREATE INDEX ON "certs" ("crt_name");
 
 DROP TABLE IF EXISTS "certAvas";
 CREATE TABLE "certAvas" (
-  "certid" int NOT NULL,
+  "certId" int NOT NULL,
   "name" varchar(20) NOT NULL,
   "value" varchar(255) NOT NULL,
 
-  PRIMARY KEY ("certid", "name")
+  PRIMARY KEY ("certId", "name")
 );
 
 DROP TABLE IF EXISTS "clientcerts";
@@ -373,4 +373,4 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(4);
+INSERT INTO "schemeVersion" (version)  VALUES(5);

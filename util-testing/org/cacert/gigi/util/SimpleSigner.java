@@ -297,7 +297,7 @@ public class SimpleSigner {
                 String ca = caP.getProperty("ca") + "_2015_1";
 
                 HashMap<String, String> subj = new HashMap<>();
-                GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT name, value FROM `certAvas` WHERE certId=?");
+                GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT name, value FROM `certAvas` WHERE `certId`=?");
                 ps.setInt(1, rs.getInt("id"));
                 GigiResultSet rs2 = ps.executeQuery();
                 while (rs2.next()) {

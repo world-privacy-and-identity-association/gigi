@@ -263,7 +263,7 @@ public class Certificate {
             san.execute();
         }
 
-        GigiPreparedStatement insertAVA = DatabaseConnection.getInstance().prepare("INSERT INTO `certAvas` SET certid=?, name=?, value=?");
+        GigiPreparedStatement insertAVA = DatabaseConnection.getInstance().prepare("INSERT INTO `certAvas` SET `certId`=?, name=?, value=?");
         insertAVA.setInt(1, id);
         for (Entry<String, String> e : dn.entrySet()) {
             insertAVA.setString(2, e.getKey());
@@ -360,7 +360,7 @@ public class Certificate {
         // TODO caching?
         try {
             String concat = "string_agg(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')), '')";
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as `subject`, `md`, `csr_name`, `crt_name`,`memid`, `profile`, `certs`.`serial` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certid`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`");
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as `subject`, `md`, `csr_name`, `crt_name`,`memid`, `profile`, `certs`.`serial` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`");
             ps.setString(1, serial);
             GigiResultSet rs = ps.executeQuery();
             return new Certificate(rs);
@@ -375,7 +375,7 @@ public class Certificate {
         // TODO caching?
         try {
             String concat = "group_concat(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')))";
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as subject, md, csr_name, crt_name,memid, profile, certs.serial FROM `certs` LEFT JOIN certAvas ON certAvas.certid=certs.id WHERE certs.id=? GROUP BY certs.id");
+            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as subject, md, csr_name, crt_name,memid, profile, certs.serial FROM `certs` LEFT JOIN certAvas ON certAvas.`certId`=certs.id WHERE certs.id=? GROUP BY certs.id");
             ps.setInt(1, id);
             GigiResultSet rs = ps.executeQuery();
 
