@@ -19,7 +19,14 @@ import org.cacert.gigi.util.ServerConstants;
 
 public class Sendmail extends EmailProvider {
 
-    protected Sendmail(Properties props) {}
+    private final String targetHost;
+
+    private final int targetPort;
+
+    protected Sendmail(Properties props) {
+        targetHost = props.getProperty("emailProvider.smtpHost", "localhost");
+        targetPort = Integer.parseInt(props.getProperty("emailProvider.smtpPort", "25"));
+    }
 
     private static final Pattern NON_ASCII = Pattern.compile("[^a-zA-Z0-9 .-\\[\\]!_@]");
 
@@ -28,7 +35,7 @@ public class Sendmail extends EmailProvider {
 
         String[] bits = from.split(",");
 
-        try (Socket smtp = new Socket("localhost", 25); PrintWriter out = new PrintWriter(new OutputStreamWriter(smtp.getOutputStream(), "UTF-8")); BufferedReader in = new BufferedReader(new InputStreamReader(smtp.getInputStream(), "UTF-8"));) {
+        try (Socket smtp = new Socket(targetHost, targetPort); PrintWriter out = new PrintWriter(new OutputStreamWriter(smtp.getOutputStream(), "UTF-8")); BufferedReader in = new BufferedReader(new InputStreamReader(smtp.getInputStream(), "UTF-8"));) {
             readSMTPResponse(in, 220);
             out.print("HELO www.cacert.org\r\n");
             out.flush();

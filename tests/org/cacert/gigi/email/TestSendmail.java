@@ -107,8 +107,11 @@ public class TestSendmail extends ConfiguredTest {
     }
 
     private void initSelfsign() throws GeneralSecurityException, CertificateException, IOException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException, SignatureException {
+        assumeNotNull(getTestProps().getProperty("emailProvider.smtpHost"), getTestProps().getProperty("emailProvider.smtpPort"));
         Properties prop = new Properties();
         prop.setProperty("emailProvider", "org.cacert.gigi.email.Sendmail");
+        prop.setProperty("emailProvider.smtpHost", getTestProps().getProperty("emailProvider.smtpHost"));
+        prop.setProperty("emailProvider.smtpPort", getTestProps().getProperty("emailProvider.smtpPort"));
         KeyPair kp = generateKeypair();
         X509CertInfo info = new X509CertInfo();
         // Add all mandatory attributes
