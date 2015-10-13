@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ "$JDBC_DRIVER" == "" ]
 then
-JDBC_DRIVER=/usr/share/java/mysql-connector-java.jar
+JDBC_DRIVER=/usr/share/java/postgresql-jdbc4.jar
 #echo "JDBC_DRIVER environment variable not set. Assumed path: $JDBC_DRIVER"
 fi
 if [ "$GIGI_EXEC" == "" ]
