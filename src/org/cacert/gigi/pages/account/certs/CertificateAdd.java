@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.Page;
 
@@ -29,13 +30,19 @@ public class CertificateAdd extends Page {
         CertificateIssueForm f = Form.getForm(req, CertificateIssueForm.class);
         if (f.submit(resp.getWriter(), req)) {
             Certificate c = f.getResult();
+            if (c.getStatus() != CertificateStatus.ISSUED) {
+                resp.getWriter().println("Timeout while waiting for certificate.");
+                return;
+            }
             String ser = c.getSerial();
             if (ser.isEmpty()) {
-                resp.getWriter().println("C");
+                resp.getWriter().println("Timeout while waiting for certificate.");
+                return;
             }
             resp.sendRedirect(Certificates.PATH + "/" + ser);
         }
         f.output(resp.getWriter(), getLanguage(req), Collections.<String,Object>emptyMap());
 
     }
+
 }
