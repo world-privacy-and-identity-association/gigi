@@ -147,7 +147,7 @@ public class DatabaseConnection {
                     }
                     version++;
                 }
-                s.addBatch("UPDATE schemeVersion SET version='" + version + "'");
+                s.addBatch("UPDATE \"schemeVersion\" SET version='" + version + "'");
                 System.out.println("UPGRADING Database to version " + version);
                 s.executeBatch();
                 System.out.println("done.");
