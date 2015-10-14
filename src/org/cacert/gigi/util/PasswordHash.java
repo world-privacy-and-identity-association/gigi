@@ -24,6 +24,9 @@ public class PasswordHash {
      *         </ul>
      */
     public static String verifyHash(String password, String hash) {
+        if (password == null || password.isEmpty()) {
+            return null;
+        }
         if (hash.contains("$")) {
             if (SCryptUtil.check(password, hash)) {
                 return hash;
