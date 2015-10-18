@@ -4,7 +4,6 @@ import java.util.regex.Pattern;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Name;
-import org.cacert.gigi.dbObjects.User;
 
 public class PasswordStrengthChecker {
 
@@ -52,13 +51,12 @@ public class PasswordStrengthChecker {
         return points;
     }
 
-    public static int checkpw(String pw, User u) {
+    public static int checkpw(String pw, Name name, String email) {
         if (pw == null) {
             return 0;
         }
-        Name name = u.getName();
         int light = checkpwlight(pw);
-        if (contained(pw, u.getEmail())) {
+        if (contained(pw, email)) {
             light -= 2;
         }
         if (contained(pw, name.getFname())) {
@@ -77,8 +75,8 @@ public class PasswordStrengthChecker {
         return light;
     }
 
-    public static void assertStrongPassword(String pw, User u) throws GigiApiException {
-        if (checkpw(pw, u) < 3) {
+    public static void assertStrongPassword(String pw, Name name, String email) throws GigiApiException {
+        if (checkpw(pw, name, email) < 3) {
             throw new GigiApiException("The Pass Phrase you submitted failed to contain enough" + " differing characters and/or contained words from" + " your name and/or email address.");
         }
     }

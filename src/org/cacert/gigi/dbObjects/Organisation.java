@@ -61,7 +61,7 @@ public class Organisation extends CertificateOwner {
         this.province = province;
         this.city = city;
         this.email = email;
-        int id = super.insert();
+        int id = getId();
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO organisations SET id=?, name=?, state=?, province=?, city=?, contactEmail=?, creator=?");
         ps.setInt(1, id);
         ps.setString(2, name);

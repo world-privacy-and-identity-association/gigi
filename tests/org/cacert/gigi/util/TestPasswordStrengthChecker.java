@@ -3,70 +3,71 @@ package org.cacert.gigi.util;
 import static org.junit.Assert.*;
 
 import org.cacert.gigi.dbObjects.Name;
-import org.cacert.gigi.dbObjects.User;
 import org.junit.Test;
 
 public class TestPasswordStrengthChecker {
 
-    User u;
+    Name n = new Name("fname", "lname", "mname", "suffix");
 
-    public TestPasswordStrengthChecker() {
-        u = new User();
-        u.setName(new Name("fname", "lname", "mname", "suffix"));
-        u.setEmail("email");
+    String e = "email";
+
+    public TestPasswordStrengthChecker() {}
+
+    private int check(String pw) {
+        return PasswordStrengthChecker.checkpw(pw, n, e);
     }
 
     @Test
     public void testPasswordLength() {
-        assertEquals(1, PasswordStrengthChecker.checkpw("01234", u));
-        assertEquals(2, PasswordStrengthChecker.checkpw("0123456789012345", u));
-        assertEquals(3, PasswordStrengthChecker.checkpw("012345678901234567890", u));
-        assertEquals(4, PasswordStrengthChecker.checkpw("01234567890123456789012345", u));
-        assertEquals(5, PasswordStrengthChecker.checkpw("0123456789012345678901234567890", u));
+        assertEquals(1, check("01234"));
+        assertEquals(2, check("0123456789012345"));
+        assertEquals(3, check("012345678901234567890"));
+        assertEquals(4, check("01234567890123456789012345"));
+        assertEquals(5, check("0123456789012345678901234567890"));
     }
 
     @Test
     public void testPasswordNonASCII() {
-        assertEquals(2, PasswordStrengthChecker.checkpw("0ä", u));
-        assertEquals(3, PasswordStrengthChecker.checkpw("0aä", u));
-        assertEquals(3, PasswordStrengthChecker.checkpw("0azä", u));
-        assertEquals(3, PasswordStrengthChecker.checkpw("0az.ä", u));
+        assertEquals(2, check("0ä"));
+        assertEquals(3, check("0aä"));
+        assertEquals(3, check("0azä"));
+        assertEquals(3, check("0az.ä"));
     }
 
     @Test
     public void testPasswordCharTypes() {
-        assertEquals(1, PasswordStrengthChecker.checkpw("0", u));
-        assertEquals(2, PasswordStrengthChecker.checkpw("0a", u));
-        assertEquals(2, PasswordStrengthChecker.checkpw("0az", u));
-        assertEquals(3, PasswordStrengthChecker.checkpw("0azZ", u));
-        assertEquals(4, PasswordStrengthChecker.checkpw("0a zZ", u));
-        assertEquals(5, PasswordStrengthChecker.checkpw("0a. zZ", u));
+        assertEquals(1, check("0"));
+        assertEquals(2, check("0a"));
+        assertEquals(2, check("0az"));
+        assertEquals(3, check("0azZ"));
+        assertEquals(4, check("0a zZ"));
+        assertEquals(5, check("0a. zZ"));
 
-        assertEquals(1, PasswordStrengthChecker.checkpw(".", u));
-        assertEquals(1, PasswordStrengthChecker.checkpw(" ", u));
-        assertEquals(1, PasswordStrengthChecker.checkpw("b", u));
-        assertEquals(1, PasswordStrengthChecker.checkpw("Z", u));
+        assertEquals(1, check("."));
+        assertEquals(1, check(" "));
+        assertEquals(1, check("b"));
+        assertEquals(1, check("Z"));
 
-        assertEquals(2, PasswordStrengthChecker.checkpw("0.", u));
-        assertEquals(2, PasswordStrengthChecker.checkpw("0 ", u));
-        assertEquals(2, PasswordStrengthChecker.checkpw("0a", u));
-        assertEquals(2, PasswordStrengthChecker.checkpw("0Z", u));
+        assertEquals(2, check("0."));
+        assertEquals(2, check("0 "));
+        assertEquals(2, check("0a"));
+        assertEquals(2, check("0Z"));
 
-        assertEquals(2, PasswordStrengthChecker.checkpw(" .", u));
-        assertEquals(2, PasswordStrengthChecker.checkpw(" a", u));
-        assertEquals(2, PasswordStrengthChecker.checkpw(" Z", u));
+        assertEquals(2, check(" ."));
+        assertEquals(2, check(" a"));
+        assertEquals(2, check(" Z"));
 
     }
 
     @Test
     public void testPasswordContains() {
-        assertEquals( -1, PasswordStrengthChecker.checkpw("fnamea", u));
-        assertEquals( -5, PasswordStrengthChecker.checkpw("na", u));
-        assertEquals(0, PasswordStrengthChecker.checkpw("1lname", u));
-        assertEquals(0, PasswordStrengthChecker.checkpw("1email", u));
-        assertEquals( -1, PasswordStrengthChecker.checkpw("mai", u));
-        assertEquals( -1, PasswordStrengthChecker.checkpw("suff", u));
-        assertEquals(0, PasswordStrengthChecker.checkpw("1suffix", u));
+        assertEquals( -1, check("fnamea"));
+        assertEquals( -5, check("na"));
+        assertEquals(0, check("1lname"));
+        assertEquals(0, check("1email"));
+        assertEquals( -1, check("mai"));
+        assertEquals( -1, check("suff"));
+        assertEquals(0, check("1suffix"));
 
     }
 

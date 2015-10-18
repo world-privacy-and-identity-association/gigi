@@ -12,7 +12,6 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.pages.account.mail.MailOverview;
 import org.cacert.gigi.testUtils.ClientTest;
 import org.junit.Test;
@@ -32,9 +31,9 @@ public class TestMailManagement extends ClientTest {
     }
 
     @Test
-    public void testMailAddInternalFaulty() {
+    public void testMailAddInternalFaulty() throws GigiApiException {
         try {
-            new EmailAddress(u, "kurti ");
+            new EmailAddress(u, "kurti ", Locale.ENGLISH);
             fail();
         } catch (IllegalArgumentException e) {
             // Intended.
@@ -76,8 +75,7 @@ public class TestMailManagement extends ClientTest {
 
     @Test
     public void testMailSetDefaultWebUnverified() throws MalformedURLException, UnsupportedEncodingException, IOException, InterruptedException, GigiApiException {
-        EmailAddress adrr = new EmailAddress(u, createUniqueName() + "test@test.tld");
-        adrr.insert(Language.getInstance(Locale.ENGLISH));
+        EmailAddress adrr = new EmailAddress(u, createUniqueName() + "test@test.tld", Locale.ENGLISH);
         assertNotNull(executeBasicWebInteraction(cookie, path, "makedefault&emailid=" + adrr.getId()));
         assertNotEquals(User.getById(u.getId()).getEmail(), adrr.getAddress());
         getMailReciever().clearMails();

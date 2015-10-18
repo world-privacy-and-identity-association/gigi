@@ -34,8 +34,7 @@ public class MailAddForm extends Form {
         String formMail = req.getParameter("newemail");
         mail = formMail;
         try {
-            EmailAddress addr = new EmailAddress(target, mail);
-            addr.insert(Page.getLanguage(req));
+            new EmailAddress(target, mail, Page.getLanguage(req).getLocale());
         } catch (IllegalArgumentException e) {
             out.println("<div class='formError'>Error: Invalid address!</div>");
             return false;

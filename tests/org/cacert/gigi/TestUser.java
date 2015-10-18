@@ -11,22 +11,16 @@ import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
 
 public class TestUser extends ManagedTest {
 
     @Test
-    public void testStoreAndLoad() throws SQLException {
-        User u = new User();
-        u.setName(new Name("user", "last", "", ""));
-        u.setPreferredLocale(Locale.ENGLISH);
+    public void testStoreAndLoad() throws SQLException, GigiApiException {
         long dob = System.currentTimeMillis();
         dob -= dob % (1000 * 60 * 60 * 24);
-        u.setDoB(new java.sql.Date(dob));
-        u.setEmail(createUniqueName() + "a@email.org");
-        u.insert("password");
+        User u = new User(createUniqueName() + "a@email.org", "password", new Name("user", "last", "", ""), new java.sql.Date(dob), Locale.ENGLISH);
         int id = u.getId();
         User u2 = User.getById(id);
         assertEquals(u.getName(), u2.getName());
@@ -69,8 +63,8 @@ public class TestUser extends ManagedTest {
         int id = createVerifiedUser("aä", "b", uq + "a@email.org", TEST_PASSWORD);
 
         User u = User.getById(id);
-        new EmailAddress(u, uq + "b@email.org").insert(Language.getInstance(Locale.ENGLISH));
-        new EmailAddress(u, uq + "c@email.org").insert(Language.getInstance(Locale.ENGLISH));
+        new EmailAddress(u, uq + "b@email.org", Locale.ENGLISH);
+        new EmailAddress(u, uq + "c@email.org", Locale.ENGLISH);
         new Domain(u, uq + "a-testdomain.org").insert();
         new Domain(u, uq + "b-testdomain.org").insert();
         new Domain(u, uq + "c-testdomain.org").insert();
@@ -96,19 +90,8 @@ public class TestUser extends ManagedTest {
     }
 
     @Test
-    public void testDoubleInsert() {
-        User u = new User();
-        u.setName(new Name("f", "k", "m", "s"));
-        u.setEmail(createUniqueName() + "@example.org");
-        u.setDoB(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 365));
-        u.setPreferredLocale(Locale.ENGLISH);
-        u.insert(TEST_PASSWORD);
-        try {
-            u.insert(TEST_PASSWORD);
-            fail("Error expected");
-        } catch (Error e) {
-            // expected
-        }
+    public void testDoubleInsert() throws GigiApiException {
+        User u = new User(createUniqueName() + "@example.org", TEST_PASSWORD, new Name("f", "k", "m", "s"), new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 365), Locale.ENGLISH);
         Assurance[] ma = u.getMadeAssurances();
         Assurance[] ma2 = u.getMadeAssurances();
         Assurance[] ra = u.getReceivedAssurances();

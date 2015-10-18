@@ -43,7 +43,6 @@ import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.pages.Manager;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.main.RegisterPage;
@@ -68,7 +67,7 @@ public class ManagedTest extends ConfiguredTest {
     /**
      * Some password that fulfills the password criteria.
      */
-    protected static final String TEST_PASSWORD = "xvXV12°§";
+    public static final String TEST_PASSWORD = "xvXV12°§";
 
     private static TestEmailReceiver ter;
 
@@ -468,8 +467,7 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     public static EmailAddress createVerifiedEmail(User u) throws InterruptedException, GigiApiException {
-        EmailAddress adrr = new EmailAddress(u, createUniqueName() + "test@test.tld");
-        adrr.insert(Language.getInstance(Locale.ENGLISH));
+        EmailAddress adrr = new EmailAddress(u, createUniqueName() + "test@test.tld", Locale.ENGLISH);
         TestMail testMail = getMailReciever().receive();
         assertEquals(adrr.getAddress(), testMail.getTo());
         String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);

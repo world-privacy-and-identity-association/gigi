@@ -1,6 +1,7 @@
 package org.cacert.gigi.dbObjects;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
@@ -36,16 +37,17 @@ public class EmailAddress implements IdCachable, Verifyable {
         rs.close();
     }
 
-    public EmailAddress(User owner, String address) {
+    public EmailAddress(User owner, String address, Locale mailLocale) throws GigiApiException {
         if ( !EmailProvider.MAIL.matcher(address).matches()) {
             throw new IllegalArgumentException("Invalid email.");
         }
         this.address = address;
         this.owner = owner;
         this.hash = RandomToken.generateToken(16);
+        insert(Language.getInstance(mailLocale));
     }
 
-    public void insert(Language l) throws GigiApiException {
+    private void insert(Language l) throws GigiApiException {
         try {
             synchronized (EmailAddress.class) {
                 if (id != 0) {

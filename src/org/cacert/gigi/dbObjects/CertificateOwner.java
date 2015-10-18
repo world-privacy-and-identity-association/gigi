@@ -12,11 +12,16 @@ public abstract class CertificateOwner implements IdCachable {
 
     private int id;
 
-    public CertificateOwner(int id) {
+    protected CertificateOwner(int id) {
         this.id = id;
     }
 
-    public CertificateOwner() {}
+    protected CertificateOwner() {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `certOwners` DEFAULT VALUES");
+        ps.execute();
+        id = ps.lastInsertId();
+        myCache.put(this);
+    }
 
     public int getId() {
         return id;
@@ -41,20 +46,6 @@ public abstract class CertificateOwner implements IdCachable {
             }
         }
         return u;
-    }
-
-    protected int insert() {
-        synchronized (User.class) {
-            if (id != 0) {
-                throw new Error("refusing to insert");
-            }
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `certOwners` DEFAULT VALUES");
-            ps.execute();
-            id = ps.lastInsertId();
-            myCache.put(this);
-        }
-
-        return id;
     }
 
     public Domain[] getDomains() {

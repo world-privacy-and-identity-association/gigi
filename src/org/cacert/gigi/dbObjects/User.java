@@ -62,7 +62,24 @@ public class User extends CertificateOwner {
         }
     }
 
-    public User() {}
+    public User(String email, String password, Name name, Date dob, Locale locale) throws GigiApiException {
+        this.email = email;
+        this.dob = dob;
+        this.name = name;
+        this.locale = locale;
+        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("INSERT INTO `users` SET `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, " + "`suffix`=?, `dob`=?, `language`=?, id=?");
+        query.setString(1, email);
+        query.setString(2, PasswordHash.hash(password));
+        query.setString(3, name.getFname());
+        query.setString(4, name.getMname());
+        query.setString(5, name.getLname());
+        query.setString(6, name.getSuffix());
+        query.setDate(7, dob);
+        query.setString(8, locale.toString());
+        query.setInt(9, getId());
+        query.execute();
+        new EmailAddress(this, email, locale);
+    }
 
     public Name getName() {
         return name;
@@ -84,21 +101,6 @@ public class User extends CertificateOwner {
         this.email = email;
     }
 
-    public void insert(String password) {
-        int id = super.insert();
-        GigiPreparedStatement query = DatabaseConnection.getInstance().prepare("INSERT INTO `users` SET `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, " + "`suffix`=?, `dob`=?, `language`=?, id=?");
-        query.setString(1, email);
-        query.setString(2, PasswordHash.hash(password));
-        query.setString(3, name.getFname());
-        query.setString(4, name.getMname());
-        query.setString(5, name.getLname());
-        query.setString(6, name.getSuffix());
-        query.setDate(7, new java.sql.Date(dob.getTime()));
-        query.setString(8, locale.toString());
-        query.setInt(9, id);
-        query.execute();
-    }
-
     public void changePassword(String oldPass, String newPass) throws GigiApiException {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `password` FROM `users` WHERE `id`=?");
         ps.setInt(1, getId());
@@ -111,7 +113,7 @@ public class User extends CertificateOwner {
             }
         }
 
-        PasswordStrengthChecker.assertStrongPassword(newPass, this);
+        PasswordStrengthChecker.assertStrongPassword(newPass, getName(), getEmail());
         ps = DatabaseConnection.getInstance().prepare("UPDATE users SET `password`=? WHERE id=?");
         ps.setString(1, PasswordHash.hash(newPass));
         ps.setInt(2, getId());

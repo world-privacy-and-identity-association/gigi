@@ -2,7 +2,6 @@ package org.cacert.gigi.pages.main;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +12,6 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
-import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.EmailProvider;
@@ -28,7 +26,9 @@ import org.cacert.gigi.util.PasswordStrengthChecker;
 
 public class Signup extends Form {
 
-    private User buildup = new User();
+    Name buildupName = new Name("", "", "", "");
+
+    String email = "";
 
     private Template t;
 
@@ -37,9 +37,6 @@ public class Signup extends Form {
     public Signup(HttpServletRequest hsr) {
         super(hsr);
         t = new Template(Signup.class.getResource("Signup.templ"));
-        buildup.setName(new Name("", "", "", ""));
-        buildup.setEmail("");
-        buildup.setDoB(new Date(0));
     }
 
     DateSelector myDoB = new DateSelector("day", "month", "year");
@@ -47,13 +44,12 @@ public class Signup extends Form {
     @Override
     public void outputContent(PrintWriter out, Language l, Map<String, Object> outerVars) {
         HashMap<String, Object> vars = new HashMap<String, Object>();
-        Name buildupName = buildup.getName();
         vars.put("fname", HTMLEncoder.encodeHTML(buildupName.getFname()));
         vars.put("mname", HTMLEncoder.encodeHTML(buildupName.getMname()));
         vars.put("lname", HTMLEncoder.encodeHTML(buildupName.getLname()));
         vars.put("suffix", HTMLEncoder.encodeHTML(buildupName.getSuffix()));
         vars.put("dob", myDoB);
-        vars.put("email", HTMLEncoder.encodeHTML(buildup.getEmail()));
+        vars.put("email", HTMLEncoder.encodeHTML(email));
         vars.put("general", general ? " checked=\"checked\"" : "");
         vars.put("country", country ? " checked=\"checked\"" : "");
         vars.put("regional", regional ? " checked=\"checked\"" : "");
@@ -64,10 +60,10 @@ public class Signup extends Form {
     }
 
     private void update(HttpServletRequest r) {
-        String fname = buildup.getName().getFname();
-        String lname = buildup.getName().getLname();
-        String mname = buildup.getName().getMname();
-        String suffix = buildup.getName().getSuffix();
+        String fname = buildupName.getFname();
+        String lname = buildupName.getLname();
+        String mname = buildupName.getMname();
+        String suffix = buildupName.getSuffix();
         if (r.getParameter("fname") != null) {
             fname = r.getParameter("fname");
         }
@@ -81,9 +77,9 @@ public class Signup extends Form {
             suffix = r.getParameter("suffix");
         }
         if (r.getParameter("email") != null) {
-            buildup.setEmail(r.getParameter("email"));
+            email = r.getParameter("email");
         }
-        buildup.setName(new Name(fname, lname, mname, suffix));
+        buildupName = new Name(fname, lname, mname, suffix);
         general = "1".equals(r.getParameter("general"));
         country = "1".equals(r.getParameter("country"));
         regional = "1".equals(r.getParameter("regional"));
@@ -97,7 +93,7 @@ public class Signup extends Form {
     @Override
     public synchronized boolean submit(PrintWriter out, HttpServletRequest req) {
         update(req);
-        if (buildup.getName().getLname().trim().equals("")) {
+        if (buildupName.getLname().trim().equals("")) {
             outputError(out, req, "Last name were blank.");
         }
         if ( !myDoB.isValid()) {
@@ -106,7 +102,7 @@ public class Signup extends Form {
         if ( !"1".equals(req.getParameter("cca_agree"))) {
             outputError(out, req, "You have to agree to the CAcert Community agreement.");
         }
-        if (buildup.getEmail().equals("")) {
+        if (email.equals("")) {
             outputError(out, req, "Email Address was blank");
         }
         String pw1 = req.getParameter("pword1");
@@ -116,7 +112,7 @@ public class Signup extends Form {
         } else if ( !pw1.equals(pw2)) {
             outputError(out, req, "Pass Phrases don't match");
         }
-        int pwpoints = PasswordStrengthChecker.checkpw(pw1, buildup);
+        int pwpoints = PasswordStrengthChecker.checkpw(pw1, buildupName, email);
         if (pwpoints < 3) {
             outputError(out, req, "The Pass Phrase you submitted failed to contain enough" + " differing characters and/or contained words from" + " your name and/or email address.");
         }
@@ -125,8 +121,8 @@ public class Signup extends Form {
         }
         GigiPreparedStatement q1 = DatabaseConnection.getInstance().prepare("SELECT * FROM `emails` WHERE `email`=? AND `deleted` IS NULL");
         GigiPreparedStatement q2 = DatabaseConnection.getInstance().prepare("SELECT * FROM `certOwners` INNER JOIN `users` ON `users`.`id`=`certOwners`.`id` WHERE `email`=? AND `deleted` IS NULL");
-        q1.setString(1, buildup.getEmail());
-        q2.setString(1, buildup.getEmail());
+        q1.setString(1, email);
+        q2.setString(1, email);
         GigiResultSet r1 = q1.executeQuery();
         GigiResultSet r2 = q2.executeQuery();
         if (r1.next() || r2.next()) {
@@ -135,7 +131,7 @@ public class Signup extends Form {
         r1.close();
         r2.close();
         GigiPreparedStatement q3 = DatabaseConnection.getInstance().prepare("SELECT `domain` FROM `baddomains` WHERE `domain`=RIGHT(?, LENGTH(`domain`))");
-        q3.setString(1, buildup.getEmail());
+        q3.setString(1, email);
 
         GigiResultSet r3 = q3.executeQuery();
         if (r3.next()) {
@@ -145,7 +141,7 @@ public class Signup extends Form {
         r3.close();
         String mailResult = EmailProvider.FAIL;
         try {
-            mailResult = HTMLEncoder.encodeHTML(EmailProvider.getInstance().checkEmailServer(0, buildup.getEmail()));
+            mailResult = HTMLEncoder.encodeHTML(EmailProvider.getInstance().checkEmailServer(0, email));
         } catch (IOException e) {
         }
         if ( !mailResult.equals(EmailProvider.OK)) {
@@ -178,21 +174,16 @@ public class Signup extends Form {
     private void run(HttpServletRequest req, String password) throws SQLException, GigiApiException {
         try {
             DatabaseConnection.getInstance().beginTransaction();
-            buildup.setPreferredLocale(Page.getLanguage(req).getLocale());
-            buildup.setDoB(myDoB.getDate());
-            buildup.insert(password);
-            int memid = buildup.getId();
-            EmailAddress ea = new EmailAddress(buildup, buildup.getEmail());
-            ea.insert(Page.getLanguage(req));
+            User u = new User(email, password, buildupName, myDoB.getDate(), Page.getLanguage(req).getLocale());
 
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `alerts` SET `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?");
-            ps.setInt(1, memid);
+            ps.setInt(1, u.getId());
             ps.setBoolean(2, general);
             ps.setBoolean(3, country);
             ps.setBoolean(4, regional);
             ps.setBoolean(5, radius);
             ps.execute();
-            Notary.writeUserAgreement(buildup, "CCA", "account creation", "", true, 0);
+            Notary.writeUserAgreement(u, "CCA", "account creation", "", true, 0);
 
             DatabaseConnection.getInstance().commitTransaction();
         } finally {

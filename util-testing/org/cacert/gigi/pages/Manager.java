@@ -149,16 +149,10 @@ public class Manager extends Page {
     }
 
     private void createUser(String email) throws GigiApiException, IllegalAccessException {
-        User u = new User();
-        u.setName(new Name("Först", "Läst", "Müddle", "Süffix"));
-        u.setEmail(email);
         Calendar gc = GregorianCalendar.getInstance();
         gc.set(1990, 0, 1);
-        u.setDoB(new Date(gc.getTime().getTime()));
-        u.setPreferredLocale(Locale.ENGLISH);
-        u.insert("xvXV12°§");
-        EmailAddress ea = new EmailAddress(u, email);
-        ea.insert(Language.getInstance(Locale.ENGLISH));
+        User u = new User(email, "xvXV12°§", new Name("Först", "Läst", "Müddle", "Süffix"), new Date(gc.getTime().getTime()), Locale.ENGLISH);
+        EmailAddress ea = u.getEmails()[0];
         String hash = (String) f.get(ea);
 
         ea.verify(hash);
@@ -213,9 +207,8 @@ public class Manager extends Page {
             resp.getWriter().println("User has been assured.");
         } else if (req.getParameter("addEmail") != null) {
             User u = User.getByEmail(req.getParameter("addEmailEmail"));
-            EmailAddress ea = new EmailAddress(u, req.getParameter("addEmailNew"));
             try {
-                ea.insert(Language.getInstance(Locale.ENGLISH));
+                EmailAddress ea = new EmailAddress(u, req.getParameter("addEmailNew"), Locale.ENGLISH);
                 String hash = (String) f.get(ea);
                 ea.verify(hash);
                 resp.getWriter().println("Email added and verified");
