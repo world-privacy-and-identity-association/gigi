@@ -263,11 +263,11 @@ public class CertificateRequest {
                 continue;
             }
             try {
-                SANType t = Certificate.SANType.valueOf(parts[0].toUpperCase());
+                SANType t = Certificate.SANType.valueOf(parts[0].toUpperCase().trim());
                 if (t == null) {
                     continue;
                 }
-                parsedNames.add(new SubjectAlternateName(t, parts[1]));
+                parsedNames.add(new SubjectAlternateName(t, parts[1].trim()));
             } catch (IllegalArgumentException e) {
                 // invalid enum type
                 continue;
