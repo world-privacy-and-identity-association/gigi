@@ -20,7 +20,6 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
-import org.cacert.gigi.util.Job;
 import org.cacert.gigi.util.KeyStorage;
 import org.cacert.gigi.util.Notary;
 

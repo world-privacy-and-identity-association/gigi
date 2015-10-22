@@ -16,9 +16,9 @@ import java.sql.SQLException;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.dbObjects.Job;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.ManagedTest;
-import org.cacert.gigi.util.Job;
 import org.junit.Test;
 
 public class TestSeparateSessionScope extends ManagedTest {

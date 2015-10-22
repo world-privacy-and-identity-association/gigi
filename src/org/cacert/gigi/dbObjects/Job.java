@@ -1,4 +1,4 @@
-package org.cacert.gigi.util;
+package org.cacert.gigi.dbObjects;
 
 import java.sql.Date;
 
@@ -6,7 +6,6 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
-import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.output.CertificateValiditySelector;
 
 public class Job {

@@ -13,11 +13,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.Job;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.account.certs.CertificateRequest;
-import org.cacert.gigi.util.Job;
 import org.cacert.gigi.util.PEM;
 
 public class GigiAPI extends HttpServlet {
