@@ -17,7 +17,7 @@ import javax.naming.NamingException;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration;
-import org.cacert.gigi.dbObjects.DomainPingConfiguration.PingType;
+import org.cacert.gigi.dbObjects.DomainPingType;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.PingTest;
@@ -88,7 +88,7 @@ public class TestHTTP extends PingTest {
             Domain d = Domain.getById(id);
             DomainPingConfiguration dpc = null;
             for (DomainPingConfiguration conf : d.getConfiguredPings()) {
-                if (conf.getType() == PingType.HTTP) {
+                if (conf.getType() == DomainPingType.HTTP) {
                     dpc = conf;
                     break;
                 }

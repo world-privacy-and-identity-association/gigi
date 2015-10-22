@@ -15,15 +15,11 @@ import org.cacert.gigi.output.template.SprintfCommand;
 
 public class DomainPingConfiguration implements IdCachable {
 
-    public static enum PingType {
-        EMAIL, DNS, HTTP, SSL;
-    }
-
     private int id;
 
     private Domain target;
 
-    private PingType type;
+    private DomainPingType type;
 
     private String info;
 
@@ -37,7 +33,7 @@ public class DomainPingConfiguration implements IdCachable {
         }
         this.id = rs.getInt("id");
         target = Domain.getById(rs.getInt("domainid"));
-        type = PingType.valueOf(rs.getString("type").toUpperCase());
+        type = DomainPingType.valueOf(rs.getString("type").toUpperCase());
         info = rs.getString("info");
     }
 
@@ -50,7 +46,7 @@ public class DomainPingConfiguration implements IdCachable {
         return target;
     }
 
-    public PingType getType() {
+    public DomainPingType getType() {
         return type;
     }
 

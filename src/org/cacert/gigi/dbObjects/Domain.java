@@ -15,52 +15,9 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
-import org.cacert.gigi.dbObjects.DomainPingConfiguration.PingType;
 import org.cacert.gigi.util.PublicSuffixes;
 
 public class Domain implements IdCachable, Verifyable {
-
-    public class DomainPingExecution {
-
-        private String state;
-
-        private String type;
-
-        private String info;
-
-        private String result;
-
-        private DomainPingConfiguration config;
-
-        public DomainPingExecution(GigiResultSet rs) {
-            state = rs.getString(1);
-            type = rs.getString(2);
-            info = rs.getString(3);
-            result = rs.getString(4);
-            config = DomainPingConfiguration.getById(rs.getInt(5));
-        }
-
-        public String getState() {
-            return state;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public String getInfo() {
-            return info;
-        }
-
-        public String getResult() {
-            return result;
-        }
-
-        public DomainPingConfiguration getConfig() {
-            return config;
-        }
-
-    }
 
     private User owner;
 
@@ -225,7 +182,7 @@ public class Domain implements IdCachable, Verifyable {
         return Collections.unmodifiableList(configs);
     }
 
-    public void addPing(PingType type, String config) throws GigiApiException {
+    public void addPing(DomainPingType type, String config) throws GigiApiException {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `pingconfig` SET `domainid`=?, `type`=?::`pingType`, `info`=?");
         ps.setInt(1, id);
         ps.setString(2, type.toString().toLowerCase());

@@ -11,7 +11,7 @@ import org.cacert.gigi.Gigi;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration;
-import org.cacert.gigi.dbObjects.DomainPingConfiguration.PingType;
+import org.cacert.gigi.dbObjects.DomainPingType;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
@@ -108,13 +108,13 @@ public class PingConfigForm extends Form {
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
         if (req.getParameter("emailType") != null) {
             String mail = AUTHORATIVE_EMAILS[Integer.parseInt(req.getParameter("email"))];
-            target.addPing(PingType.EMAIL, mail);
+            target.addPing(DomainPingType.EMAIL, mail);
         }
         if (req.getParameter("DNSType") != null) {
-            target.addPing(PingType.DNS, tokenName + ":" + tokenValue);
+            target.addPing(DomainPingType.DNS, tokenName + ":" + tokenValue);
         }
         if (req.getParameter("HTTPType") != null) {
-            target.addPing(PingType.HTTP, tokenName + ":" + tokenValue);
+            target.addPing(DomainPingType.HTTP, tokenName + ":" + tokenValue);
         }
         if (req.getParameter("SSLType") != null) {
             List<String> types = Arrays.asList(SSLPinger.TYPES);
@@ -126,9 +126,9 @@ public class PingConfigForm extends Form {
                 }
                 int portInt = Integer.parseInt(port);
                 if ("direct".equals(type)) {
-                    target.addPing(PingType.SSL, port);
+                    target.addPing(DomainPingType.SSL, port);
                 } else if (types.contains(type)) {
-                    target.addPing(PingType.SSL, portInt + ":" + type);
+                    target.addPing(DomainPingType.SSL, portInt + ":" + type);
                 }
 
             }
