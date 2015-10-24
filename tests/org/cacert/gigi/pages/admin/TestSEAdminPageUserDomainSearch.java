@@ -34,8 +34,7 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
         int id = createVerifiedUser("Först", "Secönd", mail, TEST_PASSWORD);
         User user = User.getById(id);
         String domainName = createUniqueName() + ".org";
-        Domain d = new Domain(user, domainName);
-        d.insert();
+        new Domain(user, domainName);
         URLConnection uc = new URL("https://" + getServerName() + FindDomainPage.PATH).openConnection();
         uc.addRequestProperty("Cookie", cookie);
         String csrf = getCSRF(uc, 0);
@@ -57,7 +56,6 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
         User user = User.getById(id);
         String domainName = createUniqueName() + ".org";
         Domain d = new Domain(user, domainName);
-        d.insert();
         URLConnection uc = new URL("https://" + getServerName() + FindDomainPage.PATH).openConnection();
         uc.addRequestProperty("Cookie", cookie);
         String csrf = getCSRF(uc, 0);

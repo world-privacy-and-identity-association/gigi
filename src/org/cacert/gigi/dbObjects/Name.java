@@ -3,10 +3,12 @@ package org.cacert.gigi.dbObjects;
 import java.io.PrintWriter;
 import java.util.Map;
 
+import org.cacert.gigi.dbObjects.wrappers.DataContainer;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.util.HTMLEncoder;
 
+@DataContainer
 public class Name implements Outputable {
 
     private final String fname;

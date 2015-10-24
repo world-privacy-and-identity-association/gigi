@@ -1,7 +1,9 @@
 package org.cacert.gigi.dbObjects;
 
 import org.cacert.gigi.database.GigiResultSet;
+import org.cacert.gigi.dbObjects.wrappers.DataContainer;
 
+@DataContainer
 public class Assurance {
 
     public enum AssuranceType {

@@ -53,7 +53,9 @@ public class Manager extends Page {
             f = EmailAddress.class.getDeclaredField("hash");
             f.setAccessible(true);
         } catch (ReflectiveOperationException e) {
-            throw new Error(e);
+            // TODO
+            System.out.println("I don't have 'hash', we are working probably in layered mode. Test Manager may not work.");
+            // throw new Error(e);
         }
     }
 
@@ -153,6 +155,10 @@ public class Manager extends Page {
         gc.set(1990, 0, 1);
         User u = new User(email, "xvXV12°§", new Name("Först", "Läst", "Müddle", "Süffix"), new Date(gc.getTime().getTime()), Locale.ENGLISH);
         EmailAddress ea = u.getEmails()[0];
+        if (f == null) {
+            System.out.println("verification failed");
+            return;
+        }
         String hash = (String) f.get(ea);
 
         ea.verify(hash);
@@ -209,9 +215,13 @@ public class Manager extends Page {
             User u = User.getByEmail(req.getParameter("addEmailEmail"));
             try {
                 EmailAddress ea = new EmailAddress(u, req.getParameter("addEmailNew"), Locale.ENGLISH);
-                String hash = (String) f.get(ea);
-                ea.verify(hash);
-                resp.getWriter().println("Email added and verified");
+                if (f != null) {
+                    String hash = (String) f.get(ea);
+                    ea.verify(hash);
+                    resp.getWriter().println("Email added and verified");
+                } else {
+                    resp.getWriter().println("Email added but verificatio failed.");
+                }
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
                 resp.getWriter().println("An internal error occured.");

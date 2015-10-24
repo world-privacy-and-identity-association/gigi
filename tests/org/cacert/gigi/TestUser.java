@@ -65,9 +65,9 @@ public class TestUser extends ManagedTest {
         User u = User.getById(id);
         new EmailAddress(u, uq + "b@email.org", Locale.ENGLISH);
         new EmailAddress(u, uq + "c@email.org", Locale.ENGLISH);
-        new Domain(u, uq + "a-testdomain.org").insert();
-        new Domain(u, uq + "b-testdomain.org").insert();
-        new Domain(u, uq + "c-testdomain.org").insert();
+        new Domain(u, uq + "a-testdomain.org");
+        new Domain(u, uq + "b-testdomain.org");
+        new Domain(u, uq + "c-testdomain.org");
         assertEquals(3, u.getEmails().length);
         assertEquals(3, u.getDomains().length);
         assertTrue(u.isValidDomain(uq + "a-testdomain.org"));

@@ -445,8 +445,13 @@ public class CertificateRequest {
         if ( !error.isEmpty()) {
             throw error;
         }
-        return new Certificate(u, subject, selectedDigest.toString(), //
-                this.csr, this.csrType, profile, SANs.toArray(new SubjectAlternateName[SANs.size()]));
+        try {
+            return new Certificate(u, subject, selectedDigest.toString(), //
+                    this.csr, this.csrType, profile, SANs.toArray(new SubjectAlternateName[SANs.size()]));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private String verifyName(GigiApiException error, PropertyTemplate nameTemp, PropertyTemplate wotUserTemp, String verifiedCN) {

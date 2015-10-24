@@ -14,8 +14,9 @@ public class ObjectCache<T extends IdCachable> {
         caches.add(this);
     }
 
-    public void put(T c) {
+    public T put(T c) {
         hashmap.put(c.getId(), new WeakReference<T>(c));
+        return c;
     }
 
     public T get(int id) {

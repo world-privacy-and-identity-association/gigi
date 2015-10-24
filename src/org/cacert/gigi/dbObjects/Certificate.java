@@ -23,7 +23,7 @@ import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.util.KeyStorage;
 import org.cacert.gigi.util.Notary;
 
-public class Certificate {
+public class Certificate implements IdCachable {
 
     public enum SANType {
         EMAIL("email"), DNS("DNS");
@@ -133,7 +133,7 @@ public class Certificate {
 
     private CACertificate ca;
 
-    public Certificate(User owner, HashMap<String, String> dn, String md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) throws GigiApiException {
+    public Certificate(User owner, HashMap<String, String> dn, String md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) throws GigiApiException, IOException {
         if ( !profile.canBeIssuedBy(owner)) {
             throw new GigiApiException("You are not allowed to issue these certificates.");
         }
@@ -148,6 +148,44 @@ public class Certificate {
         this.csrType = csrType;
         this.profile = profile;
         this.sans = Arrays.asList(sans);
+        synchronized (Certificate.class) {
+
+            GigiPreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO certs SET md=?::`mdType`, csr_type=?::`csrType`, crt_name='', memid=?, profile=?");
+            inserter.setString(1, md.toLowerCase());
+            inserter.setString(2, csrType.toString());
+            inserter.setInt(3, owner.getId());
+            inserter.setInt(4, profile.getId());
+            inserter.execute();
+            id = inserter.lastInsertId();
+
+            GigiPreparedStatement san = DatabaseConnection.getInstance().prepare("INSERT INTO `subjectAlternativeNames` SET `certId`=?, contents=?, type=?::`SANType`");
+            for (SubjectAlternateName subjectAlternateName : sans) {
+                san.setInt(1, id);
+                san.setString(2, subjectAlternateName.getName());
+                san.setString(3, subjectAlternateName.getType().getOpensslName());
+                san.execute();
+            }
+
+            GigiPreparedStatement insertAVA = DatabaseConnection.getInstance().prepare("INSERT INTO `certAvas` SET `certId`=?, name=?, value=?");
+            insertAVA.setInt(1, id);
+            for (Entry<String, String> e : dn.entrySet()) {
+                insertAVA.setString(2, e.getKey());
+                insertAVA.setString(3, e.getValue());
+                insertAVA.execute();
+            }
+            File csrFile = KeyStorage.locateCsr(id);
+            csrName = csrFile.getPath();
+            try (FileOutputStream fos = new FileOutputStream(csrFile)) {
+                fos.write(csr.getBytes("UTF-8"));
+            }
+
+            GigiPreparedStatement updater = DatabaseConnection.getInstance().prepare("UPDATE `certs` SET `csr_name`=? WHERE id=?");
+            updater.setString(1, csrName);
+            updater.setInt(2, id);
+            updater.execute();
+
+            cache.put(this);
+        }
     }
 
     private Certificate(GigiResultSet rs) {
@@ -246,39 +284,6 @@ public class Certificate {
         }
         Notary.writeUserAgreement(owner, "CCA", "issue certificate", "", true, 0);
 
-        GigiPreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO certs SET md=?::`mdType`, csr_type=?::`csrType`, crt_name='', memid=?, profile=?");
-        inserter.setString(1, md.toLowerCase());
-        inserter.setString(2, csrType.toString());
-        inserter.setInt(3, owner.getId());
-        inserter.setInt(4, profile.getId());
-        inserter.execute();
-        id = inserter.lastInsertId();
-
-        GigiPreparedStatement san = DatabaseConnection.getInstance().prepare("INSERT INTO `subjectAlternativeNames` SET `certId`=?, contents=?, type=?::`SANType`");
-        for (SubjectAlternateName subjectAlternateName : sans) {
-            san.setInt(1, id);
-            san.setString(2, subjectAlternateName.getName());
-            san.setString(3, subjectAlternateName.getType().getOpensslName());
-            san.execute();
-        }
-
-        GigiPreparedStatement insertAVA = DatabaseConnection.getInstance().prepare("INSERT INTO `certAvas` SET `certId`=?, name=?, value=?");
-        insertAVA.setInt(1, id);
-        for (Entry<String, String> e : dn.entrySet()) {
-            insertAVA.setString(2, e.getKey());
-            insertAVA.setString(3, e.getValue());
-            insertAVA.execute();
-        }
-        File csrFile = KeyStorage.locateCsr(id);
-        csrName = csrFile.getPath();
-        try (FileOutputStream fos = new FileOutputStream(csrFile)) {
-            fos.write(csr.getBytes("UTF-8"));
-        }
-
-        GigiPreparedStatement updater = DatabaseConnection.getInstance().prepare("UPDATE `certs` SET `csr_name`=? WHERE id=?");
-        updater.setString(1, csrName);
-        updater.setInt(2, id);
-        updater.execute();
         return Job.sign(this, start, period);
 
     }
@@ -352,33 +357,46 @@ public class Certificate {
         return profile;
     }
 
-    public static Certificate getBySerial(String serial) {
+    public synchronized static Certificate getBySerial(String serial) {
         if (serial == null || "".equals(serial)) {
             return null;
         }
-        // TODO caching?
         try {
             String concat = "string_agg(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')), '')";
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as `subject`, `md`, `csr_name`, `crt_name`,`memid`, `profile`, `certs`.`serial` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`");
             ps.setString(1, serial);
             GigiResultSet rs = ps.executeQuery();
-            return new Certificate(rs);
+            int id = rs.getInt(1);
+            Certificate c1 = cache.get(id);
+            if (c1 != null) {
+                return c1;
+            }
+            Certificate certificate = new Certificate(rs);
+            cache.put(certificate);
+            return certificate;
         } catch (IllegalArgumentException e) {
 
         }
         return null;
     }
 
-    public static Certificate getById(int id) {
+    private static ObjectCache<Certificate> cache = new ObjectCache<>();
 
-        // TODO caching?
+    public synchronized static Certificate getById(int id) {
+        Certificate cacheRes = cache.get(id);
+        if (cacheRes != null) {
+            return cacheRes;
+        }
+
         try {
             String concat = "string_agg(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')), '')";
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as subject, md, csr_name, crt_name,memid, profile, certs.serial FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=certs.id WHERE certs.id=? GROUP BY certs.id");
             ps.setInt(1, id);
             GigiResultSet rs = ps.executeQuery();
 
-            return new Certificate(rs);
+            Certificate c = new Certificate(rs);
+            cache.put(c);
+            return c;
         } catch (IllegalArgumentException e) {
 
         }

@@ -8,7 +8,7 @@ import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.output.CertificateValiditySelector;
 
-public class Job {
+public class Job implements IdCachable {
 
     private int id;
 
@@ -38,19 +38,19 @@ public class Job {
         ps.setDate(3, start);
         ps.setString(4, period);
         ps.execute();
-        return new Job(ps.lastInsertId());
+        return cache.put(new Job(ps.lastInsertId()));
     }
 
-    public static Job revoke(Certificate targetId) {
+    public synchronized static Job revoke(Certificate targetId) {
 
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `jobs` SET targetId=?, task=?::`jobType`");
         ps.setInt(1, targetId.getId());
         ps.setString(2, JobType.REVOKE.getName());
         ps.execute();
-        return new Job(ps.lastInsertId());
+        return cache.put(new Job(ps.lastInsertId()));
     }
 
-    public boolean waitFor(int max) throws InterruptedException {
+    public synchronized boolean waitFor(int max) throws InterruptedException {
         long start = System.currentTimeMillis();
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `jobs` WHERE id=? AND state='open'");
         ps.setInt(1, id);
@@ -65,5 +65,29 @@ public class Job {
         }
         rs.close();
         return true;
+    }
+
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    static ObjectCache<Job> cache = new ObjectCache<>();
+
+    public synchronized static Job getById(int id) {
+        Job i = cache.get(id);
+        if (i != null) {
+            return i;
+        }
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `jobs` WHERE id=?'");
+        ps.setInt(1, id);
+        GigiResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            Job j = new Job(id);
+            cache.put(j);
+            return j;
+        }
+        return null;
+
     }
 }

@@ -52,10 +52,12 @@ public class Domain implements IdCachable, Verifyable {
     }
 
     public Domain(User owner, String suffix) throws GigiApiException {
-        checkCertifyableDomain(suffix, owner.isInGroup(Group.CODESIGNING));
-        this.owner = owner;
-        this.suffix = suffix;
-
+        synchronized (Domain.class) {
+            checkCertifyableDomain(suffix, owner.isInGroup(Group.CODESIGNING));
+            this.owner = owner;
+            this.suffix = suffix;
+            insert();
+        }
     }
 
     public static void checkCertifyableDomain(String s, boolean hasPunycodeRight) throws GigiApiException {
@@ -126,19 +128,17 @@ public class Domain implements IdCachable, Verifyable {
         }
     }
 
-    public void insert() throws GigiApiException {
-        synchronized (Domain.class) {
-            if (id != 0) {
-                throw new GigiApiException("already inserted.");
-            }
-            checkInsert(suffix);
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `domains` SET memid=?, domain=?");
-            ps.setInt(1, owner.getId());
-            ps.setString(2, suffix);
-            ps.execute();
-            id = ps.lastInsertId();
-            myCache.put(this);
+    private void insert() throws GigiApiException {
+        if (id != 0) {
+            throw new GigiApiException("already inserted.");
         }
+        checkInsert(suffix);
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `domains` SET memid=?, domain=?");
+        ps.setInt(1, owner.getId());
+        ps.setString(2, suffix);
+        ps.execute();
+        id = ps.lastInsertId();
+        myCache.put(this);
     }
 
     public void delete() throws GigiApiException {
