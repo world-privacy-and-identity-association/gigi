@@ -50,6 +50,10 @@ public class GigiAPI extends HttpServlet {
         }
         String serial = LoginPage.extractSerialFormCert(cert);
         User u = LoginPage.fetchUserBySerial(serial);
+        if (u == null) {
+            resp.sendError(403, "Error, cert authing required.");
+            return;
+        }
 
         if (pi.equals("/account/certs/new")) {
 
