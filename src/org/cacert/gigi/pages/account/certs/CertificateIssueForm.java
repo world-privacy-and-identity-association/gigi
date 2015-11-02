@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,14 +13,15 @@ import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.SubjectAlternateName;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Organisation;
-import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.CertificateValiditySelector;
 import org.cacert.gigi.output.HashAlgorithms;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.RandomToken;
 
 /**
@@ -35,7 +34,7 @@ public class CertificateIssueForm extends Form {
 
     private final static Template tIni = new Template(CertificateAdd.class.getResource("RequestCertificate.templ"));
 
-    private User u;
+    private AuthorizationContext c;
 
     private String spkacChallenge;
 
@@ -43,7 +42,7 @@ public class CertificateIssueForm extends Form {
 
     public CertificateIssueForm(HttpServletRequest hsr) {
         super(hsr);
-        u = Page.getUser(hsr);
+        c = LoginPage.getAuthorizationContext(hsr);
         spkacChallenge = RandomToken.generateToken(16);
     }
 
@@ -64,10 +63,10 @@ public class CertificateIssueForm extends Form {
         try {
             try {
                 if (csr != null) {
-                    cr = new CertificateRequest(u, csr);
+                    cr = new CertificateRequest(c, csr);
                     cr.checkKeyStrength(out);
                 } else if (spkac != null) {
-                    cr = new CertificateRequest(u, spkac, spkacChallenge);
+                    cr = new CertificateRequest(c, spkac, spkacChallenge);
                     cr.checkKeyStrength(out);
                 } else if (cr != null) {
                     login = "1".equals(req.getParameter("login"));
@@ -93,7 +92,7 @@ public class CertificateIssueForm extends Form {
                         error.format(out, Page.getLanguage(req));
                         return false;
                     }
-                    result.issue(issueDate.getFrom(), issueDate.getTo()).waitFor(60000);
+                    result.issue(issueDate.getFrom(), issueDate.getTo(), c.getActor()).waitFor(60000);
                     this.result = result;
                     return true;
                 } else {
@@ -144,7 +143,10 @@ public class CertificateIssueForm extends Form {
         }
 
         vars2.put("CN", cr.getName());
-        vars2.put("department", cr.getOu());
+        if (c.getTarget() instanceof Organisation) {
+            vars2.put("orga", "true");
+            vars2.put("department", cr.getOu());
+        }
         vars2.put("validity", issueDate);
         vars2.put("emails", content.toString());
         vars2.put("hashs", new HashAlgorithms(cr.getSelectedDigest()));
@@ -160,7 +162,7 @@ public class CertificateIssueForm extends Form {
                     if (cp == null) {
                         return false;
                     }
-                } while ( !cp.canBeIssuedBy(u));
+                } while ( !cp.canBeIssuedBy(c.getTarget(), c.getActor()));
 
                 if (cp.getId() == cr.getProfile().getId()) {
                     vars.put("selected", " selected");
@@ -169,27 +171,6 @@ public class CertificateIssueForm extends Form {
                 }
                 vars.put("key", cp.getKeyName());
                 vars.put("name", cp.getVisibleName());
-                return true;
-            }
-        });
-        final List<Organisation> orgs = u.getOrganisations();
-        vars2.put("orga", orgs.size() == 0 ? null : new IterableDataset() {
-
-            Iterator<Organisation> iter = orgs.iterator();
-
-            @Override
-            public boolean next(Language l, Map<String, Object> vars) {
-                if ( !iter.hasNext()) {
-                    return false;
-                }
-                Organisation orga = iter.next();
-                vars.put("key", orga.getId());
-                vars.put("name", orga.getName());
-                if (orga == cr.getOrg()) {
-                    vars.put("selected", " selected");
-                } else {
-                    vars.put("selected", "");
-                }
                 return true;
             }
         });

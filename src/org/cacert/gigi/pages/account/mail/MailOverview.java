@@ -46,5 +46,4 @@ public class MailOverview extends Page {
         }
         super.doPost(req, resp);
     }
-
 }

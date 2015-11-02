@@ -568,6 +568,21 @@ public class SimpleSigner {
                     2, 5, 4, 11
             };
             break;
+        case "ST":
+            oid = new int[] {
+                    2, 5, 4, 8
+            };
+            break;
+        case "L":
+            oid = new int[] {
+                    2, 5, 4, 7
+            };
+            break;
+        case "C":
+            oid = new int[] {
+                    2, 5, 4, 6
+            };
+            break;
         default:
             throw new Error("unknown RDN-type: " + key);
         }

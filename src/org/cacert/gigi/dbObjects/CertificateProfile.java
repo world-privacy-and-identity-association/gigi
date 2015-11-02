@@ -237,18 +237,27 @@ public class CertificateProfile implements IdCachable {
         return byId.values().toArray(new CertificateProfile[byId.size()]);
     }
 
-    public boolean canBeIssuedBy(User u) {
+    public boolean canBeIssuedBy(CertificateOwner owner, User actor) {
+        if (pt.containsKey("orga")) {
+            if ( !(owner instanceof Organisation)) {
+                return false;
+            }
+        } else {
+            if (owner instanceof Organisation) {
+                return false;
+            }
+        }
         for (String s : req) {
             if (s.equals("points>=50")) {
-                if (u.getAssurancePoints() < 50) {
+                if (actor.getAssurancePoints() < 50) {
                     return false;
                 }
             } else if (s.equals("points>=100")) {
-                if (u.getAssurancePoints() < 100) {
+                if (actor.getAssurancePoints() < 100) {
                     return false;
                 }
             } else if (s.equals("codesign")) {
-                if (u.isInGroup(Group.CODESIGNING)) {
+                if (actor.isInGroup(Group.CODESIGNING)) {
                     return false;
                 }
             } else {

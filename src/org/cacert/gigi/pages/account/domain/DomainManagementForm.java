@@ -6,8 +6,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Domain;
-import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
@@ -19,9 +19,9 @@ public class DomainManagementForm extends Form {
 
     private static final Template t = new Template(DomainManagementForm.class.getResource("DomainManagementForm.templ"));
 
-    private User target;
+    private CertificateOwner target;
 
-    public DomainManagementForm(HttpServletRequest hsr, User target) {
+    public DomainManagementForm(HttpServletRequest hsr, CertificateOwner target) {
         super(hsr);
         this.target = target;
     }

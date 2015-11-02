@@ -185,8 +185,9 @@ public class TestSSL extends PingTest {
     private void createCertificate(String test, CertificateProfile profile) throws GeneralSecurityException, IOException, SQLException, InterruptedException, GigiApiException {
         kp = generateKeypair();
         String csr = generatePEMCSR(kp, "CN=" + test);
-        c = new Certificate(User.getById(id), Certificate.buildDN("CN", test), "sha256", csr, CSRType.CSR, profile);
-        c.issue(null, "2y").waitFor(60000);
+        User u = User.getById(id);
+        c = new Certificate(u, u, Certificate.buildDN("CN", test), "sha256", csr, CSRType.CSR, profile);
+        c.issue(null, "2y", u).waitFor(60000);
     }
 
     private boolean acceptSSLServer(SSLServerSocket sss) throws IOException {

@@ -20,6 +20,7 @@ import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.PasswordHash;
 
 public class LoginPage extends Page {
@@ -114,7 +115,15 @@ public class LoginPage extends Page {
     }
 
     public static User getUser(HttpServletRequest req) {
-        return (User) req.getSession().getAttribute(USER);
+        AuthorizationContext ac = getAuthorizationContext(req);
+        if (ac == null) {
+            return null;
+        }
+        return ac.getActor();
+    }
+
+    public static AuthorizationContext getAuthorizationContext(HttpServletRequest req) {
+        return ((AuthorizationContext) req.getSession().getAttribute(AUTH_CONTEXT));
     }
 
     private void tryAuthWithCertificate(HttpServletRequest req, X509Certificate x509Certificate) {
@@ -169,7 +178,7 @@ public class LoginPage extends Page {
         HttpSession hs = req.getSession();
         hs.setAttribute(LOGGEDIN, true);
         hs.setAttribute(Language.SESSION_ATTRIB_NAME, user.getPreferredLocale());
-        hs.setAttribute(USER, user);
+        hs.setAttribute(AUTH_CONTEXT, new AuthorizationContext(user, user));
     }
 
     @Override

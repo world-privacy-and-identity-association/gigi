@@ -7,9 +7,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 
 public class DomainOverview extends Page {
@@ -22,7 +24,7 @@ public class DomainOverview extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        User u = getUser(req);
+        CertificateOwner u = LoginPage.getAuthorizationContext(req).getTarget();
         String pi = req.getPathInfo();
         if (pi.length() - PATH.length() > 0) {
             int i = Integer.parseInt(pi.substring(PATH.length()));
@@ -48,11 +50,13 @@ public class DomainOverview extends Page {
         }
         try {
             DomainManagementForm domMan = new DomainManagementForm(req, u);
-            DomainAddForm domAdd = new DomainAddForm(req, u);
             HashMap<String, Object> vars = new HashMap<>();
             vars.put("doms", u.getDomains());
             vars.put("domainman", domMan);
-            vars.put("domainadd", domAdd);
+            if (u instanceof User) {
+                DomainAddForm domAdd = new DomainAddForm(req, (User) u);
+                vars.put("domainadd", domAdd);
+            }
             getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
         } catch (GigiApiException e) {
             e.format(resp.getWriter(), getLanguage(req));

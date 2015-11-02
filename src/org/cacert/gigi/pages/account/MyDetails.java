@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 
 public class MyDetails extends Page {
@@ -26,18 +27,27 @@ public class MyDetails extends Page {
         MyListingForm listingForm = new MyListingForm(req, getUser(req));
         map.put("detailsForm", form);
         map.put("contactMeForm", listingForm);
+        if (LoginPage.getUser(req).getOrganisations().size() != 0) {
+            map.put("orgaForm", new MyOrganisationsForm(req));
+        }
         getDefaultTemplate().output(out, getLanguage(req), map);
     }
 
     @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if(req.getParameter("processDetails") != null) {
+    public boolean beforeTemplate(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (req.getParameter("orgaForm") != null) {
+            Form.getForm(req, MyOrganisationsForm.class).submit(resp.getWriter(), req);
+        } else if (req.getParameter("processDetails") != null) {
             MyDetailsForm form = Form.getForm(req, MyDetailsForm.class);
             form.submit(resp.getWriter(), req);
         } else if (req.getParameter("processContact") != null) {
             MyListingForm form = Form.getForm(req, MyListingForm.class);
             form.submit(resp.getWriter(), req);
+        } else {
+            return false;
         }
-        super.doPost(req, resp);
+        resp.sendRedirect(PATH);
+        return true;
     }
+
 }

@@ -85,7 +85,7 @@ public class Certificates extends Page implements HandlesMixedRequest {
         String serial = pi;
         try {
             Certificate c = Certificate.getBySerial(serial);
-            if (c == null || getUser(req).getId() != c.getOwner().getId()) {
+            if (c == null || LoginPage.getAuthorizationContext(req).getTarget().getId() != c.getOwner().getId()) {
                 resp.sendError(404);
                 return true;
             }
@@ -142,7 +142,7 @@ public class Certificates extends Page implements HandlesMixedRequest {
 
             String serial = pi;
             Certificate c = Certificate.getBySerial(serial);
-            if (c == null || LoginPage.getUser(req).getId() != c.getOwner().getId()) {
+            if (c == null || LoginPage.getAuthorizationContext(req).getTarget().getId() != c.getOwner().getId()) {
                 resp.sendError(404);
                 return;
             }

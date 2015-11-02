@@ -30,9 +30,10 @@ public class TestSeparateSessionScope extends ManagedTest {
         String cookie = login(mail, TEST_PASSWORD);
         KeyPair kp = generateKeypair();
         String csr = generatePEMCSR(kp, "CN=hans");
-        Certificate c = new Certificate(User.getById(user), Certificate.buildDN("CN", "hans"), "sha256", csr, CSRType.CSR, CertificateProfile.getById(1));
+        User u = User.getById(user);
+        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "hans"), "sha256", csr, CSRType.CSR, CertificateProfile.getById(1));
         final PrivateKey pk = kp.getPrivate();
-        c.issue(null, "2y").waitFor(60000);
+        c.issue(null, "2y", u).waitFor(60000);
         final X509Certificate ce = c.cert();
         String scookie = login(pk, ce);
 
@@ -49,11 +50,12 @@ public class TestSeparateSessionScope extends ManagedTest {
         int user = createAssuranceUser("test", "tugo", mail, TEST_PASSWORD);
         KeyPair kp = generateKeypair();
         String csr = generatePEMCSR(kp, "CN=hans");
-        Certificate c = new Certificate(User.getById(user), Certificate.buildDN("CN", "hans"), "sha256", csr, CSRType.CSR, CertificateProfile.getById(1));
-        Certificate c2 = new Certificate(User.getById(user), Certificate.buildDN("CN", "hans"), "sha256", csr, CSRType.CSR, CertificateProfile.getById(1));
+        User u = User.getById(user);
+        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "hans"), "sha256", csr, CSRType.CSR, CertificateProfile.getById(1));
+        Certificate c2 = new Certificate(u, u, Certificate.buildDN("CN", "hans"), "sha256", csr, CSRType.CSR, CertificateProfile.getById(1));
         final PrivateKey pk = kp.getPrivate();
-        Job j1 = c.issue(null, "2y");
-        c2.issue(null, "2y").waitFor(60000);
+        Job j1 = c.issue(null, "2y", u);
+        c2.issue(null, "2y", u).waitFor(60000);
         j1.waitFor(60000);
         final X509Certificate ce = c.cert();
         String scookie = login(pk, ce);

@@ -28,9 +28,9 @@ public class IssueCert extends ClientTest {
     public void testIssueCert() throws Exception {
         KeyPair kp = generateKeypair();
         String key1 = generatePEMCSR(kp, "EMAIL=testmail@example.com");
-        Certificate c = new Certificate(u, Certificate.buildDN("EMAIL", "testmail@example.com"), "sha256", key1, CSRType.CSR, CertificateProfile.getById(1));
+        Certificate c = new Certificate(u, u, Certificate.buildDN("EMAIL", "testmail@example.com"), "sha256", key1, CSRType.CSR, CertificateProfile.getById(1));
         final PrivateKey pk = kp.getPrivate();
-        c.issue(null, "2y").waitFor(60000);
+        c.issue(null, "2y", u).waitFor(60000);
         final X509Certificate ce = c.cert();
         HttpURLConnection connection = (HttpURLConnection) new URL("https://" + getServerName().replaceFirst("^www.", "api.") + "/account/certs/new").openConnection();
         authenticateClientCert(pk, ce, connection);

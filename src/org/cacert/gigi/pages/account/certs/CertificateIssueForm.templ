@@ -24,19 +24,6 @@
     </select>
     </td>
   </tr>
-  <? if($orga) { ?>
-  <tr> 
-    <td>
-      <label for='org'><?=_Organisation?></label>
-    </td>  
-    <td><select name="org" id='org'>
-      <option value="-1"><?=_(none)?></option>
-    <? foreach($orga) { ?>
-      <option value="<?=$key?>"<?=$!selected?>><?=$name?></option>
-    <? } ?>
-    </select></td>
-  </tr>
-  <? } ?>
   <tr>
     <td>
     <label for='CN'><?=_Your name?></label>

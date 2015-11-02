@@ -7,8 +7,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Job;
-import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.CertificateIterable;
 import org.cacert.gigi.output.template.Form;
@@ -17,14 +17,14 @@ import org.cacert.gigi.pages.LoginPage;
 
 public class CertificateModificationForm extends Form {
 
-    User target;
+    CertificateOwner target;
 
     final boolean withRevoked;
 
     public CertificateModificationForm(HttpServletRequest hsr, boolean withRevoked) {
         super(hsr);
         this.withRevoked = withRevoked;
-        target = LoginPage.getUser(hsr);
+        target = LoginPage.getAuthorizationContext(hsr).getTarget();
     }
 
     private static final Template certTable = new Template(CertificateIterable.class.getResource("CertificateTable.templ"));

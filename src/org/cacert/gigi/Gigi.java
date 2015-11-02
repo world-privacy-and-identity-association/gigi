@@ -22,8 +22,10 @@ import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.dbObjects.CACertificate;
+import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration;
+import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Menu;
@@ -61,6 +63,7 @@ import org.cacert.gigi.pages.wot.AssurePage;
 import org.cacert.gigi.pages.wot.MyPoints;
 import org.cacert.gigi.pages.wot.RequestTTPPage;
 import org.cacert.gigi.ping.PingerDaemon;
+import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.ServerConstants;
 
 public class Gigi extends HttpServlet {
@@ -129,8 +132,8 @@ public class Gigi extends HttpServlet {
             putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
             putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Organisation Admin");
             putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Organisation Admin");
-            putPage(FindDomainPage.PATH, new FindDomainPage("Find Domain"), "System Admin");
             putPage(FindUserPage.PATH, new FindUserPage("Find User"), "System Admin");
+            putPage(FindDomainPage.PATH, new FindDomainPage("Find Domain"), "System Admin");
             putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage("Support: User Details"), null);
             if (testing) {
                 try {
@@ -187,7 +190,7 @@ public class Gigi extends HttpServlet {
 
     public static final String CERT_ISSUER = "org.cacert.gigi.issuer";
 
-    public static final String USER = "user";
+    public static final String AUTH_CONTEXT = "auth";
 
     public static final String LOGIN_METHOD = "org.cacert.gigi.loginMethod";
 
@@ -322,6 +325,7 @@ public class Gigi extends HttpServlet {
                 resp.sendRedirect("https://" + ServerConstants.getWwwHostNamePortSecure() + req.getPathInfo());
                 return;
             }
+            AuthorizationContext currentAuthContext = LoginPage.getAuthorizationContext(req);
             User currentPageUser = LoginPage.getUser(req);
             if ( !p.isPermitted(currentPageUser)) {
                 if (hs.getAttribute("loggedin") == null) {
@@ -372,7 +376,12 @@ public class Gigi extends HttpServlet {
             vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
             vars.put("content", content);
             if (currentPageUser != null) {
-                vars.put("loggedInAs", currentPageUser.getName().toString());
+                CertificateOwner target = currentAuthContext.getTarget();
+                if (target != currentPageUser) {
+                    vars.put("loggedInAs", ((Organisation) target).getName() + " (" + currentPageUser.getName().toString() + ")");
+                } else {
+                    vars.put("loggedInAs", currentPageUser.getName().toString());
+                }
                 vars.put("loginMethod", lang.getTranslation((String) req.getSession().getAttribute(LOGIN_METHOD)));
             }
             resp.setContentType("text/html; charset=utf-8");

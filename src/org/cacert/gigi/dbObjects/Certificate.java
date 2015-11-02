@@ -109,7 +109,7 @@ public class Certificate implements IdCachable {
 
     private int id;
 
-    private User owner;
+    private CertificateOwner owner;
 
     private String serial;
 
@@ -133,8 +133,8 @@ public class Certificate implements IdCachable {
 
     private CACertificate ca;
 
-    public Certificate(User owner, HashMap<String, String> dn, String md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) throws GigiApiException, IOException {
-        if ( !profile.canBeIssuedBy(owner)) {
+    public Certificate(CertificateOwner owner, User actor, HashMap<String, String> dn, String md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) throws GigiApiException, IOException {
+        if ( !profile.canBeIssuedBy(owner, actor)) {
             throw new GigiApiException("You are not allowed to issue these certificates.");
         }
         this.owner = owner;
@@ -189,16 +189,12 @@ public class Certificate implements IdCachable {
     }
 
     private Certificate(GigiResultSet rs) {
-        //
-        if ( !rs.next()) {
-            throw new IllegalArgumentException("Invalid mid " + serial);
-        }
         this.id = rs.getInt("id");
         dnString = rs.getString("subject");
         md = rs.getString("md");
         csrName = rs.getString("csr_name");
         crtName = rs.getString("crt_name");
-        owner = User.getById(rs.getInt("memid"));
+        owner = CertificateOwner.getById(rs.getInt("memid"));
         profile = CertificateProfile.getById(rs.getInt("profile"));
         this.serial = rs.getString("serial");
 
@@ -278,11 +274,11 @@ public class Certificate implements IdCachable {
      * @throws GigiApiException
      *             if the period is bogus
      */
-    public Job issue(Date start, String period) throws IOException, GigiApiException {
+    public Job issue(Date start, String period, User actor) throws IOException, GigiApiException {
         if (getStatus() != CertificateStatus.DRAFT) {
             throw new IllegalStateException();
         }
-        Notary.writeUserAgreement(owner, "CCA", "issue certificate", "", true, 0);
+        Notary.writeUserAgreement(actor, "CCA", "issue certificate", "", true, 0);
 
         return Job.sign(this, start, period);
 
@@ -345,7 +341,7 @@ public class Certificate implements IdCachable {
         return md;
     }
 
-    public User getOwner() {
+    public CertificateOwner getOwner() {
         return owner;
     }
 
@@ -366,6 +362,9 @@ public class Certificate implements IdCachable {
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as `subject`, `md`, `csr_name`, `crt_name`,`memid`, `profile`, `certs`.`serial` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`");
             ps.setString(1, serial);
             GigiResultSet rs = ps.executeQuery();
+            if ( !rs.next()) {
+                return null;
+            }
             int id = rs.getInt(1);
             Certificate c1 = cache.get(id);
             if (c1 != null) {
@@ -393,6 +392,9 @@ public class Certificate implements IdCachable {
             GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as subject, md, csr_name, crt_name,memid, profile, certs.serial FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=certs.id WHERE certs.id=? GROUP BY certs.id");
             ps.setInt(1, id);
             GigiResultSet rs = ps.executeQuery();
+            if ( !rs.next()) {
+                return null;
+            }
 
             Certificate c = new Certificate(rs);
             cache.put(c);

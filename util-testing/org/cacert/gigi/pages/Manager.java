@@ -37,6 +37,7 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.account.certs.CertificateRequest;
+import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.Notary;
 
 import sun.security.x509.X509Key;
@@ -243,10 +244,10 @@ public class Manager extends Page {
 
                 byte[] res = s.getEncoded(sign);
 
-                CertificateRequest cr = new CertificateRequest(u, Base64.getEncoder().encodeToString(res), "challange");
+                CertificateRequest cr = new CertificateRequest(new AuthorizationContext(u, u), Base64.getEncoder().encodeToString(res), "challange");
                 cr.update(CertificateRequest.DEFAULT_CN, Digest.SHA512.toString(), "client", null, "", "email:" + u.getEmail(), resp.getWriter(), req);
                 Certificate draft = cr.draft();
-                draft.issue(null, "2y").waitFor(10000);
+                draft.issue(null, "2y", u).waitFor(10000);
                 if (draft.getStatus() == CertificateStatus.ISSUED) {
                     resp.getWriter().println("added certificate");
                 } else {
