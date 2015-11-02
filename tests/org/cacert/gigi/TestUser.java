@@ -114,4 +114,19 @@ public class TestUser extends ManagedTest {
         assertSame(u, emailUser);
     }
 
+    @Test
+    public void testNoCats() {
+        String email = createUniqueName() + "a@email.org";
+        int id = createVerifiedUser("aä", "b", email, TEST_PASSWORD);
+        User emailUser = User.getByEmail(email);
+        assertFalse(emailUser.hasPassedCATS());
+    }
+
+    @Test
+    public void testGetByMailFail() {
+        String email = createUniqueName() + "d@email.org";
+        User emailUser = User.getByEmail(email);
+        assertNull(emailUser);
+    }
+
 }

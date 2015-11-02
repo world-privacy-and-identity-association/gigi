@@ -238,9 +238,6 @@ public class Certificate implements IdCachable {
     }
 
     public synchronized CertificateStatus getStatus() {
-        if (id == 0) {
-            return CertificateStatus.DRAFT;
-        }
         GigiPreparedStatement searcher = DatabaseConnection.getInstance().prepare("SELECT crt_name, created, revoked, serial, caid FROM certs WHERE id=?");
         searcher.setInt(1, id);
         GigiResultSet rs = searcher.executeQuery();
