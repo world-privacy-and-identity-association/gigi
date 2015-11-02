@@ -19,6 +19,7 @@ import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.Notary;
 
 public class AssurePage extends Page {
@@ -46,8 +47,8 @@ public class AssurePage extends Page {
     }
 
     @Override
-    public boolean isPermitted(User u) {
-        return u != null && u.canAssure();
+    public boolean isPermitted(AuthorizationContext ac) {
+        return ac != null && ac.getActor().canAssure();
     }
 
     private void outputForm(HttpServletRequest req, PrintWriter out, AssuranceForm form) {

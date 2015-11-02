@@ -3,8 +3,8 @@ package org.cacert.gigi.output;
 import java.io.PrintWriter;
 import java.util.Map;
 
-import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class SimpleMenuItem implements IMenuItem {
 
@@ -27,7 +27,7 @@ public class SimpleMenuItem implements IMenuItem {
     }
 
     @Override
-    public boolean isPermitted(User u) {
+    public boolean isPermitted(AuthorizationContext ac) {
         return true;
     }
 

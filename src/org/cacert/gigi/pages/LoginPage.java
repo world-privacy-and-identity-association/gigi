@@ -182,7 +182,7 @@ public class LoginPage extends Page {
     }
 
     @Override
-    public boolean isPermitted(User u) {
-        return u == null;
+    public boolean isPermitted(AuthorizationContext ac) {
+        return ac == null;
     }
 }

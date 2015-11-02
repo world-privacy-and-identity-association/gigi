@@ -1,7 +1,7 @@
 package org.cacert.gigi.output;
 
-import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.ServerConstants;
 
 public class PageMenuItem extends SimpleMenuItem {
@@ -14,7 +14,7 @@ public class PageMenuItem extends SimpleMenuItem {
     }
 
     @Override
-    public boolean isPermitted(User u) {
-        return p.isPermitted(u);
+    public boolean isPermitted(AuthorizationContext ac) {
+        return p.isPermitted(ac);
     }
 }

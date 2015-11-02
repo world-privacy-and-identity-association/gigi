@@ -17,6 +17,7 @@ import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.error.PageNotFound;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class TTPAdminPage extends Page {
 
@@ -87,7 +88,7 @@ public class TTPAdminPage extends Page {
     }
 
     @Override
-    public boolean isPermitted(User u) {
-        return u != null && u.isInGroup(Group.getByString("ttp-assurer"));
+    public boolean isPermitted(AuthorizationContext ac) {
+        return ac != null && ac.isInGroup(Group.getByString("ttp-assurer"));
     }
 }

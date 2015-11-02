@@ -110,8 +110,8 @@ public class Gigi extends HttpServlet {
             getMenu("CAcert.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePort() + "/login", "Certificate Login") {
 
                 @Override
-                public boolean isPermitted(User u) {
-                    return u == null;
+                public boolean isPermitted(AuthorizationContext ac) {
+                    return ac == null;
                 }
             });
             putPage("/", new MainPage("CAcert - Home"), null);
@@ -326,8 +326,7 @@ public class Gigi extends HttpServlet {
                 return;
             }
             AuthorizationContext currentAuthContext = LoginPage.getAuthorizationContext(req);
-            User currentPageUser = LoginPage.getUser(req);
-            if ( !p.isPermitted(currentPageUser)) {
+            if ( !p.isPermitted(currentAuthContext)) {
                 if (hs.getAttribute("loggedin") == null) {
                     String request = req.getPathInfo();
                     request = request.split("\\?")[0];
@@ -369,14 +368,15 @@ public class Gigi extends HttpServlet {
             };
             Language lang = Page.getLanguage(req);
 
-            vars.put(Menu.USER_VALUE, currentPageUser);
+            vars.put(Menu.AUTH_VALUE, currentAuthContext);
             vars.put("menu", rootMenu);
             vars.put("title", lang.getTranslation(p.getTitle()));
             vars.put("static", getStaticTemplateVar(isSecure));
             vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
             vars.put("content", content);
-            if (currentPageUser != null) {
+            if (currentAuthContext != null) {
                 CertificateOwner target = currentAuthContext.getTarget();
+                User currentPageUser = LoginPage.getUser(req);
                 if (target != currentPageUser) {
                     vars.put("loggedInAs", ((Organisation) target).getName() + " (" + currentPageUser.getName().toString() + ")");
                 } else {

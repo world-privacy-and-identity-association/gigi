@@ -1,10 +1,9 @@
 package org.cacert.gigi;
 
-import org.cacert.gigi.dbObjects.User;
-
+import org.cacert.gigi.util.AuthorizationContext;
 
 public interface PermissionCheckable {
 
-    public boolean isPermitted(User u);
+    public boolean isPermitted(AuthorizationContext u);
 
 }

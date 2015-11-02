@@ -23,7 +23,14 @@ public class AuthorizationContext {
         return actor;
     }
 
-    public boolean hasRight(Group g) {
+    public boolean isInGroup(Group g) {
         return actor.isInGroup(g);
+    }
+
+    public User getActor(AuthorizationContext ac) {
+        if (ac == null) {
+            return null;
+        }
+        return ac.getActor();
     }
 }

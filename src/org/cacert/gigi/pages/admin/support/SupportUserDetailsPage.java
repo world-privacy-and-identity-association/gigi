@@ -16,6 +16,7 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class SupportUserDetailsPage extends Page {
 
@@ -88,10 +89,7 @@ public class SupportUserDetailsPage extends Page {
     }
 
     @Override
-    public boolean isPermitted(User u) {
-        if (u == null) {
-            return false;
-        }
-        return u.isInGroup(Group.SUPPORTER);
+    public boolean isPermitted(AuthorizationContext ac) {
+        return ac != null && ac.isInGroup(Group.SUPPORTER);
     }
 }

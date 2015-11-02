@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.Gigi;
-import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class LogoutPage extends Page {
 
@@ -31,8 +31,8 @@ public class LogoutPage extends Page {
     }
 
     @Override
-    public boolean isPermitted(User u) {
-        return u != null;
+    public boolean isPermitted(AuthorizationContext ac) {
+        return ac != null;
     }
 
 }

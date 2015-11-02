@@ -1,9 +1,9 @@
 package org.cacert.gigi.pages.admin.support;
 
 import org.cacert.gigi.dbObjects.Group;
-import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.OneFormPage;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class FindDomainPage extends OneFormPage {
 
@@ -19,10 +19,7 @@ public class FindDomainPage extends OneFormPage {
     }
 
     @Override
-    public boolean isPermitted(User u) {
-        if (u == null) {
-            return false;
-        }
-        return u.isInGroup(Group.SUPPORTER);
+    public boolean isPermitted(AuthorizationContext ac) {
+        return ac != null && ac.isInGroup(Group.SUPPORTER);
     }
 }

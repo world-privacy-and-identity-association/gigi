@@ -4,12 +4,12 @@ import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class Menu implements IMenuItem {
 
-    public static final String USER_VALUE = "user";
+    public static final String AUTH_VALUE = "ac";
 
     private String menuName;
 
@@ -24,7 +24,7 @@ public class Menu implements IMenuItem {
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         boolean visible = false;
-        User u = (User) vars.get(USER_VALUE);
+        AuthorizationContext u = (AuthorizationContext) vars.get(AUTH_VALUE);
         for (IMenuItem mi : content) {
             if (mi.isPermitted(u)) {
                 if ( !visible) {
@@ -71,7 +71,7 @@ public class Menu implements IMenuItem {
     }
 
     @Override
-    public boolean isPermitted(User u) {
+    public boolean isPermitted(AuthorizationContext ac) {
         return true;
     }
 }

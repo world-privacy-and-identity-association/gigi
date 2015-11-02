@@ -8,9 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class RegisterPage extends Page {
 
@@ -56,7 +56,7 @@ public class RegisterPage extends Page {
     }
 
     @Override
-    public boolean isPermitted(User u) {
-        return u == null;
+    public boolean isPermitted(AuthorizationContext ac) {
+        return ac == null;
     }
 }

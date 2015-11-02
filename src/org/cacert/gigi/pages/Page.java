@@ -14,6 +14,7 @@ import org.cacert.gigi.PermissionCheckable;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.util.AuthorizationContext;
 
 /**
  * This class encapsulates a sub page of Gigi. A template residing nearby this
@@ -137,8 +138,8 @@ public abstract class Page implements PermissionCheckable {
     }
 
     @Override
-    public boolean isPermitted(User u) {
-        return !needsLogin() || u != null;
+    public boolean isPermitted(AuthorizationContext ac) {
+        return !needsLogin() || ac != null;
     }
 
 }

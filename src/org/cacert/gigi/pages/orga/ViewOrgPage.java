@@ -18,6 +18,7 @@ import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class ViewOrgPage extends Page {
 
@@ -32,8 +33,8 @@ public class ViewOrgPage extends Page {
     }
 
     @Override
-    public boolean isPermitted(User u) {
-        return u != null && (u.isInGroup(CreateOrgPage.ORG_ASSURER) || u.getOrganisations().size() != 0);
+    public boolean isPermitted(AuthorizationContext ac) {
+        return ac != null && (ac.isInGroup(CreateOrgPage.ORG_ASSURER) || ac.getActor().getOrganisations().size() != 0);
     }
 
     @Override

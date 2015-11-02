@@ -8,9 +8,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Group;
-import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class CreateOrgPage extends Page {
 
@@ -23,8 +23,8 @@ public class CreateOrgPage extends Page {
     }
 
     @Override
-    public boolean isPermitted(User u) {
-        return u != null && u.isInGroup(ORG_ASSURER);
+    public boolean isPermitted(AuthorizationContext ac) {
+        return ac != null && ac.isInGroup(ORG_ASSURER);
     }
 
     @Override
