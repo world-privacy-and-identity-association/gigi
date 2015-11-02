@@ -74,7 +74,9 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable {
         }
 
         public void verify() throws IOException {
-            String[] parts = extractLink().split("\\?");
+            String link = extractLink();
+            System.out.println(link);
+            String[] parts = link.split("\\?");
             URL u = new URL("https://" + ManagedTest.getServerName() + "/verify?" + parts[1]);
 
             URLConnection csrfConn = u.openConnection();

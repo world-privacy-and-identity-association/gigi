@@ -39,6 +39,8 @@ import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.database.SQLFileManager.ImportType;
+import org.cacert.gigi.dbObjects.Domain;
+import org.cacert.gigi.dbObjects.DomainPingType;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.ObjectCache;
@@ -479,6 +481,20 @@ public class ManagedTest extends ConfiguredTest {
     public static URLConnection cookie(URLConnection openConnection, String cookie) {
         openConnection.setRequestProperty("Cookie", cookie);
         return openConnection;
+    }
+
+    public static void verify(Domain d) {
+        try {
+            System.out.println(d.getId());
+            d.addPing(DomainPingType.EMAIL, "admin");
+            TestMail testMail = ter.receive();
+            testMail.verify();
+            assertTrue(d.isVerified());
+        } catch (GigiApiException e) {
+            throw new Error(e);
+        } catch (IOException e) {
+            throw new Error(e);
+        }
     }
 
 }

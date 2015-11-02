@@ -461,7 +461,7 @@ public class User extends CertificateOwner {
     public boolean isValidEmail(String email) {
         for (EmailAddress em : getEmails()) {
             if (em.getAddress().equals(email)) {
-                return true;
+                return em.isVerified();
             }
         }
 

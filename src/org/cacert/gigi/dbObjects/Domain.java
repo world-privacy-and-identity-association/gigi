@@ -192,7 +192,7 @@ public class Domain implements IdCachable, Verifyable {
     }
 
     public synchronized void verify(String hash) throws GigiApiException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `domainPinglog` SET `state`='success' WHERE `challenge`=? AND `configId` IN (SELECT `id` FROM `pingconfig` WHERE `domainid`=?)");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `domainPinglog` SET `state`='success' WHERE `challenge`=? AND `state`='open' AND `configId` IN (SELECT `id` FROM `pingconfig` WHERE `domainid`=? AND `type`='email')");
         ps.setString(1, hash);
         ps.setInt(2, id);
         ps.executeUpdate();

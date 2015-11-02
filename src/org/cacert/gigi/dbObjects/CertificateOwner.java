@@ -87,7 +87,7 @@ public abstract class CertificateOwner implements IdCachable {
         for (Domain d : getDomains()) {
             String sfx = d.getSuffix();
             if (domainname.equals(sfx) || domainname.endsWith("." + sfx)) {
-                return true;
+                return d.isVerified();
             }
         }
 

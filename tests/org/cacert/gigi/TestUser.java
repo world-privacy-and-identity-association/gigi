@@ -2,6 +2,7 @@ package org.cacert.gigi;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.Locale;
@@ -58,16 +59,18 @@ public class TestUser extends ManagedTest {
     }
 
     @Test
-    public void testMatcherMethods() throws SQLException, GigiApiException {
+    public void testMatcherMethods() throws SQLException, GigiApiException, IOException {
         String uq = createUniqueName();
         int id = createVerifiedUser("aä", "b", uq + "a@email.org", TEST_PASSWORD);
 
         User u = User.getById(id);
         new EmailAddress(u, uq + "b@email.org", Locale.ENGLISH);
+        getMailReciever().receive().verify();
         new EmailAddress(u, uq + "c@email.org", Locale.ENGLISH);
-        new Domain(u, uq + "a-testdomain.org");
-        new Domain(u, uq + "b-testdomain.org");
-        new Domain(u, uq + "c-testdomain.org");
+        getMailReciever().receive();// no-verify
+        verify(new Domain(u, uq + "a-testdomain.org"));
+        verify(new Domain(u, uq + "b-testdomain.org"));
+        verify(new Domain(u, uq + "c-testdomain.org"));
         assertEquals(3, u.getEmails().length);
         assertEquals(3, u.getDomains().length);
         assertTrue(u.isValidDomain(uq + "a-testdomain.org"));
@@ -82,6 +85,7 @@ public class TestUser extends ManagedTest {
         assertTrue(u.isValidEmail(uq + "b@email.org"));
         assertFalse(u.isValidEmail(uq + "b+6@email.org"));
         assertFalse(u.isValidEmail(uq + "b*@email.org"));
+        assertFalse(u.isValidEmail(uq + "c@email.org"));
 
         assertTrue(u.isValidName("aä b"));
         assertFalse(u.isValidName("aä c"));
