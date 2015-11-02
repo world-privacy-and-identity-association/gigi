@@ -37,12 +37,6 @@ public class MyDetails extends Page {
     public boolean beforeTemplate(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (req.getParameter("orgaForm") != null) {
             Form.getForm(req, MyOrganisationsForm.class).submit(resp.getWriter(), req);
-        } else if (req.getParameter("processDetails") != null) {
-            MyDetailsForm form = Form.getForm(req, MyDetailsForm.class);
-            form.submit(resp.getWriter(), req);
-        } else if (req.getParameter("processContact") != null) {
-            MyListingForm form = Form.getForm(req, MyListingForm.class);
-            form.submit(resp.getWriter(), req);
         } else {
             return false;
         }
@@ -50,4 +44,13 @@ public class MyDetails extends Page {
         return true;
     }
 
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (req.getParameter("processContact") != null) {
+            Form.getForm(req, MyListingForm.class).submit(resp.getWriter(), req);
+        } else if (req.getParameter("processDetails") != null) {
+            Form.getForm(req, MyDetailsForm.class).submit(resp.getWriter(), req);
+        }
+        super.doPost(req, resp);
+    }
 }
