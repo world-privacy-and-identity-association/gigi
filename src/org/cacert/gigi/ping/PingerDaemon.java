@@ -80,6 +80,7 @@ public class PingerDaemon extends Thread {
             try {
                 dp.ping(target, config, target.getOwner(), conf.getId());
             } catch (Throwable t) {
+                t.printStackTrace();
                 DomainPinger.enterPingResult(conf.getId(), "error", "exception", null);
             }
             System.err.println("done (" + System.currentTimeMillis() + ")");

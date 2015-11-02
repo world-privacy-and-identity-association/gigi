@@ -20,7 +20,6 @@ public class TestDomain extends ManagedTest {
     public void testDomain() throws InterruptedException, GigiApiException {
         assertEquals(0, us.getDomains().length);
         Domain d = new Domain(us, "v1example.org");
-        assertEquals(0, d.getId());
         Domain[] domains = us.getDomains();
         assertEquals(1, domains.length);
         assertEquals("v1example.org", domains[0].getSuffix());
@@ -30,7 +29,6 @@ public class TestDomain extends ManagedTest {
         assertEquals(d.getId(), domains[0].getId());
 
         Domain d2 = new Domain(us, "v2-example.org");
-        assertEquals(0, d2.getId());
 
         domains = us.getDomains();
         assertEquals(2, domains.length);
