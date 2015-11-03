@@ -1,7 +1,9 @@
 Before you start using you might want to:
 
-- create a keypair for the server (scripts/generateKeys.sh)
-- create a truststore for the server (scripts/generateTruststore.sh)
+- use cacert-nre to generate a roots structure
+- extract the gigi-*.tar.gz file into "config"
+- execute "generateTruststore.sh" there
+- extract the signer-server-*.tar.gz into "signer"
 
 - download locales (util/ org.cacert.gigi.util.FetchLocales)
 - write your sql connection properties: config/gigi.properties.template -> config/gigi.properties
