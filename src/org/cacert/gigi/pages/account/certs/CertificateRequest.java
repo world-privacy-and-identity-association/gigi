@@ -283,7 +283,7 @@ public class CertificateRequest {
         return name;
     }
 
-    public String getOu() {
+    public synchronized String getOu() {
         if (ctx.getTarget() instanceof Organisation) {
             return ou;
         }

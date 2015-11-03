@@ -28,7 +28,7 @@ public class TestDomain extends ManagedTest {
         assertNotEquals(0, d.getId());
         assertEquals(d.getId(), domains[0].getId());
 
-        Domain d2 = new Domain(us, "v2-example.org");
+        new Domain(us, "v2-example.org");
 
         domains = us.getDomains();
         assertEquals(2, domains.length);
@@ -48,9 +48,9 @@ public class TestDomain extends ManagedTest {
 
     @Test
     public void testDoubleDomain() throws InterruptedException, GigiApiException {
-        Domain d = new Domain(us, "dub-example.org");
+        new Domain(us, "dub-example.org");
         try {
-            Domain d2 = new Domain(us, "dub-example.org");
+            new Domain(us, "dub-example.org");
             fail("expected exception");
         } catch (GigiApiException e) {
             // expected
@@ -61,7 +61,7 @@ public class TestDomain extends ManagedTest {
     public void testDoubleDomainDelete() throws InterruptedException, GigiApiException {
         Domain d = new Domain(us, "delexample.org");
         d.delete();
-        Domain d2 = new Domain(us, "delexample.org");
+        new Domain(us, "delexample.org");
     }
 
 }

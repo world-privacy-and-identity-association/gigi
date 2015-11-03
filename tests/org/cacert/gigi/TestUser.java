@@ -121,7 +121,7 @@ public class TestUser extends ManagedTest {
     @Test
     public void testNoCats() {
         String email = createUniqueName() + "a@email.org";
-        int id = createVerifiedUser("aä", "b", email, TEST_PASSWORD);
+        createVerifiedUser("aä", "b", email, TEST_PASSWORD);
         User emailUser = User.getByEmail(email);
         assertFalse(emailUser.hasPassedCATS());
     }

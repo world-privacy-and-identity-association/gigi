@@ -30,7 +30,7 @@ public class Job implements IdCachable {
         }
     }
 
-    public static Job sign(Certificate targetId, Date start, String period) throws GigiApiException {
+    public synchronized static Job sign(Certificate targetId, Date start, String period) throws GigiApiException {
         CertificateValiditySelector.checkValidityLength(period);
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `jobs` SET targetId=?, task=?::`jobType`, executeFrom=?, executeTo=?");
         ps.setInt(1, targetId.getId());

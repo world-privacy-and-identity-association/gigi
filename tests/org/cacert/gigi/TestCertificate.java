@@ -75,6 +75,7 @@ public class TestCertificate extends ManagedTest {
         testFails(CertificateStatus.ISSUED, c);
 
         Certificate c2 = Certificate.getBySerial(c.getSerial());
+        assertNotNull(c2);
         assertEquals(2, c2.getSANs().size());
         assertEquals(c.getSANs().get(0).getName(), c2.getSANs().get(0).getName());
         assertEquals(c.getSANs().get(0).getType(), c2.getSANs().get(0).getType());
