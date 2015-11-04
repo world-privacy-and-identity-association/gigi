@@ -6,6 +6,7 @@ import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
@@ -22,6 +23,11 @@ import org.cacert.gigi.pages.HandlesMixedRequest;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.PEM;
+
+import sun.security.pkcs.ContentInfo;
+import sun.security.pkcs.PKCS7;
+import sun.security.pkcs.SignerInfo;
+import sun.security.x509.AlgorithmId;
 
 public class Certificates extends Page implements HandlesMixedRequest {
 
@@ -69,13 +75,13 @@ public class Certificates extends Page implements HandlesMixedRequest {
         boolean crt = false;
         boolean cer = false;
         resp.setContentType("application/pkix-cert");
+        if (req.getParameter("install") != null) {
+            resp.setContentType("application/x-x509-user-cert");
+        }
         if (pi.endsWith(".crt")) {
             crt = true;
             pi = pi.substring(0, pi.length() - 4);
         } else if (pi.endsWith(".cer")) {
-            if (req.getParameter("install") != null) {
-                resp.setContentType("application/x-x509-user-cert");
-            }
             cer = true;
             pi = pi.substring(0, pi.length() - 4);
         } else if (pi.endsWith(".cer")) {
@@ -107,7 +113,17 @@ public class Certificates extends Page implements HandlesMixedRequest {
                     }
                 }
             } else if (cer) {
-                out.write(cert.getEncoded());
+                if (req.getParameter("install") != null) {
+                    PKCS7 p7 = toP7Chain(c);
+                    p7.encodeSignedData(out);
+                    /*
+                     * ContentInfo ci = toCIChain(c); try (DerOutputStream dos =
+                     * new DerOutputStream()) { ci.encode(dos);
+                     * out.write(dos.toByteArray()); }
+                     */
+                } else {
+                    out.write(cert.getEncoded());
+                }
             }
         } catch (IllegalArgumentException e) {
             resp.sendError(404);
@@ -118,6 +134,24 @@ public class Certificates extends Page implements HandlesMixedRequest {
         }
 
         return true;
+    }
+
+    private static PKCS7 toP7Chain(Certificate c) throws IOException, GeneralSecurityException {
+        LinkedList<X509Certificate> ll = getChain(c);
+        PKCS7 p7 = new PKCS7(new AlgorithmId[0], new ContentInfo(ContentInfo.DATA_OID, null), ll.toArray(new X509Certificate[ll.size()]), new SignerInfo[0]);
+        return p7;
+    }
+
+    private static LinkedList<X509Certificate> getChain(Certificate c) throws IOException, GeneralSecurityException {
+        LinkedList<X509Certificate> ll = new LinkedList<>();
+        ll.add(c.cert());
+        CACertificate ca = c.getParent();
+        while ( !ca.isSelfsigned()) {
+            ll.add(ca.getCertificate());
+            ca = ca.getParent();
+        }
+        ll.add(ca.getCertificate());
+        return ll;
     }
 
     @Override
