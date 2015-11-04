@@ -38,6 +38,7 @@ import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.util.PEM;
 import org.junit.Test;
 
+import sun.security.pkcs.PKCS7;
 import sun.security.pkcs.PKCS9Attribute;
 import sun.security.pkcs10.PKCS10Attribute;
 import sun.security.pkcs10.PKCS10Attributes;
@@ -139,8 +140,10 @@ public class TestCertificateAdd extends ClientTest {
         assertArrayEquals(cer, PEM.decode("CERTIFICATE", crt));
 
         uc = authenticate(new URL(huc.getHeaderField("Location") + ".cer?install"));
-        byte[] cer2 = IOUtils.readURL(uc.getInputStream());
-        assertArrayEquals(cer, cer2);
+        byte[] pkcs7 = IOUtils.readURL(uc.getInputStream());
+        PKCS7 p7 = new PKCS7(pkcs7);
+        byte[] sub = verifyChain(p7.getCertificates());
+        assertArrayEquals(cer, sub);
         assertEquals("application/x-x509-user-cert", uc.getHeaderField("Content-type"));
 
         uc = authenticate(new URL(huc.getHeaderField("Location")));
@@ -150,6 +153,35 @@ public class TestCertificateAdd extends ClientTest {
         assertThat(gui, containsString("SHA512withRSA"));
         assertThat(gui, containsString("RFC822Name: " + email));
 
+    }
+
+    private byte[] verifyChain(X509Certificate[] x509Certificates) throws GeneralSecurityException {
+        X509Certificate current = null;
+        nextCert:
+        while (true) {
+            for (int i = 0; i < x509Certificates.length; i++) {
+                X509Certificate cert = x509Certificates[i];
+                if (current == null) {
+                    if (cert.getSubjectX500Principal().equals(cert.getIssuerX500Principal())) {
+                        current = cert;
+                        continue nextCert;
+                    }
+                } else {
+                    if (cert.getSubjectX500Principal().equals(cert.getIssuerX500Principal())) {
+                        continue;
+                    }
+                    if (current.getSubjectX500Principal().equals(cert.getIssuerX500Principal())) {
+                        Signature s = Signature.getInstance(cert.getSigAlgName());
+                        s.initVerify(current.getPublicKey());
+                        s.update(cert.getTBSCertificate());
+                        assertTrue(s.verify(cert.getSignature()));
+                        current = cert;
+                        continue nextCert;
+                    }
+                }
+            }
+            return current.getEncoded();
+        }
     }
 
     @Test
