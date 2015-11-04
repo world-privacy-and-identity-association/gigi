@@ -126,7 +126,9 @@ public class CertificateProfile implements IdCachable {
 
     private CertificateProfile(File f) throws IOException {
         Properties p = new Properties();
-        p.load(new FileInputStream(f));
+        try (FileInputStream inStream = new FileInputStream(f)) {
+            p.load(inStream);
+        }
         String[] parts = f.getName().split("\\.")[0].split("-", 2);
         id = Integer.parseInt(parts[0]);
         keyName = parts[1];
@@ -181,8 +183,8 @@ public class CertificateProfile implements IdCachable {
 
         for (File f : new File("config/profiles").listFiles()) {
             Properties p = new Properties();
-            try {
-                p.load(new FileInputStream(f));
+            try (FileInputStream inStream = new FileInputStream(f)) {
+                p.load(inStream);
             } catch (IOException e) {
                 throw new Error("Unable to load profile from " + f.getName(), e);
             }
