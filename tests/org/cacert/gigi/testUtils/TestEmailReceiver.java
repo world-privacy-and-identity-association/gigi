@@ -75,7 +75,6 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable {
 
         public void verify() throws IOException {
             String link = extractLink();
-            System.out.println(link);
             String[] parts = link.split("\\?");
             URL u = new URL("https://" + ManagedTest.getServerName() + "/verify?" + parts[1]);
 
