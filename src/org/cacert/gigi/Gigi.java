@@ -106,7 +106,14 @@ public class Gigi extends HttpServlet {
         public Menu generateMenu() throws ServletException {
             putPage("/denied", new AccessDenied(), null);
             putPage("/error", new PageNotFound(), null);
-            putPage("/login", new LoginPage("Password Login"), "CAcert.org");
+            putPage("/login", new LoginPage("Password Login"), null);
+            getMenu("CAcert.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getWwwHostNamePort() + "/login", "Password Login") {
+
+                @Override
+                public boolean isPermitted(AuthorizationContext ac) {
+                    return ac == null;
+                }
+            });
             getMenu("CAcert.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePort() + "/login", "Certificate Login") {
 
                 @Override

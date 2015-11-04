@@ -22,6 +22,7 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.PasswordHash;
+import org.cacert.gigi.util.ServerConstants;
 
 public class LoginPage extends Page {
 
@@ -52,7 +53,11 @@ public class LoginPage extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        new LoginForm(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+        if (req.getHeader("Host").equals(ServerConstants.getSecureHostNamePort())) {
+            resp.getWriter().println(getLanguage(req).getTranslation("Authentication with certificate failed. Try another certificate or use a password."));
+        } else {
+            new LoginForm(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+        }
     }
 
     @Override
