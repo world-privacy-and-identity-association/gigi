@@ -34,7 +34,7 @@ public abstract class EmailProvider {
 
     private PrivateKey k;
 
-    protected final void init(Certificate c, Key k) {
+    protected void init(Certificate c, Key k) {
         this.c = (X509Certificate) c;
         this.k = (PrivateKey) k;
     }

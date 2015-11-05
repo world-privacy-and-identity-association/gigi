@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.security.Key;
+import java.security.cert.Certificate;
 import java.util.Properties;
 
 /**
@@ -22,7 +25,18 @@ public class TestEmailProvider extends EmailProvider {
 
     private DataInputStream in;
 
+    private EmailProvider target;
+
     protected TestEmailProvider(Properties props) {
+        try {
+            String name = props.getProperty("emailProvider.test.target");
+            if (name != null) {
+                Class<?> c = Class.forName(name);
+                target = (EmailProvider) c.getDeclaredConstructor(Properties.class).newInstance(props);
+            }
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
         try {
             servs = new ServerSocket(Integer.parseInt(props.getProperty("emailProvider.port")), 10, InetAddress.getByName("127.0.0.1"));
         } catch (IOException e) {
@@ -33,8 +47,14 @@ public class TestEmailProvider extends EmailProvider {
     @Override
     public synchronized void sendmail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
         while (true) {
-            assureLocalConnection();
+            if ( !assureLocalConnection() && target != null) {
+                target.sendmail(to, subject, message, from, replyto, toname, fromname, errorsto, extra);
+                return;
+            }
             try {
+                if (out == null) {
+                    continue;
+                }
                 out.writeUTF("mail");
                 write(to);
                 write(subject);
@@ -49,7 +69,7 @@ public class TestEmailProvider extends EmailProvider {
         }
     }
 
-    private void assureLocalConnection() throws IOException {
+    private boolean assureLocalConnection() throws IOException {
         if (out != null) {
             try {
                 out.writeUTF("ping");
@@ -58,16 +78,24 @@ public class TestEmailProvider extends EmailProvider {
             }
         }
         if (client == null || client.isClosed()) {
-            client = servs.accept();
+            servs.setSoTimeout(2000);
+            try {
+                client = servs.accept();
+            } catch (SocketTimeoutException e) {
+                return false;
+            }
             out = new DataOutputStream(client.getOutputStream());
             in = new DataInputStream(client.getInputStream());
         }
+        return true;
     }
 
     @Override
     public synchronized String checkEmailServer(int forUid, String address) throws IOException {
         while (true) {
-            assureLocalConnection();
+            if ( !assureLocalConnection() && target != null) {
+                return checkEmailServer(forUid, address);
+            }
             try {
                 out.writeUTF("challengeAddrBox");
                 out.writeUTF(address);
@@ -86,4 +114,11 @@ public class TestEmailProvider extends EmailProvider {
         }
     }
 
+    @Override
+    protected void init(Certificate c, Key k) {
+        super.init(c, k);
+        if (target != null) {
+            target.init(c, k);
+        }
+    }
 }
