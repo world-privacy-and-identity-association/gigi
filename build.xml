@@ -219,6 +219,8 @@
 		</junitreport>
 	</target>
 	<target name="generatecoco">
+		<delete file="merged.exec"/>
+
 		<jacoco:merge destfile="merged.exec">
 			<fileset dir="." includes="*.exec"/>
 		</jacoco:merge>
