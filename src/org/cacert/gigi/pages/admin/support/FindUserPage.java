@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
@@ -67,7 +66,7 @@ public class FindUserPage extends Page {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && ac.isInGroup(Group.SUPPORTER);
+        return ac != null && ac.canSupport();
     }
 
 }

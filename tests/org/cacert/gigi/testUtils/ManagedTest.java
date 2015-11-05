@@ -452,6 +452,12 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     public static String executeBasicWebInteraction(String cookie, String path, String query, int formIndex) throws IOException, MalformedURLException, UnsupportedEncodingException {
+        URLConnection uc = post(cookie, path, query, formIndex);
+        String error = fetchStartErrorMessage(IOUtils.readURL(uc));
+        return error;
+    }
+
+    public static HttpURLConnection post(String cookie, String path, String query, int formIndex) throws IOException, MalformedURLException, UnsupportedEncodingException {
         URLConnection uc = new URL("https://" + getServerName() + path).openConnection();
         uc.addRequestProperty("Cookie", cookie);
         String csrf = getCSRF(uc, formIndex);
@@ -464,8 +470,7 @@ public class ManagedTest extends ConfiguredTest {
         + query//
         ).getBytes("UTF-8"));
         os.flush();
-        String error = fetchStartErrorMessage(IOUtils.readURL(uc));
-        return error;
+        return (HttpURLConnection) uc;
     }
 
     public static EmailAddress createVerifiedEmail(User u) throws InterruptedException, GigiApiException {

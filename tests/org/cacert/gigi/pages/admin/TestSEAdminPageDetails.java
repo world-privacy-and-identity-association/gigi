@@ -1,5 +1,6 @@
 package org.cacert.gigi.pages.admin;
 
+import static org.cacert.gigi.testUtils.ManagedTest.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
@@ -9,6 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import org.cacert.gigi.dbObjects.Group;
+import org.cacert.gigi.pages.admin.support.SupportEnterTicketPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
 import org.cacert.gigi.testUtils.ClientTest;
 import org.cacert.gigi.testUtils.IOUtils;
@@ -18,6 +20,7 @@ public class TestSEAdminPageDetails extends ClientTest {
 
     public TestSEAdminPageDetails() throws IOException {
         grant(email, Group.SUPPORTER);
+        assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
     }
 
     @Test

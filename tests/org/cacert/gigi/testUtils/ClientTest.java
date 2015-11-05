@@ -1,6 +1,9 @@
 package org.cacert.gigi.testUtils;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 
 import org.cacert.gigi.dbObjects.User;
 
@@ -37,4 +40,23 @@ public abstract class ClientTest extends ManagedTest {
             throw new Error(e);
         }
     }
+
+    public HttpURLConnection post(String path, String query) throws IOException {
+        return post(path, query, 0);
+    }
+
+    public HttpURLConnection post(String path, String query, int formIndex) throws IOException {
+        return post(cookie, path, query, formIndex);
+    }
+
+    public HttpURLConnection get(String path) throws IOException {
+        return get(path, 0);
+    }
+
+    public HttpURLConnection get(String path, int formIndex) throws IOException {
+        URLConnection uc = new URL("https://" + getServerName() + path).openConnection();
+        uc.addRequestProperty("Cookie", cookie);
+        return (HttpURLConnection) uc;
+    }
+
 }

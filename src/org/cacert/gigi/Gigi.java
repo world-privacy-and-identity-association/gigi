@@ -22,11 +22,8 @@ import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.dbObjects.CACertificate;
-import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration;
-import org.cacert.gigi.dbObjects.Organisation;
-import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Menu;
 import org.cacert.gigi.output.PageMenuItem;
@@ -53,7 +50,9 @@ import org.cacert.gigi.pages.account.mail.MailOverview;
 import org.cacert.gigi.pages.admin.TTPAdminPage;
 import org.cacert.gigi.pages.admin.support.FindDomainPage;
 import org.cacert.gigi.pages.admin.support.FindUserPage;
+import org.cacert.gigi.pages.admin.support.SupportEnterTicketPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
+import org.cacert.gigi.pages.admin.support.SupportUserHistory;
 import org.cacert.gigi.pages.error.AccessDenied;
 import org.cacert.gigi.pages.error.PageNotFound;
 import org.cacert.gigi.pages.main.RegisterPage;
@@ -141,7 +140,9 @@ public class Gigi extends HttpServlet {
             putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Organisation Admin");
             putPage(FindUserPage.PATH, new FindUserPage("Find User"), "System Admin");
             putPage(FindDomainPage.PATH, new FindDomainPage("Find Domain"), "System Admin");
+            putPage(SupportEnterTicketPage.PATH, new SupportEnterTicketPage(), "System Admin");
             putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage("Support: User Details"), null);
+            putPage(SupportUserHistory.PATH, new SupportUserHistory(), null);
             if (testing) {
                 try {
                     Class<?> manager = Class.forName("org.cacert.gigi.pages.Manager");
@@ -264,17 +265,20 @@ public class Gigi extends HttpServlet {
             return page;
         }
         int idx = pathInfo.lastIndexOf('/');
+        if (idx == -1 || idx == 0) {
+            return null;
+        }
 
         page = pages.get(pathInfo.substring(0, idx) + "/*");
         if (page != null) {
             return page;
         }
-
-        int lIdx = pathInfo.lastIndexOf('/', idx);
+        int lIdx = pathInfo.lastIndexOf('/', idx - 1);
         if (lIdx == -1) {
             return null;
         }
-        page = pages.get(pathInfo.substring(0, lIdx) + "/" + pathInfo.substring(idx));
+        String lastResort = pathInfo.substring(0, lIdx) + "/*" + pathInfo.substring(idx);
+        page = pages.get(lastResort);
         return page;
 
     }
@@ -382,14 +386,10 @@ public class Gigi extends HttpServlet {
             vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
             vars.put("content", content);
             if (currentAuthContext != null) {
-                CertificateOwner target = currentAuthContext.getTarget();
-                User currentPageUser = LoginPage.getUser(req);
-                if (target != currentPageUser) {
-                    vars.put("loggedInAs", ((Organisation) target).getName() + " (" + currentPageUser.getName().toString() + ")");
-                } else {
-                    vars.put("loggedInAs", currentPageUser.getName().toString());
-                }
+                // TODO maybe move this information into the AuthContext object
                 vars.put("loginMethod", lang.getTranslation((String) req.getSession().getAttribute(LOGIN_METHOD)));
+                vars.put("authContext", currentAuthContext);
+
             }
             resp.setContentType("text/html; charset=utf-8");
             baseTemplate.output(resp.getWriter(), lang, vars);

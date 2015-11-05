@@ -16,6 +16,7 @@ import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.admin.support.FindDomainPage;
+import org.cacert.gigi.pages.admin.support.SupportEnterTicketPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
 import org.cacert.gigi.testUtils.ClientTest;
 import org.cacert.gigi.testUtils.IOUtils;
@@ -26,6 +27,7 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
 
     public TestSEAdminPageUserDomainSearch() throws IOException {
         grant(email, Group.SUPPORTER);
+        assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
     }
 
     @Test

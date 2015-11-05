@@ -9,12 +9,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.EmailAddress;
-import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.SupportedUser;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
+import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.AuthorizationContext;
 
@@ -36,11 +36,10 @@ public class SupportUserDetailsPage extends Page {
             resp.sendError(404);
         }
         final User user = User.getById(id);
-        String ticket = (String) req.getSession().getAttribute("ticketNo" + user.getId());
-        SupportUserDetailsForm f = new SupportUserDetailsForm(req, new SupportedUser(user, getUser(req), ticket));
+        SupportedUser targetUser = new SupportedUser(user, getUser(req), LoginPage.getAuthorizationContext(req).getSupporterTicketId());
+        SupportUserDetailsForm f = new SupportUserDetailsForm(req, targetUser);
         HashMap<String, Object> vars = new HashMap<String, Object>();
         vars.put("details", f);
-        vars.put("ticketNo", ticket);
         final EmailAddress[] addrs = user.getEmails();
         vars.put("emails", new IterableDataset() {
 
@@ -59,20 +58,14 @@ public class SupportUserDetailsPage extends Page {
                 return true;
             }
         });
-        vars.put("certifrevoke", new SupportRevokeCertificatesForm(req, new SupportedUser(user, getUser(req), ticket)));
-        vars.put("tickethandling", new SupportEnterTicketForm(req, user));
+        vars.put("certifrevoke", new SupportRevokeCertificatesForm(req, targetUser));
         getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
     }
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            if (req.getParameter("setTicket") != null) {
-
-                if ( !Form.getForm(req, SupportEnterTicketForm.class).submit(resp.getWriter(), req)) {
-                    throw new GigiApiException("Invalid ticket number!");
-                }
-            } else if (req.getParameter("revokeall") != null) {
+            if (req.getParameter("revokeall") != null) {
                 if ( !Form.getForm(req, SupportRevokeCertificatesForm.class).submit(resp.getWriter(), req)) {
                     throw new GigiApiException("No ticket number set.");
                 }
@@ -90,6 +83,6 @@ public class SupportUserDetailsPage extends Page {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && ac.isInGroup(Group.SUPPORTER);
+        return ac != null && ac.canSupport();
     }
 }

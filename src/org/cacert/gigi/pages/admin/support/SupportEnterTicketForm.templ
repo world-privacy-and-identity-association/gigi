@@ -9,4 +9,9 @@
         <tr>
             <td colspan="2"><input type="submit" name="setTicket" value="<?=_Set ticket number?>"></td>
         </tr>
+<? if($ticketNo) {?>
+        <tr>
+            <td colspan="2"><input type="submit" name="deleteTicket" value="<?=_End working on ticket?>"></td>
+        </tr>
+<? } ?>
 </table>
