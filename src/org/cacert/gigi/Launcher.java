@@ -69,7 +69,6 @@ public class Launcher {
             String proto = httpFields.getStringField("X-Real-Proto");
             String cert = httpFields.getStringField("X-Client-Cert");
             request.setSecure("https".equals(proto));
-            System.out.println(request.isSecure());
             request.setScheme(proto);
             if ( !"https".equals(proto)) {
                 cert = null;

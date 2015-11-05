@@ -14,9 +14,10 @@ public class PEM {
     }
 
     public static byte[] decode(String type, String data) {
-        data = data.replaceAll("-----BEGIN " + type + "-----", "").replace("\n", "").replace("\r", "");
+        data = data.replaceAll("-----BEGIN " + type + "-----", "");
         // Remove the first and last lines
         data = data.replaceAll("-----END " + type + "-----", "");
+        data = data.replace("\n", "").replace("\r", "").replace(" ", "").replace("\t", "");
         // Base64 decode the data
         return Base64.getDecoder().decode(data);
 
