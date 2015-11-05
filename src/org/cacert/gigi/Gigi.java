@@ -293,7 +293,7 @@ public class Gigi extends HttpServlet {
 
     @Override
     protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-        boolean isSecure = req.getServerPort() == ServerConstants.getSecurePort();
+        boolean isSecure = req.isSecure();
         addXSSHeaders(resp, isSecure);
         // Firefox only sends this, if it's a cross domain access; safari sends
         // it always

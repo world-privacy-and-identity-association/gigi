@@ -14,6 +14,11 @@ public class TestSecure extends Page {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.getWriter().println("This page is secure.");
+        Object attribute = req.getAttribute("javax.servlet.request.X509Certificate");
+        resp.getWriter().println(attribute);
+        if (attribute != null) {
+            resp.getWriter().println(((Object[]) attribute).length);
+        }
     }
 
 }

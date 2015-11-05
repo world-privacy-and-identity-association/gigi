@@ -1,6 +1,8 @@
 package org.cacert.gigi;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyStore;
@@ -8,6 +10,9 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -25,13 +30,17 @@ import org.cacert.gigi.api.GigiAPI;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.natives.SetUID;
 import org.cacert.gigi.util.CipherInfo;
+import org.cacert.gigi.util.PEM;
 import org.cacert.gigi.util.ServerConstants;
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConfiguration.Customizer;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -49,6 +58,41 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class Launcher {
+
+    class ExtendedForwarded implements Customizer {
+
+        @Override
+        public void customize(Connector connector, HttpConfiguration config, Request request) {
+            HttpFields httpFields = request.getHttpFields();
+
+            String ip = httpFields.getStringField("X-Real-IP");
+            String proto = httpFields.getStringField("X-Real-Proto");
+            String cert = httpFields.getStringField("X-Client-Cert");
+            request.setSecure("https".equals(proto));
+            System.out.println(request.isSecure());
+            request.setScheme(proto);
+            if ( !"https".equals(proto)) {
+                cert = null;
+
+            }
+            if (cert != null) {
+                X509Certificate[] certs = new X509Certificate[1];
+                try {
+                    certs[0] = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(PEM.decode("CERTIFICATE", cert)));
+                    request.setAttribute("javax.servlet.request.X509Certificate", certs);
+                } catch (CertificateException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (ip != null) {
+                String[] parts = ip.split(":");
+                if (parts.length == 2) {
+                    request.setRemoteAddr(InetSocketAddress.createUnresolved(parts[0], Integer.parseInt(parts[1])));
+                }
+            }
+
+        }
+    }
 
     public static void main(String[] args) throws Exception {
         System.setProperty("jdk.tls.ephemeralDHKeySize", "4096");
@@ -90,13 +134,20 @@ public class Launcher {
     }
 
     private void initConnectors() throws GeneralSecurityException, IOException {
-        HttpConfiguration httpsConfig = createHttpConfiguration();
-        // for client-cert auth
-        httpsConfig.addCustomizer(new SecureRequestCustomizer());
         HttpConfiguration httpConfig = createHttpConfiguration();
-        s.setConnectors(new Connector[] {
-                ConnectorsLauncher.createConnector(conf, s, httpsConfig, true), ConnectorsLauncher.createConnector(conf, s, httpConfig, false)
-        });
+        if (conf.getMainProps().getProperty("proxy", "false").equals("true")) {
+            httpConfig.addCustomizer(new ExtendedForwarded());
+            s.setConnectors(new Connector[] {
+                ConnectorsLauncher.createConnector(conf, s, httpConfig, false)
+            });
+        } else {
+            HttpConfiguration httpsConfig = createHttpConfiguration();
+            // for client-cert auth
+            httpsConfig.addCustomizer(new SecureRequestCustomizer());
+            s.setConnectors(new Connector[] {
+                    ConnectorsLauncher.createConnector(conf, s, httpsConfig, true), ConnectorsLauncher.createConnector(conf, s, httpConfig, false)
+            });
+        }
     }
 
     private void initEmails(GigiConfig conf) throws GeneralSecurityException, IOException, KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException {
