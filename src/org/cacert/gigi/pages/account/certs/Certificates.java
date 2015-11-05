@@ -124,7 +124,7 @@ public class Certificates extends Page implements HandlesMixedRequest {
                     }
                 }
             } else if (cer) {
-                if (req.getParameter("install") != null) {
+                if (req.getParameter("chain") != null) {
                     PKCS7 p7 = toP7Chain(c);
                     p7.encodeSignedData(out);
                     /*
