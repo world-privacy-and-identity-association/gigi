@@ -14,6 +14,8 @@ public class ServerConstants {
 
     private static String securePort, port;
 
+    private static String suffix = "cacert.local";
+
     public static void init(Properties conf) {
         securePort = port = "";
         if ( !conf.getProperty("https.port").equals("443")) {
@@ -26,6 +28,7 @@ public class ServerConstants {
         secureHostName = conf.getProperty("name.secure");
         staticHostName = conf.getProperty("name.static");
         apiHostName = conf.getProperty("name.api");
+        suffix = conf.getProperty("name.suffix", conf.getProperty("name.www").substring(4));
 
     }
 
@@ -81,6 +84,10 @@ public class ServerConstants {
             return 80;
         }
         return Integer.parseInt(port.substring(1, port.length()));
+    }
+
+    public static String getSuffix() {
+        return suffix;
     }
 
 }

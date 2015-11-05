@@ -16,6 +16,7 @@ import javax.security.auth.x500.X500Principal;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
+import org.cacert.gigi.util.ServerConstants;
 
 public class CACertificate implements IdCachable {
 
@@ -122,10 +123,10 @@ public class CACertificate implements IdCachable {
                     String link;
                     String keyname = names.get(subj);
                     if ( !keyname.contains("_")) {
-                        link = "http://g2.crt.cacert.org/g2/" + keyname + ".crt";
+                        link = "http://g2.crt." + ServerConstants.getSuffix() + "/g2/" + keyname + ".crt";
                     } else {
                         String[] parts = keyname.split("_");
-                        link = "http://g2.crt.cacert.org/g2/" + parts[1] + "/" + parts[0] + "-" + parts[2] + ".crt";
+                        link = "http://g2.crt." + ServerConstants.getSuffix() + "/g2/" + parts[1] + "/" + parts[0] + "-" + parts[2] + ".crt";
 
                     }
                     GigiPreparedStatement q2 = DatabaseConnection.getInstance().prepare("INSERT INTO `cacerts` SET `parentRoot`=?, `keyname`=?, `link`=?");
