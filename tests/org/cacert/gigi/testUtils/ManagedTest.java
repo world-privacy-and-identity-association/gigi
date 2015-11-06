@@ -321,7 +321,7 @@ public class ManagedTest extends ConfiguredTest {
     public static void makeAssurer(int uid) {
         GigiPreparedStatement ps1 = DatabaseConnection.getInstance().prepare("INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?");
         ps1.setInt(1, uid);
-        ps1.setInt(2, 0);
+        ps1.setInt(2, 1);
         ps1.execute();
 
         GigiPreparedStatement ps2 = DatabaseConnection.getInstance().prepare("INSERT INTO `notary` SET `from`=?, `to`=?, points='100'");

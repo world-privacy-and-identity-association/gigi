@@ -92,7 +92,7 @@ public class Manager extends Page {
     }
 
     private void passCATS(User u) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO cats_passed SET user_id=?, variant_id=3");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO cats_passed SET user_id=?, variant_id=1");
         ps.setInt(1, u.getId());
         ps.execute();
     }
