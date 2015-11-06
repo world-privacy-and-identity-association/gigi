@@ -473,6 +473,12 @@ public class ManagedTest extends ConfiguredTest {
         return (HttpURLConnection) uc;
     }
 
+    public HttpURLConnection get(String cookie, String path, int formIndex) throws IOException {
+        URLConnection uc = new URL("https://" + getServerName() + path).openConnection();
+        uc.addRequestProperty("Cookie", cookie);
+        return (HttpURLConnection) uc;
+    }
+
     public static EmailAddress createVerifiedEmail(User u) throws InterruptedException, GigiApiException {
         EmailAddress adrr = new EmailAddress(u, createUniqueName() + "test@test.tld", Locale.ENGLISH);
         TestMail testMail = getMailReciever().receive();
