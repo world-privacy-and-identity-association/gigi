@@ -43,6 +43,8 @@ import org.cacert.gigi.pages.TestSecure;
 import org.cacert.gigi.pages.Verify;
 import org.cacert.gigi.pages.account.ChangePasswordPage;
 import org.cacert.gigi.pages.account.MyDetails;
+import org.cacert.gigi.pages.account.UserHistory;
+import org.cacert.gigi.pages.account.UserTrainings;
 import org.cacert.gigi.pages.account.certs.CertificateAdd;
 import org.cacert.gigi.pages.account.certs.Certificates;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
@@ -52,7 +54,6 @@ import org.cacert.gigi.pages.admin.support.FindDomainPage;
 import org.cacert.gigi.pages.admin.support.FindUserPage;
 import org.cacert.gigi.pages.admin.support.SupportEnterTicketPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
-import org.cacert.gigi.pages.admin.support.SupportUserHistory;
 import org.cacert.gigi.pages.error.AccessDenied;
 import org.cacert.gigi.pages.error.PageNotFound;
 import org.cacert.gigi.pages.main.RegisterPage;
@@ -142,7 +143,10 @@ public class Gigi extends HttpServlet {
             putPage(FindDomainPage.PATH, new FindDomainPage("Find Domain"), "System Admin");
             putPage(SupportEnterTicketPage.PATH, new SupportEnterTicketPage(), "System Admin");
             putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage("Support: User Details"), null);
-            putPage(SupportUserHistory.PATH, new SupportUserHistory(), null);
+            putPage(UserHistory.PATH, new UserHistory(false), "My Account");
+            putPage(UserHistory.SUPPORT_PATH, new UserHistory(true), null);
+            putPage(UserTrainings.PATH, new UserTrainings(false), "My Account");
+            putPage(UserTrainings.SUPPORT_PATH, new UserTrainings(true), null);
             if (testing) {
                 try {
                     Class<?> manager = Class.forName("org.cacert.gigi.pages.Manager");

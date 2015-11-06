@@ -54,7 +54,7 @@ public class SupportedUser {
         if (ticket == null) {
             throw new GigiApiException("No ticket set!");
         }
-        GigiPreparedStatement prep = DatabaseConnection.getInstance().prepare("INSERT INTO adminLog SET uid=?, admin=?, type=?, information=?");
+        GigiPreparedStatement prep = DatabaseConnection.getInstance().prepare("INSERT INTO `adminLog` SET uid=?, admin=?, type=?, information=?");
         prep.setInt(1, target.getId());
         prep.setInt(2, supporter.getId());
         prep.setString(3, type);
