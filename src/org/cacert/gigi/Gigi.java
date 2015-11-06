@@ -132,7 +132,7 @@ public class Gigi extends HttpServlet {
             putPage(MyDetails.PATH, new MyDetails(), "My Account");
             putPage(RegisterPage.PATH, new RegisterPage(), "CAcert.org");
             putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
-            putPage(MailOverview.DEFAULT_PATH, new MailOverview("My email addresses"), "Certificates");
+            putPage(MailOverview.DEFAULT_PATH, new MailOverview("Email addresses"), "Certificates");
             putPage(DomainOverview.PATH + "*", new DomainOverview("Domains"), "Certificates");
             putPage(MyPoints.PATH, new MyPoints("My Points"), "Web of Trust");
             putPage(RequestTTPPage.PATH, new RequestTTPPage(), "Web of Trust");
