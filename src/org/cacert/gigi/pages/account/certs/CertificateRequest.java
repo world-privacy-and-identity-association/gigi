@@ -430,7 +430,7 @@ public class CertificateRequest {
             throw error;
         }
         try {
-            return new Certificate(ctx.getTarget(), ctx.getActor(), subject, selectedDigest.toString(), //
+            return new Certificate(ctx.getTarget(), ctx.getActor(), subject, selectedDigest, //
                     this.csr, this.csrType, profile, SANs.toArray(new SubjectAlternateName[SANs.size()]));
         } catch (IOException e) {
             e.printStackTrace();

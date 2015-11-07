@@ -32,6 +32,7 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.testUtils.IOUtils;
@@ -186,7 +187,7 @@ public class TestSSL extends PingTest {
         kp = generateKeypair();
         String csr = generatePEMCSR(kp, "CN=" + test);
         User u = User.getById(id);
-        c = new Certificate(u, u, Certificate.buildDN("CN", test), "sha256", csr, CSRType.CSR, profile);
+        c = new Certificate(u, u, Certificate.buildDN("CN", test), Digest.SHA256, csr, CSRType.CSR, profile);
         c.issue(null, "2y", u).waitFor(60000);
     }
 

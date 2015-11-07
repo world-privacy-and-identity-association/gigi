@@ -113,7 +113,7 @@ public class Certificate implements IdCachable {
 
     private String serial;
 
-    private String md;
+    private Digest md;
 
     private String csrName;
 
@@ -133,7 +133,7 @@ public class Certificate implements IdCachable {
 
     private CACertificate ca;
 
-    public Certificate(CertificateOwner owner, User actor, HashMap<String, String> dn, String md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) throws GigiApiException, IOException {
+    public Certificate(CertificateOwner owner, User actor, HashMap<String, String> dn, Digest md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) throws GigiApiException, IOException {
         if ( !profile.canBeIssuedBy(owner, actor)) {
             throw new GigiApiException("You are not allowed to issue these certificates.");
         }
@@ -151,7 +151,7 @@ public class Certificate implements IdCachable {
         synchronized (Certificate.class) {
 
             GigiPreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO certs SET md=?::`mdType`, csr_type=?::`csrType`, crt_name='', memid=?, profile=?");
-            inserter.setString(1, md.toLowerCase());
+            inserter.setString(1, md.toString().toLowerCase());
             inserter.setString(2, csrType.toString());
             inserter.setInt(3, owner.getId());
             inserter.setInt(4, profile.getId());
@@ -191,7 +191,7 @@ public class Certificate implements IdCachable {
     private Certificate(GigiResultSet rs) {
         this.id = rs.getInt("id");
         dnString = rs.getString("subject");
-        md = rs.getString("md");
+        md = Digest.valueOf(rs.getString("md").toUpperCase());
         csrName = rs.getString("csr_name");
         crtName = rs.getString("crt_name");
         owner = CertificateOwner.getById(rs.getInt("memid"));
@@ -334,7 +334,7 @@ public class Certificate implements IdCachable {
         return dnString;
     }
 
-    public String getMessageDigest() {
+    public Digest getMessageDigest() {
         return md;
     }
 
