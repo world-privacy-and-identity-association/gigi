@@ -354,26 +354,21 @@ public class Certificate implements IdCachable {
         if (serial == null || "".equals(serial)) {
             return null;
         }
-        try {
-            String concat = "string_agg(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')), '')";
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as `subject`, `md`, `csr_name`, `crt_name`,`memid`, `profile`, `certs`.`serial` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`");
-            ps.setString(1, serial);
-            GigiResultSet rs = ps.executeQuery();
-            if ( !rs.next()) {
-                return null;
-            }
-            int id = rs.getInt(1);
-            Certificate c1 = cache.get(id);
-            if (c1 != null) {
-                return c1;
-            }
-            Certificate certificate = new Certificate(rs);
-            cache.put(certificate);
-            return certificate;
-        } catch (IllegalArgumentException e) {
-
+        String concat = "string_agg(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')), '')";
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as `subject`, `md`, `csr_name`, `crt_name`,`memid`, `profile`, `certs`.`serial` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`");
+        ps.setString(1, serial);
+        GigiResultSet rs = ps.executeQuery();
+        if ( !rs.next()) {
+            return null;
         }
-        return null;
+        int id = rs.getInt(1);
+        Certificate c1 = cache.get(id);
+        if (c1 != null) {
+            return c1;
+        }
+        Certificate certificate = new Certificate(rs);
+        cache.put(certificate);
+        return certificate;
     }
 
     private static ObjectCache<Certificate> cache = new ObjectCache<>();
