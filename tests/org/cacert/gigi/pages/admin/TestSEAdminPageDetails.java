@@ -49,20 +49,20 @@ public class TestSEAdminPageDetails extends ClientTest {
         int id = createVerifiedUser(fname, lname, email, TEST_PASSWORD);
 
         String userCookie = login(email, TEST_PASSWORD);
-        assertEquals("Först", getFname(IOUtils.readURL(get(userCookie, MyDetails.PATH, 0))));
+        assertEquals("Först", getFname(IOUtils.readURL(get(userCookie, MyDetails.PATH))));
         // User can change his name
         assertNull(executeBasicWebInteraction(userCookie, MyDetails.PATH, "fname=Kurti&lname=Hansel&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
-        assertEquals("Kurti", getFname(IOUtils.readURL(get(userCookie, MyDetails.PATH, 0))));
+        assertEquals("Kurti", getFname(IOUtils.readURL(get(userCookie, MyDetails.PATH))));
         // But when assurer
         makeAssurer(id);
         // User cannot change his name, and the form changed
         assertNotNull(executeBasicWebInteraction(userCookie, MyDetails.PATH, "fname=Kurti2&lname=Hansel&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
-        assertNull(getFname(IOUtils.readURL(get(userCookie, MyDetails.PATH, 0))));
-        assertEquals("Kurti", getFnamePlain(IOUtils.readURL(get(userCookie, MyDetails.PATH, 0))));
+        assertNull(getFname(IOUtils.readURL(get(userCookie, MyDetails.PATH))));
+        assertEquals("Kurti", getFnamePlain(IOUtils.readURL(get(userCookie, MyDetails.PATH))));
 
         // but support still can
         assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "fname=Kurti3&lname=Hansel&mname=&suffix=&dobd=1&dobm=2&doby=2000&detailupdate", 0));
-        assertEquals("Kurti3", getFnamePlain(IOUtils.readURL(get(userCookie, MyDetails.PATH, 0))));
+        assertEquals("Kurti3", getFnamePlain(IOUtils.readURL(get(userCookie, MyDetails.PATH))));
 
     }
 
@@ -104,11 +104,11 @@ public class TestSEAdminPageDetails extends ClientTest {
     }
 
     private int logCountAdmin(int id) throws IOException {
-        return getLogEntryCount(IOUtils.readURL(get(UserHistory.SUPPORT_PATH.replace("*", Integer.toString(id)), 0)));
+        return getLogEntryCount(IOUtils.readURL(get(UserHistory.SUPPORT_PATH.replace("*", Integer.toString(id)))));
     }
 
     private int logCountUser(String cookie) throws IOException {
-        return getLogEntryCount(IOUtils.readURL(get(cookie, UserHistory.PATH, 0)));
+        return getLogEntryCount(IOUtils.readURL(get(cookie, UserHistory.PATH)));
     }
 
     private int getLogEntryCount(String readURL) {

@@ -473,7 +473,7 @@ public class ManagedTest extends ConfiguredTest {
         return (HttpURLConnection) uc;
     }
 
-    public HttpURLConnection get(String cookie, String path, int formIndex) throws IOException {
+    public HttpURLConnection get(String cookie, String path) throws IOException {
         URLConnection uc = new URL("https://" + getServerName() + path).openConnection();
         uc.addRequestProperty("Cookie", cookie);
         return (HttpURLConnection) uc;

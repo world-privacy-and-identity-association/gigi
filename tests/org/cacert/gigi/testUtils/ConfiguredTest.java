@@ -12,6 +12,8 @@ import java.security.KeyPairGenerator;
 import java.security.Signature;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.util.PEM;
@@ -97,4 +99,13 @@ public abstract class ConfiguredTest {
         return "test" + System.currentTimeMillis() + "a" + (count++) + "u";
     }
 
+    public static int countRegex(String text, String pattern) {
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(text);
+        int i = 0;
+        while (m.find()) {
+            i++;
+        }
+        return i;
+    }
 }

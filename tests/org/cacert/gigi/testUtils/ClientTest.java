@@ -48,11 +48,7 @@ public abstract class ClientTest extends ManagedTest {
     }
 
     public HttpURLConnection get(String path) throws IOException {
-        return get(path, 0);
-    }
-
-    public HttpURLConnection get(String path, int formIndex) throws IOException {
-        return get(cookie, path, formIndex);
+        return get(cookie, path);
     }
 
 }
