@@ -80,6 +80,16 @@ public class TestAssurance extends ManagedTest {
     }
 
     @Test
+    public void testAssureFormContanisData() throws IOException {
+        URLConnection uc = buildupAssureFormConnection(true);
+        uc.getOutputStream().write(("date=2000-01-01&location=testcase&rules=1&CCAAgreed=1&assertion=1&points=10").getBytes("UTF-8"));
+        uc.getOutputStream().flush();
+        String data = IOUtils.readURL(uc);
+        assertThat(data, containsString("2000-01-01"));
+        assertThat(data, containsString("testcase"));
+    }
+
+    @Test
     public void testAssureFormNoCSRF() throws IOException {
         // override csrf
         HttpURLConnection uc = (HttpURLConnection) buildupAssureFormConnection(false);

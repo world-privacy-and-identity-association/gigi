@@ -25,6 +25,10 @@ public class AssuranceForm extends Form {
 
     private Date dob;
 
+    private String location = "";
+
+    private String date = "";
+
     private static final Template templ;
     static {
         templ = new Template(AssuranceForm.class.getResource("AssuranceForm.templ"));
@@ -50,11 +54,19 @@ public class AssuranceForm extends Form {
         res.put("maxpoints", assuree.getMaxAssurePoints());
         res.put("dob", sdf.format(assuree.getDoB()));
         res.put("dobFmt2", sdf2.format(assuree.getDoB()));
+        res.put("location", location);
+        res.put("date", date);
         templ.output(out, l, res);
     }
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) {
+        location = req.getParameter("location");
+        date = req.getParameter("date");
+        if (date == null || location == null) {
+            outputError(out, req, "You need to enter location and date!");
+        }
+
         if ( !"1".equals(req.getParameter("certify")) || !"1".equals(req.getParameter("rules")) || !"1".equals(req.getParameter("CCAAgreed")) || !"1".equals(req.getParameter("assertion"))) {
             outputError(out, req, "You failed to check all boxes to validate" + " your adherence to the rules and policies of CAcert");
 
@@ -75,7 +87,7 @@ public class AssuranceForm extends Form {
             return false;
         }
         try {
-            Notary.assure(Page.getUser(req), assuree, assureeName, dob, pointsI, req.getParameter("location"), req.getParameter("date"));
+            Notary.assure(Page.getUser(req), assuree, assureeName, dob, pointsI, location, req.getParameter("date"));
             return true;
         } catch (GigiApiException e) {
             e.format(out, Page.getLanguage(req));
