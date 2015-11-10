@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.cacert.gigi.Gigi;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
@@ -31,13 +32,13 @@ public class SupportEnterTicketForm extends Form {
             String ticket = req.getParameter("ticketno");
             if (ticket.matches("[asdmASDM]\\d{8}\\.\\d+")) {
                 AuthorizationContext ac = LoginPage.getAuthorizationContext(req);
-                ac.setSupporterTicketId(ticket);
+                req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(ac.getActor(), ticket));
                 return true;
             }
             return false;
         } else if (req.getParameter("deleteTicket") != null) {
             AuthorizationContext ac = LoginPage.getAuthorizationContext(req);
-            ac.setSupporterTicketId(null);
+            req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(ac.getActor(), ac.getActor()));
             return true;
         }
         return false;

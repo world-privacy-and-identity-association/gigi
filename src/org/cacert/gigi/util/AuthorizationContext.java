@@ -24,6 +24,15 @@ public class AuthorizationContext implements Outputable {
         this.actor = actor;
     }
 
+    public AuthorizationContext(User actor, String supporterTicket) throws GigiApiException {
+        this.target = actor;
+        this.actor = actor;
+        if ( !isInGroup(Group.SUPPORTER)) {
+            throw new GigiApiException("requires a supporter");
+        }
+        supporterTicketId = supporterTicket;
+    }
+
     public CertificateOwner getTarget() {
         return target;
     }
@@ -41,13 +50,6 @@ public class AuthorizationContext implements Outputable {
             return null;
         }
         return ac.getActor();
-    }
-
-    public void setSupporterTicketId(String supporterTicketId) throws GigiApiException {
-        if ( !isInGroup(Group.SUPPORTER)) {
-            throw new GigiApiException("requires a supporter");
-        }
-        this.supporterTicketId = supporterTicketId;
     }
 
     public String getSupporterTicketId() {
