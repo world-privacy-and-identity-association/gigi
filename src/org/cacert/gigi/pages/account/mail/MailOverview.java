@@ -11,6 +11,7 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class MailOverview extends Page {
 
@@ -45,5 +46,10 @@ public class MailOverview extends Page {
             }
         }
         super.doPost(req, resp);
+    }
+
+    @Override
+    public boolean isPermitted(AuthorizationContext ac) {
+        return ac != null && ac.getTarget() instanceof User;
     }
 }

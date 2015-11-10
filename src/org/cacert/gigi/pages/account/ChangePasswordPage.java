@@ -6,8 +6,10 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class ChangePasswordPage extends Page {
 
@@ -28,4 +30,8 @@ public class ChangePasswordPage extends Page {
         f.submit(resp.getWriter(), req);
     }
 
+    @Override
+    public boolean isPermitted(AuthorizationContext ac) {
+        return ac != null && ac.getTarget() instanceof User;
+    }
 }

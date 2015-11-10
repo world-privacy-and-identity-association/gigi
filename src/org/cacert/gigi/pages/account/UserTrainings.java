@@ -47,6 +47,13 @@ public class UserTrainings extends Page {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && ( !support || ac.canSupport());
+        if (ac == null) {
+            return false;
+        }
+        if (support) {
+            return ac.canSupport();
+        } else {
+            return ac.getTarget() instanceof User;
+        }
     }
 }

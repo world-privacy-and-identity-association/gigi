@@ -27,11 +27,7 @@ public class SupportEnterTicketPage extends Page {
         SupportEnterTicketForm f = Form.getForm(req, SupportEnterTicketForm.class);
         try {
             if (f.submit(resp.getWriter(), req)) {
-                if (req.getParameter("setTicket") != null) {
-                    resp.sendRedirect(FindUserPage.PATH);
-                } else {
-                    resp.sendRedirect(PATH);
-                }
+                resp.sendRedirect(PATH);
                 return true;
             }
         } catch (GigiApiException e) {

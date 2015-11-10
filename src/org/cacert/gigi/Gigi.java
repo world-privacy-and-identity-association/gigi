@@ -139,9 +139,11 @@ public class Gigi extends HttpServlet {
             putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
             putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Organisation Admin");
             putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Organisation Admin");
-            putPage(FindUserPage.PATH, new FindUserPage("Find User"), "System Admin");
-            putPage(FindDomainPage.PATH, new FindDomainPage("Find Domain"), "System Admin");
-            putPage(SupportEnterTicketPage.PATH, new SupportEnterTicketPage(), "System Admin");
+
+            putPage(SupportEnterTicketPage.PATH, new SupportEnterTicketPage(), "Support Console");
+            putPage(FindUserPage.PATH, new FindUserPage("Find User"), "Support Console");
+            putPage(FindDomainPage.PATH, new FindDomainPage("Find Domain"), "Support Console");
+
             putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage("Support: User Details"), null);
             putPage(UserHistory.PATH, new UserHistory(false), "My Account");
             putPage(UserHistory.SUPPORT_PATH, new UserHistory(true), null);
