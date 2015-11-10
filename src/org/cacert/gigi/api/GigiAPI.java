@@ -80,10 +80,43 @@ public class GigiAPI extends HttpServlet {
                     return;
                 }
                 resp.getWriter().println(PEM.encode("CERTIFICATE", result.cert().getEncoded()));
+                return;
             } catch (GeneralSecurityException e) {
                 e.printStackTrace();
             } catch (GigiApiException e) {
                 e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } else if (pi.equals("/account/certs/revoke")) {
+
+            if ( !req.getMethod().equals("POST")) {
+                resp.sendError(500, "Error, POST required.");
+                return;
+            }
+            if (req.getQueryString() != null) {
+                resp.sendError(500, "Error, no query String allowed.");
+                return;
+            }
+            String tserial = req.getParameter("serial");
+            if (tserial == null) {
+                resp.sendError(500, "Error, no Serial found");
+                return;
+            }
+            try {
+                Certificate c = Certificate.getBySerial(tserial);
+                if (c == null || c.getOwner() != u) {
+                    resp.sendError(403, "Access Denied");
+                    return;
+                }
+                Job job = c.revoke();
+                job.waitFor(60000);
+                if (c.getStatus() != CertificateStatus.REVOKED) {
+                    resp.sendError(510, "Error, issuing timed out");
+                    return;
+                }
+                resp.getWriter().println("OK");
+                return;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

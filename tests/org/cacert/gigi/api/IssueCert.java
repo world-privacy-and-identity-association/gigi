@@ -3,18 +3,24 @@ package org.cacert.gigi.api;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.KeyManagementException;
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
+import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.testUtils.ClientTest;
@@ -42,7 +48,25 @@ public class IssueCert extends ClientTest {
         assertEquals(connection.getResponseCode(), 200);
         String cert = IOUtils.readURL(new InputStreamReader(connection.getInputStream(), "UTF-8"));
         CertificateFactory cf = CertificateFactory.getInstance("X509");
-        java.security.cert.Certificate xcert = cf.generateCertificate(new ByteArrayInputStream(cert.getBytes("UTF-8")));
-        assertEquals("CAcert WoT User", ((X500Name) ((X509Certificate) xcert).getSubjectDN()).getCommonName());
+        java.security.cert.X509Certificate xcert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(cert.getBytes("UTF-8")));
+        assertEquals("CAcert WoT User", ((X500Name) xcert.getSubjectDN()).getCommonName());
+
+        revoke(pk, ce, xcert.getSerialNumber().toString(16).toLowerCase());
+        revoke(pk, ce, c.getSerial().toLowerCase());
+
+        assertEquals(CertificateStatus.REVOKED, c.getStatus());
+
+    }
+
+    private void revoke(final PrivateKey pk, final X509Certificate ce, String serial) throws IOException, MalformedURLException, NoSuchAlgorithmException, KeyManagementException, UnsupportedEncodingException {
+        HttpURLConnection connection;
+        OutputStream os;
+        connection = (HttpURLConnection) new URL("https://" + getServerName().replaceFirst("^www.", "api.") + "/account/certs/revoke").openConnection();
+        authenticateClientCert(pk, ce, connection);
+        connection.setDoOutput(true);
+        os = connection.getOutputStream();
+        os.write(("serial=" + URLEncoder.encode(serial, "UTF-8")).getBytes("UTF-8"));
+        os.flush();
+        assertEquals(connection.getResponseCode(), 200);
     }
 }
