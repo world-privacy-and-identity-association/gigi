@@ -1,7 +1,9 @@
 package org.cacert.gigi.util;
 
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
@@ -85,7 +87,10 @@ public class Notary {
         } else {
             try {
                 Date d = DateSelector.getDateFormat().parse(date);
-                if (d.getTime() > System.currentTimeMillis()) {
+                Calendar gc = GregorianCalendar.getInstance();
+                gc.setTimeInMillis(System.currentTimeMillis());
+                gc.add(Calendar.HOUR_OF_DAY, 12);
+                if (d.getTime() > gc.getTimeInMillis()) {
                     gae.mergeInto(new GigiApiException("You must not enter a date in the future."));
                 }
             } catch (ParseException e) {

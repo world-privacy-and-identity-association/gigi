@@ -12,6 +12,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Pattern;
 
@@ -138,6 +139,17 @@ public class TestAssurance extends ManagedTest {
         int year = Integer.parseInt(sdf.format(new Date(System.currentTimeMillis()))) + 2;
         String error = getError("date=" + year + "-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
         assertTrue(error, !error.startsWith("</div>"));
+    }
+
+    @Test
+    public void testAssureFormFutureOK() throws IOException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        c.add(Calendar.HOUR_OF_DAY, 12);
+
+        String error = getError("date=" + sdf.format(new Date(c.getTimeInMillis())) + "&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
+        assertNull(error);
     }
 
     @Test
