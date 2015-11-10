@@ -60,6 +60,7 @@ import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.pages.orga.CreateOrgPage;
 import org.cacert.gigi.pages.orga.ViewOrgPage;
 import org.cacert.gigi.pages.wot.AssurePage;
+import org.cacert.gigi.pages.wot.MyListingPage;
 import org.cacert.gigi.pages.wot.MyPoints;
 import org.cacert.gigi.pages.wot.RequestTTPPage;
 import org.cacert.gigi.ping.PingerDaemon;
@@ -135,6 +136,7 @@ public class Gigi extends HttpServlet {
             putPage(MailOverview.DEFAULT_PATH, new MailOverview("Email addresses"), "Certificates");
             putPage(DomainOverview.PATH + "*", new DomainOverview("Domains"), "Certificates");
             putPage(MyPoints.PATH, new MyPoints("My Points"), "Web of Trust");
+            putPage(MyListingPage.PATH, new MyListingPage(), "Web of Trust");
             putPage(RequestTTPPage.PATH, new RequestTTPPage(), "Web of Trust");
             putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
             putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Organisation Admin");

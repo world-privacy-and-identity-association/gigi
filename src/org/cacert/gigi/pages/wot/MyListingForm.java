@@ -1,4 +1,4 @@
-package org.cacert.gigi.pages.account;
+package org.cacert.gigi.pages.wot;
 
 import java.io.PrintWriter;
 import java.util.Map;
@@ -28,8 +28,13 @@ public class MyListingForm extends Form {
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) {
         if (req.getParameter("listme") != null && req.getParameter("contactinfo") != null) {
-            target.setDirectoryListing( !req.getParameter("listme").equals("0"));
-            target.setContactInformation(req.getParameter("contactinfo"));
+            boolean on = !req.getParameter("listme").equals("0");
+            target.setDirectoryListing(on);
+            if (on) {
+                target.setContactInformation(req.getParameter("contactinfo"));
+            } else {
+                target.setContactInformation("");
+            }
             return true;
         }
         return false;
@@ -44,7 +49,7 @@ public class MyListingForm extends Form {
         } else {
             vars.put("selected", "");
             vars.put("notSelected", "selected");
-            vars.put("activeInfo", "");
+            vars.put("activeInfo", target.getContactInformation());
         }
         template.output(out, l, vars);
     }

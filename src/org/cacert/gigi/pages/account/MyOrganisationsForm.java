@@ -29,7 +29,7 @@ public class MyOrganisationsForm extends Form {
     private static Template template;
 
     static {
-        template = new Template(MyListingForm.class.getResource("MyOrganisationsForm.templ"));
+        template = new Template(MyOrganisationsForm.class.getResource("MyOrganisationsForm.templ"));
     }
 
     @Override

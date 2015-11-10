@@ -24,9 +24,7 @@ public class MyDetails extends Page {
         PrintWriter out = resp.getWriter();
         HashMap<String, Object> map = new HashMap<String, Object>();
         MyDetailsForm form = new MyDetailsForm(req, getUser(req));
-        MyListingForm listingForm = new MyListingForm(req, getUser(req));
         map.put("detailsForm", form);
-        map.put("contactMeForm", listingForm);
         if (LoginPage.getUser(req).getOrganisations().size() != 0) {
             map.put("orgaForm", new MyOrganisationsForm(req));
         }
@@ -46,9 +44,7 @@ public class MyDetails extends Page {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (req.getParameter("processContact") != null) {
-            Form.getForm(req, MyListingForm.class).submit(resp.getWriter(), req);
-        } else if (req.getParameter("processDetails") != null) {
+        if (req.getParameter("processDetails") != null) {
             Form.getForm(req, MyDetailsForm.class).submit(resp.getWriter(), req);
         }
         super.doPost(req, resp);

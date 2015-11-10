@@ -196,6 +196,7 @@ public class SimpleSigner {
             int id = rs.getInt(1);
             File crt = KeyStorage.locateCrt(id);
             worked = true;
+            System.out.println("Revoke faked: " + id);
             revokeCompleted.setInt(1, id);
             revokeCompleted.execute();
             finishJob.setInt(1, rs.getInt(3));
