@@ -43,7 +43,7 @@ import org.cacert.gigi.pages.TestSecure;
 import org.cacert.gigi.pages.Verify;
 import org.cacert.gigi.pages.account.ChangePasswordPage;
 import org.cacert.gigi.pages.account.MyDetails;
-import org.cacert.gigi.pages.account.UserHistory;
+import org.cacert.gigi.pages.account.History;
 import org.cacert.gigi.pages.account.UserTrainings;
 import org.cacert.gigi.pages.account.certs.CertificateAdd;
 import org.cacert.gigi.pages.account.certs.Certificates;
@@ -149,8 +149,8 @@ public class Gigi extends HttpServlet {
             putPage(FindDomainPage.PATH, new FindDomainPage("Find Domain"), "Support Console");
 
             putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage("Support: User Details"), null);
-            putPage(UserHistory.PATH, new UserHistory(false), "My Account");
-            putPage(UserHistory.SUPPORT_PATH, new UserHistory(true), null);
+            putPage(History.PATH, new History(false), "My Account");
+            putPage(History.SUPPORT_PATH, new History(true), null);
             putPage(UserTrainings.PATH, new UserTrainings(false), "My Account");
             putPage(UserTrainings.SUPPORT_PATH, new UserTrainings(true), null);
             if (testing) {

@@ -469,19 +469,6 @@ public class User extends CertificateOwner {
         return false;
     }
 
-    public String[] getAdminLog() {
-        GigiPreparedStatement prep = DatabaseConnection.getInstance().prepare("SELECT `when`, type, information FROM `adminLog` WHERE uid=? ORDER BY `when` ASC");
-        prep.setInt(1, getId());
-        GigiResultSet res = prep.executeQuery();
-        List<String> entries = new LinkedList<String>();
-
-        while (res.next()) {
-            entries.add(res.getString(2) + " (" + res.getString(3) + ")");
-        }
-
-        return entries.toArray(new String[0]);
-    }
-
     public String[] getTrainings() {
         GigiPreparedStatement prep = DatabaseConnection.getInstance().prepare("SELECT `pass_date`, `type_text` FROM `cats_passed` LEFT JOIN `cats_type` ON `cats_type`.`id`=`cats_passed`.`variant_id`  WHERE `user_id`=? ORDER BY `pass_date` ASC");
         prep.setInt(1, getId());

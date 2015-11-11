@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.pages.account.MyDetails;
-import org.cacert.gigi.pages.account.UserHistory;
+import org.cacert.gigi.pages.account.History;
 import org.cacert.gigi.pages.admin.support.SupportEnterTicketPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
 import org.cacert.gigi.testUtils.ClientTest;
@@ -104,11 +104,11 @@ public class TestSEAdminPageDetails extends ClientTest {
     }
 
     private int logCountAdmin(int id) throws IOException {
-        return getLogEntryCount(IOUtils.readURL(get(UserHistory.SUPPORT_PATH.replace("*", Integer.toString(id)))));
+        return getLogEntryCount(IOUtils.readURL(get(History.SUPPORT_PATH.replace("*", Integer.toString(id)))));
     }
 
     private int logCountUser(String cookie) throws IOException {
-        return getLogEntryCount(IOUtils.readURL(get(cookie, UserHistory.PATH)));
+        return getLogEntryCount(IOUtils.readURL(get(cookie, History.PATH)));
     }
 
     private int getLogEntryCount(String readURL) {
