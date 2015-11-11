@@ -47,15 +47,14 @@ public class SupportUserDetailsPage extends Page {
 
             @Override
             public boolean next(Language l, Map<String, Object> vars) {
-                if (i == addrs.length) {
-                    return false;
+                for (; i < addrs.length;) {
+                    String address = addrs[i++].getAddress();
+                    if ( !address.equals(user.getEmail())) {
+                        vars.put("secmail", address);
+                        return true;
+                    }
                 }
-                String address = addrs[i].getAddress();
-                i++;
-                if ( !address.equals(user.getEmail())) {
-                    vars.put("secmail", address);
-                }
-                return true;
+                return false;
             }
         });
         vars.put("certifrevoke", new SupportRevokeCertificatesForm(req, targetUser));
