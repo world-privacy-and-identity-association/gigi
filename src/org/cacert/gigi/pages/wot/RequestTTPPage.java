@@ -12,6 +12,7 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class RequestTTPPage extends Page {
 
@@ -56,6 +57,11 @@ public class RequestTTPPage extends Page {
         }
         map.put("form", new RequestTTPForm(req));
         getDefaultTemplate().output(resp.getWriter(), getLanguage(req), map);
+    }
+
+    @Override
+    public boolean isPermitted(AuthorizationContext ac) {
+        return ac != null && ac.getTarget() instanceof User;
     }
 
 }

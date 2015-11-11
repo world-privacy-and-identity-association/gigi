@@ -48,7 +48,7 @@ public class AssurePage extends Page {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && ac.getActor().canAssure();
+        return ac != null && ac.canAssure();
     }
 
     private void outputForm(HttpServletRequest req, PrintWriter out, AssuranceForm form) {

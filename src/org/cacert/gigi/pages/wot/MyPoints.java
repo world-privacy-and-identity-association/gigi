@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.AssurancesDisplay;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class MyPoints extends Page {
 
@@ -33,4 +34,8 @@ public class MyPoints extends Page {
         getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
     }
 
+    @Override
+    public boolean isPermitted(AuthorizationContext ac) {
+        return ac != null && ac.getTarget() instanceof User;
+    }
 }

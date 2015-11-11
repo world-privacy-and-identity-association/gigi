@@ -82,4 +82,8 @@ public class AuthorizationContext implements Outputable {
             out.println("</div>");
         }
     }
+
+    public boolean canAssure() {
+        return target instanceof User && ((User) target).canAssure();
+    }
 }

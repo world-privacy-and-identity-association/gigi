@@ -128,16 +128,18 @@ public class Gigi extends HttpServlet {
             putPage(LogoutPage.PATH, new LogoutPage("Logout"), "My Account");
             putPage("/secure", new TestSecure(), null);
             putPage(Verify.PATH, new Verify(), null);
-            putPage(AssurePage.PATH + "/*", new AssurePage(), "Web of Trust");
             putPage(Certificates.PATH + "/*", new Certificates(), "Certificates");
             putPage(MyDetails.PATH, new MyDetails(), "My Account");
             putPage(RegisterPage.PATH, new RegisterPage(), "CAcert.org");
             putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
             putPage(MailOverview.DEFAULT_PATH, new MailOverview("Email addresses"), "Certificates");
             putPage(DomainOverview.PATH + "*", new DomainOverview("Domains"), "Certificates");
+
+            putPage(AssurePage.PATH + "/*", new AssurePage(), "Web of Trust");
             putPage(MyPoints.PATH, new MyPoints("My Points"), "Web of Trust");
             putPage(MyListingPage.PATH, new MyListingPage(), "Web of Trust");
             putPage(RequestTTPPage.PATH, new RequestTTPPage(), "Web of Trust");
+
             putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
             putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Organisation Admin");
             putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Organisation Admin");
