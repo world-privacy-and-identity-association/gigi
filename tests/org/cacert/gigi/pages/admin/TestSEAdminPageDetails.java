@@ -7,12 +7,17 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Group;
-import org.cacert.gigi.pages.account.MyDetails;
+import org.cacert.gigi.dbObjects.ObjectCache;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.History;
+import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.admin.support.SupportEnterTicketPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
 import org.cacert.gigi.testUtils.ClientTest;
@@ -39,6 +44,31 @@ public class TestSEAdminPageDetails extends ClientTest {
         assertThat(res, containsString("<input type=\"text\" value=\"" + fname + "\" name=\"fname\">"));
         assertThat(res, containsString("<input type=\"text\" value=\"" + lname + "\" name=\"lname\">"));
         assertThat(res, containsString(email));
+    }
+
+    @Test
+    public void testUserDetailsEmail() throws MalformedURLException, IOException, GigiApiException {
+        String email = createUniqueName() + "@example.com";
+        String fname = "Först";
+        String lname = "Secönd";
+        int id = createVerifiedUser(fname, lname, email, TEST_PASSWORD);
+        String email2 = createUniqueName() + "@example.com";
+        EmailAddress ea = new EmailAddress(User.getById(id), email2, Locale.ENGLISH);
+        getMailReciever().receive().verify();
+        // Refresh email Object
+        ObjectCache.clearAllCaches();
+        ea = EmailAddress.getById(ea.getId());
+        assertTrue(ea.isVerified());
+
+        String res = IOUtils.readURL(get(SupportUserDetailsPage.PATH + id));
+        assertEquals(2, countRegex(res, Pattern.quote(email)));
+        assertEquals(1, countRegex(res, Pattern.quote(email2)));
+
+        User.getById(id).updateDefaultEmail(ea);
+        clearCaches();
+        res = IOUtils.readURL(get(SupportUserDetailsPage.PATH + id));
+        assertEquals(1, countRegex(res, Pattern.quote(email)));
+        assertEquals(2, countRegex(res, Pattern.quote(email2)));
     }
 
     @Test

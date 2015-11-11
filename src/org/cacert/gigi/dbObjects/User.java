@@ -98,10 +98,6 @@ public class User extends CertificateOwner {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public void changePassword(String oldPass, String newPass) throws GigiApiException {
         GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `password` FROM `users` WHERE `id`=?");
         ps.setInt(1, getId());
