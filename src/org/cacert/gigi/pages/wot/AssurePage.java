@@ -40,7 +40,6 @@ public class AssurePage extends Page {
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         PrintWriter out = resp.getWriter();
-        String pi = req.getPathInfo().substring(PATH.length());
         HashMap<String, Object> vars = new HashMap<String, Object>();
         vars.put("DoB", ds);
         t.output(out, getLanguage(req), vars);

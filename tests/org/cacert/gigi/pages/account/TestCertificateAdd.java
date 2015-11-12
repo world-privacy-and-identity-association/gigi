@@ -180,6 +180,7 @@ public class TestCertificateAdd extends ClientTest {
                     }
                 }
             }
+            assertNotNull(current);
             return current.getEncoded();
         }
     }

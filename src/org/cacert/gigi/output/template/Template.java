@@ -21,7 +21,7 @@ import org.cacert.gigi.util.HTMLEncoder;
 
 public class Template implements Outputable {
 
-    class ParseResult {
+    private static class ParseResult {
 
         TemplateBlock block;
 

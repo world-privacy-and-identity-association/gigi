@@ -1,6 +1,5 @@
 package org.cacert.gigi.util;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -274,10 +273,8 @@ public class SimpleSigner {
                 getSANSs.setInt(1, id);
                 GigiResultSet san = getSANSs.executeQuery();
 
-                boolean first = true;
                 LinkedList<SubjectAlternateName> altnames = new LinkedList<>();
                 while (san.next()) {
-                    first = false;
                     altnames.add(new SubjectAlternateName(SANType.valueOf(san.getString("type").toUpperCase()), san.getString("contents")));
                 }
                 // TODO look them up!
@@ -294,7 +291,9 @@ public class SimpleSigner {
                 }
                 s += "-" + cp.getKeyName() + ".cfg";
                 Properties caP = new Properties();
-                caP.load(new FileInputStream("signer/profiles/" + s));
+                try (FileInputStream inStream = new FileInputStream("signer/profiles/" + s)) {
+                    caP.load(inStream);
+                }
                 String ca = caP.getProperty("ca") + "_2015_1";
 
                 HashMap<String, String> subj = new HashMap<>();
@@ -317,16 +316,16 @@ public class SimpleSigner {
                 PublicKey pk;
                 byte[] data = IOUtils.readURL(new FileInputStream(csrname));
                 if (ct == CSRType.SPKAC) {
-                    String dt = new String(data);
+                    String dt = new String(data, "UTF-8");
                     if (dt.startsWith("SPKAC=")) {
                         dt = dt.substring(6);
-                        data = dt.getBytes();
+                        data = dt.getBytes("UTF-8");
                         System.out.println(dt);
                     }
                     SPKAC sp = new SPKAC(Base64.getDecoder().decode(data));
                     pk = sp.getPubkey();
                 } else {
-                    PKCS10 p10 = new PKCS10(PEM.decode("(NEW )?CERTIFICATE REQUEST", new String(data)));
+                    PKCS10 p10 = new PKCS10(PEM.decode("(NEW )?CERTIFICATE REQUEST", new String(data, "UTF-8")));
                     pk = p10.getSubjectPublicKeyInfo();
                 }
                 PrivateKey i = loadOpensslKey(new File("signer/ca/" + ca + "/ca.key"));
@@ -339,19 +338,18 @@ public class SimpleSigner {
                 out.println(Base64.getMimeEncoder().encodeToString(cert));
                 out.println("-----END CERTIFICATE-----");
                 out.close();
-                synchronized (sdf) {
-                    /*
-                     * call = new String[] { "openssl", "ca",// "-in", "../../"
-                     * + csrname,// "-cert", "../" + ca + ".crt",// "-keyfile",
-                     * "../" + ca + ".key",// "-out", "../../" +
-                     * crt.getPath(),// "-utf8", "-startdate",
-                     * sdf.format(fromDate),// "-enddate", sdf.format(toDate),//
-                     * "-batch",// "-md", rs.getString("md"),// "-extfile",
-                     * "../" + f.getName(),// "-subj",
-                     * Certificate.stringifyDN(subj),// "-config",
-                     * "../selfsign.config"// };
-                     */
-                }
+                // synchronized (sdf) {
+                /*
+                 * call = new String[] { "openssl", "ca",// "-in", "../../" +
+                 * csrname,// "-cert", "../" + ca + ".crt",// "-keyfile", "../"
+                 * + ca + ".key",// "-out", "../../" + crt.getPath(),// "-utf8",
+                 * "-startdate", sdf.format(fromDate),// "-enddate",
+                 * sdf.format(toDate),// "-batch",// "-md",
+                 * rs.getString("md"),// "-extfile", "../" + f.getName(),//
+                 * "-subj", Certificate.stringifyDN(subj),// "-config",
+                 * "../selfsign.config"// };
+                 */
+                // }
 
                 try (InputStream is = new FileInputStream(crt)) {
                     locateCA.setString(1, ca);
@@ -409,9 +407,9 @@ public class SimpleSigner {
     private static synchronized byte[] generateCert(PublicKey pk, PrivateKey prk, Map<String, String> subj, X500Principal issuer, List<SubjectAlternateName> altnames, Date fromDate, Date toDate, Digest digest, String eku) throws IOException, GeneralSecurityException {
         File f = Paths.get("signer", "serial").toFile();
         if ( !f.exists()) {
-            FileOutputStream fos = new FileOutputStream(f);
-            fos.write("1".getBytes());
-            fos.close();
+            try (FileOutputStream fos = new FileOutputStream(f)) {
+                fos.write("1".getBytes("UTF-8"));
+            }
         }
         try (FileInputStream fr = new FileInputStream(f)) {
             byte[] serial = IOUtils.readURL(fr);
@@ -487,7 +485,9 @@ public class SimpleSigner {
             contentSeq.putBitString(s.sign());
             cert.write(DerValue.tag_Sequence, contentSeq);
 
-            X509Certificate c = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(cert.toByteArray()));
+            // X509Certificate c = (X509Certificate)
+            // CertificateFactory.getInstance("X509").generateCertificate(new
+            // ByteArrayInputStream(cert.toByteArray()));
             // c.verify(pk); only for self-signeds
 
             return cert.toByteArray();
@@ -610,7 +610,7 @@ public class SimpleSigner {
             } else {
                 throw new Error("" + san.getType());
             }
-            SANContent.write(DerValue.createTag(DerValue.TAG_CONTEXT, false, type), san.getName().getBytes());
+            SANContent.write(DerValue.createTag(DerValue.TAG_CONTEXT, false, type), san.getName().getBytes("UTF-8"));
         }
         DerOutputStream SANSeqContent = new DerOutputStream();
         SANSeqContent.write(DerValue.tag_Sequence, SANContent);

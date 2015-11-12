@@ -34,50 +34,50 @@ public class GenerateProfileOverview {
             }
             req.addAll(cp.getReqireds());
         }
-        PrintWriter pw = new PrintWriter("profiles.html");
-        pw.println("<!DOCTYPE html><html><head><title>Profiles</title>");
-        pw.println("<style>.split{background-color:#000;margin:0;cell-spacing:0}td{text-align:center}</style>");
-        pw.println("</head>");
-        pw.println("<body><table border='1'>");
-        pw.println("<tr><td>id</td><td> </td>");
-        for (String p : pt) {
-            pw.println("<th>" + p + "</th>");
-        }
-        pw.println("<th class='split'></th>");
-        for (String p : req) {
-            pw.println("<th class='req'>" + p + "</th>");
-        }
-        pw.println("</tr>");
-        for (CertificateProfile certificateProfile : cps) {
-            pw.println("<tr>");
-            pw.println("<td>" + certificateProfile.getId() + "</td>");
-            pw.println("<td>" + certificateProfile.getKeyName() + "</td>");
-            outer:
+        try (PrintWriter pw = new PrintWriter("profiles.html", "UTF-8")) {
+            pw.println("<!DOCTYPE html><html><head><title>Profiles</title>");
+            pw.println("<style>.split{background-color:#000;margin:0;cell-spacing:0}td{text-align:center}</style>");
+            pw.println("</head>");
+            pw.println("<body><table border='1'>");
+            pw.println("<tr><td>id</td><td> </td>");
             for (String p : pt) {
-                for (PropertyTemplate t : certificateProfile.getTemplates().values()) {
-                    if (t.getBase().equals(p)) {
-                        pw.println("<td>" + (t.isRequired() ? (t.isMultiple() ? "+" : "y") : (t.isMultiple() ? "*" : "?")) + "</td>");
-                        continue outer;
-                    }
-                }
-                pw.println("<td></td>");
+                pw.println("<th>" + p + "</th>");
             }
-            pw.println("<td class='split'></td>");
-            outer:
+            pw.println("<th class='split'></th>");
             for (String p : req) {
-                for (String t : certificateProfile.getReqireds()) {
-                    if (t.equals(p)) {
-                        pw.println("<td class='req'>y</td>");
-                        continue outer;
-                    }
-                }
-                pw.println("<td></td>");
+                pw.println("<th class='req'>" + p + "</th>");
             }
             pw.println("</tr>");
+            for (CertificateProfile certificateProfile : cps) {
+                pw.println("<tr>");
+                pw.println("<td>" + certificateProfile.getId() + "</td>");
+                pw.println("<td>" + certificateProfile.getKeyName() + "</td>");
+                outer:
+                for (String p : pt) {
+                    for (PropertyTemplate t : certificateProfile.getTemplates().values()) {
+                        if (t.getBase().equals(p)) {
+                            pw.println("<td>" + (t.isRequired() ? (t.isMultiple() ? "+" : "y") : (t.isMultiple() ? "*" : "?")) + "</td>");
+                            continue outer;
+                        }
+                    }
+                    pw.println("<td></td>");
+                }
+                pw.println("<td class='split'></td>");
+                outer:
+                for (String p : req) {
+                    for (String t : certificateProfile.getReqireds()) {
+                        if (t.equals(p)) {
+                            pw.println("<td class='req'>y</td>");
+                            continue outer;
+                        }
+                    }
+                    pw.println("<td></td>");
+                }
+                pw.println("</tr>");
+            }
+            pw.println("</table></body></html>");
+            Desktop.getDesktop().browse(new File("profiles.html").toURI());
         }
-        pw.println("</table></body></html>");
-        Desktop.getDesktop().browse(new File("profiles.html").toURI());
-        pw.close();
     }
 
 }

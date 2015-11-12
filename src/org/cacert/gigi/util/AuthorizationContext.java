@@ -78,7 +78,7 @@ public class AuthorizationContext implements Outputable {
         if (supporterTicketId != null) {
             out.println("<div>");
             out.println(l.getTranslation("SupportTicket: "));
-            out.println(supporterTicketId);
+            out.println(HTMLEncoder.encodeHTML(supporterTicketId));
             out.println("</div>");
         }
     }

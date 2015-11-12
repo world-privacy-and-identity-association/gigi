@@ -41,6 +41,7 @@ public class RequestTTPForm extends Form {
             }
             country = COUNTRIES[cid];
         }
+        // TODO use country?
 
         User uReq = LoginPage.getUser(req);
 

@@ -26,7 +26,7 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable {
     /**
      * An email that has been intercepted.
      */
-    public class TestMail {
+    public static class TestMail {
 
         String to;
 
