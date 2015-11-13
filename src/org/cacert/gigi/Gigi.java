@@ -36,14 +36,15 @@ import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.LogoutPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.pages.PasswordResetPage;
 import org.cacert.gigi.pages.PolicyIndex;
 import org.cacert.gigi.pages.RootCertPage;
 import org.cacert.gigi.pages.StaticPage;
 import org.cacert.gigi.pages.TestSecure;
 import org.cacert.gigi.pages.Verify;
 import org.cacert.gigi.pages.account.ChangePasswordPage;
-import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.account.History;
+import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.account.UserTrainings;
 import org.cacert.gigi.pages.account.certs.CertificateAdd;
 import org.cacert.gigi.pages.account.certs.Certificates;
@@ -153,6 +154,9 @@ public class Gigi extends HttpServlet {
             putPage(History.SUPPORT_PATH, new History(true), null);
             putPage(UserTrainings.PATH, new UserTrainings(false), "My Account");
             putPage(UserTrainings.SUPPORT_PATH, new UserTrainings(true), null);
+
+            putPage(PasswordResetPage.PATH, new PasswordResetPage(), null);
+
             if (testing) {
                 try {
                     Class<?> manager = Class.forName("org.cacert.gigi.pages.Manager");

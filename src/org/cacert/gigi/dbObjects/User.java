@@ -109,7 +109,11 @@ public class User extends CertificateOwner {
                 throw new GigiApiException("Old password does not match.");
             }
         }
+        setPassword(newPass);
+    }
 
+    private void setPassword(String newPass) throws GigiApiException {
+        GigiPreparedStatement ps;
         PasswordStrengthChecker.assertStrongPassword(newPass, getName(), getEmail());
         ps = DatabaseConnection.getInstance().prepare("UPDATE users SET `password`=? WHERE id=?");
         ps.setString(1, PasswordHash.hash(newPass));
@@ -479,4 +483,41 @@ public class User extends CertificateOwner {
 
         return entries.toArray(new String[0]);
     }
+
+    public int generatePasswordResetTicket(User actor, String token, String privateToken) {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `passwordResetTickets` SET `memid`=?, `creator`=?, `token`=?, `private_token`=?");
+        ps.setInt(1, getId());
+        ps.setInt(2, getId());
+        ps.setString(3, token);
+        ps.setString(4, PasswordHash.hash(privateToken));
+        ps.execute();
+        return ps.lastInsertId();
+    }
+
+    public static User getResetWithToken(int id, String token) {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `passwordResetTickets` WHERE `id`=? AND `token`=?");
+        ps.setInt(1, id);
+        ps.setString(2, token);
+        GigiResultSet res = ps.executeQuery();
+        if ( !res.next()) {
+            return null;
+        }
+        return User.getById(res.getInt(1));
+    }
+
+    public void consumePasswordResetTicket(int id, String private_token, String newPassword) throws GigiApiException {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `private_token` FROM `passwordResetTickets` WHERE `id`=? AND `memid`=?");
+        ps.setInt(1, id);
+        ps.setInt(2, getId());
+        try (GigiResultSet rs = ps.executeQuery()) {
+            if ( !rs.next()) {
+                throw new GigiApiException("Token not found... very bad.");
+            }
+            if (PasswordHash.verifyHash(private_token, rs.getString(1)) == null) {
+                throw new GigiApiException("Private token does not match.");
+            }
+            setPassword(newPassword);
+        }
+    }
+
 }
