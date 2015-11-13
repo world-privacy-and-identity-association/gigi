@@ -2,8 +2,7 @@ package org.cacert.gigi.api;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.security.GeneralSecurityException;
-import java.security.cert.X509Certificate;
+import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
@@ -11,19 +10,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.dbObjects.Certificate;
-import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
-import org.cacert.gigi.dbObjects.Job;
-import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.pages.LoginPage;
-import org.cacert.gigi.pages.account.certs.CertificateRequest;
-import org.cacert.gigi.util.AuthorizationContext;
-import org.cacert.gigi.util.PEM;
-
 public class GigiAPI extends HttpServlet {
 
     private static final long serialVersionUID = 659963677032635817L;
+
+    HashMap<String, APIPoint> api = new HashMap<>();
+
+    public GigiAPI() {
+        api.put(CreateCertificate.PATH, new CreateCertificate());
+        api.put(RevokeCertificate.PATH, new RevokeCertificate());
+        api.put(CATSImport.PATH, new CATSImport());
+    }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -43,83 +40,10 @@ public class GigiAPI extends HttpServlet {
             System.out.println(strB);
             return;
         }
-        X509Certificate cert = LoginPage.getCertificateFromRequest(req);
-        if (cert == null) {
-            resp.sendError(403, "Error, cert authing required.");
-            return;
-        }
-        String serial = LoginPage.extractSerialFormCert(cert);
-        User u = LoginPage.fetchUserBySerial(serial);
-        if (u == null) {
-            resp.sendError(403, "Error, cert authing required.");
-            return;
-        }
 
-        if (pi.equals("/account/certs/new")) {
-
-            if ( !req.getMethod().equals("POST")) {
-                resp.sendError(500, "Error, POST required.");
-                return;
-            }
-            if (req.getQueryString() != null) {
-                resp.sendError(500, "Error, no query String allowed.");
-                return;
-            }
-            String csr = req.getParameter("csr");
-            if (csr == null) {
-                resp.sendError(500, "Error, no CSR found");
-                return;
-            }
-            try {
-                CertificateRequest cr = new CertificateRequest(new AuthorizationContext(u, u), csr);
-                Certificate result = cr.draft();
-                Job job = result.issue(null, "2y", u);
-                job.waitFor(60000);
-                if (result.getStatus() != CertificateStatus.ISSUED) {
-                    resp.sendError(510, "Error, issuing timed out");
-                    return;
-                }
-                resp.getWriter().println(PEM.encode("CERTIFICATE", result.cert().getEncoded()));
-                return;
-            } catch (GeneralSecurityException e) {
-                e.printStackTrace();
-            } catch (GigiApiException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        } else if (pi.equals("/account/certs/revoke")) {
-
-            if ( !req.getMethod().equals("POST")) {
-                resp.sendError(500, "Error, POST required.");
-                return;
-            }
-            if (req.getQueryString() != null) {
-                resp.sendError(500, "Error, no query String allowed.");
-                return;
-            }
-            String tserial = req.getParameter("serial");
-            if (tserial == null) {
-                resp.sendError(500, "Error, no Serial found");
-                return;
-            }
-            try {
-                Certificate c = Certificate.getBySerial(tserial);
-                if (c == null || c.getOwner() != u) {
-                    resp.sendError(403, "Access Denied");
-                    return;
-                }
-                Job job = c.revoke();
-                job.waitFor(60000);
-                if (c.getStatus() != CertificateStatus.REVOKED) {
-                    resp.sendError(510, "Error, issuing timed out");
-                    return;
-                }
-                resp.getWriter().println("OK");
-                return;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        APIPoint p = api.get(pi);
+        if (p != null) {
+            p.process(req, resp);
         }
     }
 }

@@ -16,6 +16,7 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
+import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
@@ -151,17 +152,12 @@ public class LoginPage extends Page {
         if ( !serial.matches("[A-Fa-f0-9]+")) {
             throw new Error("serial malformed.");
         }
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `certs` WHERE `serial`=? AND `disablelogin`='0' AND `revoked` is NULL");
-        ps.setString(1, serial.toLowerCase());
-        GigiResultSet rs = ps.executeQuery();
-        User user = null;
-        if (rs.next()) {
-            user = User.getById(rs.getInt(1));
-        } else {
-            System.out.println("User with serial " + serial + " not found.");
+
+        CertificateOwner o = CertificateOwner.getByEnabledSerial(serial);
+        if (o == null || !(o instanceof User)) {
+            return null;
         }
-        rs.close();
-        return user;
+        return (User) o;
     }
 
     public static X509Certificate getCertificateFromRequest(HttpServletRequest req) {

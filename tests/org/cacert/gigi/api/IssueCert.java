@@ -39,7 +39,7 @@ public class IssueCert extends ClientTest {
         final PrivateKey pk = kp.getPrivate();
         c.issue(null, "2y", u).waitFor(60000);
         final X509Certificate ce = c.cert();
-        HttpURLConnection connection = (HttpURLConnection) new URL("https://" + getServerName().replaceFirst("^www.", "api.") + "/account/certs/new").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("https://" + getServerName().replaceFirst("^www.", "api.") + CreateCertificate.PATH).openConnection();
         authenticateClientCert(pk, ce, connection);
         connection.setDoOutput(true);
         OutputStream os = connection.getOutputStream();

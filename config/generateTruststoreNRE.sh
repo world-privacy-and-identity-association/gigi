@@ -15,8 +15,11 @@ function importP(){
 import ca/root -noprompt
 import ca/assured
 import ca/unassured
+import ca/orga
+import ca/orgaSign
+import ca/codesign
 
-for i in ca/{,un}assured_*; do
+for i in ca/*_*_*; do
   import ${i%.crt}
 done
 
