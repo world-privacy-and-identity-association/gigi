@@ -312,8 +312,7 @@ public class User extends CertificateOwner {
 
     public void updateUserData() throws GigiApiException {
         synchronized (Notary.class) {
-            // FIXME: No assurance, not no points.
-            if (getAssurancePoints() != 0) {
+            if (getReceivedAssurances().length != 0) {
                 throw new GigiApiException("No change after assurance allowed.");
             }
             rawUpdateUserData();
