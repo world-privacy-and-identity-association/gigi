@@ -1,6 +1,8 @@
 package org.cacert.gigi.pages.wot;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,11 +13,15 @@ import javax.servlet.http.HttpServletRequest;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.email.Sendmail;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.pages.PasswordResetPage;
 import org.cacert.gigi.util.Notary;
+import org.cacert.gigi.util.RandomToken;
+import org.cacert.gigi.util.ServerConstants;
 
 public class AssuranceForm extends Form {
 
@@ -28,6 +34,8 @@ public class AssuranceForm extends Form {
     private String location = "";
 
     private String date = "";
+
+    private String aword;
 
     private static final Template templ;
     static {
@@ -56,6 +64,7 @@ public class AssuranceForm extends Form {
         res.put("dobFmt2", sdf2.format(assuree.getDoB()));
         res.put("location", location);
         res.put("date", date);
+        res.put("aword", aword);
         templ.output(out, l, res);
     }
 
@@ -71,6 +80,15 @@ public class AssuranceForm extends Form {
             outputError(out, req, "You failed to check all boxes to validate" + " your adherence to the rules and policies of CAcert");
 
         }
+        if ("1".equals(req.getParameter("passwordReset"))) {
+            aword = req.getParameter("passwordResetValue");
+            if ("".equals(aword)) {
+                aword = null;
+            }
+        } else {
+            aword = null;
+        }
+
         int pointsI = 0;
         String points = req.getParameter("points");
         if (points == null || "".equals(points)) {
@@ -88,6 +106,29 @@ public class AssuranceForm extends Form {
         }
         try {
             Notary.assure(Page.getUser(req), assuree, assureeName, dob, pointsI, location, req.getParameter("date"));
+            if (aword != null && !aword.equals("")) {
+                String systemToken = RandomToken.generateToken(32);
+                int id = assuree.generatePasswordResetTicket(Page.getUser(req), systemToken, aword);
+                try {
+                    Language l = Language.getInstance(assuree.getPreferredLocale());
+                    StringBuffer body = new StringBuffer();
+                    body.append(l.getTranslation("Hi,") + "\n\n");
+                    body.append(l.getTranslation("A password reset was triggered. If you did a password reset by assurance, please enter your secret password using this form: \n"));
+                    body.append(ServerConstants.getWwwHostNamePortSecure() + PasswordResetPage.PATH);
+                    body.append("?id=");
+                    body.append(id);
+                    body.append("&token=");
+                    body.append(URLEncoder.encode(systemToken, "UTF-8"));
+                    body.append("\n");
+                    body.append("\n");
+                    body.append(l.getTranslation("Best regards"));
+                    body.append("\n");
+                    body.append(l.getTranslation("CAcert.org Support!"));
+                    Sendmail.getInstance().sendmail(assuree.getEmail(), "[CAcert.org] " + l.getTranslation("Password reset by assurance"), body.toString(), "support@cacert.org", null, null, null, null, false);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             return true;
         } catch (GigiApiException e) {
             e.format(out, Page.getLanguage(req));

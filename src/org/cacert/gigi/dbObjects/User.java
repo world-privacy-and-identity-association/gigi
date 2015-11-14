@@ -495,7 +495,7 @@ public class User extends CertificateOwner {
     }
 
     public static User getResetWithToken(int id, String token) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `passwordResetTickets` WHERE `id`=? AND `token`=?");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid` FROM `passwordResetTickets` WHERE `id`=? AND `token`=? AND `used` IS NULL");
         ps.setInt(1, id);
         ps.setString(2, token);
         GigiResultSet res = ps.executeQuery();
@@ -505,14 +505,17 @@ public class User extends CertificateOwner {
         return User.getById(res.getInt(1));
     }
 
-    public void consumePasswordResetTicket(int id, String private_token, String newPassword) throws GigiApiException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `private_token` FROM `passwordResetTickets` WHERE `id`=? AND `memid`=?");
+    public synchronized void consumePasswordResetTicket(int id, String private_token, String newPassword) throws GigiApiException {
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `private_token` FROM `passwordResetTickets` WHERE `id`=? AND `memid`=? AND `used` IS NULL");
         ps.setInt(1, id);
         ps.setInt(2, getId());
         try (GigiResultSet rs = ps.executeQuery()) {
             if ( !rs.next()) {
                 throw new GigiApiException("Token not found... very bad.");
             }
+            ps = DatabaseConnection.getInstance().prepare("UPDATE `passwordResetTickets` SET  `used` = CURRENT_TIMESTAMP WHERE `id`=?");
+            ps.setInt(1, id);
+            ps.executeUpdate();
             if (PasswordHash.verifyHash(private_token, rs.getString(1)) == null) {
                 throw new GigiApiException("Private token does not match.");
             }

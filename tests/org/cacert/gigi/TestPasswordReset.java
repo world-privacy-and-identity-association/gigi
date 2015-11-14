@@ -28,6 +28,23 @@ public class TestPasswordReset extends ClientTest {
     }
 
     @Test
+    public void testDoubleUse() throws IOException, GigiApiException {
+        User u2 = User.getResetWithToken(id, pub);
+        assertSame(u, u2);
+        assertNotNull(login(u.getEmail(), TEST_PASSWORD));
+        u2.consumePasswordResetTicket(id, priv, TEST_PASSWORD + "'");
+        assertEquals("", login(u.getEmail(), TEST_PASSWORD));
+        assertNotNull(login(u.getEmail(), TEST_PASSWORD + "'"));
+        try {
+            u2.consumePasswordResetTicket(id, priv, TEST_PASSWORD + "''");
+            fail("Exception expected.");
+        } catch (GigiApiException e) {
+            // expected
+        }
+        assertNotNull(login(u.getEmail(), TEST_PASSWORD + "'"));
+    }
+
+    @Test
     public void testInternalWrongTk() throws IOException, GigiApiException {
         User u2 = User.getResetWithToken(id, pub + "'");
         assertNull(u2);
