@@ -113,7 +113,7 @@ public class AssuranceForm extends Form {
                     Language l = Language.getInstance(assuree.getPreferredLocale());
                     StringBuffer body = new StringBuffer();
                     body.append(l.getTranslation("Hi,") + "\n\n");
-                    body.append(l.getTranslation("A password reset was triggered. If you did a password reset by assurance, please enter your secret password using this form: \n"));
+                    body.append(l.getTranslation("A password reset was triggered. If you did a password reset by assurance, please enter your secret password using this form: \nhttps://"));
                     body.append(ServerConstants.getWwwHostNamePortSecure() + PasswordResetPage.PATH);
                     body.append("?id=");
                     body.append(id);
