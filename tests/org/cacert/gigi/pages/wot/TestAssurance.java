@@ -215,11 +215,15 @@ public class TestAssurance extends ManagedTest {
     }
 
     private URLConnection buildupAssureFormConnection(boolean doCSRF) throws MalformedURLException, IOException {
+        return buildupAssureFormConnection(cookie, assureeM, doCSRF);
+    }
+
+    public static URLConnection buildupAssureFormConnection(String cookie, String email, boolean doCSRF) throws MalformedURLException, IOException {
         URL u = new URL("https://" + getServerName() + AssurePage.PATH);
         URLConnection uc = u.openConnection();
         uc.addRequestProperty("Cookie", cookie);
         uc.setDoOutput(true);
-        uc.getOutputStream().write(("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1910&search").getBytes("UTF-8"));
+        uc.getOutputStream().write(("email=" + URLEncoder.encode(email, "UTF-8") + "&day=1&month=1&year=1910&search").getBytes("UTF-8"));
 
         String csrf = getCSRF(uc);
         uc = u.openConnection();

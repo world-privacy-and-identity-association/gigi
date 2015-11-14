@@ -330,7 +330,7 @@ public class ManagedTest extends ConfiguredTest {
         ps2.execute();
     }
 
-    static String stripCookie(String headerField) {
+    protected static String stripCookie(String headerField) {
         return headerField.substring(0, headerField.indexOf(';'));
     }
 
