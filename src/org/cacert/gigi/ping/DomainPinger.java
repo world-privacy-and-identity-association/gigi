@@ -2,8 +2,8 @@ package org.cacert.gigi.ping;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Domain;
-import org.cacert.gigi.dbObjects.User;
 
 public abstract class DomainPinger {
 
@@ -11,7 +11,7 @@ public abstract class DomainPinger {
 
     public static final String PING_SUCCEDED = "";
 
-    public abstract void ping(Domain domain, String configuration, User user, int confId);
+    public abstract void ping(Domain domain, String configuration, CertificateOwner target, int confId);
 
     protected static void enterPingResult(int configId, String state, String result, String token) {
         GigiPreparedStatement enterPingResult = DatabaseConnection.getInstance().prepare("INSERT INTO `domainPinglog` SET `configId`=?, `state`=?::`pingState`, `result`=?, `challenge`=?");

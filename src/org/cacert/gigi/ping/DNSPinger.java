@@ -5,14 +5,14 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Domain;
-import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.util.DNSUtil;
 
 public class DNSPinger extends DomainPinger {
 
     @Override
-    public void ping(Domain domain, String expToken, User u, int confId) {
+    public void ping(Domain domain, String expToken, CertificateOwner u, int confId) {
         String[] tokenParts = expToken.split(":", 2);
         List<String> nameservers;
         try {

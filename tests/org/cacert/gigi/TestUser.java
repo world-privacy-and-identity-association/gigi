@@ -68,9 +68,9 @@ public class TestUser extends ManagedTest {
         getMailReciever().receive().verify();
         new EmailAddress(u, uq + "c@email.org", Locale.ENGLISH);
         getMailReciever().receive();// no-verify
-        verify(new Domain(u, uq + "a-testdomain.org"));
-        verify(new Domain(u, uq + "b-testdomain.org"));
-        verify(new Domain(u, uq + "c-testdomain.org"));
+        verify(new Domain(u, u, uq + "a-testdomain.org"));
+        verify(new Domain(u, u, uq + "b-testdomain.org"));
+        verify(new Domain(u, u, uq + "c-testdomain.org"));
         assertEquals(3, u.getEmails().length);
         assertEquals(3, u.getDomains().length);
         assertTrue(u.isValidDomain(uq + "a-testdomain.org"));

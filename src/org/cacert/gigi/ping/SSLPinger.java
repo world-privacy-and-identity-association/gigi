@@ -27,8 +27,8 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.security.cert.X509Certificate;
 
 import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Domain;
-import org.cacert.gigi.dbObjects.User;
 
 public class SSLPinger extends DomainPinger {
 
@@ -43,7 +43,7 @@ public class SSLPinger extends DomainPinger {
     }
 
     @Override
-    public void ping(Domain domain, String configuration, User u, int confId) {
+    public void ping(Domain domain, String configuration, CertificateOwner u, int confId) {
         try (SocketChannel sch = SocketChannel.open()) {
             sch.socket().setSoTimeout(5000);
             String[] parts = configuration.split(":", 2);
@@ -149,7 +149,7 @@ public class SSLPinger extends DomainPinger {
         }
     }
 
-    private String test(SocketChannel sch, String domain, User subject) {
+    private String test(SocketChannel sch, String domain, CertificateOwner subject) {
         try {
             sch.socket().setSoTimeout(5000);
             SSLContext sc = SSLContext.getInstance("SSL");

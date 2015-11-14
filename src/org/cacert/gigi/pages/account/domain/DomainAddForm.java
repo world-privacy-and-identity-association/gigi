@@ -35,7 +35,7 @@ public class DomainAddForm extends Form {
             if (parameter.trim().isEmpty()) {
                 throw new GigiApiException("No domain inserted.");
             }
-            Domain d = new Domain(target, parameter);
+            Domain d = new Domain(target, target, parameter);
             pcf.setTarget(d);
             pcf.submit(out, req);
             return true;

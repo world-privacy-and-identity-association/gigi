@@ -19,7 +19,7 @@ import org.cacert.gigi.util.PublicSuffixes;
 
 public class Domain implements IdCachable, Verifyable {
 
-    private User owner;
+    private CertificateOwner owner;
 
     private String suffix;
 
@@ -51,9 +51,9 @@ public class Domain implements IdCachable, Verifyable {
         rs.close();
     }
 
-    public Domain(User owner, String suffix) throws GigiApiException {
+    public Domain(User actor, CertificateOwner owner, String suffix) throws GigiApiException {
         synchronized (Domain.class) {
-            checkCertifyableDomain(suffix, owner.isInGroup(Group.CODESIGNING));
+            checkCertifyableDomain(suffix, actor.isInGroup(Group.CODESIGNING));
             this.owner = owner;
             this.suffix = suffix;
             insert();
@@ -150,7 +150,7 @@ public class Domain implements IdCachable, Verifyable {
         ps.execute();
     }
 
-    public User getOwner() {
+    public CertificateOwner getOwner() {
         return owner;
     }
 

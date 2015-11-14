@@ -6,13 +6,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Domain;
-import org.cacert.gigi.dbObjects.User;
 
 public class HTTPFetch extends DomainPinger {
 
     @Override
-    public void ping(Domain domain, String expToken, User user, int confId) {
+    public void ping(Domain domain, String expToken, CertificateOwner user, int confId) {
         try {
             String[] tokenParts = expToken.split(":", 2);
             URL u = new URL("http://" + domain.getSuffix() + "/cacert-" + tokenParts[0] + ".txt");

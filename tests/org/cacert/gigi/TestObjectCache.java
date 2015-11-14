@@ -34,7 +34,8 @@ public class TestObjectCache extends ManagedTest {
 
     @Test
     public void testDomainCache() throws GigiApiException {
-        Domain d = new Domain(User.getById(uid), "example.org");
+        User u = User.getById(uid);
+        Domain d = new Domain(u, u, "example.org");
 
         assertThat(d, is(sameInstance(Domain.getById(d.getId()))));
         assertThat(Domain.getById(d.getId()), is(sameInstance(Domain.getById(d.getId()))));

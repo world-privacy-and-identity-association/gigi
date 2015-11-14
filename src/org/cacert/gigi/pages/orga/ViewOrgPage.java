@@ -47,6 +47,11 @@ public class ViewOrgPage extends Page {
                     resp.sendRedirect(DEFAULT_PATH + "/" + form.getOrganisation().getId());
                 }
                 return;
+            } else if (req.getParameter("addDomain") != null) {
+                if (Form.getForm(req, OrgDomainAddForm.class).submit(resp.getWriter(), req)) {
+                    // resp.sendRedirect(DEFAULT_PATH + "/" +
+                    // form.getOrganisation().getId());
+                }
             } else {
                 if ( !u.isInGroup(CreateOrgPage.ORG_ASSURER)) {
                     resp.sendError(403, "Access denied");
@@ -91,6 +96,7 @@ public class ViewOrgPage extends Page {
         HashMap<String, Object> vars = new HashMap<>();
         vars.put("editForm", new CreateOrgForm(req, o));
         vars.put("affForm", new AffiliationForm(req, o));
+        vars.put("addDom", new OrgDomainAddForm(req, o));
         mainTempl.output(out, lang, vars);
     }
 
