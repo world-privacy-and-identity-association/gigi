@@ -512,13 +512,13 @@ public class User extends CertificateOwner {
             if ( !rs.next()) {
                 throw new GigiApiException("Token not found... very bad.");
             }
-            ps = DatabaseConnection.getInstance().prepare("UPDATE `passwordResetTickets` SET  `used` = CURRENT_TIMESTAMP WHERE `id`=?");
-            ps.setInt(1, id);
-            ps.executeUpdate();
             if (PasswordHash.verifyHash(private_token, rs.getString(1)) == null) {
                 throw new GigiApiException("Private token does not match.");
             }
             setPassword(newPassword);
+            ps = DatabaseConnection.getInstance().prepare("UPDATE `passwordResetTickets` SET  `used` = CURRENT_TIMESTAMP WHERE `id`=?");
+            ps.setInt(1, id);
+            ps.executeUpdate();
         }
     }
 
