@@ -21,13 +21,17 @@ import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.Gigi;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
+import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Digest;
+import org.cacert.gigi.dbObjects.Domain;
+import org.cacert.gigi.dbObjects.DomainPingType;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Name;
@@ -37,6 +41,8 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.account.certs.CertificateRequest;
+import org.cacert.gigi.ping.DomainPinger;
+import org.cacert.gigi.ping.PingerDaemon;
 import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.Notary;
 
@@ -48,6 +54,8 @@ public class Manager extends Page {
 
     Field f;
 
+    private static HashMap<DomainPingType, DomainPinger> dps;
+
     private Manager() {
         super("Test Manager");
         try {
@@ -57,6 +65,27 @@ public class Manager extends Page {
             // TODO
             System.out.println("I don't have 'hash', we are working probably in layered mode. Test Manager may not work.");
             // throw new Error(e);
+        }
+
+        try {
+            Field gigiInstance = Gigi.class.getDeclaredField("instance");
+            gigiInstance.setAccessible(true);
+            Gigi g = (Gigi) gigiInstance.get(null);
+
+            Field gigiPinger = Gigi.class.getDeclaredField("pinger");
+            gigiPinger.setAccessible(true);
+            PingerDaemon pd = (PingerDaemon) gigiPinger.get(g);
+
+            Field f = PingerDaemon.class.getDeclaredField("pingers");
+            f.setAccessible(true);
+            dps = (HashMap<DomainPingType, DomainPinger>) f.get(pd);
+            HashMap<DomainPingType, DomainPinger> pingers = new HashMap<>();
+            for (DomainPingType dpt : DomainPingType.values()) {
+                pingers.put(dpt, new PingerFetcher(dpt));
+            }
+            f.set(pd, pingers);
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
         }
     }
 
@@ -127,6 +156,22 @@ public class Manager extends Page {
                 mails.put(to, hismails = new LinkedList<>());
             }
             hismails.addFirst(subject + "\n" + message);
+        }
+
+    }
+
+    public static class PingerFetcher extends DomainPinger {
+
+        private DomainPingType dpt;
+
+        public PingerFetcher(DomainPingType dpt) {
+            this.dpt = dpt;
+        }
+
+        @Override
+        public void ping(Domain domain, String configuration, CertificateOwner target, int confId) {
+            System.out.println("Test: " + domain);
+            dps.get(dpt).ping(domain, configuration, target, confId);
         }
 
     }
