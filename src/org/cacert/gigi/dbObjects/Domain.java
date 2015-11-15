@@ -206,7 +206,7 @@ public class Domain implements IdCachable, Verifyable {
     }
 
     public DomainPingExecution[] getPings() throws GigiApiException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepareScrollable("SELECT `state`, `type`, `info`, `result`, `configId` FROM `domainPinglog` INNER JOIN `pingconfig` ON `pingconfig`.`id`=`domainPinglog`.`configId` WHERE `pingconfig`.`domainid`=? ORDER BY `when` DESC;");
+        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepareScrollable("SELECT `state`, `type`, `info`, `result`, `configId`, `when` FROM `domainPinglog` INNER JOIN `pingconfig` ON `pingconfig`.`id`=`domainPinglog`.`configId` WHERE `pingconfig`.`domainid`=? ORDER BY `when` DESC;");
         ps.setInt(1, id);
         GigiResultSet rs = ps.executeQuery();
         rs.last();

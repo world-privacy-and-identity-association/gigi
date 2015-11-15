@@ -67,6 +67,7 @@ public class DomainPinglogForm extends Form {
                 vars.put("state", pings[counter].getState());
                 vars.put("type", pings[counter].getType());
                 vars.put("config", pings[counter].getInfo());
+                vars.put("date", pings[counter].getDate());
                 String ping3 = pings[counter].getResult();
                 if (ping3 == null) {
                     vars.put("result", "");

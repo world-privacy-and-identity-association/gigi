@@ -4,6 +4,7 @@
 <th><?=_State?></th>
 <th><?=_Config?></th>
 <th><?=_Result?></th>
+<th><?=_Execution Date?></th>
 <th><?=_Reping?></th></tr>
 <? foreach($pings) { ?>
 <tr>
@@ -11,6 +12,7 @@
 <td><?=$state?></td>
 <td><?=$config?></td>
 <td><?=$result?></td>
+<td><?=$date?></td>
 <td><button name='configId' value="<?=$configId?>"><?=_Re-execute?></button></td>
 </tr>
 <?}?>

@@ -1,5 +1,8 @@
 package org.cacert.gigi.dbObjects;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 import org.cacert.gigi.database.GigiResultSet;
 
 public class DomainPingExecution {
@@ -14,12 +17,15 @@ public class DomainPingExecution {
 
     private DomainPingConfiguration config;
 
+    private Timestamp date;
+
     public DomainPingExecution(GigiResultSet rs) {
         state = rs.getString(1);
         type = rs.getString(2);
         info = rs.getString(3);
         result = rs.getString(4);
         config = DomainPingConfiguration.getById(rs.getInt(5));
+        date = rs.getTimestamp(6);
     }
 
     public String getState() {
@@ -40,6 +46,10 @@ public class DomainPingExecution {
 
     public DomainPingConfiguration getConfig() {
         return config;
+    }
+
+    public Date getDate() {
+        return date;
     }
 
 }
