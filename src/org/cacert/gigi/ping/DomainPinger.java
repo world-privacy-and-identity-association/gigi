@@ -23,7 +23,7 @@ public abstract class DomainPinger {
 
     }
 
-    protected static void updatePingResult(int configId, String token, String state, String result) {
+    protected static void updatePingResult(int configId, String state, String result, String token) {
         GigiPreparedStatement updatePingResult = DatabaseConnection.getInstance().prepare("UPDATE `domainPinglog` SET `state`=?::`pingState`, `result`=? WHERE `configId`=? AND `challenge`=?");
         updatePingResult.setString(1, DomainPinger.PING_STILL_PENDING == state ? "open" : DomainPinger.PING_SUCCEDED.equals(state) ? "success" : "failed");
         updatePingResult.setString(2, result);
