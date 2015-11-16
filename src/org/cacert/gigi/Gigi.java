@@ -366,6 +366,8 @@ public class Gigi extends HttpServlet {
                 return;
             }
             HashMap<String, Object> vars = new HashMap<String, Object>();
+            // System.out.println(req.getMethod() + ": " + req.getPathInfo() +
+            // " -> " + p);
             Outputable content = new Outputable() {
 
                 @Override
