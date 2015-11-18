@@ -1,15 +1,21 @@
 <form method='post'>
+<table>
+<tr><td>
 Batch create users:
+</td><td></td><td>
 <div>
   Email: 
   <input type="text" name="prefix"/> NNN@
   <input type="text" name="suffix"/>
 </div>
 Amount:  <input type="slider" name="amount"/> <input type="submit" name="create" value="Create Users"/>
-</form>
-<form method='post'>
+</td></tr>
+
+<tr><td>
 Add privilege:
+</td><td>
 Email: <input type="text" name="email"/> 
+</td><td>
 <select name="priv">
 <option>supporter</option>
 <option>arbitrator</option>
@@ -23,36 +29,54 @@ Email: <input type="text" name="email"/>
 </select>
 <input type="submit" name="addpriv" value="Grant Privillege"/>
 <input type="submit" name="delpriv" value="Revoke Privillege"/>
-</form>
+</td><tr>
 
-<form method='post'>
+<tr><td>
 Receive Mails:
+</td><td>
 Email: <input type="text" name="femail"/>
+</td><td>
 <input type="submit" value="Receive Mails" name="fetch"/>
-</form>
+</td><tr>
 
-<form method='post'>
+<tr><td>
 Add CATs entry:
+</td><td>
 Email: <input type="text" name="catsEmail"/>
+</td><td>
 <input type="submit" value="Add CATs" name="cats"/>
-</form>
-
-
-<form method='post'>
+</td></tr>
+<tr><td>
 Add 100 Assurance points:
+</td><td>
 Email: <input type="text" name="assureEmail"/>
+</td><td>
 <input type="submit" value="Assure 100 Points" name="assure"/>
-</form>
+</td></tr>
 
-<form method='post'>
+<tr><td>
 Add verified Email:
+</td><td>
 Email: <input type="text" name="addEmailEmail"/>
+</td><td>
 new Email: <input type="text" name="addEmailNew"/>
 <input type="submit" value="Add verified Email" name="addEmail"/>
-</form>
+</td></tr>
 
-<form method='post'>
+<tr><td>
 Add Client Cert:
+</td><td>
 Email: <input type="text" name="addCertEmail"/>
+</td><td>
 <input type="submit" value="Add an certificate" name="addCert"/>
-</form>
+</td></tr>
+
+<tr><td>
+Exempt Domain from Pinging:
+</td><td>
+</td><td>
+Domain: <input type="text" name="exemtDom"/>
+<input type="submit" value="Add a domain from exemption" name="addExDom"/>
+<input type="submit" value="Remove a domain from exemption" name="delExDom"/>
+</td></tr>
+</table>

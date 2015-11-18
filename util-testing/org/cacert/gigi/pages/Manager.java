@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -132,6 +133,8 @@ public class Manager extends Page {
 
     HashMap<String, LinkedList<String>> emails = new HashMap<>();
 
+    private static TreeSet<String> pingExempt = new TreeSet<>();
+
     public static Manager getInstance() {
         if (instance == null) {
             instance = new Manager();
@@ -160,7 +163,7 @@ public class Manager extends Page {
 
     }
 
-    public static class PingerFetcher extends DomainPinger {
+    public class PingerFetcher extends DomainPinger {
 
         private DomainPingType dpt;
 
@@ -171,7 +174,11 @@ public class Manager extends Page {
         @Override
         public void ping(Domain domain, String configuration, CertificateOwner target, int confId) {
             System.out.println("Test: " + domain);
-            dps.get(dpt).ping(domain, configuration, target, confId);
+            if (pingExempt.contains(domain.getSuffix())) {
+                enterPingResult(confId, DomainPinger.PING_SUCCEDED, "Succeeded by TestManager pass-by", null);
+            } else {
+                dps.get(dpt).ping(domain, configuration, target, confId);
+            }
         }
 
     }
@@ -308,6 +315,16 @@ public class Manager extends Page {
                 resp.getWriter().println("interrupted");
             }
 
+        } else if (req.getParameter("addExDom") != null) {
+            String dom = req.getParameter("exemtDom");
+            pingExempt.add(dom);
+            resp.getWriter().println("Updated domains exempt from pings. Current set: <br/>");
+            resp.getWriter().println(pingExempt);
+        } else if (req.getParameter("delExDom") != null) {
+            String dom = req.getParameter("exemtDom");
+            pingExempt.remove(dom);
+            resp.getWriter().println("Updated domains exempt from pings. Current set: <br/>");
+            resp.getWriter().println(pingExempt);
         }
     }
 
