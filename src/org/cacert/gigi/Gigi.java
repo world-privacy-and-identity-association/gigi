@@ -68,7 +68,7 @@ import org.cacert.gigi.ping.PingerDaemon;
 import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.ServerConstants;
 
-public class Gigi extends HttpServlet {
+public final class Gigi extends HttpServlet {
 
     private class MenuBuilder {
 
