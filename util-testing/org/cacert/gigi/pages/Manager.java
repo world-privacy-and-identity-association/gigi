@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.cacert.gigi.Gigi;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.crypto.SPKAC;
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
@@ -96,24 +95,25 @@ public class Manager extends Page {
         }
         assurers = new User[10];
         try {
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?");
-            for (int i = 0; i < assurers.length; i++) {
-                String mail = "test-assurer" + i + "@example.com";
-                User u = User.getByEmail(mail);
-                if (u == null) {
-                    System.out.println("Creating assurer");
-                    createUser(mail);
-                    u = User.getByEmail(mail);
-                    passCATS(u);
-                    ps.setInt(1, u.getId());
-                    ps.setInt(2, u.getId());
-                    ps.setInt(3, 100);
-                    ps.setString(4, "Manager init code");
-                    ps.setString(5, "1990-01-01");
-                    ps.execute();
-                }
-                assurers[i] = u;
+            try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?")) {
+                for (int i = 0; i < assurers.length; i++) {
+                    String mail = "test-assurer" + i + "@example.com";
+                    User u = User.getByEmail(mail);
+                    if (u == null) {
+                        System.out.println("Creating assurer");
+                        createUser(mail);
+                        u = User.getByEmail(mail);
+                        passCATS(u);
+                        ps.setInt(1, u.getId());
+                        ps.setInt(2, u.getId());
+                        ps.setInt(3, 100);
+                        ps.setString(4, "Manager init code");
+                        ps.setString(5, "1990-01-01");
+                        ps.execute();
+                    }
+                    assurers[i] = u;
 
+                }
             }
         } catch (ReflectiveOperationException | GigiApiException e) {
             e.printStackTrace();
@@ -122,9 +122,10 @@ public class Manager extends Page {
     }
 
     private void passCATS(User u) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO cats_passed SET user_id=?, variant_id=1");
-        ps.setInt(1, u.getId());
-        ps.execute();
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO cats_passed SET user_id=?, variant_id=1")) {
+            ps.setInt(1, u.getId());
+            ps.execute();
+        }
     }
 
     private static Manager instance;

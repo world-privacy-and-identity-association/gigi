@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.util.KeyStorage;
@@ -150,39 +149,42 @@ public class Certificate implements IdCachable {
         this.sans = Arrays.asList(sans);
         synchronized (Certificate.class) {
 
-            GigiPreparedStatement inserter = DatabaseConnection.getInstance().prepare("INSERT INTO certs SET md=?::`mdType`, csr_type=?::`csrType`, crt_name='', memid=?, profile=?");
-            inserter.setString(1, md.toString().toLowerCase());
-            inserter.setString(2, csrType.toString());
-            inserter.setInt(3, owner.getId());
-            inserter.setInt(4, profile.getId());
-            inserter.execute();
-            id = inserter.lastInsertId();
-
-            GigiPreparedStatement san = DatabaseConnection.getInstance().prepare("INSERT INTO `subjectAlternativeNames` SET `certId`=?, contents=?, type=?::`SANType`");
-            for (SubjectAlternateName subjectAlternateName : sans) {
-                san.setInt(1, id);
-                san.setString(2, subjectAlternateName.getName());
-                san.setString(3, subjectAlternateName.getType().getOpensslName());
-                san.execute();
+            try (GigiPreparedStatement inserter = new GigiPreparedStatement("INSERT INTO certs SET md=?::`mdType`, csr_type=?::`csrType`, crt_name='', memid=?, profile=?")) {
+                inserter.setString(1, md.toString().toLowerCase());
+                inserter.setString(2, csrType.toString());
+                inserter.setInt(3, owner.getId());
+                inserter.setInt(4, profile.getId());
+                inserter.execute();
+                id = inserter.lastInsertId();
             }
 
-            GigiPreparedStatement insertAVA = DatabaseConnection.getInstance().prepare("INSERT INTO `certAvas` SET `certId`=?, name=?, value=?");
-            insertAVA.setInt(1, id);
-            for (Entry<String, String> e : dn.entrySet()) {
-                insertAVA.setString(2, e.getKey());
-                insertAVA.setString(3, e.getValue());
-                insertAVA.execute();
+            try (GigiPreparedStatement san = new GigiPreparedStatement("INSERT INTO `subjectAlternativeNames` SET `certId`=?, contents=?, type=?::`SANType`")) {
+                for (SubjectAlternateName subjectAlternateName : sans) {
+                    san.setInt(1, id);
+                    san.setString(2, subjectAlternateName.getName());
+                    san.setString(3, subjectAlternateName.getType().getOpensslName());
+                    san.execute();
+                }
+            }
+
+            try (GigiPreparedStatement insertAVA = new GigiPreparedStatement("INSERT INTO `certAvas` SET `certId`=?, name=?, value=?")) {
+                insertAVA.setInt(1, id);
+                for (Entry<String, String> e : dn.entrySet()) {
+                    insertAVA.setString(2, e.getKey());
+                    insertAVA.setString(3, e.getValue());
+                    insertAVA.execute();
+                }
             }
             File csrFile = KeyStorage.locateCsr(id);
             csrName = csrFile.getPath();
             try (FileOutputStream fos = new FileOutputStream(csrFile)) {
                 fos.write(csr.getBytes("UTF-8"));
             }
-
-            GigiPreparedStatement updater = DatabaseConnection.getInstance().prepare("UPDATE `certs` SET `csr_name`=? WHERE id=?");
-            updater.setString(1, csrName);
-            updater.setInt(2, id);
-            updater.execute();
+            try (GigiPreparedStatement updater = new GigiPreparedStatement("UPDATE `certs` SET `csr_name`=? WHERE id=?")) {
+                updater.setString(1, csrName);
+                updater.setInt(2, id);
+                updater.execute();
+            }
 
             cache.put(this);
         }
@@ -198,16 +200,14 @@ public class Certificate implements IdCachable {
         profile = CertificateProfile.getById(rs.getInt("profile"));
         this.serial = rs.getString("serial");
 
-        GigiPreparedStatement ps2 = DatabaseConnection.getInstance().prepare("SELECT `contents`, `type` FROM `subjectAlternativeNames` WHERE `certId`=?");
-        ps2.setInt(1, id);
-        GigiResultSet rs2 = ps2.executeQuery();
-        sans = new LinkedList<>();
-        while (rs2.next()) {
-            sans.add(new SubjectAlternateName(SANType.valueOf(rs2.getString("type").toUpperCase()), rs2.getString("contents")));
+        try (GigiPreparedStatement ps2 = new GigiPreparedStatement("SELECT `contents`, `type` FROM `subjectAlternativeNames` WHERE `certId`=?")) {
+            ps2.setInt(1, id);
+            GigiResultSet rs2 = ps2.executeQuery();
+            sans = new LinkedList<>();
+            while (rs2.next()) {
+                sans.add(new SubjectAlternateName(SANType.valueOf(rs2.getString("type").toUpperCase()), rs2.getString("contents")));
+            }
         }
-        rs2.close();
-
-        rs.close();
     }
 
     public enum CertificateStatus {
@@ -238,23 +238,24 @@ public class Certificate implements IdCachable {
     }
 
     public synchronized CertificateStatus getStatus() {
-        GigiPreparedStatement searcher = DatabaseConnection.getInstance().prepare("SELECT crt_name, created, revoked, serial, caid FROM certs WHERE id=?");
-        searcher.setInt(1, id);
-        GigiResultSet rs = searcher.executeQuery();
-        if ( !rs.next()) {
-            throw new IllegalStateException("Certificate not in Database");
-        }
+        try (GigiPreparedStatement searcher = new GigiPreparedStatement("SELECT crt_name, created, revoked, serial, caid FROM certs WHERE id=?")) {
+            searcher.setInt(1, id);
+            GigiResultSet rs = searcher.executeQuery();
+            if ( !rs.next()) {
+                throw new IllegalStateException("Certificate not in Database");
+            }
 
-        crtName = rs.getString(1);
-        serial = rs.getString(4);
-        if (rs.getTimestamp(2) == null) {
-            return CertificateStatus.DRAFT;
+            crtName = rs.getString(1);
+            serial = rs.getString(4);
+            if (rs.getTimestamp(2) == null) {
+                return CertificateStatus.DRAFT;
+            }
+            ca = CACertificate.getById(rs.getInt("caid"));
+            if (rs.getTimestamp(2) != null && rs.getTimestamp(3) == null) {
+                return CertificateStatus.ISSUED;
+            }
+            return CertificateStatus.REVOKED;
         }
-        ca = CACertificate.getById(rs.getInt("caid"));
-        if (rs.getTimestamp(2) != null && rs.getTimestamp(3) == null) {
-            return CertificateStatus.ISSUED;
-        }
-        return CertificateStatus.REVOKED;
     }
 
     /**
@@ -355,20 +356,21 @@ public class Certificate implements IdCachable {
             return null;
         }
         String concat = "string_agg(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')), '')";
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as `subject`, `md`, `csr_name`, `crt_name`,`memid`, `profile`, `certs`.`serial` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`");
-        ps.setString(1, serial);
-        GigiResultSet rs = ps.executeQuery();
-        if ( !rs.next()) {
-            return null;
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + concat + " as `subject`, `md`, `csr_name`, `crt_name`,`memid`, `profile`, `certs`.`serial` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`")) {
+            ps.setString(1, serial);
+            GigiResultSet rs = ps.executeQuery();
+            if ( !rs.next()) {
+                return null;
+            }
+            int id = rs.getInt(1);
+            Certificate c1 = cache.get(id);
+            if (c1 != null) {
+                return c1;
+            }
+            Certificate certificate = new Certificate(rs);
+            cache.put(certificate);
+            return certificate;
         }
-        int id = rs.getInt(1);
-        Certificate c1 = cache.get(id);
-        if (c1 != null) {
-            return c1;
-        }
-        Certificate certificate = new Certificate(rs);
-        cache.put(certificate);
-        return certificate;
     }
 
     private static ObjectCache<Certificate> cache = new ObjectCache<>();
@@ -381,16 +383,17 @@ public class Certificate implements IdCachable {
 
         try {
             String concat = "string_agg(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')), '')";
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT certs.id, " + concat + " as subject, md, csr_name, crt_name,memid, profile, certs.serial FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=certs.id WHERE certs.id=? GROUP BY certs.id");
-            ps.setInt(1, id);
-            GigiResultSet rs = ps.executeQuery();
-            if ( !rs.next()) {
-                return null;
-            }
+            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + concat + " as subject, md, csr_name, crt_name,memid, profile, certs.serial FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=certs.id WHERE certs.id=? GROUP BY certs.id")) {
+                ps.setInt(1, id);
+                GigiResultSet rs = ps.executeQuery();
+                if ( !rs.next()) {
+                    return null;
+                }
 
-            Certificate c = new Certificate(rs);
-            cache.put(c);
-            return c;
+                Certificate c = new Certificate(rs);
+                cache.put(c);
+                return c;
+            }
         } catch (IllegalArgumentException e) {
 
         }
@@ -421,11 +424,12 @@ public class Certificate implements IdCachable {
 
     public java.util.Date getRevocationDate() {
         if (getStatus() == CertificateStatus.REVOKED) {
-            GigiPreparedStatement prep = DatabaseConnection.getInstance().prepare("SELECT revoked FROM certs WHERE id=?");
-            prep.setInt(1, getId());
-            GigiResultSet res = prep.executeQuery();
-            if (res.next()) {
-                return new java.util.Date(res.getDate("revoked").getTime());
+            try (GigiPreparedStatement prep = new GigiPreparedStatement("SELECT revoked FROM certs WHERE id=?")) {
+                prep.setInt(1, getId());
+                GigiResultSet res = prep.executeQuery();
+                if (res.next()) {
+                    return new java.util.Date(res.getDate("revoked").getTime());
+                }
             }
         }
         return null;

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Domain;
@@ -29,7 +28,7 @@ public class PingerDaemon extends Thread {
 
     @Override
     public void run() {
-        searchNeededPings = DatabaseConnection.getInstance().prepare("SELECT `pingconfig`.`id` FROM `pingconfig` LEFT JOIN `domainPinglog` ON `domainPinglog`.`configId` = `pingconfig`.`id` INNER JOIN `domains` ON `domains`.`id` = `pingconfig`.`domainid` WHERE ( `domainPinglog`.`configId` IS NULL) AND `domains`.`deleted` IS NULL GROUP BY `pingconfig`.`id`");
+        searchNeededPings = new GigiPreparedStatement("SELECT `pingconfig`.`id` FROM `pingconfig` LEFT JOIN `domainPinglog` ON `domainPinglog`.`configId` = `pingconfig`.`id` INNER JOIN `domains` ON `domains`.`id` = `pingconfig`.`domainid` WHERE ( `domainPinglog`.`configId` IS NULL) AND `domains`.`deleted` IS NULL GROUP BY `pingconfig`.`id`");
         pingers.put(DomainPingType.EMAIL, new EmailPinger());
         pingers.put(DomainPingType.SSL, new SSLPinger(truststore));
         pingers.put(DomainPingType.HTTP, new HTTPFetch());

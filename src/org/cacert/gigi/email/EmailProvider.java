@@ -20,7 +20,6 @@ import javax.naming.NamingException;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.cacert.gigi.crypto.SMIME;
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.util.DNSUtil;
 
@@ -145,12 +144,13 @@ public abstract class EmailProvider {
                         continue;
                     }
 
-                    GigiPreparedStatement statmt = DatabaseConnection.getInstance().prepare("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`=?, `uid`=?, `type`='fast', `status`=?::`pingState`");
-                    statmt.setString(1, address);
-                    statmt.setString(2, line);
-                    statmt.setInt(3, forUid);
-                    statmt.setString(4, "success");
-                    statmt.execute();
+                    try (GigiPreparedStatement statmt = new GigiPreparedStatement("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`=?, `uid`=?, `type`='fast', `status`=?::`pingState`")) {
+                        statmt.setString(1, address);
+                        statmt.setString(2, line);
+                        statmt.setInt(3, forUid);
+                        statmt.setString(4, "success");
+                        statmt.execute();
+                    }
 
                     if (line == null || !line.startsWith("250")) {
                         return line;
@@ -161,12 +161,13 @@ public abstract class EmailProvider {
 
             }
         }
-        GigiPreparedStatement statmt = DatabaseConnection.getInstance().prepare("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`=?, `uid`=?, `type`='fast', `status`=?::`pingState`");
-        statmt.setString(1, address);
-        statmt.setString(2, "Failed to make a connection to the mail server");
-        statmt.setInt(3, forUid);
-        statmt.setString(4, "failed");
-        statmt.execute();
+        try (GigiPreparedStatement statmt = new GigiPreparedStatement("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`=?, `uid`=?, `type`='fast', `status`=?::`pingState`")) {
+            statmt.setString(1, address);
+            statmt.setString(2, "Failed to make a connection to the mail server");
+            statmt.setInt(3, forUid);
+            statmt.setString(4, "failed");
+            statmt.execute();
+        }
         return FAIL;
     }
 

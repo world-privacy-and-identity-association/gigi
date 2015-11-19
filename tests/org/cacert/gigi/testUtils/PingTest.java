@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
@@ -34,15 +33,16 @@ public abstract class PingTest extends ClientTest {
     }
 
     protected void waitForPings(int count) throws SQLException, InterruptedException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT COUNT(*) FROM `domainPinglog`");
-        long start = System.currentTimeMillis();
-        while (System.currentTimeMillis() - start < 10000) {
-            GigiResultSet rs = ps.executeQuery();
-            rs.next();
-            if (rs.getInt(1) >= count) {
-                break;
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT COUNT(*) FROM `domainPinglog`")) {
+            long start = System.currentTimeMillis();
+            while (System.currentTimeMillis() - start < 10000) {
+                GigiResultSet rs = ps.executeQuery();
+                rs.next();
+                if (rs.getInt(1) >= count) {
+                    break;
+                }
+                Thread.sleep(200);
             }
-            Thread.sleep(200);
         }
     }
 

@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.CertificateOwner;
@@ -100,24 +99,25 @@ public class LoginPage extends Page {
     private void tryAuthWithUnpw(HttpServletRequest req) {
         String un = req.getParameter("username");
         String pw = req.getParameter("password");
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `password`, `id` FROM `users` WHERE `email`=? AND verified='1'");
-        ps.setString(1, un);
-        GigiResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            String dbHash = rs.getString(1);
-            String hash = PasswordHash.verifyHash(pw, dbHash);
-            if (hash != null) {
-                if ( !hash.equals(dbHash)) {
-                    GigiPreparedStatement gps = DatabaseConnection.getInstance().prepare("UPDATE `users` SET `password`=? WHERE `email`=?");
-                    gps.setString(1, hash);
-                    gps.setString(2, un);
-                    gps.executeUpdate();
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `password`, `id` FROM `users` WHERE `email`=? AND verified='1'")) {
+            ps.setString(1, un);
+            GigiResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String dbHash = rs.getString(1);
+                String hash = PasswordHash.verifyHash(pw, dbHash);
+                if (hash != null) {
+                    if ( !hash.equals(dbHash)) {
+                        try (GigiPreparedStatement gps = new GigiPreparedStatement("UPDATE `users` SET `password`=? WHERE `email`=?")) {
+                            gps.setString(1, hash);
+                            gps.setString(2, un);
+                            gps.executeUpdate();
+                        }
+                    }
+                    loginSession(req, User.getById(rs.getInt(2)));
+                    req.getSession().setAttribute(LOGIN_METHOD, "Password");
                 }
-                loginSession(req, User.getById(rs.getInt(2)));
-                req.getSession().setAttribute(LOGIN_METHOD, "Password");
             }
         }
-        rs.close();
     }
 
     public static User getUser(HttpServletRequest req) {

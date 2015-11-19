@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.util.Date;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.DateSelector;
@@ -64,9 +63,10 @@ public class TestNotary extends ManagedTest {
             users[i] = User.getById(id);
         }
         int id = createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD);
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `users` SET dob=NOW() - interval '15 years' WHERE id=?");
-        ps.setInt(1, id);
-        ps.execute();
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `users` SET dob=NOW() - interval '15 years' WHERE id=?")) {
+            ps.setInt(1, id);
+            ps.execute();
+        }
         User assurer = User.getById(id);
         for (int i = 0; i < users.length; i++) {
             assuranceFail(assurer, users[i], -1, "test-notary", "2014-01-01");

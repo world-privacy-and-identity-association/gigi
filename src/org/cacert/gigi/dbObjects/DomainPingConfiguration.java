@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.cacert.gigi.Gigi;
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.output.template.Scope;
@@ -24,17 +23,18 @@ public class DomainPingConfiguration implements IdCachable {
     private String info;
 
     private DomainPingConfiguration(int id) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `id`, `domainid`, `type`, `info` FROM `pingconfig` WHERE `id`=?");
-        ps.setInt(1, id);
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `id`, `domainid`, `type`, `info` FROM `pingconfig` WHERE `id`=?")) {
+            ps.setInt(1, id);
 
-        GigiResultSet rs = ps.executeQuery();
-        if ( !rs.next()) {
-            throw new IllegalArgumentException("Invalid pingconfig id " + id);
+            GigiResultSet rs = ps.executeQuery();
+            if ( !rs.next()) {
+                throw new IllegalArgumentException("Invalid pingconfig id " + id);
+            }
+            this.id = rs.getInt("id");
+            target = Domain.getById(rs.getInt("domainid"));
+            type = DomainPingType.valueOf(rs.getString("type").toUpperCase());
+            info = rs.getString("info");
         }
-        this.id = rs.getInt("id");
-        target = Domain.getById(rs.getInt("domainid"));
-        type = DomainPingType.valueOf(rs.getString("type").toUpperCase());
-        info = rs.getString("info");
     }
 
     @Override
@@ -65,23 +65,25 @@ public class DomainPingConfiguration implements IdCachable {
     }
 
     public Date getLastExecution() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `when` AS stamp from `domainPinglog` WHERE `configId`=? ORDER BY `when` DESC LIMIT 1");
-        ps.setInt(1, id);
-        GigiResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            return new Date(rs.getTimestamp("stamp").getTime());
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `when` AS stamp from `domainPinglog` WHERE `configId`=? ORDER BY `when` DESC LIMIT 1")) {
+            ps.setInt(1, id);
+            GigiResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return new Date(rs.getTimestamp("stamp").getTime());
+            }
+            return new Date(0);
         }
-        return new Date(0);
     }
 
     public Date getLastSuccess() {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `when` AS stamp from `domainPinglog` WHERE `configId`=? AND state='success' ORDER BY `when` DESC LIMIT 1");
-        ps.setInt(1, id);
-        GigiResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            return new Date(rs.getTimestamp("stamp").getTime());
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `when` AS stamp from `domainPinglog` WHERE `configId`=? AND state='success' ORDER BY `when` DESC LIMIT 1")) {
+            ps.setInt(1, id);
+            GigiResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return new Date(rs.getTimestamp("stamp").getTime());
+            }
+            return new Date(0);
         }
-        return new Date(0);
     }
 
     public synchronized void requestReping() throws GigiApiException {

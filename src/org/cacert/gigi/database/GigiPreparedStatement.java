@@ -6,17 +6,35 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public class GigiPreparedStatement {
+public class GigiPreparedStatement implements AutoCloseable {
 
     private PreparedStatement target;
 
-    public GigiPreparedStatement(PreparedStatement preparedStatement) {
+    private GigiResultSet rs;
+
+    protected GigiPreparedStatement(PreparedStatement preparedStatement) {
         target = preparedStatement;
+    }
+
+    public GigiPreparedStatement(String stmt) {
+        this(stmt, false);
+    }
+
+    public GigiPreparedStatement(String stmt, boolean scroll) {
+        try {
+            if (scroll) {
+                target = DatabaseConnection.getInstance().prepareInternalScrollable(stmt);
+            } else {
+                target = DatabaseConnection.getInstance().prepareInternal(stmt);
+            }
+        } catch (SQLException e) {
+            throw new Error(e);
+        }
     }
 
     public GigiResultSet executeQuery() {
         try {
-            return new GigiResultSet(target.executeQuery());
+            return rs = new GigiResultSet(target.executeQuery());
         } catch (SQLException e) {
             handleSQL(e);
             throw new Error(e);
@@ -104,6 +122,18 @@ public class GigiPreparedStatement {
 
     private void handleSQL(SQLException e) {
         // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void close() {
+        GigiResultSet r = rs;
+        if (r != null) {
+            r.close();
+        }
+        PreparedStatement tg = target;
+        target = null;
+        DatabaseConnection.getInstance().returnStatement(tg);
 
     }
 

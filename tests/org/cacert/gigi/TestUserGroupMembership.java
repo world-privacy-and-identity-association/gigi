@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Group;
@@ -39,17 +38,20 @@ public class TestUserGroupMembership extends ManagedTest {
         assertThat(u2, is(not(sameInstance(u))));
         assertBehavesTtpGroup(u2);
 
-        GigiResultSet rs = fetchGroupRowsFor(u);
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT * FROM `user_groups` WHERE `user`=?")) {
+            ps.setInt(1, u.getId());
+            GigiResultSet rs = ps.executeQuery();
 
-        assertTrue(rs.next());
-        assertEquals(0, rs.getInt("revokedby"));
-        assertEquals(granter.getId(), rs.getInt("grantedby"));
-        assertEquals(ttpGroup.getDatabaseName(), rs.getString("permission"));
+            assertTrue(rs.next());
+            assertEquals(0, rs.getInt("revokedby"));
+            assertEquals(granter.getId(), rs.getInt("grantedby"));
+            assertEquals(ttpGroup.getDatabaseName(), rs.getString("permission"));
 
-        assertNull(rs.getDate("deleted"));
-        assertNotNull(rs.getDate("granted"));
+            assertNull(rs.getDate("deleted"));
+            assertNotNull(rs.getDate("granted"));
 
-        assertFalse(rs.next());
+            assertFalse(rs.next());
+        }
     }
 
     @Test
@@ -69,23 +71,19 @@ public class TestUserGroupMembership extends ManagedTest {
         assertThat(u2, is(not(sameInstance(u))));
         assertBehavesEmpty(u);
 
-        GigiResultSet rs = fetchGroupRowsFor(u);
-        assertTrue(rs.next());
-        assertEquals(granter.getId(), rs.getInt("revokedby"));
-        assertEquals(granter.getId(), rs.getInt("grantedby"));
-        assertEquals(ttpGroup.getDatabaseName(), rs.getString("permission"));
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT * FROM `user_groups` WHERE `user`=?")) {
+            ps.setInt(1, u.getId());
+            GigiResultSet rs = ps.executeQuery();
+            assertTrue(rs.next());
+            assertEquals(granter.getId(), rs.getInt("revokedby"));
+            assertEquals(granter.getId(), rs.getInt("grantedby"));
+            assertEquals(ttpGroup.getDatabaseName(), rs.getString("permission"));
 
-        assertNotNull(rs.getDate("deleted"));
-        assertNotNull(rs.getDate("granted"));
+            assertNotNull(rs.getDate("deleted"));
+            assertNotNull(rs.getDate("granted"));
 
-        assertFalse(rs.next());
-    }
-
-    private GigiResultSet fetchGroupRowsFor(User u) throws SQLException {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT * FROM `user_groups` WHERE `user`=?");
-        ps.setInt(1, u.getId());
-        GigiResultSet rs = ps.executeQuery();
-        return rs;
+            assertFalse(rs.next());
+        }
     }
 
     private void assertBehavesEmpty(User u) {
@@ -103,17 +101,18 @@ public class TestUserGroupMembership extends ManagedTest {
     @Test
     public void testListGroup() {
         Group g = Group.getByString("supporter");
+        int start = g.getMembers(0, 10).length;
         User ux = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
         User ux2 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
-        assertEquals(0, g.getMembers(0, 10).length);
+        assertEquals(0, g.getMembers(0, 10).length + start);
         ux.grantGroup(ux, g);
-        assertEquals(1, g.getMembers(0, 10).length);
+        assertEquals(1, g.getMembers(0, 10).length + start);
         ux2.grantGroup(ux, g);
-        assertEquals(2, g.getMembers(0, 10).length);
+        assertEquals(2, g.getMembers(0, 10).length + start);
         ux2.revokeGroup(ux, g);
-        assertEquals(1, g.getMembers(0, 10).length);
+        assertEquals(1, g.getMembers(0, 10).length + start);
         ux.revokeGroup(ux, g);
-        assertEquals(0, g.getMembers(0, 10).length);
+        assertEquals(0, g.getMembers(0, 10).length + start);
 
     }
 

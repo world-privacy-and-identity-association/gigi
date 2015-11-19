@@ -3,7 +3,6 @@ package org.cacert.gigi.dbObjects;
 import java.sql.Date;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 
@@ -54,12 +53,13 @@ public class SupportedUser {
         if (ticket == null) {
             throw new GigiApiException("No ticket set!");
         }
-        GigiPreparedStatement prep = DatabaseConnection.getInstance().prepare("INSERT INTO `adminLog` SET uid=?, admin=?, type=?, information=?");
-        prep.setInt(1, target.getId());
-        prep.setInt(2, supporter.getId());
-        prep.setString(3, type);
-        prep.setString(4, ticket);
-        prep.executeUpdate();
+        try (GigiPreparedStatement prep = new GigiPreparedStatement("INSERT INTO `adminLog` SET uid=?, admin=?, type=?, information=?")) {
+            prep.setInt(1, target.getId());
+            prep.setInt(2, supporter.getId());
+            prep.setString(3, type);
+            prep.setString(4, ticket);
+            prep.executeUpdate();
+        }
     }
 
     public int getId() {

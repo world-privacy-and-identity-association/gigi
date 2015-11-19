@@ -2,12 +2,16 @@ package org.cacert.gigi.database;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
@@ -23,7 +27,9 @@ public class DatabaseConnection {
 
     private Connection c;
 
-    private HashMap<String, GigiPreparedStatement> statements = new HashMap<String, GigiPreparedStatement>();
+    private HashMap<String, PreparedStatement> statements = new HashMap<String, PreparedStatement>();
+
+    HashSet<PreparedStatement> underUse = new HashSet<>();
 
     private static Properties credentials;
 
@@ -48,34 +54,44 @@ public class DatabaseConnection {
         }
     }
 
-    public GigiPreparedStatement prepare(String query) {
+    protected synchronized PreparedStatement prepareInternal(String query) throws SQLException {
         ensureOpen();
         query = preprocessQuery(query);
-        GigiPreparedStatement statement = statements.get(query);
-        if (statement == null) {
-            try {
-                statement = new GigiPreparedStatement(c.prepareStatement(query, query.startsWith("SELECT ") ? Statement.NO_GENERATED_KEYS : Statement.RETURN_GENERATED_KEYS));
-            } catch (SQLException e) {
-                throw new Error(e);
+        PreparedStatement statement = statements.get(query);
+        if (statement != null) {
+            if (underUse.add(statement)) {
+                return statement;
+            } else {
+                throw new Error("Statement in Use");
             }
-            statements.put(query, statement);
         }
-        return statement;
+        statement = c.prepareStatement(query, query.startsWith("SELECT ") ? Statement.NO_GENERATED_KEYS : Statement.RETURN_GENERATED_KEYS);
+        statements.put(query, statement);
+        if (underUse.add(statement)) {
+            return statement;
+        } else {
+            throw new Error("Statement in Use");
+        }
     }
 
-    public GigiPreparedStatement prepareScrollable(String query) {
+    protected synchronized PreparedStatement prepareInternalScrollable(String query) throws SQLException {
         ensureOpen();
         query = preprocessQuery(query);
-        GigiPreparedStatement statement = statements.get(query);
-        if (statement == null) {
-            try {
-                statement = new GigiPreparedStatement(c.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY));
-            } catch (SQLException e) {
-                throw new Error(e);
+        PreparedStatement statement = statements.get("__SCROLLABLE__! " + query);
+        if (statement != null) {
+            if (underUse.add(statement)) {
+                return statement;
+            } else {
+                throw new Error("Statement in Use");
             }
-            statements.put(query, statement);
         }
-        return statement;
+        statement = c.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        statements.put("__SCROLLABLE__! " + query, statement);
+        if (underUse.add(statement)) {
+            return statement;
+        } else {
+            throw new Error("Statement in Use");
+        }
     }
 
     private long lastAction = System.currentTimeMillis();
@@ -95,16 +111,17 @@ public class DatabaseConnection {
         lastAction = System.currentTimeMillis();
     }
 
-    private static ThreadLocal<DatabaseConnection> instances = new ThreadLocal<DatabaseConnection>() {
-
-        @Override
-        protected DatabaseConnection initialValue() {
-            return new DatabaseConnection();
-        }
-    };
+    private static DatabaseConnection instance;
 
     public static DatabaseConnection getInstance() {
-        return instances.get();
+        if (instance == null) {
+            synchronized (DatabaseConnection.class) {
+                if (instance == null) {
+                    instance = new DatabaseConnection();
+                }
+            }
+        }
+        return instance;
     }
 
     public static boolean isInited() {
@@ -116,10 +133,12 @@ public class DatabaseConnection {
             throw new Error("Re-initiaizing is forbidden.");
         }
         credentials = conf;
-        GigiResultSet rs = getInstance().prepare("SELECT version FROM \"schemeVersion\" ORDER BY version DESC LIMIT 1;").executeQuery();
         int version = 0;
-        if (rs.next()) {
-            version = rs.getInt(1);
+        try (GigiPreparedStatement gigiPreparedStatement = new GigiPreparedStatement("SELECT version FROM \"schemeVersion\" ORDER BY version DESC LIMIT 1;")) {
+            GigiResultSet rs = gigiPreparedStatement.executeQuery();
+            if (rs.next()) {
+                version = rs.getInt(1);
+            }
         }
         if (version == CURRENT_SCHEMA_VERSION) {
             return; // Good to go
@@ -210,5 +229,21 @@ public class DatabaseConnection {
             ident = ident + "\"";
         }
         return ident;
+    }
+
+    protected synchronized void returnStatement(PreparedStatement target) {
+        underUse.remove(target);
+    }
+
+    public void lockedStatements(PrintWriter writer) {
+        writer.println(underUse.size());
+        for (PreparedStatement ps : underUse) {
+            for (Entry<String, PreparedStatement> e : statements.entrySet()) {
+                if (e.getValue() == ps) {
+                    writer.println("<br/>");
+                    writer.println(e.getKey());
+                }
+            }
+        }
     }
 }

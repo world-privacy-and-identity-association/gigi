@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.User;
@@ -75,14 +74,12 @@ public class AssurePage extends Page {
             return;
         }
 
-        GigiResultSet rs = null;
-        try {
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `users`.`id`, `verified` FROM `users` INNER JOIN `certOwners` ON `certOwners`.`id`=`users`.`id` WHERE `email`=? AND `dob`=? AND `deleted` IS NULL");
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `users`.`id`, `verified` FROM `users` INNER JOIN `certOwners` ON `certOwners`.`id`=`users`.`id` WHERE `email`=? AND `dob`=? AND `deleted` IS NULL")) {
             ps.setString(1, req.getParameter("email"));
             Calendar c = Calendar.getInstance();
             c.set(Integer.parseInt(req.getParameter("year")), Integer.parseInt(req.getParameter("month")) - 1, Integer.parseInt(req.getParameter("day")));
             ps.setDate(2, new Date(c.getTimeInMillis()));
-            rs = ps.executeQuery();
+            GigiResultSet rs = ps.executeQuery();
             int id = 0;
             if (rs.next()) {
                 id = rs.getInt(1);
@@ -106,11 +103,6 @@ public class AssurePage extends Page {
                 out.print("</div>");
             }
 
-            rs.close();
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
         }
     }
 }

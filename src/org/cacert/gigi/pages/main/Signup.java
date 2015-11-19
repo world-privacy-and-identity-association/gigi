@@ -119,26 +119,24 @@ public class Signup extends Form {
         if (isFailed(out)) {
             return false;
         }
-        GigiPreparedStatement q1 = DatabaseConnection.getInstance().prepare("SELECT * FROM `emails` WHERE `email`=? AND `deleted` IS NULL");
-        GigiPreparedStatement q2 = DatabaseConnection.getInstance().prepare("SELECT * FROM `certOwners` INNER JOIN `users` ON `users`.`id`=`certOwners`.`id` WHERE `email`=? AND `deleted` IS NULL");
-        q1.setString(1, email);
-        q2.setString(1, email);
-        GigiResultSet r1 = q1.executeQuery();
-        GigiResultSet r2 = q2.executeQuery();
-        if (r1.next() || r2.next()) {
-            outputError(out, req, "This email address is currently valid in the system.");
+        try (GigiPreparedStatement q1 = new GigiPreparedStatement("SELECT * FROM `emails` WHERE `email`=? AND `deleted` IS NULL"); GigiPreparedStatement q2 = new GigiPreparedStatement("SELECT * FROM `certOwners` INNER JOIN `users` ON `users`.`id`=`certOwners`.`id` WHERE `email`=? AND `deleted` IS NULL")) {
+            q1.setString(1, email);
+            q2.setString(1, email);
+            GigiResultSet r1 = q1.executeQuery();
+            GigiResultSet r2 = q2.executeQuery();
+            if (r1.next() || r2.next()) {
+                outputError(out, req, "This email address is currently valid in the system.");
+            }
         }
-        r1.close();
-        r2.close();
-        GigiPreparedStatement q3 = DatabaseConnection.getInstance().prepare("SELECT `domain` FROM `baddomains` WHERE `domain`=RIGHT(?, LENGTH(`domain`))");
-        q3.setString(1, email);
+        try (GigiPreparedStatement q3 = new GigiPreparedStatement("SELECT `domain` FROM `baddomains` WHERE `domain`=RIGHT(?, LENGTH(`domain`))")) {
+            q3.setString(1, email);
 
-        GigiResultSet r3 = q3.executeQuery();
-        if (r3.next()) {
-            String domain = r3.getString(1);
-            outputError(out, req, "We don't allow signups from people using email addresses from %s", domain);
+            GigiResultSet r3 = q3.executeQuery();
+            if (r3.next()) {
+                String domain = r3.getString(1);
+                outputError(out, req, "We don't allow signups from people using email addresses from %s", domain);
+            }
         }
-        r3.close();
         String mailResult = EmailProvider.FAIL;
         try {
             mailResult = HTMLEncoder.encodeHTML(EmailProvider.getInstance().checkEmailServer(0, email));
@@ -176,13 +174,14 @@ public class Signup extends Form {
             DatabaseConnection.getInstance().beginTransaction();
             User u = new User(email, password, buildupName, myDoB.getDate(), Page.getLanguage(req).getLocale());
 
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `alerts` SET `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?");
-            ps.setInt(1, u.getId());
-            ps.setBoolean(2, general);
-            ps.setBoolean(3, country);
-            ps.setBoolean(4, regional);
-            ps.setBoolean(5, radius);
-            ps.execute();
+            try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `alerts` SET `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?")) {
+                ps.setInt(1, u.getId());
+                ps.setBoolean(2, general);
+                ps.setBoolean(3, country);
+                ps.setBoolean(4, regional);
+                ps.setBoolean(5, radius);
+                ps.execute();
+            }
             Notary.writeUserAgreement(u, "CCA", "account creation", "", true, 0);
 
             DatabaseConnection.getInstance().commitTransaction();

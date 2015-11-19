@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.testUtils.ManagedTest;
@@ -20,18 +19,20 @@ public class TestPasswordMigration extends ManagedTest {
 
     @Test
     public void testPasswordMigration() throws IOException {
-        GigiPreparedStatement stmt = DatabaseConnection.getInstance().prepare("UPDATE users SET `password`=? WHERE id=?");
-        stmt.setString(1, PasswordHash.sha1("a"));
-        stmt.setInt(2, ru.getUser().getId());
-        stmt.execute();
+        try (GigiPreparedStatement stmt = new GigiPreparedStatement("UPDATE users SET `password`=? WHERE id=?")) {
+            stmt.setString(1, PasswordHash.sha1("a"));
+            stmt.setInt(2, ru.getUser().getId());
+            stmt.execute();
+        }
         String cookie = login(ru.getUser().getEmail(), "a");
         assertTrue(isLoggedin(cookie));
 
-        stmt = DatabaseConnection.getInstance().prepare("SELECT `password` FROM users WHERE id=?");
-        stmt.setInt(1, ru.getUser().getId());
-        GigiResultSet res = stmt.executeQuery();
-        assertTrue(res.next());
-        String newHash = res.getString(1);
-        assertThat(newHash, containsString("$"));
+        try (GigiPreparedStatement stmt = new GigiPreparedStatement("SELECT `password` FROM users WHERE id=?")) {
+            stmt.setInt(1, ru.getUser().getId());
+            GigiResultSet res = stmt.executeQuery();
+            assertTrue(res.next());
+            String newHash = res.getString(1);
+            assertThat(newHash, containsString("$"));
+        }
     }
 }

@@ -13,8 +13,6 @@ import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -27,7 +25,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
@@ -45,7 +42,6 @@ import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
-import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.Certificate.SANType;
 import org.cacert.gigi.dbObjects.Certificate.SubjectAlternateName;
@@ -93,19 +89,6 @@ public class SimpleSigner {
     }
 
     public static void main(String[] args) throws IOException, SQLException, InterruptedException {
-        if (false) {
-            try {
-                KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-                kpg.initialize(2048);
-                KeyPair kp = kpg.generateKeyPair();
-                X500Principal xp = new X500Principal(genX500Name(Certificate.buildDN("CN", "uiae")).getEncoded());
-                byte[] i = generateCert(kp.getPublic(), kp.getPrivate(), Certificate.buildDN("CN", "uiae"), xp, Arrays.<SubjectAlternateName>asList(), new Date(), new Date(System.currentTimeMillis() + 1000 * 60 * 60), Digest.SHA512, "clientAuth");
-                System.out.println(Base64.getMimeEncoder().encodeToString(i));
-            } catch (GeneralSecurityException e) {
-                e.printStackTrace();
-            }
-            return;
-        }
         Properties p = new Properties();
         try (Reader reader = new InputStreamReader(new FileInputStream("config/gigi.properties"), "UTF-8")) {
             p.load(reader);
@@ -133,24 +116,24 @@ public class SimpleSigner {
             throw new IllegalStateException("already running");
         }
         running = true;
-        readyCerts = DatabaseConnection.getInstance().prepare("SELECT certs.id AS id, certs.csr_name, jobs.id AS jobid, csr_type, md, `executeFrom`, `executeTo`, profile FROM jobs " + //
+        readyCerts = new GigiPreparedStatement("SELECT certs.id AS id, certs.csr_name, jobs.id AS jobid, csr_type, md, `executeFrom`, `executeTo`, profile FROM jobs " + //
                 "INNER JOIN certs ON certs.id=jobs.`targetId` " + //
                 "INNER JOIN profiles ON profiles.id=certs.profile " + //
                 "WHERE jobs.state='open' "//
                 + "AND task='sign'");
 
-        getSANSs = DatabaseConnection.getInstance().prepare("SELECT contents, type FROM `subjectAlternativeNames` " + //
+        getSANSs = new GigiPreparedStatement("SELECT contents, type FROM `subjectAlternativeNames` " + //
                 "WHERE `certId`=?");
 
-        updateMail = DatabaseConnection.getInstance().prepare("UPDATE certs SET crt_name=?," + " created=NOW(), serial=?, caid=? WHERE id=?");
-        warnMail = DatabaseConnection.getInstance().prepare("UPDATE jobs SET warning=warning+1, state=IF(warning<3, 'open','error') WHERE id=?");
+        updateMail = new GigiPreparedStatement("UPDATE certs SET crt_name=?," + " created=NOW(), serial=?, caid=? WHERE id=?");
+        warnMail = new GigiPreparedStatement("UPDATE jobs SET warning=warning+1, state=IF(warning<3, 'open','error') WHERE id=?");
 
-        revoke = DatabaseConnection.getInstance().prepare("SELECT certs.id, certs.csr_name,jobs.id FROM jobs INNER JOIN certs ON jobs.`targetId`=certs.id" + " WHERE jobs.state='open' AND task='revoke'");
-        revokeCompleted = DatabaseConnection.getInstance().prepare("UPDATE certs SET revoked=NOW() WHERE id=?");
+        revoke = new GigiPreparedStatement("SELECT certs.id, certs.csr_name,jobs.id FROM jobs INNER JOIN certs ON jobs.`targetId`=certs.id" + " WHERE jobs.state='open' AND task='revoke'");
+        revokeCompleted = new GigiPreparedStatement("UPDATE certs SET revoked=NOW() WHERE id=?");
 
-        finishJob = DatabaseConnection.getInstance().prepare("UPDATE jobs SET state='done' WHERE id=?");
+        finishJob = new GigiPreparedStatement("UPDATE jobs SET state='done' WHERE id=?");
 
-        locateCA = DatabaseConnection.getInstance().prepare("SELECT id FROM cacerts WHERE keyname=?");
+        locateCA = new GigiPreparedStatement("SELECT id FROM cacerts WHERE keyname=?");
 
         runner = new Thread() {
 
@@ -193,7 +176,6 @@ public class SimpleSigner {
         boolean worked = false;
         while (rs.next()) {
             int id = rs.getInt(1);
-            File crt = KeyStorage.locateCrt(id);
             worked = true;
             System.out.println("Revoke faked: " + id);
             revokeCompleted.setInt(1, id);
@@ -297,15 +279,16 @@ public class SimpleSigner {
                 String ca = caP.getProperty("ca") + "_2015_1";
 
                 HashMap<String, String> subj = new HashMap<>();
-                GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT name, value FROM `certAvas` WHERE `certId`=?");
-                ps.setInt(1, rs.getInt("id"));
-                GigiResultSet rs2 = ps.executeQuery();
-                while (rs2.next()) {
-                    String name = rs2.getString("name");
-                    if (name.equals("EMAIL")) {
-                        name = "emailAddress";
+                try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT name, value FROM `certAvas` WHERE `certId`=?")) {
+                    ps.setInt(1, rs.getInt("id"));
+                    GigiResultSet rs2 = ps.executeQuery();
+                    while (rs2.next()) {
+                        String name = rs2.getString("name");
+                        if (name.equals("EMAIL")) {
+                            name = "emailAddress";
+                        }
+                        subj.put(name, rs2.getString("value"));
                     }
-                    subj.put(name, rs2.getString("value"));
                 }
                 if (subj.size() == 0) {
                     subj.put("CN", "<empty>");
@@ -330,7 +313,6 @@ public class SimpleSigner {
                 }
                 PrivateKey i = loadOpensslKey(new File("signer/ca/" + ca + "/ca.key"));
 
-                String[] call;
                 X509Certificate root = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new FileInputStream("signer/ca/" + ca + "/ca.crt"));
                 byte[] cert = generateCert(pk, i, subj, root.getSubjectX500Principal(), altnames, fromDate, toDate, Digest.valueOf(rs.getString("md").toUpperCase()), caP.getProperty("eku"));
                 PrintWriter out = new PrintWriter(crt);
@@ -338,18 +320,6 @@ public class SimpleSigner {
                 out.println(Base64.getMimeEncoder().encodeToString(cert));
                 out.println("-----END CERTIFICATE-----");
                 out.close();
-                // synchronized (sdf) {
-                /*
-                 * call = new String[] { "openssl", "ca",// "-in", "../../" +
-                 * csrname,// "-cert", "../" + ca + ".crt",// "-keyfile", "../"
-                 * + ca + ".key",// "-out", "../../" + crt.getPath(),// "-utf8",
-                 * "-startdate", sdf.format(fromDate),// "-enddate",
-                 * sdf.format(toDate),// "-batch",// "-md",
-                 * rs.getString("md"),// "-extfile", "../" + f.getName(),//
-                 * "-subj", Certificate.stringifyDN(subj),// "-config",
-                 * "../selfsign.config"// };
-                 */
-                // }
 
                 try (InputStream is = new FileInputStream(crt)) {
                     locateCA.setString(1, ca);
@@ -490,17 +460,20 @@ public class SimpleSigner {
             // ByteArrayInputStream(cert.toByteArray()));
             // c.verify(pk); only for self-signeds
 
-            return cert.toByteArray();
+            byte[] res = cert.toByteArray();
+            cert.close();
+            return res;
         }
 
     }
 
     private static byte[] generateKU() throws IOException {
-        DerOutputStream dos = new DerOutputStream();
-        dos.putBitString(new byte[] {
-            (byte) 0b10101000
-        });
-        return dos.toByteArray();
+        try (DerOutputStream dos = new DerOutputStream()) {
+            dos.putBitString(new byte[] {
+                (byte) 0b10101000
+            });
+            return dos.toByteArray();
+        }
     }
 
     private static byte[] generateEKU(String eku) throws IOException {
@@ -585,9 +558,11 @@ public class SimpleSigner {
             };
             break;
         default:
+            dos.close();
             throw new Error("unknown RDN-type: " + key);
         }
         RDN rdn = new RDN(new AVA(new ObjectIdentifier(oid), new DerValue(dos.toByteArray())));
+        dos.close();
         return rdn;
     }
 
@@ -608,6 +583,7 @@ public class SimpleSigner {
             } else if (san.getType() == SANType.EMAIL) {
                 type = (byte) GeneralNameInterface.NAME_RFC822;
             } else {
+                SANContent.close();
                 throw new Error("" + san.getType());
             }
             SANContent.write(DerValue.createTag(DerValue.TAG_CONTEXT, false, type), san.getName().getBytes("UTF-8"));
@@ -615,6 +591,8 @@ public class SimpleSigner {
         DerOutputStream SANSeqContent = new DerOutputStream();
         SANSeqContent.write(DerValue.tag_Sequence, SANContent);
         byte[] byteArray = SANSeqContent.toByteArray();
+        SANContent.close();
+        SANSeqContent.close();
         return byteArray;
     }
 }

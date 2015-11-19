@@ -35,7 +35,6 @@ import javax.net.ssl.X509KeyManager;
 
 import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.database.SQLFileManager.ImportType;
@@ -274,10 +273,10 @@ public class ManagedTest extends ConfiguredTest {
         try {
             ter.receive().verify();
 
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `id` FROM `users` WHERE `email`=?");
-            ps.setString(1, email);
+            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `id` FROM `users` WHERE `email`=?")) {
+                ps.setString(1, email);
 
-            try (GigiResultSet rs = ps.executeQuery()) {
+                GigiResultSet rs = ps.executeQuery();
                 if (rs.next()) {
                     return rs.getInt(1);
                 }
@@ -319,15 +318,17 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     public static void makeAssurer(int uid) {
-        GigiPreparedStatement ps1 = DatabaseConnection.getInstance().prepare("INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?");
-        ps1.setInt(1, uid);
-        ps1.setInt(2, 1);
-        ps1.execute();
+        try (GigiPreparedStatement ps1 = new GigiPreparedStatement("INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?")) {
+            ps1.setInt(1, uid);
+            ps1.setInt(2, 1);
+            ps1.execute();
+        }
 
-        GigiPreparedStatement ps2 = DatabaseConnection.getInstance().prepare("INSERT INTO `notary` SET `from`=?, `to`=?, points='100'");
-        ps2.setInt(1, uid);
-        ps2.setInt(2, uid);
-        ps2.execute();
+        try (GigiPreparedStatement ps2 = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, points='100'")) {
+            ps2.setInt(1, uid);
+            ps2.setInt(2, uid);
+            ps2.execute();
+        }
     }
 
     protected static String stripCookie(String headerField) {

@@ -156,6 +156,13 @@ public class Gigi extends HttpServlet {
             putPage(UserTrainings.SUPPORT_PATH, new UserTrainings(true), null);
 
             putPage(PasswordResetPage.PATH, new PasswordResetPage(), null);
+            putPage("/dbs", new Page("Database set") {
+
+                @Override
+                public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+                    DatabaseConnection.getInstance().lockedStatements(resp.getWriter());
+                }
+            }, "Database set");
 
             if (testing) {
                 try {

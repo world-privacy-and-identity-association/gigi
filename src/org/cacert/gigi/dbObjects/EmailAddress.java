@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Locale;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.email.EmailProvider;
@@ -23,18 +22,18 @@ public class EmailAddress implements IdCachable, Verifyable {
     private String hash = null;
 
     private EmailAddress(int id) {
-        GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("SELECT `memid`, `email`, `hash` FROM `emails` WHERE `id`=? AND `deleted` IS NULL");
-        ps.setInt(1, id);
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `memid`, `email`, `hash` FROM `emails` WHERE `id`=? AND `deleted` IS NULL")) {
+            ps.setInt(1, id);
 
-        GigiResultSet rs = ps.executeQuery();
-        if ( !rs.next()) {
-            throw new IllegalArgumentException("Invalid email id " + id);
+            GigiResultSet rs = ps.executeQuery();
+            if ( !rs.next()) {
+                throw new IllegalArgumentException("Invalid email id " + id);
+            }
+            this.id = id;
+            owner = User.getById(rs.getInt(1));
+            address = rs.getString(2);
+            hash = rs.getString(3);
         }
-        this.id = id;
-        owner = User.getById(rs.getInt(1));
-        address = rs.getString(2);
-        hash = rs.getString(3);
-        rs.close();
     }
 
     public EmailAddress(User owner, String address, Locale mailLocale) throws GigiApiException {
@@ -53,18 +52,18 @@ public class EmailAddress implements IdCachable, Verifyable {
                 if (id != 0) {
                     throw new IllegalStateException("already inserted.");
                 }
-                GigiPreparedStatement psCheck = DatabaseConnection.getInstance().prepare("SELECT 1 FROM `emails` WHERE email=? AND deleted is NULL");
-                GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("INSERT INTO `emails` SET memid=?, hash=?, email=?");
-                ps.setInt(1, owner.getId());
-                ps.setString(2, hash);
-                ps.setString(3, address);
-                psCheck.setString(1, address);
-                GigiResultSet res = psCheck.executeQuery();
-                if (res.next()) {
-                    throw new GigiApiException("The email is currently valid");
+                try (GigiPreparedStatement psCheck = new GigiPreparedStatement("SELECT 1 FROM `emails` WHERE email=? AND deleted is NULL"); GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `emails` SET memid=?, hash=?, email=?")) {
+                    ps.setInt(1, owner.getId());
+                    ps.setString(2, hash);
+                    ps.setString(3, address);
+                    psCheck.setString(1, address);
+                    GigiResultSet res = psCheck.executeQuery();
+                    if (res.next()) {
+                        throw new GigiApiException("The email is currently valid");
+                    }
+                    ps.execute();
+                    id = ps.lastInsertId();
                 }
-                ps.execute();
-                id = ps.lastInsertId();
                 myCache.put(this);
             }
             MailProbe.sendMailProbe(l, "email", id, hash, address);
@@ -83,16 +82,18 @@ public class EmailAddress implements IdCachable, Verifyable {
 
     public synchronized void verify(String hash) throws GigiApiException {
         if (this.hash.equals(hash)) {
-            GigiPreparedStatement ps = DatabaseConnection.getInstance().prepare("UPDATE `emails` SET hash='' WHERE id=?");
-            ps.setInt(1, id);
-            ps.execute();
+            try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `emails` SET hash='' WHERE id=?")) {
+                ps.setInt(1, id);
+                ps.execute();
+            }
             hash = "";
 
             // Verify user with that primary email
-            GigiPreparedStatement ps2 = DatabaseConnection.getInstance().prepare("update `users` set `verified`='1' where `id`=? and `email`=? and `verified`='0'");
-            ps2.setInt(1, owner.getId());
-            ps2.setString(2, address);
-            ps2.execute();
+            try (GigiPreparedStatement ps2 = new GigiPreparedStatement("update `users` set `verified`='1' where `id`=? and `email`=? and `verified`='0'")) {
+                ps2.setInt(1, owner.getId());
+                ps2.setString(2, address);
+                ps2.execute();
+            }
             this.hash = "";
 
         } else {
