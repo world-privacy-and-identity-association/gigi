@@ -46,7 +46,7 @@ public class Domain implements IdCachable, Verifyable {
             throw new IllegalArgumentException("Invalid domain id " + id);
         }
         this.id = id;
-        owner = User.getById(rs.getInt(1));
+        owner = CertificateOwner.getById(rs.getInt(1));
         suffix = rs.getString(2);
         rs.close();
     }
