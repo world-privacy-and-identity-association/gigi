@@ -6,15 +6,15 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration;
 import org.cacert.gigi.dbObjects.DomainPingExecution;
-import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
-import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.pages.LoginPage;
 
 public class DomainPinglogForm extends Form {
 
@@ -29,7 +29,7 @@ public class DomainPinglogForm extends Form {
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
-        User u = Page.getUser(req);
+        CertificateOwner u = LoginPage.getAuthorizationContext(req).getTarget();
 
         int i = Integer.parseInt(req.getPathInfo().substring(DomainOverview.PATH.length()));
         Domain d = Domain.getById(i);
