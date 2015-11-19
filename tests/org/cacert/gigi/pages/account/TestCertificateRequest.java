@@ -8,6 +8,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.pages.account.certs.CertificateRequest;
 import org.cacert.gigi.testUtils.ClientTest;
@@ -63,7 +64,13 @@ public class TestCertificateRequest extends ClientTest {
     public void testCodesignModifiedName() throws Exception {
         try {
             CertificateRequest cr = new CertificateRequest(ac, generatePEMCSR(kp, "CN=a ab"));
+            System.out.println("eml");
+            for (EmailAddress e : u.getEmails()) {
+                System.out.println(e.getAddress());
+            }
             cr.update("name", "SHA512", "code-a", null, null, "email:" + email, null, null);
+            cr.draft();
+            fail();
         } catch (GigiApiException e) {
             assertThat(e.getMessage(), containsString("does not match the details"));
         }
