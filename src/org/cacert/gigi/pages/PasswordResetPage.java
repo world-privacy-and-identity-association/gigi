@@ -33,8 +33,17 @@ public class PasswordResetPage extends Page {
 
         public PasswordResetForm(HttpServletRequest hsr) throws GigiApiException {
             super(hsr, PATH);
-            id = Integer.parseInt(hsr.getParameter("id"));
-            u = User.getResetWithToken(id, hsr.getParameter("token"));
+            String idS = hsr.getParameter("id");
+            String tokS = hsr.getParameter("token");
+            if (idS == null || tokS == null) {
+                throw new GigiApiException("requires id and token");
+            }
+            try {
+                id = Integer.parseInt(idS);
+            } catch (NumberFormatException e) {
+                throw new GigiApiException("requires id to be integer");
+            }
+            u = User.getResetWithToken(id, tokS);
             if (u == null) {
                 throw new GigiApiException("User missing or token invalid");
             }
