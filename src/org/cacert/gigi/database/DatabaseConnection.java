@@ -21,13 +21,91 @@ import org.cacert.gigi.database.SQLFileManager.ImportType;
 
 public class DatabaseConnection {
 
+    public static final int MAX_CACHED_INSTANCES = 3;
+
+    private static class StatementDescriptor {
+
+        String query;
+
+        boolean scrollable;
+
+        int instance;
+
+        PreparedStatement target;
+
+        public StatementDescriptor(String query, boolean scrollable) {
+            this.query = query;
+            this.scrollable = scrollable;
+            this.instance = 0;
+        }
+
+        public synchronized void instanciate(Connection c) throws SQLException {
+            if (scrollable) {
+                target = c.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            } else {
+                target = c.prepareStatement(query, query.startsWith("SELECT ") ? Statement.NO_GENERATED_KEYS : Statement.RETURN_GENERATED_KEYS);
+            }
+
+        }
+
+        public PreparedStatement getTarget() {
+            return target;
+        }
+
+        public synchronized void increase() {
+            if (target != null) {
+                throw new IllegalStateException();
+            }
+            instance++;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + instance;
+            result = prime * result + ((query == null) ? 0 : query.hashCode());
+            result = prime * result + (scrollable ? 1231 : 1237);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            StatementDescriptor other = (StatementDescriptor) obj;
+            if (instance != other.instance) {
+                return false;
+            }
+            if (query == null) {
+                if (other.query != null) {
+                    return false;
+                }
+            } else if ( !query.equals(other.query)) {
+                return false;
+            }
+            if (scrollable != other.scrollable) {
+                return false;
+            }
+            return true;
+        }
+
+    }
+
     public static final int CURRENT_SCHEMA_VERSION = 6;
 
     public static final int CONNECTION_TIMEOUT = 24 * 60 * 60;
 
     private Connection c;
 
-    private HashMap<String, PreparedStatement> statements = new HashMap<String, PreparedStatement>();
+    private HashMap<StatementDescriptor, PreparedStatement> statements = new HashMap<StatementDescriptor, PreparedStatement>();
 
     HashSet<PreparedStatement> underUse = new HashSet<>();
 
@@ -55,43 +133,37 @@ public class DatabaseConnection {
     }
 
     protected synchronized PreparedStatement prepareInternal(String query) throws SQLException {
+        return prepareInternal(query, false);
+    }
+
+    protected synchronized PreparedStatement prepareInternal(String query, boolean scrollable) throws SQLException {
+
         ensureOpen();
         query = preprocessQuery(query);
-        PreparedStatement statement = statements.get(query);
-        if (statement != null) {
-            if (underUse.add(statement)) {
-                return statement;
+        StatementDescriptor searchHead = new StatementDescriptor(query, scrollable);
+        PreparedStatement statement = null;
+        while (statement == null) {
+            statement = statements.get(searchHead);
+            if (statement == null) {
+                searchHead.instanciate(c);
+                statement = searchHead.getTarget();
+                if (searchHead.instance >= MAX_CACHED_INSTANCES) {
+                    return statement;
+                }
+                underUse.add(statement);
+                statements.put(searchHead, statement);
+            } else if (underUse.contains(statement)) {
+                searchHead.increase();
+                statement = null;
             } else {
-                throw new Error("Statement in Use");
+                underUse.add(statement);
             }
         }
-        statement = c.prepareStatement(query, query.startsWith("SELECT ") ? Statement.NO_GENERATED_KEYS : Statement.RETURN_GENERATED_KEYS);
-        statements.put(query, statement);
-        if (underUse.add(statement)) {
-            return statement;
-        } else {
-            throw new Error("Statement in Use");
-        }
+        return statement;
     }
 
     protected synchronized PreparedStatement prepareInternalScrollable(String query) throws SQLException {
-        ensureOpen();
-        query = preprocessQuery(query);
-        PreparedStatement statement = statements.get("__SCROLLABLE__! " + query);
-        if (statement != null) {
-            if (underUse.add(statement)) {
-                return statement;
-            } else {
-                throw new Error("Statement in Use");
-            }
-        }
-        statement = c.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-        statements.put("__SCROLLABLE__! " + query, statement);
-        if (underUse.add(statement)) {
-            return statement;
-        } else {
-            throw new Error("Statement in Use");
-        }
+        return prepareInternal(query, true);
     }
 
     private long lastAction = System.currentTimeMillis();
@@ -231,17 +303,25 @@ public class DatabaseConnection {
         return ident;
     }
 
-    protected synchronized void returnStatement(PreparedStatement target) {
-        underUse.remove(target);
+    protected synchronized void returnStatement(PreparedStatement target) throws SQLException {
+        if ( !underUse.remove(target)) {
+            target.close();
+        }
+    }
+
+    public synchronized int getNumberOfLockedStatements() {
+        return underUse.size();
     }
 
     public void lockedStatements(PrintWriter writer) {
         writer.println(underUse.size());
         for (PreparedStatement ps : underUse) {
-            for (Entry<String, PreparedStatement> e : statements.entrySet()) {
+            for (Entry<StatementDescriptor, PreparedStatement> e : statements.entrySet()) {
                 if (e.getValue() == ps) {
                     writer.println("<br/>");
-                    writer.println(e.getKey());
+                    writer.println(e.getKey().instance + ":");
+
+                    writer.println(e.getKey().query);
                 }
             }
         }

@@ -22,11 +22,7 @@ public class GigiPreparedStatement implements AutoCloseable {
 
     public GigiPreparedStatement(String stmt, boolean scroll) {
         try {
-            if (scroll) {
-                target = DatabaseConnection.getInstance().prepareInternalScrollable(stmt);
-            } else {
-                target = DatabaseConnection.getInstance().prepareInternal(stmt);
-            }
+            target = DatabaseConnection.getInstance().prepareInternal(stmt, scroll);
         } catch (SQLException e) {
             throw new Error(e);
         }
@@ -133,7 +129,11 @@ public class GigiPreparedStatement implements AutoCloseable {
         }
         PreparedStatement tg = target;
         target = null;
-        DatabaseConnection.getInstance().returnStatement(tg);
+        try {
+            DatabaseConnection.getInstance().returnStatement(tg);
+        } catch (SQLException e) {
+            throw new Error(e);
+        }
 
     }
 
