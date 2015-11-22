@@ -32,6 +32,9 @@ then
 elif [ "$1" == "reset-database" ]
 then
 	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.DatabaseManager
+elif [ "$1" == "fetch-alexa" ]
+then
+	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.HighFinancialValueFetcher $2 $3
 elif [ "$1" == "fetch-locales" ]
 then
     if [ "$2" == "" ]; then

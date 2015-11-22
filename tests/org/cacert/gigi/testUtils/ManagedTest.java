@@ -97,13 +97,17 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     @BeforeClass
-    public static void initEnvironment() {
+    public static void initEnvironmentHook() {
+        initEnvironment();
+    }
+
+    public static Properties initEnvironment() {
         try {
-            ConfiguredTest.initEnvironment();
+            Properties mainProps = ConfiguredTest.initEnvironment();
 
             purgeDatabase();
             String type = testProps.getProperty("type");
-            Properties mainProps = generateMainProps();
+            generateMainProps(mainProps);
             ServerConstants.init(mainProps);
             if (type.equals("local")) {
                 url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort.https");
@@ -113,7 +117,7 @@ public class ManagedTest extends ConfiguredTest {
                 if (testProps.getProperty("withSigner", "false").equals("true")) {
                     SimpleSigner.runSigner();
                 }
-                return;
+                return mainProps;
             }
             url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort.https");
             gigi = Runtime.getRuntime().exec(testProps.getProperty("java"));
@@ -151,12 +155,13 @@ public class ManagedTest extends ConfiguredTest {
             ter = new TestEmailReceiver(new InetSocketAddress("localhost", 8473));
             ter.start();
             SimpleSigner.runSigner();
+            return mainProps;
         } catch (IOException e) {
             throw new Error(e);
         } catch (SQLException e1) {
-            e1.printStackTrace();
+            throw new Error(e1);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            throw new Error(e);
         }
 
     }
@@ -187,8 +192,7 @@ public class ManagedTest extends ConfiguredTest {
         u.openConnection().getHeaderField("Location");
     }
 
-    private static Properties generateMainProps() {
-        Properties mainProps = new Properties();
+    private static void generateMainProps(Properties mainProps) {
         mainProps.setProperty("testrunner", "true");
         mainProps.setProperty("host", "127.0.0.1");
         mainProps.setProperty("name.secure", testProps.getProperty("name.secure"));
@@ -205,7 +209,6 @@ public class ManagedTest extends ConfiguredTest {
         mainProps.setProperty("sql.user", testProps.getProperty("sql.user"));
         mainProps.setProperty("sql.password", testProps.getProperty("sql.password"));
         mainProps.setProperty("testing", "true");
-        return mainProps;
     }
 
     @AfterClass

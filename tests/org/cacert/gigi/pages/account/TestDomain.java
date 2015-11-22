@@ -19,6 +19,16 @@ public class TestDomain extends ClientTest {
         assertNotNull(addDomain(cookie, uniq + ".de"));
     }
 
+    @Test
+    public void testInvalid() throws IOException {
+        assertNotNull(addDomain(cookie, uniq + ".invalid"));
+    }
+
+    @Test
+    public void testHighFinancialValue() throws IOException {
+        assertNotNull(addDomain(cookie, "google.com"));
+    }
+
     public static String addDomain(String session, String domain) throws IOException {
         return executeBasicWebInteraction(session, DomainOverview.PATH, "adddomain&newdomain=" + URLEncoder.encode(domain, "UTF-8"), 1);
     }

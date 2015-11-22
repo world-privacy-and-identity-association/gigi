@@ -14,3 +14,5 @@ sql.url=jdbc:postgresql://localhost/cacert
 #sql.url=jdbc:mysql://localhost:3306/cacert
 sql.user=
 sql.password=
+
+highFinancialValue=/path/to/alexa/list

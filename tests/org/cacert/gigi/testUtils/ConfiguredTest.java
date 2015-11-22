@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.DatabaseConnection.Link;
+import org.cacert.gigi.util.DomainAssessment;
 import org.cacert.gigi.util.PEM;
 import org.junit.BeforeClass;
 
@@ -39,12 +40,18 @@ public abstract class ConfiguredTest {
     private static boolean envInited = false;
 
     @BeforeClass
-    public static void initEnvironment() throws IOException {
+    public static void initEnvironmentHook() throws IOException {
+        initEnvironment();
+    }
+
+    public static Properties initEnvironment() throws IOException {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        Properties props = generateProps();
         if (envInited) {
-            return;
+            return props;
         }
         envInited = true;
+        DomainAssessment.init(props);
         try (FileInputStream inStream = new FileInputStream("config/test.properties")) {
             testProps.load(inStream);
         }
@@ -56,6 +63,22 @@ public abstract class ConfiguredTest {
                 throw new Error(e);
             }
         }
+        return props;
+
+    }
+
+    private static Properties generateProps() throws Error {
+        Properties mainProps = new Properties();
+        File out = new File("financial.dat");
+        if ( !out.exists()) {
+            try (FileOutputStream fos = new FileOutputStream(out)) {
+                fos.write("google.com\ntwitter.com\n".getBytes("UTF-8"));
+            } catch (IOException e) {
+                throw new Error(e);
+            }
+        }
+        mainProps.setProperty("highFinancialValue", out.getAbsolutePath());
+        return mainProps;
     }
 
     public static KeyPair generateKeypair() throws GeneralSecurityException {

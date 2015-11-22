@@ -69,6 +69,7 @@ import org.cacert.gigi.pages.wot.MyPoints;
 import org.cacert.gigi.pages.wot.RequestTTPPage;
 import org.cacert.gigi.ping.PingerDaemon;
 import org.cacert.gigi.util.AuthorizationContext;
+import org.cacert.gigi.util.DomainAssessment;
 import org.cacert.gigi.util.ServerConstants;
 
 public final class Gigi extends HttpServlet {
@@ -235,6 +236,7 @@ public final class Gigi extends HttpServlet {
             }
             testing = conf.getProperty("testing") != null;
             instance = this;
+            DomainAssessment.init(conf);
             DatabaseConnection.init(conf);
             this.truststore = truststore;
             pinger = new PingerDaemon(truststore);

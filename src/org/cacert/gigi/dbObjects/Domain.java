@@ -1,20 +1,13 @@
 package org.cacert.gigi.dbObjects;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.IDN;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
-import java.util.Set;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
-import org.cacert.gigi.util.PublicSuffixes;
+import org.cacert.gigi.util.DomainAssessment;
 
 public class Domain implements IdCachable, Verifyable {
 
@@ -23,18 +16,6 @@ public class Domain implements IdCachable, Verifyable {
     private String suffix;
 
     private int id;
-
-    private static final Set<String> IDNEnabledTLDs;
-
-    static {
-        Properties CPS = new Properties();
-        try (InputStream resourceAsStream = Domain.class.getResourceAsStream("CPS.properties")) {
-            CPS.load(resourceAsStream);
-            IDNEnabledTLDs = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(CPS.getProperty("IDN-enabled").split(","))));
-        } catch (IOException e) {
-            throw new Error(e);
-        }
-    }
 
     private Domain(int id) {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `memid`, `domain` FROM `domains` WHERE `id`=? AND `deleted` IS NULL")) {
@@ -53,71 +34,11 @@ public class Domain implements IdCachable, Verifyable {
     public Domain(User actor, CertificateOwner owner, String suffix) throws GigiApiException {
         suffix = suffix.toLowerCase();
         synchronized (Domain.class) {
-            checkCertifyableDomain(suffix, actor.isInGroup(Group.CODESIGNING));
+            DomainAssessment.checkCertifiableDomain(suffix, actor.isInGroup(Group.CODESIGNING));
             this.owner = owner;
             this.suffix = suffix;
             insert();
         }
-    }
-
-    public static void checkCertifyableDomain(String s, boolean hasPunycodeRight) throws GigiApiException {
-        String[] parts = s.split("\\.", -1);
-        if (parts.length < 2) {
-            throw new GigiApiException("Domain does not contain '.'.");
-        }
-        for (int i = parts.length - 1; i >= 0; i--) {
-            if ( !isVaildDomainPart(parts[i], hasPunycodeRight)) {
-                throw new GigiApiException("Syntax error in Domain");
-            }
-        }
-        String publicSuffix = PublicSuffixes.getInstance().getRegistrablePart(s);
-        if ( !s.equals(publicSuffix)) {
-            throw new GigiApiException("You may only register a domain with exactly one lable before the public suffix.");
-        }
-        if (("." + s).matches("(\\.[0-9]*)*")) {
-            // This is not reached because we currently have no TLD that is
-            // numbers only. But who knows..
-            // Better safe than sorry.
-            throw new GigiApiException("IP Addresses are not allowed");
-        }
-        checkPunycode(parts[0], s.substring(parts[0].length() + 1));
-    }
-
-    private static void checkPunycode(String label, String domainContext) throws GigiApiException {
-        if (label.charAt(2) != '-' || label.charAt(3) != '-') {
-            return; // is no punycode
-        }
-        if ( !IDNEnabledTLDs.contains(domainContext)) {
-            throw new GigiApiException("Punycode label could not be positively verified.");
-        }
-        if ( !label.startsWith("xn--")) {
-            throw new GigiApiException("Unknown ACE prefix.");
-        }
-        try {
-            String unicode = IDN.toUnicode(label);
-            if (unicode.startsWith("xn--")) {
-                throw new GigiApiException("Punycode label could not be positively verified.");
-            }
-        } catch (IllegalArgumentException e) {
-            throw new GigiApiException("Punycode label could not be positively verified.");
-        }
-    }
-
-    public static boolean isVaildDomainPart(String s, boolean allowPunycode) {
-        if ( !s.matches("[a-z0-9-]+")) {
-            return false;
-        }
-        if (s.charAt(0) == '-' || s.charAt(s.length() - 1) == '-') {
-            return false;
-        }
-        if (s.length() > 63) {
-            return false;
-        }
-        boolean canBePunycode = s.length() >= 4 && s.charAt(2) == '-' && s.charAt(3) == '-';
-        if (canBePunycode && !allowPunycode) {
-            return false;
-        }
-        return true;
     }
 
     private static void checkInsert(String suffix) throws GigiApiException {
