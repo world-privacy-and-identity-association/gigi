@@ -824,3 +824,7 @@ pre.string{
 .domainPinglogFirstCell{
 	width: 15px;
 }
+textarea.csr{
+	width: 400px;
+	height: 400px;
+}
