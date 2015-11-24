@@ -31,6 +31,11 @@ public class MyPoints extends Page {
         User user = getUser(req);
         vars.put("asArr", user.getReceivedAssurances());
         vars.put("otherAsArr", user.getMadeAssurances());
+        vars.put("assP", user.getAssurancePoints());
+        if (user.canAssure()) {
+            vars.put("expP", user.getExperiencePoints());
+            vars.put("maxP", user.getMaxAssurePoints());
+        }
         getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
     }
 
