@@ -235,14 +235,14 @@ public class Domain implements IdCachable, Verifyable {
         return em;
     }
 
-    public static int searchUserIdByDomain(String domain) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `memid` FROM `domains` WHERE `domain` = ?")) {
+    public static Domain searchUserIdByDomain(String domain) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `id` FROM `domains` WHERE `domain` = ?")) {
             ps.setString(1, domain);
             GigiResultSet res = ps.executeQuery();
             if (res.next()) {
-                return res.getInt(1);
+                return getById(res.getInt(1));
             } else {
-                return -1;
+                return null;
             }
         }
     }

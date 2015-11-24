@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
@@ -13,7 +14,7 @@ import org.cacert.gigi.output.template.Template;
 
 public class FindDomainForm extends Form {
 
-    private int userId = -1;
+    private CertificateOwner res = null;
 
     private static Template t;
     static {
@@ -27,19 +28,20 @@ public class FindDomainForm extends Form {
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
         String request = req.getParameter("domain");
+        Domain d = null;
         if (request.matches("#[0-9]+")) {
             try {
-                Domain domainById = Domain.getById(Integer.parseInt(request.substring(1)));
-                userId = domainById.getOwner().getId();
+                d = Domain.getById(Integer.parseInt(request.substring(1)));
             } catch (IllegalArgumentException e) {
                 throw (new GigiApiException("No personal domains found matching the id " + request.substring(1) + "."));
             }
         } else {
-            userId = Domain.searchUserIdByDomain(request);
+            d = Domain.searchUserIdByDomain(request);
         }
-        if (userId == -1) {
+        if (d == null) {
             throw (new GigiApiException("No personal domains found matching " + request));
         }
+        res = d.getOwner();
         return true;
     }
 
@@ -48,8 +50,8 @@ public class FindDomainForm extends Form {
         t.output(out, l, vars);
     }
 
-    public int getUserId() {
-        return userId;
+    public CertificateOwner getRes() {
+        return res;
     }
 
 }

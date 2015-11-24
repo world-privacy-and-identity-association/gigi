@@ -192,6 +192,7 @@ public class Template implements Outputable {
         } else if (s instanceof Date) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             out.print(sdf.format(s));
+            out.print(" UTC");
         } else {
             out.print(s == null ? "null" : (unescaped ? s.toString() : HTMLEncoder.encodeHTML(s.toString())));
         }
