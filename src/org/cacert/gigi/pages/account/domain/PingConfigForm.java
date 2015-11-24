@@ -106,9 +106,13 @@ public class PingConfigForm extends Form {
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
-        if (req.getParameter("emailType") != null) {
-            String mail = AUTHORATIVE_EMAILS[Integer.parseInt(req.getParameter("email"))];
-            target.addPing(DomainPingType.EMAIL, mail);
+        if (req.getParameter("emailType") != null && req.getParameter("email") != null) {
+            try {
+                String mail = AUTHORATIVE_EMAILS[Integer.parseInt(req.getParameter("email"))];
+                target.addPing(DomainPingType.EMAIL, mail);
+            } catch (NumberFormatException e) {
+                throw new GigiApiException("A email address is required");
+            }
         }
         if (req.getParameter("DNSType") != null) {
             target.addPing(DomainPingType.DNS, tokenName + ":" + tokenValue);

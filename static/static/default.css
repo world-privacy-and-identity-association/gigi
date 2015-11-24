@@ -819,3 +819,8 @@ pre.string{
 .loginbox text {width:166px;display:block;float:left;}
 .loginbox br {clear:left;}
 .loginbox h1 {font-size:1.9em;text-align:center;}
+
+
+.domainPinglogFirstCell{
+	width: 15px;
+}
