@@ -13,7 +13,6 @@ import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
-import org.cacert.gigi.util.ServerConstants;
 
 public class DomainManagementForm extends Form {
 
@@ -61,7 +60,7 @@ public class DomainManagementForm extends Form {
                 }
                 Domain domain = doms[point];
                 vars.put("id", domain.getId());
-                vars.put("domainhref", "https://" + ServerConstants.getWwwHostNamePortSecure() + DomainOverview.PATH + domain.getId());
+                vars.put("domainhref", DomainOverview.PATH + domain.getId());
                 vars.put("domain", domain.getSuffix());
                 vars.put("status", l.getTranslation(domain.isVerified() ? "verified" : "not verified"));
                 point++;
