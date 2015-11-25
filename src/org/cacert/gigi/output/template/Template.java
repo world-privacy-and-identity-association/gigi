@@ -17,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.util.HTMLEncoder;
 
 public class Template implements Outputable {
@@ -189,6 +190,8 @@ public class Template implements Outputable {
         }
         if (s instanceof Outputable) {
             ((Outputable) s).output(out, l, vars);
+        } else if (s instanceof java.sql.Date) {
+            out.print(DateSelector.getDateFormat().format(s));
         } else if (s instanceof Date) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             out.print(sdf.format(s));
