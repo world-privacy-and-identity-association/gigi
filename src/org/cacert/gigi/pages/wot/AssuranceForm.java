@@ -37,6 +37,8 @@ public class AssuranceForm extends Form {
 
     private String aword;
 
+    private User assurer;
+
     private static final Template templ;
     static {
         templ = new Template(AssuranceForm.class.getResource("AssuranceForm.templ"));
@@ -44,6 +46,7 @@ public class AssuranceForm extends Form {
 
     public AssuranceForm(HttpServletRequest hsr, User assuree) {
         super(hsr);
+        assurer = Page.getUser(hsr);
         this.assuree = assuree;
         assureeName = this.assuree.getName();
         dob = this.assuree.getDoB();
@@ -59,7 +62,7 @@ public class AssuranceForm extends Form {
         res.putAll(vars);
         res.put("nameExplicit", assuree.getName());
         res.put("name", assuree.getName().toString());
-        res.put("maxpoints", assuree.getMaxAssurePoints());
+        res.put("maxpoints", assurer.getMaxAssurePoints());
         res.put("dob", sdf.format(assuree.getDoB()));
         res.put("dobFmt2", sdf2.format(assuree.getDoB()));
         res.put("location", location);
@@ -105,7 +108,7 @@ public class AssuranceForm extends Form {
             return false;
         }
         try {
-            Notary.assure(Page.getUser(req), assuree, assureeName, dob, pointsI, location, req.getParameter("date"));
+            Notary.assure(assurer, assuree, assureeName, dob, pointsI, location, req.getParameter("date"));
             if (aword != null && !aword.equals("")) {
                 String systemToken = RandomToken.generateToken(32);
                 int id = assuree.generatePasswordResetTicket(Page.getUser(req), systemToken, aword);
