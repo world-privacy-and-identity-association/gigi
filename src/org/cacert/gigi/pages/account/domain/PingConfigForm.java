@@ -108,6 +108,7 @@ public class PingConfigForm extends Form {
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+        target.clearPings();
         if (req.getParameter("emailType") != null && req.getParameter("email") != null) {
             try {
                 String mail = AUTHORATIVE_EMAILS[Integer.parseInt(req.getParameter("email"))];

@@ -171,7 +171,7 @@ public class Domain implements IdCachable, Verifyable {
         LinkedList<DomainPingConfiguration> configs = this.configs;
         if (configs == null) {
             configs = new LinkedList<>();
-            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT id FROM pingconfig WHERE domainid=?")) {
+            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT id FROM pingconfig WHERE domainid=? AND `deleted` IS NULL")) {
                 ps.setInt(1, id);
                 GigiResultSet rs = ps.executeQuery();
                 while (rs.next()) {
@@ -189,6 +189,14 @@ public class Domain implements IdCachable, Verifyable {
             ps.setInt(1, id);
             ps.setString(2, type.toString().toLowerCase());
             ps.setString(3, config);
+            ps.execute();
+        }
+        configs = null;
+    }
+
+    public void clearPings() throws GigiApiException {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `pingconfig` SET `deleted`=CURRENT_TIMESTAMP WHERE `deleted` is NULL AND `domainid`=?")) {
+            ps.setInt(1, id);
             ps.execute();
         }
         configs = null;

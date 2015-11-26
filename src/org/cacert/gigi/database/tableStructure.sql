@@ -103,6 +103,7 @@ CREATE TABLE "pingconfig" (
   "domainid" int NOT NULL,
   "type" "pingType" NOT NULL,
   "info" varchar(255) NOT NULL,
+  "deleted" timestamp NULL DEFAULT NULL,
   PRIMARY KEY ("id")
 );
 
@@ -373,7 +374,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(6);
+INSERT INTO "schemeVersion" (version)  VALUES(7);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (

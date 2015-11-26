@@ -28,7 +28,7 @@ public class PingerDaemon extends Thread {
 
     @Override
     public void run() {
-        searchNeededPings = new GigiPreparedStatement("SELECT `pingconfig`.`id` FROM `pingconfig` LEFT JOIN `domainPinglog` ON `domainPinglog`.`configId` = `pingconfig`.`id` INNER JOIN `domains` ON `domains`.`id` = `pingconfig`.`domainid` WHERE ( `domainPinglog`.`configId` IS NULL OR `domainPinglog`.`when` < CURRENT_TIMESTAMP - interval '6 mons') AND `domains`.`deleted` IS NOT NULL AND `pingconfig`.`deleted` IS NOT NULL GROUP BY `pingconfig`.`id`");
+        searchNeededPings = new GigiPreparedStatement("SELECT `pingconfig`.`id` FROM `pingconfig` LEFT JOIN `domainPinglog` ON `domainPinglog`.`configId` = `pingconfig`.`id` INNER JOIN `domains` ON `domains`.`id` = `pingconfig`.`domainid` WHERE ( `domainPinglog`.`configId` IS NULL OR `domainPinglog`.`when` < CURRENT_TIMESTAMP - interval '6 mons') AND `domains`.`deleted` IS NULL AND `pingconfig`.`deleted` IS NULL GROUP BY `pingconfig`.`id`");
         pingers.put(DomainPingType.EMAIL, new EmailPinger());
         pingers.put(DomainPingType.SSL, new SSLPinger(truststore));
         pingers.put(DomainPingType.HTTP, new HTTPFetch());

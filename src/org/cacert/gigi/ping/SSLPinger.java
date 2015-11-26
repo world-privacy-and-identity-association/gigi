@@ -179,7 +179,6 @@ public class SSLPinger extends DomainPinger {
                         public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
                             java.security.cert.X509Certificate c = chain[0];
                             if ( !c.getExtendedKeyUsage().contains("1.3.6.1.5.5.7.3.1")) {
-                                System.out.println(c.getExtendedKeyUsage());
                                 throw new java.security.cert.CertificateException("Illegal EKU");
                             }
                         }
@@ -273,17 +272,16 @@ public class SSLPinger extends DomainPinger {
             }
             return PING_SUCCEDED;
         } catch (GeneralSecurityException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
             return "Security failed";
         } catch (SSLException e) {
-            e.printStackTrace();
             // e.printStackTrace(); TODO log for user debugging?
             return "Security failed";
         } catch (IOException e) {
             // e.printStackTrace(); TODO log for user debugging?
             return "Connection closed";
         } catch (CertificateException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
             return "Security failed";
         }
     }
