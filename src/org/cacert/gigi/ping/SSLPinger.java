@@ -8,10 +8,10 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
@@ -23,12 +23,19 @@ import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLEngineResult.Status;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLParameters;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+import javax.security.cert.CertificateException;
 import javax.security.cert.X509Certificate;
 
+import org.cacert.gigi.dbObjects.CACertificate;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Domain;
+
+import sun.security.x509.AVA;
+import sun.security.x509.X500Name;
 
 public class SSLPinger extends DomainPinger {
 
@@ -46,10 +53,10 @@ public class SSLPinger extends DomainPinger {
     public void ping(Domain domain, String configuration, CertificateOwner u, int confId) {
         try (SocketChannel sch = SocketChannel.open()) {
             sch.socket().setSoTimeout(5000);
-            String[] parts = configuration.split(":", 2);
-            sch.socket().connect(new InetSocketAddress(domain.getSuffix(), Integer.parseInt(parts[0])), 5000);
-            if (parts.length == 2) {
-                switch (parts[1]) {
+            String[] parts = configuration.split(":", 4);
+            sch.socket().connect(new InetSocketAddress(domain.getSuffix(), Integer.parseInt(parts[2])), 5000);
+            if (parts.length == 4) {
+                switch (parts[3]) {
                 case "xmpp":
                     startXMPP(sch, false, domain.getSuffix());
                     break;
@@ -65,7 +72,9 @@ public class SSLPinger extends DomainPinger {
 
                 }
             }
-            String res = test(sch, domain.getSuffix(), u);
+            String key = parts[0];
+            String value = parts[1];
+            String res = test(sch, domain.getSuffix(), u, value);
             enterPingResult(confId, res, res, null);
             return;
         } catch (IOException e) {
@@ -149,14 +158,36 @@ public class SSLPinger extends DomainPinger {
         }
     }
 
-    private String test(SocketChannel sch, String domain, CertificateOwner subject) {
+    private String test(SocketChannel sch, String domain, CertificateOwner subject, String tok) {
+        System.out.println("SSL- connecting");
+
         try {
             sch.socket().setSoTimeout(5000);
             SSLContext sc = SSLContext.getInstance("SSL");
             try {
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
                 tmf.init(truststore);
-                sc.init(null, tmf.getTrustManagers(), new SecureRandom());
+                sc.init(null, new TrustManager[] {
+                    new X509TrustManager() {
+
+                        @Override
+                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+
+                        @Override
+                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
+                            java.security.cert.X509Certificate c = chain[0];
+                            if ( !c.getExtendedKeyUsage().contains("1.3.6.1.5.5.7.3.1")) {
+                                System.out.println(c.getExtendedKeyUsage());
+                                throw new java.security.cert.CertificateException("Illegal EKU");
+                            }
+                        }
+
+                        @Override
+                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {}
+                    }
+                }, new SecureRandom());
             } catch (KeyManagementException e) {
                 e.printStackTrace();
             } catch (KeyStoreException e) {
@@ -208,27 +239,52 @@ public class SSLPinger extends DomainPinger {
                 }
 
             }
+            System.out.println("SSL- connected");
             X509Certificate[] peerCertificateChain = se.getSession().getPeerCertificateChain();
             X509Certificate first = peerCertificateChain[0];
+            if (first.getIssuerDN().equals(first.getSubjectDN())) {
+                first.verify(first.getPublicKey());
+                X500Name p = (X500Name) first.getSubjectDN();
+                X500Name n = new X500Name(p.getEncoded());
+                for (AVA i : n.allAvas()) {
+                    if (i.getObjectIdentifier().equals((Object) X500Name.orgUnitName_oid)) {
+                        String toke = i.getDerValue().getAsString();
+                        if (tok.equals(toke)) {
+                            return PING_SUCCEDED;
+                        } else {
+                            return "Self-signed certificate is wrong";
+                        }
+                    }
+                }
+            }
 
             BigInteger serial = first.getSerialNumber();
             Certificate c = Certificate.getBySerial(serial.toString(16));
             if (c == null) {
                 return "Certificate not found: Serial " + serial.toString(16) + " missing.";
             }
+            CACertificate p = c.getParent();
+            if ( !first.getIssuerDN().equals(p.getCertificate().getSubjectDN())) {
+                return "Broken certificate supplied";
+            }
+            first.verify(p.getCertificate().getPublicKey());
             if (c.getOwner().getId() != subject.getId()) {
                 return "Owner mismatch";
             }
             return PING_SUCCEDED;
-        } catch (NoSuchAlgorithmException e) {
-            // e.printStackTrace(); TODO log for user debugging?
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
             return "Security failed";
         } catch (SSLException e) {
+            e.printStackTrace();
             // e.printStackTrace(); TODO log for user debugging?
             return "Security failed";
         } catch (IOException e) {
             // e.printStackTrace(); TODO log for user debugging?
             return "Connection closed";
+        } catch (CertificateException e) {
+            e.printStackTrace();
+            return "Security failed";
         }
     }
 }

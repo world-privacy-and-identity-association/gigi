@@ -48,7 +48,8 @@
   <tr>
     <td></td>
     <td>
-        <?=_Please list up to four services using your certificate. You need to have two of them up and using a valid CAcert certificate in order to pass this test?>:
+        <?=_Please list up to four services using your certificate. You need to have one of them up and using a valid CAcert certificate or a specific self-signed certificate in order to pass this test?>:
+        <?=_The self-signed certificate needs to contain your domain as CN and $tokenValue as organization unit, with -subj "/CN=<domain>/OU=$tokenValue"?>:
         <table>
         <? foreach($ssl-services){ ?>
         <tr><td><select name='ssl-type-<?=$i?>'>

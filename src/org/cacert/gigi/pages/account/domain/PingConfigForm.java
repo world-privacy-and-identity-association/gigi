@@ -87,9 +87,11 @@ public class PingConfigForm extends Form {
             case SSL: {
                 doSSL = true;
                 String[] parts = dpc.getInfo().split(":");
-                ports[portpos] = Integer.parseInt(parts[0]);
-                if (parts.length == 2) {
-                    sslTypes[portpos] = SSLType.valueOf(parts[1].toUpperCase());
+                tokenName = parts[0];
+                tokenValue = parts[1];
+                ports[portpos] = Integer.parseInt(parts[2]);
+                if (parts.length == 4) {
+                    sslTypes[portpos] = SSLType.valueOf(parts[3].toUpperCase());
                 } else {
                     sslTypes[portpos] = SSLType.DIRECT;
                 }
@@ -130,9 +132,9 @@ public class PingConfigForm extends Form {
                 }
                 int portInt = Integer.parseInt(port);
                 if ("direct".equals(type)) {
-                    target.addPing(DomainPingType.SSL, port);
+                    target.addPing(DomainPingType.SSL, tokenName + ":" + tokenValue + ":" + port);
                 } else if (types.contains(type)) {
-                    target.addPing(DomainPingType.SSL, portInt + ":" + type);
+                    target.addPing(DomainPingType.SSL, tokenName + ":" + tokenValue + ":" + portInt + ":" + type);
                 }
 
             }

@@ -374,7 +374,7 @@ public class SimpleSigner {
         return i;
     }
 
-    private static synchronized byte[] generateCert(PublicKey pk, PrivateKey prk, Map<String, String> subj, X500Principal issuer, List<SubjectAlternateName> altnames, Date fromDate, Date toDate, Digest digest, String eku) throws IOException, GeneralSecurityException {
+    public static synchronized byte[] generateCert(PublicKey pk, PrivateKey prk, Map<String, String> subj, X500Principal issuer, List<SubjectAlternateName> altnames, Date fromDate, Date toDate, Digest digest, String eku) throws IOException, GeneralSecurityException {
         File f = Paths.get("signer", "serial").toFile();
         if ( !f.exists()) {
             try (FileOutputStream fos = new FileOutputStream(f)) {
@@ -506,7 +506,7 @@ public class SimpleSigner {
         return dos.toByteArray();
     }
 
-    private static X500Name genX500Name(Map<String, String> subj) throws IOException {
+    public static X500Name genX500Name(Map<String, String> subj) throws IOException {
         LinkedList<RDN> rdns = new LinkedList<>();
         for (Entry<String, String> i : subj.entrySet()) {
             RDN rdn = genRDN(i);
