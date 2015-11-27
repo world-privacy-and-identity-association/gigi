@@ -207,8 +207,9 @@ public class TestCertificateAdd extends ClientTest {
 
         Date start = new Date(now);
         Date end = new Date(now + MS_PER_DAY * 10);
-        X509Certificate res = createCertWithValidity("&validFrom=" + sdf.format(start) + "&validity=" + sdf.format(end));
-        assertNotNull(res);
+        String validity = "&validFrom=" + sdf.format(start) + "&validity=" + sdf.format(end);
+        X509Certificate res = createCertWithValidity(validity);
+        assertNotNull(validity, res);
         assertEquals(start, res.getNotBefore());
         assertEquals(end, res.getNotAfter());
     }
