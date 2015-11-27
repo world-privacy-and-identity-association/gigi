@@ -48,7 +48,7 @@ public class DatabaseConnection {
 
         }
 
-        public PreparedStatement getTarget() {
+        public synchronized PreparedStatement getTarget() {
             return target;
         }
 
@@ -183,15 +183,11 @@ public class DatabaseConnection {
         lastAction = System.currentTimeMillis();
     }
 
-    private static DatabaseConnection instance;
+    private static volatile DatabaseConnection instance;
 
-    public static DatabaseConnection getInstance() {
+    public static synchronized DatabaseConnection getInstance() {
         if (instance == null) {
-            synchronized (DatabaseConnection.class) {
-                if (instance == null) {
-                    instance = new DatabaseConnection();
-                }
-            }
+            instance = new DatabaseConnection();
         }
         return instance;
     }
@@ -313,7 +309,7 @@ public class DatabaseConnection {
         return underUse.size();
     }
 
-    public void lockedStatements(PrintWriter writer) {
+    public synchronized void lockedStatements(PrintWriter writer) {
         writer.println(underUse.size());
         for (PreparedStatement ps : underUse) {
             for (Entry<StatementDescriptor, PreparedStatement> e : statements.entrySet()) {
