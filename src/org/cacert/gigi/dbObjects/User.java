@@ -409,8 +409,12 @@ public class User extends CertificateOwner {
     }
 
     public List<Organisation> getOrganisations() {
+        return getOrganisations(false);
+    }
+
+    public List<Organisation> getOrganisations(boolean isAdmin) {
         List<Organisation> orgas = new ArrayList<>();
-        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT `orgid` FROM `org_admin` WHERE `memid`=? AND `deleted` IS NULL")) {
+        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT `orgid` FROM `org_admin` WHERE `memid`=? AND `deleted` IS NULL" + (isAdmin ? " AND master='y'" : ""))) {
             query.setInt(1, getId());
             try (GigiResultSet res = query.executeQuery()) {
                 while (res.next()) {

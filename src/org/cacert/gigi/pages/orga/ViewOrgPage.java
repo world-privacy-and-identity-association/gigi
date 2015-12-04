@@ -34,7 +34,7 @@ public class ViewOrgPage extends Page {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && (ac.isInGroup(CreateOrgPage.ORG_ASSURER) || ac.getActor().getOrganisations().size() != 0);
+        return ac != null && (ac.isInGroup(CreateOrgPage.ORG_ASSURER) || ac.getActor().getOrganisations(true).size() != 0);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class ViewOrgPage extends Page {
         if (idS.length() < DEFAULT_PATH.length() + 2) {
             final Organisation[] orgas = Organisation.getOrganisations(0, 30);
             HashMap<String, Object> map = new HashMap<>();
-            final List<Organisation> myOrgs = u.getOrganisations();
+            final List<Organisation> myOrgs = u.getOrganisations(true);
             final boolean orgAss = u.isInGroup(CreateOrgPage.ORG_ASSURER);
             if (orgAss) {
                 map.put("orgas", makeOrgDataset(orgas));
@@ -86,17 +86,28 @@ public class ViewOrgPage extends Page {
         }
         idS = idS.substring(DEFAULT_PATH.length() + 1);
         int id = Integer.parseInt(idS);
-        Organisation o = Organisation.getById(id);
+        Organisation o;
+        try {
+            o = Organisation.getById(id);
+        } catch (IllegalArgumentException e) {
+            resp.sendError(404);
+            return;
+        }
         final List<Organisation> myOrgs = u.getOrganisations();
         final boolean orgAss = u.isInGroup(CreateOrgPage.ORG_ASSURER);
-        if (o == null || ( !orgAss && !myOrgs.contains(o))) {
+        if ( !orgAss && !myOrgs.contains(o)) {
             resp.sendError(404);
             return;
         }
         HashMap<String, Object> vars = new HashMap<>();
-        vars.put("editForm", new CreateOrgForm(req, o));
-        vars.put("affForm", new AffiliationForm(req, o));
-        vars.put("addDom", new OrgDomainAddForm(req, o));
+        if (orgAss) {
+            vars.put("editForm", new CreateOrgForm(req, o));
+            vars.put("affForm", new AffiliationForm(req, o));
+            vars.put("addDom", new OrgDomainAddForm(req, o));
+        } else {
+            vars.put("affForm", new AffiliationForm(req, o));
+            vars.put("orgName", o.getName());
+        }
         mainTempl.output(out, lang, vars);
     }
 

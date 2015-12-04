@@ -109,7 +109,7 @@ public class Organisation extends CertificateOwner {
         if (co instanceof Organisation) {
             return (Organisation) co;
         }
-        return null;
+        throw new IllegalArgumentException("Organisation not found.");
     }
 
     public synchronized void addAdmin(User admin, User actor, boolean master) throws GigiApiException {
