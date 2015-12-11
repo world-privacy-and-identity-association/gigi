@@ -58,6 +58,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import club.wpia.gigi.api.GigiAPI;
 import club.wpia.gigi.email.EmailProvider;
 import club.wpia.gigi.natives.SetUID;
+import club.wpia.gigi.ocsp.OCSPResponder;
 import club.wpia.gigi.util.CipherInfo;
 import club.wpia.gigi.util.PEM;
 import club.wpia.gigi.util.ServerConstants;
@@ -306,7 +307,7 @@ public class Launcher {
     private void initHandlers() throws GeneralSecurityException, IOException {
         HandlerList hl = new HandlerList();
         hl.setHandlers(new Handler[] {
-                ContextLauncher.generateStaticContext(), ContextLauncher.generateGigiContexts(conf.getMainProps(), conf.getTrustStore()), ContextLauncher.generateAPIContext()
+                ContextLauncher.generateStaticContext(), ContextLauncher.generateGigiContexts(conf.getMainProps(), conf.getTrustStore()), ContextLauncher.generateAPIContext(), ContextLauncher.generateOCSPContext()
         });
         s.setHandler(hl);
     }
@@ -395,6 +396,15 @@ public class Launcher {
             return sch;
         }
 
+        protected static Handler generateOCSPContext() {
+            ServletContextHandler sch = new ServletContextHandler();
+
+            sch.addVirtualHosts(new String[] {
+                    ServerConstants.getHostName(Host.OCSP_RESPONDER)
+            });
+            sch.addServlet(new ServletHolder(new OCSPResponder()), "/*");
+            return sch;
+        }
     }
 
 }

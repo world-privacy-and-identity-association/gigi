@@ -41,17 +41,16 @@ import javax.security.auth.x500.X500Principal;
 
 import club.wpia.gigi.crypto.SPKAC;
 import club.wpia.gigi.database.DatabaseConnection;
+import club.wpia.gigi.database.DatabaseConnection.Link;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.GigiResultSet;
-import club.wpia.gigi.database.DatabaseConnection.Link;
-import club.wpia.gigi.dbObjects.CertificateProfile;
-import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.dbObjects.Certificate.CSRType;
 import club.wpia.gigi.dbObjects.Certificate.SANType;
 import club.wpia.gigi.dbObjects.Certificate.SubjectAlternateName;
+import club.wpia.gigi.dbObjects.CertificateProfile;
+import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.output.DateSelector;
-import club.wpia.gigi.util.KeyStorage;
-import club.wpia.gigi.util.PEM;
+import club.wpia.gigi.util.ServerConstants.Host;
 import sun.security.pkcs10.PKCS10;
 import sun.security.util.DerOutputStream;
 import sun.security.util.DerValue;
@@ -96,6 +95,7 @@ public class SimpleSigner {
         try (Reader reader = new InputStreamReader(new FileInputStream("config/gigi.properties"), "UTF-8")) {
             p.load(reader);
         }
+        ServerConstants.init(p);
         DatabaseConnection.init(p);
 
         runSigner();
@@ -474,6 +474,9 @@ public class SimpleSigner {
                     addExtension(extensions, new ObjectIdentifier(new int[] {
                             2, 5, 29, 37
                     }), generateEKU(eku));
+                    addExtension(extensions, new ObjectIdentifier(new int[] {
+                            1, 3, 6, 1, 5, 5, 7, 1, 1
+                    }), generateAIA());
                 }
                 DerOutputStream extensionsSeq = new DerOutputStream();
                 extensionsSeq.write(DerValue.tag_Sequence, extensions);
@@ -501,6 +504,22 @@ public class SimpleSigner {
             return res;
         }
 
+    }
+
+    private static byte[] generateAIA() throws IOException {
+        try (DerOutputStream dos = new DerOutputStream()) {
+            try (DerOutputStream seq = new DerOutputStream()) {
+                seq.putOID(new ObjectIdentifier(new int[] {
+                        1, 3, 6, 1, 5, 5, 7, 48, 2
+                }));
+                seq.write((byte) 0x86, ("http://" + ServerConstants.getHostName(Host.OCSP_RESPONDER)).getBytes("UTF-8"));
+                dos.write(DerValue.tag_Sequence, seq);
+            }
+            byte[] data = dos.toByteArray();
+            dos.reset();
+            dos.write(DerValue.tag_Sequence, data);
+            return dos.toByteArray();
+        }
     }
 
     private static byte[] generateKU() throws IOException {

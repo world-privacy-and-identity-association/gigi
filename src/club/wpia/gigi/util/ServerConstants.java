@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import club.wpia.gigi.ocsp.OCSPResponder;
+
 public class ServerConstants {
 
     public enum Host {
@@ -35,7 +37,11 @@ public class ServerConstants {
          * Hosts the certificate repository for the certificates generated
          * during NRE. Also not served by Gigi.
          */
-        CRT_REPO("g2.crt");
+        CRT_REPO("g2.crt"),
+        /**
+         * Hosts the {@link OCSPResponder}.
+         */
+        OCSP_RESPONDER("g2.ocsp");
 
         private final String value;
 
