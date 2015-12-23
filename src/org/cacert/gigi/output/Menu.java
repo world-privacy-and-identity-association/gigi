@@ -25,21 +25,19 @@ public class Menu implements IMenuItem {
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         boolean visible = false;
         AuthorizationContext u = (AuthorizationContext) vars.get(AUTH_VALUE);
-        for (IMenuItem mi : content) {
+        for (IMenuItem mi : getContent()) {
             if (mi.isPermitted(u)) {
                 if ( !visible) {
                     visible = true;
-                    out.println("<div>");
-                    out.print("<h3 class='pointer'>+ ");
+                    out.print("<li class=\"dropdown\"><a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\">");
                     out.print(l.getTranslation(menuName));
-                    out.println("</h3>");
-                    out.print("<ul class=\"menu\">");
+                    out.print("<span class=\"caret\"></span></a><ul class=\"dropdown-menu\">");
                 }
                 mi.output(out, l, vars);
             }
         }
         if (visible) {
-            out.println("</ul></div>");
+            out.println("</ul></li>");
         }
     }
 
@@ -74,4 +72,9 @@ public class Menu implements IMenuItem {
     public boolean isPermitted(AuthorizationContext ac) {
         return true;
     }
+
+    public IMenuItem[] getContent() {
+        return content;
+    }
+
 }

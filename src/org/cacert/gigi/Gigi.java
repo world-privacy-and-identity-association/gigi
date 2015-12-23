@@ -26,6 +26,7 @@ import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.Menu;
+import org.cacert.gigi.output.MenuCollector;
 import org.cacert.gigi.output.PageMenuItem;
 import org.cacert.gigi.output.SimpleMenuItem;
 import org.cacert.gigi.output.template.Form.CSRFException;
@@ -76,7 +77,7 @@ public final class Gigi extends HttpServlet {
 
         private HashMap<String, Page> pages = new HashMap<String, Page>();
 
-        private Menu rootMenu;
+        private MenuCollector rootMenu;
 
         public MenuBuilder() {}
 
@@ -105,7 +106,7 @@ public final class Gigi extends HttpServlet {
             return m;
         }
 
-        public Menu generateMenu() throws ServletException {
+        public MenuCollector generateMenu() throws ServletException {
             putPage("/denied", new AccessDenied(), null);
             putPage("/error", new PageNotFound(), null);
             putPage("/login", new LoginPage("Password Login"), null);
@@ -125,12 +126,10 @@ public final class Gigi extends HttpServlet {
             });
             putPage("/", new MainPage("CAcert - Home"), null);
             putPage("/roots", new RootCertPage(truststore), "CAcert.org");
-            putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
-            putPage(LogoutPage.PATH, new LogoutPage("Logout"), "My Account");
+
             putPage("/secure", new TestSecure(), null);
             putPage(Verify.PATH, new Verify(), null);
             putPage(Certificates.PATH + "/*", new Certificates(), "Certificates");
-            putPage(MyDetails.PATH, new MyDetails(), "My Account");
             putPage(RegisterPage.PATH, new RegisterPage(), "CAcert.org");
             putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
             putPage(MailOverview.DEFAULT_PATH, new MailOverview("Email addresses"), "Certificates");
@@ -150,9 +149,12 @@ public final class Gigi extends HttpServlet {
             putPage(FindDomainPage.PATH, new FindDomainPage("Find Domain"), "Support Console");
 
             putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage("Support: User Details"), null);
+            putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
+            putPage(LogoutPage.PATH, new LogoutPage("Logout"), "My Account");
             putPage(History.PATH, new History(false), "My Account");
             putPage(History.SUPPORT_PATH, new History(true), null);
             putPage(UserTrainings.PATH, new UserTrainings(false), "My Account");
+            putPage(MyDetails.PATH, new MyDetails(), "My Account");
             putPage(UserTrainings.SUPPORT_PATH, new UserTrainings(true), null);
 
             putPage(PasswordResetPage.PATH, new PasswordResetPage(), null);
@@ -174,7 +176,7 @@ public final class Gigi extends HttpServlet {
                 throw new ServletException(e);
             }
             baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
-            rootMenu = new Menu("Main");
+            rootMenu = new MenuCollector();
             Menu about = new Menu("About CAcert.org");
             categories.add(about);
 
@@ -195,10 +197,10 @@ public final class Gigi extends HttpServlet {
             categories.add(languages);
             for (Menu menu : categories) {
                 menu.prepare();
-                rootMenu.addItem(menu);
+                rootMenu.put(menu);
             }
 
-            rootMenu.prepare();
+            // rootMenu.prepare();
             return rootMenu;
         }
 
@@ -229,7 +231,7 @@ public final class Gigi extends HttpServlet {
 
     private boolean testing;
 
-    private Menu rootMenu;
+    private MenuCollector rootMenu;
 
     private Map<String, Page> pages;
 
