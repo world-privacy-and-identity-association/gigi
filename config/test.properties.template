@@ -34,7 +34,7 @@ domain.testns=the.authorativ.ns.for.domain.dnstest
 domain.local=a.domain.that.resolves.to.localhost
 #port that is 80 is redirected to
 domain.localHTTP=80
-
+domain.CAAtest=-failing.domain +succeeding.domain
 
 email.address=somemail@yourdomain.org
 email.password=somemails-imap-password

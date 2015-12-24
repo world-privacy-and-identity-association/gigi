@@ -77,7 +77,7 @@ public class DomainVerification extends ConfiguredTest {
 
     private void isCertifiableDomain(boolean b, String string, boolean puny) {
         try {
-            DomainAssessment.checkCertifiableDomain(string, puny);
+            DomainAssessment.checkCertifiableDomain(string, puny, true);
             assertTrue(b);
         } catch (GigiApiException e) {
             assertFalse(e.getMessage(), b);

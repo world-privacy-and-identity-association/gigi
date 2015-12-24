@@ -34,7 +34,7 @@ public class Domain implements IdCachable, Verifyable {
     public Domain(User actor, CertificateOwner owner, String suffix) throws GigiApiException {
         suffix = suffix.toLowerCase();
         synchronized (Domain.class) {
-            DomainAssessment.checkCertifiableDomain(suffix, actor.isInGroup(Group.CODESIGNING));
+            DomainAssessment.checkCertifiableDomain(suffix, actor.isInGroup(Group.CODESIGNING), true);
             this.owner = owner;
             this.suffix = suffix;
             insert();

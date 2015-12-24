@@ -101,10 +101,15 @@ public class ManagedTest extends ConfiguredTest {
         initEnvironment();
     }
 
+    private static boolean inited = false;
+
     public static Properties initEnvironment() {
         try {
             Properties mainProps = ConfiguredTest.initEnvironment();
-
+            if (inited) {
+                return mainProps;
+            }
+            inited = true;
             purgeDatabase();
             String type = testProps.getProperty("type");
             generateMainProps(mainProps);

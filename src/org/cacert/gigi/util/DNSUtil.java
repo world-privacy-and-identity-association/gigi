@@ -9,6 +9,8 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.InitialDirContext;
 
+import org.cacert.gigi.util.CAA.CAARecord;
+
 public class DNSUtil {
 
     private static InitialDirContext context;
@@ -66,6 +68,27 @@ public class DNSUtil {
         return extractTextEntries(dnsLookup.get("MX"));
     }
 
+    public static CAARecord[] getCAAEntries(String domain) throws NamingException {
+        Hashtable<String, String> env = new Hashtable<String, String>();
+        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
+        InitialDirContext context = new InitialDirContext(env);
+
+        Attributes dnsLookup = context.getAttributes(domain, new String[] {
+                "257"
+        });
+        Attribute nsRecords = dnsLookup.get("257");
+        if (nsRecords == null) {
+            return new CAARecord[] {};
+        }
+        CAA.CAARecord[] result = new CAA.CAARecord[nsRecords.size()];
+        for (int i = 0; i < result.length; i++) {
+            byte[] rec = (byte[]) nsRecords.get(i);
+
+            result[i] = new CAA.CAARecord(rec);
+        }
+        return result;
+    }
+
     public static void main(String[] args) throws NamingException {
         if (args[0].equals("MX")) {
             System.out.println(Arrays.toString(getMXEntries(args[1])));
@@ -73,6 +96,8 @@ public class DNSUtil {
             System.out.println(Arrays.toString(getNSNames(args[1])));
         } else if (args[0].equals("TXT")) {
             System.out.println(Arrays.toString(getTXTEntries(args[1], args[2])));
+        } else if (args[0].equals("CAA")) {
+            System.out.println(Arrays.toString(getCAAEntries(args[1])));
         }
     }
 

@@ -72,7 +72,7 @@ public class DomainAssessment {
         return financial.contains(suffix);
     }
 
-    public static void checkCertifiableDomain(String domain, boolean hasPunycodeRight) throws GigiApiException {
+    public static void checkCertifiableDomain(String domain, boolean hasPunycodeRight, boolean asRegister) throws GigiApiException {
         if (isHighFinancialValue(domain)) {
             throw new GigiApiException("Domain blocked for automatic adding.");
         }
@@ -80,6 +80,7 @@ public class DomainAssessment {
         if (parts.length < 2) {
             throw new GigiApiException("Domain does not contain '.'.");
         }
+
         boolean neededPunycode = false;
         for (int i = parts.length - 1; i >= 0; i--) {
             if ( !isValidDomainPart(parts[i])) {
@@ -99,9 +100,11 @@ public class DomainAssessment {
             throw new GigiApiException("Punycode not allowed under this TLD.");
         }
 
-        String publicSuffix = PublicSuffixes.getInstance().getRegistrablePart(domain);
-        if ( !domain.equals(publicSuffix)) {
-            throw new GigiApiException("You may only register a domain with exactly one label before the public suffix.");
+        if (asRegister) {
+            String publicSuffix = PublicSuffixes.getInstance().getRegistrablePart(domain);
+            if ( !domain.equals(publicSuffix)) {
+                throw new GigiApiException("You may only register a domain with exactly one label before the public suffix.");
+            }
         }
 
         if (("." + domain).matches("(\\.[0-9]*)*")) {

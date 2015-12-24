@@ -26,10 +26,13 @@ import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.CertificateProfile.PropertyTemplate;
 import org.cacert.gigi.dbObjects.Digest;
+import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.util.AuthorizationContext;
+import org.cacert.gigi.util.CAA;
+import org.cacert.gigi.util.DomainAssessment;
 import org.cacert.gigi.util.PEM;
 import org.cacert.gigi.util.RateLimit;
 
@@ -314,7 +317,7 @@ public class CertificateRequest {
             throw error;
         }
 
-        verifySANs(error, profile, parseSANBox(SANsStr), ctx.getTarget());
+        verifySANs(error, profile, parseSANBox(SANsStr), ctx.getTarget(), ctx.getActor());
 
         if ( !error.isEmpty()) {
             throw error;
@@ -322,7 +325,7 @@ public class CertificateRequest {
         return true;
     }
 
-    private void verifySANs(GigiApiException error, CertificateProfile p, Set<SubjectAlternateName> sANs2, CertificateOwner owner) {
+    private void verifySANs(GigiApiException error, CertificateProfile p, Set<SubjectAlternateName> sANs2, CertificateOwner owner, User user) {
         Set<SubjectAlternateName> filteredSANs = new LinkedHashSet<>();
         PropertyTemplate domainTemp = p.getTemplates().get("domain");
         PropertyTemplate emailTemp = p.getTemplates().get("email");
@@ -331,7 +334,14 @@ public class CertificateRequest {
         for (SubjectAlternateName san : sANs2) {
             if (san.getType() == SANType.DNS) {
                 if (domainTemp != null && owner.isValidDomain(san.getName())) {
-                    if (pDNS != null && !domainTemp.isMultiple()) {
+                    boolean valid;
+                    try {
+                        DomainAssessment.checkCertifiableDomain(san.getName(), user.isInGroup(Group.CODESIGNING), false);
+                        valid = true;
+                    } catch (GigiApiException e) {
+                        valid = false;
+                    }
+                    if ( !valid || !CAA.verifyDomainAccess(owner, p, san.getName()) || (pDNS != null && !domainTemp.isMultiple())) {
                         // remove
                     } else {
                         if (pDNS == null) {
@@ -370,7 +380,7 @@ public class CertificateRequest {
         PropertyTemplate emailTemp = profile.getTemplates().get("email");
         PropertyTemplate nameTemp = profile.getTemplates().get("name");
         PropertyTemplate wotUserTemp = profile.getTemplates().get("name=WoTUser");
-        verifySANs(error, profile, SANs, ctx.getTarget());
+        verifySANs(error, profile, SANs, ctx.getTarget(), ctx.getActor());
 
         // Ok, let's determine the CN
         // the CN is
