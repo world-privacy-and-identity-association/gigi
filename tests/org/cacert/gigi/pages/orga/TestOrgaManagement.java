@@ -15,6 +15,7 @@ import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.Organisation.Affiliation;
 import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.testUtils.ClientTest;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.junit.Test;
@@ -30,6 +31,9 @@ public class TestOrgaManagement extends ClientTest {
 
     @Test
     public void testAdd() throws IOException {
+        for (Organisation i : Organisation.getOrganisations(0, 30)) {
+            i.delete();
+        }
         executeBasicWebInteraction(cookie, CreateOrgPage.DEFAULT_PATH, "O=name&contact=mail&L=K%C3%B6ln&ST=%C3%9C%C3%96%C3%84%C3%9F&C=DE&comments=jkl%C3%B6loiuzfdfgjlh%C3%B6", 0);
         Organisation[] orgs = Organisation.getOrganisations(0, 30);
         assertEquals(1, orgs.length);
@@ -78,13 +82,17 @@ public class TestOrgaManagement extends ClientTest {
 
         URLConnection uc = new URL("https://" + getServerName() + ViewOrgPage.DEFAULT_PATH).openConnection();
         uc.addRequestProperty("Cookie", session2);
+        assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
+
+        uc = new URL("https://" + getServerName() + MyDetails.PATH).openConnection();
+        uc.addRequestProperty("Cookie", session2);
         String content = IOUtils.readURL(uc);
         assertThat(content, containsString("name21"));
         assertThat(content, not(containsString("name12")));
         uc = cookie(new URL("https://" + getServerName() + ViewOrgPage.DEFAULT_PATH + "/" + o1.getId()).openConnection(), session2);
-        assertEquals(200, ((HttpURLConnection) uc).getResponseCode());
+        assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
         uc = cookie(new URL("https://" + getServerName() + ViewOrgPage.DEFAULT_PATH + "/" + o2.getId()).openConnection(), session2);
-        assertEquals(404, ((HttpURLConnection) uc).getResponseCode());
+        assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
 
         uc = new URL("https://" + getServerName() + ViewOrgPage.DEFAULT_PATH).openConnection();
         uc.addRequestProperty("Cookie", cookie);
