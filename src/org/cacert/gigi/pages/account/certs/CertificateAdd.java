@@ -9,8 +9,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
+import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class CertificateAdd extends Page {
 
@@ -45,4 +47,8 @@ public class CertificateAdd extends Page {
 
     }
 
+    @Override
+    public boolean isPermitted(AuthorizationContext ac) {
+        return super.isPermitted(ac) && !ac.isInGroup(Group.BLOCKEDCERT);
+    }
 }
