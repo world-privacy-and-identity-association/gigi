@@ -82,4 +82,12 @@ public class SupportedUser {
         target.rawUpdateUserData();
     }
 
+    public void grant(Group toMod) {
+        target.grantGroup(supporter, toMod);
+    }
+
+    public void revoke(Group toMod) {
+        target.revokeGroup(supporter, toMod);
+    }
+
 }

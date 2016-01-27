@@ -68,7 +68,7 @@ public class SupportUserDetailsPage extends Page {
                 if ( !Form.getForm(req, SupportRevokeCertificatesForm.class).submit(resp.getWriter(), req)) {
                     throw new GigiApiException("No ticket number set.");
                 }
-            } else if (req.getParameter("detailupdate") != null || req.getParameter("resetPass") != null) {
+            } else if (req.getParameter("detailupdate") != null || req.getParameter("resetPass") != null || req.getParameter("deny") != null || req.getParameter("grant") != null) {
                 if ( !Form.getForm(req, SupportUserDetailsForm.class).submit(resp.getWriter(), req)) {
                     throw new GigiApiException("No ticket number set.");
                 }

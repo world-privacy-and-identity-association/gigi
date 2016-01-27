@@ -3,7 +3,9 @@ package org.cacert.gigi.pages.admin.support;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,7 +17,9 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.Sendmail;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
+import org.cacert.gigi.output.GroupSelector;
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.PasswordResetPage;
@@ -29,6 +33,8 @@ public class SupportUserDetailsForm extends Form {
     private SupportedUser user;
 
     private DateSelector dobSelector;
+
+    private GroupSelector value = new GroupSelector("groupToModify");
 
     static {
         t = new Template(FindDomainForm.class.getResource("SupportUserDetailsForm.templ"));
@@ -44,6 +50,19 @@ public class SupportUserDetailsForm extends Form {
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
         if (user.getTicket() == null) {
             return false;
+        }
+        if ((req.getParameter("detailupdate") != null ? 1 : 0) + (req.getParameter("grant") != null ? 1 : 0) + (req.getParameter("deny") != null ? 1 : 0) + (req.getParameter("resetPass") != null ? 1 : 0) != 1) {
+            throw new GigiApiException("More than one action requested!");
+        }
+        if (req.getParameter("grant") != null || req.getParameter("deny") != null) {
+            value.update(req);
+            Group toMod = value.getGroup();
+            if (req.getParameter("grant") != null) {
+                user.grant(toMod);
+            } else {
+                user.revoke(toMod);
+            }
+            return true;
         }
         if (req.getParameter("resetPass") != null) {
             String aword = req.getParameter("aword");
@@ -103,16 +122,25 @@ public class SupportUserDetailsForm extends Form {
         vars.put("suffix", name.getSuffix());
         vars.put("assurer", user.canAssure());
         vars.put("dob", dobSelector);
-        vars.put("blockedassurer", user.isInGroup(Group.BLOCKEDASSURER));
-        vars.put("codesign", user.isInGroup(Group.CODESIGNING));
-        vars.put("orgassurer", user.isInGroup(Group.ORGASSURER));
         vars.put("assurancepoints", user.getAssurancePoints());
-        vars.put("blockedassuree", user.isInGroup(Group.BLOCKEDASSUREE));
-        vars.put("ttpassurer", user.isInGroup(Group.TTP_ASSURER));
-        vars.put("ttpapplicant", user.isInGroup(Group.TTP_APPLICANT));
-        vars.put("blockedlogin", user.isInGroup(Group.BLOCKEDLOGIN));
-        vars.put("supporter", user.isInGroup(Group.SUPPORTER));
+        vars.put("exppoints", user.getExperiencePoints());
         vars.put("id", user.getId());
+        final Set<Group> gr = user.getGroups();
+        vars.put("groups", new IterableDataset() {
+
+            Iterator<Group> i = gr.iterator();
+
+            @Override
+            public boolean next(Language l, Map<String, Object> vars) {
+                if ( !i.hasNext()) {
+                    return false;
+                }
+                Group g = i.next();
+                vars.put("group_name", l.getTranslation("Group: " + g.getDatabaseName()));
+                return true;
+            }
+        });
+        vars.put("groupSelector", value);
         t.output(out, l, vars);
     }
 

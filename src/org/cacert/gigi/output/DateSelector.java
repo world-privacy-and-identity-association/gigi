@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Outputable;
+import org.cacert.gigi.util.HTMLEncoder;
 
 public class DateSelector implements Outputable {
 
@@ -30,7 +31,7 @@ public class DateSelector implements Outputable {
 
     public DateSelector(String day, String month, String year) {
         this.names = new String[] {
-                day, month, year
+                HTMLEncoder.encodeHTML(day), HTMLEncoder.encodeHTML(month), HTMLEncoder.encodeHTML(year)
         };
     }
 

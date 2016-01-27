@@ -46,66 +46,22 @@
             <? } ?>
             </td>
         </tr>
+		<tr>
+            <td><?=_Assurance Points?>:</td>
+            <td><?=$assurancepoints?></td>
+        </tr>
         <tr>
-            <td><?=_Blocked Assurer?>:</td>
-            <td>
-            <? if($blockedassurer) { ?>
-            <?=_Yes?>
-            <? } else { ?>
-            <?=_No?>
-            <? } ?>
+            <td><?=_Experience Points?>:</td>
+            <td><?=$exppoints?></td>
+        </tr>
+        
+        <tr>
+            <td><?=_Groups?>:</td>
+            <td><p><? foreach($groups) { ?><?=$group_name?>, <? } ?></p>
+            <p><?=$groupSelector?><input type='submit' value='<?=_Grant Group?>' name='grant'><input type='submit' value='<?=_Deny Group?>' name='deny'></p>
             </td>
         </tr>
         <tr>
-            <td><?=_Account Locking?>:</td>
-            <td>
-            <? if($locked) { ?>
-            <?=_Yes?>
-            <? } else { ?>
-            <?=_No?>
-            <? } ?>
-            </td>
-        </tr>
-        <tr>
-            <td><?=_Code Signing?>:</td>
-            <td><? if($codesign) { ?>
-            <?=_Yes?>
-            <? } else { ?>
-            <?=_No?>
-            <? } ?>
-            </td>
-        </tr>
-        <tr>
-            <td><?=_Org Assurer?>:</td>
-            <td>
-	<? if($orgassurer) { ?>
-            <?=_Yes?>
-            <? } else { ?>
-            <?=_No?>
-            <? } ?>
-</td>
-        </tr>
-        <tr>
-            <td><?=_TTP Admin?>:</td>
-            <td>
-<? if($ttpadmin) { ?>
-            <?=_Yes?>
-            <? } else { ?>
-            <?=_No?>
-            <? } ?>
-</td>
-        </tr>
-        <tr>
-            <td><?=_Supporter?>:</td>
-            <td>
-<? if($supporter) { ?>
-            <?=_Yes?>
-            <? } else { ?>
-            <?=_No?>
-            <? } ?>
-</td>
-        </tr>
-           <tr>
             <td><?=_Reset Password?>:</td>
             <td><input type="text" name="aword"> <input type="submit" value="<?=_Reset Password?>" name="resetPass"></td>
         </tr>
@@ -115,10 +71,6 @@
         </tr>
             <tr>
             <td><?=_Show Lost Password Details?></td>
-        </tr>
-            <tr>
-            <td><?=_Assurance Points?>:</td>
-            <td><?=$assurancepoints?></td>
         </tr>
             <tr>
             <td colspan="2"><a href="./<?=$id?>/history"><?=_Show account history?></a></td>
