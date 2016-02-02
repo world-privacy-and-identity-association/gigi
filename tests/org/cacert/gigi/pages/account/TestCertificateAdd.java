@@ -16,6 +16,7 @@ import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.Signature;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -148,6 +149,12 @@ public class TestCertificateAdd extends ClientTest {
 
         uc = authenticate(new URL(huc.getHeaderField("Location")));
         String gui = IOUtils.readURL(uc);
+        Pattern p = Pattern.compile("-----BEGIN CERTIFICATE-----[^-]+-----END CERTIFICATE-----");
+        Matcher m = p.matcher(gui);
+        assertTrue(m.find());
+        byte[] cert = PEM.decode("CERTIFICATE", m.group(0));
+        Certificate c = CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(cert));
+        gui = c.toString();
         assertThat(gui, containsString("clientAuth"));
         assertThat(gui, containsString("CN=CAcert WoT User"));
         assertThat(gui, containsString("SHA512withRSA"));

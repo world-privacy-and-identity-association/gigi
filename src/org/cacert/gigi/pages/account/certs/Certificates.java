@@ -284,7 +284,7 @@ public class Certificates extends Page implements HandlesMixedRequest {
             vars.put("serial", URLEncoder.encode(serial, "UTF-8"));
             vars.put("trustchain", new TrustchainIterable(c.getParent()));
             try {
-                vars.put("cert", c.cert());
+                vars.put("cert", PEM.encode("CERTIFICATE", c.cert().getEncoded()));
             } catch (GeneralSecurityException e) {
                 e.printStackTrace();
             }
