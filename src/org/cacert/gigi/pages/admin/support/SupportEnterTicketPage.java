@@ -7,9 +7,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.AuthorizationContext;
 
 public class SupportEnterTicketPage extends Page {
 
@@ -42,6 +44,11 @@ public class SupportEnterTicketPage extends Page {
         HashMap<String, Object> vars = new HashMap<String, Object>();
         vars.put("ticketNo", LoginPage.getAuthorizationContext(req).getSupporterTicketId());
         new SupportEnterTicketForm(req).output(resp.getWriter(), getLanguage(req), vars);
+    }
+
+    @Override
+    public boolean isPermitted(AuthorizationContext ac) {
+        return ac != null && ac.isInGroup(Group.SUPPORTER);
     }
 
 }
