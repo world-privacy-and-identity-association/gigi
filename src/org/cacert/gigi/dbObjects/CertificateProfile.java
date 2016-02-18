@@ -260,7 +260,7 @@ public class CertificateProfile implements IdCachable {
                     return false;
                 }
             } else if (s.equals("codesign")) {
-                if (actor.isInGroup(Group.CODESIGNING)) {
+                if ( !actor.isInGroup(Group.CODESIGNING)) {
                     return false;
                 }
             } else {
