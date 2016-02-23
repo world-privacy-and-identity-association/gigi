@@ -62,6 +62,11 @@ public class DomainVerification {
         isCertifyableDomain(false, "xn--a-zfa9cya.com", true);
         isCertifyableDomain(true, "zfa9cya.com", true);
 
+        isCertifyableDomain(false, "127.0.0.1", false);
+        isCertifyableDomain(false, "::1", false);
+        isCertifyableDomain(false, "127.0.0.1", true);
+        isCertifyableDomain(false, "::1", true);
+
     }
 
     private void isCertifyableDomain(boolean b, String string, boolean puny) {

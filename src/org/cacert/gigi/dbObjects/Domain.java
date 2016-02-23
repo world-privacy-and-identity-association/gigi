@@ -73,6 +73,12 @@ public class Domain implements IdCachable, Verifyable {
         if ( !s.equals(publicSuffix)) {
             throw new GigiApiException("You may only register a domain with exactly one lable before the public suffix.");
         }
+        if (("." + s).matches("(.[0-9]*)*")) {
+            // This is not reached because we currently have no TLD that is
+            // numbers only. But who knows..
+            // Better safe than sorry.
+            throw new GigiApiException("IP Addresses are not allowed");
+        }
         checkPunycode(parts[0], s.substring(parts[0].length() + 1));
     }
 
