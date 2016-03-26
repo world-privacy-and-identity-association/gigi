@@ -15,13 +15,13 @@ public abstract class APIPoint {
     public void process(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         X509Certificate cert = LoginPage.getCertificateFromRequest(req);
         if (cert == null) {
-            resp.sendError(403, "Error, cert authing required.");
+            resp.sendError(403, "Error, cert authing required. No cert found.");
             return;
         }
         String serial = LoginPage.extractSerialFormCert(cert);
         CertificateOwner u = CertificateOwner.getByEnabledSerial(serial);
         if (u == null) {
-            resp.sendError(403, "Error, cert authing required.");
+            resp.sendError(403, "Error, cert authing required. Serial not found: " + serial);
             return;
         }
 
