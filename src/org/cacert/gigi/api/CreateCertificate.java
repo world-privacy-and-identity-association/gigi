@@ -1,6 +1,7 @@
 package org.cacert.gigi.api;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.GeneralSecurityException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,11 +49,13 @@ public class CreateCertificate extends APIPoint {
             resp.getWriter().println(PEM.encode("CERTIFICATE", result.cert().getEncoded()));
             return;
         } catch (GeneralSecurityException e) {
-            e.printStackTrace();
+            resp.sendError(500, "Crypto failed");
         } catch (GigiApiException e) {
-            e.printStackTrace();
+            resp.setStatus(500);
+            PrintWriter wr = resp.getWriter();
+            e.formatPlain(wr);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            resp.sendError(500, "Interrupted");
         }
     }
 }

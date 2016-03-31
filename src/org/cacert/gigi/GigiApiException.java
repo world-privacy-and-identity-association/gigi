@@ -13,6 +13,8 @@ import org.cacert.gigi.output.template.TranslateCommand;
 
 public class GigiApiException extends Exception {
 
+    private static final Language PLAIN_LANGUAGE = Language.getInstance(Locale.ENGLISH);
+
     private static final long serialVersionUID = -164928670180852588L;
 
     private SQLException e;
@@ -68,6 +70,24 @@ public class GigiApiException extends Exception {
 
     }
 
+    public void formatPlain(PrintWriter out) {
+        if (isInternalError()) {
+            out.println(PLAIN_LANGUAGE.getTranslation("An internal error ouccured."));
+        }
+        HashMap<String, Object> map = new HashMap<>();
+        for (Outputable message : messages) {
+            if (message instanceof TranslateCommand) {
+                String m = ((TranslateCommand) message).getRaw();
+                // Skip HTML Entities
+                out.println(PLAIN_LANGUAGE.getTranslation(m));
+            } else {
+                map.clear();
+                message.output(out, PLAIN_LANGUAGE, map);
+                out.println();
+            }
+        }
+    }
+
     public boolean isEmpty() {
         return e == null && messages.size() == 0;
     }
@@ -81,7 +101,7 @@ public class GigiApiException extends Exception {
             HashMap<String, Object> map = new HashMap<>();
             for (Outputable message : messages) {
                 map.clear();
-                message.output(pw, Language.getInstance(Locale.ENGLISH), map);
+                message.output(pw, PLAIN_LANGUAGE, map);
             }
             pw.flush();
 

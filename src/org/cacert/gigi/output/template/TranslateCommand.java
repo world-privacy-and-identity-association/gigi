@@ -18,4 +18,8 @@ public final class TranslateCommand implements Outputable {
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         out.print(HTMLEncoder.encodeHTML(l.getTranslation(raw)));
     }
+
+    public String getRaw() {
+        return raw;
+    }
 }
