@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
+import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Job;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.certs.CertificateRequest;
@@ -26,8 +27,17 @@ public class CreateCertificate extends APIPoint {
             resp.sendError(500, "Error, no CSR found");
             return;
         }
+        CertificateProfile cp = null;
+        String cpS = req.getParameter("profile");
+        if (cpS != null) {
+            cp = CertificateProfile.getByName(cpS);
+            if (cp == null) {
+                resp.sendError(500, "Error, profile " + cpS + "not found");
+                return;
+            }
+        }
         try {
-            CertificateRequest cr = new CertificateRequest(new AuthorizationContext(u, u), csr);
+            CertificateRequest cr = new CertificateRequest(new AuthorizationContext(u, u), csr, cp);
             Certificate result = cr.draft();
             Job job = result.issue(null, "2y", u);
             job.waitFor(60000);
