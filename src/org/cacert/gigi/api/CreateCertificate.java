@@ -15,7 +15,7 @@ import org.cacert.gigi.dbObjects.Job;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.certs.CertificateRequest;
 import org.cacert.gigi.util.AuthorizationContext;
-import org.cacert.gigi.util.PEM;
+import org.cacert.gigi.util.CertExporter;
 
 public class CreateCertificate extends APIPoint {
 
@@ -46,7 +46,8 @@ public class CreateCertificate extends APIPoint {
                 resp.sendError(510, "Error, issuing timed out");
                 return;
             }
-            resp.getWriter().println(PEM.encode("CERTIFICATE", result.cert().getEncoded()));
+
+            CertExporter.writeCertCrt(result, resp.getOutputStream(), req.getParameter("chain") != null, req.getParameter("noAnchor") == null);
             return;
         } catch (GeneralSecurityException e) {
             resp.sendError(500, "Crypto failed");
