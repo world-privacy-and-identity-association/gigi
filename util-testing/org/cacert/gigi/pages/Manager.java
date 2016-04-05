@@ -90,36 +90,38 @@ public class Manager extends Page {
         }
     }
 
-    public User[] getAssurers() {
-        if (assurers != null) {
-            return assurers;
+    public User getAssurer(int i) {
+        if (assurers[i] != null) {
+            return assurers[i];
         }
-        assurers = new User[10];
         try {
-            try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?")) {
-                for (int i = 0; i < assurers.length; i++) {
-                    String mail = "test-assurer" + i + "@example.com";
-                    User u = User.getByEmail(mail);
-                    if (u == null) {
-                        System.out.println("Creating assurer");
-                        createUser(mail);
-                        u = User.getByEmail(mail);
-                        passCATS(u);
-                        ps.setInt(1, u.getId());
-                        ps.setInt(2, u.getId());
-                        ps.setInt(3, 100);
-                        ps.setString(4, "Manager init code");
-                        ps.setString(5, "1990-01-01");
-                        ps.execute();
-                    }
-                    assurers[i] = u;
+            User u = createAssurer(i);
+            assurers[i] = u;
 
-                }
-            }
         } catch (ReflectiveOperationException | GigiApiException e) {
             e.printStackTrace();
         }
-        return assurers;
+        return assurers[i];
+    }
+
+    private User createAssurer(int i) throws GigiApiException, IllegalAccessException {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?")) {
+            String mail = "test-assurer" + i + "@example.com";
+            User u = User.getByEmail(mail);
+            if (u == null) {
+                System.out.println("Creating assurer");
+                createUser(mail);
+                u = User.getByEmail(mail);
+                passCATS(u);
+                ps.setInt(1, u.getId());
+                ps.setInt(2, u.getId());
+                ps.setInt(3, 100);
+                ps.setString(4, "Manager init code");
+                ps.setString(5, "1990-01-01");
+                ps.execute();
+            }
+            return u;
+        }
     }
 
     private void passCATS(User u) {
@@ -219,7 +221,7 @@ public class Manager extends Page {
         ea.verify(hash);
     }
 
-    User[] assurers;
+    User[] assurers = new User[25];
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -259,13 +261,24 @@ public class Manager extends Page {
                 return;
             }
             try {
-                for (int i = 0; i < getAssurers().length; i++) {
-                    Notary.assure(getAssurers()[i], byEmail, byEmail.getName(), byEmail.getDoB(), 10, "Testmanager Assure up code", "2014-11-06", AssuranceType.FACE_TO_FACE);
+                for (int i = 0; i < 10; i++) {
+                    Notary.assure(getAssurer(i), byEmail, byEmail.getName(), byEmail.getDoB(), 10, "Testmanager Assure up code", "2014-11-06", AssuranceType.FACE_TO_FACE);
                 }
             } catch (GigiApiException e) {
                 throw new Error(e);
             }
             resp.getWriter().println("User has been assured.");
+        } else if (req.getParameter("letassure") != null) {
+            String mail = req.getParameter("letassureEmail");
+            User byEmail = User.getByEmail(mail);
+            try {
+                for (int i = 0; i < 25; i++) {
+                    User a = getAssurer(i);
+                    Notary.assure(byEmail, a, a.getName(), a.getDoB(), 10, "Testmanager exp up code", "2014-11-06", AssuranceType.FACE_TO_FACE);
+                }
+            } catch (GigiApiException e) {
+                throw new Error(e);
+            }
         } else if (req.getParameter("addEmail") != null) {
             User u = User.getByEmail(req.getParameter("addEmailEmail"));
             try {
@@ -365,7 +378,6 @@ public class Manager extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        getAssurers();
         String pi = req.getPathInfo().substring(PATH.length());
         if (pi.length() > 1 && pi.startsWith("/fetch-")) {
             String mail = pi.substring(pi.indexOf('-', 2) + 1);
