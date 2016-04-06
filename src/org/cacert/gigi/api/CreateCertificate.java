@@ -12,6 +12,7 @@ import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Job;
+import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.certs.CertificateRequest;
 import org.cacert.gigi.util.AuthorizationContext;
@@ -33,12 +34,35 @@ public class CreateCertificate extends APIPoint {
         if (cpS != null) {
             cp = CertificateProfile.getByName(cpS);
             if (cp == null) {
-                resp.sendError(500, "Error, profile " + cpS + "not found");
+                resp.sendError(500, "Error, profile not found");
+                return;
+            }
+        }
+        AuthorizationContext ctx = new AuthorizationContext(u, u);
+        String asOrg = req.getParameter("asOrg");
+        if (asOrg != null) {
+            try {
+                int i = Integer.parseInt(asOrg);
+                Organisation o0 = null;
+                for (Organisation o : u.getOrganisations()) {
+                    if (o.getId() == i) {
+                        o0 = o;
+                        break;
+                    }
+                }
+                if (o0 == null) {
+                    resp.sendError(500, "Error, Organisation with id " + i + " not found.");
+                    return;
+                } else {
+                    ctx = new AuthorizationContext(o0, u);
+                }
+            } catch (NumberFormatException e) {
+                resp.sendError(500, "Error, as Org is not an integer");
                 return;
             }
         }
         try {
-            CertificateRequest cr = new CertificateRequest(new AuthorizationContext(u, u), csr, cp);
+            CertificateRequest cr = new CertificateRequest(ctx, csr, cp);
             Certificate result = cr.draft();
             Job job = result.issue(null, "2y", u);
             job.waitFor(60000);
