@@ -186,6 +186,7 @@ public final class Gigi extends HttpServlet {
             about.addItem(new SimpleMenuItem("//wiki.cacert.org/Board", "CAcert Board"));
             about.addItem(new SimpleMenuItem("//lists.cacert.org/wws", "Mailing Lists"));
             about.addItem(new SimpleMenuItem("//blog.CAcert.org/feed", "RSS News Feed"));
+            about.addItem(new SimpleMenuItem("//wiki.cacert.org/Impress", "Impress"));
 
             Menu languages = new Menu("Translations");
             for (Locale l : Language.getSupportedLocales()) {

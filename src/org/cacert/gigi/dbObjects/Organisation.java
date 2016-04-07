@@ -7,10 +7,12 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
+import org.cacert.gigi.dbObjects.wrappers.DataContainer;
 
 public class Organisation extends CertificateOwner {
 
-    public class Affiliation {
+    @DataContainer
+    public static class Affiliation {
 
         private final User target;
 
@@ -18,7 +20,10 @@ public class Organisation extends CertificateOwner {
 
         private final String fixedOU;
 
-        public Affiliation(User target, boolean master, String fixedOU) {
+        private Organisation o;
+
+        public Affiliation(Organisation o, User target, boolean master, String fixedOU) {
+            this.o = o;
             this.target = target;
             this.master = master;
             this.fixedOU = fixedOU;
@@ -37,7 +42,7 @@ public class Organisation extends CertificateOwner {
         }
 
         public Organisation getOrganisation() {
-            return Organisation.this;
+            return o;
         }
     }
 
@@ -156,7 +161,7 @@ public class Organisation extends CertificateOwner {
             ArrayList<Affiliation> al = new ArrayList<>(rs.getRow());
             rs.beforeFirst();
             while (rs.next()) {
-                al.add(new Affiliation(User.getById(rs.getInt(1)), rs.getString(2).equals("y"), null));
+                al.add(new Affiliation(this, User.getById(rs.getInt(1)), rs.getString(2).equals("y"), null));
             }
             return al;
         }

@@ -26,6 +26,7 @@ import org.cacert.gigi.Gigi;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.dbObjects.CertificateOwner;
@@ -259,7 +260,7 @@ public class Manager extends Page {
             }
             try {
                 for (int i = 0; i < getAssurers().length; i++) {
-                    Notary.assure(getAssurers()[i], byEmail, byEmail.getName(), byEmail.getDoB(), 10, "Testmanager Assure up code", "2014-11-06");
+                    Notary.assure(getAssurers()[i], byEmail, byEmail.getName(), byEmail.getDoB(), 10, "Testmanager Assure up code", "2014-11-06", AssuranceType.FACE_TO_FACE);
                 }
             } catch (GigiApiException e) {
                 throw new Error(e);

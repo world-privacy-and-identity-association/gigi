@@ -51,6 +51,10 @@
 		<td><input type="text" name="points"><br/>(Max. <?=$maxpoints?>)</td>
 	</tr>
 	<tr>
+		<td><?=_Type?></td>
+		<td><select name="assuranceType"><? foreach($ats) { ?><option value="<?=$id?>"<?=$sel?>><?=$type?></option><? } ?></select></td>
+	</tr>
+	<tr>
 		<td><input type="checkbox" name="passwordReset" value="1" <? if($aword) { ?>checked<? } ?>></td>
 		<td><?=_I have conducted a passwort reset with assurance. The established "A-Word" is:?><input type="text" name="passwordResetValue" value="<? if($aword) { ?><?=$aword?><? } ?>"></td>
 	</tr>

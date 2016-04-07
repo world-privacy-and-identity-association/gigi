@@ -6,16 +6,20 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.Sendmail;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.PasswordResetPage;
@@ -38,6 +42,8 @@ public class AssuranceForm extends Form {
     private String aword;
 
     private User assurer;
+
+    private AssuranceType type = AssuranceType.FACE_TO_FACE;
 
     private static final Template templ;
     static {
@@ -68,6 +74,30 @@ public class AssuranceForm extends Form {
         res.put("location", location);
         res.put("date", date);
         res.put("aword", aword);
+        final LinkedList<AssuranceType> ats = new LinkedList<>();
+        for (AssuranceType at : AssuranceType.values()) {
+            try {
+                Notary.may(assurer, assuree, at);
+                ats.add(at);
+            } catch (GigiApiException e) {
+            }
+        }
+        res.put("ats", new IterableDataset() {
+
+            Iterator<AssuranceType> t = ats.iterator();
+
+            @Override
+            public boolean next(Language l, Map<String, Object> vars) {
+                if ( !t.hasNext()) {
+                    return false;
+                }
+                AssuranceType t1 = t.next();
+                vars.put("type", t1.getDescription());
+                vars.put("id", t1.toString());
+                vars.put("sel", t1 == type ? " selected" : "");
+                return true;
+            }
+        });
         templ.output(out, l, res);
     }
 
@@ -91,6 +121,14 @@ public class AssuranceForm extends Form {
         } else {
             aword = null;
         }
+        String val = req.getParameter("assuranceType");
+        if (val != null) {
+            try {
+                type = AssuranceType.valueOf(val);
+            } catch (IllegalArgumentException e) {
+                outputError(out, req, "Assurance Type wrong.");
+            }
+        }
 
         int pointsI = 0;
         String points = req.getParameter("points");
@@ -108,7 +146,7 @@ public class AssuranceForm extends Form {
             return false;
         }
         try {
-            Notary.assure(assurer, assuree, assureeName, dob, pointsI, location, req.getParameter("date"));
+            Notary.assure(assurer, assuree, assureeName, dob, pointsI, location, req.getParameter("date"), type);
             if (aword != null && !aword.equals("")) {
                 String systemToken = RandomToken.generateToken(32);
                 int id = assuree.generatePasswordResetTicket(Page.getUser(req), systemToken, aword);

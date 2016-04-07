@@ -154,7 +154,7 @@ public class User extends CertificateOwner {
     }
 
     public int getAssurancePoints() {
-        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT sum(points) FROM `notary` where `to`=? AND `deleted` is NULL")) {
+        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT sum(points) FROM `notary` where `to`=? AND `deleted` is NULL AND (`expire` IS NULL OR `expire` > CURRENT_TIMESTAMP)")) {
             query.setInt(1, getId());
 
             GigiResultSet rs = query.executeQuery();
@@ -278,7 +278,7 @@ public class User extends CertificateOwner {
                 List<Assurance> assurances = new LinkedList<Assurance>();
 
                 while (res.next()) {
-                    assurances.add(new Assurance(res));
+                    assurances.add(assuranceByRes(res));
                 }
 
                 this.receivedAssurances = assurances.toArray(new Assurance[0]);
@@ -297,7 +297,7 @@ public class User extends CertificateOwner {
                     List<Assurance> assurances = new LinkedList<Assurance>();
 
                     while (res.next()) {
-                        assurances.add(new Assurance(res));
+                        assurances.add(assuranceByRes(res));
                     }
 
                     this.madeAssurances = assurances.toArray(new Assurance[0]);
@@ -541,5 +541,9 @@ public class User extends CertificateOwner {
             ps.setInt(1, id);
             ps.executeUpdate();
         }
+    }
+
+    private Assurance assuranceByRes(GigiResultSet res) {
+        return new Assurance(res.getInt("id"), User.getById(res.getInt("from")), User.getById(res.getInt("to")), res.getString("location"), res.getString("method"), res.getInt("points"), res.getString("date"));
     }
 }

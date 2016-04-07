@@ -8,6 +8,7 @@ import java.util.GregorianCalendar;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
+import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
@@ -71,14 +72,9 @@ public class Notary {
      * @throws GigiApiException
      *             if the assurance fails (for various reasons)
      */
-    public synchronized static void assure(User assurer, User assuree, Name assureeName, Date dob, int awarded, String location, String date) throws GigiApiException {
+    public synchronized static void assure(User assurer, User assuree, Name assureeName, Date dob, int awarded, String location, String date, AssuranceType type) throws GigiApiException {
+        may(assurer, assuree, AssuranceType.FACE_TO_FACE);
         GigiApiException gae = new GigiApiException();
-        if (assuree.isInGroup(ASSUREE_BLOCKED)) {
-            gae.mergeInto(new GigiApiException("The assuree is blocked."));
-        }
-        if (assurer.isInGroup(ASSURER_BLOCKED)) {
-            gae.mergeInto(new GigiApiException("The assurer is blocked."));
-        }
         if ( !gae.isEmpty()) {
             throw gae;
         }
@@ -113,13 +109,37 @@ public class Notary {
         if ( !assuree.getName().equals(assureeName) || !assuree.getDoB().equals(dob)) {
             gae.mergeInto(new GigiApiException("The person you are assuring changed his personal details."));
         }
-        if (awarded > assurer.getMaxAssurePoints() || awarded < 0) {
+        if (awarded < 0) {
             gae.mergeInto(new GigiApiException("The points you are trying to award are out of range."));
+        } else {
+            if (type == AssuranceType.NUCLEUS) {
+                if (awarded > 50) {
+                    gae.mergeInto(new GigiApiException("The points you are trying to award are out of range."));
+                }
+            } else {
+                if (awarded > assurer.getMaxAssurePoints()) {
+                    gae.mergeInto(new GigiApiException("The points you are trying to award are out of range."));
+                }
+            }
         }
+
         if ( !gae.isEmpty()) {
             throw gae;
         }
 
+        if (type == AssuranceType.FACE_TO_FACE) {
+            assureF2F(assurer, assuree, awarded, location, date);
+        } else if (type == AssuranceType.TTP_ASSISTED) {
+            assureTTP(assurer, assuree, awarded, location, date);
+        } else {
+            throw new GigiApiException("Unknown Assurance type: " + type);
+        }
+        assurer.invalidateMadeAssurances();
+        assuree.invalidateReceivedAssurances();
+    }
+
+    private static void assureF2F(User assurer, User assuree, int awarded, String location, String date) throws GigiApiException {
+        may(assurer, assuree, AssuranceType.FACE_TO_FACE);
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?")) {
             ps.setInt(1, assurer.getId());
             ps.setInt(2, assuree.getId());
@@ -128,7 +148,45 @@ public class Notary {
             ps.setString(5, date);
             ps.execute();
         }
-        assurer.invalidateMadeAssurances();
-        assuree.invalidateReceivedAssurances();
+    }
+
+    private static void assureTTP(User assurer, User assuree, int awarded, String location, String date) throws GigiApiException {
+        may(assurer, assuree, AssuranceType.TTP_ASSISTED);
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `method`='TTP-Assisted'")) {
+            ps.setInt(1, assurer.getId());
+            ps.setInt(2, assuree.getId());
+            ps.setInt(3, awarded);
+            ps.setString(4, location);
+            ps.setString(5, date);
+            ps.execute();
+            assuree.revokeGroup(assurer, Group.TTP_APPLICANT);
+        }
+    }
+
+    public static void may(User assurer, User assuree, AssuranceType t) throws GigiApiException {
+        if (assuree.isInGroup(ASSUREE_BLOCKED)) {
+            throw new GigiApiException("The assuree is blocked.");
+        }
+        if (assurer.isInGroup(ASSURER_BLOCKED)) {
+            throw new GigiApiException("The assurer is blocked.");
+        }
+
+        if (t == AssuranceType.NUCLEUS) {
+            if ( !assurer.isInGroup(Group.NUCLEUS_ASSURER)) {
+                throw new GigiApiException("Assurer needs to be Nucleus Assurer.");
+            }
+            return;
+        } else if (t == AssuranceType.TTP_ASSISTED) {
+            if ( !assurer.isInGroup(Group.TTP_ASSURER)) {
+                throw new GigiApiException("Assurer needs to be TTP Assurer.");
+            }
+            if ( !assuree.isInGroup(Group.TTP_APPLICANT)) {
+                throw new GigiApiException("Assuree needs to be TTP Applicant.");
+            }
+            return;
+        } else if (t == AssuranceType.FACE_TO_FACE) {
+            return;
+        }
+        throw new GigiApiException("Assurance type not possible.");
     }
 }

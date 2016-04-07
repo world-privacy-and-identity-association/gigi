@@ -1,6 +1,5 @@
 package org.cacert.gigi.dbObjects;
 
-import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.wrappers.DataContainer;
 
 @DataContainer
@@ -34,15 +33,15 @@ public class Assurance {
 
     private String date;
 
-    public Assurance(GigiResultSet res) {
-        super();
-        this.id = res.getInt("id");
-        this.from = User.getById(res.getInt("from"));
-        this.to = User.getById(res.getInt("to"));
-        this.location = res.getString("location");
-        this.method = res.getString("method");
-        this.points = res.getInt("points");
-        this.date = res.getString("date");
+    public Assurance(int id, User from, User to, String location, String method, int points, String date) {
+        this.id = id;
+        this.from = from;
+        this.to = to;
+        this.location = location;
+        this.method = method;
+        this.points = points;
+        this.date = date;
+
     }
 
     public User getFrom() {

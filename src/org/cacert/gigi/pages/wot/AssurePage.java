@@ -49,17 +49,6 @@ public class AssurePage extends Page {
         return ac != null && ac.canAssure();
     }
 
-    private void outputForm(HttpServletRequest req, PrintWriter out, AssuranceForm form) {
-        User myself = LoginPage.getUser(req);
-        try {
-            Notary.checkAssuranceIsPossible(myself, form.getAssuree());
-        } catch (GigiApiException e) {
-            e.format(out, Page.getLanguage(req));
-        }
-
-        form.output(out, getLanguage(req), new HashMap<String, Object>());
-    }
-
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
@@ -68,7 +57,12 @@ public class AssurePage extends Page {
             if (form.submit(out, req)) {
                 out.println(translate(req, "Assurance complete."));
             } else {
-                outputForm(req, resp.getWriter(), form);
+                try {
+                    Notary.checkAssuranceIsPossible(LoginPage.getUser(req), form.getAssuree());
+                    form.output(out, getLanguage(req), new HashMap<String, Object>());
+                } catch (GigiApiException e) {
+                    e.format(out, Page.getLanguage(req));
+                }
             }
 
             return;
@@ -92,8 +86,14 @@ public class AssurePage extends Page {
                     } else if (getUser(req).getId() == id) {
 
                     } else {
-                        AssuranceForm form = new AssuranceForm(req, User.getById(id));
-                        outputForm(req, out, form);
+                        User assuree = User.getById(id);
+                        User myself = LoginPage.getUser(req);
+                        try {
+                            Notary.checkAssuranceIsPossible(myself, assuree);
+                            new AssuranceForm(req, assuree).output(out, getLanguage(req), new HashMap<String, Object>());
+                        } catch (GigiApiException e) {
+                            e.format(out, Page.getLanguage(req));
+                        }
                     }
                 }
             } else {
