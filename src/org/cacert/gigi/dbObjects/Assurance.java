@@ -6,7 +6,7 @@ import org.cacert.gigi.dbObjects.wrappers.DataContainer;
 public class Assurance {
 
     public enum AssuranceType {
-        FACE_TO_FACE("Face to Face Meeting"), TOPUP("TOPUP"), TTP_ASSISTED("TTP-Assisted");
+        FACE_TO_FACE("Face to Face Meeting"), TOPUP("TOPUP"), TTP_ASSISTED("TTP-Assisted"), NUCLEUS("Nucleus Bonus");
 
         private final String description;
 

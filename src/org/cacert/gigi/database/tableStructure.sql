@@ -262,7 +262,7 @@ CREATE INDEX ON "jobs" ("state");
 DROP TABLE IF EXISTS "notary";
 
 DROP TYPE IF EXISTS "notaryType";
-CREATE TYPE "notaryType" AS enum('Face to Face Meeting', 'TOPUP', 'TTP-Assisted');
+CREATE TYPE "notaryType" AS enum('Face to Face Meeting', 'TOPUP', 'TTP-Assisted', 'Nucleus Bonus');
 
 CREATE TABLE "notary" (
   "id" serial NOT NULL,
@@ -327,7 +327,7 @@ CREATE TABLE IF NOT EXISTS "arbitrations" (
 DROP TABLE IF EXISTS "user_groups";
 
 DROP TYPE IF EXISTS "userGroup";
-CREATE TYPE "userGroup" AS enum('supporter','arbitrator','blockedassuree','blockedassurer','blockedlogin','ttp-assurer','ttp-applicant', 'codesigning', 'orgassurer', 'blockedcert');
+CREATE TYPE "userGroup" AS enum('supporter','arbitrator','blockedassuree','blockedassurer','blockedlogin','ttp-assurer','ttp-applicant', 'codesigning', 'orgassurer', 'blockedcert', 'nucleus-assurer');
 
 CREATE TABLE IF NOT EXISTS "user_groups" (
   "id" serial NOT NULL,
@@ -374,7 +374,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(8);
+INSERT INTO "schemeVersion" (version)  VALUES(9);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (

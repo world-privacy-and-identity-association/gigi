@@ -129,6 +129,8 @@ public class Notary {
 
         if (type == AssuranceType.FACE_TO_FACE) {
             assureF2F(assurer, assuree, awarded, location, date);
+        } else if (type == AssuranceType.NUCLEUS) {
+            assureNucleus(assurer, assuree, awarded, location, date);
         } else if (type == AssuranceType.TTP_ASSISTED) {
             assureTTP(assurer, assuree, awarded, location, date);
         } else {
@@ -188,5 +190,28 @@ public class Notary {
             return;
         }
         throw new GigiApiException("Assurance type not possible.");
+    }
+
+    private static void assureNucleus(User assurer, User assuree, int awarded, String location, String date) throws GigiApiException {
+        may(assurer, assuree, AssuranceType.NUCLEUS);
+        // Do up to 35 points as f2f
+        int f2fPoints = Math.min(35, awarded);
+        assureF2F(assurer, assuree, f2fPoints, location, date);
+
+        awarded -= f2fPoints;
+        if (awarded <= 0) {
+            return;
+        }
+
+        // Assure remaining points as "Nucleus Bonus"
+        // Valid for 4 Weeks = 28 days
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `method`='Nucleus Bonus', `expire` = CURRENT_TIMESTAMP + interval '28 days'")) {
+            ps.setInt(1, assurer.getId());
+            ps.setInt(2, assuree.getId());
+            ps.setInt(3, awarded);
+            ps.setString(4, location);
+            ps.setString(5, date);
+            ps.execute();
+        }
     }
 }

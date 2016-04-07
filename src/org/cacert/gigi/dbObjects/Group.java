@@ -4,7 +4,7 @@ import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 
 public enum Group {
-    SUPPORTER("supporter"), ARBITRATOR("arbitrator"), BLOCKEDASSURER("blockedassurer"), BLOCKEDASSUREE("blockedassuree"), BLOCKEDLOGIN("blockedlogin"), BLOCKEDCERT("blockedcert"), TTP_ASSURER("ttp-assurer"), TTP_APPLICANT("ttp-applicant"), CODESIGNING("codesigning"), ORGASSURER("orgassurer");
+    SUPPORTER("supporter"), ARBITRATOR("arbitrator"), BLOCKEDASSURER("blockedassurer"), BLOCKEDASSUREE("blockedassuree"), BLOCKEDLOGIN("blockedlogin"), BLOCKEDCERT("blockedcert"), TTP_ASSURER("ttp-assurer"), TTP_APPLICANT("ttp-applicant"), CODESIGNING("codesigning"), ORGASSURER("orgassurer"), NUCLEUS_ASSURER("nucleus-assurer");
 
     private final String dbName;
 
