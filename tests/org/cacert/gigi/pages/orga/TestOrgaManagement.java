@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.cacert.gigi.GigiApiException;
@@ -18,6 +19,7 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.testUtils.ClientTest;
 import org.cacert.gigi.testUtils.IOUtils;
+import org.junit.After;
 import org.junit.Test;
 
 public class TestOrgaManagement extends ClientTest {
@@ -27,6 +29,11 @@ public class TestOrgaManagement extends ClientTest {
         makeAssurer(u.getId());
         clearCaches();
         cookie = login(email, TEST_PASSWORD);
+    }
+
+    @After
+    public void purgeDbAfterTest() throws SQLException, IOException {
+        purgeDatabase();
     }
 
     @Test
