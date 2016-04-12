@@ -28,11 +28,11 @@
     <td>
     <label for='CN'><?=_Your name?></label>
     </td>
-    <td><input type='text' id='CN' name='CN' value='<?=$CN?>'/></td>
+    <td><input class="form-control" type='text' id='CN' name='CN' value='<?=$CN?>'/></td>
   </tr>
   <tr>
     <td>SANs</td>
-    <td align="left"><textarea rows='5' name='SANs' placeholder="dns:my.domain.example.com, dns:*.example.com, email:my.email@example.com (or newline separated)"><?=$emails?></textarea></td>
+    <td align="left"><textarea class="form-control" rows='5' name='SANs' placeholder="dns:my.domain.example.com, dns:*.example.com, email:my.email@example.com (or newline separated)"><?=$emails?></textarea></td>
   </tr>
   <? if($orga) { ?>
   <tr>
@@ -87,7 +87,7 @@
   <tr>
     <td colspan="2">
       <label for="description"><?=_Optional comment, only used in the certificate overview?></label><br />
-      <input type="text" id="description" name="description" maxlength="100" size="100" />
+      <input class="form-control" type="text" id="description" name="description" maxlength="100" size="100" />
     </td>
   </tr>
 
