@@ -1,6 +1,6 @@
 <? if($usertable) {?>
 <p>Multiple users where found.</p>
-<table class="dataTable wrapper">
+<table class="table">
 <tr>
 <th>Id</th><th>E-Mail</th></tr>
 <? foreach($usertable) {?>
@@ -9,7 +9,7 @@
 </table>
 <? } ?>
 <? if($first) {?>
-<table class="wrapper dataTable">
+<table class="table">
   <tbody><tr>
     <th colspan="2"><?=_Find User?></th>
   </tr>

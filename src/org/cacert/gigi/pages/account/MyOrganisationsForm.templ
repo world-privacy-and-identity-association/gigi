@@ -1,6 +1,6 @@
 <input type='hidden' name='orgaForm' value='orga'/>
 <h2><?=_My Organisations?></h2>
-<table class="wrapper dataTable" width="400">
+<table class="table">
 <? foreach($orgas) { ?>
 <tr><td><?=$orgName?></td><td><?=$orgID?></td><td><input type='submit' value='<?=_switch to this organisation?>' name='org:<?=$orgID?>'/></td></tr>
 <? } ?>
