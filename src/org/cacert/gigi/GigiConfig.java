@@ -83,6 +83,9 @@ public class GigiConfig {
     }
 
     public KeyStore getPrivateStore() throws GeneralSecurityException, IOException {
+        if (keystore == null || keystorpw == null) {
+            return null;
+        }
         KeyStore ks1 = KeyStore.getInstance("pkcs12");
         ks1.load(new ByteArrayInputStream(keystore), keystorpw);
         return ks1;
