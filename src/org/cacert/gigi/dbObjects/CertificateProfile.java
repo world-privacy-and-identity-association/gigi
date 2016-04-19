@@ -263,6 +263,14 @@ public class CertificateProfile implements IdCachable {
                 if ( !actor.isInGroup(Group.CODESIGNING)) {
                     return false;
                 }
+            } else if (s.equals("ocsp")) {
+                if ( !(owner instanceof Organisation)) {
+                    return false;
+                }
+                Organisation o = (Organisation) owner;
+                if ( !o.isSelfOrganisation()) {
+                    return false;
+                }
             } else {
                 return false;
             }

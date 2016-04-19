@@ -152,16 +152,19 @@ public class CertificateIssueForm extends Form {
         vars2.put("hashs", new HashAlgorithms(cr.getSelectedDigest()));
         vars2.put("profiles", new IterableDataset() {
 
-            int i = 1;
+            CertificateProfile[] cps = CertificateProfile.getAll();
+
+            int i = 0;
 
             @Override
             public boolean next(Language l, Map<String, Object> vars) {
                 CertificateProfile cp;
                 do {
-                    cp = CertificateProfile.getById(i++);
-                    if (cp == null) {
+                    if (i >= cps.length) {
                         return false;
                     }
+                    cp = cps[i];
+                    i++;
                 } while ( !cp.canBeIssuedBy(c.getTarget(), c.getActor()));
 
                 if (cp.getId() == cr.getProfile().getId()) {

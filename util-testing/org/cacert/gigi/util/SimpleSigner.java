@@ -494,6 +494,9 @@ public class SimpleSigner {
             case "emailProtection":
                 oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.4");
                 break;
+            case "OCSPSigning":
+                oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.9");
+                break;
 
             default:
                 throw new Error(name);

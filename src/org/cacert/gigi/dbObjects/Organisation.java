@@ -217,4 +217,8 @@ public class Organisation extends CertificateOwner {
     public boolean isValidEmail(String email) {
         return isValidDomain(email.split("@", 2)[1]);
     }
+
+    public boolean isSelfOrganisation() {
+        return "CAcert".equals(getName());
+    }
 }
