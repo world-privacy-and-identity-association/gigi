@@ -52,6 +52,9 @@ public abstract class PingTest extends ClientTest {
         openConnection.setDoOutput(true);
         openConnection.getOutputStream().write(content.getBytes("UTF-8"));
         openConnection.getHeaderField("Location");
+        if (((HttpURLConnection) openConnection).getResponseCode() != 302) {
+            throw new Error(IOUtils.readURL(openConnection));
+        }
 
         String newcontent = IOUtils.readURL(cookie(u.openConnection(), cookie));
         Pattern dlink = Pattern.compile(DomainOverview.PATH + "([0-9]+)'>");
