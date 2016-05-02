@@ -105,8 +105,10 @@ public class SupportUserDetailsForm extends Form {
             throw new GigiApiException("Invalid date of birth!");
         }
         Name newName = new Name(fname, lname, mname, suffix);
-        if (user.setDob(dobSelector.getDate()) | user.setName(newName)) {
-            user.submitSupportAction();
+        synchronized (user.getTargetUser()) {
+            if (user.setDob(dobSelector.getDate()) | user.setName(newName)) {
+                user.submitSupportAction();
+            }
         }
         return true;
     }

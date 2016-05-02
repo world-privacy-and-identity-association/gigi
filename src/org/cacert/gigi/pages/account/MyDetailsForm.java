@@ -37,20 +37,23 @@ public class MyDetailsForm extends Form {
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) {
         try {
-            if (target.getAssurancePoints() == 0) {
-                String newFname = req.getParameter("fname").trim();
-                String newLname = req.getParameter("lname").trim();
-                String newMname = req.getParameter("mname").trim();
-                String newSuffix = req.getParameter("suffix").trim();
-                if (newLname.isEmpty()) {
-                    throw new GigiApiException("Last name cannot be empty.");
+            synchronized (target) {
+                if (target.getAssurancePoints() == 0) {
+                    String newFname = req.getParameter("fname").trim();
+                    String newLname = req.getParameter("lname").trim();
+                    String newMname = req.getParameter("mname").trim();
+                    String newSuffix = req.getParameter("suffix").trim();
+                    if (newLname.isEmpty()) {
+                        throw new GigiApiException("Last name cannot be empty.");
+                    }
+
+                    target.setName(new Name(newFname, newLname, newMname, newSuffix));
+                    ds.update(req);
+                    target.setDoB(ds.getDate());
+                    target.updateUserData();
+                } else {
+                    throw new GigiApiException("No change after assurance allowed.");
                 }
-                target.setName(new Name(newFname, newLname, newMname, newSuffix));
-                ds.update(req);
-                target.setDoB(ds.getDate());
-                target.updateUserData();
-            } else {
-                throw new GigiApiException("No change after assurance allowed.");
             }
         } catch (GigiApiException e) {
             e.format(out, Page.getLanguage(req));

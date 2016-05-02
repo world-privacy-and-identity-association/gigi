@@ -99,45 +99,47 @@ public class Notary {
         } else if (location.length() <= 2) {
             gae.mergeInto(new GigiApiException("You must enter a location with at least 3 characters eg town and country."));
         }
+        synchronized (assuree) {
 
-        try {
-            checkAssuranceIsPossible(assurer, assuree);
-        } catch (GigiApiException e) {
-            gae.mergeInto(e);
-        }
+            try {
+                checkAssuranceIsPossible(assurer, assuree);
+            } catch (GigiApiException e) {
+                gae.mergeInto(e);
+            }
 
-        if ( !assuree.getName().equals(assureeName) || !assuree.getDoB().equals(dob)) {
-            gae.mergeInto(new GigiApiException("The person you are assuring changed his personal details."));
-        }
-        if (awarded < 0) {
-            gae.mergeInto(new GigiApiException("The points you are trying to award are out of range."));
-        } else {
-            if (type == AssuranceType.NUCLEUS) {
-                if (awarded > 50) {
-                    gae.mergeInto(new GigiApiException("The points you are trying to award are out of range."));
-                }
+            if ( !assuree.getName().equals(assureeName) || !assuree.getDoB().equals(dob)) {
+                gae.mergeInto(new GigiApiException("The person you are assuring changed his personal details."));
+            }
+            if (awarded < 0) {
+                gae.mergeInto(new GigiApiException("The points you are trying to award are out of range."));
             } else {
-                if (awarded > assurer.getMaxAssurePoints()) {
-                    gae.mergeInto(new GigiApiException("The points you are trying to award are out of range."));
+                if (type == AssuranceType.NUCLEUS) {
+                    if (awarded > 50) {
+                        gae.mergeInto(new GigiApiException("The points you are trying to award are out of range."));
+                    }
+                } else {
+                    if (awarded > assurer.getMaxAssurePoints()) {
+                        gae.mergeInto(new GigiApiException("The points you are trying to award are out of range."));
+                    }
                 }
             }
-        }
 
-        if ( !gae.isEmpty()) {
-            throw gae;
-        }
+            if ( !gae.isEmpty()) {
+                throw gae;
+            }
 
-        if (type == AssuranceType.FACE_TO_FACE) {
-            assureF2F(assurer, assuree, awarded, location, date);
-        } else if (type == AssuranceType.NUCLEUS) {
-            assureNucleus(assurer, assuree, awarded, location, date);
-        } else if (type == AssuranceType.TTP_ASSISTED) {
-            assureTTP(assurer, assuree, awarded, location, date);
-        } else {
-            throw new GigiApiException("Unknown Assurance type: " + type);
+            if (type == AssuranceType.FACE_TO_FACE) {
+                assureF2F(assurer, assuree, awarded, location, date);
+            } else if (type == AssuranceType.NUCLEUS) {
+                assureNucleus(assurer, assuree, awarded, location, date);
+            } else if (type == AssuranceType.TTP_ASSISTED) {
+                assureTTP(assurer, assuree, awarded, location, date);
+            } else {
+                throw new GigiApiException("Unknown Assurance type: " + type);
+            }
+            assurer.invalidateMadeAssurances();
+            assuree.invalidateReceivedAssurances();
         }
-        assurer.invalidateMadeAssurances();
-        assuree.invalidateReceivedAssurances();
     }
 
     private static void assureF2F(User assurer, User assuree, int awarded, String location, String date) throws GigiApiException {
