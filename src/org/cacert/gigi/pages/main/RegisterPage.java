@@ -11,12 +11,16 @@ import javax.servlet.http.HttpSession;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.AuthorizationContext;
+import org.cacert.gigi.util.RateLimit;
 
 public class RegisterPage extends Page {
 
     private static final String SIGNUP_PROCESS = "signupProcess";
 
     public static final String PATH = "/register";
+
+    // 5 per 5 min
+    public static final RateLimit RATE_LIMIT = new RateLimit(50, 5 * 60 * 1000);
 
     public RegisterPage() {
         super("Register");

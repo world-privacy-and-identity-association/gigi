@@ -158,6 +158,10 @@ public class Signup extends Form {
         if (isFailed(out)) {
             return false;
         }
+        if (RegisterPage.RATE_LIMIT.isLimitExceeded(req.getRemoteAddr())) {
+            outputError(out, req, "Rate Limit Exceeded");
+            return false;
+        }
         try {
             run(req, pw1);
         } catch (SQLException e) {
