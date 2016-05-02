@@ -431,7 +431,7 @@ public class CertificateRequest {
             throw error;
         }
         try {
-            if (limit.isLimitExceeded(Integer.toString(ctx.getActor().getId()))) {
+            if (RATE_LIMIT.isLimitExceeded(Integer.toString(ctx.getActor().getId()))) {
                 throw new GigiApiException("Rate Limit Exceeded");
             }
             return new Certificate(ctx.getTarget(), ctx.getActor(), subject, selectedDigest, //
@@ -443,7 +443,7 @@ public class CertificateRequest {
     }
 
     // 100 per 10 minutes
-    private static final RateLimit limit = new RateLimit(100, 10 * 60 * 1000);
+    public static final RateLimit RATE_LIMIT = new RateLimit(100, 10 * 60 * 1000);
 
     private String verifyName(GigiApiException error, PropertyTemplate nameTemp, PropertyTemplate wotUserTemp, String verifiedCN) {
         // real names,

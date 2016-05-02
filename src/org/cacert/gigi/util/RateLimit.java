@@ -70,4 +70,9 @@ public class RateLimit {
             }
         }
     }
+
+    public synchronized void bypass() {
+        set.clear();
+        feat.clear();
+    }
 }
