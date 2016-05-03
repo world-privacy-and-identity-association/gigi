@@ -2,6 +2,7 @@ package org.cacert.gigi.util;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -15,8 +16,15 @@ import org.junit.Test;
 
 public class TestNotary extends ManagedTest {
 
+    // These tests create a lot of users and therefore require resetting of the
+    // registering-rate-limit.
     @Test
     public void testNormalAssurance() throws SQLException, GigiApiException {
+        try {
+            clearCaches();
+        } catch (IOException e) {
+            throw new Error(e);
+        }
         User[] users = new User[30];
         for (int i = 0; i < users.length; i++) {
             int id = createVerifiedUser("fn" + i, "ln" + i, createUniqueName() + "@email.org", TEST_PASSWORD);
@@ -58,6 +66,11 @@ public class TestNotary extends ManagedTest {
 
     @Test
     public void testPoJam() throws SQLException, GigiApiException {
+        try {
+            clearCaches();
+        } catch (IOException e) {
+            throw new Error(e);
+        }
         User[] users = new User[30];
         for (int i = 0; i < users.length; i++) {
             int id = createVerifiedUser("fn" + i, "ln" + i, createUniqueName() + "@email.org", TEST_PASSWORD);
