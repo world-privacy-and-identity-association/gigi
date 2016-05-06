@@ -197,7 +197,7 @@ public class Notary {
     private static void assureNucleus(User assurer, User assuree, int awarded, String location, String date) throws GigiApiException {
         may(assurer, assuree, AssuranceType.NUCLEUS);
         // Do up to 35 points as f2f
-        int f2fPoints = Math.min(35, awarded);
+        int f2fPoints = Math.min(assurer.getMaxAssurePoints(), awarded);
         assureF2F(assurer, assuree, f2fPoints, location, date);
 
         awarded -= f2fPoints;
