@@ -6,7 +6,6 @@ import static org.junit.Assume.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
@@ -42,7 +41,6 @@ import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.PingTest;
 import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
@@ -154,9 +152,7 @@ public class TestSSL extends PingTest {
     private void testEmailAndSSL(int sslVariant, int emailVariant, boolean successMail) throws IOException, InterruptedException, SQLException, GeneralSecurityException, GigiApiException {
         String test = getTestProps().getProperty("domain.local");
         assumeNotNull(test);
-        URL u = new URL("https://" + getServerName() + DomainOverview.PATH);
-
-        Matcher m = initailizeDomainForm(u);
+        Matcher m = initailizeDomainForm();
         String value = m.group(2);
 
         if (self) {
@@ -182,7 +178,7 @@ public class TestSSL extends PingTest {
                 "&ssl-type-2=direct&ssl-port-2=" + //
                 "&ssl-type-3=direct&ssl-port-3=" + //
                 "&adddomain&csrf=" + csrf;
-        URL u2 = sendDomainForm(u, content);
+        String p2 = sendDomainForm(content);
         boolean firstSucceeds = sslVariant != 0 && sslVariant != 2;
         AsyncTask<Boolean> ass = new AsyncTask<Boolean>() {
 
@@ -206,7 +202,7 @@ public class TestSSL extends PingTest {
         }
         waitForPings(3);
 
-        String newcontent = IOUtils.readURL(cookie(u2.openConnection(), cookie));
+        String newcontent = IOUtils.readURL(get(p2));
         Pattern pat = Pattern.compile("<td>ssl</td>\\s*<td>success</td>");
         Matcher matcher = pat.matcher(newcontent);
         assertTrue(newcontent, firstSucceeds ^ matcher.find());

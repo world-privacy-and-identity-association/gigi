@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.sql.SQLException;
@@ -87,28 +86,25 @@ public class TestOrgaManagement extends ClientTest {
         o1.addAdmin(u2, u, false);
         String session2 = login(u2.getEmail(), TEST_PASSWORD);
 
-        URLConnection uc = new URL("https://" + getServerName() + ViewOrgPage.DEFAULT_PATH).openConnection();
-        uc.addRequestProperty("Cookie", session2);
+        URLConnection uc = get(session2, ViewOrgPage.DEFAULT_PATH);
         assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
 
-        uc = new URL("https://" + getServerName() + MyDetails.PATH).openConnection();
-        uc.addRequestProperty("Cookie", session2);
+        uc = get(session2, MyDetails.PATH);
         String content = IOUtils.readURL(uc);
         assertThat(content, containsString("name21"));
         assertThat(content, not(containsString("name12")));
-        uc = cookie(new URL("https://" + getServerName() + ViewOrgPage.DEFAULT_PATH + "/" + o1.getId()).openConnection(), session2);
+        uc = get(session2, ViewOrgPage.DEFAULT_PATH + "/" + o1.getId());
         assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
-        uc = cookie(new URL("https://" + getServerName() + ViewOrgPage.DEFAULT_PATH + "/" + o2.getId()).openConnection(), session2);
+        uc = get(session2, ViewOrgPage.DEFAULT_PATH + "/" + o2.getId());
         assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
 
-        uc = new URL("https://" + getServerName() + ViewOrgPage.DEFAULT_PATH).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
+        uc = get(ViewOrgPage.DEFAULT_PATH);
         content = IOUtils.readURL(uc);
         assertThat(content, containsString("name21"));
         assertThat(content, containsString("name12"));
-        uc = cookie(new URL("https://" + getServerName() + ViewOrgPage.DEFAULT_PATH + "/" + o1.getId()).openConnection(), cookie);
+        uc = get(ViewOrgPage.DEFAULT_PATH + "/" + o1.getId());
         assertEquals(200, ((HttpURLConnection) uc).getResponseCode());
-        uc = cookie(new URL("https://" + getServerName() + ViewOrgPage.DEFAULT_PATH + "/" + o2.getId()).openConnection(), cookie);
+        uc = get(ViewOrgPage.DEFAULT_PATH + "/" + o2.getId());
         assertEquals(200, ((HttpURLConnection) uc).getResponseCode());
         o1.delete();
         o2.delete();

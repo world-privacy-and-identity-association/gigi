@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.sql.SQLException;
@@ -64,10 +63,8 @@ public class TestAssurance extends ManagedTest {
     }
 
     private String search(String query) throws MalformedURLException, IOException, UnsupportedEncodingException {
-        URL u = new URL("https://" + getServerName() + AssurePage.PATH);
-        URLConnection uc = u.openConnection();
+        URLConnection uc = get(cookie, AssurePage.PATH);
         uc.setDoOutput(true);
-        uc.addRequestProperty("Cookie", cookie);
         uc.getOutputStream().write(("search&" + query).getBytes("UTF-8"));
         uc.getOutputStream().flush();
 
@@ -186,8 +183,7 @@ public class TestAssurance extends ManagedTest {
         String error = getError("date=2000-01-01&location=" + uniqueLoc + "&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
         assertNull(error);
         String cookie = login(assureeM, TEST_PASSWORD);
-        URLConnection url = new URL("https://" + getServerName() + MyPoints.PATH).openConnection();
-        url.setRequestProperty("Cookie", cookie);
+        URLConnection url = get(cookie, MyPoints.PATH);
         String resp = IOUtils.readURL(url);
         resp = resp.split(Pattern.quote("</table>"))[0];
         assertThat(resp, containsString(uniqueLoc));
@@ -199,8 +195,7 @@ public class TestAssurance extends ManagedTest {
         String error = getError("date=2000-01-01&location=" + uniqueLoc + "&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
         assertNull(error);
         String cookie = login(assurerM, TEST_PASSWORD);
-        URLConnection url = new URL("https://" + getServerName() + MyPoints.PATH).openConnection();
-        url.setRequestProperty("Cookie", cookie);
+        URLConnection url = get(cookie, MyPoints.PATH);
         String resp = IOUtils.readURL(url);
         resp = resp.split(Pattern.quote("</table>"))[1];
         assertThat(resp, containsString(uniqueLoc));
@@ -219,15 +214,12 @@ public class TestAssurance extends ManagedTest {
     }
 
     public static URLConnection buildupAssureFormConnection(String cookie, String email, boolean doCSRF) throws MalformedURLException, IOException {
-        URL u = new URL("https://" + getServerName() + AssurePage.PATH);
-        URLConnection uc = u.openConnection();
-        uc.addRequestProperty("Cookie", cookie);
+        URLConnection uc = get(cookie, AssurePage.PATH);
         uc.setDoOutput(true);
         uc.getOutputStream().write(("email=" + URLEncoder.encode(email, "UTF-8") + "&day=1&month=1&year=1910&search").getBytes("UTF-8"));
 
         String csrf = getCSRF(uc);
-        uc = u.openConnection();
-        uc.addRequestProperty("Cookie", cookie);
+        uc = get(cookie, AssurePage.PATH);
         uc.setDoOutput(true);
         if (doCSRF) {
             uc.getOutputStream().write(("csrf=" + csrf + "&").getBytes("UTF-8"));

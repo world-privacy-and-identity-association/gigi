@@ -3,9 +3,7 @@ package org.cacert.gigi.pages.wot;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
@@ -38,15 +36,14 @@ public class TestTTPAdmin extends ClientTest {
         grant(u.getEmail(), TTPAdminPage.TTP_APPLICANT);
         cookie = login(u.getEmail(), TEST_PASSWORD);
 
-        assertEquals( !hasRight ? 403 : 200, fetchStatusCode("https://" + getServerName() + TTPAdminPage.PATH));
-        assertEquals( !hasRight ? 403 : 200, fetchStatusCode("https://" + getServerName() + TTPAdminPage.PATH + "/"));
-        assertEquals( !hasRight ? 403 : 200, fetchStatusCode("https://" + getServerName() + TTPAdminPage.PATH + "/" + u.getId()));
-        assertEquals( !hasRight ? 403 : 404, fetchStatusCode("https://" + getServerName() + TTPAdminPage.PATH + "/" + us2.getId()));
-        assertEquals( !hasRight ? 403 : 404, fetchStatusCode("https://" + getServerName() + TTPAdminPage.PATH + "/" + 100));
+        assertEquals( !hasRight ? 403 : 200, fetchStatusCode(TTPAdminPage.PATH));
+        assertEquals( !hasRight ? 403 : 200, fetchStatusCode(TTPAdminPage.PATH + "/"));
+        assertEquals( !hasRight ? 403 : 200, fetchStatusCode(TTPAdminPage.PATH + "/" + u.getId()));
+        assertEquals( !hasRight ? 403 : 404, fetchStatusCode(TTPAdminPage.PATH + "/" + us2.getId()));
+        assertEquals( !hasRight ? 403 : 404, fetchStatusCode(TTPAdminPage.PATH + "/" + 100));
     }
 
     private int fetchStatusCode(String path) throws MalformedURLException, IOException {
-        URL u = new URL(path);
-        return ((HttpURLConnection) cookie(u.openConnection(), cookie)).getResponseCode();
+        return get(path).getResponseCode();
     }
 }

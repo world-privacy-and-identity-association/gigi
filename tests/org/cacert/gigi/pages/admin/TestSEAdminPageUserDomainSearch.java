@@ -4,10 +4,8 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.*;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
@@ -37,17 +35,8 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
         User user = User.getById(id);
         String domainName = createUniqueName() + ".org";
         new Domain(user, user, domainName);
-        URLConnection uc = new URL("https://" + getServerName() + FindDomainPage.PATH).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
-        String csrf = getCSRF(uc, 0);
+        URLConnection uc = post(FindDomainPage.PATH, "process&domain=" + URLEncoder.encode(domainName, "UTF-8"));
 
-        uc = new URL("https://" + getServerName() + FindDomainPage.PATH).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
-        uc.setDoOutput(true);
-        OutputStream os = uc.getOutputStream();
-        os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
-                + "process&domain=" + URLEncoder.encode(domainName, "UTF-8")).getBytes("UTF-8"));
-        os.flush();
         assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
     }
 
@@ -58,33 +47,13 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
         User user = User.getById(id);
         String domainName = createUniqueName() + ".org";
         Domain d = new Domain(user, user, domainName);
-        URLConnection uc = new URL("https://" + getServerName() + FindDomainPage.PATH).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
-        String csrf = getCSRF(uc, 0);
-
-        uc = new URL("https://" + getServerName() + FindDomainPage.PATH).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
-        uc.setDoOutput(true);
-        OutputStream os = uc.getOutputStream();
-        os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
-                + "process&domain=#" + d.getId()).getBytes("UTF-8"));
-        os.flush();
+        URLConnection uc = post(FindDomainPage.PATH, "process&domain=#" + d.getId());
         assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
     }
 
     @Test
     public void testDomainSearchNonExist() throws MalformedURLException, UnsupportedEncodingException, IOException, GigiApiException {
-        URLConnection uc = new URL("https://" + getServerName() + FindDomainPage.PATH).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
-        String csrf = getCSRF(uc, 0);
-
-        uc = new URL("https://" + getServerName() + FindDomainPage.PATH).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
-        uc.setDoOutput(true);
-        OutputStream os = uc.getOutputStream();
-        os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
-                + "process&domain=" + URLEncoder.encode(createUniqueName() + ".de", "UTF-8")).getBytes("UTF-8"));
-        os.flush();
+        URLConnection uc = post(FindDomainPage.PATH, "process&domain=" + URLEncoder.encode(createUniqueName() + ".de", "UTF-8"));
         assertNotNull(fetchStartErrorMessage(IOUtils.readURL(uc)));
     }
 
@@ -102,16 +71,7 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
             found = true;
         }
         assumeTrue(found);
-        URLConnection uc = new URL("https://" + getServerName() + FindDomainPage.PATH).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
-        String csrf = getCSRF(uc, 0);
-        uc = new URL("https://" + getServerName() + FindDomainPage.PATH).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
-        uc.setDoOutput(true);
-        OutputStream os = uc.getOutputStream();
-        os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
-                + "process&domain=#" + id).getBytes("UTF-8"));
-        os.flush();
+        URLConnection uc = post(FindDomainPage.PATH, "process&domain=#" + id);
         assertNotNull(fetchStartErrorMessage(IOUtils.readURL(uc)));
     }
 }

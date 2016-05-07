@@ -4,7 +4,6 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Locale;
 
 import org.cacert.gigi.dbObjects.User;
@@ -51,13 +50,13 @@ public class TestLanguage extends ManagedTest {
 
     @Test
     public void testSelectStandard() throws IOException {
-        String content = IOUtils.readURL(new URL("https://" + getServerName() + "/").openConnection());
+        String content = IOUtils.readURL(get("cook", "/"));
         assertThat(content, containsString("Translations"));
     }
 
     @Test
     public void testSelectGerman() throws IOException {
-        String content = IOUtils.readURL(new URL("https://" + getServerName() + "/?lang=de").openConnection());
+        String content = IOUtils.readURL(get("", "/?lang=de"));
         assertThat(content, containsString(Language.getInstance(Locale.GERMAN).getTranslation("Translations")));
     }
 
@@ -66,7 +65,7 @@ public class TestLanguage extends ManagedTest {
         setAcceptLanguage("de,en");
         User u = User.getById(createVerifiedUser("fname", "lname", createUniqueName() + "@example.org", TEST_PASSWORD));
         String cookie = login(u.getEmail(), TEST_PASSWORD);
-        String content = IOUtils.readURL(cookie(new URL("https://" + getServerName() + "/").openConnection(), cookie));
+        String content = IOUtils.readURL(get(cookie, "/"));
         assertThat(content, containsString(Language.getInstance(Locale.GERMAN).getTranslation("Translations")));
     }
 
@@ -75,7 +74,7 @@ public class TestLanguage extends ManagedTest {
         setAcceptLanguage("fr,de,en");
         User u = User.getById(createVerifiedUser("fname", "lname", createUniqueName() + "@example.org", TEST_PASSWORD));
         String cookie = login(u.getEmail(), TEST_PASSWORD);
-        String content = IOUtils.readURL(cookie(new URL("https://" + getServerName() + "/").openConnection(), cookie));
+        String content = IOUtils.readURL(get(cookie, "/"));
         assertThat(content, containsString(Language.getInstance(Locale.FRENCH).getTranslation("Translations")));
     }
 }

@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLConnection;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -37,8 +36,7 @@ public class TestSEAdminPageDetails extends ClientTest {
         String fname = "Först";
         String lname = "Secönd";
         int id = createVerifiedUser(fname, lname, email, TEST_PASSWORD);
-        URLConnection uc = new URL("https://" + getServerName() + SupportUserDetailsPage.PATH + id).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
+        URLConnection uc = get(SupportUserDetailsPage.PATH + id);
         uc.setDoOutput(true);
         String res = IOUtils.readURL(uc);
         assertThat(res, containsString("<input type=\"text\" value=\"" + fname + "\" name=\"fname\">"));
