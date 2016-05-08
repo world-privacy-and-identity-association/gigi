@@ -1,30 +1,30 @@
 <h3><?=_Trusted Third Parties?></h3>
 
-<p><?=_The Trusted Third Party (TTP) programme is intended to be used in areas without many CAcert Assurers.?></p>
+<p><?=_The Trusted Third Party (TTP) programme is intended to be used in areas without many SomeCA Assurers.?></p>
 
 <p><?=_A Trusted Third Party (TTP) is simply someone in your country that is responsible for witnessing signatures and ID documents. This role is covered by many different titles such as public notary, justice of the peace and so on.?></p>
 
 <p><?=_With the TTP programme you can potentially gain assurance up to a maximum of 100 assurance points.?></p>
 
-<p><?=_Currently CAcert has only developed the TTP programme to the level that you can gain 70 assurance points by TTP assurances.?></p>
+<p><?=_Currently SomeCA has only developed the TTP programme to the level that you can gain 70 assurance points by TTP assurances.?></p>
 
 <p><?=_We are working to develop a process that will fill the gap of the missing 30 assurance points to allow you to get the maximum 100 assurance points.?> </p>
 
-<p><?=_In the meanwhile you would need to close this gap with face to face assurances with CAcert Assurers. Think not only travelling to populated countries, but also remember that assurers may occasionally visit your country or area.?></p>
+<p><?=_In the meanwhile you would need to close this gap with face to face assurances with SomeCA Assurers. Think not only travelling to populated countries, but also remember that assurers may occasionally visit your country or area.?></p>
 
 <p><?=_If you are interested in the TTP programme, read the pages !'<a href="//wiki.cacert.org/TTP/TTPuser">https://wiki.cacert.org/TTP/TTPuser</a>' for the basic way how the TTP programme works for you, and !'<a href="//wiki.cacert.org/TTP/TTPAL">https://wiki.cacert.org/TTP/TTPAL</a>' whether the TTP programme affects the country where you are located.?> </p>
 
 <? if($ttp) { ?>
-<p><?=_If you want to ask for TTP assurances fill out the missing data and send the request to support@cacert.org to start the process. CAcert will then inform you about the next steps.?></p>
+<p><?=_If you want to ask for TTP assurances fill out the missing data and send the request to support@cacert.org to start the process. SomeCA will then inform you about the next steps.?></p>
 <?=$form?>
 <? } ?>
 
 <? if($topup) { ?>
-<p><?=_As you have already got 2 TTP assurances you can only take part in the TTP TOPUP programme. If you want to ask for the TTP TOPUP programme use the submit button to send the request to support@cacert.org to start the process. CAcert will then inform you about the next steps.?></p>
+<p><?=_As you have already got 2 TTP assurances you can only take part in the TTP TOPUP programme. If you want to ask for the TTP TOPUP programme use the submit button to send the request to support@cacert.org to start the process. SomeCA will then inform you about the next steps.?></p>
 <form method="post" action="ttp">
 	<input type="submit" name="ttptopup" value="<?=_I need a TTP TOPUP?>">
 </form>
-<p><?=_We are working to develop the TTP TOPUP process to be able to fill the gap of the missing 30 assurance points to 100 assurance points. Meanwhile you have to close this gap with face to face assurances from CAcert Assurers. Think not only travelling to populated countries, but as well to assurers visiting your country or area.?></p>  
+<p><?=_We are working to develop the TTP TOPUP process to be able to fill the gap of the missing 30 assurance points to 100 assurance points. Meanwhile you have to close this gap with face to face assurances from SomeCA Assurers. Think not only travelling to populated countries, but as well to assurers visiting your country or area.?></p>  
 <? } ?>
 
 <? if($nothing) { ?>

@@ -110,27 +110,27 @@ public final class Gigi extends HttpServlet {
             putPage("/denied", new AccessDenied(), null);
             putPage("/error", new PageNotFound(), null);
             putPage("/login", new LoginPage("Password Login"), null);
-            getMenu("CAcert.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getWwwHostNamePort() + "/login", "Password Login") {
+            getMenu("SomeCA.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getWwwHostNamePort() + "/login", "Password Login") {
 
                 @Override
                 public boolean isPermitted(AuthorizationContext ac) {
                     return ac == null;
                 }
             });
-            getMenu("CAcert.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePort() + "/login", "Certificate Login") {
+            getMenu("SomeCA.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePort() + "/login", "Certificate Login") {
 
                 @Override
                 public boolean isPermitted(AuthorizationContext ac) {
                     return ac == null;
                 }
             });
-            putPage("/", new MainPage("CAcert - Home"), null);
-            putPage("/roots", new RootCertPage(truststore), "CAcert.org");
+            putPage("/", new MainPage("SomeCA - Home"), null);
+            putPage("/roots", new RootCertPage(truststore), "SomeCA.org");
 
             putPage("/secure", new TestSecure(), null);
             putPage(Verify.PATH, new Verify(), null);
             putPage(Certificates.PATH + "/*", new Certificates(), "Certificates");
-            putPage(RegisterPage.PATH, new RegisterPage(), "CAcert.org");
+            putPage(RegisterPage.PATH, new RegisterPage(), "SomeCA.org");
             putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
             putPage(MailOverview.DEFAULT_PATH, new MailOverview("Email addresses"), "Certificates");
             putPage(DomainOverview.PATH + "*", new DomainOverview("Domains"), "Certificates");
@@ -177,17 +177,17 @@ public final class Gigi extends HttpServlet {
             }
             baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
             rootMenu = new MenuCollector();
-            Menu about = new Menu("About CAcert.org");
+            Menu about = new Menu("About SomeCA.org");
             categories.add(about);
 
-            about.addItem(new SimpleMenuItem("//blog.cacert.org/", "CAcert News"));
+            about.addItem(new SimpleMenuItem("//blog.cacert.org/", "SomeCA News"));
             about.addItem(new SimpleMenuItem("//wiki.cacert.org/", "Wiki Documentation"));
-            putPage(PolicyIndex.DEFAULT_PATH, new PolicyIndex(), "About CAcert.org");
+            putPage(PolicyIndex.DEFAULT_PATH, new PolicyIndex(), "About SomeCA.org");
             about.addItem(new SimpleMenuItem("//wiki.cacert.org/FAQ/Privileges", "Point System"));
             about.addItem(new SimpleMenuItem("//bugs.cacert.org/", "Bug Database"));
-            about.addItem(new SimpleMenuItem("//wiki.cacert.org/Board", "CAcert Board"));
+            about.addItem(new SimpleMenuItem("//wiki.cacert.org/Board", "SomeCA Board"));
             about.addItem(new SimpleMenuItem("//lists.cacert.org/wws", "Mailing Lists"));
-            about.addItem(new SimpleMenuItem("//blog.CAcert.org/feed", "RSS News Feed"));
+            about.addItem(new SimpleMenuItem("//blog.SomeCA.org/feed", "RSS News Feed"));
             about.addItem(new SimpleMenuItem("//wiki.cacert.org/Impress", "Impress"));
 
             Menu languages = new Menu("Translations");

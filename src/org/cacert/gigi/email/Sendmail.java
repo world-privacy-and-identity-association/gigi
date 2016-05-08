@@ -52,7 +52,7 @@ public class Sendmail extends EmailProvider {
             out.print("DATA\r\n");
             out.flush();
             readSMTPResponse(in, 250);
-            out.print("X-Mailer: CAcert.org Website\r\n");
+            out.print("X-Mailer: SomeCA.org Website\r\n");
             // if (array_key_exists("REMOTE_ADDR", $_SERVER)) {
             // out.print("X-OriginatingIP: ".$_SERVER["REMOTE_ADDR"]."\r\n");
             // }

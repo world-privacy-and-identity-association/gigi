@@ -110,7 +110,7 @@ public class AssuranceForm extends Form {
         }
 
         if ( !"1".equals(req.getParameter("certify")) || !"1".equals(req.getParameter("rules")) || !"1".equals(req.getParameter("CCAAgreed")) || !"1".equals(req.getParameter("assertion"))) {
-            outputError(out, req, "You failed to check all boxes to validate" + " your adherence to the rules and policies of CAcert");
+            outputError(out, req, "You failed to check all boxes to validate" + " your adherence to the rules and policies of SomeCA");
 
         }
         if ("1".equals(req.getParameter("passwordReset"))) {
@@ -164,8 +164,8 @@ public class AssuranceForm extends Form {
                     body.append("\n");
                     body.append(l.getTranslation("Best regards"));
                     body.append("\n");
-                    body.append(l.getTranslation("CAcert.org Support!"));
-                    Sendmail.getInstance().sendmail(assuree.getEmail(), "[CAcert.org] " + l.getTranslation("Password reset by assurance"), body.toString(), "support@cacert.org", null, null, null, null, false);
+                    body.append(l.getTranslation("SomeCA.org Support!"));
+                    Sendmail.getInstance().sendmail(assuree.getEmail(), "[SomeCA.org] " + l.getTranslation("Password reset by assurance"), body.toString(), "support@cacert.org", null, null, null, null, false);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

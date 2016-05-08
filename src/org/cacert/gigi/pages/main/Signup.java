@@ -100,7 +100,7 @@ public class Signup extends Form {
             outputError(out, req, "Invalid date of birth");
         }
         if ( !"1".equals(req.getParameter("cca_agree"))) {
-            outputError(out, req, "You have to agree to the CAcert Community agreement.");
+            outputError(out, req, "You have to agree to the SomeCA Community agreement.");
         }
         if (email.equals("")) {
             outputError(out, req, "Email Address was blank");

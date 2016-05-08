@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 public class PolicyIndex extends Page {
 
     public PolicyIndex() {
-        super("CAcert.org Policies");
+        super("SomeCA.org Policies");
     }
 
     File root = new File("static/www/policy");

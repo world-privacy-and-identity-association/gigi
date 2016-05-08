@@ -85,8 +85,8 @@ public class SupportUserDetailsForm extends Form {
                 body.append("\n");
                 body.append(l.getTranslation("Best regards"));
                 body.append("\n");
-                body.append(l.getTranslation("CAcert.org Support!"));
-                Sendmail.getInstance().sendmail(user.getTargetUser().getEmail(), "[CAcert.org] " + l.getTranslation("Password reset by support."), body.toString(), "support@cacert.org", null, null, null, null, false);
+                body.append(l.getTranslation("SomeCA.org Support!"));
+                Sendmail.getInstance().sendmail(user.getTargetUser().getEmail(), "[SomeCA.org] " + l.getTranslation("Password reset by support."), body.toString(), "support@cacert.org", null, null, null, null, false);
                 out.println(Page.getLanguage(req).getTranslation("Password reset successful."));
             } catch (IOException e) {
                 e.printStackTrace();
