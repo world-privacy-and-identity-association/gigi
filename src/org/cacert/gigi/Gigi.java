@@ -38,7 +38,6 @@ import org.cacert.gigi.pages.LogoutPage;
 import org.cacert.gigi.pages.MainPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.PasswordResetPage;
-import org.cacert.gigi.pages.PolicyIndex;
 import org.cacert.gigi.pages.RootCertPage;
 import org.cacert.gigi.pages.StaticPage;
 import org.cacert.gigi.pages.TestSecure;
@@ -177,18 +176,6 @@ public final class Gigi extends HttpServlet {
             }
             baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
             rootMenu = new MenuCollector();
-            Menu about = new Menu("About SomeCA.org");
-            categories.add(about);
-
-            about.addItem(new SimpleMenuItem("//blog.cacert.org/", "SomeCA News"));
-            about.addItem(new SimpleMenuItem("//wiki.cacert.org/", "Wiki Documentation"));
-            putPage(PolicyIndex.DEFAULT_PATH, new PolicyIndex(), "About SomeCA.org");
-            about.addItem(new SimpleMenuItem("//wiki.cacert.org/FAQ/Privileges", "Point System"));
-            about.addItem(new SimpleMenuItem("//bugs.cacert.org/", "Bug Database"));
-            about.addItem(new SimpleMenuItem("//wiki.cacert.org/Board", "SomeCA Board"));
-            about.addItem(new SimpleMenuItem("//lists.cacert.org/wws", "Mailing Lists"));
-            about.addItem(new SimpleMenuItem("//blog.SomeCA.org/feed", "RSS News Feed"));
-            about.addItem(new SimpleMenuItem("//wiki.cacert.org/Impress", "Impress"));
 
             Menu languages = new Menu("Translations");
             for (Locale l : Language.getSupportedLocales()) {
