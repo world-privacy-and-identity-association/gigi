@@ -19,6 +19,10 @@ import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PasswordHash;
 import org.cacert.gigi.util.PasswordStrengthChecker;
 
+/**
+ * Represents an acting, assurable, user. Synchronizing on user means: no
+ * name-change and no assurance.
+ */
 public class User extends CertificateOwner {
 
     private Name name = new Name(null, null, null, null);

@@ -33,6 +33,7 @@ import org.cacert.gigi.output.template.Scope;
 import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.PEM;
+import org.cacert.gigi.util.RateLimit;
 
 import sun.security.pkcs.PKCS9Attribute;
 import sun.security.pkcs10.PKCS10;
@@ -430,6 +431,9 @@ public class CertificateRequest {
             throw error;
         }
         try {
+            if (RATE_LIMIT.isLimitExceeded(Integer.toString(ctx.getActor().getId()))) {
+                throw new GigiApiException("Rate Limit Exceeded");
+            }
             return new Certificate(ctx.getTarget(), ctx.getActor(), subject, selectedDigest, //
                     this.csr, this.csrType, profile, SANs.toArray(new SubjectAlternateName[SANs.size()]));
         } catch (IOException e) {
@@ -437,6 +441,9 @@ public class CertificateRequest {
         }
         return null;
     }
+
+    // 100 per 10 minutes
+    public static final RateLimit RATE_LIMIT = new RateLimit(100, 10 * 60 * 1000);
 
     private String verifyName(GigiApiException error, PropertyTemplate nameTemp, PropertyTemplate wotUserTemp, String verifiedCN) {
         // real names,

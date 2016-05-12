@@ -3,7 +3,6 @@ package org.cacert.gigi;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.net.URL;
 
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
@@ -43,7 +42,7 @@ public class LoginTest extends ManagedTest {
     }
 
     private void logout(String cookie) throws IOException {
-        cookie(new URL("https://" + getServerName() + "/logout").openConnection(), cookie).getHeaderField("Location");
+        get(cookie, "/logout").getHeaderField("Location");
     }
 
 }

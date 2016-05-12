@@ -4,10 +4,8 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
@@ -74,17 +72,7 @@ public class TestSEAdminPageUserMailSearch extends ClientTest {
 
     @Test
     public void testWildcardMailSearchNoRes() throws MalformedURLException, UnsupportedEncodingException, IOException {
-        URLConnection uc = new URL("https://" + getServerName() + FindUserPage.PATH).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
-        String csrf = getCSRF(uc, 0);
-
-        uc = new URL("https://" + getServerName() + FindUserPage.PATH).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
-        uc.setDoOutput(true);
-        OutputStream os = uc.getOutputStream();
-        os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
-                + "process&email=" + URLEncoder.encode("%@_humpfelkumpf.org", "UTF-8")).getBytes("UTF-8"));
-        os.flush();
+        URLConnection uc = post(FindUserPage.PATH, "process&email=" + URLEncoder.encode("%@_humpfelkumpf.org", "UTF-8"));
         assertNotNull(fetchStartErrorMessage(IOUtils.readURL(uc)));
     }
 

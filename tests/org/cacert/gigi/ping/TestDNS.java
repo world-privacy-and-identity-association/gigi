@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.*;
 
 import java.io.IOException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.regex.Matcher;
@@ -12,7 +11,6 @@ import java.util.regex.Pattern;
 
 import javax.naming.NamingException;
 
-import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.PingTest;
 import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
@@ -63,8 +61,7 @@ public class TestDNS extends PingTest {
         String test = getTestProps().getProperty("domain.dnstest");
         assumeNotNull(test);
 
-        URL u = new URL("https://" + getServerName() + DomainOverview.PATH);
-        Matcher m = initailizeDomainForm(u);
+        Matcher m = initailizeDomainForm();
         updateService(m.group(1) + (dnsVariant == 1 ? "a" : ""), m.group(2) + (dnsVariant == 2 ? "a" : ""), "dns");
 
         String content = "newdomain=" + URLEncoder.encode(test, "UTF-8") + //
@@ -74,7 +71,7 @@ public class TestDNS extends PingTest {
                 "&ssl-type-2=direct&ssl-port-2=" + //
                 "&ssl-type-3=direct&ssl-port-3=" + //
                 "&adddomain&csrf=" + csrf;
-        URL u2 = sendDomainForm(u, content);
+        String p2 = sendDomainForm(content);
 
         TestMail mail = getMailReciever().receive();
         if (emailVariant == 0) {
@@ -83,7 +80,7 @@ public class TestDNS extends PingTest {
 
         waitForPings(2);
 
-        String newcontent = IOUtils.readURL(cookie(u2.openConnection(), cookie));
+        String newcontent = IOUtils.readURL(get(p2));
         Pattern pat = Pattern.compile("<td>dns</td>\\s*<td>success</td>");
         assertTrue(newcontent, !successDNS ^ pat.matcher(newcontent).find());
         pat = Pattern.compile("<td>email</td>\\s*<td>success</td>");

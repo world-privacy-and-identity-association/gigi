@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +32,8 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.pages.account.certs.CertificateRequest;
+import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.ServerConstants;
 import org.kamranzafar.jtar.TarEntry;
@@ -55,7 +58,13 @@ public class DevelLauncher {
         ByteArrayOutputStream chunkConfig = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(chunkConfig);
         byte[] cacerts = Files.readAllBytes(Paths.get("config/cacerts.jks"));
-        byte[] keystore = Files.readAllBytes(Paths.get("config/keystore.pkcs12"));
+        byte[] keystore = null;
+        Path p = Paths.get("config/keystore.pkcs12");
+        if (p.toFile().exists()) {
+            keystore = Files.readAllBytes(p);
+        } else {
+            mainProps.setProperty("proxy", "true");
+        }
 
         DevelLauncher.writeGigiConfig(dos, "changeit".getBytes("UTF-8"), "changeit".getBytes("UTF-8"), mainProps, cacerts, keystore);
         dos.flush();
@@ -119,6 +128,8 @@ public class DevelLauncher {
                 @Override
                 public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
                     ObjectCache.clearAllCaches();
+                    RegisterPage.RATE_LIMIT.bypass();
+                    CertificateRequest.RATE_LIMIT.bypass();
                     resp.getWriter().println("All caches cleared.");
                     System.out.println("Caches cleared.");
 
@@ -229,6 +240,9 @@ public class DevelLauncher {
     }
 
     private static void putTarEntry(byte[] data, TarOutputStream tos, String name) throws IOException {
+        if (data == null) {
+            return;
+        }
         TarHeader th = new TarHeader();
         th.name = new StringBuffer(name);
         th.size = data.length;

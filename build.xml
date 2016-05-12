@@ -161,7 +161,7 @@
 		</javac>
 		<concat destfile="bintest/org/cacert/gigi/util/effective_tld_names.dat">
 			<path path="bin/org/cacert/gigi/util/effective_tld_names.dat"/>
-			<footer>${test_nic}</footer>
+			<path path="publicSuffixFooter.dat"/>
 		</concat>
 	</target>
 	<target name="check-locale">

@@ -21,7 +21,7 @@ public class CATSImport extends APIPoint {
             resp.sendError(500, "Error, invalid cert");
             return;
         }
-        if ( !"CAcert".equals(((Organisation) u).getName())) {
+        if ( !((Organisation) u).isSelfOrganisation()) {
             resp.sendError(500, "Error, invalid cert");
             return;
 

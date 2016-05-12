@@ -4,7 +4,6 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.net.URL;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Group;
@@ -16,17 +15,15 @@ import org.junit.Test;
 
 public class TestTTP extends ClientTest {
 
-    URL ttpPage = new URL("https://" + getServerName() + RequestTTPPage.PATH);
-
     public TestTTP() throws IOException {}
 
     @Test
     public void testTTPApply() throws IOException {
-        String ttp = IOUtils.readURL(cookie(ttpPage.openConnection(), cookie));
+        String ttp = IOUtils.readURL(get(RequestTTPPage.PATH));
         assertThat(ttp, containsString("<form"));
         executeBasicWebInteraction(cookie, RequestTTPPage.PATH, "country=0");
 
-        ttp = IOUtils.readURL(cookie(new URL("https://" + getServerName() + RequestTTPPage.PATH).openConnection(), cookie));
+        ttp = IOUtils.readURL(get(RequestTTPPage.PATH));
         assertThat(ttp, not(containsString("<form")));
         ObjectCache.clearAllCaches();
         u = User.getById(u.getId());
@@ -38,7 +35,7 @@ public class TestTTP extends ClientTest {
         User u = User.getById(createAssuranceUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
         cookie = login(u.getEmail(), TEST_PASSWORD);
 
-        String ttp = IOUtils.readURL(cookie(new URL("https://" + getServerName() + RequestTTPPage.PATH).openConnection(), cookie));
+        String ttp = IOUtils.readURL(get(RequestTTPPage.PATH));
         assertThat(ttp, not(containsString("<form")));
     }
 }

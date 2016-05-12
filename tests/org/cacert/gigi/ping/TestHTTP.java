@@ -18,7 +18,6 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration;
 import org.cacert.gigi.dbObjects.DomainPingType;
-import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.PingTest;
 import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
@@ -58,8 +57,7 @@ public class TestHTTP extends PingTest {
         String test = getTestProps().getProperty("domain.http");
         assumeNotNull(test);
 
-        URL u = new URL("https://" + getServerName() + DomainOverview.PATH);
-        Matcher m = initailizeDomainForm(u);
+        Matcher m = initailizeDomainForm();
         updateService(m.group(1) + (httpVariant == 1 ? "a" : ""), m.group(2) + (httpVariant == 2 ? "a" : ""), "http");
 
         String content = "newdomain=" + URLEncoder.encode(test, "UTF-8") + //
@@ -69,7 +67,7 @@ public class TestHTTP extends PingTest {
                 "&ssl-type-2=direct&ssl-port-2=" + //
                 "&ssl-type-3=direct&ssl-port-3=" + //
                 "&adddomain&csrf=" + csrf;
-        URL u2 = sendDomainForm(u, content);
+        String p2 = sendDomainForm(content);
 
         TestMail mail = getMailReciever().receive();
         if (emailVariant == 0) {
@@ -77,14 +75,14 @@ public class TestHTTP extends PingTest {
         }
         waitForPings(2);
 
-        String newcontent = IOUtils.readURL(cookie(u2.openConnection(), cookie));
+        String newcontent = IOUtils.readURL(get(p2));
         Pattern pat = Pattern.compile("<td>http</td>\\s*<td>success</td>");
         assertTrue(newcontent, !successHTTP ^ pat.matcher(newcontent).find());
         pat = Pattern.compile("<td>email</td>\\s*<td>success</td>");
         assertTrue(newcontent, !successMail ^ pat.matcher(newcontent).find());
 
         if (successHTTP) { // give it a second try
-            int id = Integer.parseInt(u2.toString().replaceFirst("^.*/([0-9]+)$", "$1"));
+            int id = Integer.parseInt(p2.replaceFirst("^.*/([0-9]+)$", "$1"));
             Domain d = Domain.getById(id);
             DomainPingConfiguration dpc = null;
             for (DomainPingConfiguration conf : d.getConfiguredPings()) {
@@ -96,7 +94,7 @@ public class TestHTTP extends PingTest {
             if (dpc == null) {
                 fail("Http config not found");
             }
-            String res = executeBasicWebInteraction(cookie, u2.getPath(), "configId=" + dpc.getId());
+            String res = executeBasicWebInteraction(cookie, p2, "configId=" + dpc.getId());
             assertThat(res, containsString("only allowed after"));
         }
     }

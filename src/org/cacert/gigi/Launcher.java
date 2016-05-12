@@ -151,8 +151,12 @@ public class Launcher {
 
     private void initEmails(GigiConfig conf) throws GeneralSecurityException, IOException, KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException {
         KeyStore privateStore = conf.getPrivateStore();
-        Certificate mail = privateStore.getCertificate("mail");
-        Key k = privateStore.getKey("mail", conf.getPrivateStorePw().toCharArray());
+        Certificate mail = null;
+        Key k = null;
+        if (privateStore != null && privateStore.containsAlias("mail")) {
+            mail = privateStore.getCertificate("mail");
+            k = privateStore.getKey("mail", conf.getPrivateStorePw().toCharArray());
+        }
         EmailProvider.initSystem(conf.getMainProps(), mail, k);
     }
 

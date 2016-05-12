@@ -46,27 +46,26 @@ public abstract class PingTest extends ClientTest {
         }
     }
 
-    protected URL sendDomainForm(URL u, String content) throws IOException, MalformedURLException {
-        URLConnection openConnection = u.openConnection();
-        openConnection.setRequestProperty("Cookie", cookie);
+    protected String sendDomainForm(String content) throws IOException, MalformedURLException {
+        URLConnection openConnection = get(DomainOverview.PATH);
         openConnection.setDoOutput(true);
         openConnection.getOutputStream().write(content.getBytes("UTF-8"));
         openConnection.getHeaderField("Location");
+        if (((HttpURLConnection) openConnection).getResponseCode() != 302) {
+            throw new Error(IOUtils.readURL(openConnection));
+        }
 
-        String newcontent = IOUtils.readURL(cookie(u.openConnection(), cookie));
+        String newcontent = IOUtils.readURL(get(DomainOverview.PATH));
         Pattern dlink = Pattern.compile(DomainOverview.PATH + "([0-9]+)'>");
         Matcher m1 = dlink.matcher(newcontent);
         if ( !m1.find()) {
             throw new Error(newcontent);
         }
-        URL u2 = new URL(u.toString() + m1.group(1));
-        return u2;
+        return DomainOverview.PATH + m1.group(1);
     }
 
-    protected Matcher initailizeDomainForm(URL u) throws IOException, Error {
-        URLConnection openConnection = u.openConnection();
-        openConnection.setRequestProperty("Cookie", cookie);
-        String content1 = IOUtils.readURL(openConnection);
+    protected Matcher initailizeDomainForm() throws IOException, Error {
+        String content1 = IOUtils.readURL(get(DomainOverview.PATH));
         csrf = getCSRF(1, content1);
 
         Pattern p = Pattern.compile("([A-Za-z0-9]+)._cacert._auth IN TXT ([A-Za-z0-9]+)");
