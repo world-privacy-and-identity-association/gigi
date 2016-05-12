@@ -218,7 +218,9 @@ public class Organisation extends CertificateOwner {
         return isValidDomain(email.split("@", 2)[1]);
     }
 
+    public static final String SELF_ORG_NAME = "CAcert";
+
     public boolean isSelfOrganisation() {
-        return "CAcert".equals(getName());
+        return SELF_ORG_NAME.equals(getName());
     }
 }
