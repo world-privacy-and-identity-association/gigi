@@ -56,6 +56,7 @@ public class Signup extends Form {
         vars.put("radius", radius ? " checked=\"checked\"" : "");
         vars.put("helpOnNames", String.format(l.getTranslation("Help on Names %sin the wiki%s"), "<a href=\"//wiki.cacert.org/FAQ/HowToEnterNamesInJoinForm\" target=\"_blank\">", "</a>"));
         vars.put("csrf", getCSRFToken());
+        vars.put("dobmin", User.MINIMUM_AGE + "");
         t.output(out, l, vars);
     }
 
