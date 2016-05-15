@@ -41,6 +41,10 @@ public class User extends CertificateOwner {
 
     public static final int MINIMUM_AGE = 16;
 
+    public static final int POJAM_AGE = 14;
+
+    public static final int ADULT_AGE = 18;
+
     protected User(GigiResultSet rs) {
         super(rs.getInt("id"));
         updateName(rs);
@@ -134,7 +138,7 @@ public class User extends CertificateOwner {
     }
 
     public boolean canAssure() {
-        if ( !CalendarUtil.isOfAge(dob, 14)) { // PoJAM
+        if ( !CalendarUtil.isOfAge(dob, POJAM_AGE)) { // PoJAM
             return false;
         }
         if (getAssurancePoints() < 100) {
@@ -196,7 +200,7 @@ public class User extends CertificateOwner {
      * @return the maximal points @
      */
     public int getMaxAssurePoints() {
-        if ( !CalendarUtil.isOfAge(dob, 18)) {
+        if ( !CalendarUtil.isOfAge(dob, ADULT_AGE)) {
             return 10; // PoJAM
         }
 
