@@ -79,8 +79,8 @@ public class CertificateIssueForm extends Form {
                     } catch (GigiApiException e) {
                         error.mergeInto(e);
                     }
-                    if (req.getParameter("CCA") == null) {
-                        error.mergeInto(new GigiApiException("You need to accept the CCA."));
+                    if (req.getParameter("tos_agree") == null) {
+                        error.mergeInto(new GigiApiException("You need to accept the ToS."));
                     }
                     Certificate result = null;
                     try {
@@ -132,7 +132,7 @@ public class CertificateIssueForm extends Form {
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
         HashMap<String, Object> vars2 = new HashMap<String, Object>(vars);
-        vars2.put("CCA", "<a href='/policy/CAcertCommunityAgreement.html'>CCA</a>");
+        vars2.put("ToS", "<a href='/policy/TermsOfService.html'>ToS</a>");
 
         StringBuffer content = new StringBuffer();
         for (SubjectAlternateName SAN : cr.getSANs()) {

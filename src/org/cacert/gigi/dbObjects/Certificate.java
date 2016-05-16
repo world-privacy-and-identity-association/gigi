@@ -287,7 +287,7 @@ public class Certificate implements IdCachable {
         if (getStatus() != CertificateStatus.DRAFT) {
             throw new IllegalStateException();
         }
-        Notary.writeUserAgreement(actor, "CCA", "issue certificate", "", true, 0);
+        Notary.writeUserAgreement(actor, "ToS", "certificate issuance", "", true, 0);
 
         return Job.sign(this, start, period);
 
