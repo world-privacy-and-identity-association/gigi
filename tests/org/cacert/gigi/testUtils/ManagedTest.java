@@ -258,7 +258,7 @@ public class ManagedTest extends ConfiguredTest {
 
     public static void registerUser(String firstName, String lastName, String email, String password) {
         try {
-            String query = "fname=" + URLEncoder.encode(firstName, "UTF-8") + "&lname=" + URLEncoder.encode(lastName, "UTF-8") + "&email=" + URLEncoder.encode(email, "UTF-8") + "&pword1=" + URLEncoder.encode(password, "UTF-8") + "&pword2=" + URLEncoder.encode(password, "UTF-8") + "&day=1&month=1&year=1910&cca_agree=1";
+            String query = "fname=" + URLEncoder.encode(firstName, "UTF-8") + "&lname=" + URLEncoder.encode(lastName, "UTF-8") + "&email=" + URLEncoder.encode(email, "UTF-8") + "&pword1=" + URLEncoder.encode(password, "UTF-8") + "&pword2=" + URLEncoder.encode(password, "UTF-8") + "&day=1&month=1&year=1910&tos_agree=1";
             String data = fetchStartErrorMessage(runRegister(query));
             assertNull(data);
         } catch (UnsupportedEncodingException e) {

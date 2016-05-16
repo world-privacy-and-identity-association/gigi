@@ -29,7 +29,7 @@ public class RegisterPageTest extends ManagedTest {
         registerUser("ab", "b", "correct" + uniq + "@email.de", TEST_PASSWORD);
         assertSuccessfullRegMail();
 
-        String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname=" + URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&day=1&month=1&year=1910&cca_agree=1&mname=mn&suffix=sf&email=";
+        String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname=" + URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&day=1&month=1&year=1910&tos_agree=1&mname=mn&suffix=sf&email=";
 
         String query = defaultSignup + URLEncoder.encode("correct3_" + uniq + "@email.de", "UTF-8") + "&general=1&country=1&regional=1&radius=1";
         String data = fetchStartErrorMessage(runRegister(query));
@@ -53,71 +53,71 @@ public class RegisterPageTest extends ManagedTest {
 
     @Test
     public void testNoFname() throws IOException {
-        testFailedForm("lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=1910&cca_agree=1");
+        testFailedForm("lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=1910&tos_agree=1");
     }
 
     @Test
     public void testNoLname() throws IOException {
-        testFailedForm("fname=a&email=e&pword1=ap&pword2=ap&day=1&month=1&year=1910&cca_agree=1");
+        testFailedForm("fname=a&email=e&pword1=ap&pword2=ap&day=1&month=1&year=1910&tos_agree=1");
     }
 
     @Test
     public void testNoEmail() throws IOException {
-        testFailedForm("fname=a&lname=b&pword1=ap&pword2=ap&day=1&month=1&year=1910&cca_agree=1");
+        testFailedForm("fname=a&lname=b&pword1=ap&pword2=ap&day=1&month=1&year=1910&tos_agree=1");
     }
 
     @Test
     public void testNoPword() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword2=ap&day=1&month=1&year=1910&cca_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword2=ap&day=1&month=1&year=1910&tos_agree=1");
     }
 
     @Test
     public void testDiffPword() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap2&day=1&month=1&year=1910&cca_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap2&day=1&month=1&year=1910&tos_agree=1");
     }
 
     @Test
     public void testNoDay() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&month=1&year=1910&cca_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&month=1&year=1910&tos_agree=1");
     }
 
     @Test
     public void testNoMonth() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&year=1910&cca_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&year=1910&tos_agree=1");
     }
 
     @Test
     public void testNoYear() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&cca_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&tos_agree=1");
     }
 
     @Test
     public void testInvDay() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=40&month=1&year=1910&cca_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=0&month=1&year=1910&cca_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=-1&month=1&year=1910&cca_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=a&month=1&year=1910&cca_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=40&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=0&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=-1&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=a&month=1&year=1910&tos_agree=1");
     }
 
     @Test
     public void testInvMonth() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=20&year=1910&cca_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=0&year=1910&cca_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=-1&year=1910&cca_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=a&year=1910&cca_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=20&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=0&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=-1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=a&year=1910&tos_agree=1");
     }
 
     @Test
     public void testInvYear() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=0&cca_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=100&cca_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=a&cca_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=-1&cca_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=0&tos_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=100&tos_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=a&tos_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=-1&tos_agree=1");
     }
 
     @Test
     public void testNoAgree() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=1910&cca_agree=a");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=1910&tos_agree=a");
     }
 
     @Test

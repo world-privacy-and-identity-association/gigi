@@ -98,8 +98,8 @@ public class Signup extends Form {
         if ( !myDoB.isValid()) {
             outputError(out, req, "Invalid date of birth");
         }
-        if ( !"1".equals(req.getParameter("cca_agree"))) {
-            outputError(out, req, "You have to agree to the SomeCA Community agreement.");
+        if ( !"1".equals(req.getParameter("tos_agree"))) {
+            outputError(out, req, "Acceptance of the ToS is required to continue.");
         }
         if (email.equals("")) {
             outputError(out, req, "Email Address was blank");
@@ -183,6 +183,7 @@ public class Signup extends Form {
             ps.setBoolean(5, radius);
             ps.execute();
         }
-        Notary.writeUserAgreement(u, "CCA", "account creation", "", true, 0);
+        Notary.writeUserAgreement(u, "ToS", "account creation", "", true, 0);
+
     }
 }
