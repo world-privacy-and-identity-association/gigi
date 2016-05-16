@@ -109,9 +109,8 @@ public class AssuranceForm extends Form {
             outputError(out, req, "You need to enter location and date!");
         }
 
-        if ( !"1".equals(req.getParameter("certify")) || !"1".equals(req.getParameter("rules")) || !"1".equals(req.getParameter("CCAAgreed")) || !"1".equals(req.getParameter("assertion"))) {
+        if ( !"1".equals(req.getParameter("certify")) || !"1".equals(req.getParameter("rules")) || !"1".equals(req.getParameter("tos_agree")) || !"1".equals(req.getParameter("assertion"))) {
             outputError(out, req, "You failed to check all boxes to validate" + " your adherence to the rules and policies of SomeCA");
-
         }
         if ("1".equals(req.getParameter("passwordReset"))) {
             aword = req.getParameter("passwordResetValue");

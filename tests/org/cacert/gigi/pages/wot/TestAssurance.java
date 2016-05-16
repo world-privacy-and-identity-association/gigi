@@ -43,23 +43,23 @@ public class TestAssurance extends ManagedTest {
     @Test
     public void testAssureSearch() throws IOException {
         String loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1910");
-        assertTrue(loc, loc.contains("type=\"checkbox\" name=\"CCAAgreed\""));
+        assertTrue(loc, loc.contains("type=\"checkbox\" name=\"tos_agree\""));
     }
 
     @Test
     public void testAssureSearchEmail() throws IOException {
         String loc = search("email=1" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1910");
-        assertTrue(loc, !loc.contains("type=\"checkbox\" name=\"CCAAgreed\""));
+        assertTrue(loc, !loc.contains("type=\"checkbox\" name=\"tos_agree\""));
     }
 
     @Test
     public void testAssureSearchDob() throws IOException {
         String loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=2&month=1&year=1910");
-        assertTrue(loc, !loc.contains("type=\"checkbox\" name=\"CCAAgreed\""));
+        assertTrue(loc, !loc.contains("type=\"checkbox\" name=\"tos_agree\""));
         loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=2&year=1910");
-        assertTrue(loc, !loc.contains("type=\"checkbox\" name=\"CCAAgreed\""));
+        assertTrue(loc, !loc.contains("type=\"checkbox\" name=\"tos_agree\""));
         loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1911");
-        assertTrue(loc, !loc.contains("type=\"checkbox\" name=\"CCAAgreed\""));
+        assertTrue(loc, !loc.contains("type=\"checkbox\" name=\"tos_agree\""));
     }
 
     private String search(String query) throws MalformedURLException, IOException, UnsupportedEncodingException {
@@ -73,14 +73,14 @@ public class TestAssurance extends ManagedTest {
 
     @Test
     public void testAssureForm() throws IOException {
-        String error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
+        String error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&tos_agree=1&assertion=1&points=10");
         assertNull(error);
     }
 
     @Test
     public void testAssureFormContanisData() throws IOException {
         URLConnection uc = buildupAssureFormConnection(true);
-        uc.getOutputStream().write(("date=2000-01-01&location=testcase&rules=1&CCAAgreed=1&assertion=1&points=10").getBytes("UTF-8"));
+        uc.getOutputStream().write(("date=2000-01-01&location=testcase&rules=1&tos_agree=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String data = IOUtils.readURL(uc);
         assertThat(data, containsString("2000-01-01"));
@@ -91,7 +91,7 @@ public class TestAssurance extends ManagedTest {
     public void testAssureFormNoCSRF() throws IOException {
         // override csrf
         HttpURLConnection uc = (HttpURLConnection) buildupAssureFormConnection(false);
-        uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10").getBytes("UTF-8"));
+        uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&tos_agree=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         assertEquals(500, uc.getResponseCode());
     }
@@ -100,7 +100,7 @@ public class TestAssurance extends ManagedTest {
     public void testAssureFormWrongCSRF() throws IOException {
         // override csrf
         HttpURLConnection uc = (HttpURLConnection) buildupAssureFormConnection(false);
-        uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10&csrf=aragc").getBytes("UTF-8"));
+        uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&tos_agree=1&assertion=1&points=10&csrf=aragc").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         assertEquals(500, uc.getResponseCode());
     }
@@ -134,7 +134,7 @@ public class TestAssurance extends ManagedTest {
 
         assertNull(executeBasicWebInteraction(assureeCookie, MyDetails.PATH, newName + "&" + newDob + "&processDetails", 0));
 
-        uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10").getBytes("UTF-8"));
+        uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&tos_agree=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
         if (succeed) {
@@ -149,7 +149,7 @@ public class TestAssurance extends ManagedTest {
     public void testAssureFormFuture() throws IOException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
         int year = Integer.parseInt(sdf.format(new Date(System.currentTimeMillis()))) + 2;
-        String error = getError("date=" + year + "-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
+        String error = getError("date=" + year + "-01-01&location=testcase&certify=1&rules=1&tos_agree=1&assertion=1&points=10");
         assertTrue(error, !error.startsWith("</div>"));
     }
 
@@ -160,42 +160,42 @@ public class TestAssurance extends ManagedTest {
         c.setTimeInMillis(System.currentTimeMillis());
         c.add(Calendar.HOUR_OF_DAY, 12);
 
-        String error = getError("date=" + sdf.format(new Date(c.getTimeInMillis())) + "&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
+        String error = getError("date=" + sdf.format(new Date(c.getTimeInMillis())) + "&location=testcase&certify=1&rules=1&tos_agree=1&assertion=1&points=10");
         assertNull(error);
     }
 
     @Test
     public void testAssureFormNoLoc() throws IOException {
-        String error = getError("date=2000-01-01&location=a&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
+        String error = getError("date=2000-01-01&location=a&certify=1&rules=1&tos_agree=1&assertion=1&points=10");
         assertTrue(error, !error.startsWith("</div>"));
-        error = getError("date=2000-01-01&location=&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
+        error = getError("date=2000-01-01&location=&certify=1&rules=1&tos_agree=1&assertion=1&points=10");
         assertTrue(error, !error.startsWith("</div>"));
     }
 
     @Test
     public void testAssureFormInvalDate() throws IOException {
-        String error = getError("date=20000101&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
+        String error = getError("date=20000101&location=testcase&certify=1&rules=1&tos_agree=1&assertion=1&points=10");
         assertTrue(error, !error.startsWith("</div>"));
-        error = getError("date=&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
+        error = getError("date=&location=testcase&certify=1&rules=1&tos_agree=1&assertion=1&points=10");
         assertTrue(error, !error.startsWith("</div>"));
     }
 
     @Test
     public void testAssureFormBoxes() throws IOException {
-        String error = getError("date=2000-01-01&location=testcase&certify=0&rules=1&CCAAgreed=1&assertion=1&points=10");
+        String error = getError("date=2000-01-01&location=testcase&certify=0&rules=1&tos_agree=1&assertion=1&points=10");
         assertTrue(error, !error.startsWith("</div>"));
-        error = getError("date=2000-01-01&location=testcase&certify=1&rules=&CCAAgreed=1&assertion=1&points=10");
+        error = getError("date=2000-01-01&location=testcase&certify=1&rules=&tos_agree=1&assertion=1&points=10");
         assertTrue(error, !error.startsWith("</div>"));
-        error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=a&assertion=1&points=10");
+        error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&tos_agree=a&assertion=1&points=10");
         assertTrue(error, !error.startsWith("</div>"));
-        error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=z&points=10");
+        error = getError("date=2000-01-01&location=testcase&certify=1&rules=1&tos_agree=1&assertion=z&points=10");
         assertTrue(error, !error.startsWith("</div>"));
     }
 
     @Test
     public void testAssureListingValid() throws IOException {
         String uniqueLoc = createUniqueName();
-        String error = getError("date=2000-01-01&location=" + uniqueLoc + "&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
+        String error = getError("date=2000-01-01&location=" + uniqueLoc + "&certify=1&rules=1&tos_agree=1&assertion=1&points=10");
         assertNull(error);
         String cookie = login(assureeM, TEST_PASSWORD);
         URLConnection url = get(cookie, MyPoints.PATH);
@@ -207,7 +207,7 @@ public class TestAssurance extends ManagedTest {
     @Test
     public void testAssurerListingValid() throws IOException {
         String uniqueLoc = createUniqueName();
-        String error = getError("date=2000-01-01&location=" + uniqueLoc + "&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10");
+        String error = getError("date=2000-01-01&location=" + uniqueLoc + "&certify=1&rules=1&tos_agree=1&assertion=1&points=10");
         assertNull(error);
         String cookie = login(assurerM, TEST_PASSWORD);
         URLConnection url = get(cookie, MyPoints.PATH);

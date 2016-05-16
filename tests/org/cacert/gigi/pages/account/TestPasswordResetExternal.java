@@ -28,7 +28,7 @@ public class TestPasswordResetExternal extends ClientTest {
         String cookie2 = login(u.getEmail(), TEST_PASSWORD);
         URLConnection uc = TestAssurance.buildupAssureFormConnection(cookie2, email, true);
         String avalue = RandomToken.generateToken(32);
-        uc.getOutputStream().write(("date=1910-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10&passwordReset=1&passwordResetValue=" + URLEncoder.encode(avalue, "UTF-8")).getBytes("UTF-8"));
+        uc.getOutputStream().write(("date=1910-01-01&location=testcase&certify=1&rules=1&tos_agree=1&assertion=1&points=10&passwordReset=1&passwordResetValue=" + URLEncoder.encode(avalue, "UTF-8")).getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
         assertNull(error);
