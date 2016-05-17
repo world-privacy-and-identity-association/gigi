@@ -19,8 +19,8 @@ public class MyPoints extends Page {
 
     private AssurancesDisplay toOtherDisplay = new AssurancesDisplay("otherAsArr", true);
 
-    public MyPoints(String title) {
-        super(title);
+    public MyPoints() {
+        super("My Points");
     }
 
     @Override

@@ -135,7 +135,7 @@ public final class Gigi extends HttpServlet {
             putPage(DomainOverview.PATH + "*", new DomainOverview("Domains"), "Certificates");
 
             putPage(AssurePage.PATH + "/*", new AssurePage(), "Web of Trust");
-            putPage(MyPoints.PATH, new MyPoints("My Points"), "Web of Trust");
+            putPage(MyPoints.PATH, new MyPoints(), "Web of Trust");
             putPage(MyListingPage.PATH, new MyListingPage(), "Web of Trust");
             putPage(RequestTTPPage.PATH, new RequestTTPPage(), "Web of Trust");
 
