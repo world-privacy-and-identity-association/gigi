@@ -1,12 +1,13 @@
 package org.cacert.gigi.output.template;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
 
-public final class ForeachStatement implements Outputable {
+public final class ForeachStatement implements Translatable {
 
     private final String variable;
 
@@ -27,5 +28,10 @@ public final class ForeachStatement implements Outputable {
                 body.output(out, l, subcontext);
             }
         }
+    }
+
+    @Override
+    public void addTranslations(Collection<String> s) {
+        body.addTranslations(s);
     }
 }

@@ -19,6 +19,8 @@ import java.util.Map.Entry;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
+import org.cacert.gigi.output.template.Outputable;
+import org.cacert.gigi.output.template.TranslateCommand;
 import org.cacert.gigi.util.KeyStorage;
 import org.cacert.gigi.util.Notary;
 
@@ -215,25 +217,34 @@ public class Certificate implements IdCachable {
          * This certificate is not in the database, has no id and only exists as
          * this java object.
          */
-        DRAFT(),
+        DRAFT("draft"),
         /**
          * The certificate has been signed. It is stored in the database.
          * {@link Certificate#cert()} is valid.
          */
-        ISSUED(),
+        ISSUED("issued"),
 
         /**
          * The certificate has been revoked.
          */
-        REVOKED(),
+        REVOKED("revoked"),
 
         /**
          * If this certificate cannot be updated because an error happened in
          * the signer.
          */
-        ERROR();
+        ERROR("error");
 
-        private CertificateStatus() {}
+        private final Outputable name;
+
+        private CertificateStatus(String codename) {
+            this.name = new TranslateCommand(codename);
+
+        }
+
+        public Outputable getName() {
+            return name;
+        }
 
     }
 

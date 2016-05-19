@@ -1,17 +1,18 @@
 package org.cacert.gigi.output.template;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
 
-class TemplateBlock implements Outputable {
+class TemplateBlock implements Translatable {
 
     private String[] contents;
 
-    private Outputable[] vars;
+    private Translatable[] vars;
 
-    public TemplateBlock(String[] contents, Outputable[] vars) {
+    public TemplateBlock(String[] contents, Translatable[] vars) {
         this.contents = contents;
         this.vars = vars;
     }
@@ -23,6 +24,12 @@ class TemplateBlock implements Outputable {
             if (i < this.vars.length) {
                 this.vars[i].output(out, l, vars);
             }
+        }
+    }
+
+    public void addTranslations(Collection<String> s) {
+        for (Translatable t : vars) {
+            t.addTranslations(s);
         }
     }
 

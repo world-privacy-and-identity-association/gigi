@@ -1,11 +1,12 @@
 package org.cacert.gigi.output.template;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
 
-public final class OutputVariableCommand implements Outputable {
+public final class OutputVariableCommand implements Translatable {
 
     private final String raw;
 
@@ -25,4 +26,7 @@ public final class OutputVariableCommand implements Outputable {
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         Template.outputVar(out, l, vars, raw, unescaped);
     }
+
+    @Override
+    public void addTranslations(Collection<String> s) {}
 }

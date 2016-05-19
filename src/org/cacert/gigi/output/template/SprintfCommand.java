@@ -1,6 +1,7 @@
 package org.cacert.gigi.output.template;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.regex.Pattern;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.util.HTMLEncoder;
 
-public final class SprintfCommand implements Outputable {
+public final class SprintfCommand implements Translatable {
 
     private final String text;
 
@@ -72,5 +73,10 @@ public final class SprintfCommand implements Outputable {
 
         }
         out.print(HTMLEncoder.encodeHTML(parts.substring(pos)));
+    }
+
+    @Override
+    public void addTranslations(Collection<String> s) {
+        s.add(text);
     }
 }

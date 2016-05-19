@@ -138,7 +138,7 @@ public class SupportUserDetailsForm extends Form {
                     return false;
                 }
                 Group g = i.next();
-                vars.put("group_name", l.getTranslation("Group: " + g.getDatabaseName()));
+                vars.put("group_name", g.getName());
                 return true;
             }
         });

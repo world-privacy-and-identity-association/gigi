@@ -25,7 +25,7 @@ public class HashAlgorithms implements IterableDataset {
         Digest d = length[i++];
         vars.put("algorithm", d.toString());
         vars.put("name", d.toString());
-        vars.put("info", l.getTranslation(d.getExp()));
+        vars.put("info", d.getExp());
         vars.put("checked", selected == d ? " checked='checked'" : "");
         return true;
     }

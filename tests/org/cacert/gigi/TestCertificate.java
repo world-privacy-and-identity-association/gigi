@@ -107,15 +107,15 @@ public class TestCertificate extends ManagedTest {
         testFails(CertificateStatus.ISSUED, c);
         X509Certificate cert = c.cert();
         assertNotNull(login(pk, cert));
-        assertEquals(1, countRegex(IOUtils.readURL(get(cookie, Certificates.PATH)), "<td>(?:revoked|issued)</td>"));
-        assertEquals(1, countRegex(IOUtils.readURL(get(cookie, Certificates.PATH + "?withRevoked")), "<td>(?:revoked|issued)</td>"));
+        assertEquals(1, countRegex(IOUtils.readURL(get(cookie, Certificates.PATH)), "<td>(?:REVOKED|ISSUED)</td>"));
+        assertEquals(1, countRegex(IOUtils.readURL(get(cookie, Certificates.PATH + "?withRevoked")), "<td>(?:REVOKED|ISSUED)</td>"));
         c.revoke().waitFor(60000);
 
         testFails(CertificateStatus.REVOKED, c);
         assertNull(login(pk, cert));
 
-        assertEquals(0, countRegex(IOUtils.readURL(get(cookie, Certificates.PATH)), "<td>(?:revoked|issued)</td>"));
-        assertEquals(1, countRegex(IOUtils.readURL(get(cookie, Certificates.PATH + "?withRevoked")), "<td>(?:revoked|issued)</td>"));
+        assertEquals(0, countRegex(IOUtils.readURL(get(cookie, Certificates.PATH)), "<td>(?:REVOKED|ISSUED)</td>"));
+        assertEquals(1, countRegex(IOUtils.readURL(get(cookie, Certificates.PATH + "?withRevoked")), "<td>(?:REVOKED|ISSUED)</td>"));
     }
 
     private void testFails(CertificateStatus status, Certificate c) throws IOException, GeneralSecurityException, SQLException, GigiApiException {

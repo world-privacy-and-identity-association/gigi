@@ -20,6 +20,7 @@ import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.output.template.TranslateCommand;
 import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.PasswordHash;
 import org.cacert.gigi.util.ServerConstants;
@@ -114,7 +115,7 @@ public class LoginPage extends Page {
                         }
                     }
                     loginSession(req, User.getById(rs.getInt(2)));
-                    req.getSession().setAttribute(LOGIN_METHOD, "Password");
+                    req.getSession().setAttribute(LOGIN_METHOD, new TranslateCommand("Password"));
                 }
             }
         }
@@ -141,7 +142,7 @@ public class LoginPage extends Page {
         loginSession(req, user);
         req.getSession().setAttribute(CERT_SERIAL, serial);
         req.getSession().setAttribute(CERT_ISSUER, x509Certificate.getIssuerDN());
-        req.getSession().setAttribute(LOGIN_METHOD, "Certificate");
+        req.getSession().setAttribute(LOGIN_METHOD, new TranslateCommand("Certificate"));
     }
 
     public static String extractSerialFormCert(X509Certificate x509Certificate) {

@@ -31,6 +31,7 @@ import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.output.template.TranslateCommand;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.account.certs.CertificateRequest;
 import org.cacert.gigi.pages.main.RegisterPage;
@@ -208,7 +209,7 @@ public class DevelLauncher {
                     sess.setAttribute(LOGGEDIN, true);
                     sess.setAttribute(Language.SESSION_ATTRIB_NAME, user.getPreferredLocale());
                     sess.setAttribute(AUTH_CONTEXT, new AuthorizationContext(user, user));
-                    req.getSession().setAttribute(LOGIN_METHOD, "Ticket");
+                    req.getSession().setAttribute(LOGIN_METHOD, new TranslateCommand("Ticket"));
                     resp.getWriter().println("ticket consumed");
                     ticketUsed = true;
                 }

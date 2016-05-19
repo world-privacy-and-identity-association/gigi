@@ -1,11 +1,12 @@
 package org.cacert.gigi.output.template;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
 
-public final class IfStatement implements Outputable {
+public final class IfStatement implements Translatable {
 
     private final String variable;
 
@@ -33,6 +34,14 @@ public final class IfStatement implements Outputable {
             iftrue.output(out, l, vars);
         } else if (iffalse != null) {
             iffalse.output(out, l, vars);
+        }
+    }
+
+    @Override
+    public void addTranslations(Collection<String> s) {
+        iftrue.addTranslations(s);
+        if (iffalse != null) {
+            iffalse.addTranslations(s);
         }
     }
 

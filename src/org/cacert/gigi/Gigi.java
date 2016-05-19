@@ -393,7 +393,7 @@ public final class Gigi extends HttpServlet {
             vars.put("content", content);
             if (currentAuthContext != null) {
                 // TODO maybe move this information into the AuthContext object
-                vars.put("loginMethod", lang.getTranslation((String) req.getSession().getAttribute(LOGIN_METHOD)));
+                vars.put("loginMethod", req.getSession().getAttribute(LOGIN_METHOD));
                 vars.put("authContext", currentAuthContext);
 
             }

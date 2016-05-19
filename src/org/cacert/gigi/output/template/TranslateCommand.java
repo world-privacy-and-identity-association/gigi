@@ -1,12 +1,13 @@
 package org.cacert.gigi.output.template;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.util.HTMLEncoder;
 
-public final class TranslateCommand implements Outputable {
+public final class TranslateCommand implements Translatable {
 
     private final String raw;
 
@@ -21,5 +22,10 @@ public final class TranslateCommand implements Outputable {
 
     public String getRaw() {
         return raw;
+    }
+
+    @Override
+    public void addTranslations(Collection<String> s) {
+        s.add(raw);
     }
 }

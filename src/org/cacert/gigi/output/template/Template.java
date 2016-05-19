@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Map;
@@ -91,7 +92,7 @@ public class Template implements Outputable {
 
     private ParseResult parse(Reader r) throws IOException {
         LinkedList<String> splitted = new LinkedList<String>();
-        LinkedList<Outputable> commands = new LinkedList<Outputable>();
+        LinkedList<Translatable> commands = new LinkedList<Translatable>();
         StringBuffer buf = new StringBuffer();
         String blockType = null;
         outer:
@@ -144,14 +145,14 @@ public class Template implements Outputable {
             }
         }
         splitted.add(buf.toString());
-        return new ParseResult(new TemplateBlock(splitted.toArray(new String[splitted.size()]), commands.toArray(new Outputable[commands.size()])), blockType);
+        return new ParseResult(new TemplateBlock(splitted.toArray(new String[splitted.size()]), commands.toArray(new Translatable[commands.size()])), blockType);
     }
 
     private boolean endsWith(StringBuffer buf, String string) {
         return buf.length() >= string.length() && buf.substring(buf.length() - string.length(), buf.length()).equals(string);
     }
 
-    private Outputable parseCommand(String s2) {
+    private Translatable parseCommand(String s2) {
         if (s2.startsWith("=_")) {
             final String raw = s2.substring(2);
             if ( !s2.contains("$") && !s2.contains("!'")) {
@@ -200,5 +201,9 @@ public class Template implements Outputable {
         } else {
             out.print(s == null ? "null" : (unescaped ? s.toString() : HTMLEncoder.encodeHTML(s.toString())));
         }
+    }
+
+    public void addTranslations(Collection<String> s) {
+        data.addTranslations(s);
     }
 }

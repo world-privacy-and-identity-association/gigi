@@ -26,7 +26,7 @@ public class CertificateIterable implements IterableDataset {
             return false;
         }
         Certificate c = certificates[i++];
-        vars.put("state", l.getTranslation(c.getStatus().toString().toLowerCase()));
+        vars.put("state", c.getStatus());
         vars.put("CN", c.getDistinguishedName());
         vars.put("serial", c.getSerial());
         vars.put("digest", c.getMessageDigest());
