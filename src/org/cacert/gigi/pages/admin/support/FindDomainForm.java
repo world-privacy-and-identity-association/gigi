@@ -1,6 +1,7 @@
 package org.cacert.gigi.pages.admin.support;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +11,7 @@ import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.output.template.Template;
 
 public class FindDomainForm extends Form {
@@ -33,13 +35,13 @@ public class FindDomainForm extends Form {
             try {
                 d = Domain.getById(Integer.parseInt(request.substring(1)));
             } catch (IllegalArgumentException e) {
-                throw (new GigiApiException("No personal domains found matching the id " + request.substring(1) + "."));
+                throw (new GigiApiException(new SprintfCommand("No personal domains found matching the id %s", Arrays.asList(request.substring(1)))));
             }
         } else {
             d = Domain.searchUserIdByDomain(request);
         }
         if (d == null) {
-            throw (new GigiApiException("No personal domains found matching " + request));
+            throw (new GigiApiException(new SprintfCommand("No personal domains found matching %s", Arrays.asList(request))));
         }
         res = d.getOwner();
         return true;

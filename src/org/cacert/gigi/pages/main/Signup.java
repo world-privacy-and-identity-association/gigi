@@ -167,7 +167,7 @@ public class Signup extends Form {
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (GigiApiException e) {
-            outputError(out, req, e.getMessage());
+            e.format(out, Page.getLanguage(req));
             return false;
         }
         return true;
