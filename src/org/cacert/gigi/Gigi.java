@@ -430,7 +430,7 @@ public final class Gigi extends HttpServlet {
         csp.append(";script-src https://" + ServerConstants.getStaticHostNamePortSecure());
         csp.append(";style-src https://" + ServerConstants.getStaticHostNamePortSecure());
         csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://" + ServerConstants.getWwwHostNamePortSecure());
-        csp.append(";report-url https://api.cacert.org/security/csp/report");
+        //csp.append(";report-url https://api.cacert.org/security/csp/report");
         return csp.toString();
     }
 
@@ -443,7 +443,7 @@ public final class Gigi extends HttpServlet {
         csp.append(";script-src http://" + ServerConstants.getStaticHostNamePort());
         csp.append(";style-src http://" + ServerConstants.getStaticHostNamePort());
         csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://" + ServerConstants.getWwwHostNamePort());
-        csp.append(";report-url http://api.cacert.org/security/csp/report");
+        //csp.append(";report-url http://api.cacert.org/security/csp/report");
         return csp.toString();
     }
 
