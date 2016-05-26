@@ -39,8 +39,8 @@ public class TestSEAdminPageDetails extends ClientTest {
         URLConnection uc = get(SupportUserDetailsPage.PATH + id);
         uc.setDoOutput(true);
         String res = IOUtils.readURL(uc);
-        assertThat(res, containsString("<input type=\"text\" value=\"" + fname + "\" name=\"fname\">"));
-        assertThat(res, containsString("<input type=\"text\" value=\"" + lname + "\" name=\"lname\">"));
+        assertThat(res, containsString("type=\"text\" value=\"" + fname + "\" name=\"fname\">"));
+        assertThat(res, containsString("type=\"text\" value=\"" + lname + "\" name=\"lname\">"));
         assertThat(res, containsString(email));
     }
 
@@ -154,7 +154,7 @@ public class TestSEAdminPageDetails extends ClientTest {
     }
 
     private String getFname(String res) {
-        Pattern p = Pattern.compile("<input type=\"text\" name=\"fname\" value=\"([^\"]*)\">");
+        Pattern p = Pattern.compile("type=\"text\" name=\"fname\" value=\"([^\"]*)\">");
         Matcher m = p.matcher(res);
         if (m.find()) {
             return m.group(1);
@@ -163,7 +163,7 @@ public class TestSEAdminPageDetails extends ClientTest {
     }
 
     private String getFnamePlain(String res) {
-        Pattern p = Pattern.compile("\\s*<td width=\"125\">First Name: </td>\\s*<td width=\"125\">([^<]*)</td>");
+        Pattern p = Pattern.compile("\\s*<td[^>]*>First Name: </td>\\s*<td[^>]*>([^<]*)</td>");
         Matcher m = p.matcher(res);
         if (m.find()) {
             return m.group(1);
