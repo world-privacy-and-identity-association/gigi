@@ -15,6 +15,18 @@ public class CalendarUtil {
 
     }
 
+    public static boolean isOfAge(DayDate dob, int age) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(dob.getTime());
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
+        c.set(year, month, day);
+        c.add(Calendar.YEAR, age);
+
+        return System.currentTimeMillis() >= c.getTime().getTime();
+    }
+
     public static DayDate getDateFromComponents(int year, int month, int day) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone("UTC"));

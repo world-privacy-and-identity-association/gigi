@@ -34,6 +34,25 @@ public class TestCalendarUtil {
     }
 
     @Test
+    public void testIsOfAge() {
+
+        Calendar now = Calendar.getInstance();
+        int year = now.get(Calendar.YEAR);
+        int month = now.get(Calendar.MONTH) + 1;
+        int days = now.get(Calendar.DATE);
+
+        DayDate dob = CalendarUtil.getDateFromComponents(year - 14, month, days);
+
+        assertTrue(CalendarUtil.isOfAge(dob, 13));
+
+        assertTrue(CalendarUtil.isOfAge(dob, 14));
+
+        dob = CalendarUtil.getDateFromComponents(year - 14, month, days + 1);
+        assertFalse(CalendarUtil.isOfAge(dob, 14));
+
+    }
+
+    @Test
     public void testIsDateValid() {
         assertTrue(CalendarUtil.isDateValid(2016, 2, 28));
         assertTrue(CalendarUtil.isDateValid(2016, 2, 29));

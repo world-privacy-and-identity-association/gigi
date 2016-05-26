@@ -1,7 +1,6 @@
 package org.cacert.gigi.dbObjects;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -14,6 +13,7 @@ import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
+import org.cacert.gigi.util.CalendarUtil;
 import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PasswordHash;
@@ -132,7 +132,7 @@ public class User extends CertificateOwner {
     }
 
     public boolean canAssure() {
-        if ( !isOfAge(14)) { // PoJAM
+        if ( !CalendarUtil.isOfAge(dob, 14)) { // PoJAM
             return false;
         }
         if (getAssurancePoints() < 100) {
@@ -194,7 +194,7 @@ public class User extends CertificateOwner {
      * @return the maximal points @
      */
     public int getMaxAssurePoints() {
-        if ( !isOfAge(18)) {
+        if ( !CalendarUtil.isOfAge(dob, 18)) {
             return 10; // PoJAM
         }
 
@@ -218,17 +218,6 @@ public class User extends CertificateOwner {
         }
 
         return points;
-    }
-
-    public boolean isOfAge(int desiredAge) {
-        Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(dob.getTime());
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        c.set(year, month, day);
-        c.add(Calendar.YEAR, desiredAge);
-        return System.currentTimeMillis() >= c.getTime().getTime();
     }
 
     public boolean isValidName(String name) {
