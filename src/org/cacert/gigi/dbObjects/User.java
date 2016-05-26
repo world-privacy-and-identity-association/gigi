@@ -39,6 +39,8 @@ public class User extends CertificateOwner {
 
     private final Set<Group> groups = new HashSet<>();
 
+    public static final int MINIMUM_AGE = 16;
+
     protected User(GigiResultSet rs) {
         super(rs.getInt("id"));
         updateName(rs);

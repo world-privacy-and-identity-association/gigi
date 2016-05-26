@@ -19,6 +19,7 @@ import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.CalendarUtil;
 import org.cacert.gigi.util.HTMLEncoder;
 import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PasswordStrengthChecker;
@@ -98,6 +99,11 @@ public class Signup extends Form {
         if ( !myDoB.isValid()) {
             outputError(out, req, "Invalid date of birth");
         }
+
+        if ( !CalendarUtil.isOfAge(myDoB.getDate(), User.MINIMUM_AGE)) {
+            outputError(out, req, "Entered dated of birth is below the restricted age requirements.");
+        }
+
         if ( !"1".equals(req.getParameter("tos_agree"))) {
             outputError(out, req, "Acceptance of the ToS is required to continue.");
         }
