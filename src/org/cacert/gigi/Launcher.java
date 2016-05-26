@@ -308,7 +308,7 @@ public class Launcher {
             hw.setHandler(rh);
 
             ServletContextHandler servlet = new ServletContextHandler(ServletContextHandler.SESSIONS);
-            servlet.setInitParameter(SessionManager.__SessionCookieProperty, "CACert-Session");
+            servlet.setInitParameter(SessionManager.__SessionCookieProperty, "SomeCA-Session");
             servlet.addServlet(webAppServlet, "/*");
             ErrorPageErrorHandler epeh = new ErrorPageErrorHandler();
             epeh.addErrorPage(404, "/error");
