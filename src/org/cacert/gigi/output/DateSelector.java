@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -14,6 +13,7 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.util.DayDate;
+import org.cacert.gigi.util.CalendarUtil;
 import org.cacert.gigi.util.HTMLEncoder;
 
 public class DateSelector implements Outputable {
@@ -118,7 +118,12 @@ public class DateSelector implements Outputable {
         if ( !(1900 < year && 1 <= month && month <= 12 && 1 <= day && day <= 32)) {
             return false;
         }
-        return true; // TODO checkdate
+
+        if ( !CalendarUtil.isDateValid(year, month, day)) {
+            return false;
+        }
+
+        return true;
     }
 
     @Override
@@ -127,10 +132,7 @@ public class DateSelector implements Outputable {
     }
 
     public DayDate getDate() {
-        Calendar gc = GregorianCalendar.getInstance();
-        gc.set(year, month - 1, day, 0, 0, 0);
-        gc.set(Calendar.MILLISECOND, 0);
-        return new DayDate(gc.getTime().getTime());
+        return CalendarUtil.getDateFromComponents(year, month, day);
     }
 
     public static SimpleDateFormat getDateFormat() {

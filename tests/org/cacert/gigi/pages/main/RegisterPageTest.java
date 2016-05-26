@@ -95,6 +95,7 @@ public class RegisterPageTest extends ManagedTest {
     public void testInvDay() throws IOException {
         testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=40&month=1&year=1910&cca_agree=1");
         testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=0&month=1&year=1910&cca_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=-1&month=1&year=1910&cca_agree=1");
         testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=a&month=1&year=1910&cca_agree=1");
     }
 
