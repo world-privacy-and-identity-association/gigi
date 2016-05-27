@@ -57,6 +57,7 @@ public class TestMyDetailsEdit extends ManagedTest {
     public void testUnsetSuffix() throws IOException {
         String newName = createUniqueName();
         assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "mname=&fname=Kurti&lname=Hansel&suffix=" + newName + "&day=1&month=1&year=2000&processDetails", 0));
+        clearCaches();
         User u = User.getById(id);
         assertEquals(newName, u.getName().getSuffix());
         assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "mname=&fname=Kurti&lname=Hansel&suffix=&day=1&month=1&year=2000&processDetails", 0));
