@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -23,6 +22,7 @@ import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.PasswordResetPage;
+import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.RandomToken;
 import org.cacert.gigi.util.ServerConstants;
@@ -33,7 +33,7 @@ public class AssuranceForm extends Form {
 
     private Name assureeName;
 
-    private Date dob;
+    private DayDate dob;
 
     private String location = "";
 
@@ -69,8 +69,8 @@ public class AssuranceForm extends Form {
         res.put("nameExplicit", assuree.getName());
         res.put("name", assuree.getName().toString());
         res.put("maxpoints", assurer.getMaxAssurePoints());
-        res.put("dob", sdf.format(assuree.getDoB()));
-        res.put("dobFmt2", sdf2.format(assuree.getDoB()));
+        res.put("dob", sdf.format(assuree.getDoB().toDate()));
+        res.put("dobFmt2", sdf2.format(assuree.getDoB().toDate()));
         res.put("location", location);
         res.put("date", date);
         res.put("aword", aword);

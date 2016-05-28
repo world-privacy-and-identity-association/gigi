@@ -102,7 +102,7 @@ public class TestMyDetailsEdit extends ManagedTest {
         cal.set(Calendar.DAY_OF_MONTH, Calendar.FEBRUARY);
         cal.set(Calendar.MONTH, 1);
         Date d = new Date(cal.getTimeInMillis());
-        assertEquals(d.toString(), u.getDoB().toString());
+        assertEquals(d.toString(), u.getDoB().toSQLDate().toString());
     }
 
     @Test

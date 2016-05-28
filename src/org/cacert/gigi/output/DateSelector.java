@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.TimeZone;
@@ -14,16 +13,17 @@ import javax.servlet.http.HttpServletRequest;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Outputable;
+import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.HTMLEncoder;
 
 public class DateSelector implements Outputable {
 
     private String[] names;
 
-    public DateSelector(String day, String month, String year, Date date) {
+    public DateSelector(String day, String month, String year, DayDate date) {
         this(day, month, year);
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTF"));
-        cal.setTime(date);
+        cal.setTimeInMillis(date.getTime());
         this.day = cal.get(Calendar.DAY_OF_MONTH);
         this.month = cal.get(Calendar.MONTH) + 1;
         this.year = cal.get(Calendar.YEAR);
@@ -126,10 +126,11 @@ public class DateSelector implements Outputable {
         return "DateSelector [names=" + Arrays.toString(names) + ", day=" + day + ", month=" + month + ", year=" + year + "]";
     }
 
-    public java.sql.Date getDate() {
+    public DayDate getDate() {
         Calendar gc = GregorianCalendar.getInstance();
-        gc.set(year, month - 1, day);
-        return new java.sql.Date(gc.getTime().getTime());
+        gc.set(year, month - 1, day, 0, 0, 0);
+        gc.set(Calendar.MILLISECOND, 0);
+        return new DayDate(gc.getTime().getTime());
     }
 
     public static SimpleDateFormat getDateFormat() {

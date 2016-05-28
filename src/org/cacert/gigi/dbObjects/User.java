@@ -1,6 +1,5 @@
 package org.cacert.gigi.dbObjects;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -15,6 +14,7 @@ import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
+import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PasswordHash;
 import org.cacert.gigi.util.PasswordStrengthChecker;
@@ -27,7 +27,7 @@ public class User extends CertificateOwner {
 
     private Name name = new Name(null, null, null, null);
 
-    private Date dob;
+    private DayDate dob;
 
     private String email;
 
@@ -46,7 +46,7 @@ public class User extends CertificateOwner {
 
     private void updateName(GigiResultSet rs) {
         name = new Name(rs.getString("fname"), rs.getString("lname"), rs.getString("mname"), rs.getString("suffix"));
-        dob = rs.getDate("dob");
+        dob = new DayDate(rs.getDate("dob"));
         email = rs.getString("email");
 
         String localeStr = rs.getString("language");
@@ -67,7 +67,7 @@ public class User extends CertificateOwner {
         }
     }
 
-    public User(String email, String password, Name name, Date dob, Locale locale) throws GigiApiException {
+    public User(String email, String password, Name name, DayDate dob, Locale locale) throws GigiApiException {
         this.email = email;
         this.dob = dob;
         this.name = name;
@@ -79,7 +79,7 @@ public class User extends CertificateOwner {
             query.setString(4, name.getMname());
             query.setString(5, name.getLname());
             query.setString(6, name.getSuffix());
-            query.setDate(7, dob);
+            query.setDate(7, dob.toSQLDate());
             query.setString(8, locale.toString());
             query.setInt(9, getId());
             query.execute();
@@ -91,11 +91,11 @@ public class User extends CertificateOwner {
         return name;
     }
 
-    public Date getDoB() {
+    public DayDate getDoB() {
         return dob;
     }
 
-    public void setDoB(Date dob) {
+    public void setDoB(DayDate dob) {
         this.dob = dob;
     }
 
@@ -222,7 +222,7 @@ public class User extends CertificateOwner {
 
     public boolean isOfAge(int desiredAge) {
         Calendar c = Calendar.getInstance();
-        c.setTime(dob);
+        c.setTimeInMillis(dob.getTime());
         int year = c.get(Calendar.YEAR);
         int month = c.get(Calendar.MONTH);
         int day = c.get(Calendar.DAY_OF_MONTH);
@@ -335,7 +335,7 @@ public class User extends CertificateOwner {
             update.setString(2, name.getLname());
             update.setString(3, name.getMname());
             update.setString(4, name.getSuffix());
-            update.setDate(5, getDoB());
+            update.setDate(5, getDoB().toSQLDate());
             update.setInt(6, getId());
             update.executeUpdate();
         }

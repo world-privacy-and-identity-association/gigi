@@ -7,7 +7,6 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.Signature;
-import java.sql.Date;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -45,6 +44,7 @@ import org.cacert.gigi.pages.account.certs.CertificateRequest;
 import org.cacert.gigi.ping.DomainPinger;
 import org.cacert.gigi.ping.PingerDaemon;
 import org.cacert.gigi.util.AuthorizationContext;
+import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.Notary;
 
 import sun.security.x509.X509Key;
@@ -210,7 +210,7 @@ public class Manager extends Page {
     private void createUser(String email) throws GigiApiException, IllegalAccessException {
         Calendar gc = GregorianCalendar.getInstance();
         gc.set(1990, 0, 1);
-        User u = new User(email, "xvXV12°§", new Name("Först", "Läst", "Müddle", "Süffix"), new Date(gc.getTime().getTime()), Locale.ENGLISH);
+        User u = new User(email, "xvXV12°§", new Name("Först", "Läst", "Müddle", "Süffix"), new DayDate(gc.getTime().getTime()), Locale.ENGLISH);
         EmailAddress ea = u.getEmails()[0];
         if (f == null) {
             System.out.println("verification failed");

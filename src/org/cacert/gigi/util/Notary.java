@@ -72,7 +72,7 @@ public class Notary {
      * @throws GigiApiException
      *             if the assurance fails (for various reasons)
      */
-    public synchronized static void assure(User assurer, User assuree, Name assureeName, Date dob, int awarded, String location, String date, AssuranceType type) throws GigiApiException {
+    public synchronized static void assure(User assurer, User assuree, Name assureeName, DayDate dob, int awarded, String location, String date, AssuranceType type) throws GigiApiException {
         may(assurer, assuree, AssuranceType.FACE_TO_FACE);
         GigiApiException gae = new GigiApiException();
         if ( !gae.isEmpty()) {

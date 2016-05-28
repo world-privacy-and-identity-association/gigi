@@ -107,27 +107,42 @@ public class TestAssurance extends ManagedTest {
 
     @Test
     public void testAssureFormRaceName() throws IOException, SQLException {
-        testAssureFormRace(true);
+        testAssureFormRace(true, false);
     }
 
     @Test
     public void testAssureFormRaceDoB() throws IOException, SQLException {
-        testAssureFormRace(false);
+        testAssureFormRace(false, false);
     }
 
-    public void testAssureFormRace(boolean name) throws IOException, SQLException {
+    @Test
+    public void testAssureFormRaceNameBlind() throws IOException, SQLException {
+        testAssureFormRace(true, true);
+    }
+
+    @Test
+    public void testAssureFormRaceDoBBlind() throws IOException, SQLException {
+        testAssureFormRace(false, true);
+    }
+
+    public void testAssureFormRace(boolean name, boolean succeed) throws IOException, SQLException {
         URLConnection uc = buildupAssureFormConnection(true);
 
         String assureeCookie = login(assureeM, TEST_PASSWORD);
-        String newName = "lname=" + (name ? "c" : "a") + "&fname=a&mname=&suffix=";
-        String newDob = "day=1&month=1&year=" + (name ? 1910 : 1911);
+        String newName = "lname=" + (name && !succeed ? "a" : "c") + "&fname=a&mname=&suffix=";
+        String newDob = "day=1&month=1&year=" + ( !name && !succeed ? 1911 : 1910);
 
         assertNull(executeBasicWebInteraction(assureeCookie, MyDetails.PATH, newName + "&" + newDob + "&processDetails", 0));
 
         uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&CCAAgreed=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
-        assertTrue(error, !error.startsWith("</div>"));
+        if (succeed) {
+            assertNull(error);
+        } else {
+            assertTrue(error, !error.startsWith("</div>"));
+            assertThat(error, containsString("changed his personal details"));
+        }
     }
 
     @Test

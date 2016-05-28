@@ -3,7 +3,6 @@ package org.cacert.gigi;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-import java.sql.Date;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Locale;
@@ -13,6 +12,7 @@ import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.util.DayDate;
 import org.junit.Test;
 
 public class TestObjectCache extends ManagedTest {
@@ -24,8 +24,9 @@ public class TestObjectCache extends ManagedTest {
         assertThat(User.getById(uid), is(sameInstance(User.getById(uid))));
 
         Calendar c = Calendar.getInstance();
-        c.set(1950, 1, 1);
-        User u = new User(createUniqueName() + "@example.org", TEST_PASSWORD, new Name("fname", "lname", "mname", "suffix"), new Date(c.getTime().getTime()), Locale.ENGLISH);
+        c.set(1950, 1, 1, 0, 0, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        User u = new User(createUniqueName() + "@example.org", TEST_PASSWORD, new Name("fname", "lname", "mname", "suffix"), new DayDate(c.getTime().getTime()), Locale.ENGLISH);
 
         assertThat(u, is(sameInstance(User.getById(u.getId()))));
         assertThat(User.getById(u.getId()), is(sameInstance(User.getById(u.getId()))));

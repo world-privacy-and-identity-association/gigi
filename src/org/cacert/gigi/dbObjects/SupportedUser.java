@@ -1,10 +1,9 @@
 package org.cacert.gigi.dbObjects;
 
-import java.sql.Date;
-
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
+import org.cacert.gigi.util.DayDate;
 
 public class SupportedUser {
 
@@ -29,8 +28,8 @@ public class SupportedUser {
         return true;
     }
 
-    public boolean setDob(Date dob) throws GigiApiException {
-        if (dob.toString().equals(target.getDoB().toString())) {
+    public boolean setDob(DayDate dob) throws GigiApiException {
+        if (dob.equals(target.getDoB())) {
             return false;
         }
         writeSELog("SE dob change");

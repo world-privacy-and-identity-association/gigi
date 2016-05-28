@@ -3,7 +3,6 @@ package org.cacert.gigi;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.util.Locale;
 
@@ -13,6 +12,7 @@ import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.util.DayDate;
 import org.junit.Test;
 
 public class TestUser extends ManagedTest {
@@ -21,7 +21,7 @@ public class TestUser extends ManagedTest {
     public void testStoreAndLoad() throws SQLException, GigiApiException {
         long dob = System.currentTimeMillis();
         dob -= dob % (1000 * 60 * 60 * 24);
-        User u = new User(createUniqueName() + "a@email.org", "password", new Name("user", "last", "", ""), new java.sql.Date(dob), Locale.ENGLISH);
+        User u = new User(createUniqueName() + "a@email.org", "password", new Name("user", "last", "", ""), new DayDate(dob), Locale.ENGLISH);
         int id = u.getId();
         User u2 = User.getById(id);
         assertEquals(u.getName(), u2.getName());
@@ -95,7 +95,9 @@ public class TestUser extends ManagedTest {
 
     @Test
     public void testDoubleInsert() throws GigiApiException {
-        User u = new User(createUniqueName() + "@example.org", TEST_PASSWORD, new Name("f", "k", "m", "s"), new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 365), Locale.ENGLISH);
+        long d = System.currentTimeMillis();
+        d -= d % DayDate.MILLI_DAY;
+        User u = new User(createUniqueName() + "@example.org", TEST_PASSWORD, new Name("f", "k", "m", "s"), new DayDate(d + 1000L * 60 * 60 * 24 * 365), Locale.ENGLISH);
         Assurance[] ma = u.getMadeAssurances();
         Assurance[] ma2 = u.getMadeAssurances();
         Assurance[] ra = u.getReceivedAssurances();
