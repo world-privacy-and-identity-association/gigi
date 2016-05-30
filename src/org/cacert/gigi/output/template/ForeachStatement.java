@@ -7,12 +7,24 @@ import java.util.Map;
 
 import org.cacert.gigi.localisation.Language;
 
+/**
+ * Outputs an {@link Outputable} multiple times based on a given
+ * {@link IterableDataset}.
+ */
 public final class ForeachStatement implements Translatable {
 
     private final String variable;
 
     private final TemplateBlock body;
 
+    /**
+     * Creates a new {@link ForeachStatement}.
+     * 
+     * @param variable
+     *            the variable to take the {@link IterableDataset} from.
+     * @param body
+     *            the body to output multiple times.
+     */
     public ForeachStatement(String variable, TemplateBlock body) {
         this.variable = variable;
         this.body = body;

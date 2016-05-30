@@ -22,6 +22,9 @@ import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.HTMLEncoder;
 
+/**
+ * Represents a loaded template file.
+ */
 public class Template implements Outputable {
 
     private static class ParseResult {
@@ -63,6 +66,14 @@ public class Template implements Outputable {
 
     private static final Pattern ELSE_PATTERN = Pattern.compile(" ?\\} ?else ?\\{ ?");
 
+    /**
+     * Creates a new template by parsing the contents from the given URL. This
+     * constructor will fail on syntax error. When the URL points to a file,
+     * {@link File#lastModified()} is monitored for changes of the template.
+     * 
+     * @param u
+     *            the URL to load the template from. UTF-8 is chosen as charset.
+     */
     public Template(URL u) {
         try {
             Reader r = new InputStreamReader(u.openStream(), "UTF-8");
@@ -81,6 +92,13 @@ public class Template implements Outputable {
         }
     }
 
+    /**
+     * Creates a new template by parsing the contents from the given reader.
+     * This constructor will fail on syntax error.
+     * 
+     * @param r
+     *            the Reader containing the data.
+     */
     public Template(Reader r) {
         try {
             data = parse(r).getBlock(null);
