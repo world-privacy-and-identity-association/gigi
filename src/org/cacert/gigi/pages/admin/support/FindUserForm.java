@@ -1,7 +1,6 @@
 package org.cacert.gigi.pages.admin.support;
 
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +29,7 @@ public class FindUserForm extends Form {
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
         User[] users = User.findByEmail(req.getParameter("email"));
         if (users.length == 0) {
-            throw (new GigiApiException(new SprintfCommand("No users found matching %s", Arrays.asList(req.getParameter("email")))));
+            throw new GigiApiException(SprintfCommand.createSimple("No users found matching {0}", req.getParameter("email")));
         }
         this.users = users;
         return true;

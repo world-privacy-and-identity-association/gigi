@@ -7,7 +7,6 @@ import java.security.PublicKey;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,7 +28,6 @@ import org.cacert.gigi.dbObjects.CertificateProfile.PropertyTemplate;
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.output.template.Scope;
 import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.PEM;
@@ -356,10 +354,8 @@ public class CertificateRequest {
                     }
                 }
             }
-            HashMap<String, Object> vars = new HashMap<>();
-            vars.put("SAN", san.getType().toString().toLowerCase() + ":" + san.getName());
-            error.mergeInto(new GigiApiException(new Scope(new SprintfCommand(//
-                    "The requested Subject alternate name \"{0}\" has been removed.", Arrays.asList("${SAN}")), vars)));
+            error.mergeInto(new GigiApiException(SprintfCommand.createSimple(//
+                    "The requested Subject alternate name \"{0}\" has been removed.", san.getType().toString().toLowerCase() + ":" + san.getName())));
         }
         SANs = filteredSANs;
     }

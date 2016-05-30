@@ -1,7 +1,6 @@
 package org.cacert.gigi.util;
 
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -137,7 +136,7 @@ public class Notary {
             } else if (type == AssuranceType.TTP_ASSISTED) {
                 assureTTP(assurer, assuree, awarded, location, date);
             } else {
-                throw new GigiApiException(new SprintfCommand("Unknown Assurance type: %s", Arrays.asList(type.toString())));
+                throw new GigiApiException(SprintfCommand.createSimple("Unknown Assurance type: {0}", type.toString()));
             }
             assurer.invalidateMadeAssurances();
             assuree.invalidateReceivedAssurances();

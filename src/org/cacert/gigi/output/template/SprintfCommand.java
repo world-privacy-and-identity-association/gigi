@@ -1,7 +1,9 @@
 package org.cacert.gigi.output.template;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +52,7 @@ public final class SprintfCommand implements Translatable {
         store = var.toArray(new String[var.size()]);
     }
 
-    private final Pattern replacant = Pattern.compile("\\{([0-9]+)\\}");
+    private static final Pattern replacant = Pattern.compile("\\{([0-9]+)\\}");
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
@@ -78,5 +80,15 @@ public final class SprintfCommand implements Translatable {
     @Override
     public void addTranslations(Collection<String> s) {
         s.add(text);
+    }
+
+    public static Outputable createSimple(String msg, String... vars) {
+        HashMap<String, Object> scope = new HashMap<>();
+        String[] store = new String[vars.length];
+        for (int i = 0; i < vars.length; i++) {
+            scope.put("autoVar" + i, vars[i]);
+            store[i] = "${autoVar" + i + "}";
+        }
+        return new Scope(new SprintfCommand(msg, Arrays.asList(store)), scope);
     }
 }
