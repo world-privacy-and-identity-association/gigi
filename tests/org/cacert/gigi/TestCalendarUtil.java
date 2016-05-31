@@ -52,6 +52,10 @@ public class TestCalendarUtil {
 
     }
 
+    static {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    }
+
     @Test
     public void testIsDateValid() {
         assertTrue(CalendarUtil.isDateValid(2016, 2, 28));
