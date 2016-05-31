@@ -73,7 +73,8 @@ public class AuthorizationContext implements Outputable {
         }
 
         out.println(l.getTranslation("with"));
-        out.println(vars.get("loginMethod"));
+        ((Outputable) vars.get("loginMethod")).output(out, l, vars);
+        out.println();
         out.println("</div>");
         if (supporterTicketId != null) {
             out.println("<div>");
