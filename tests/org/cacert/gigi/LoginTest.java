@@ -1,9 +1,12 @@
 package org.cacert.gigi;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.net.URLConnection;
 
+import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
 
@@ -43,6 +46,16 @@ public class LoginTest extends ManagedTest {
 
     private void logout(String cookie) throws IOException {
         get(cookie, "/logout").getHeaderField("Location");
+    }
+
+    @Test
+    public void testLoginMethodDisplay() throws IOException {
+        String email = createUniqueName() + "@testmail.org";
+        createVerifiedUser("an", "bn", email, TEST_PASSWORD);
+        String l = login(email, TEST_PASSWORD);
+        URLConnection c = get(l, "");
+        String readURL = IOUtils.readURL(c);
+        assertThat(readURL, containsString("Password"));
     }
 
 }
