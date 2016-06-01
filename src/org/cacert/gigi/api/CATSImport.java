@@ -13,7 +13,7 @@ import org.cacert.gigi.dbObjects.User;
 
 public class CATSImport extends APIPoint {
 
-    public static final String PATH = "/cats_import";
+    public static final String PATH = "/cats/import";
 
     @Override
     public void process(HttpServletRequest req, HttpServletResponse resp, CertificateOwner u) throws IOException {
@@ -26,15 +26,21 @@ public class CATSImport extends APIPoint {
             return;
 
         }
-        String target = req.getParameter("serial");
+        String target = req.getParameter("mid");
         String testType = req.getParameter("variant");
         String date = req.getParameter("date");
         if (target == null || testType == null || date == null) {
             resp.sendError(500, "Error, requires serial, variant and date");
             return;
         }
-        // TODO is "byEnabledSerial" desired?
-        CertificateOwner o = CertificateOwner.getByEnabledSerial(target);
+        int id;
+        try {
+            id = Integer.parseInt(target);
+        } catch (NumberFormatException e) {
+            resp.sendError(500, "Error, requires mid to be integer.");
+            return;
+        }
+        CertificateOwner o = CertificateOwner.getById(id);
         if ( !(o instanceof User)) {
             resp.sendError(500, "Error, requires valid serial");
             return;
