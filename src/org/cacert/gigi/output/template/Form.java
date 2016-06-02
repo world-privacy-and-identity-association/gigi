@@ -40,7 +40,7 @@ public abstract class Form implements Outputable {
      * @param hsr
      *            the request to register the form against.
      * @param action
-     *            the target path where the form should be submitted
+     *            the target path where the form should be submitted.
      */
     public Form(HttpServletRequest hsr, String action) {
         csrf = RandomToken.generateToken(32);
@@ -55,8 +55,8 @@ public abstract class Form implements Outputable {
      * @param out
      *            the stream to the user.
      * @param req
-     *            the request to take the initial data from
-     * @return true, iff the form succeeded an the user should be redirected.
+     *            the request to take the initial data from.
+     * @return true, iff the form succeeded and the user should be redirected.
      * @throws GigiApiException
      *             if internal operations went wrong.
      */
@@ -84,9 +84,9 @@ public abstract class Form implements Outputable {
      * Outputs the forms contents.
      * 
      * @param out
-     *            Stream to the user
+     *            Stream to the user.
      * @param l
-     *            {@link Language} to translate text to
+     *            {@link Language} to translate text to.
      * @param vars
      *            Variables supplied from the outside.
      */
@@ -135,7 +135,7 @@ public abstract class Form implements Outputable {
      * @param req
      *            the request that is directed to the form.
      * @param target
-     *            the {@link Class} of the expected form
+     *            the {@link Class} of the expected form.
      * @return the form where this request is directed to.
      * @throws CSRFException
      *             if no CSRF-token is found or the token is wrong.

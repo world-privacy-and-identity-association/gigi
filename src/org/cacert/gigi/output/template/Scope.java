@@ -20,7 +20,7 @@ public class Scope implements Outputable {
      * Creates a new {@link Scope}.
      * 
      * @param out
-     *            the enclosed {@link Outputable}
+     *            the enclosed {@link Outputable}.
      * @param vars
      *            the variables to assign in the inner scope.
      */

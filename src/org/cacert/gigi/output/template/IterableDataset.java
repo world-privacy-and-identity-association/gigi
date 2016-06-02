@@ -14,7 +14,7 @@ public interface IterableDataset {
      * Moves to the next Dataset.
      * 
      * @param l
-     *            the language for l10n-ed strings
+     *            the language for l10n-ed strings.
      * @param vars
      *            the variables used in this template. They need to be updated
      *            for each line.

@@ -22,7 +22,7 @@ public final class IfStatement implements Translatable {
      * Creates a new {@link IfStatement} with an empty else-part.
      * 
      * @param variable
-     *            the variable to check
+     *            the variable to check.
      * @param body
      *            the body to emit conditionally.
      */
@@ -36,11 +36,11 @@ public final class IfStatement implements Translatable {
      * Creates a new {@link IfStatement} with an else-block.
      * 
      * @param variable
-     *            the variable to check
+     *            the variable to check.
      * @param iftrue
      *            the block to emit if the check succeeds.
      * @param iffalse
-     *            the block to emit if the check fails
+     *            the block to emit if the check fails.
      */
     public IfStatement(String variable, TemplateBlock iftrue, TemplateBlock iffalse) {
         this.variable = variable;

@@ -23,7 +23,7 @@ public final class SprintfCommand implements Translatable {
     private final String[] store;
 
     /**
-     * Creates a new SprintfCommand based on its pre-parsed contents
+     * Creates a new SprintfCommand based on its pre-parsed contents.
      * 
      * @param text
      *            a string with <code>{0},{1},..</code> as placeholders.
@@ -44,7 +44,7 @@ public final class SprintfCommand implements Translatable {
      * Creates a new SprintfCommand that is parsed as from template source.
      * 
      * @param content
-     *            the part from the template that is to be parsed
+     *            the part from the template that is to be parsed.
      */
     protected SprintfCommand(String content) {
         StringBuffer raw = new StringBuffer();
@@ -109,7 +109,7 @@ public final class SprintfCommand implements Translatable {
      *            as placeholders.
      * @param vars
      *            the variables to put into the placeholders.
-     * @return the constructed {@link Outputable}
+     * @return the constructed {@link Outputable}.
      */
     public static Outputable createSimple(String msg, String... vars) {
         HashMap<String, Object> scope = new HashMap<>();
