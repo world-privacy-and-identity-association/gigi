@@ -18,8 +18,8 @@ public class DomainOverview extends Page {
 
     public static final String PATH = "/account/domains/";
 
-    public DomainOverview(String title) {
-        super(title);
+    public DomainOverview() {
+        super("Domains");
     }
 
     @Override

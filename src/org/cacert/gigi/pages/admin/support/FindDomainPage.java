@@ -11,8 +11,8 @@ public class FindDomainPage extends OneFormPage {
 
     public static final String PATH = "/support/find/domain";
 
-    public FindDomainPage(String title) {
-        super(title, FindDomainForm.class);
+    public FindDomainPage() {
+        super("Find Domain", FindDomainForm.class);
     }
 
     @Override

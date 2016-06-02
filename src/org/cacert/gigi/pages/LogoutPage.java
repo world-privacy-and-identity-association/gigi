@@ -13,8 +13,8 @@ public class LogoutPage extends Page {
 
     public static final String PATH = "/logout";
 
-    public LogoutPage(String title) {
-        super(title);
+    public LogoutPage() {
+        super("Logout");
     }
 
     @Override

@@ -48,8 +48,8 @@ public class LoginPage extends Page {
 
     public static final String LOGIN_RETURNPATH = "login-returnpath";
 
-    public LoginPage(String title) {
-        super(title);
+    public LoginPage() {
+        super("Password Login");
     }
 
     @Override
