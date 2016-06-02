@@ -30,6 +30,9 @@
 		<path refid="JUnit 4.libraryclasspath" />
 		<pathelement location="${sqlconnector}" />
 	</path>
+	<path id="cacert-gigi.test.classpath.jdt">
+		<pathelement location="${jdt}" />
+	</path>
 	<target name="init">
 		<mkdir dir="bin" />
 		<mkdir dir="binutil" />
@@ -101,8 +104,26 @@
 			includeantruntime="false" source="${source}" target="${target}">
 			<compilerarg value="-XDignore.symbol.file"/>
 			<src path="util-testing" />
+			<exclude name="org/cacert/gigi/localisation/**"/>
 			<classpath refid="cacert-gigi.classpath" />
 		</javac>
+	</target>
+	<target depends="init, build-project" name="build-testing-l10n">
+		<javac encoding="UTF-8" debug="true" debuglevel="${debuglevel}" destdir="binutil-testing"
+			includeantruntime="false" source="${source}" target="${target}">
+			<compilerarg value="-XDignore.symbol.file"/>
+			<src path="util-testing" />
+			<include name="org/cacert/gigi/localisation/**"/>
+			<classpath refid="cacert-gigi.classpath" />
+			<classpath refid="cacert-gigi.test.classpath.jdt" />
+		</javac>
+		<java classname="org.cacert.gigi.localisation.TranslationCollector">
+			<arg value="util-testing/org/cacert/gigi/localisation/conf.txt"/>
+			<arg value="."/>
+			<arg value="messages.po"/>
+			<classpath refid="cacert-gigi.test.classpath" />
+			<classpath refid="cacert-gigi.test.classpath.jdt" />
+		</java>
 	</target>
 
 	<target name="native">
