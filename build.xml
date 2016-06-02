@@ -220,6 +220,7 @@
 		<mkdir dir="${junit.output.dir}" />
 		<junit maxmemory="2g" fork="yes" printsummary="withOutAndErr">
 			<jvmarg value="-javaagent:/usr/share/java/jacocoagent.jar=destfile=tester.exec"/>
+			<jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:50001"/>
 			<formatter type="xml" />
 			<batchtest fork="yes" todir="${junit.output.dir}">
 				<fileset dir="tests">
