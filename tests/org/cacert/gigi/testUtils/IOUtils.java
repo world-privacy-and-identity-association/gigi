@@ -17,7 +17,7 @@ public class IOUtils {
 
     public static String readURL(URLConnection in) {
         try {
-            if ( !in.getContentType().equals("text/html; charset=UTF-8")) {
+            if ( !in.getContentType().equals("text/html; charset=UTF-8") && !in.getContentType().equals("text/plain; charset=UTF-8")) {
                 if (in instanceof HttpURLConnection && ((HttpURLConnection) in).getResponseCode() != 200) {
                     System.err.println(readURL(new InputStreamReader(((HttpURLConnection) in).getErrorStream(), "UTF-8")));
                 }

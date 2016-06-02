@@ -27,15 +27,17 @@ import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.ClientTest;
+import org.cacert.gigi.testUtils.IOUtils;
 import org.junit.Test;
 
 public class ImportCATSResult extends ClientTest {
 
-    @Test
-    public void testImportCATS() throws GigiApiException, IOException, GeneralSecurityException, InterruptedException {
+    private PrivateKey pk;
+
+    private X509Certificate ce;
+
+    public ImportCATSResult() throws IOException, GeneralSecurityException, InterruptedException, GigiApiException {
         makeAssurer(id);
-        Certificate target = new Certificate(u, u, Certificate.buildDN("EMAIL", email), Digest.SHA256, generatePEMCSR(generateKeypair(), "EMAIL=" + email), CSRType.CSR, CertificateProfile.getByName("client"), new Certificate.SubjectAlternateName(SANType.EMAIL, "cats@cacert.org"));
-        target.issue(null, "2y", u).waitFor(60000);
 
         grant(u.getEmail(), Group.ORGASSURER);
         clearCaches();
@@ -45,35 +47,58 @@ public class ImportCATSResult extends ClientTest {
         KeyPair kp = generateKeypair();
         String key1 = generatePEMCSR(kp, "EMAIL=cats@cacert.org");
         Certificate c = new Certificate(o, u, Certificate.buildDN("EMAIL", "cats@cacert.org"), Digest.SHA256, key1, CSRType.CSR, CertificateProfile.getByName("client-orga"), new Certificate.SubjectAlternateName(SANType.EMAIL, "cats@cacert.org"));
-        final PrivateKey pk = kp.getPrivate();
+        pk = kp.getPrivate();
         c.issue(null, "2y", u).waitFor(60000);
-        final X509Certificate ce = c.cert();
+        ce = c.cert();
+    }
+
+    @Test
+    public void testLookupSerial() throws GigiApiException, IOException, GeneralSecurityException, InterruptedException {
+        Certificate target2 = new Certificate(u, u, Certificate.buildDN("EMAIL", u.getEmail()), Digest.SHA256, generatePEMCSR(generateKeypair(), "EMAIL=" + u.getEmail()), CSRType.CSR, CertificateProfile.getByName("client"), new Certificate.SubjectAlternateName(SANType.EMAIL, "cats@cacert.org"));
+        target2.issue(null, "2y", u).waitFor(60000);
+
+        assertEquals(u.getId(), Integer.parseInt(apiLookup(target2)));
+    }
+
+    @Test
+    public void testImportCATS() throws GigiApiException, IOException, GeneralSecurityException, InterruptedException {
 
         assertEquals(1, u.getTrainings().length);
-        apiRequest(target.cert().getSerialNumber().toString(16), "Test Training", pk, ce);
+        apiImport(u, "Test Training");
         assertEquals(2, u.getTrainings().length);
 
         User u2 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@example.com", TEST_PASSWORD));
-        Certificate target2 = new Certificate(u2, u2, Certificate.buildDN("EMAIL", u2.getEmail()), Digest.SHA256, generatePEMCSR(generateKeypair(), "EMAIL=" + u2.getEmail()), CSRType.CSR, CertificateProfile.getByName("client"), new Certificate.SubjectAlternateName(SANType.EMAIL, "cats@cacert.org"));
-        target2.issue(null, "2y", u).waitFor(60000);
         assertEquals(0, u2.getTrainings().length);
         assertFalse(u2.hasPassedCATS());
-        apiRequest(target2.cert().getSerialNumber().toString(16), "Test Training", pk, ce);
+        apiImport(u2, "Test Training");
         assertEquals(1, u2.getTrainings().length);
         assertFalse(u2.hasPassedCATS());
-        apiRequest(target2.cert().getSerialNumber().toString(16), CATS.ASSURER_CHALLANGE_NAME, pk, ce);
+        apiImport(u2, CATS.ASSURER_CHALLANGE_NAME);
         assertEquals(2, u2.getTrainings().length);
         assertTrue(u2.hasPassedCATS());
 
     }
 
-    private void apiRequest(String target, String test, final PrivateKey pk, final X509Certificate ce) throws IOException, MalformedURLException, NoSuchAlgorithmException, KeyManagementException, UnsupportedEncodingException, GeneralSecurityException {
+    private void apiImport(User target, String test) throws IOException, MalformedURLException, NoSuchAlgorithmException, KeyManagementException, UnsupportedEncodingException, GeneralSecurityException {
         HttpURLConnection connection = (HttpURLConnection) new URL("https://" + getServerName().replaceFirst("^www.", "api.") + CATSImport.PATH).openConnection();
         authenticateClientCert(pk, ce, connection);
         connection.setDoOutput(true);
         OutputStream os = connection.getOutputStream();
-        os.write(("serial=" + target + "&variant=" + URLEncoder.encode(test, "UTF-8") + "&date=" + System.currentTimeMillis()).getBytes("UTF-8"));
-        System.out.println(connection.getResponseCode());
-        System.out.println(connection.getResponseMessage());
+        os.write(("mid=" + target.getId() + "&variant=" + URLEncoder.encode(test, "UTF-8") + "&date=" + System.currentTimeMillis()).getBytes("UTF-8"));
+        if (connection.getResponseCode() != 200) {
+            throw new Error(connection.getResponseMessage());
+        }
+    }
+
+    private String apiLookup(Certificate target) throws IOException, MalformedURLException, NoSuchAlgorithmException, KeyManagementException, UnsupportedEncodingException, GeneralSecurityException {
+        HttpURLConnection connection = (HttpURLConnection) new URL("https://" + getServerName().replaceFirst("^www.", "api.") + CATSResolve.PATH).openConnection();
+        authenticateClientCert(pk, ce, connection);
+        connection.setDoOutput(true);
+        OutputStream os = connection.getOutputStream();
+        os.write(("serial=" + target.cert().getSerialNumber().toString(16).toLowerCase()).getBytes());
+        if (connection.getResponseCode() != 200) {
+            throw new Error(connection.getResponseMessage());
+        }
+        return IOUtils.readURL(connection);
     }
 }

@@ -20,6 +20,7 @@ public class GigiAPI extends HttpServlet {
         api.put(CreateCertificate.PATH, new CreateCertificate());
         api.put(RevokeCertificate.PATH, new RevokeCertificate());
         api.put(CATSImport.PATH, new CATSImport());
+        api.put(CATSResolve.PATH, new CATSResolve());
     }
 
     @Override
