@@ -2,6 +2,7 @@ package org.cacert.gigi.pages;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,9 +19,9 @@ import org.cacert.gigi.output.template.SprintfCommand;
 
 public class Verify extends Page {
 
-    private static final SprintfCommand emailAddressVerified = new SprintfCommand("Email address ${subject} verified");
+    private static final SprintfCommand emailAddressVerified = new SprintfCommand("Email address {0} verified", Arrays.asList("${subject}"));
 
-    private static final SprintfCommand domainVerified = new SprintfCommand("Domain ${subject} verified");
+    private static final SprintfCommand domainVerified = new SprintfCommand("Domain {0} verified", Arrays.asList("${subject}"));
 
     private class VerificationForm extends Form {
 

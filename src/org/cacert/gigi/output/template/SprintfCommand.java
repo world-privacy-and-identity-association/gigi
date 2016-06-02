@@ -13,12 +13,24 @@ import java.util.regex.Pattern;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.util.HTMLEncoder;
 
+/**
+ * A pattern that is to be translated before variables are inserted.
+ */
 public final class SprintfCommand implements Translatable {
 
     private final String text;
 
     private final String[] store;
 
+    /**
+     * Creates a new SprintfCommand based on its pre-parsed contents
+     * 
+     * @param text
+     *            a string with <code>{0},{1},..</code> as placeholders.
+     * @param store
+     *            the data to put into the placeholders: ${var}, $!{var},
+     *            !'plain'.
+     */
     public SprintfCommand(String text, List<String> store) {
         this.text = text;
         this.store = store.toArray(new String[store.size()]);
@@ -28,7 +40,13 @@ public final class SprintfCommand implements Translatable {
 
     private static final Pattern processingInstruction = Pattern.compile("(" + VARIABLE + ")|(!'[^{}'\\$]*)'");
 
-    public SprintfCommand(String content) {
+    /**
+     * Creates a new SprintfCommand that is parsed as from template source.
+     * 
+     * @param content
+     *            the part from the template that is to be parsed
+     */
+    protected SprintfCommand(String content) {
         StringBuffer raw = new StringBuffer();
         List<String> var = new LinkedList<String>();
         int counter = 0;
@@ -82,6 +100,17 @@ public final class SprintfCommand implements Translatable {
         s.add(text);
     }
 
+    /**
+     * Creates a simple {@link SprintfCommand} wrapped in a {@link Scope} to fit
+     * in now constant variables into this template.
+     * 
+     * @param msg
+     *            the message (to be translated) with <code>{0},{1},...</code>
+     *            as placeholders.
+     * @param vars
+     *            the variables to put into the placeholders.
+     * @return the constructed {@link Outputable}
+     */
     public static Outputable createSimple(String msg, String... vars) {
         HashMap<String, Object> scope = new HashMap<>();
         String[] store = new String[vars.length];
