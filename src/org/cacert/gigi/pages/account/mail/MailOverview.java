@@ -17,8 +17,8 @@ public class MailOverview extends Page {
 
     public static final String DEFAULT_PATH = "/account/mails";
 
-    public MailOverview(String title) {
-        super(title);
+    public MailOverview() {
+        super("Email addresses");
     }
 
     @Override

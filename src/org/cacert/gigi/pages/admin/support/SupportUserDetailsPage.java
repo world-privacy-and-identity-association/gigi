@@ -22,8 +22,8 @@ public class SupportUserDetailsPage extends Page {
 
     public static final String PATH = "/support/user/";
 
-    public SupportUserDetailsPage(String title) {
-        super(title);
+    public SupportUserDetailsPage() {
+        super("Support: User Details");
     }
 
     @Override

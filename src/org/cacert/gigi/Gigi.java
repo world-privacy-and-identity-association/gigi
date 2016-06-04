@@ -108,7 +108,7 @@ public final class Gigi extends HttpServlet {
         public MenuCollector generateMenu() throws ServletException {
             putPage("/denied", new AccessDenied(), null);
             putPage("/error", new PageNotFound(), null);
-            putPage("/login", new LoginPage("Password Login"), null);
+            putPage("/login", new LoginPage(), null);
             getMenu("SomeCA.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getWwwHostNamePort() + "/login", "Password Login") {
 
                 @Override
@@ -123,7 +123,7 @@ public final class Gigi extends HttpServlet {
                     return ac == null;
                 }
             });
-            putPage("/", new MainPage("SomeCA - Home"), null);
+            putPage("/", new MainPage(), null);
             putPage("/roots", new RootCertPage(truststore), "SomeCA.org");
 
             putPage("/secure", new TestSecure(), null);
@@ -131,8 +131,8 @@ public final class Gigi extends HttpServlet {
             putPage(Certificates.PATH + "/*", new Certificates(), "Certificates");
             putPage(RegisterPage.PATH, new RegisterPage(), "SomeCA.org");
             putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
-            putPage(MailOverview.DEFAULT_PATH, new MailOverview("Email addresses"), "Certificates");
-            putPage(DomainOverview.PATH + "*", new DomainOverview("Domains"), "Certificates");
+            putPage(MailOverview.DEFAULT_PATH, new MailOverview(), "Certificates");
+            putPage(DomainOverview.PATH + "*", new DomainOverview(), "Certificates");
 
             putPage(AssurePage.PATH + "/*", new AssurePage(), "Web of Trust");
             putPage(MyPoints.PATH, new MyPoints(), "Web of Trust");
@@ -144,12 +144,12 @@ public final class Gigi extends HttpServlet {
             putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Organisation Admin");
 
             putPage(SupportEnterTicketPage.PATH, new SupportEnterTicketPage(), "Support Console");
-            putPage(FindUserPage.PATH, new FindUserPage("Find User"), "Support Console");
-            putPage(FindDomainPage.PATH, new FindDomainPage("Find Domain"), "Support Console");
+            putPage(FindUserPage.PATH, new FindUserPage(), "Support Console");
+            putPage(FindDomainPage.PATH, new FindDomainPage(), "Support Console");
 
-            putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage("Support: User Details"), null);
+            putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage(), null);
             putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
-            putPage(LogoutPage.PATH, new LogoutPage("Logout"), "My Account");
+            putPage(LogoutPage.PATH, new LogoutPage(), "My Account");
             putPage(History.PATH, new History(false), "My Account");
             putPage(History.SUPPORT_PATH, new History(true), null);
             putPage(UserTrainings.PATH, new UserTrainings(false), "My Account");
@@ -430,7 +430,7 @@ public final class Gigi extends HttpServlet {
         csp.append(";script-src https://" + ServerConstants.getStaticHostNamePortSecure());
         csp.append(";style-src https://" + ServerConstants.getStaticHostNamePortSecure());
         csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://" + ServerConstants.getWwwHostNamePortSecure());
-        //csp.append(";report-url https://api.cacert.org/security/csp/report");
+        // csp.append(";report-url https://api.cacert.org/security/csp/report");
         return csp.toString();
     }
 
@@ -443,7 +443,7 @@ public final class Gigi extends HttpServlet {
         csp.append(";script-src http://" + ServerConstants.getStaticHostNamePort());
         csp.append(";style-src http://" + ServerConstants.getStaticHostNamePort());
         csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://" + ServerConstants.getWwwHostNamePort());
-        //csp.append(";report-url http://api.cacert.org/security/csp/report");
+        // csp.append(";report-url http://api.cacert.org/security/csp/report");
         return csp.toString();
     }
 

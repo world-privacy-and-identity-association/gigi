@@ -19,8 +19,8 @@ public class FindUserPage extends Page {
 
     public static final String PATH = "/support/find/user";
 
-    public FindUserPage(String title) {
-        super(title);
+    public FindUserPage() {
+        super("Find User");
     }
 
     @Override
