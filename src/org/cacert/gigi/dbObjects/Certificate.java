@@ -141,7 +141,7 @@ public class Certificate implements IdCachable {
         this.owner = owner;
         this.dn = dn;
         if (dn.size() == 0) {
-            throw new GigiApiException("DN must not be empty");
+            throw new GigiApiException("DN must not be empty.");
         }
         dnString = stringifyDN(dn);
         this.md = md;

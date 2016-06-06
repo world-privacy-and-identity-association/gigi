@@ -55,7 +55,7 @@ public class GigiApiException extends Exception {
         if (isInternalError()) {
             e.printStackTrace();
             out.print("<div>");
-            out.println(language.getTranslation("An internal error ouccured."));
+            out.println(language.getTranslation("An internal error occurred."));
             out.println("</div>");
         }
         HashMap<String, Object> map = new HashMap<>();
@@ -72,7 +72,7 @@ public class GigiApiException extends Exception {
 
     public void formatPlain(PrintWriter out) {
         if (isInternalError()) {
-            out.println(PLAIN_LANGUAGE.getTranslation("An internal error ouccured."));
+            out.println(PLAIN_LANGUAGE.getTranslation("An internal error occurred."));
         }
         HashMap<String, Object> map = new HashMap<>();
         for (Outputable message : messages) {
