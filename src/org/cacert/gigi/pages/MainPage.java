@@ -13,7 +13,7 @@ public class MainPage extends Page {
     Template notLog = new Template(MainPage.class.getResource("MainPageNotLogin.templ"));
 
     public MainPage() {
-        super("SomeCA - Home");
+        super("Home");
     }
 
     @Override
