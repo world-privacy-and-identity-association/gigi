@@ -129,7 +129,7 @@ public class Domain implements IdCachable, Verifyable {
             boolean existed = rs.next();
             rs.close();
             if (existed) {
-                throw new GigiApiException("Domain could not be inserted. Domain is already valid.");
+                throw new GigiApiException("Domain could not be inserted. Domain is already known to the system.");
             }
         }
     }

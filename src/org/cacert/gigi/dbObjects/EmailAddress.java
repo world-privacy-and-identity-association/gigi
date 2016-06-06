@@ -59,7 +59,7 @@ public class EmailAddress implements IdCachable, Verifyable {
                     psCheck.setString(1, address);
                     GigiResultSet res = psCheck.executeQuery();
                     if (res.next()) {
-                        throw new GigiApiException("The email is currently valid");
+                        throw new GigiApiException("The email address is already known to the system.");
                     }
                     ps.execute();
                     id = ps.lastInsertId();

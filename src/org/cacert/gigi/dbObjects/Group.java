@@ -6,15 +6,20 @@ import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.TranslateCommand;
 
 public enum Group {
-    SUPPORTER("supporter"), ARBITRATOR("arbitrator"), BLOCKEDASSURER("blockedassurer"), BLOCKEDASSUREE("blockedassuree"), BLOCKEDLOGIN("blockedlogin"), BLOCKEDCERT("blockedcert"), TTP_ASSURER("ttp-assurer"), TTP_APPLICANT("ttp-applicant"), CODESIGNING("codesigning"), ORGASSURER("orgassurer"), NUCLEUS_ASSURER("nucleus-assurer");
+    SUPPORTER("supporter", "supporter"), ARBITRATOR("arbitrator", "arbitrator"), //
+    BLOCKEDASSURER("blockedassurer", "may not assure"), BLOCKEDASSUREE("blockedassuree", "may not be assured"), //
+    BLOCKEDLOGIN("blockedlogin", "may not login"), BLOCKEDCERT("blockedcert", "may not issue certificates"), //
+    TTP_ASSURER("ttp-assurer", "may assure via TTP"), TTP_APPLICANT("ttp-applicant", "requests to be assured via ttp"), //
+    CODESIGNING("codesigning", "may issue codesigning certificates"), ORGASSURER("orgassurer", "may assure organisations"), //
+    NUCLEUS_ASSURER("nucleus-assurer", "may issue nucleus assurances");
 
     private final String dbName;
 
     private final TranslateCommand tc;
 
-    private Group(String name) {
+    private Group(String name, String display) {
         dbName = name;
-        tc = new TranslateCommand(name);
+        tc = new TranslateCommand(display);
     }
 
     public static Group getByString(String name) {

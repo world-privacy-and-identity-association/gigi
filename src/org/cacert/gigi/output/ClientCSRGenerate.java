@@ -14,10 +14,8 @@ public class ClientCSRGenerate {
 
     private static Template normal;
 
-    private static Template IE;
     static {
         normal = new Template(ClientCSRGenerate.class.getResource("ClientCSRGenerate.templ"));
-        IE = new Template(ClientCSRGenerate.class.getResource("ClientCSRGenerateIE.templ"));
     }
 
     public static void output(HttpServletRequest req, HttpServletResponse resp) {
