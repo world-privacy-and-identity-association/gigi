@@ -4,10 +4,14 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.regex.Pattern;
 
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.InitTruststore;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Before;
@@ -18,10 +22,21 @@ public class RegisterPageTest extends ManagedTest {
     static {
         InitTruststore.run();
         HttpURLConnection.setFollowRedirects(false);
+        try {
+            p = "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new Error(e);
+        }
     }
+
+    public static final String p;
 
     @Before
     public void setUp() throws Exception {}
+
+    private static String createBase() {
+        return createUniqueName() + "@email.de";
+    }
 
     @Test
     public void testSuccess() throws IOException, InterruptedException {
@@ -53,12 +68,12 @@ public class RegisterPageTest extends ManagedTest {
 
     @Test
     public void testNoFname() throws IOException {
-        testFailedForm("lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=1910&tos_agree=1");
+        testFailedForm("lname=b" + createBase() + "&day=1&month=1&year=1910&tos_agree=1");
     }
 
     @Test
     public void testNoLname() throws IOException {
-        testFailedForm("fname=a&email=e&pword1=ap&pword2=ap&day=1&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a" + createBase() + "&day=1&month=1&year=1910&tos_agree=1");
     }
 
     @Test
@@ -73,51 +88,58 @@ public class RegisterPageTest extends ManagedTest {
 
     @Test
     public void testDiffPword() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap2&day=1&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "2&day=1&month=1&year=1910&tos_agree=1");
     }
 
     @Test
     public void testNoDay() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&month=1&year=1910&tos_agree=1");
     }
 
     @Test
     public void testNoMonth() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&year=1910&tos_agree=1");
     }
 
     @Test
     public void testNoYear() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&tos_agree=1");
     }
 
     @Test
     public void testInvDay() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=40&month=1&year=1910&tos_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=0&month=1&year=1910&tos_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=-1&month=1&year=1910&tos_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=a&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=40&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=0&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=-1&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=a&month=1&year=1910&tos_agree=1");
     }
 
     @Test
     public void testInvMonth() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=20&year=1910&tos_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=0&year=1910&tos_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=-1&year=1910&tos_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=a&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=20&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=0&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=-1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=a&year=1910&tos_agree=1");
     }
 
     @Test
     public void testInvYear() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=0&tos_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=100&tos_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=a&tos_agree=1");
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=-1&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=0&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=100&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=a&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=-1&tos_agree=1");
     }
 
     @Test
     public void testNoAgree() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=1910&tos_agree=a");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=1910&tos_agree=a");
+    }
+
+    @Test
+    public void testTooYoung() throws IOException {
+        Calendar c = GregorianCalendar.getInstance();
+        c.add(Calendar.YEAR, -User.MINIMUM_AGE + 2);
+        testFailedForm("fname=a&lname=b&email=" + createUniqueName() + "@email.de" + p + "&day=1&month=1&year=" + c.get(Calendar.YEAR) + "&tos_agree=1");
     }
 
     @Test
