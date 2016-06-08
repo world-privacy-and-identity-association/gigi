@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Name;
@@ -174,24 +173,16 @@ public class Signup extends Form {
     }
 
     private void run(HttpServletRequest req, String password) throws SQLException, GigiApiException {
-        try {
-            DatabaseConnection.getInstance().beginTransaction();
-            User u = new User(email, password, buildupName, myDoB.getDate(), Page.getLanguage(req).getLocale());
+        User u = new User(email, password, buildupName, myDoB.getDate(), Page.getLanguage(req).getLocale());
 
-            try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `alerts` SET `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?")) {
-                ps.setInt(1, u.getId());
-                ps.setBoolean(2, general);
-                ps.setBoolean(3, country);
-                ps.setBoolean(4, regional);
-                ps.setBoolean(5, radius);
-                ps.execute();
-            }
-            Notary.writeUserAgreement(u, "CCA", "account creation", "", true, 0);
-
-            DatabaseConnection.getInstance().commitTransaction();
-        } finally {
-            DatabaseConnection.getInstance().quitTransaction();
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `alerts` SET `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?")) {
+            ps.setInt(1, u.getId());
+            ps.setBoolean(2, general);
+            ps.setBoolean(3, country);
+            ps.setBoolean(4, regional);
+            ps.setBoolean(5, radius);
+            ps.execute();
         }
-
+        Notary.writeUserAgreement(u, "CCA", "account creation", "", true, 0);
     }
 }

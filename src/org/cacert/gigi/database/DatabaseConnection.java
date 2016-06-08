@@ -217,10 +217,6 @@ public class DatabaseConnection {
         upgrade(version);
     }
 
-    public void beginTransaction() throws SQLException {
-        c.setAutoCommit(false);
-    }
-
     private static void upgrade(int version) {
         try {
             Statement s = getInstance().c.createStatement();
@@ -244,22 +240,6 @@ public class DatabaseConnection {
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void commitTransaction() throws SQLException {
-        c.commit();
-        c.setAutoCommit(true);
-    }
-
-    public void quitTransaction() {
-        try {
-            if ( !c.getAutoCommit()) {
-                c.rollback();
-                c.setAutoCommit(true);
-            }
-        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
