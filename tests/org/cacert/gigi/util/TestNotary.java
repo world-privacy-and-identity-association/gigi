@@ -85,7 +85,9 @@ public class TestNotary extends ManagedTest {
         for (int i = 0; i < users.length; i++) {
             assuranceFail(assurer, users[i], -1, "test-notary", "2014-01-01");
             assuranceFail(assurer, users[i], 11, "test-notary", "2014-01-01");
-            Notary.assure(assurer, users[i], users[i].getName(), users[i].getDoB(), 10, "test-notary", "2014-01-01", AssuranceType.FACE_TO_FACE);
+            if (User.POJAM_ENABLED) {
+                Notary.assure(assurer, users[i], users[i].getName(), users[i].getDoB(), 10, "test-notary", "2014-01-01", AssuranceType.FACE_TO_FACE);
+            }
             assuranceFail(assurer, users[i], 10, "test-notary", "2014-01-01");
         }
     }
