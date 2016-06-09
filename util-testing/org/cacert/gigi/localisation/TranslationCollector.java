@@ -89,6 +89,9 @@ public class TranslationCollector {
 	}
 
 	public void add(String text, String line) {
+	    if(text.contains("\r") || text.contains("\n")){
+	        throw new Error("Malformed translation in " + line);
+	    }
 		TranslationEntry i = translations.get(text);
 		if (i == null) {
 			translations.put(text, new TranslationEntry(text, line));
@@ -221,7 +224,7 @@ public class TranslationCollector {
 				add(string,
 						file.getAbsolutePath().substring(
 								base.getAbsolutePath().length() + 1)
-								+ ":0");
+								+ ":1");
 			}
 		}
 	}

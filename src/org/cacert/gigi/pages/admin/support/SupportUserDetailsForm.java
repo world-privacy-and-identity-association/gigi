@@ -75,7 +75,8 @@ public class SupportUserDetailsForm extends Form {
                 Language l = Language.getInstance(user.getTargetUser().getPreferredLocale());
                 StringBuffer body = new StringBuffer();
                 body.append(l.getTranslation("Hi,") + "\n\n");
-                body.append(l.getTranslation("A password reset was triggered. Please enter the required text sent to you by support on this page: \nhttps://"));
+                body.append(l.getTranslation("A password reset was triggered. Please enter the required text sent to you by support on this page:"));
+                body.append("\n\nhttps://");
                 body.append(ServerConstants.getWwwHostNamePortSecure() + PasswordResetPage.PATH);
                 body.append("?id=");
                 body.append(id);
