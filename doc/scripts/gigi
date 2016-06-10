@@ -34,7 +34,11 @@ then
 	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.DatabaseManager
 elif [ "$1" == "fetch-locales" ]
 then
-	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.FetchLocales
+    if [ "$2" == "" ]; then
+		java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.FetchLocales
+	else
+		java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.FetchLocales "$2"
+	fi
 elif [ "$1" == "signer-conf" ]
 then
 	mkdir /var/lib/cacert-gigi/config
