@@ -129,8 +129,6 @@ public final class TranslationCollectingVisitor extends ASTVisitor {
 					.getAbsoluteFile();
 			File f2 = translationCollector.base.getAbsoluteFile();
 			try {
-				System.out.println(f0.getCanonicalPath());
-				System.out.println(f2.getCanonicalPath());
 				translationCollector.add(content, f0.getCanonicalPath()
 						.substring(f2.getCanonicalPath().length() + 1)
 						+ ":"
