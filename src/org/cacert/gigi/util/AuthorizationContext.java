@@ -1,6 +1,7 @@
 package org.cacert.gigi.util;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.cacert.gigi.GigiApiException;
@@ -10,6 +11,7 @@ import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Outputable;
+import org.cacert.gigi.output.template.SprintfCommand;
 
 public class AuthorizationContext implements Outputable {
 
@@ -60,21 +62,27 @@ public class AuthorizationContext implements Outputable {
         return getSupporterTicketId() != null && isInGroup(Group.SUPPORTER);
     }
 
+    private static final SprintfCommand sp = new SprintfCommand("Logged in as {0} via {1}.", Arrays.asList("${username}", "${loginMethod}"));
+
+    private static final SprintfCommand inner = new SprintfCommand("{0} (on behalf of {1})", Arrays.asList("${user}", "${target}"));
+
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         out.println("<div>");
-        out.println(l.getTranslation("Logged in as"));
-        out.println(": ");
+        vars.put("username", new Outputable() {
 
-        if (target != actor) {
-            out.println(((Organisation) target).getName() + " (" + actor.getName().toString() + ")");
-        } else {
-            out.println(actor.getName().toString());
-        }
-
-        out.println(l.getTranslation("with"));
-        ((Outputable) vars.get("loginMethod")).output(out, l, vars);
-        out.println();
+            @Override
+            public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+                if (target != actor) {
+                    vars.put("user", ((Organisation) target).getName().toString());
+                    vars.put("target", actor.getName().toString());
+                    inner.output(out, l, vars);
+                } else {
+                    out.println(actor.getName().toString());
+                }
+            }
+        });
+        sp.output(out, l, vars);
         out.println("</div>");
         if (supporterTicketId != null) {
             out.println("<div>");

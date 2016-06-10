@@ -1,4 +1,6 @@
 package org.cacert.gigi.localisation;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -123,12 +125,19 @@ public final class TranslationCollectingVisitor extends ASTVisitor {
 					lineEnds.length - 1);
 
 			String content = new String(((StringLiteral) e).source());
-			translationCollector.add(
-					content,
-					new String(unit.compilationResult.fileName)
-							.substring(translationCollector.base
-									.getAbsolutePath().length() + 1)
-							+ ":" + lineNumber);
+			File f0 = new File(new String(unit.compilationResult.fileName))
+					.getAbsoluteFile();
+			File f2 = translationCollector.base.getAbsoluteFile();
+			try {
+				System.out.println(f0.getCanonicalPath());
+				System.out.println(f2.getCanonicalPath());
+				translationCollector.add(content, f0.getCanonicalPath()
+						.substring(f2.getCanonicalPath().length() + 1)
+						+ ":"
+						+ lineNumber);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			return;
 		}
 
