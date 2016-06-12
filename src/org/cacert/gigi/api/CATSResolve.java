@@ -22,9 +22,12 @@ public class CATSResolve extends APIPoint {
         if ( !((Organisation) u).isSelfOrganisation()) {
             resp.sendError(500, "Error, invalid cert");
             return;
-
         }
         String target = req.getParameter("serial");
+        if (target == null) {
+            resp.sendError(500, "Error, requires a serial parameter");
+            return;
+        }
 
         CertificateOwner o = CertificateOwner.getByEnabledSerial(target);
         if ( !(o instanceof User)) {
