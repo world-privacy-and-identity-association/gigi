@@ -30,7 +30,7 @@ public class CATSImport extends APIPoint {
         String testType = req.getParameter("variant");
         String date = req.getParameter("date");
         if (target == null || testType == null || date == null) {
-            resp.sendError(500, "Error, requires serial, variant and date");
+            resp.sendError(500, "Error, requires mid, variant and date");
             return;
         }
         int id;
@@ -42,7 +42,7 @@ public class CATSImport extends APIPoint {
         }
         CertificateOwner o = CertificateOwner.getById(id);
         if ( !(o instanceof User)) {
-            resp.sendError(500, "Error, requires valid serial");
+            resp.sendError(500, "Error, requires valid userid");
             return;
         }
         System.out.println("CATS: " + target + ": " + testType);
