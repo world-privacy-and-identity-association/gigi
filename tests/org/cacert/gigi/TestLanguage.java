@@ -10,6 +10,7 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
+import org.junit.Assume;
 import org.junit.Test;
 
 public class TestLanguage extends ManagedTest {
@@ -71,6 +72,7 @@ public class TestLanguage extends ManagedTest {
 
     @Test
     public void testOtherLanguageAfterLogin() throws IOException {
+        Assume.assumeNotNull(Language.getInstance(Locale.FRENCH));
         setAcceptLanguage("fr,de,en");
         User u = User.getById(createVerifiedUser("fname", "lname", createUniqueName() + "@example.org", TEST_PASSWORD));
         String cookie = login(u.getEmail(), TEST_PASSWORD);
