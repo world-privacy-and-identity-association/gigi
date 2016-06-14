@@ -67,12 +67,9 @@ CREATE TABLE "emails" (
   "created" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "modified" timestamp NULL DEFAULT NULL,
   "deleted" timestamp NULL DEFAULT NULL,
-  "hash" varchar(50) NOT NULL DEFAULT '',
-  "attempts" smallint NOT NULL DEFAULT '0',
   PRIMARY KEY ("id")
 );
 CREATE INDEX ON "emails" ("memid");
-CREATE INDEX ON "emails" ("hash");
 CREATE INDEX ON "emails" ("deleted");
 CREATE INDEX ON "emails" ("email");
 
@@ -90,7 +87,8 @@ CREATE TABLE "emailPinglog" (
   "email" varchar(255) NOT NULL,
   "type" "emailPingType" NOT NULL,
   "status" "pingState" NOT NULL,
-  "result" varchar(255) NOT NULL
+  "result" varchar(255) NOT NULL,
+  "challenge" varchar(255) NULL DEFAULT NULL
 );
 
 DROP TABLE IF EXISTS "pingconfig";
@@ -374,7 +372,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(9);
+INSERT INTO "schemeVersion" (version)  VALUES(10);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (

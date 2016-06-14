@@ -99,7 +99,7 @@ public class DatabaseConnection {
 
     }
 
-    public static final int CURRENT_SCHEMA_VERSION = 9;
+    public static final int CURRENT_SCHEMA_VERSION = 10;
 
     public static final int CONNECTION_TIMEOUT = 24 * 60 * 60;
 
@@ -222,12 +222,7 @@ public class DatabaseConnection {
             Statement s = getInstance().c.createStatement();
             try {
                 while (version < CURRENT_SCHEMA_VERSION) {
-                    try (InputStream resourceAsStream = DatabaseConnection.class.getResourceAsStream("upgrade/from_" + version + ".sql")) {
-                        if (resourceAsStream == null) {
-                            throw new Error("Upgrade script from version " + version + " was not found.");
-                        }
-                        SQLFileManager.addFile(s, resourceAsStream, ImportType.PRODUCTION);
-                    }
+                    addUpgradeScript(Integer.toString(version), s);
                     version++;
                 }
                 s.addBatch("UPDATE \"schemeVersion\" SET version='" + version + "'");
@@ -241,6 +236,15 @@ public class DatabaseConnection {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void addUpgradeScript(String version, Statement s) throws Error, IOException, SQLException {
+        try (InputStream resourceAsStream = DatabaseConnection.class.getResourceAsStream("upgrade/from_" + version + ".sql")) {
+            if (resourceAsStream == null) {
+                throw new Error("Upgrade script from version " + version + " was not found.");
+            }
+            SQLFileManager.addFile(s, resourceAsStream, ImportType.PRODUCTION);
         }
     }
 

@@ -17,6 +17,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,20 +55,10 @@ public class Manager extends Page {
 
     public static final String PATH = "/manager";
 
-    Field f;
-
     private static HashMap<DomainPingType, DomainPinger> dps;
 
     private Manager() {
         super("Test Manager");
-        try {
-            f = EmailAddress.class.getDeclaredField("hash");
-            f.setAccessible(true);
-        } catch (ReflectiveOperationException e) {
-            // TODO
-            System.out.println("I don't have 'hash', we are working probably in layered mode. Test Manager may not work.");
-            // throw new Error(e);
-        }
 
         try {
             Field gigiInstance = Gigi.class.getDeclaredField("instance");
@@ -212,13 +204,21 @@ public class Manager extends Page {
         gc.set(1990, 0, 1);
         User u = new User(email, "xvXV12°§", new Name("Först", "Läst", "Müddle", "Süffix"), new DayDate(gc.getTime().getTime()), Locale.ENGLISH);
         EmailAddress ea = u.getEmails()[0];
-        if (f == null) {
-            System.out.println("verification failed");
-            return;
-        }
-        String hash = (String) f.get(ea);
+        verify(email, ea);
+    }
 
-        ea.verify(hash);
+    private void verify(String email, EmailAddress ea) throws GigiApiException {
+        LinkedList<String> i = emails.get(email);
+        while (i.size() > 0 && !ea.isVerified()) {
+            String lst = i.getLast();
+            Pattern p = Pattern.compile("hash=([a-zA-Z0-9]+)");
+            Matcher m = p.matcher(lst);
+            if (m.find()) {
+                ea.verify(m.group(1));
+            }
+            i.removeLast();
+        }
+        // ea.verify(hash);
     }
 
     User[] assurers = new User[25];
@@ -283,17 +283,8 @@ public class Manager extends Page {
             User u = User.getByEmail(req.getParameter("addEmailEmail"));
             try {
                 EmailAddress ea = new EmailAddress(u, req.getParameter("addEmailNew"), Locale.ENGLISH);
-                if (f != null) {
-                    String hash = (String) f.get(ea);
-                    ea.verify(hash);
-                    resp.getWriter().println("Email added and verified");
-                } else {
-                    resp.getWriter().println("Email added but verificatio failed.");
-                }
+                verify(ea.getAddress(), ea);
             } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-                resp.getWriter().println("An internal error occured.");
-            } catch (IllegalAccessException e) {
                 e.printStackTrace();
                 resp.getWriter().println("An internal error occured.");
             } catch (GigiApiException e) {

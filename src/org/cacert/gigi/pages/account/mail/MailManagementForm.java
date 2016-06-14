@@ -1,7 +1,9 @@
 package org.cacert.gigi.pages.account.mail;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,36 +32,29 @@ public class MailManagementForm extends Form {
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) {
-        if (req.getParameter("makedefault") != null) {
-            try {
-                String mailid = req.getParameter("emailid");
-                if (mailid == null) {
-                    return false;
+        Map<String, String[]> map = req.getParameterMap();
+        try {
+            for (Entry<String, String[]> e : map.entrySet()) {
+                String k = e.getKey();
+                String[] p = k.split(":", 2);
+                if (p[0].equals("default")) {
+                    target.updateDefaultEmail(EmailAddress.getById(Integer.parseInt(p[1])));
                 }
-                target.updateDefaultEmail(EmailAddress.getById(Integer.parseInt(mailid.trim())));
-            } catch (GigiApiException e) {
-                e.format(out, Page.getLanguage(req));
-                return false;
-            }
-            return true;
-        }
-        if (req.getParameter("delete") != null) {
-            String[] toDel = req.getParameterValues("delid[]");
-            if (toDel == null) {
-                return false;
-            }
-            for (int i = 0; i < toDel.length; i++) {
-                try {
-                    target.deleteEmail(EmailAddress.getById(Integer.parseInt(toDel[i].trim())));
-                } catch (GigiApiException e) {
-                    e.format(out, Page.getLanguage(req));
-                    return false;
+                if (p[0].equals("delete")) {
+                    target.deleteEmail(EmailAddress.getById(Integer.parseInt(p[1])));
+                }
+                if (p[0].equals("reping")) {
+                    EmailAddress.getById(Integer.parseInt(p[1])).requestReping(Page.getLanguage(req));
                 }
             }
-            return true;
-
+        } catch (GigiApiException e) {
+            e.format(out, Page.getLanguage(req));
+            return false;
+        } catch (IOException e1) {
+            new GigiApiException("Error while doing reping.").format(out, Page.getLanguage(req));
+            return false;
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -78,9 +73,9 @@ public class MailManagementForm extends Form {
                 int mailID = emailAddress.getId();
                 vars.put("id", mailID);
                 if (emailAddress.getAddress().equals(target.getEmail())) {
-                    vars.put("checked", "checked");
+                    vars.put("default", " disabled");
                 } else {
-                    vars.put("checked", "");
+                    vars.put("default", "");
                 }
                 if (emailAddress.isVerified()) {
                     vars.put("verification", "Verified");

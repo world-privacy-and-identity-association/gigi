@@ -8,20 +8,18 @@
   <tr>
     <td><?=_Default?></td>
     <td><?=_Status?></td>
-    <td><?=_Delete?></td>
     <td><?=_Address?></td>
+    <td><?=_Delete?></td>
+    <td><?=_Request reping?></td>
   </tr>
  <? foreach($emails) {?>
  	<tr>
- 		<td><input type="radio" name="emailid" value="<?=$id?>" <?=$!checked?>></td>
+ 		<td><input type="submit" name="default:<?=$id?>" value="<?=_Set as Default?>"<?=$default?>></td>
  		<td><?=$verification?></td>
- 		<td><?=$!delete?></td>
  		<td><?=$address?></td>
+ 		<td><input type="submit" name="delete:<?=$id?>" value="<?=_Delete?>"<?=$default?>></td>
+ 		<td><input type="submit" name="reping:<?=$id?>" value="<?=_Request reping?>"></td>
  	</tr>
  <? } ?>
-  <tr>
-    <td colspan="2"><input type="submit" name="makedefault" value="Setze als Standard"></td>
-    <td colspan="2"><input type="submit" name="delete" value="Löschen"></td>
-  </tr>
   </tbody>
 </table>
