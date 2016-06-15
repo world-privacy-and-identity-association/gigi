@@ -1,6 +1,6 @@
 *	text=auto
 
-*.java	text
+*.java	text diff=java
 
 *.txt	text
 *.md	text
