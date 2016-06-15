@@ -52,13 +52,13 @@ public class TestLanguage extends ManagedTest {
     @Test
     public void testSelectStandard() throws IOException {
         String content = IOUtils.readURL(get("cook", "/"));
-        assertThat(content, containsString("Translations"));
+        assertThat(content, containsString("Language"));
     }
 
     @Test
     public void testSelectGerman() throws IOException {
         String content = IOUtils.readURL(get("", "/?lang=de"));
-        assertThat(content, containsString(Language.getInstance(Locale.GERMAN).getTranslation("Translations")));
+        assertThat(content, containsString(Language.getInstance(Locale.GERMAN).getTranslation("Language")));
     }
 
     @Test
@@ -67,7 +67,7 @@ public class TestLanguage extends ManagedTest {
         User u = User.getById(createVerifiedUser("fname", "lname", createUniqueName() + "@example.org", TEST_PASSWORD));
         String cookie = login(u.getEmail(), TEST_PASSWORD);
         String content = IOUtils.readURL(get(cookie, "/"));
-        assertThat(content, containsString(Language.getInstance(Locale.GERMAN).getTranslation("Translations")));
+        assertThat(content, containsString(Language.getInstance(Locale.GERMAN).getTranslation("Language")));
     }
 
     @Test
@@ -77,6 +77,6 @@ public class TestLanguage extends ManagedTest {
         User u = User.getById(createVerifiedUser("fname", "lname", createUniqueName() + "@example.org", TEST_PASSWORD));
         String cookie = login(u.getEmail(), TEST_PASSWORD);
         String content = IOUtils.readURL(get(cookie, "/"));
-        assertThat(content, containsString(Language.getInstance(Locale.FRENCH).getTranslation("Translations")));
+        assertThat(content, containsString(Language.getInstance(Locale.FRENCH).getTranslation("Language")));
     }
 }

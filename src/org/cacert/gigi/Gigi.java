@@ -177,7 +177,7 @@ public final class Gigi extends HttpServlet {
             baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
             rootMenu = new MenuCollector();
 
-            Menu languages = new Menu("Translations");
+            Menu languages = new Menu("Language");
             for (Locale l : Language.getSupportedLocales()) {
                 languages.addItem(new SimpleMenuItem("?lang=" + l.toString(), l.getDisplayName(l)));
             }
