@@ -39,7 +39,7 @@ public class MailOverview extends Page {
             if (f.submit(out, req)) {
                 resp.sendRedirect(MailOverview.DEFAULT_PATH);
             }
-        } else if (req.getParameter("makedefault") != null || req.getParameter("delete") != null) {
+        } else {
             MailManagementForm f = Form.getForm(req, MailManagementForm.class);
             if (f.submit(out, req)) {
                 resp.sendRedirect(MailOverview.DEFAULT_PATH);

@@ -31,6 +31,7 @@ public class TestAssurance extends ManagedTest {
 
     @Before
     public void setup() throws IOException {
+        clearCaches();
         assurerM = createUniqueName() + "@cacert-test.org";
         assureeM = createUniqueName() + "@cacert-test.org";
 

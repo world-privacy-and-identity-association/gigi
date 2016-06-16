@@ -1,7 +1,11 @@
 package org.cacert.gigi.dbObjects;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
@@ -9,9 +13,13 @@ import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.email.MailProbe;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.template.Scope;
+import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.util.RandomToken;
 
 public class EmailAddress implements IdCachable, Verifyable {
+
+    public static final int REPING_MINIMUM_DELAY = 5 * 60 * 1000;
 
     private String address;
 
@@ -19,10 +27,8 @@ public class EmailAddress implements IdCachable, Verifyable {
 
     private User owner;
 
-    private String hash = null;
-
     private EmailAddress(int id) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `memid`, `email`, `hash` FROM `emails` WHERE `id`=? AND `deleted` IS NULL")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `memid`, `email` FROM `emails` WHERE `id`=? AND `deleted` IS NULL")) {
             ps.setInt(1, id);
 
             GigiResultSet rs = ps.executeQuery();
@@ -32,7 +38,6 @@ public class EmailAddress implements IdCachable, Verifyable {
             this.id = id;
             owner = User.getById(rs.getInt(1));
             address = rs.getString(2);
-            hash = rs.getString(3);
         }
     }
 
@@ -42,7 +47,6 @@ public class EmailAddress implements IdCachable, Verifyable {
         }
         this.address = address;
         this.owner = owner;
-        this.hash = RandomToken.generateToken(16);
         insert(Language.getInstance(mailLocale));
     }
 
@@ -52,10 +56,9 @@ public class EmailAddress implements IdCachable, Verifyable {
                 if (id != 0) {
                     throw new IllegalStateException("already inserted.");
                 }
-                try (GigiPreparedStatement psCheck = new GigiPreparedStatement("SELECT 1 FROM `emails` WHERE email=? AND deleted is NULL"); GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `emails` SET memid=?, hash=?, email=?")) {
+                try (GigiPreparedStatement psCheck = new GigiPreparedStatement("SELECT 1 FROM `emails` WHERE email=? AND deleted is NULL"); GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `emails` SET memid=?, email=?")) {
                     ps.setInt(1, owner.getId());
-                    ps.setString(2, hash);
-                    ps.setString(3, address);
+                    ps.setString(2, address);
                     psCheck.setString(1, address);
                     GigiResultSet res = psCheck.executeQuery();
                     if (res.next()) {
@@ -66,10 +69,22 @@ public class EmailAddress implements IdCachable, Verifyable {
                 }
                 myCache.put(this);
             }
-            MailProbe.sendMailProbe(l, "email", id, hash, address);
+            ping(l);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void ping(Language l) throws IOException {
+        String hash = RandomToken.generateToken(16);
+        try (GigiPreparedStatement statmt = new GigiPreparedStatement("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`='', `uid`=?, `type`='active', `status`='open'::`pingState`, `challenge`=?")) {
+            statmt.setString(1, address);
+            statmt.setInt(2, owner.getId());
+            statmt.setString(3, hash);
+            statmt.execute();
+        }
+
+        MailProbe.sendMailProbe(l, "email", id, hash, address);
     }
 
     public int getId() {
@@ -81,28 +96,53 @@ public class EmailAddress implements IdCachable, Verifyable {
     }
 
     public synchronized void verify(String hash) throws GigiApiException {
-        if (this.hash.equals(hash)) {
-            try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `emails` SET hash='' WHERE id=?")) {
-                ps.setInt(1, id);
-                ps.execute();
-            }
-            hash = "";
-
-            // Verify user with that primary email
-            try (GigiPreparedStatement ps2 = new GigiPreparedStatement("update `users` set `verified`='1' where `id`=? and `email`=? and `verified`='0'")) {
-                ps2.setInt(1, owner.getId());
-                ps2.setString(2, address);
-                ps2.execute();
-            }
-            this.hash = "";
-
-        } else {
-            throw new GigiApiException("Email verification hash is invalid.");
+        try (GigiPreparedStatement stmt = new GigiPreparedStatement("UPDATE `emailPinglog` SET `status`='success'::`pingState` WHERE `email`=? AND `uid`=? AND `type`='active' AND `challenge`=?")) {
+            stmt.setString(1, address);
+            stmt.setInt(2, owner.getId());
+            stmt.setString(3, hash);
+            stmt.executeUpdate();
+        }
+        // Verify user with that primary email
+        try (GigiPreparedStatement ps2 = new GigiPreparedStatement("update `users` set `verified`='1' where `id`=? and `email`=? and `verified`='0'")) {
+            ps2.setInt(1, owner.getId());
+            ps2.setString(2, address);
+            ps2.execute();
         }
     }
 
     public boolean isVerified() {
-        return hash.isEmpty();
+        try (GigiPreparedStatement statmt = new GigiPreparedStatement("SELECT 1 FROM `emailPinglog` WHERE `email`=? AND `uid`=? AND `type`='active' AND `status`='success'")) {
+            statmt.setString(1, address);
+            statmt.setInt(2, owner.getId());
+            GigiResultSet e = statmt.executeQuery();
+            return e.next();
+        }
+    }
+
+    public Date getLastPing(boolean onlySuccess) {
+        Date lastExecution;
+        try (GigiPreparedStatement statmt = new GigiPreparedStatement("SELECT MAX(`when`) FROM `emailPinglog` WHERE `email`=? AND `uid`=? AND `type`='active'" + (onlySuccess ? " AND `status`='success'" : ""))) {
+            statmt.setString(1, address);
+            statmt.setInt(2, owner.getId());
+            GigiResultSet e = statmt.executeQuery();
+            if ( !e.next()) {
+                return null;
+            }
+            lastExecution = e.getTimestamp(1);
+        }
+        return lastExecution;
+    }
+
+    public synchronized void requestReping(Language l) throws IOException, GigiApiException {
+        Date lastExecution = getLastPing(false);
+
+        if (lastExecution != null && lastExecution.getTime() + REPING_MINIMUM_DELAY >= System.currentTimeMillis()) {
+            Map<String, Object> data = new HashMap<String, Object>();
+            data.put("data", new Date(lastExecution.getTime() + REPING_MINIMUM_DELAY));
+            throw new GigiApiException(new Scope(new SprintfCommand("Reping is only allowed after 5 minutes, yours end at {0}.", Arrays.asList("${data}")), data));
+        }
+        ping(l);
+        return;
     }
 
     private static ObjectCache<EmailAddress> myCache = new ObjectCache<>();

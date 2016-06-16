@@ -21,6 +21,7 @@ public class TestMailManagement extends ClientTest {
     private String path = MailOverview.DEFAULT_PATH;
 
     public TestMailManagement() throws IOException {
+        clearCaches(); // and reset rate limits
         cookie = login(u.getEmail(), TEST_PASSWORD);
         assertTrue(isLoggedin(cookie));
     }
@@ -67,17 +68,17 @@ public class TestMailManagement extends ClientTest {
 
     @Test
     public void testMailSetDefaultWeb() throws MalformedURLException, UnsupportedEncodingException, IOException, InterruptedException, GigiApiException {
-        EmailAddress adrr = createVerifiedEmail(u);
-        assertNull(executeBasicWebInteraction(cookie, path, "makedefault&emailid=" + adrr.getId()));
+        EmailAddress addr = createVerifiedEmail(u);
+        assertNull(executeBasicWebInteraction(cookie, path, "default:" + addr.getId()));
         ObjectCache.clearAllCaches();
-        assertEquals(User.getById(u.getId()).getEmail(), adrr.getAddress());
+        assertEquals(User.getById(u.getId()).getEmail(), addr.getAddress());
     }
 
     @Test
     public void testMailSetDefaultWebUnverified() throws MalformedURLException, UnsupportedEncodingException, IOException, InterruptedException, GigiApiException {
-        EmailAddress adrr = new EmailAddress(u, createUniqueName() + "test@test.tld", Locale.ENGLISH);
-        assertNotNull(executeBasicWebInteraction(cookie, path, "makedefault&emailid=" + adrr.getId()));
-        assertNotEquals(User.getById(u.getId()).getEmail(), adrr.getAddress());
+        EmailAddress addr = new EmailAddress(u, createUniqueName() + "test@test.tld", Locale.ENGLISH);
+        assertNotNull(executeBasicWebInteraction(cookie, path, "default:" + addr.getId()));
+        assertNotEquals(User.getById(u.getId()).getEmail(), addr.getAddress());
         getMailReciever().clearMails();
     }
 
@@ -92,7 +93,7 @@ public class TestMailManagement extends ClientTest {
             }
         }
         assertNotEquals(id, -1);
-        assertNotNull(executeBasicWebInteraction(cookie, path, "makedefault&emailid=" + id));
+        assertNotNull(executeBasicWebInteraction(cookie, path, "default:" + id));
         assertNotEquals(User.getById(u.getId()).getEmail(), u2.getEmail());
         getMailReciever().clearMails();
     }
@@ -100,7 +101,7 @@ public class TestMailManagement extends ClientTest {
     @Test
     public void testMailDeleteWeb() throws InterruptedException, GigiApiException, MalformedURLException, UnsupportedEncodingException, IOException {
         EmailAddress addr = createVerifiedEmail(u);
-        assertNull(executeBasicWebInteraction(cookie, path, "delete&delid[]=" + addr.getId(), 0));
+        assertNull(executeBasicWebInteraction(cookie, path, "delete:" + addr.getId(), 0));
         User u = User.getById(this.u.getId());
         EmailAddress[] addresses = u.getEmails();
         for (int i = 0; i < addresses.length; i++) {
@@ -113,7 +114,7 @@ public class TestMailManagement extends ClientTest {
         EmailAddress[] addr = new EmailAddress[] {
                 createVerifiedEmail(u), createVerifiedEmail(u)
         };
-        assertNull(executeBasicWebInteraction(cookie, path, "delete&delid[]=" + addr[0].getId() + "&delid[]=" + addr[1].getId(), 0));
+        assertNull(executeBasicWebInteraction(cookie, path, "delete:" + addr[0].getId() + "&delete:" + addr[1].getId(), 0));
         User u = User.getById(this.u.getId());
         EmailAddress[] addresses = u.getEmails();
         for (int i = 0; i < addresses.length; i++) {
@@ -126,14 +127,14 @@ public class TestMailManagement extends ClientTest {
     public void testMailDeleteWebFaulty() throws MalformedURLException, UnsupportedEncodingException, IOException {
         User u2 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "uni@test.tld", TEST_PASSWORD));
         EmailAddress em = u2.getEmails()[0];
-        assertNotNull(executeBasicWebInteraction(cookie, path, "delete&delid[]=" + em.getId(), 0));
+        assertNotNull(executeBasicWebInteraction(cookie, path, "delete:" + em.getId(), 0));
         u2 = User.getById(u2.getId());
         assertNotEquals(u2.getEmails().length, 0);
     }
 
     @Test
     public void testMailDeleteWebPrimary() throws MalformedURLException, UnsupportedEncodingException, IOException {
-        assertNotNull(executeBasicWebInteraction(cookie, path, "delete&delid[]=" + u.getEmails()[0].getId(), 0));
+        assertNotNull(executeBasicWebInteraction(cookie, path, "delete:" + u.getEmails()[0].getId(), 0));
         assertNotEquals(u.getEmails().length, 0);
     }
 }
