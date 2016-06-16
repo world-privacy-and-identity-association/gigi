@@ -36,12 +36,14 @@ CREATE INDEX ON "users" ("verified");
 DROP TABLE IF EXISTS "organisations";
 CREATE TABLE IF NOT EXISTS "organisations" (
   "id" int NOT NULL,
-  "name" varchar(100) NOT NULL,
+  "name" varchar(64) NOT NULL,
   "state" varchar(2) NOT NULL,
   "province" varchar(100) NOT NULL,
   "city" varchar(100) NOT NULL,
   "contactEmail" varchar(100) NOT NULL,
   "creator" int NOT NULL,
+  "optional_name" text,
+  "postal_address" text,
   PRIMARY KEY ("id")
 );
 
@@ -372,7 +374,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(11);
+INSERT INTO "schemeVersion" (version)  VALUES(13);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (
