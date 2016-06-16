@@ -93,6 +93,11 @@ public class Signup extends Form {
 
     @Override
     public synchronized boolean submit(PrintWriter out, HttpServletRequest req) {
+        if (RegisterPage.RATE_LIMIT.isLimitExceeded(req.getRemoteAddr())) {
+            outputError(out, req, "Rate Limit Exceeded");
+            return false;
+        }
+
         update(req);
         if (buildupName.getLname().trim().equals("")) {
             outputError(out, req, "Last name were blank.");
@@ -162,10 +167,6 @@ public class Signup extends Form {
         }
 
         if (isFailed(out)) {
-            return false;
-        }
-        if (RegisterPage.RATE_LIMIT.isLimitExceeded(req.getRemoteAddr())) {
-            outputError(out, req, "Rate Limit Exceeded");
             return false;
         }
         try {

@@ -21,6 +21,7 @@ public class TestMailManagement extends ClientTest {
     private String path = MailOverview.DEFAULT_PATH;
 
     public TestMailManagement() throws IOException {
+        clearCaches(); // and reset rate limits
         cookie = login(u.getEmail(), TEST_PASSWORD);
         assertTrue(isLoggedin(cookie));
     }

@@ -21,11 +21,15 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.TranslateCommand;
+import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.PasswordHash;
+import org.cacert.gigi.util.RateLimit;
 import org.cacert.gigi.util.ServerConstants;
 
 public class LoginPage extends Page {
+
+    public static final RateLimit RATE_LIMIT = new RateLimit(10, 5 * 60 * 1000);
 
     public class LoginForm extends Form {
 
@@ -35,6 +39,10 @@ public class LoginPage extends Page {
 
         @Override
         public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+            if (RegisterPage.RATE_LIMIT.isLimitExceeded(req.getRemoteAddr())) {
+                outputError(out, req, "Rate Limit Exceeded");
+                return false;
+            }
             tryAuthWithUnpw(req);
             return false;
         }

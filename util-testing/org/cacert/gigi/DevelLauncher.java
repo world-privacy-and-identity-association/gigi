@@ -32,6 +32,7 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.output.template.TranslateCommand;
+import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.account.certs.CertificateRequest;
 import org.cacert.gigi.pages.main.RegisterPage;
@@ -130,6 +131,7 @@ public class DevelLauncher {
                 public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
                     ObjectCache.clearAllCaches();
                     RegisterPage.RATE_LIMIT.bypass();
+                    LoginPage.RATE_LIMIT.bypass();
                     CertificateRequest.RATE_LIMIT.bypass();
                     resp.getWriter().println("All caches cleared.");
                     System.out.println("Caches cleared.");
