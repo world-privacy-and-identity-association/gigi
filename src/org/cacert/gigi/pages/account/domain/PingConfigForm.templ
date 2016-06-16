@@ -7,7 +7,7 @@
   <tr>
     <td></td>
     <td class='radio'>
-        Select the destination mail address:<br/>
+        <?=_Select the destination mail address:?><br/>
         <? foreach($authEmails) { ?>
         <input type="radio" id="email_<?=$i?>" name="email" value="<?=$i?>"<?=$!checked?>/>
         <label for="email_<?=$i?>"><span class='name'><?=$email?>@<span class='exampleDomain'>example.org</span></span></label><div class='elements'></div>
@@ -22,7 +22,7 @@
   <tr>
     <td></td>
     <td>
-        Please insert the following DNS TXT entry into the Zone-file of your domain:<br/>
+        <?=_Please insert the following DNS TXT entry into the Zone-file of your domain:?><br/>
         <pre>
         <?=$tokenName?>._cacert._auth IN TXT <?=$tokenValue?>
         </pre>

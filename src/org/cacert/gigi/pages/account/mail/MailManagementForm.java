@@ -78,9 +78,9 @@ public class MailManagementForm extends Form {
                     vars.put("default", "");
                 }
                 if (emailAddress.isVerified()) {
-                    vars.put("verification", "Verified");
+                    vars.put("verification", l.getTranslation("Verified"));
                 } else {
-                    vars.put("verification", "Unverified");
+                    vars.put("verification", l.getTranslation("Unverified"));
                 }
                 if (target.getEmail().equals(emailAddress.getAddress())) {
                     vars.put("delete", "N/A");
