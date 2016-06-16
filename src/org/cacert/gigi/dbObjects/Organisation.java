@@ -189,13 +189,14 @@ public class Organisation extends CertificateOwner {
                 cert.revoke();
             }
         }
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `organisations` SET `name`=?, `state`=?, `province`=?, `city`=?, `contactEmail`=?")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `organisations` SET `name`=?, `state`=?, `province`=?, `city`=?, `contactEmail`=? WHERE `id`=?")) {
             ps.setString(1, o);
             ps.setString(2, c);
             ps.setString(3, st);
             ps.setString(4, l);
             ps.setString(5, mail);
-            ps.execute();
+            ps.setInt(6, getId());
+            ps.executeUpdate();
         }
         email = mail;
         name = o;
