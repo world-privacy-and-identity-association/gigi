@@ -42,7 +42,7 @@ public class ImportCATSResult extends ClientTest {
         grant(u.getEmail(), Group.ORGASSURER);
         clearCaches();
         u = User.getById(u.getId());
-        Organisation o = new Organisation(Organisation.SELF_ORG_NAME, "NA", "NA", "NA", "contact@cacert.org", u);
+        Organisation o = new Organisation(Organisation.SELF_ORG_NAME, "NA", "NA", "NA", "contact@cacert.org", "", "", u);
         assertTrue(o.isSelfOrganisation());
         KeyPair kp = generateKeypair();
         String key1 = generatePEMCSR(kp, "EMAIL=cats@cacert.org");

@@ -22,7 +22,7 @@ public class TestOrga extends ManagedTest {
         u3.grantGroup(u1, Group.ORGASSURER);
         User u4 = User.getById(createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
         u4.grantGroup(u1, Group.ORGASSURER);
-        Organisation o1 = new Organisation("name", "ST", "prov", "city", "email", u1);
+        Organisation o1 = new Organisation("name", "ST", "prov", "city", "email", "optional name", "postal address", u1);
         assertEquals(0, o1.getAllAdmins().size());
         o1.addAdmin(u2, u1, false);
         assertEquals(1, o1.getAllAdmins().size());

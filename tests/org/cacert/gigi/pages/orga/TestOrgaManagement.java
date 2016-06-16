@@ -40,7 +40,7 @@ public class TestOrgaManagement extends ClientTest {
         for (Organisation i : Organisation.getOrganisations(0, 30)) {
             i.delete();
         }
-        executeBasicWebInteraction(cookie, CreateOrgPage.DEFAULT_PATH, "O=name&contact=mail&L=K%C3%B6ln&ST=%C3%9C%C3%96%C3%84%C3%9F&C=DE&comments=jkl%C3%B6loiuzfdfgjlh%C3%B6", 0);
+        executeBasicWebInteraction(cookie, CreateOrgPage.DEFAULT_PATH, "action=new&O=name&contact=mail&L=K%C3%B6ln&ST=%C3%9C%C3%96%C3%84%C3%9F&C=DE&comments=jkl%C3%B6loiuzfdfgjlh%C3%B6", 0);
         Organisation[] orgs = Organisation.getOrganisations(0, 30);
         assertEquals(1, orgs.length);
         assertEquals("mail", orgs[0].getContactEmail());
@@ -72,7 +72,7 @@ public class TestOrgaManagement extends ClientTest {
         executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "del=" + URLEncoder.encode(u2.getEmail(), "UTF-8") + "&email=&do_affiliate=y", 1);
         assertEquals(0, orgs[0].getAllAdmins().size());
 
-        executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "O=name1&contact=&L=K%C3%B6ln&ST=%C3%9C%C3%96%C3%84%C3%9F&C=DE&comments=jkl%C3%B6loiuzfdfgjlh%C3%B6", 0);
+        executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "action=updateCertificateData&O=name1&contact=&L=K%C3%B6ln&ST=%C3%9C%C3%96%C3%84%C3%9F&C=DE&comments=jkl%C3%B6loiuzfdfgjlh%C3%B6", 0);
         clearCaches();
         orgs = Organisation.getOrganisations(0, 30);
         assertEquals("name1", orgs[0].getName());
@@ -81,8 +81,8 @@ public class TestOrgaManagement extends ClientTest {
     @Test
     public void testNonAssurerSeeOnlyOwn() throws IOException, GigiApiException {
         User u2 = User.getById(createAssuranceUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
-        Organisation o1 = new Organisation("name21", "DE", "sder", "Rostov", "email", u);
-        Organisation o2 = new Organisation("name12", "DE", "sder", "Rostov", "email", u);
+        Organisation o1 = new Organisation("name21", "DE", "sder", "Rostov", "email", "", "", u);
+        Organisation o2 = new Organisation("name12", "DE", "sder", "Rostov", "email", "", "", u);
         o1.addAdmin(u2, u, false);
         String session2 = login(u2.getEmail(), TEST_PASSWORD);
 
@@ -115,7 +115,7 @@ public class TestOrgaManagement extends ClientTest {
         User u2 = User.getById(createAssuranceUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
         User u3 = User.getById(createAssuranceUser("testmaster", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
         User u4_dummy = User.getById(createVerifiedUser("testmaster", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
-        Organisation o1 = new Organisation("name21", "DE", "sder", "Rostov", "email", u);
+        Organisation o1 = new Organisation("name21", "DE", "sder", "Rostov", "email", "", "", u);
         o1.addAdmin(u3, u, true);
         try {
             // must fail because u4 is no assurer

@@ -56,7 +56,11 @@ public class Organisation extends CertificateOwner {
 
     private String email;
 
-    public Organisation(String name, String state, String province, String city, String email, User creator) throws GigiApiException {
+    private String optionalName;
+
+    private String postalAddress;
+
+    public Organisation(String name, String state, String province, String city, String email, String optionalName, String postalAddress, User creator) throws GigiApiException {
         if ( !creator.isInGroup(Group.ORGASSURER)) {
             throw new GigiApiException("Only org-assurers may create organisations.");
         }
@@ -65,15 +69,19 @@ public class Organisation extends CertificateOwner {
         this.province = province;
         this.city = city;
         this.email = email;
+        this.optionalName = optionalName;
+        this.postalAddress = postalAddress;
         int id = getId();
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO organisations SET id=?, name=?, state=?, province=?, city=?, contactEmail=?, creator=?")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO organisations SET id=?, name=?, state=?, province=?, city=?, contactEmail=?, optional_name=?, postal_address=?, creator=?")) {
             ps.setInt(1, id);
             ps.setString(2, name);
             ps.setString(3, state);
             ps.setString(4, province);
             ps.setString(5, city);
             ps.setString(6, email);
-            ps.setInt(7, creator.getId());
+            ps.setString(7, optionalName);
+            ps.setString(8, postalAddress);
+            ps.setInt(9, creator.getId());
             synchronized (Organisation.class) {
                 ps.execute();
             }
@@ -87,6 +95,8 @@ public class Organisation extends CertificateOwner {
         province = rs.getString("province");
         city = rs.getString("city");
         email = rs.getString("contactEmail");
+        optionalName = rs.getString("optional_name");
+        postalAddress = rs.getString("postal_address");
     }
 
     public String getName() {
@@ -107,6 +117,14 @@ public class Organisation extends CertificateOwner {
 
     public String getContactEmail() {
         return email;
+    }
+
+    public String getOptionalName() {
+        return optionalName;
+    }
+
+    public String getPostalAddress() {
+        return postalAddress;
     }
 
     public static synchronized Organisation getById(int id) {
@@ -183,26 +201,37 @@ public class Organisation extends CertificateOwner {
         }
     }
 
-    public void update(String o, String c, String st, String l, String mail) {
+    public void updateCertData(String o, String c, String st, String l) {
         for (Certificate cert : getCertificates(false)) {
             if (cert.getStatus() == CertificateStatus.ISSUED) {
                 cert.revoke();
             }
         }
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `organisations` SET `name`=?, `state`=?, `province`=?, `city`=?, `contactEmail`=? WHERE `id`=?")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `organisations` SET `name`=?, `state`=?, `province`=?, `city`=? WHERE `id`=?")) {
             ps.setString(1, o);
             ps.setString(2, c);
             ps.setString(3, st);
             ps.setString(4, l);
-            ps.setString(5, mail);
-            ps.setInt(6, getId());
+            ps.setInt(5, getId());
             ps.executeUpdate();
         }
-        email = mail;
         name = o;
         state = c;
         province = st;
         city = l;
+    }
+
+    public void updateOrgData(String mail, String o_name, String p_address) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `organisations` SET `contactEmail`=?, `optional_name`=?, `postal_address`=? WHERE `id`=?")) {
+            ps.setString(1, mail);
+            ps.setString(2, o_name);
+            ps.setString(3, p_address);
+            ps.setInt(4, getId());
+            ps.executeUpdate();
+        }
+        email = mail;
+        optionalName = o_name;
+        postalAddress = p_address;
     }
 
     public boolean isMaster(User u) {

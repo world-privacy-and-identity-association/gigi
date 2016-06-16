@@ -8,12 +8,13 @@
     <? } ?></th>
   </tr>
   <tr>
-    <td><?=_Organisation Name?>:</td>
-    <td><input class="form-control" type="text" name="O" value="<?=$O?>" maxlength="64" size="90"></td>
+    <th colspan="2"><?=_Certificate data, all fields need to be filled?></th>
   </tr>
   <tr>
-    <td><?=_Contact Email?>:</td>
-    <td><input class="form-control" type="text" name="contact" value="<?=$email?>" maxlength="255" size="90"></td>
+    <td><?=_Organisation Name?>:</td>
+    <td><input class="form-control" type="text" name="O" value="<?=$O?>" maxlength="64" size="90">
+        <?=_(max. 64 characters)?>
+    </td>
   </tr>
   <tr>
     <td><?=_Town/Suburb?>:</td>
@@ -26,8 +27,34 @@
   <tr>
     <td><?=_Country?>:</td>
     <td><input class="form-control" type="text" name="C" value="<?=$C?>" maxlength="2" size="5">
-        <?=_(2 letter !'<a href="http://www.iso.org/iso/home/standards/country_codes/iso-3166-1_decoding_table.htm">'ISO code!'</a>')?>
+      <?=_(2 letter !'<a href="http://www.iso.org/iso/home/standards/country_codes/iso-3166-1_decoding_table.htm">'ISO code!'</a>')?>
     </td>
+  </tr>
+  <? if($edit) { ?>
+  <tr>
+    <td></td>
+    <td><?=_WARNING: updating the data will revoke all issued certificates.?></td>
+  </tr>
+  <tr>
+    <td colspan="2"><button type="submit" name="action" value="updateCertificateData" class="btn btn-primary"><?=_Update certificate data?></button></td>
+  </tr>
+  <? } ?>
+  <tr>
+    <th colspan="2"><?=_Organisation data?></th>
+  </tr>
+  <tr>
+    <td><?=_Organisation name?>:</td>
+    <td><input class="form-control" type="text" name="optionalName" value="<?=$optionalName?>" maxlength="255" size="90">
+      <?=_Optional: full organisation name (if organisation name is longer than 64 characters)?>
+    </td>
+  </tr>
+    <tr>
+    <td><?=_Postal address?>:</td>
+    <td><textarea class="form-control" name="postalAddress" cols="60" rows="5"><?=$postalAddress?></textarea></td>
+  </tr>
+  <tr>
+    <td><?=_Contact Email?>:</td>
+    <td><input class="form-control" type="text" name="contact" value="<?=$email?>" maxlength="255" size="90"></td>
   </tr>
   <tr>
     <td><?=_Comments?>:</td>
@@ -35,11 +62,11 @@
   </tr>
   <? if($edit) { ?>
   <tr>
-    <td></td>
-    <td><?=_WARNING: updating the data will revoke all issued certificates.?></td>
+    <td colspan="2"><button type="submit" name="action" value="updateOrganisationData" class="btn btn-primary"><?=_Update organisation data?></button></td>
+  </tr>
+  <? } else {?>
+  <tr>
+    <td colspan="2"><button type="submit" name="action" value="new" class="btn btn-primary"><?=_Submit?></button></td>
   </tr>
   <? } ?>
-  <tr>
-    <td colspan="2"><input type="submit" value="<?=_Submit?>"></td>
-  </tr>
 </table>

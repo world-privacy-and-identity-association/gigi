@@ -77,7 +77,7 @@ public class TestOrgDomain extends ClientTest {
     }
 
     private Organisation createUniqueOrg() throws GigiApiException {
-        Organisation o1 = new Organisation(createUniqueName(), "st", "pr", "city", "test@example.com", u);
+        Organisation o1 = new Organisation(createUniqueName(), "st", "pr", "city", "test@example.com", "", "", u);
         return o1;
     }
 

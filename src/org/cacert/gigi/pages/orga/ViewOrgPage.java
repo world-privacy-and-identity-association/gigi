@@ -65,7 +65,10 @@ public class ViewOrgPage extends Page {
                         resp.sendRedirect(DEFAULT_PATH + "/" + form.getTarget().getId());
                     }
                 } else {
-                    Form.getForm(req, CreateOrgForm.class).submit(resp.getWriter(), req);
+                    CreateOrgForm form = Form.getForm(req, CreateOrgForm.class);
+                    if (form.submit(resp.getWriter(), req)) {
+                        resp.sendRedirect(DEFAULT_PATH + "/" + form.getResult().getId());
+                    }
                 }
             }
 

@@ -28,6 +28,10 @@ public class CreateOrgForm extends Form {
 
     private String email = "";
 
+    private String optionalName = "";
+
+    private String postalAddress = "";
+
     private boolean isEdit = false;
 
     public CreateOrgForm(HttpServletRequest hsr) {
@@ -43,22 +47,54 @@ public class CreateOrgForm extends Form {
         st = t.getProvince();
         l = t.getCity();
         email = t.getContactEmail();
+        optionalName = t.getOptionalName();
+        postalAddress = t.getPostalAddress();
     }
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+        String action = req.getParameter("action");
+        if (action == null) {
+            return false;
+        }
+        if (action.equals("new")) {
+            o = req.getParameter("O");
+            c = req.getParameter("C");
+            st = req.getParameter("ST");
+            l = req.getParameter("L");
+            email = req.getParameter("contact");
+            optionalName = req.getParameter("optionalName");
+            postalAddress = req.getParameter("postalAddress");
+
+            Organisation ne = new Organisation(o, c, st, l, email, optionalName, postalAddress, LoginPage.getUser(req));
+            result = ne;
+            return true;
+        } else if (action.equals("updateOrganisationData")) {
+            updateOrganisationData(out, req);
+            return true;
+        } else if (action.equals("updateCertificateData")) {
+            updateCertificateData(out, req);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void updateOrganisationData(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+        email = req.getParameter("contact");
+        optionalName = req.getParameter("optionalName");
+        postalAddress = req.getParameter("postalAddress");
+
+        result.updateOrgData(email, optionalName, postalAddress);
+    }
+
+    private void updateCertificateData(PrintWriter out, HttpServletRequest req) throws GigiApiException {
         o = req.getParameter("O");
         c = req.getParameter("C");
         st = req.getParameter("ST");
         l = req.getParameter("L");
-        email = req.getParameter("contact");
-        if (result != null) {
-            result.update(o, c, st, l, email);
-            return true;
-        }
-        Organisation ne = new Organisation(o, c, st, l, email, LoginPage.getUser(req));
-        result = ne;
-        return true;
+
+        result.updateCertData(o, c, st, l);
     }
 
     public Organisation getResult() {
@@ -72,6 +108,8 @@ public class CreateOrgForm extends Form {
         vars.put("ST", st);
         vars.put("L", this.l);
         vars.put("email", email);
+        vars.put("optionalName", optionalName);
+        vars.put("postalAddress", postalAddress);
         if (isEdit) {
             vars.put("edit", true);
         }

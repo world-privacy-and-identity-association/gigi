@@ -88,7 +88,7 @@ public class IssueCert extends ClientTest {
         makeAssurer(id);
         u.grantGroup(u, Group.ORGASSURER);
 
-        Organisation o1 = new Organisation("name", "st", "pr", "st", "test@mail", u);
+        Organisation o1 = new Organisation("name", "st", "pr", "st", "test@mail", "", "", u);
         o1.addAdmin(u, u, false);
         String testdom = createUniqueName() + "-example.com";
         Domain d2 = new Domain(u, o1, testdom);
