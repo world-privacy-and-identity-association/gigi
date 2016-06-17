@@ -1,4 +1,4 @@
-<h2><?=_Ping log for?> '<?=$domainname?>'</h2>
+<h2><?=_Ping log for '${domainname}'?></h2>
 <table class="table">
 <tr><th><?=_Type?></th>
 <th><?=_State?></th>
@@ -13,7 +13,7 @@
 <td><?=$config?></td>
 <td><?=$result?></td>
 <td><?=$date?></td>
-<td><button name='configId' value="<?=$configId?>"><?=_Re-execute?></button></td>
+<td><button name='configId' class='form-control' value="<?=$configId?>"><?=_Re-execute?></button></td>
 </tr>
 <?}?>
 </table>
