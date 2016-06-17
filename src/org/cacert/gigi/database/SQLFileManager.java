@@ -37,7 +37,7 @@ public class SQLFileManager {
             if (string.equals("")) {
                 continue;
             }
-            if ((string.contains("profiles") || string.contains("cacerts") || string.contains("cats_type")) && type == ImportType.TRUNCATE) {
+            if ((string.contains("profiles") || string.contains("cacerts") || string.contains("cats_type") || string.contains("countryIsoCode")) && type == ImportType.TRUNCATE) {
                 continue;
             }
             string = DatabaseConnection.preprocessQuery(string);
