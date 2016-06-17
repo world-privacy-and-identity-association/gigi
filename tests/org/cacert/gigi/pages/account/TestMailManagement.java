@@ -44,26 +44,46 @@ public class TestMailManagement extends ClientTest {
     @Test
     public void testMailAddWeb() throws MalformedURLException, UnsupportedEncodingException, IOException {
         String newMail = createUniqueName() + "uni@example.org";
-        assertNull(executeBasicWebInteraction(cookie, path, "addmail&newemail=" + URLEncoder.encode(newMail, "UTF-8"), 1));
-        EmailAddress[] addrs = u.getEmails();
-        for (int i = 0; i < addrs.length; i++) {
-            if (addrs[i].getAddress().equals(newMail)) {
-                return;
-            }
-        }
-        fail();
+        assertNull(addMail(newMail));
+        assertTrue(existsEmail(newMail));
     }
 
     @Test
     public void testMailAddWebFaulty() throws MalformedURLException, UnsupportedEncodingException, IOException {
         String newMail = createUniqueName() + "uniexample.org";
-        assertNotNull(executeBasicWebInteraction(cookie, path, "addmail&newemail=" + URLEncoder.encode(newMail, "UTF-8"), 1));
+        assertNotNull(addMail(newMail));
+        assertFalse(existsEmail(newMail));
+    }
+
+    @Test
+    public void testMailAddWebMultiple() throws MalformedURLException, UnsupportedEncodingException, IOException {
+        String u = createUniqueName();
+        String newMail = u + "uni@eXample.org";
+        assertNull(addMail(newMail));
+        assertTrue(existsEmail(newMail.toLowerCase()));
+
+        String newMail2 = u + "uni@eXamPlE.org";
+        assertNotNull(addMail(newMail2));
+        assertTrue(existsEmail(newMail2.toLowerCase()));
+
+        String newMail3 = u + "-buni@eXamPlE.org";
+        assertNull(addMail(newMail3));
+        assertTrue(existsEmail(newMail.toLowerCase()));
+        assertTrue(existsEmail(newMail3.toLowerCase()));
+    }
+
+    private String addMail(String newMail) throws IOException, MalformedURLException, UnsupportedEncodingException {
+        return executeBasicWebInteraction(cookie, path, "addmail&newemail=" + URLEncoder.encode(newMail, "UTF-8"), 1);
+    }
+
+    private boolean existsEmail(String newMail) {
         EmailAddress[] addrs = u.getEmails();
         for (int i = 0; i < addrs.length; i++) {
             if (addrs[i].getAddress().equals(newMail)) {
-                fail();
+                return true;
             }
         }
+        return false;
     }
 
     @Test

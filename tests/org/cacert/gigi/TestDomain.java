@@ -51,7 +51,19 @@ public class TestDomain extends ManagedTest {
         new Domain(us, us, "dub-example.org");
         try {
             new Domain(us, us, "dub-example.org");
-            fail("expected exception");
+            fail("expected exception, was able to insert domain (with different case) a second time");
+        } catch (GigiApiException e) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testDoubleDomainCase() throws InterruptedException, GigiApiException {
+        Domain d = new Domain(us, us, "dub2-ExaMple.Org");
+        assertEquals("dub2-example.org", d.getSuffix());
+        try {
+            new Domain(us, us, "duB2-eXample.oRG");
+            fail("expected exception, was able to insert domain (with different case) a second time");
         } catch (GigiApiException e) {
             // expected
         }
