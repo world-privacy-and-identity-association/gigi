@@ -40,6 +40,7 @@ import javax.security.auth.x500.X500Principal;
 
 import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.DatabaseConnection.Link;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
@@ -116,30 +117,35 @@ public class SimpleSigner {
             throw new IllegalStateException("already running");
         }
         running = true;
-        readyCerts = new GigiPreparedStatement("SELECT certs.id AS id, certs.csr_name, jobs.id AS jobid, csr_type, md, `executeFrom`, `executeTo`, profile FROM jobs " + //
-                "INNER JOIN certs ON certs.id=jobs.`targetId` " + //
-                "INNER JOIN profiles ON profiles.id=certs.profile " + //
-                "WHERE jobs.state='open' "//
-                + "AND task='sign'");
-
-        getSANSs = new GigiPreparedStatement("SELECT contents, type FROM `subjectAlternativeNames` " + //
-                "WHERE `certId`=?");
-
-        updateMail = new GigiPreparedStatement("UPDATE certs SET crt_name=?," + " created=NOW(), serial=?, caid=? WHERE id=?");
-        warnMail = new GigiPreparedStatement("UPDATE jobs SET warning=warning+1, state=IF(warning<3, 'open','error') WHERE id=?");
-
-        revoke = new GigiPreparedStatement("SELECT certs.id, certs.csr_name,jobs.id FROM jobs INNER JOIN certs ON jobs.`targetId`=certs.id" + " WHERE jobs.state='open' AND task='revoke'");
-        revokeCompleted = new GigiPreparedStatement("UPDATE certs SET revoked=NOW() WHERE id=?");
-
-        finishJob = new GigiPreparedStatement("UPDATE jobs SET state='done' WHERE id=?");
-
-        locateCA = new GigiPreparedStatement("SELECT id FROM cacerts WHERE keyname=?");
 
         runner = new Thread() {
 
             @Override
             public void run() {
-                work();
+                try (Link l = DatabaseConnection.newLink(false)) {
+                    readyCerts = new GigiPreparedStatement("SELECT certs.id AS id, certs.csr_name, jobs.id AS jobid, csr_type, md, `executeFrom`, `executeTo`, profile FROM jobs " + //
+                            "INNER JOIN certs ON certs.id=jobs.`targetId` " + //
+                            "INNER JOIN profiles ON profiles.id=certs.profile " + //
+                            "WHERE jobs.state='open' "//
+                            + "AND task='sign'");
+
+                    getSANSs = new GigiPreparedStatement("SELECT contents, type FROM `subjectAlternativeNames` " + //
+                            "WHERE `certId`=?");
+
+                    updateMail = new GigiPreparedStatement("UPDATE certs SET crt_name=?," + " created=NOW(), serial=?, caid=? WHERE id=?");
+                    warnMail = new GigiPreparedStatement("UPDATE jobs SET warning=warning+1, state=IF(warning<3, 'open','error') WHERE id=?");
+
+                    revoke = new GigiPreparedStatement("SELECT certs.id, certs.csr_name,jobs.id FROM jobs INNER JOIN certs ON jobs.`targetId`=certs.id" + " WHERE jobs.state='open' AND task='revoke'");
+                    revokeCompleted = new GigiPreparedStatement("UPDATE certs SET revoked=NOW() WHERE id=?");
+
+                    finishJob = new GigiPreparedStatement("UPDATE jobs SET state='done' WHERE id=?");
+
+                    locateCA = new GigiPreparedStatement("SELECT id FROM cacerts WHERE keyname=?");
+
+                    work();
+                } catch (InterruptedException e) {
+                    throw new Error(e);
+                }
             }
 
         };

@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.DatabaseConnection.Link;
 import org.cacert.gigi.util.PEM;
 import org.junit.BeforeClass;
 
@@ -49,6 +50,11 @@ public abstract class ConfiguredTest {
         }
         if ( !DatabaseConnection.isInited()) {
             DatabaseConnection.init(testProps);
+            try {
+                l = DatabaseConnection.newLink(false);
+            } catch (InterruptedException e) {
+                throw new Error(e);
+            }
         }
     }
 
@@ -94,6 +100,8 @@ public abstract class ConfiguredTest {
     }
 
     static int count = 0;
+
+    private static Link l;
 
     public static String createUniqueName() {
         return "test" + System.currentTimeMillis() + "a" + (count++) + "u";

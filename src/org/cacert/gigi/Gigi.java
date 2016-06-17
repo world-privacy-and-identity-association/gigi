@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.DatabaseConnection.Link;
 import org.cacert.gigi.dbObjects.CACertificate;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration;
@@ -245,8 +246,12 @@ public final class Gigi extends HttpServlet {
             return;
         }
         // ensure those static initializers are finished
-        CACertificate.getById(1);
-        CertificateProfile.getById(1);
+        try (Link l = DatabaseConnection.newLink(false)) {
+            CACertificate.getById(1);
+            CertificateProfile.getById(1);
+        } catch (InterruptedException e) {
+            throw new Error(e);
+        }
 
         MenuBuilder mb = new MenuBuilder();
         rootMenu = mb.generateMenu();
@@ -301,6 +306,20 @@ public final class Gigi extends HttpServlet {
 
     @Override
     protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+        if ("/error".equals(req.getPathInfo()) || "/denied".equals(req.getPathInfo())) {
+            if (DatabaseConnection.hasInstance()) {
+                serviceWithConnection(req, resp);
+                return;
+            }
+        }
+        try (DatabaseConnection.Link l = DatabaseConnection.newLink( !req.getMethod().equals("POST"))) {
+            serviceWithConnection(req, resp);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void serviceWithConnection(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
         boolean isSecure = req.isSecure();
         addXSSHeaders(resp, isSecure);
         // Firefox only sends this, if it's a cross domain access; safari sends

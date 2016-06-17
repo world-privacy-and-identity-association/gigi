@@ -36,6 +36,8 @@ import javax.net.ssl.X509TrustManager;
 import javax.security.auth.x500.X500Principal;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.DatabaseConnection.Link;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.CertificateProfile;
@@ -131,6 +133,12 @@ public class TestSSL extends PingTest {
         testEmailAndSSL(1, 1, false);
     }
 
+    private void testEmailAndSSL(int sslVariant, int emailVariant, boolean successMail) throws IOException, InterruptedException, SQLException, GeneralSecurityException, GigiApiException {
+        try (Link link = DatabaseConnection.newLink(false)) {
+            testEmailAndSSLWithLink(sslVariant, emailVariant, successMail);
+        }
+    }
+
     /**
      * @param sslVariant
      *            <ul>
@@ -149,7 +157,7 @@ public class TestSSL extends PingTest {
      * @throws GigiApiException
      */
 
-    private void testEmailAndSSL(int sslVariant, int emailVariant, boolean successMail) throws IOException, InterruptedException, SQLException, GeneralSecurityException, GigiApiException {
+    private void testEmailAndSSLWithLink(int sslVariant, int emailVariant, boolean successMail) throws IOException, InterruptedException, SQLException, GeneralSecurityException, GigiApiException {
         String test = getTestProps().getProperty("domain.local");
         assumeNotNull(test);
         Matcher m = initailizeDomainForm();
