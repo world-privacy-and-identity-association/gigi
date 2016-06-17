@@ -74,12 +74,17 @@ public class MailManagementForm extends Form {
                 vars.put("id", mailID);
                 if (emailAddress.getAddress().equals(target.getEmail())) {
                     vars.put("default", " disabled");
+                    vars.put("deletable", " disabled");
                 } else {
+                    vars.put("deletable", "");
                     vars.put("default", "");
                 }
                 if (emailAddress.isVerified()) {
                     vars.put("verification", l.getTranslation("Verified"));
                 } else {
+                    // only verified emails may become the default email
+                    // address.
+                    vars.put("default", " disabled");
                     vars.put("verification", l.getTranslation("Unverified"));
                 }
                 vars.put("last_verification", emailAddress.getLastPing(true));
