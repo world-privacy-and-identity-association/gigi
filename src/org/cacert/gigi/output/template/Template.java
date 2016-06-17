@@ -213,9 +213,11 @@ public class Template implements Outputable {
         } else if (s instanceof DayDate) {
             out.print(DateSelector.getDateFormat().format(((DayDate) s).toDate()));
         } else if (s instanceof Date) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            out.print(sdf.format(s));
-            out.print(" UTC");
+            SimpleDateFormat sdfUI = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            out.print("<time datetime=\"" + sdf.format(s) + "\">");
+            out.print(sdfUI.format(s));
+            out.print(" UTC</time>");
         } else {
             out.print(s == null ? "null" : (unescaped ? s.toString() : HTMLEncoder.encodeHTML(s.toString())));
         }
