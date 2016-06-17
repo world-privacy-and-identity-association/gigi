@@ -82,6 +82,7 @@ public class MailManagementForm extends Form {
                 } else {
                     vars.put("verification", l.getTranslation("Unverified"));
                 }
+                vars.put("last_verification", emailAddress.getLastPing(true));
                 if (target.getEmail().equals(emailAddress.getAddress())) {
                     vars.put("delete", "N/A");
                 } else {
