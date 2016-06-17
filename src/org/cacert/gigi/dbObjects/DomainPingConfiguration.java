@@ -14,6 +14,8 @@ import org.cacert.gigi.output.template.SprintfCommand;
 
 public class DomainPingConfiguration implements IdCachable {
 
+    private static final int REPING_MINIMUM_DELAY = 5 * 60 * 1000;
+
     private int id;
 
     private Domain target;
@@ -88,12 +90,13 @@ public class DomainPingConfiguration implements IdCachable {
 
     public synchronized void requestReping() throws GigiApiException {
         Date lastExecution = getLastExecution();
-        if (lastExecution.getTime() + 5 * 60 * 1000 < System.currentTimeMillis()) {
+        if (lastExecution.getTime() + REPING_MINIMUM_DELAY < System.currentTimeMillis()) {
             Gigi.notifyPinger(this);
             return;
         }
         Map<String, Object> data = new HashMap<String, Object>();
-        data.put("data", new Date(lastExecution.getTime() + 5 * 60 * 1000));
-        throw new GigiApiException(new Scope(new SprintfCommand("Reping is only allowed after 5 minutes, yours end at {0}.", Arrays.asList("${data}")), data));
+        data.put("delay", REPING_MINIMUM_DELAY / 60 / 1000);
+        data.put("data", new Date(lastExecution.getTime() + REPING_MINIMUM_DELAY));
+        throw new GigiApiException(new Scope(new SprintfCommand("Reping is only allowed after {0} minutes, yours end at {1}.", Arrays.asList("${delay}", "${data}")), data));
     }
 }
