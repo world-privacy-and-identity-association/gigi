@@ -8,17 +8,19 @@
   <tr>
     <td><?=_Default?></td>
     <td><?=_Status?></td>
+    <td><?=_Last successful verification?></td>
     <td><?=_Address?></td>
     <td><?=_Delete?></td>
     <td><?=_Request reping?></td>
   </tr>
  <? foreach($emails) {?>
  	<tr>
- 		<td><input type="submit" name="default:<?=$id?>" value="<?=_Set as Default?>"<?=$default?>></td>
+ 		<td><input class="form-control" type="submit" name="default:<?=$id?>" value="<?=_Set as Default?>"<?=$default?>></td>
  		<td><?=$verification?></td>
+ 		<td><?=$last_verification?></td>
  		<td><?=$address?></td>
- 		<td><input type="submit" name="delete:<?=$id?>" value="<?=_Delete?>"<?=$default?>></td>
- 		<td><input type="submit" name="reping:<?=$id?>" value="<?=_Request reping?>"></td>
+ 		<td><input class="form-control" type="submit" name="delete:<?=$id?>" value="<?=_Delete?>"<?=$default?>></td>
+ 		<td><input class="form-control" type="submit" name="reping:<?=$id?>" value="<?=_Request reping?>"></td>
  	</tr>
  <? } ?>
   </tbody>
