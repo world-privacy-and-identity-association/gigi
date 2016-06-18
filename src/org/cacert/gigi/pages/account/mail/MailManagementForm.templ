@@ -15,12 +15,12 @@
   </tr>
  <? foreach($emails) {?>
  	<tr>
- 		<td><input class="form-control" type="submit" name="default:<?=$id?>" value="<?=_Set as Default?>"<?=$default?>></td>
+ 		<td><button class="btn btn-primary" type="submit" name="default" value="<?=$id?>"<?=$default?>><?=_Set as Default?></button></td>
  		<td><?=$verification?></td>
  		<td><?=$last_verification?></td>
  		<td><?=$address?></td>
- 		<td><input class="form-control" type="submit" name="delete:<?=$id?>" value="<?=_Delete?>"<?=$deletable?>></td>
- 		<td><input class="form-control" type="submit" name="reping:<?=$id?>" value="<?=_Request reping?>"></td>
+ 		<td><button class="btn btn-danger" type="submit" name="delete" value="<?=$id?>"<?=$deletable?>><?=_Delete?></button></td>
+ 		<td><button class="btn btn-primary" type="submit" name="reping" value="<?=$id?>"><?=_Request reping?></button></td>
  	</tr>
  <? } ?>
   </tbody>

@@ -3,7 +3,6 @@ package org.cacert.gigi.pages.account.mail;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,20 +31,14 @@ public class MailManagementForm extends Form {
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) {
-        Map<String, String[]> map = req.getParameterMap();
         try {
-            for (Entry<String, String[]> e : map.entrySet()) {
-                String k = e.getKey();
-                String[] p = k.split(":", 2);
-                if (p[0].equals("default")) {
-                    target.updateDefaultEmail(EmailAddress.getById(Integer.parseInt(p[1])));
-                }
-                if (p[0].equals("delete")) {
-                    target.deleteEmail(EmailAddress.getById(Integer.parseInt(p[1])));
-                }
-                if (p[0].equals("reping")) {
-                    EmailAddress.getById(Integer.parseInt(p[1])).requestReping(Page.getLanguage(req));
-                }
+            String d;
+            if ((d = req.getParameter("default")) != null) {
+                target.updateDefaultEmail(EmailAddress.getById(Integer.parseInt(d)));
+            } else if ((d = req.getParameter("delete")) != null) {
+                target.deleteEmail(EmailAddress.getById(Integer.parseInt(d)));
+            } else if ((d = req.getParameter("reping")) != null) {
+                EmailAddress.getById(Integer.parseInt(d)).requestReping(Page.getLanguage(req));
             }
         } catch (GigiApiException e) {
             e.format(out, Page.getLanguage(req));
