@@ -111,7 +111,7 @@ public final class SprintfCommand implements Translatable {
      *            the variables to put into the placeholders.
      * @return the constructed {@link Outputable}.
      */
-    public static Outputable createSimple(String msg, String... vars) {
+    public static Outputable createSimple(String msg, Object... vars) {
         HashMap<String, Object> scope = new HashMap<>();
         String[] store = new String[vars.length];
         for (int i = 0; i < vars.length; i++) {

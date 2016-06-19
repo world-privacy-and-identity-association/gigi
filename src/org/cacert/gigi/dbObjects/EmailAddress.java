@@ -1,11 +1,8 @@
 package org.cacert.gigi.dbObjects;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
@@ -13,7 +10,6 @@ import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.email.MailProbe;
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.output.template.Scope;
 import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.util.RandomToken;
 
@@ -138,9 +134,7 @@ public class EmailAddress implements IdCachable, Verifyable {
         Date lastExecution = getLastPing(false);
 
         if (lastExecution != null && lastExecution.getTime() + REPING_MINIMUM_DELAY >= System.currentTimeMillis()) {
-            Map<String, Object> data = new HashMap<String, Object>();
-            data.put("data", new Date(lastExecution.getTime() + REPING_MINIMUM_DELAY));
-            throw new GigiApiException(new Scope(new SprintfCommand("Reping is only allowed after 5 minutes, yours end at {0}.", Arrays.asList("${data}")), data));
+            throw new GigiApiException(SprintfCommand.createSimple("Reping is only allowed after {0} minutes, yours end at {1}.", REPING_MINIMUM_DELAY / 60 / 1000, new Date(lastExecution.getTime() + REPING_MINIMUM_DELAY)));
         }
         ping(l);
         return;
