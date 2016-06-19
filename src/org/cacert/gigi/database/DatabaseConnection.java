@@ -14,12 +14,35 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringJoiner;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cacert.gigi.database.SQLFileManager.ImportType;
 
 public class DatabaseConnection {
+
+    public static class Link implements AutoCloseable {
+
+        private DatabaseConnection target;
+
+        protected Link(DatabaseConnection target) {
+            this.target = target;
+        }
+
+        @Override
+        public void close() {
+            synchronized (DatabaseConnection.class) {
+                Link i = instances.get(Thread.currentThread());
+                if (i != this) {
+                    throw new Error();
+                }
+                instances.remove(Thread.currentThread());
+                pool.add(target);
+            }
+        }
+
+    }
 
     public static final int MAX_CACHED_INSTANCES = 3;
 
@@ -107,7 +130,7 @@ public class DatabaseConnection {
 
     private HashMap<StatementDescriptor, PreparedStatement> statements = new HashMap<StatementDescriptor, PreparedStatement>();
 
-    HashSet<PreparedStatement> underUse = new HashSet<>();
+    private HashSet<PreparedStatement> underUse = new HashSet<>();
 
     private static Properties credentials;
 
@@ -183,13 +206,23 @@ public class DatabaseConnection {
         lastAction = System.currentTimeMillis();
     }
 
-    private static volatile DatabaseConnection instance;
+    private static HashMap<Thread, Link> instances = new HashMap<>();
+
+    private static LinkedBlockingDeque<DatabaseConnection> pool = new LinkedBlockingDeque<>();
+
+    private static int connCount = 0;
 
     public static synchronized DatabaseConnection getInstance() {
-        if (instance == null) {
-            instance = new DatabaseConnection();
+        Link l = instances.get(Thread.currentThread());
+        if (l == null) {
+            throw new Error("No database connection allocated");
         }
-        return instance;
+        return l.target;
+    }
+
+    public static synchronized boolean hasInstance() {
+        Link l = instances.get(Thread.currentThread());
+        return l != null;
     }
 
     public static boolean isInited() {
@@ -201,20 +234,24 @@ public class DatabaseConnection {
             throw new Error("Re-initiaizing is forbidden.");
         }
         credentials = conf;
-        int version = 0;
-        try (GigiPreparedStatement gigiPreparedStatement = new GigiPreparedStatement("SELECT version FROM \"schemeVersion\" ORDER BY version DESC LIMIT 1;")) {
-            GigiResultSet rs = gigiPreparedStatement.executeQuery();
-            if (rs.next()) {
-                version = rs.getInt(1);
+        try (Link i = newLink(false)) {
+            int version = 0;
+            try (GigiPreparedStatement gigiPreparedStatement = new GigiPreparedStatement("SELECT version FROM \"schemeVersion\" ORDER BY version DESC LIMIT 1;")) {
+                GigiResultSet rs = gigiPreparedStatement.executeQuery();
+                if (rs.next()) {
+                    version = rs.getInt(1);
+                }
             }
+            if (version == CURRENT_SCHEMA_VERSION) {
+                return; // Good to go
+            }
+            if (version > CURRENT_SCHEMA_VERSION) {
+                throw new Error("Invalid database version. Please fix this.");
+            }
+            upgrade(version);
+        } catch (InterruptedException e) {
+            throw new Error(e);
         }
-        if (version == CURRENT_SCHEMA_VERSION) {
-            return; // Good to go
-        }
-        if (version > CURRENT_SCHEMA_VERSION) {
-            throw new Error("Invalid database version. Please fix this.");
-        }
-        upgrade(version);
     }
 
     private static void upgrade(int version) {
@@ -305,5 +342,24 @@ public class DatabaseConnection {
                 }
             }
         }
+    }
+
+    public static synchronized Link newLink(boolean readOnly) throws InterruptedException {
+        if (instances.get(Thread.currentThread()) != null) {
+            throw new Error("There is already a connection allocated for this thread.");
+        }
+        if (pool.isEmpty() && connCount < 5) {
+            pool.addLast(new DatabaseConnection());
+            connCount++;
+        }
+        DatabaseConnection conn = pool.takeFirst();
+        try {
+            conn.c.setReadOnly(readOnly);
+        } catch (SQLException e) {
+            throw new Error(e);
+        }
+        Link l = new Link(conn);
+        instances.put(Thread.currentThread(), l);
+        return l;
     }
 }

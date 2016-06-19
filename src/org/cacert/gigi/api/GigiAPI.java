@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.database.DatabaseConnection;
+import org.cacert.gigi.database.DatabaseConnection.Link;
+
 public class GigiAPI extends HttpServlet {
 
     private static final long serialVersionUID = 659963677032635817L;
@@ -43,8 +46,12 @@ public class GigiAPI extends HttpServlet {
         }
 
         APIPoint p = api.get(pi);
-        if (p != null) {
-            p.process(req, resp);
+        try (Link l = DatabaseConnection.newLink(false)) {
+            if (p != null) {
+                p.process(req, resp);
+            }
+        } catch (InterruptedException e) {
+            throw new Error(e);
         }
     }
 }
