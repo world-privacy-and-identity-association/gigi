@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
@@ -52,6 +53,10 @@ public class PasswordResetPage extends Page {
 
         @Override
         public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+            try (GigiPreparedStatement passwordReset = new GigiPreparedStatement("UPDATE `passwordResetTickets` SET `used` = CURRENT_TIMESTAMP WHERE `used` IS NULL AND `created` < CURRENT_TIMESTAMP - interval '96 hours';")) {
+                passwordReset.execute();
+            }
+
             String p1 = req.getParameter("pword1");
             String p2 = req.getParameter("pword2");
             String tok = req.getParameter("private_token");

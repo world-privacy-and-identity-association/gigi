@@ -520,7 +520,7 @@ public class User extends CertificateOwner {
     }
 
     public static User getResetWithToken(int id, String token) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `memid` FROM `passwordResetTickets` WHERE `id`=? AND `token`=? AND `used` IS NULL")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `memid` FROM `passwordResetTickets` WHERE `id`=? AND `token`=? AND `used` IS NULL AND `created` > CURRENT_TIMESTAMP - interval '96 hours'")) {
             ps.setInt(1, id);
             ps.setString(2, token);
             GigiResultSet res = ps.executeQuery();
@@ -537,7 +537,7 @@ public class User extends CertificateOwner {
             ps.setInt(2, getId());
             GigiResultSet rs = ps.executeQuery();
             if ( !rs.next()) {
-                throw new GigiApiException("Token not found... very bad.");
+                throw new GigiApiException("Token could not be found, has already been used, or is expired.");
             }
             if (PasswordHash.verifyHash(private_token, rs.getString(1)) == null) {
                 throw new GigiApiException("Private token does not match.");
