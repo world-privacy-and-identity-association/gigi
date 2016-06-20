@@ -11,7 +11,7 @@ public class CATS {
 
     private static HashMap<String, Integer> names = new HashMap<>();
 
-    public static final String ASSURER_CHALLANGE_NAME = "Assurer's Challange";
+    public static final String ASSURER_CHALLANGE_NAME = "Assurer's Challenge";
 
     public static final int ASSURER_CHALLANGE_ID;
 
