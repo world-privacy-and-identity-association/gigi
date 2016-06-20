@@ -20,24 +20,25 @@ public class DomainManagementForm extends Form {
 
     private CertificateOwner target;
 
-    public DomainManagementForm(HttpServletRequest hsr, CertificateOwner target) {
+    private boolean foreign;
+
+    public DomainManagementForm(HttpServletRequest hsr, CertificateOwner target, boolean foreign) {
         super(hsr);
         this.target = target;
+        this.foreign = foreign;
     }
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) {
         try {
-            String[] dels = req.getParameterValues("delid[]");
-            Domain[] usDomains = target.getDomains();
-            for (int i = 0; i < dels.length; i++) {
-                int delId = Integer.parseInt(dels[i]);
-                for (int j = 0; j < usDomains.length; j++) {
-                    if (usDomains[j].getId() == delId) {
-                        usDomains[j].delete();
-                        break;
-                    }
-                }
+            String dels = req.getParameter("delete");
+
+            int delId = Integer.parseInt(dels);
+            Domain d = Domain.getById(delId);
+            if (d != null && d.getOwner() == target) {
+                d.delete();
+            } else {
+                throw new GigiApiException("Domain was not found.");
             }
         } catch (GigiApiException e) {
             e.format(out, Page.getLanguage(req));
@@ -46,9 +47,13 @@ public class DomainManagementForm extends Form {
         return true;
     }
 
+    public CertificateOwner getTarget() {
+        return target;
+    }
+
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
-        final Domain[] doms = (Domain[]) vars.get("doms");
+        final Domain[] doms = target.getDomains();
         IterableDataset dts = new IterableDataset() {
 
             private int point = 0;
@@ -60,7 +65,9 @@ public class DomainManagementForm extends Form {
                 }
                 Domain domain = doms[point];
                 vars.put("id", domain.getId());
-                vars.put("domainhref", DomainOverview.PATH + domain.getId());
+                if ( !foreign) {
+                    vars.put("domainhref", DomainOverview.PATH + domain.getId());
+                }
                 vars.put("domain", domain.getSuffix());
                 vars.put("status", l.getTranslation(domain.isVerified() ? "verified" : "not verified"));
                 point++;

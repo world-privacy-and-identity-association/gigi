@@ -18,6 +18,7 @@ import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.pages.account.domain.DomainManagementForm;
 import org.cacert.gigi.util.AuthorizationContext;
 
 public class ViewOrgPage extends Page {
@@ -47,17 +48,25 @@ public class ViewOrgPage extends Page {
                     resp.sendRedirect(DEFAULT_PATH + "/" + form.getOrganisation().getId());
                 }
                 return;
-            } else if (req.getParameter("addDomain") != null) {
-                if (Form.getForm(req, OrgDomainAddForm.class).submit(resp.getWriter(), req)) {
-                    // resp.sendRedirect(DEFAULT_PATH + "/" +
-                    // form.getOrganisation().getId());
-                }
             } else {
                 if ( !u.isInGroup(CreateOrgPage.ORG_ASSURER)) {
                     resp.sendError(403, "Access denied");
                     return;
                 }
-                Form.getForm(req, CreateOrgForm.class).submit(resp.getWriter(), req);
+
+                if (req.getParameter("addDomain") != null) {
+                    OrgDomainAddForm form = Form.getForm(req, OrgDomainAddForm.class);
+                    if (form.submit(resp.getWriter(), req)) {
+                        resp.sendRedirect(DEFAULT_PATH + "/" + form.getOrganisation().getId());
+                    }
+                } else if (req.getParameter("delete") != null) {
+                    DomainManagementForm form = Form.getForm(req, DomainManagementForm.class);
+                    if (form.submit(resp.getWriter(), req)) {
+                        resp.sendRedirect(DEFAULT_PATH + "/" + form.getTarget().getId());
+                    }
+                } else {
+                    Form.getForm(req, CreateOrgForm.class).submit(resp.getWriter(), req);
+                }
             }
 
         } catch (GigiApiException e) {
@@ -103,6 +112,7 @@ public class ViewOrgPage extends Page {
         if (orgAss) {
             vars.put("editForm", new CreateOrgForm(req, o));
             vars.put("affForm", new AffiliationForm(req, o));
+            vars.put("mgmDom", new DomainManagementForm(req, o, true));
             vars.put("addDom", new OrgDomainAddForm(req, o));
         } else {
             vars.put("affForm", new AffiliationForm(req, o));
