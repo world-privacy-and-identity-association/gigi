@@ -2,6 +2,8 @@ package org.cacert.gigi.pages;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,12 +13,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.email.Sendmail;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.util.AuthorizationContext;
+import org.cacert.gigi.util.RandomToken;
+import org.cacert.gigi.util.ServerConstants;
 
 public class PasswordResetPage extends Page {
+
+    public static final int HOUR_MAX = 96;
 
     public static final String PATH = "/passwordReset";
 
@@ -53,7 +61,8 @@ public class PasswordResetPage extends Page {
 
         @Override
         public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
-            try (GigiPreparedStatement passwordReset = new GigiPreparedStatement("UPDATE `passwordResetTickets` SET `used` = CURRENT_TIMESTAMP WHERE `used` IS NULL AND `created` < CURRENT_TIMESTAMP - interval '96 hours';")) {
+            try (GigiPreparedStatement passwordReset = new GigiPreparedStatement("UPDATE `passwordResetTickets` SET `used` = CURRENT_TIMESTAMP WHERE `used` IS NULL AND `created` < CURRENT_TIMESTAMP - interval '1 hours' * ?;")) {
+                passwordReset.setInt(1, HOUR_MAX);
                 passwordReset.execute();
             }
 
@@ -103,5 +112,36 @@ public class PasswordResetPage extends Page {
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
         return true;
+    }
+
+    public static void initPasswordResetProcess(PrintWriter out, User targetUser, HttpServletRequest req, String aword, Language l, String method, String subject) {
+        String ptok = RandomToken.generateToken(32);
+        int id = targetUser.generatePasswordResetTicket(Page.getUser(req), ptok, aword);
+        try {
+            StringWriter sw = new StringWriter();
+            PrintWriter outMail = new PrintWriter(sw);
+            outMail.print(l.getTranslation("Hi,") + "\n\n");
+            outMail.print(method);
+            outMail.print("\n\nhttps://");
+            outMail.print(ServerConstants.getWwwHostNamePortSecure() + PasswordResetPage.PATH);
+            outMail.print("?id=");
+            outMail.print(id);
+            outMail.print("&token=");
+            outMail.print(URLEncoder.encode(ptok, "UTF-8"));
+            outMail.print("\n");
+            outMail.print("\n");
+            SprintfCommand.createSimple("This process will expire in {0} hours.", Integer.toString(HOUR_MAX)).output(outMail, l, new HashMap<String, Object>());
+            outMail.print("\n");
+            outMail.print("\n");
+            outMail.print(l.getTranslation("Best regards"));
+            outMail.print("\n");
+            outMail.print(l.getTranslation("SomeCA.org Support!"));
+            outMail.close();
+            Sendmail.getInstance().sendmail(Page.getUser(req).getEmail(), "[SomeCA.org] " + subject, sw.toString(), "support@cacert.org", null, null, null, null, false);
+            out.println(Page.getLanguage(req).getTranslation("Password reset successful."));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

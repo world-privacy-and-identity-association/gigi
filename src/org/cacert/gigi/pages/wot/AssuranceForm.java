@@ -1,8 +1,6 @@
 package org.cacert.gigi.pages.wot;
 
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,7 +13,6 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.email.Sendmail;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
@@ -24,8 +21,6 @@ import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.PasswordResetPage;
 import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.Notary;
-import org.cacert.gigi.util.RandomToken;
-import org.cacert.gigi.util.ServerConstants;
 
 public class AssuranceForm extends Form {
 
@@ -147,28 +142,10 @@ public class AssuranceForm extends Form {
         try {
             Notary.assure(assurer, assuree, assureeName, dob, pointsI, location, req.getParameter("date"), type);
             if (aword != null && !aword.equals("")) {
-                String systemToken = RandomToken.generateToken(32);
-                int id = assuree.generatePasswordResetTicket(Page.getUser(req), systemToken, aword);
-                try {
-                    Language l = Language.getInstance(assuree.getPreferredLocale());
-                    StringBuffer body = new StringBuffer();
-                    body.append(l.getTranslation("Hi,") + "\n\n");
-                    body.append(l.getTranslation("A password reset was triggered. If you did a password reset by assurance, please enter your secret password using this form:"));
-                    body.append("\n\nhttps://");
-                    body.append(ServerConstants.getWwwHostNamePortSecure() + PasswordResetPage.PATH);
-                    body.append("?id=");
-                    body.append(id);
-                    body.append("&token=");
-                    body.append(URLEncoder.encode(systemToken, "UTF-8"));
-                    body.append("\n");
-                    body.append("\n");
-                    body.append(l.getTranslation("Best regards"));
-                    body.append("\n");
-                    body.append(l.getTranslation("SomeCA.org Support!"));
-                    Sendmail.getInstance().sendmail(assuree.getEmail(), "[SomeCA.org] " + l.getTranslation("Password reset by assurance"), body.toString(), "support@cacert.org", null, null, null, null, false);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                Language l = Language.getInstance(assuree.getPreferredLocale());
+                String method = l.getTranslation("A password reset was triggered. If you did a password reset by assurance, please enter your secret password using this form:");
+                String subject = l.getTranslation("Password reset by assurance");
+                PasswordResetPage.initPasswordResetProcess(out, assuree, req, aword, l, method, subject);
             }
             return true;
         } catch (GigiApiException e) {

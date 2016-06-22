@@ -1,8 +1,6 @@
 package org.cacert.gigi.pages.admin.support;
 
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -14,17 +12,13 @@ import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.SupportedUser;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.email.Sendmail;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.GroupSelector;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
-import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.PasswordResetPage;
-import org.cacert.gigi.util.RandomToken;
-import org.cacert.gigi.util.ServerConstants;
 
 public class SupportUserDetailsForm extends Form {
 
@@ -69,29 +63,10 @@ public class SupportUserDetailsForm extends Form {
             if (aword == null || aword.equals("")) {
                 throw new GigiApiException("An A-Word is required to perform a password reset.");
             }
-            String ptok = RandomToken.generateToken(32);
-            int id = user.getTargetUser().generatePasswordResetTicket(Page.getUser(req), ptok, aword);
-            try {
-                Language l = Language.getInstance(user.getTargetUser().getPreferredLocale());
-                StringBuffer body = new StringBuffer();
-                body.append(l.getTranslation("Hi,") + "\n\n");
-                body.append(l.getTranslation("A password reset was triggered. Please enter the required text sent to you by support on this page:"));
-                body.append("\n\nhttps://");
-                body.append(ServerConstants.getWwwHostNamePortSecure() + PasswordResetPage.PATH);
-                body.append("?id=");
-                body.append(id);
-                body.append("&token=");
-                body.append(URLEncoder.encode(ptok, "UTF-8"));
-                body.append("\n");
-                body.append("\n");
-                body.append(l.getTranslation("Best regards"));
-                body.append("\n");
-                body.append(l.getTranslation("SomeCA.org Support!"));
-                Sendmail.getInstance().sendmail(user.getTargetUser().getEmail(), "[SomeCA.org] " + l.getTranslation("Password reset by support."), body.toString(), "support@cacert.org", null, null, null, null, false);
-                out.println(Page.getLanguage(req).getTranslation("Password reset successful."));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Language l = Language.getInstance(user.getTargetUser().getPreferredLocale());
+            String method = l.getTranslation("A password reset was triggered. Please enter the required text sent to you by support on this page:");
+            String subject = l.getTranslation("Password reset by support.");
+            PasswordResetPage.initPasswordResetProcess(out, user.getTargetUser(), req, aword, l, method, subject);
             return true;
         }
         dobSelector.update(req);

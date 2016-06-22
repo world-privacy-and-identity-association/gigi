@@ -13,6 +13,7 @@ import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
+import org.cacert.gigi.pages.PasswordResetPage;
 import org.cacert.gigi.util.CalendarUtil;
 import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.Notary;
@@ -520,9 +521,10 @@ public class User extends CertificateOwner {
     }
 
     public static User getResetWithToken(int id, String token) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `memid` FROM `passwordResetTickets` WHERE `id`=? AND `token`=? AND `used` IS NULL AND `created` > CURRENT_TIMESTAMP - interval '96 hours'")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `memid` FROM `passwordResetTickets` WHERE `id`=? AND `token`=? AND `used` IS NULL AND `created` > CURRENT_TIMESTAMP - interval '1 hours' * ?")) {
             ps.setInt(1, id);
             ps.setString(2, token);
+            ps.setInt(3, PasswordResetPage.HOUR_MAX);
             GigiResultSet res = ps.executeQuery();
             if ( !res.next()) {
                 return null;
