@@ -49,9 +49,8 @@ public class DomainOverview extends Page {
 
         }
         try {
-            DomainManagementForm domMan = new DomainManagementForm(req, u);
+            DomainManagementForm domMan = new DomainManagementForm(req, u, false);
             HashMap<String, Object> vars = new HashMap<>();
-            vars.put("doms", u.getDomains());
             vars.put("domainman", domMan);
             if (u instanceof User) {
                 DomainAddForm domAdd = new DomainAddForm(req, (User) u);

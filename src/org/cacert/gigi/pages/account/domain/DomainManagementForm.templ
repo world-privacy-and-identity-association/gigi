@@ -3,19 +3,16 @@
     <th colspan="3">Domains</th>
   </tr>
   <tr>
-    <td><?=_Delete?></td>
+    <td></td>
     <td><?=_Status?></td>
     <td><?=_Address?></td>
 
   </tr>
   <? foreach($domains) { ?>
   <tr>
-  	<td><input type="checkbox" name="delid[]" value="<?=$id?>" /></td>
+  	<td><button class="btn btn-danger" type="submit" name="delete" value="<?=$id?>">Delete</button></td>
   	<td><?=$status?></td>
-  	<td><a href='<?=$domainhref?>'><?=$domain?></a></td>
+  	<td><? if($domainhref) { ?><a href='<?=$domainhref?>'><?=$domain?><? } else { ?><?=$domain?><? } ?></a></td>
   </tr>
   <? } ?>
-  <tr>
-    <td colspan="3"><input type="submit" name="domdel" value="<?=_Delete?>"></td>
-  </tr>
 </tbody></table>
