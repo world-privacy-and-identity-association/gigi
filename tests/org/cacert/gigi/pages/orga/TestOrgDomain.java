@@ -40,4 +40,34 @@ public class TestOrgDomain extends ClientTest {
         assertNull(executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + o1.getId(), "delete=" + d.getId(), 2));
         assertEquals(0, o1.getDomains().length);
     }
+
+    @Test
+    public void testBusinessAddWhileUser() throws IOException, GigiApiException {
+        Organisation o1 = new Organisation(createUniqueName(), "st", "pr", "city", "test@example.com", u);
+        String dom = createUniqueName() + ".de";
+        new Domain(u, u, dom);
+        try {
+            new Domain(u, o1, dom);
+            fail("Was able to add domain twice.");
+        } catch (GigiApiException e) {
+            assertEquals("Domain could not be inserted. Domain is already known to the system.", e.getMessage());
+            // expected
+        }
+        assertEquals(0, o1.getDomains().length);
+        assertEquals(1, u.getDomains().length);
+    }
+
+    @Test
+    public void testBusinessAddInvalid() throws IOException, GigiApiException {
+        Organisation o1 = new Organisation(createUniqueName(), "st", "pr", "city", "test@example.com", u);
+        String dom = createUniqueName() + ".invalid-tld";
+        try {
+            new Domain(u, o1, dom);
+            fail("Was able to add invalid domain.");
+        } catch (GigiApiException e) {
+            // expected
+        }
+        assertEquals(0, o1.getDomains().length);
+        assertEquals(0, u.getDomains().length);
+    }
 }
