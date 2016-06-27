@@ -3,3 +3,6 @@ keystore.pkcs12
 cacerts.jks
 gigi.properties
 test.properties
+/profiles
+/ca
+/keys
