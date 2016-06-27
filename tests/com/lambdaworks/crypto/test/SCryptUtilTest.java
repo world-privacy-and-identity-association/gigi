@@ -1,4 +1,4 @@
-// Copyright (C) 2011 - Will Glozer.  All rights reserved.
+// Copyright (C) 2011 - Will Glozer. All rights reserved.
 
 package com.lambdaworks.crypto.test;
 
@@ -12,6 +12,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class SCryptUtilTest {
+
     String passwd = "secret";
 
     @Test

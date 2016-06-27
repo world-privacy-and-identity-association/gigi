@@ -137,7 +137,7 @@ public class Launcher {
         if (conf.getMainProps().getProperty("proxy", "false").equals("true")) {
             httpConfig.addCustomizer(new ExtendedForwarded());
             s.setConnectors(new Connector[] {
-                ConnectorsLauncher.createConnector(conf, s, httpConfig, false)
+                    ConnectorsLauncher.createConnector(conf, s, httpConfig, false)
             });
         } else {
             HttpConfiguration httpsConfig = createHttpConfiguration();
@@ -286,11 +286,11 @@ public class Launcher {
 
             ContextHandler ch = generateGigiServletContext(webAppServlet);
             ch.setVirtualHosts(new String[] {
-                ServerConstants.getWwwHostName()
+                    ServerConstants.getWwwHostName()
             });
             ContextHandler chSecure = generateGigiServletContext(webAppServlet);
             chSecure.setVirtualHosts(new String[] {
-                ServerConstants.getSecureHostName()
+                    ServerConstants.getSecureHostName()
             });
 
             HandlerList hl = new HandlerList();
@@ -332,7 +332,7 @@ public class Launcher {
             ContextHandler ch = new ContextHandler();
             ch.setHandler(rh);
             ch.setVirtualHosts(new String[] {
-                ServerConstants.getStaticHostName()
+                    ServerConstants.getStaticHostName()
             });
 
             return ch;
@@ -355,7 +355,7 @@ public class Launcher {
             ServletContextHandler sch = new ServletContextHandler();
 
             sch.addVirtualHosts(new String[] {
-                ServerConstants.getApiHostName()
+                    ServerConstants.getApiHostName()
             });
             sch.addServlet(new ServletHolder(new GigiAPI()), "/*");
             return sch;

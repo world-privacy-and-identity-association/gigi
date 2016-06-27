@@ -330,10 +330,9 @@ public final class Gigi extends HttpServlet {
         // it always
         String originHeader = req.getHeader("Origin");
         if (originHeader != null //
-                &&
-                !(originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getWwwHostNamePortSecure()) + "(/.*|)") || //
+                && !(originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getWwwHostNamePortSecure()) + "(/.*|)") || //
                         originHeader.matches("^" + Pattern.quote("http://" + ServerConstants.getWwwHostNamePort()) + "(/.*|)") || //
-                originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getSecureHostNamePort()) + "(/.*|)"))) {
+                        originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getSecureHostNamePort()) + "(/.*|)"))) {
             resp.setContentType("text/html; charset=utf-8");
             resp.getWriter().println("<html><head><title>Alert</title></head><body>No cross domain access allowed.<br/><b>If you don't know why you're seeing this you may have been fished! Please change your password immediately!</b></body></html>");
             return;

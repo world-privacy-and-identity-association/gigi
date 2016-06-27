@@ -15,7 +15,8 @@ public class PasswordHash {
      *            The password that should result in the given hash.
      * @param hash
      *            The hash to verify the password against.
-     * @return <ul>
+     * @return
+     *         <ul>
      *         <li><code>null</code>, if the password was valid</li>
      *         <li><code>hash</code>, if the password is valid and the hash
      *         doesn't need to be updated</li>

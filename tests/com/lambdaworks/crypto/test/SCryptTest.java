@@ -1,4 +1,4 @@
-// Copyright (C) 2011 - Will Glozer.  All rights reserved.
+// Copyright (C) 2011 - Will Glozer. All rights reserved.
 
 package com.lambdaworks.crypto.test;
 
@@ -10,6 +10,7 @@ import static com.lambdaworks.crypto.test.CryptoTestUtil.*;
 import static com.lambdaworks.crypto.SCrypt.*;
 
 public class SCryptTest {
+
     @Test
     public void scrypt_paper_appendix_b() throws Exception {
         byte[] P, S;
@@ -67,18 +68,18 @@ public class SCryptTest {
     public void scrypt_invalid_N_large() throws Exception {
         byte[] P = "pleaseletmein".getBytes("UTF-8");
         byte[] S = "SodiumChloride".getBytes("UTF-8");
-        int    r = 8;
-        int    N = Integer.MAX_VALUE / 128;
+        int r = 8;
+        int N = Integer.MAX_VALUE / 128;
         scrypt(P, S, N, r, 1, 64);
     }
 
-//    @Test(expected = IllegalArgumentException.class)
-//    public void scrypt_invalid_r_large() throws Exception {
-//        byte[] P = "pleaseletmein".getBytes("UTF-8");
-//        byte[] S = "SodiumChloride".getBytes("UTF-8");
-//        int    N = 1024;
-//        int    r = Integer.MAX_VALUE / 128 + 1;
-//        int    p = 0;
-//        scrypt(P, S, N, r, p, 64);
-//    }
+    // @Test(expected = IllegalArgumentException.class)
+    // public void scrypt_invalid_r_large() throws Exception {
+    // byte[] P = "pleaseletmein".getBytes("UTF-8");
+    // byte[] S = "SodiumChloride".getBytes("UTF-8");
+    // int N = 1024;
+    // int r = Integer.MAX_VALUE / 128 + 1;
+    // int p = 0;
+    // scrypt(P, S, N, r, p, 64);
+    // }
 }

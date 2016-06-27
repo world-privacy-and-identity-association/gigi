@@ -93,7 +93,8 @@ public abstract class EmailProvider {
                 } else {
                     return "Strange MX records.";
                 }
-                try (Socket s = new Socket(host, 25); BufferedReader br0 = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));//
+                try (Socket s = new Socket(host, 25);
+                        BufferedReader br0 = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));//
                         PrintWriter pw0 = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"))) {
                     BufferedReader br = br0;
                     PrintWriter pw = pw0;

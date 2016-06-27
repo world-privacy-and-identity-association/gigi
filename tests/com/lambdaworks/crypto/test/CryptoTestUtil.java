@@ -1,8 +1,9 @@
-// Copyright (C) 2011 - Will Glozer.  All rights reserved.
+// Copyright (C) 2011 - Will Glozer. All rights reserved.
 
 package com.lambdaworks.crypto.test;
 
 public class CryptoTestUtil {
+
     public static byte[] decode(String str) {
         byte[] bytes = new byte[str.length() / 2];
         int index = 0;

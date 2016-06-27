@@ -62,11 +62,11 @@ public class SMIME {
 
         // Create PKCS7 Signed data
         PKCS7 p7 = new PKCS7(new AlgorithmId[] {
-            new AlgorithmId(AlgorithmId.SHA_oid)
+                new AlgorithmId(AlgorithmId.SHA_oid)
         }, cInfo, new java.security.cert.X509Certificate[] {
-            c
+                c
         }, new SignerInfo[] {
-            sInfo
+                sInfo
         });
 
         ByteArrayOutputStream bOut = new DerOutputStream();

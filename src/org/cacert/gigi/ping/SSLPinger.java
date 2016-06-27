@@ -168,24 +168,24 @@ public class SSLPinger extends DomainPinger {
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
                 tmf.init(truststore);
                 sc.init(null, new TrustManager[] {
-                    new X509TrustManager() {
+                        new X509TrustManager() {
 
-                        @Override
-                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                            return null;
-                        }
-
-                        @Override
-                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
-                            java.security.cert.X509Certificate c = chain[0];
-                            if ( !c.getExtendedKeyUsage().contains("1.3.6.1.5.5.7.3.1")) {
-                                throw new java.security.cert.CertificateException("Illegal EKU");
+                            @Override
+                            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                                return null;
                             }
-                        }
 
-                        @Override
-                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {}
-                    }
+                            @Override
+                            public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
+                                java.security.cert.X509Certificate c = chain[0];
+                                if ( !c.getExtendedKeyUsage().contains("1.3.6.1.5.5.7.3.1")) {
+                                    throw new java.security.cert.CertificateException("Illegal EKU");
+                                }
+                            }
+
+                            @Override
+                            public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {}
+                        }
                 }, new SecureRandom());
             } catch (KeyManagementException e) {
                 e.printStackTrace();

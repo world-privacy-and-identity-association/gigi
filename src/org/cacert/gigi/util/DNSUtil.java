@@ -25,7 +25,7 @@ public class DNSUtil {
 
     public static String[] getNSNames(String name) throws NamingException {
         Attributes dnsLookup = context.getAttributes(name, new String[] {
-            "NS"
+                "NS"
         });
         return extractTextEntries(dnsLookup.get("NS"));
     }
@@ -39,7 +39,7 @@ public class DNSUtil {
         try {
 
             Attributes dnsLookup = context.getAttributes(name, new String[] {
-                "TXT"
+                    "TXT"
             });
             return extractTextEntries(dnsLookup.get("TXT"));
         } finally {
@@ -61,7 +61,7 @@ public class DNSUtil {
 
     public static String[] getMXEntries(String domain) throws NamingException {
         Attributes dnsLookup = context.getAttributes(domain, new String[] {
-            "MX"
+                "MX"
         });
         return extractTextEntries(dnsLookup.get("MX"));
     }

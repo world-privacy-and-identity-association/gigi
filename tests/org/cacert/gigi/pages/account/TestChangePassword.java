@@ -34,9 +34,10 @@ public class TestChangePassword extends ClientTest {
 
     @Test
     public void testChangePasswordWeb() throws IOException {
-        String error = executeBasicWebInteraction(cookie, path, "oldpassword=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
-                + "&pword1=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8")//
-                + "&pword2=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8"));
+        String error = executeBasicWebInteraction(cookie, path,
+                "oldpassword=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
+                        + "&pword1=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8")//
+                        + "&pword2=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8"));
         assertNull(error);
         assertTrue(isLoggedin(login(u.getEmail(), TEST_PASSWORD + "v2")));
         assertFalse(isLoggedin(login(u.getEmail(), TEST_PASSWORD)));
@@ -45,9 +46,10 @@ public class TestChangePassword extends ClientTest {
 
     @Test
     public void testChangePasswordWebOldWrong() throws IOException {
-        String error = executeBasicWebInteraction(cookie, path, "oldpassword=a" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
-                + "&pword1=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8")//
-                + "&pword2=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8"));
+        String error = executeBasicWebInteraction(cookie, path,
+                "oldpassword=a" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
+                        + "&pword1=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8")//
+                        + "&pword2=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8"));
         assertNotNull(error);
         assertFalse(isLoggedin(login(u.getEmail(), TEST_PASSWORD + "v2")));
         assertTrue(isLoggedin(login(u.getEmail(), TEST_PASSWORD)));
@@ -56,9 +58,10 @@ public class TestChangePassword extends ClientTest {
 
     @Test
     public void testChangePasswordWebNewWrong() throws IOException {
-        String error = executeBasicWebInteraction(cookie, path, "oldpassword=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
-                + "&pword1=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8")//
-                + "&pword2=a" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8"));
+        String error = executeBasicWebInteraction(cookie, path,
+                "oldpassword=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") //
+                        + "&pword1=" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8")//
+                        + "&pword2=a" + URLEncoder.encode(TEST_PASSWORD + "v2", "UTF-8"));
         assertNotNull(error);
         assertFalse(isLoggedin(login(u.getEmail(), TEST_PASSWORD + "v2")));
         assertTrue(isLoggedin(login(u.getEmail(), TEST_PASSWORD)));

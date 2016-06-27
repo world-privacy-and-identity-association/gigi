@@ -68,7 +68,7 @@ public class TestCertificateAdd extends ClientTest {
     @Test
     public void testSimpleServer() throws IOException, GeneralSecurityException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
-            CertificateRequest.OID_KEY_USAGE_SSL_SERVER
+                CertificateRequest.OID_KEY_USAGE_SSL_SERVER
         }, new DNSName(uniq + ".tld"));
 
         String pem = generatePEMCSR(kp, "CN=a." + uniq + ".tld", atts);
@@ -82,7 +82,7 @@ public class TestCertificateAdd extends ClientTest {
     @Test
     public void testSimpleMail() throws IOException, GeneralSecurityException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
-            CertificateRequest.OID_KEY_USAGE_EMAIL_PROTECTION
+                CertificateRequest.OID_KEY_USAGE_EMAIL_PROTECTION
         }, new DNSName("a." + uniq + ".tld"), new DNSName("b." + uniq + ".tld"), new RFC822Name(email));
 
         String pem = generatePEMCSR(kp, "CN=a b", atts, "SHA384WithRSA");
@@ -96,7 +96,7 @@ public class TestCertificateAdd extends ClientTest {
     @Test
     public void testSimpleClient() throws IOException, GeneralSecurityException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
-            CertificateRequest.OID_KEY_USAGE_SSL_CLIENT
+                CertificateRequest.OID_KEY_USAGE_SSL_CLIENT
         }, new RFC822Name(email));
 
         String pem = generatePEMCSR(kp, "CN=a b,email=" + email, atts, "SHA512WithRSA");
@@ -116,7 +116,7 @@ public class TestCertificateAdd extends ClientTest {
     @Test
     public void testIssue() throws IOException, GeneralSecurityException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
-            CertificateRequest.OID_KEY_USAGE_SSL_CLIENT
+                CertificateRequest.OID_KEY_USAGE_SSL_CLIENT
         }, new RFC822Name(email));
 
         String pem = generatePEMCSR(kp, "CN=a b,email=" + email, atts, "SHA512WithRSA");
@@ -243,7 +243,7 @@ public class TestCertificateAdd extends ClientTest {
 
     private X509Certificate createCertWithValidity(String validity) throws IOException, GeneralSecurityException, UnsupportedEncodingException, MalformedURLException, CertificateException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
-            CertificateRequest.OID_KEY_USAGE_SSL_CLIENT
+                CertificateRequest.OID_KEY_USAGE_SSL_CLIENT
         }, new RFC822Name(email));
 
         String pem = generatePEMCSR(kp, "CN=a b", atts, "SHA512WithRSA");
@@ -310,7 +310,7 @@ public class TestCertificateAdd extends ClientTest {
         }
         attributeValue.set("SANs", new SubjectAlternativeNameExtension(names));
         PKCS10Attributes atts = new PKCS10Attributes(new PKCS10Attribute[] {
-            new PKCS10Attribute(PKCS9Attribute.EXTENSION_REQUEST_OID, attributeValue)
+                new PKCS10Attribute(PKCS9Attribute.EXTENSION_REQUEST_OID, attributeValue)
         });
         ExtendedKeyUsageExtension eku = new ExtendedKeyUsageExtension(//
                 new Vector<>(Arrays.<ObjectIdentifier>asList(ekuOIDs)));

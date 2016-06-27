@@ -59,9 +59,9 @@ public class TestSSL extends PingTest {
     @Parameters(name = "self-signed = {0}")
     public static Iterable<Object[]> genParams() throws IOException {
         return Arrays.asList(new Object[] {
-            true
+                true
         }, new Object[] {
-            false
+                false
         });
 
     }
@@ -258,57 +258,57 @@ public class TestSSL extends PingTest {
         try {
             sc = SSLContext.getInstance("SSL");
             sc.init(new KeyManager[] {
-                new X509KeyManager() {
+                    new X509KeyManager() {
 
-                    @Override
-                    public String[] getServerAliases(String keyType, Principal[] issuers) {
-                        return new String[] {
-                            "server"
-                        };
+                        @Override
+                        public String[] getServerAliases(String keyType, Principal[] issuers) {
+                            return new String[] {
+                                    "server"
+                            };
+                        }
+
+                        @Override
+                        public PrivateKey getPrivateKey(String alias) {
+                            return priv;
+                        }
+
+                        @Override
+                        public String[] getClientAliases(String keyType, Principal[] issuers) {
+                            throw new Error();
+                        }
+
+                        @Override
+                        public X509Certificate[] getCertificateChain(String alias) {
+                            return new X509Certificate[] {
+                                    cert
+                            };
+                        }
+
+                        @Override
+                        public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
+                            throw new Error();
+                        }
+
+                        @Override
+                        public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
+                            return "server";
+                        }
+
                     }
-
-                    @Override
-                    public PrivateKey getPrivateKey(String alias) {
-                        return priv;
-                    }
-
-                    @Override
-                    public String[] getClientAliases(String keyType, Principal[] issuers) {
-                        throw new Error();
-                    }
-
-                    @Override
-                    public X509Certificate[] getCertificateChain(String alias) {
-                        return new X509Certificate[] {
-                            cert
-                        };
-                    }
-
-                    @Override
-                    public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
-                        throw new Error();
-                    }
-
-                    @Override
-                    public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
-                        return "server";
-                    }
-
-                }
             }, new TrustManager[] {
-                new X509TrustManager() {
+                    new X509TrustManager() {
 
-                    @Override
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return null;
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
+
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
                     }
-
-                    @Override
-                    public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
-
-                    @Override
-                    public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {}
-                }
             }, new SecureRandom());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

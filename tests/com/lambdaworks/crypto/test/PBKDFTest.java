@@ -1,4 +1,4 @@
-// Copyright (C) 2011 - Will Glozer.  All rights reserved.
+// Copyright (C) 2011 - Will Glozer. All rights reserved.
 
 package com.lambdaworks.crypto.test;
 
@@ -11,6 +11,7 @@ import static org.junit.Assert.*;
 import static com.lambdaworks.crypto.test.CryptoTestUtil.*;
 
 public class PBKDFTest {
+
     @Test
     public void pbkdf2_hmac_sha1_rfc6070() throws Exception {
         String alg = "HmacSHA1";

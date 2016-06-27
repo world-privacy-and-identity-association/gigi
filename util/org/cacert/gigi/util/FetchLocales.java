@@ -33,7 +33,7 @@ public class FetchLocales {
     public static String PO_URL_TEMPLATE = "https://" + DOWNLOAD_SERVER + "/%/gigi/messages.po";
 
     public static final String[] AUTO_LANGS = new String[] {
-        "de"
+            "de"
     };
 
     public static void main(String[] args) throws IOException, ParserConfigurationException, TransformerException {

@@ -393,14 +393,14 @@ public class ManagedTest extends ConfiguredTest {
             @Override
             public X509Certificate[] getCertificateChain(String arg0) {
                 return new X509Certificate[] {
-                    ce
+                        ce
                 };
             }
 
             @Override
             public String[] getClientAliases(String arg0, Principal[] arg1) {
                 return new String[] {
-                    "client"
+                        "client"
                 };
             }
 
@@ -415,13 +415,13 @@ public class ManagedTest extends ConfiguredTest {
             @Override
             public String[] getServerAliases(String arg0, Principal[] arg1) {
                 return new String[] {
-                    "client"
+                        "client"
                 };
             }
         };
         SSLContext sc = SSLContext.getInstance("TLS");
         sc.init(new KeyManager[] {
-            km
+                km
         }, null, null);
         if (connection instanceof HttpsURLConnection) {
             ((HttpsURLConnection) connection).setSSLSocketFactory(sc.getSocketFactory());
@@ -468,7 +468,7 @@ public class ManagedTest extends ConfiguredTest {
         uc.setDoOutput(true);
         OutputStream os = uc.getOutputStream();
         os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
-        + query//
+                + query//
         ).getBytes("UTF-8"));
         os.flush();
         return (HttpURLConnection) uc;

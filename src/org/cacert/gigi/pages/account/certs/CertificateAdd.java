@@ -43,7 +43,7 @@ public class CertificateAdd extends Page {
             }
             resp.sendRedirect(Certificates.PATH + "/" + ser);
         }
-        f.output(resp.getWriter(), getLanguage(req), Collections.<String,Object>emptyMap());
+        f.output(resp.getWriter(), getLanguage(req), Collections.<String, Object>emptyMap());
 
     }
 
