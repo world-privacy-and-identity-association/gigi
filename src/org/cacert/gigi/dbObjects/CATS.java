@@ -11,9 +11,9 @@ public class CATS {
 
     private static HashMap<String, Integer> names = new HashMap<>();
 
-    public static final String ASSURER_CHALLANGE_NAME = "Assurer's Challenge";
+    public static final String ASSURER_CHALLENGE_NAME = "Assurer's Challenge";
 
-    public static final int ASSURER_CHALLANGE_ID;
+    public static final int ASSURER_CHALLENGE_ID;
 
     private CATS() {
 
@@ -26,7 +26,7 @@ public class CATS {
                 names.put(res.getString(2), res.getInt(1));
             }
         }
-        ASSURER_CHALLANGE_ID = getID(ASSURER_CHALLANGE_NAME);
+        ASSURER_CHALLENGE_ID = getID(ASSURER_CHALLENGE_NAME);
     }
 
     public static synchronized int getID(String name) {

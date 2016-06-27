@@ -252,7 +252,7 @@ public final class Gigi extends HttpServlet {
         try (Link l = DatabaseConnection.newLink(false)) {
             CACertificate.getById(1);
             CertificateProfile.getById(1);
-            CATS.getID(CATS.ASSURER_CHALLANGE_NAME);
+            CATS.getID(CATS.ASSURER_CHALLENGE_NAME);
         } catch (InterruptedException e) {
             throw new Error(e);
         }

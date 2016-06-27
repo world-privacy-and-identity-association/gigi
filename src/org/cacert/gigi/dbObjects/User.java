@@ -161,7 +161,7 @@ public class User extends CertificateOwner {
     public boolean hasPassedCATS() {
         try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT 1 FROM `cats_passed` where `user_id`=? AND `variant_id`=?")) {
             query.setInt(1, getId());
-            query.setInt(2, CATS.ASSURER_CHALLANGE_ID);
+            query.setInt(2, CATS.ASSURER_CHALLENGE_ID);
             try (GigiResultSet rs = query.executeQuery()) {
                 if (rs.next()) {
                     return true;

@@ -73,7 +73,7 @@ public class ImportCATSResult extends ClientTest {
         apiImport(u2, "Test Training");
         assertEquals(1, u2.getTrainings().length);
         assertFalse(u2.hasPassedCATS());
-        apiImport(u2, CATS.ASSURER_CHALLANGE_NAME);
+        apiImport(u2, CATS.ASSURER_CHALLENGE_NAME);
         assertEquals(2, u2.getTrainings().length);
         assertTrue(u2.hasPassedCATS());
 
