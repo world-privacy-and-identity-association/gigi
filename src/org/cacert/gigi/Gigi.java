@@ -33,6 +33,7 @@ import org.cacert.gigi.output.SimpleMenuItem;
 import org.cacert.gigi.output.template.Form.CSRFException;
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.pages.AboutPage;
 import org.cacert.gigi.pages.HandlesMixedRequest;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.LogoutPage;
@@ -126,6 +127,7 @@ public final class Gigi extends HttpServlet {
             });
             putPage("/", new MainPage(), null);
             putPage("/roots", new RootCertPage(truststore), "SomeCA.org");
+            putPage("/about", new AboutPage(), "SomeCA.org");
 
             putPage("/secure", new TestSecure(), null);
             putPage(Verify.PATH, new Verify(), null);

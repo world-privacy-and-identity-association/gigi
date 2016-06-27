@@ -81,6 +81,14 @@
 	<target depends="clean,clean-test" name="cleanall" />
 	<target depends="build-project, build-testing, native" name="build" />
 	<target depends="init" name="build-project">
+		<exec outputproperty="git-version" executable="git">
+			<arg line="rev-parse"/>
+			<arg line="HEAD"/>
+		</exec>
+		<manifest file="Gigi.MF">
+			<attribute name="Main-Class" value="org.cacert.gigi.Launcher" />
+			<attribute name="Implementation-Version" value="${git-version}" />
+		</manifest>
 		<echo message="${ant.project.name}: ${ant.file}" />
 		<javac encoding="UTF-8" debug="true" debuglevel="${debuglevel}" destdir="bin"
 			includeantruntime="false" source="${source}" target="${target}">
