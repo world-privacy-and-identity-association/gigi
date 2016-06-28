@@ -42,11 +42,13 @@ public class CATS {
         return i;
     }
 
-    public static void enterResult(User user, String testType, Date passDate) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?, `pass_date`=?")) {
+    public static void enterResult(User user, String testType, Date passDate, String language, String version) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?, `pass_date`=?, `language`=?, `version`=?")) {
             ps.setInt(1, user.getId());
             ps.setInt(2, getID(testType));
             ps.setTimestamp(3, new Timestamp(passDate.getTime()));
+            ps.setString(4, language);
+            ps.setString(5, version);
             ps.execute();
         }
     }

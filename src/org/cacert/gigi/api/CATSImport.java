@@ -33,6 +33,12 @@ public class CATSImport extends APIPoint {
             resp.sendError(500, "Error, requires mid, variant and date");
             return;
         }
+        String language = req.getParameter("language");
+        String version = req.getParameter("version");
+        if (language == null || version == null) {
+            resp.sendError(500, "Error, requires also language and version");
+            return;
+        }
         int id;
         try {
             id = Integer.parseInt(target);
@@ -48,6 +54,6 @@ public class CATSImport extends APIPoint {
         System.out.println("CATS: " + target + ": " + testType);
         User targetUser = (User) o;
         System.out.println(targetUser.getId());
-        CATS.enterResult(targetUser, testType, new Date(Long.parseLong(date)));
+        CATS.enterResult(targetUser, testType, new Date(Long.parseLong(date)), language, version);
     }
 }

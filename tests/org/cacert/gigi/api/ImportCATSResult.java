@@ -79,15 +79,35 @@ public class ImportCATSResult extends ClientTest {
 
     }
 
+    @Test
+    public void testImportCATSFailures() throws GigiApiException, IOException, GeneralSecurityException, InterruptedException {
+        assertEquals(1, u.getTrainings().length);
+        assertNotEquals(200, executeImportQuery("").getResponseCode());
+        assertNotEquals(200, executeImportQuery("mid=" + u.getId()).getResponseCode());
+        assertNotEquals(200, executeImportQuery("mid=" + u.getId() + "&variant=Test+Training").getResponseCode());
+        assertNotEquals(200, executeImportQuery("mid=" + u.getId() + "&variant=Test+Training&date=" + System.currentTimeMillis()).getResponseCode());
+        assertNotEquals(200, executeImportQuery("mid=" + u.getId() + "&variant=Test+Training&date=" + System.currentTimeMillis() + "&language=en").getResponseCode());
+        assertNotEquals(200, executeImportQuery("mid=" + u.getId() + "&variant=Test+Training&date=" + System.currentTimeMillis() + "&version=1.0").getResponseCode());
+        assertEquals(1, u.getTrainings().length);
+        apiImport(u, "Test Training");
+        assertEquals(2, u.getTrainings().length);
+
+    }
+
     private void apiImport(User target, String test) throws IOException, MalformedURLException, NoSuchAlgorithmException, KeyManagementException, UnsupportedEncodingException, GeneralSecurityException {
+        HttpURLConnection connection = executeImportQuery("mid=" + target.getId() + "&variant=" + URLEncoder.encode(test, "UTF-8") + "&date=" + System.currentTimeMillis() + "&language=en&version=1.0");
+        if (connection.getResponseCode() != 200) {
+            throw new Error(connection.getResponseMessage());
+        }
+    }
+
+    private HttpURLConnection executeImportQuery(String query) throws IOException, MalformedURLException, NoSuchAlgorithmException, KeyManagementException, UnsupportedEncodingException, Error {
         HttpURLConnection connection = (HttpURLConnection) new URL("https://" + getServerName().replaceFirst("^www.", "api.") + CATSImport.PATH).openConnection();
         authenticateClientCert(pk, ce, connection);
         connection.setDoOutput(true);
         OutputStream os = connection.getOutputStream();
-        os.write(("mid=" + target.getId() + "&variant=" + URLEncoder.encode(test, "UTF-8") + "&date=" + System.currentTimeMillis()).getBytes("UTF-8"));
-        if (connection.getResponseCode() != 200) {
-            throw new Error(connection.getResponseMessage());
-        }
+        os.write(query.getBytes("UTF-8"));
+        return connection;
     }
 
     private String apiLookup(Certificate target) throws IOException, MalformedURLException, NoSuchAlgorithmException, KeyManagementException, UnsupportedEncodingException, GeneralSecurityException {
