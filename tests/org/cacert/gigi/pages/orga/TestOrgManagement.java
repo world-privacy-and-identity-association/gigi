@@ -11,23 +11,19 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.Organisation.Affiliation;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.MyDetails;
-import org.cacert.gigi.testUtils.ClientTest;
 import org.cacert.gigi.testUtils.IOUtils;
+import org.cacert.gigi.testUtils.OrgTest;
 import org.junit.After;
 import org.junit.Test;
 
-public class TestOrgaManagement extends ClientTest {
+public class TestOrgManagement extends OrgTest {
 
-    public TestOrgaManagement() throws IOException {
-        u.grantGroup(u, Group.ORGASSURER);
-        makeAssurer(u.getId());
-        clearCaches();
-        cookie = login(email, TEST_PASSWORD);
+    public TestOrgManagement() throws IOException {
+
     }
 
     @After
@@ -81,8 +77,8 @@ public class TestOrgaManagement extends ClientTest {
     @Test
     public void testNonAssurerSeeOnlyOwn() throws IOException, GigiApiException {
         User u2 = User.getById(createAssuranceUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
-        Organisation o1 = new Organisation("name21", "DE", "sder", "Rostov", "email", "", "", u);
-        Organisation o2 = new Organisation("name12", "DE", "sder", "Rostov", "email", "", "", u);
+        Organisation o1 = createUniqueOrg();
+        Organisation o2 = createUniqueOrg();
         o1.addAdmin(u2, u, false);
         String session2 = login(u2.getEmail(), TEST_PASSWORD);
 
@@ -91,8 +87,8 @@ public class TestOrgaManagement extends ClientTest {
 
         uc = get(session2, MyDetails.PATH);
         String content = IOUtils.readURL(uc);
-        assertThat(content, containsString("name21"));
-        assertThat(content, not(containsString("name12")));
+        assertThat(content, containsString(o1.getName()));
+        assertThat(content, not(containsString(o2.getName())));
         uc = get(session2, ViewOrgPage.DEFAULT_PATH + "/" + o1.getId());
         assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
         uc = get(session2, ViewOrgPage.DEFAULT_PATH + "/" + o2.getId());
@@ -100,8 +96,8 @@ public class TestOrgaManagement extends ClientTest {
 
         uc = get(ViewOrgPage.DEFAULT_PATH);
         content = IOUtils.readURL(uc);
-        assertThat(content, containsString("name21"));
-        assertThat(content, containsString("name12"));
+        assertThat(content, containsString(o1.getName()));
+        assertThat(content, containsString(o2.getName()));
         uc = get(ViewOrgPage.DEFAULT_PATH + "/" + o1.getId());
         assertEquals(200, ((HttpURLConnection) uc).getResponseCode());
         uc = get(ViewOrgPage.DEFAULT_PATH + "/" + o2.getId());
@@ -115,7 +111,7 @@ public class TestOrgaManagement extends ClientTest {
         User u2 = User.getById(createAssuranceUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
         User u3 = User.getById(createAssuranceUser("testmaster", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
         User u4_dummy = User.getById(createVerifiedUser("testmaster", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
-        Organisation o1 = new Organisation("name21", "DE", "sder", "Rostov", "email", "", "", u);
+        Organisation o1 = createUniqueOrg();
         o1.addAdmin(u3, u, true);
         try {
             // must fail because u4 is no assurer

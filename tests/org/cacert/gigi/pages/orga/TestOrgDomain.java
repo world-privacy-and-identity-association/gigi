@@ -7,18 +7,14 @@ import java.net.URLEncoder;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Domain;
-import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Organisation;
-import org.cacert.gigi.testUtils.ClientTest;
+import org.cacert.gigi.testUtils.OrgTest;
 import org.junit.Test;
 
-public class TestOrgDomain extends ClientTest {
+public class TestOrgDomain extends OrgTest {
 
     public TestOrgDomain() throws IOException {
-        makeAssurer(u.getId());
-        u.grantGroup(u, Group.ORGASSURER);
-        clearCaches();
-        cookie = login(email, TEST_PASSWORD);
+
     }
 
     @Test
@@ -74,11 +70,6 @@ public class TestOrgDomain extends ClientTest {
         assertEquals(1, o1.getDomains().length);
         assertEquals(0, o2.getDomains().length);
         assertEquals(0, u.getDomains().length);
-    }
-
-    private Organisation createUniqueOrg() throws GigiApiException {
-        Organisation o1 = new Organisation(createUniqueName(), "st", "pr", "city", "test@example.com", "", "", u);
-        return o1;
     }
 
     @Test
