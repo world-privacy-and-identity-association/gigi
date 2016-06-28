@@ -299,6 +299,8 @@ CREATE TABLE "cats_passed" (
   "user_id" int NOT NULL,
   "variant_id" int NOT NULL,
   "pass_date" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "language" varchar(5) NOT NULL DEFAULT '',
+  "version" varchar(10) NOT NULL DEFAULT '',
   PRIMARY KEY ("id"),
   UNIQUE ("user_id","variant_id","pass_date")
 );
@@ -374,7 +376,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(14);
+INSERT INTO "schemeVersion" (version)  VALUES(15);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (
