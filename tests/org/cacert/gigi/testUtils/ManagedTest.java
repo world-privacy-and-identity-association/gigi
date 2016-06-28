@@ -71,6 +71,8 @@ public class ManagedTest extends ConfiguredTest {
      */
     public static final String TEST_PASSWORD = "xvXV12°§";
 
+    public static final String DIFFICULT_CHARS = "ÜÖÄß𐀀";
+
     private static TestEmailReceiver ter;
 
     private static Process gigi;

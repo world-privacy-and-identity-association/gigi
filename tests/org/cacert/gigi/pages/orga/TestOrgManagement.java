@@ -36,13 +36,15 @@ public class TestOrgManagement extends OrgTest {
         for (Organisation i : Organisation.getOrganisations(0, 30)) {
             i.delete();
         }
-        executeBasicWebInteraction(cookie, CreateOrgPage.DEFAULT_PATH, "action=new&O=name&contact=mail&L=K%C3%B6ln&ST=%C3%9C%C3%96%C3%84%C3%9F&C=DE&comments=jkl%C3%B6loiuzfdfgjlh%C3%B6", 0);
+        executeBasicWebInteraction(cookie, CreateOrgPage.DEFAULT_PATH, "action=new&O=name&contact=mail&L=K%C3%B6ln&ST=" + URLEncoder.encode(DIFFICULT_CHARS, "UTF-8") + "&C=DE&comments=jkl%C3%B6loiuzfdfgjlh%C3%B6&optionalName=opname&postalAddress=postaladdress", 0);
         Organisation[] orgs = Organisation.getOrganisations(0, 30);
         assertEquals(1, orgs.length);
         assertEquals("mail", orgs[0].getContactEmail());
         assertEquals("name", orgs[0].getName());
         assertEquals("Köln", orgs[0].getCity());
-        assertEquals("ÜÖÄß", orgs[0].getProvince());
+        assertEquals(DIFFICULT_CHARS, orgs[0].getProvince());
+        assertEquals("opname", orgs[0].getOptionalName());
+        assertEquals("postaladdress", orgs[0].getPostalAddress());
 
         User u2 = User.getById(createAssuranceUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
         executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "email=" + URLEncoder.encode(u2.getEmail(), "UTF-8") + "&do_affiliate=y&master=y", 1);
@@ -135,6 +137,27 @@ public class TestOrgManagement extends OrgTest {
         o1.removeAdmin(u2, u3);
         o1.removeAdmin(u3, u3);
         assertEquals(0, o1.getAllAdmins().size());
+        o1.delete();
+    }
+
+    @Test
+    public void testUpdateOrgCertData() throws IOException, GigiApiException {
+        Organisation o1 = createUniqueOrg();
+        o1.updateCertData("name", "DE", DIFFICULT_CHARS, "Köln");
+        assertEquals("name", o1.getName());
+        assertEquals("DE", o1.getState());
+        assertEquals(DIFFICULT_CHARS, o1.getProvince());
+        assertEquals("Köln", o1.getCity());
+        o1.delete();
+    }
+
+    @Test
+    public void testUpdateOrgData() throws IOException, GigiApiException {
+        Organisation o1 = createUniqueOrg();
+        o1.updateOrgData("mail", "opname", "Köln" + DIFFICULT_CHARS);
+        assertEquals("mail", o1.getContactEmail());
+        assertEquals("opname", o1.getOptionalName());
+        assertEquals("Köln" + DIFFICULT_CHARS, o1.getPostalAddress());
         o1.delete();
     }
 }
