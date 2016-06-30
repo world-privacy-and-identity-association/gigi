@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -227,10 +227,10 @@ public abstract class AbstractSessionManager extends ContainerLifeCycle implemen
         _context=ContextHandler.getCurrentContext();
         _loader=Thread.currentThread().getContextClassLoader();
 
-        if (_sessionIdManager==null)
+        final Server server=getSessionHandler().getServer();
+        synchronized (server)
         {
-            final Server server=getSessionHandler().getServer();
-            synchronized (server)
+            if (_sessionIdManager==null)
             {
                 _sessionIdManager=server.getSessionIdManager();
                 if (_sessionIdManager==null)
@@ -575,6 +575,9 @@ public abstract class AbstractSessionManager extends ContainerLifeCycle implemen
             _sessionAttributeListeners.remove(listener);
         if (listener instanceof HttpSessionListener)
             _sessionListeners.remove(listener);
+        if (listener instanceof HttpSessionIdListener)
+            _sessionIdListeners.remove(listener);
+        removeBean(listener);
     }
     
     /* ------------------------------------------------------------ */

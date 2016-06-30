@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -23,6 +23,8 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.jetty.http.HttpTokens.EndOfContent;
 import org.eclipse.jetty.util.BufferUtil;
@@ -70,8 +72,8 @@ public class HttpGenerator
     private final int _send;
     private final static int SEND_SERVER = 0x01;
     private final static int SEND_XPOWEREDBY = 0x02;
-
-
+    private final static Set<String> __assumedContentMethods = new HashSet<>(Arrays.asList(new String[]{HttpMethod.POST.asString(),HttpMethod.PUT.asString()}));
+  
     /* ------------------------------------------------------------------------------- */
     public static void setJettyVersion(String serverVersion)
     {
@@ -158,6 +160,12 @@ public class HttpGenerator
         return _endOfContent==EndOfContent.CHUNKED_CONTENT;
     }
 
+    /* ------------------------------------------------------------ */
+    public boolean isNoContent()
+    {
+        return _noContent;
+    }
+    
     /* ------------------------------------------------------------ */
     public void setPersistent(boolean persistent)
     {
@@ -287,7 +295,8 @@ public class HttpGenerator
             {
                 if (BufferUtil.hasContent(content))
                 {
-                    LOG.debug("discarding content in COMPLETING");
+                    if (LOG.isDebugEnabled())
+                        LOG.debug("discarding content in COMPLETING");
                     BufferUtil.clear(content);
                 }
 
@@ -310,7 +319,8 @@ public class HttpGenerator
             case END:
                 if (BufferUtil.hasContent(content))
                 {
-                    LOG.debug("discarding content in COMPLETING");
+                    if (LOG.isDebugEnabled())
+                        LOG.debug("discarding content in COMPLETING");
                     BufferUtil.clear(content);
                 }
                 return Result.DONE;
@@ -436,7 +446,8 @@ public class HttpGenerator
             {
                 if (BufferUtil.hasContent(content))
                 {
-                    LOG.debug("discarding content in COMPLETING");
+                    if (LOG.isDebugEnabled())
+                        LOG.debug("discarding content in COMPLETING");
                     BufferUtil.clear(content);
                 }
 
@@ -462,7 +473,8 @@ public class HttpGenerator
             case END:
                 if (BufferUtil.hasContent(content))
                 {
-                    LOG.debug("discarding content in COMPLETING");
+                    if (LOG.isDebugEnabled())
+                        LOG.debug("discarding content in COMPLETING");
                     BufferUtil.clear(content);
                 }
                 return Result.DONE;
@@ -621,7 +633,7 @@ public class HttpGenerator
 
                         if (values[0]==null)
                         {
-                            split = field.getValue().split("\\s*,\\s*");
+                            split = StringUtil.csvSplit(field.getValue());
                             if (split.length>0)
                             {
                                 values=new HttpHeaderValue[split.length];
@@ -735,11 +747,16 @@ public class HttpGenerator
                     long content_length = _contentPrepared+BufferUtil.length(content);
 
                     // Do we need to tell the headers about it
-                    if ((response!=null || content_length>0 || content_type ) && !_noContent)
+                    if (content_length>0)
                     {
                         header.put(HttpHeader.CONTENT_LENGTH.getBytesColonSpace());
                         BufferUtil.putDecLong(header, content_length);
                         header.put(HttpTokens.CRLF);
+                    }
+                    else if (!_noContent)
+                    {
+                        if (content_type || response!=null || (request!=null && __assumedContentMethods.contains(request.getMethod())))
+                            header.put(CONTENT_LENGTH_0);
                     }
                 }
                 else
@@ -757,19 +774,21 @@ public class HttpGenerator
 
             case CONTENT_LENGTH:
                 long content_length = _info.getContentLength();
-                if ((response!=null || content_length>0 || content_type ) && !_noContent)
+                if (content_length>0)
                 {
-                    // known length but not actually set.
                     header.put(HttpHeader.CONTENT_LENGTH.getBytesColonSpace());
                     BufferUtil.putDecLong(header, content_length);
                     header.put(HttpTokens.CRLF);
                 }
+                else if (!_noContent)
+                {
+                    if (content_type || response!=null || (request!=null && __assumedContentMethods.contains(request.getMethod())))
+                        header.put(CONTENT_LENGTH_0);
+                }
                 break;
 
             case NO_CONTENT:
-                if (response!=null && status >= 200 && status != 204 && status != 304)
-                    header.put(CONTENT_LENGTH_0);
-                break;
+                throw new IllegalStateException();
 
             case EOF_CONTENT:
                 _persistent = request!=null;
@@ -1042,7 +1061,7 @@ public class HttpGenerator
             char c=s.charAt(i);
             
             if (c<0 || c>0xff || c=='\r' || c=='\n')
-                buffer.put((byte)'?');
+                buffer.put((byte)' ');
             else
                 buffer.put((byte)(0xff&c));
         }

@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -38,8 +38,7 @@ import org.eclipse.jetty.util.security.Credential;
 
 /* ------------------------------------------------------------ */
 /**
- * HashMapped User Realm with JDBC as data source. JDBCLoginService extends
- * HashULoginService and adds a method to fetch user information from database.
+ * HashMapped User Realm with JDBC as data source. 
  * The login() method checks the inherited Map for the user. If the user is not
  * found, it will fetch details from the database and populate the inherited
  * Map. It then calls the superclass login() method to perform the actual

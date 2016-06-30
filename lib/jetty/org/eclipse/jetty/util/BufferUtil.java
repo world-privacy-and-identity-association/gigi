@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.nio.Buffer;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -390,9 +389,9 @@ public class BufferUtil
     }
 
     /* ------------------------------------------------------------ */
-    /** Appends a byte to a buffer
+    /** Appends a buffer to a buffer
      * @param to Buffer is flush mode
-     * @param b bytes to append
+     * @param b buffer to append
      */
     public static int append(ByteBuffer to, ByteBuffer b)
     {
@@ -465,7 +464,11 @@ public class BufferUtil
     public static void writeTo(ByteBuffer buffer, OutputStream out) throws IOException
     {
         if (buffer.hasArray())
-            out.write(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
+        {
+            out.write(buffer.array(),buffer.arrayOffset() + buffer.position(),buffer.remaining());
+            // update buffer position, in way similar to non-array version of writeTo
+            buffer.position(buffer.position() + buffer.remaining());
+        }
         else
         {
             byte[] bytes = new byte[TEMP_BUFFER_SIZE];
@@ -921,18 +924,54 @@ public class BufferUtil
         return builder.toString();
     }
 
+
+    
+    /* ------------------------------------------------------------ */
+    /** Convert Buffer to string ID independent of content
+     * @param buffer
+     */
+    private static void idString(ByteBuffer buffer, StringBuilder out) 
+    {
+        out.append(buffer.getClass().getSimpleName());
+        out.append("@");
+        if (buffer.hasArray() && buffer.arrayOffset()==4)
+        {
+            out.append('T');
+            byte[] array = buffer.array();
+            TypeUtil.toHex(array[0],out);
+            TypeUtil.toHex(array[1],out);
+            TypeUtil.toHex(array[2],out);
+            TypeUtil.toHex(array[3],out);
+        }
+        else
+            out.append(Integer.toHexString(System.identityHashCode(buffer)));
+    }
+    
+    /* ------------------------------------------------------------ */
+    /** Convert Buffer to string ID independent of content
+     * @param buffer
+     * @return A string showing the buffer ID
+     */
+    public static String toIDString(ByteBuffer buffer)
+    {
+        StringBuilder buf = new StringBuilder();
+        idString(buffer,buf);
+        return buf.toString();
+    }
+    
+    
+    /* ------------------------------------------------------------ */
+    /** Convert Buffer to a detail debug string of pointers and content
+     * @param buffer
+     * @return A string showing the pointers and content of the buffer
+     */
     public static String toDetailString(ByteBuffer buffer)
     {
         if (buffer == null)
             return "null";
 
         StringBuilder buf = new StringBuilder();
-        buf.append(buffer.getClass().getSimpleName());
-        buf.append("@");
-        if (buffer.hasArray())
-            buf.append(Integer.toHexString(((Object)buffer.array()).hashCode()));
-        else
-            buf.append(Integer.toHexString(buf.hashCode()));
+        idString(buffer,buf);
         buf.append("[p=");
         buf.append(buffer.position());
         buf.append(",l=");
@@ -943,15 +982,18 @@ public class BufferUtil
         buf.append(buffer.remaining());
         buf.append("]={");
 
+        appendDebugString(buf,buffer);
+
+        buf.append("}");
+
+        return buf.toString();
+    }
+
+    private static void appendDebugString(StringBuilder buf,ByteBuffer buffer)
+    {
         for (int i = 0; i < buffer.position(); i++)
         {
-            char c = (char)buffer.get(i);
-            if (c >= ' ' && c <= 127)
-                buf.append(c);
-            else if (c == '\r' || c == '\n')
-                buf.append('|');
-            else
-                buf.append('\ufffd');
+            appendContentChar(buf,buffer.get(i));
             if (i == 16 && buffer.position() > 32)
             {
                 buf.append("...");
@@ -961,13 +1003,7 @@ public class BufferUtil
         buf.append("<<<");
         for (int i = buffer.position(); i < buffer.limit(); i++)
         {
-            char c = (char)buffer.get(i);
-            if (c >= ' ' && c <= 127)
-                buf.append(c);
-            else if (c == '\r' || c == '\n')
-                buf.append('|');
-            else
-                buf.append('\ufffd');
+            appendContentChar(buf,buffer.get(i));
             if (i == buffer.position() + 16 && buffer.limit() > buffer.position() + 32)
             {
                 buf.append("...");
@@ -979,13 +1015,7 @@ public class BufferUtil
         buffer.limit(buffer.capacity());
         for (int i = limit; i < buffer.capacity(); i++)
         {
-            char c = (char)buffer.get(i);
-            if (c >= ' ' && c <= 127)
-                buf.append(c);
-            else if (c == '\r' || c == '\n')
-                buf.append('|');
-            else
-                buf.append('\ufffd');
+            appendContentChar(buf,buffer.get(i));
             if (i == limit + 16 && buffer.capacity() > limit + 32)
             {
                 buf.append("...");
@@ -993,11 +1023,23 @@ public class BufferUtil
             }
         }
         buffer.limit(limit);
-        buf.append("}");
-
-        return buf.toString();
     }
 
+    private static void appendContentChar(StringBuilder buf, byte b)
+    {
+        if (b == '\\')
+            buf.append("\\\\");   
+        else if (b >= ' ')
+            buf.append((char)b);
+        else if (b == '\r')
+            buf.append("\\r");
+        else if (b == '\n')
+            buf.append("\\n");
+        else if (b == '\t')
+            buf.append("\\t");
+        else
+            buf.append("\\x").append(TypeUtil.toHexString(b));
+    }
 
     private final static int[] decDivisors =
             {1000000000, 100000000, 10000000, 1000000, 100000, 10000, 1000, 100, 10, 1};

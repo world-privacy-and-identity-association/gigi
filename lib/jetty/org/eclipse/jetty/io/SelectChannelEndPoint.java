@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -132,18 +132,21 @@ public class SelectChannelEndPoint extends ChannelEndPoint implements SelectorMa
             {
                 if (_interestOps.compareAndSet(oldInterestOps, newInterestOps))
                 {
-                    LOG.debug("Local interests updated {} -> {} for {}", oldInterestOps, newInterestOps, this);
+                    if (LOG.isDebugEnabled())
+                        LOG.debug("Local interests updating {} -> {} for {}", oldInterestOps, newInterestOps, this);
                     _selector.updateKey(_updateTask);
                 }
                 else
                 {
-                    LOG.debug("Local interests update conflict: now {}, was {}, attempted {} for {}", _interestOps.get(), oldInterestOps, newInterestOps, this);
+                    if (LOG.isDebugEnabled())
+                        LOG.debug("Local interests update conflict: now {}, was {}, attempted {} for {}", _interestOps.get(), oldInterestOps, newInterestOps, this);
                     continue;
                 }
             }
             else
             {
-                LOG.debug("Ignoring local interests update {} -> {} for {}", oldInterestOps, newInterestOps, this);
+                if (LOG.isDebugEnabled())
+                    LOG.debug("Ignoring local interests update {} -> {} for {}", oldInterestOps, newInterestOps, this);
             }
             break;
         }
@@ -152,8 +155,9 @@ public class SelectChannelEndPoint extends ChannelEndPoint implements SelectorMa
 
     private void setKeyInterests(int oldInterestOps, int newInterestOps)
     {
-        LOG.debug("Key interests updated {} -> {}", oldInterestOps, newInterestOps);
         _key.interestOps(newInterestOps);
+        if (LOG.isDebugEnabled())
+            LOG.debug("Key interests updated {} -> {} on {}", oldInterestOps, newInterestOps, this);
     }
 
     @Override

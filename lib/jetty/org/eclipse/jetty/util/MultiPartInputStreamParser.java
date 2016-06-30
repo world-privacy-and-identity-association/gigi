@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -57,7 +57,7 @@ public class MultiPartInputStreamParser
     protected InputStream _in;
     protected MultipartConfigElement _config;
     protected String _contentType;
-    protected MultiMap _parts;
+    protected MultiMap<Part> _parts;
     protected File _tmpDir;
     protected File _contextTmpDir;
     protected boolean _deleteOnExit;
@@ -72,7 +72,7 @@ public class MultiPartInputStreamParser
         protected OutputStream _out;
         protected ByteArrayOutputStream2 _bout;
         protected String _contentType;
-        protected MultiMap _headers;
+        protected MultiMap<String> _headers;
         protected long _size = 0;
         protected boolean _temporary = true;
 
@@ -92,19 +92,9 @@ public class MultiPartInputStreamParser
         protected void open()
         throws IOException
         {
-            //We will either be writing to a file, if it has a filename on the content-disposition
-            //and otherwise a byte-array-input-stream, OR if we exceed the getFileSizeThreshold, we
-            //will need to change to write to a file.
-            if (_filename != null && _filename.trim().length() > 0)
-            {
-                createFile();
-            }
-            else
-            {
-                //Write to a buffer in memory until we discover we've exceed the
-                //MultipartConfig fileSizeThreshold
-                _out = _bout= new ByteArrayOutputStream2();
-            }
+            //Write to a buffer in memory until we discover we've exceed the
+            //MultipartConfig fileSizeThreshold
+            _out = _bout= new ByteArrayOutputStream2();
         }
 
         protected void close()
@@ -122,6 +112,7 @@ public class MultiPartInputStreamParser
 
             if (MultiPartInputStreamParser.this._config.getFileSizeThreshold() > 0 && _size + 1 > MultiPartInputStreamParser.this._config.getFileSizeThreshold() && _file==null)
                 createFile();
+
             _out.write(b);
             _size ++;
         }
@@ -134,7 +125,7 @@ public class MultiPartInputStreamParser
 
             if (MultiPartInputStreamParser.this._config.getFileSizeThreshold() > 0 && _size + length > MultiPartInputStreamParser.this._config.getFileSizeThreshold() && _file==null)
                 createFile();
-
+           
             _out.write(bytes, offset, length);
             _size += length;
         }
@@ -143,6 +134,7 @@ public class MultiPartInputStreamParser
         throws IOException
         {
             _file = File.createTempFile("MultiPart", "", MultiPartInputStreamParser.this._tmpDir);
+            
             if (_deleteOnExit)
                 _file.deleteOnExit();
             FileOutputStream fos = new FileOutputStream(_file);
@@ -161,7 +153,7 @@ public class MultiPartInputStreamParser
 
 
 
-        protected void setHeaders(MultiMap headers)
+        protected void setHeaders(MultiMap<String> headers)
         {
             _headers = headers;
         }
@@ -359,9 +351,9 @@ public class MultiPartInputStreamParser
         if (_parts == null)
             return Collections.emptyList();
 
-        Collection<Object> values = _parts.values();
+        Collection<List<Part>> values = _parts.values();
         List<Part> parts = new ArrayList<Part>();
-        for (Object o: values)
+        for (List<Part> o: values)
         {
             List<Part> asList = LazyList.getList(o, false);
             parts.addAll(asList);
@@ -406,9 +398,9 @@ public class MultiPartInputStreamParser
     throws IOException, ServletException
     {
         parse();
-        Collection<Object> values = _parts.values();
+        Collection<List<Part>> values = _parts.values();
         List<Part> parts = new ArrayList<Part>();
-        for (Object o: values)
+        for (List<Part> o: values)
         {
             List<Part> asList = LazyList.getList(o, false);
             parts.addAll(asList);
@@ -447,7 +439,7 @@ public class MultiPartInputStreamParser
 
         //initialize
         long total = 0; //keep running total of size of bytes read from input and throw an exception if exceeds MultipartConfigElement._maxRequestSize
-        _parts = new MultiMap();
+        _parts = new MultiMap<Part>();
 
         //if its not a multipart request, don't parse it
         if (_contentType == null || !_contentType.startsWith("multipart/form-data"))
@@ -523,7 +515,7 @@ public class MultiPartInputStreamParser
             String contentType=null;
             String contentTransferEncoding=null;
             
-            MultiMap headers = new MultiMap();
+            MultiMap<String> headers = new MultiMap<String>();
             while(true)
             {
                 line=((ReadLineInputStream)_in).readLine();

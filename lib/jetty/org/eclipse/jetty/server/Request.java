@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncListener;
 import javax.servlet.DispatcherType;
@@ -130,7 +131,7 @@ public class Request implements HttpServletRequest
     private final HttpFields _fields=new HttpFields();
     private final List<ServletRequestAttributeListener>  _requestAttributeListeners=new ArrayList<>();
     private final HttpInput<?> _input;
-    
+
     public static class MultiPartCleanerListener implements ServletRequestListener
     {
         @Override
@@ -162,10 +163,10 @@ public class Request implements HttpServletRequest
         {
             //nothing to do, multipart config set up by ServletHolder.handle()
         }
-        
+
     }
-    
-    
+
+
 
     private boolean _secure;
     private boolean _asyncSupported = true;
@@ -208,7 +209,7 @@ public class Request implements HttpServletRequest
     private HttpURI _uri;
     private MultiPartInputStreamParser _multiPartInputStream; //if the request is a multi-part mime
     private AsyncContextState _async;
-    
+
     /* ------------------------------------------------------------ */
     public Request(HttpChannel<?> channel, HttpInput<?> input)
     {
@@ -386,10 +387,8 @@ public class Request implements HttpServletRequest
         }
         catch (IOException | ServletException e)
         {
-            if (LOG.isDebugEnabled())
-                LOG.warn(e);
-            else
-                LOG.warn(e.toString());
+            LOG.warn(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -398,9 +397,9 @@ public class Request implements HttpServletRequest
     public AsyncContext getAsyncContext()
     {
         HttpChannelState state = getHttpChannelState();
-        if (_async==null || state.isInitial() && !state.isAsync())
+        if (_async==null || !state.isAsyncStarted())
             throw new IllegalStateException(state.getStatusString());
-        
+
         return _async;
     }
 
@@ -533,7 +532,7 @@ public class Request implements HttpServletRequest
     {
         return _input.getContentRead();
     }
-    
+
     /* ------------------------------------------------------------ */
     /*
      * @see javax.servlet.ServletRequest#getContentType()
@@ -574,7 +573,7 @@ public class Request implements HttpServletRequest
         {
             if (_cookies == null || _cookies.getCookies().length == 0)
                 return null;
-            
+
             return _cookies.getCookies();
         }
 
@@ -598,7 +597,7 @@ public class Request implements HttpServletRequest
         //Javadoc for Request.getCookies() stipulates null for no cookies
         if (_cookies == null || _cookies.getCookies().length == 0)
             return null;
-        
+
         return _cookies.getCookies();
     }
 
@@ -1018,7 +1017,7 @@ public class Request implements HttpServletRequest
     /* ------------------------------------------------------------ */
     /**
      * Access the underlying Remote {@link InetSocketAddress} for this request.
-     * 
+     *
      * @return the remote {@link InetSocketAddress} for this request, or null if the request has no remote (see {@link ServletRequest#getRemoteAddr()} for
      *         conditions that result in no remote address)
      */
@@ -1041,14 +1040,14 @@ public class Request implements HttpServletRequest
         InetSocketAddress remote=_remote;
         if (remote==null)
             remote=_channel.getRemoteAddress();
-        
+
         if (remote==null)
             return "";
-        
+
         InetAddress address = remote.getAddress();
         if (address==null)
             return remote.getHostString();
-        
+
         return address.getHostAddress();
     }
 
@@ -1209,7 +1208,7 @@ public class Request implements HttpServletRequest
 
         // Return host from header field
         String hostPort = _fields.getStringField(HttpHeader.HOST);
-        
+
         _port=0;
         if (hostPort != null)
         {
@@ -1240,14 +1239,14 @@ public class Request implements HttpServletRequest
             }
             if (hostPort.charAt(0)=='[')
             {
-                if (hostPort.charAt(len-1)!=']') 
+                if (hostPort.charAt(len-1)!=']')
                 {
                     LOG.warn("Bad IPv6 "+hostPort);
                     _serverName=hostPort;
                     _port=0;
                     return _serverName;
                 }
-                _serverName = hostPort.substring(1,len-1);
+                _serverName = hostPort.substring(0,len);
             }
             else if (len==hostPort.length())
                 _serverName=hostPort;
@@ -1396,7 +1395,7 @@ public class Request implements HttpServletRequest
 
         if (!create)
             return null;
-        
+
         if (getResponse().isCommitted())
             throw new IllegalStateException("Response is committed");
 
@@ -1484,7 +1483,7 @@ public class Request implements HttpServletRequest
             UserIdentity user = ((Authentication.User)_authentication).getUserIdentity();
             return user.getUserPrincipal();
         }
-        
+
         return null;
     }
 
@@ -1597,7 +1596,7 @@ public class Request implements HttpServletRequest
     {
         if (_context != null)
             throw new IllegalStateException("Request in context!");
-        
+
         if (_inputState == __READER)
         {
             try
@@ -1720,7 +1719,7 @@ public class Request implements HttpServletRequest
             setQueryEncoding(value == null?null:value.toString());
         else if ("org.eclipse.jetty.server.sendContent".equals(name))
             LOG.warn("Deprecated: org.eclipse.jetty.server.sendContent");
-        
+
         if (_attributes == null)
             _attributes = new AttributesMap();
         _attributes.setAttribute(name,value);
@@ -1865,9 +1864,6 @@ public class Request implements HttpServletRequest
     public void setHandled(boolean h)
     {
         _handled = h;
-        Response r=getResponse();
-        if (_handled && r.getStatus()==0)
-            r.setStatus(200);
     }
 
     /* ------------------------------------------------------------ */
@@ -1942,7 +1938,7 @@ public class Request implements HttpServletRequest
     {
         _remote = addr;
     }
-    
+
     /* ------------------------------------------------------------ */
     /**
      * @param requestedSessionId
@@ -2089,7 +2085,13 @@ public class Request implements HttpServletRequest
     @Override
     public String toString()
     {
-        return (_handled?"[":"(") + getMethod() + " " + _uri + (_handled?"]@":")@") + hashCode() + " " + super.toString();
+        return String.format("%s%s%s %s%s@%x",
+                getClass().getSimpleName(),
+                _handled ? "[" : "(",
+                getMethod(),
+                _uri,
+                _handled ? "]" : ")",
+                hashCode());
     }
 
     /* ------------------------------------------------------------ */
@@ -2131,14 +2133,14 @@ public class Request implements HttpServletRequest
         if (_multiPartInputStream == null)
         {
             MultipartConfigElement config = (MultipartConfigElement)getAttribute(__MULTIPART_CONFIG_ELEMENT);
-            
+
             if (config == null)
                 throw new IllegalStateException("No multipart config for servlet");
-            
+
             _multiPartInputStream = new MultiPartInputStreamParser(getInputStream(),
-                                                             getContentType(), config, 
+                                                             getContentType(), config,
                                                              (_context != null?(File)_context.getAttribute("javax.servlet.context.tempdir"):null));
-            
+
             setAttribute(__MULTIPART_INPUT_STREAM, _multiPartInputStream);
             setAttribute(__MULTIPART_CONTEXT, _context);
             Collection<Part> parts = _multiPartInputStream.getParts(); //causes parsing
@@ -2250,9 +2252,9 @@ public class Request implements HttpServletRequest
         {
             //Instantiate an instance and inject it
             T h = getContext().createInstance(handlerClass);
-            
+
             //TODO handle the rest of the upgrade process
-            
+
             return h;
         }
         catch (Exception e)

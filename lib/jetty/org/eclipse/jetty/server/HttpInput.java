@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -20,6 +20,7 @@ package org.eclipse.jetty.server;
 
 import java.io.IOException;
 import java.util.Objects;
+
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 
@@ -146,7 +147,8 @@ public abstract class HttpInput<T> extends ServletInputStream implements Runnabl
             {
                 if (_eofState != null)
                 {
-                    LOG.debug("{} eof {}", this, _eofState);
+                    if (LOG.isDebugEnabled())
+                        LOG.debug("{} eof {}", this, _eofState);
                     _contentState = _eofState;
                 }
             }
@@ -237,13 +239,23 @@ public abstract class HttpInput<T> extends ServletInputStream implements Runnabl
         {
             if (!isEOF())
             {
-                LOG.debug("{} early EOF", this);
+                if (LOG.isDebugEnabled())
+                    LOG.debug("{} early EOF", this);
                 _eofState = EARLY_EOF;
                 if (_listener == null)
                     return;
             }
         }
         _channelState.onReadPossible();
+    }
+
+
+    public boolean isEarlyEOF()
+    {
+        synchronized (lock())
+        {
+            return _contentState==EARLY_EOF;
+        }
     }
 
     /**
@@ -256,7 +268,8 @@ public abstract class HttpInput<T> extends ServletInputStream implements Runnabl
         {
             if (!isEOF())
             {
-                LOG.debug("{} EOF", this);
+                if (LOG.isDebugEnabled())
+                    LOG.debug("{} EOF", this);
                 _eofState = EOF;
                 if (_listener == null)
                     return;
@@ -265,10 +278,14 @@ public abstract class HttpInput<T> extends ServletInputStream implements Runnabl
         _channelState.onReadPossible();
     }
 
-    public void consumeAll()
+    public boolean consumeAll()
     {
         synchronized (lock())
         {
+            // Don't bother reading if we already know there was an error.
+            if (_onError != null)
+                return false;
+
             try
             {
                 while (!isFinished())
@@ -279,10 +296,12 @@ public abstract class HttpInput<T> extends ServletInputStream implements Runnabl
                     else
                         consume(item, remaining(item));
                 }
+                return true;
             }
             catch (IOException e)
             {
                 LOG.debug(e);
+                return false;
             }
         }
     }
@@ -294,7 +313,7 @@ public abstract class HttpInput<T> extends ServletInputStream implements Runnabl
             return _contentState==ASYNC;
         }
     }
-    
+
     /**
      * @return whether an EOF has been detected, even though there may be content to consume.
      */
@@ -314,6 +333,7 @@ public abstract class HttpInput<T> extends ServletInputStream implements Runnabl
             return _contentState.isEOF();
         }
     }
+
 
     @Override
     public boolean isReady()
@@ -346,16 +366,30 @@ public abstract class HttpInput<T> extends ServletInputStream implements Runnabl
     @Override
     public void setReadListener(ReadListener readListener)
     {
-        readListener = Objects.requireNonNull(readListener);
-        synchronized (lock())
+        try
         {
-            if (_contentState != STREAM)
-                throw new IllegalStateException("state=" + _contentState);
-            _contentState = ASYNC;
-            _listener = readListener;
-            _notReady = true;
+            readListener = Objects.requireNonNull(readListener);
+            boolean content;
+            synchronized (lock())
+            {
+                if (_contentState != STREAM)
+                    throw new IllegalStateException("state=" + _contentState);
+                _contentState = ASYNC;
+                _listener = readListener;
+                _notReady = true;
+
+                content = getNextContent()!=null || isEOF();
+
+            }
+            if (content)
+                _channelState.onReadPossible();
+            else
+                unready();
         }
-        _channelState.onReadPossible();
+        catch(IOException e)
+        {
+            throw new RuntimeIOException(e);
+        }
     }
 
     public void failed(Throwable x)
@@ -418,6 +452,18 @@ public abstract class HttpInput<T> extends ServletInputStream implements Runnabl
         }
     }
 
+    @Override
+    public String toString()
+    {
+        return String.format("%s@%x[r=%d,s=%s,e=%s,f=%s]",
+                getClass().getSimpleName(),
+                hashCode(),
+                _contentRead,
+                _contentState,
+                _eofState,
+                _onError);
+    }
+
     protected static abstract class State
     {
         public void waitForContent(HttpInput<?> in) throws IOException
@@ -470,7 +516,7 @@ public abstract class HttpInput<T> extends ServletInputStream implements Runnabl
         @Override
         public int noContent() throws IOException
         {
-            throw new EofException();
+            throw new EofException("Early EOF");
         }
 
         @Override

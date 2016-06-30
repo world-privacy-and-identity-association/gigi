@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -112,7 +112,7 @@ public class Response implements HttpServletResponse
     private final HttpFields _fields = new HttpFields();
     private final AtomicInteger _include = new AtomicInteger();
     private HttpOutput _out;
-    private int _status = HttpStatus.NOT_SET_000;
+    private int _status = HttpStatus.OK_200;
     private String _reason;
     private Locale _locale;
     private MimeTypes.Type _mimeType;
@@ -137,7 +137,7 @@ public class Response implements HttpServletResponse
 
     protected void recycle()
     {
-        _status = HttpStatus.NOT_SET_000;
+        _status = HttpStatus.OK_200;
         _reason = null;
         _locale = null;
         _mimeType = null;
@@ -541,10 +541,7 @@ public class Response implements HttpServletResponse
     @Override
     public void sendError(int sc) throws IOException
     {
-        if (sc == 102)
-            sendProcessing();
-        else
-            sendError(sc, null);
+        sendError(sc, null);
     }
 
     @Override
@@ -552,6 +549,17 @@ public class Response implements HttpServletResponse
     {
         if (isIncluding())
             return;
+
+        switch(code)
+        {
+            case -1:
+                _channel.abort();
+                return;
+            case 102:
+                sendProcessing();
+                return;
+            default:
+        }
 
         if (isCommitted())
             LOG.warn("Committed before "+code+" "+message);
@@ -594,19 +602,9 @@ public class Response implements HttpServletResponse
                 setContentType(MimeTypes.Type.TEXT_HTML_8859_1.toString());
                 try (ByteArrayISO8859Writer writer= new ByteArrayISO8859Writer(2048);)
                 {
-                    if (message != null)
-                    {
-                        message= StringUtil.replace(message, "&", "&amp;");
-                        message= StringUtil.replace(message, "<", "&lt;");
-                        message= StringUtil.replace(message, ">", "&gt;");
-                    }
+                    message=StringUtil.sanitizeXmlString(message);
                     String uri= request.getRequestURI();
-                    if (uri!=null)
-                    {
-                        uri= StringUtil.replace(uri, "&", "&amp;");
-                        uri= StringUtil.replace(uri, "<", "&lt;");
-                        uri= StringUtil.replace(uri, ">", "&gt;");
-                    }
+                    uri=StringUtil.sanitizeXmlString(uri);
 
                     writer.write("<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=ISO-8859-1\"/>\n");
                     writer.write("<title>Error ");
@@ -682,58 +680,26 @@ public class Response implements HttpServletResponse
         if (!URIUtil.hasScheme(location))
         {
             StringBuilder buf = _channel.getRequest().getRootURL();
- 
-            if (location.startsWith("//"))
+            if (location.startsWith("/"))
             {
-                buf.delete(0, buf.length());
-                buf.append(_channel.getRequest().getScheme());
-                buf.append(":");
-                buf.append(location);
+                // absolute in context
+                location=URIUtil.canonicalPath(location);
             }
-            else if (location.startsWith("/"))
-                buf.append(location);
             else
             {
-                String path = _channel.getRequest().getRequestURI();
-                String parent = (path.endsWith("/")) ? path : URIUtil.parentPath(path);
-                location = URIUtil.addPaths(parent, location);
-                if (location == null)
-                    throw new IllegalStateException("path cannot be above root");
+                // relative to request
+                String path=_channel.getRequest().getRequestURI();
+                String parent=(path.endsWith("/"))?path:URIUtil.parentPath(path);
+                location=URIUtil.canonicalPath(URIUtil.addPaths(parent,location));
                 if (!location.startsWith("/"))
                     buf.append('/');
-                buf.append(location);
             }
-
-            location = buf.toString();
-            HttpURI uri = new HttpURI(location);
-            String path = uri.getDecodedPath();
-            String canonical = URIUtil.canonicalPath(path);
-            if (canonical == null)
-                throw new IllegalArgumentException();
-            if (!canonical.equals(path))
-            {
-                buf = _channel.getRequest().getRootURL();
-                buf.append(URIUtil.encodePath(canonical));
-                String param=uri.getParam();
-                if (param!=null)
-                {
-                    buf.append(';');
-                    buf.append(param);
-                }
-                String query=uri.getQuery();
-                if (query!=null)
-                {
-                    buf.append('?');
-                    buf.append(query);
-                }
-                String fragment=uri.getFragment();
-                if (fragment!=null)
-                {
-                    buf.append('#');
-                    buf.append(fragment);
-                }
-                location = buf.toString();
-            }
+            
+            if(location==null)
+                throw new IllegalStateException("path cannot be above root");
+            buf.append(location);
+            
+            location=buf.toString();
         }
 
         resetBuffer();
@@ -1221,10 +1187,9 @@ public class Response implements HttpServletResponse
         String connection = _channel.getRequest().getHttpFields().getStringField(HttpHeader.CONNECTION);
         if (connection != null)
         {
-            String[] values = connection.split(",");
-            for (int i = 0; values != null && i < values.length; i++)
+            for (String value: StringUtil.csvSplit(null,connection,0,connection.length()))
             {
-                HttpHeaderValue cb = HttpHeaderValue.CACHE.get(values[0].trim());
+                HttpHeaderValue cb = HttpHeaderValue.CACHE.get(value);
 
                 if (cb != null)
                 {
@@ -1290,8 +1255,6 @@ public class Response implements HttpServletResponse
 
     protected ResponseInfo newResponseInfo()
     {
-        if (_status == HttpStatus.NOT_SET_000)
-            _status = HttpStatus.OK_200;
         return new ResponseInfo(_channel.getRequest().getHttpVersion(), _fields, getLongContentLength(), getStatus(), getReason(), _channel.getRequest().isHead());
     }
 

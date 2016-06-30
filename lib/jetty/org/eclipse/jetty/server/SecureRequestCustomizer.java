@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -20,8 +20,10 @@ package org.eclipse.jetty.server;
 
 import java.security.cert.X509Certificate;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLSession;
+import javax.servlet.ServletRequest;
 
 import org.eclipse.jetty.http.HttpScheme;
 import org.eclipse.jetty.io.ssl.SslConnection;
@@ -31,6 +33,12 @@ import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
+
+/* ------------------------------------------------------------ */
+/** Customizer that extracts the attribute from an {@link SSLContext}
+ * and sets them on the request with {@link ServletRequest#setAttribute(String, Object)}
+ * according to Servlet Specification Requirements.
+ */
 public class SecureRequestCustomizer implements HttpConfiguration.Customizer
 {
     private static final Logger LOG = Log.getLogger(SecureRequestCustomizer.class);
@@ -40,6 +48,7 @@ public class SecureRequestCustomizer implements HttpConfiguration.Customizer
      */
     public static final String CACHED_INFO_ATTR = CachedInfo.class.getName();
 
+    private String sslSessionAttribute = "org.eclipse.jetty.servlet.request.ssl_session";
 
     @Override
     public void customize(Connector connector, HttpConfiguration channelConfig, Request request)
@@ -53,14 +62,11 @@ public class SecureRequestCustomizer implements HttpConfiguration.Customizer
             SSLEngine sslEngine=sslConnection.getSSLEngine();
             customize(sslEngine,request);
         }
-
     }
 
     /* ------------------------------------------------------------ */
     /*
-     * Allow the Listener a chance to customise the request. before the server
-     * does its stuff. <br>
-     * This allows the required attributes to be set for SSL requests. <br>
+     * Customise the request attributes to be set for SSL requests. <br>
      * The requirements of the Servlet specs are:
      * <ul>
      * <li> an attribute named "javax.servlet.request.ssl_session_id" of type
@@ -114,11 +120,22 @@ public class SecureRequestCustomizer implements HttpConfiguration.Customizer
             request.setAttribute("javax.servlet.request.cipher_suite",cipherSuite);
             request.setAttribute("javax.servlet.request.key_size",keySize);
             request.setAttribute("javax.servlet.request.ssl_session_id", idStr);
+            request.setAttribute(getSslSessionAttribute(), sslSession);
         }
         catch (Exception e)
         {
             LOG.warn(Log.EXCEPTION,e);
         }
+    }
+    
+    public void setSslSessionAttribute(String attribute)
+    {
+        this.sslSessionAttribute = attribute;
+    }
+
+    public String getSslSessionAttribute()
+    {
+        return sslSessionAttribute;
     }
 
     @Override

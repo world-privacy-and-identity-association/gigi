@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -19,15 +19,15 @@
 package org.eclipse.jetty.server;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.List;
+
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
 
 import org.eclipse.jetty.io.AbstractConnection;
 import org.eclipse.jetty.io.Connection;
 import org.eclipse.jetty.io.EndPoint;
-import org.eclipse.jetty.server.ConnectionFactory;
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
@@ -95,7 +95,8 @@ public abstract class NegotiatingServerConnection extends AbstractConnection
                 if (engine.getHandshakeStatus() == SSLEngineResult.HandshakeStatus.NOT_HANDSHAKING)
                 {
                     // Here the SSL handshake is finished, but the protocol has not been negotiated.
-                    LOG.debug("{} could not negotiate protocol, SSLEngine: {}", this, engine);
+                    if (LOG.isDebugEnabled())
+                        LOG.debug("{} could not negotiate protocol, SSLEngine: {}", this, engine);
                     close();
                 }
                 else
@@ -110,26 +111,24 @@ public abstract class NegotiatingServerConnection extends AbstractConnection
                 ConnectionFactory connectionFactory = connector.getConnectionFactory(protocol);
                 if (connectionFactory == null)
                 {
-                    LOG.debug("{} application selected protocol '{}', but no correspondent {} has been configured",
+                    if (LOG.isDebugEnabled())
+                        LOG.debug("{} application selected protocol '{}', but no correspondent {} has been configured",
                             this, protocol, ConnectionFactory.class.getName());
                     close();
                 }
                 else
                 {
                     EndPoint endPoint = getEndPoint();
-                    Connection oldConnection = endPoint.getConnection();
                     Connection newConnection = connectionFactory.newConnection(connector, endPoint);
-                    LOG.debug("{} switching from {} to {}", this, oldConnection, newConnection);
-                    oldConnection.onClose();
-                    endPoint.setConnection(newConnection);
-                    getEndPoint().getConnection().onOpen();
+                    endPoint.upgrade(newConnection);
                 }
             }
         }
         else if (filled < 0)
         {
             // Something went bad, we need to close.
-            LOG.debug("{} closing on client close", this);
+            if (LOG.isDebugEnabled())
+                LOG.debug("{} closing on client close", this);
             close();
         }
         else

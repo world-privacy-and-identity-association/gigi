@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -297,7 +297,11 @@ public class JDBCSessionIdManager extends AbstractSessionIdManager
             if (_dbAdaptor == null)
                 throw new IllegalStateException ("No DBAdaptor");
             String longType = _dbAdaptor.getLongType();
-            return "alter table "+getTableName()+" add "+getMaxIntervalColumn()+" "+longType+" not null default "+MAX_INTERVAL_NOT_SET;
+            String stem = "alter table "+getTableName()+" add "+getMaxIntervalColumn()+" "+longType;
+            if (_dbAdaptor.getDBName().contains("oracle"))
+                return stem + " default "+ MAX_INTERVAL_NOT_SET + " not null";
+            else
+                return stem +" not null default "+ MAX_INTERVAL_NOT_SET;
         }
         
         private void checkNotNull(String s)
@@ -477,7 +481,8 @@ public class JDBCSessionIdManager extends AbstractSessionIdManager
         throws SQLException
         {
             _dbName = dbMeta.getDatabaseProductName().toLowerCase(Locale.ENGLISH);
-            LOG.debug ("Using database {}",_dbName);
+            if (LOG.isDebugEnabled())
+                LOG.debug ("Using database {}",_dbName);
             _isLower = dbMeta.storesLowerCaseIdentifiers();
             _isUpper = dbMeta.storesUpperCaseIdentifiers(); 
         }
@@ -603,7 +608,7 @@ public class JDBCSessionIdManager extends AbstractSessionIdManager
            finally
            {
                if (_scheduler != null && _scheduler.isRunning())
-                   _scheduler.schedule(this, _scavengeIntervalMs, TimeUnit.MILLISECONDS);
+                   _task = _scheduler.schedule(this, _scavengeIntervalMs, TimeUnit.MILLISECONDS);
            }
         }
     }
@@ -777,10 +782,10 @@ public class JDBCSessionIdManager extends AbstractSessionIdManager
         if (LOG.isDebugEnabled())
             LOG.debug("Scavenging every "+_scavengeIntervalMs+" ms");
         
-        //if (_timer!=null && (period!=old_period || _task==null))
-        if (_scheduler != null && (period!=old_period || _task==null))
+        synchronized (this)
         {
-            synchronized (this)
+            //if (_timer!=null && (period!=old_period || _task==null))
+            if (_scheduler != null && (period!=old_period || _task==null))
             {
                 if (_task!=null)
                     _task.cancel();
@@ -991,6 +996,8 @@ public class JDBCSessionIdManager extends AbstractSessionIdManager
              _ownScheduler = true;
              _scheduler.start();
          }
+         else if (!_scheduler.isStarted())
+             throw new IllegalStateException("Shared scheduler not started");
   
         setScavengeInterval(getScavengeInterval());
     }
