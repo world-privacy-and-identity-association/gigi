@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -61,7 +61,8 @@ public class HttpInputOverHTTP extends HttpInput<ByteBuffer> implements Callback
             try (Blocker blocker=_readBlocker.acquire())
             {            
                 _httpConnection.fillInterested(blocker);
-                LOG.debug("{} block readable on {}",this,blocker);
+                if (LOG.isDebugEnabled())
+                    LOG.debug("{} block readable on {}",this,blocker);
                 blocker.block();
             }
 

@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -72,7 +72,7 @@ public class ResourceHandler extends HandlerWrapper
     String _cacheControl;
     boolean _directory;
     boolean _etags;
-    int _minMemoryMappedContentLength=-1;
+    int _minMemoryMappedContentLength=1024;
     int _minAsyncContentLength=0;
 
     /* ------------------------------------------------------------ */
@@ -240,18 +240,18 @@ public class ResourceHandler extends HandlerWrapper
      */
     public Resource getStylesheet()
     {
-    	if(_stylesheet != null)
-    	{
-    	    return _stylesheet;
-    	}
-    	else
-    	{
-    	    if(_defaultStylesheet == null)
-    	    {
-    	        _defaultStylesheet =  Resource.newResource(this.getClass().getResource("/jetty-dir.css"));
-    	    }
-    	    return _defaultStylesheet;
-    	}
+        if(_stylesheet != null)
+        {
+            return _stylesheet;
+        }
+        else
+        {
+            if(_defaultStylesheet == null)
+            {
+                _defaultStylesheet =  Resource.newResource(this.getClass().getResource("/jetty-dir.css"));
+            }
+            return _defaultStylesheet;
+        }
     }
 
     /* ------------------------------------------------------------ */
@@ -269,12 +269,12 @@ public class ResourceHandler extends HandlerWrapper
                 _stylesheet = null;
             }
         }
-    	catch(Exception e)
-    	{
-    	    LOG.warn(e.toString());
-    	    LOG.debug(e);
-    	    throw new IllegalArgumentException(stylesheet);
-    	}
+        catch(Exception e)
+        {
+            LOG.warn(e.toString());
+            LOG.debug(e);
+            throw new IllegalArgumentException(stylesheet);
+        }
     }
 
     /* ------------------------------------------------------------ */
@@ -303,20 +303,29 @@ public class ResourceHandler extends HandlerWrapper
         if (path==null || !path.startsWith("/"))
             throw new MalformedURLException(path);
 
+        if (LOG.isDebugEnabled())
+            LOG.debug("{} getResource({})",_context==null?_baseResource:_context,_baseResource,path);
+        
         Resource base = _baseResource;
         if (base==null)
         {
             if (_context==null)
                 return null;
-            base=_context.getBaseResource();
-            if (base==null)
-                return null;
+            return _context.getResource(path);
         }
 
         try
         {
             path=URIUtil.canonicalPath(path);
-            return base.addPath(path);
+            Resource r = base.addPath(path);
+            
+            if (r!=null && r.getAlias()!=null && (_context==null || !_context.checkAlias(path, r)))
+            {
+                if (LOG.isDebugEnabled())
+                    LOG.debug("resource={} alias={}",r,r.getAlias());
+                return null;
+            }
+            return r;
         }
         catch(Exception e)
         {
@@ -403,6 +412,16 @@ public class ResourceHandler extends HandlerWrapper
         }
 
         Resource resource = getResource(request);
+        
+        if (LOG.isDebugEnabled())
+        { 
+            if (resource==null)
+                LOG.debug("resource=null");
+            else
+                LOG.debug("resource={} alias={} exists={}",resource,resource.getAlias(),resource.exists());
+        }
+        
+        
         // If resource is not found
         if (resource==null || !resource.exists())
         {
@@ -428,7 +447,9 @@ public class ResourceHandler extends HandlerWrapper
         // handle directories
         if (resource.isDirectory())
         {
-            if (!request.getPathInfo().endsWith(URIUtil.SLASH))
+            String pathInfo = request.getPathInfo();
+            boolean endsWithSlash=(pathInfo==null?request.getServletPath():pathInfo).endsWith(URIUtil.SLASH);
+            if (!endsWithSlash)
             {
                 response.sendRedirect(response.encodeRedirectURL(URIUtil.addPaths(request.getRequestURI(),URIUtil.SLASH)));
                 return;
@@ -503,6 +524,7 @@ public class ResourceHandler extends HandlerWrapper
                 resource.length()>=min_async_size)
             {
                 final AsyncContext async = request.startAsync();
+                async.setTimeout(0);
                 Callback callback = new Callback()
                 {
                     @Override
@@ -523,6 +545,7 @@ public class ResourceHandler extends HandlerWrapper
                 // Can we use a memory mapped file?
                 if (_minMemoryMappedContentLength>0 && 
                     resource.length()>_minMemoryMappedContentLength &&
+                    resource.length()<Integer.MAX_VALUE &&
                     resource instanceof FileResource)
                 {
                     ByteBuffer buffer = BufferUtil.toMappedBuffer(resource.getFile());

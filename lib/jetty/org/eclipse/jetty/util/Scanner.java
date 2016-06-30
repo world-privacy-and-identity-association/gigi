@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -557,12 +557,16 @@ public class Scanner extends AbstractLifeCycle
             {
                 if ((_filter == null) || ((_filter != null) && _filter.accept(f.getParentFile(), f.getName())))
                 {
-                    LOG.debug("scan accepted {}",f);
+                    if (LOG.isDebugEnabled())
+                        LOG.debug("scan accepted {}",f);
                     String name = f.getCanonicalPath();
-                    scanInfoMap.put(name, new TimeNSize(f.lastModified(),f.length()));
+                    scanInfoMap.put(name, new TimeNSize(f.lastModified(),f.isDirectory()?0:f.length()));
                 }
                 else
-                    LOG.debug("scan rejected {}",f);
+                {
+                    if (LOG.isDebugEnabled())
+                        LOG.debug("scan rejected {}",f);
+                }
             }
             
             // If it is a directory, scan if it is a known directory or the depth is OK.

@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -539,8 +539,6 @@ public class HttpURI
     {
         if (_host==_port)
             return null;
-        if (_raw[_host]=='[')
-            return new String(_raw,_host+1,_port-_host-2,_charset);
         return new String(_raw,_host,_port-_host,_charset);
     }
 
