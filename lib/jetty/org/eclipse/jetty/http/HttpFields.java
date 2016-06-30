@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -171,6 +171,17 @@ public class HttpFields implements Iterable<HttpField>
 
         return false;
     }
+
+    public boolean contains(HttpHeader header)
+    {
+        for (int i=0;i<_fields.size();i++)
+        {
+            HttpField f=_fields.get(i);
+            if (f.getHeader()==header)
+                return true;
+        }
+        return false;
+    }
     
     public boolean containsKey(String name)
     {
@@ -182,7 +193,8 @@ public class HttpFields implements Iterable<HttpField>
         }
         return false;
     }
-
+    
+    
     public String getStringField(HttpHeader header)
     {
         return getStringField(header.asString());

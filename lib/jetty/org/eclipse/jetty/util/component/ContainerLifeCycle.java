@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -320,7 +320,8 @@ public class ContainerLifeCycle extends AbstractLifeCycle implements Container, 
             throw new RuntimeException(e);
         }
 
-        LOG.debug("{} added {}",this,new_bean);
+        if (LOG.isDebugEnabled())
+            LOG.debug("{} added {}",this,new_bean);
 
         return true;
     }
@@ -523,6 +524,7 @@ public class ContainerLifeCycle extends AbstractLifeCycle implements Container, 
     {
         if (_beans.remove(bean))
         {
+            boolean wasManaged = bean.isManaged();
             
             unmanage(bean);
 
@@ -533,7 +535,7 @@ public class ContainerLifeCycle extends AbstractLifeCycle implements Container, 
                 removeEventListener((Container.Listener)bean._bean);
 
             // stop managed beans
-            if (bean._managed==Managed.MANAGED && bean._bean instanceof LifeCycle)
+            if (wasManaged && bean._bean instanceof LifeCycle)
             {
                 try
                 {

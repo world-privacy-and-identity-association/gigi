@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -193,7 +193,7 @@ public abstract class Resource implements ResourceFactory, Closeable
             }
         }
 
-        return newResource(url);
+        return newResource(url, useCaches);
     }
 
     /* ------------------------------------------------------------ */
@@ -352,6 +352,7 @@ public abstract class Resource implements ResourceFactory, Closeable
     /**
      * Returns an URL representing the given resource
      */
+    // TODO: should deprecate this one and only use getURI()
     public abstract URL getURL();
 
     /* ------------------------------------------------------------ */
@@ -405,6 +406,7 @@ public abstract class Resource implements ResourceFactory, Closeable
     /**
      * Deletes the given resource
      */
+    // TODO: can throw IOException
     public abstract boolean delete()
         throws SecurityException;
     
@@ -412,6 +414,7 @@ public abstract class Resource implements ResourceFactory, Closeable
     /**
      * Rename the given resource
      */
+    // TODO: can throw IOException
     public abstract boolean renameTo( Resource dest)
         throws SecurityException;
     
@@ -420,6 +423,7 @@ public abstract class Resource implements ResourceFactory, Closeable
      * Returns a list of resource names contained in the given resource
      * The resource names are not URL encoded.
      */
+    // TODO: can throw IOException
     public abstract String[] list();
 
     /* ------------------------------------------------------------ */
@@ -545,7 +549,7 @@ public abstract class Resource implements ResourceFactory, Closeable
             buf.append("</TD></TR>");
         }
         buf.append("</TABLE>\n");
-	buf.append("</BODY></HTML>\n");
+        buf.append("</BODY></HTML>\n");
         
         return buf.toString();
     }
@@ -609,7 +613,7 @@ public abstract class Resource implements ResourceFactory, Closeable
     
     private static String deTag(String raw) 
     {
-        return StringUtil.replace( StringUtil.replace(raw,"<","&lt;"), ">", "&gt;");
+        return StringUtil.sanitizeXmlString(raw);
     }
     
     /* ------------------------------------------------------------ */

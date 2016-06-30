@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -312,7 +312,7 @@ public class SslConnection extends AbstractConnection
                 {
                     @Override
                     public void succeeded()
-                    {                        
+                    {
                     }
 
                     @Override
@@ -322,7 +322,7 @@ public class SslConnection extends AbstractConnection
                             getFillInterest().onFail(x);
                         getWriteFlusher().onFail(x);
                     }
-                    
+
                 },x);
             }
         };
@@ -359,7 +359,7 @@ public class SslConnection extends AbstractConnection
             // all data could be wrapped. So either we need to write some encrypted data,
             // OR if we are handshaking we need to read some encrypted data OR
             // if neither then we should just try the flush again.
-            boolean flush = false;
+            boolean try_again = false;
             synchronized (DecryptedEndPoint.this)
             {
                 if (DEBUG)
@@ -380,10 +380,17 @@ public class SslConnection extends AbstractConnection
                 }
                 else
                 {
-                    flush = true;
+                    // We can get here because the WriteFlusher might not see progress
+                    // when it has just flushed the encrypted data, but not consumed anymore
+                    // of the application buffers.  This is mostly avoided by another iteration
+                    // within DecryptedEndPoint flush(), but I cannot convince myself that
+                    // this is never ever the case.
+                    try_again = true;
                 }
             }
-            if (flush)
+
+
+            if (try_again)
             {
                 // If the output is closed,
                 if (isOutputShutdown())
@@ -395,7 +402,9 @@ public class SslConnection extends AbstractConnection
                 else
                 {
                     // try to flush what is pending
-                    getWriteFlusher().completeWrite();
+                    // because this is a special case (see above) we could probably
+                    // avoid the dispatch, but best to be sure
+                    getExecutor().execute(_runCompletWrite);
                 }
             }
         }
@@ -512,8 +521,15 @@ public class SslConnection extends AbstractConnection
                         // Let's unwrap even if we have no net data because in that
                         // case we want to fall through to the handshake handling
                         int pos = BufferUtil.flipToFill(app_in);
-                        SSLEngineResult unwrapResult = _sslEngine.unwrap(_encryptedInput, app_in);
-                        BufferUtil.flipToFlush(app_in, pos);
+                        SSLEngineResult unwrapResult;
+                        try
+                        {
+                            unwrapResult = _sslEngine.unwrap(_encryptedInput, app_in);
+                        }
+                        finally
+                        {
+                            BufferUtil.flipToFlush(app_in, pos);
+                        }
                         if (DEBUG)
                             LOG.debug("{} unwrap {}", SslConnection.this, unwrapResult);
 
@@ -521,7 +537,9 @@ public class SslConnection extends AbstractConnection
                         HandshakeStatus unwrapHandshakeStatus = unwrapResult.getHandshakeStatus();
                         Status unwrapResultStatus = unwrapResult.getStatus();
 
-                        _underFlown = unwrapResultStatus == Status.BUFFER_UNDERFLOW;
+                        // Extra check on unwrapResultStatus == OK with zero length buffer is due
+                        // to SSL client on android (see bug #454773)
+                        _underFlown = unwrapResultStatus == Status.BUFFER_UNDERFLOW || unwrapResultStatus == Status.OK && unwrapResult.bytesConsumed()==0 && unwrapResult.bytesProduced()==0;
 
                         if (_underFlown)
                         {
@@ -552,6 +570,12 @@ public class SslConnection extends AbstractConnection
                                         // We need to send some handshake data (probably the close handshake).
                                         // We return -1 so that the application can drive the close by flushing
                                         // or shutting down the output.
+                                        return -1;
+                                    }
+                                    case NEED_UNWRAP:
+                                    {
+                                        // We expected to read more, but we got closed.
+                                        // Return -1 to indicate to the application to drive the close.
                                         return -1;
                                     }
                                     default:
@@ -654,7 +678,7 @@ public class SslConnection extends AbstractConnection
             }
             catch (Exception e)
             {
-                getEndPoint().close();
+                close();
                 throw e;
             }
             finally
@@ -724,24 +748,26 @@ public class SslConnection extends AbstractConnection
                     // We call sslEngine.wrap to try to take bytes from appOut buffers and encrypt them into the _netOut buffer
                     BufferUtil.compact(_encryptedOutput);
                     int pos = BufferUtil.flipToFill(_encryptedOutput);
-                    SSLEngineResult wrapResult = _sslEngine.wrap(appOuts, _encryptedOutput);
-                    if (DEBUG)
-                        LOG.debug("{} wrap {}", SslConnection.this, wrapResult);
-                    BufferUtil.flipToFlush(_encryptedOutput, pos);
-                    if (wrapResult.bytesConsumed()>0)
-                        consumed+=wrapResult.bytesConsumed();
-
-                    boolean allConsumed=true;
-                    // clear empty buffers to prevent position creeping up the buffer
-                    for (ByteBuffer b : appOuts)
+                    SSLEngineResult wrapResult;
+                    try
                     {
-                        if (BufferUtil.isEmpty(b))
-                            BufferUtil.clear(b);
-                        else
-                            allConsumed=false;
+                        wrapResult=_sslEngine.wrap(appOuts, _encryptedOutput);
+                    }
+                    finally
+                    {
+                        BufferUtil.flipToFlush(_encryptedOutput, pos);
                     }
 
+                    if (DEBUG)
+                        LOG.debug("{} wrap {}", SslConnection.this, wrapResult);
+                    if (wrapResult.bytesConsumed()>0)
+                        consumed+=wrapResult.bytesConsumed();
                     Status wrapResultStatus = wrapResult.getStatus();
+
+                    boolean allConsumed=true;
+                    for (ByteBuffer b : appOuts)
+                        if (BufferUtil.hasContent(b))
+                            allConsumed=false;
 
                     // and deal with the results returned from the sslEngineWrap
                     switch (wrapResultStatus)
@@ -788,19 +814,26 @@ public class SslConnection extends AbstractConnection
                             {
                                 if (DEBUG)
                                     LOG.debug("{} renegotiation denied", SslConnection.this);
-                                shutdownOutput();
+                                getEndPoint().shutdownOutput();
                                 return allConsumed;
                             }
 
                             // if we have net bytes, let's try to flush them
                             if (BufferUtil.hasContent(_encryptedOutput))
-                                getEndPoint().flush(_encryptedOutput);
+                                if (!getEndPoint().flush(_encryptedOutput))
+                                    getEndPoint().flush(_encryptedOutput); // one retry
 
                             // But we also might have more to do for the handshaking state.
                             switch (handshakeStatus)
                             {
                                 case NOT_HANDSHAKING:
-                                    // Return with the number of bytes consumed (which may be 0)
+                                    // If we have not consumed all and had just finished handshaking, then we may
+                                    // have just flushed the last handshake in the encrypted buffers, so we should
+                                    // try again.
+                                    if (!allConsumed && wrapResult.getHandshakeStatus()==HandshakeStatus.FINISHED && BufferUtil.isEmpty(_encryptedOutput))
+                                        continue;
+
+                                    // Return true if we consumed all the bytes and encrypted are all flushed
                                     return allConsumed && BufferUtil.isEmpty(_encryptedOutput);
 
                                 case NEED_TASK:
@@ -831,11 +864,6 @@ public class SslConnection extends AbstractConnection
                             }
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                getEndPoint().close();
-                throw e;
             }
             finally
             {

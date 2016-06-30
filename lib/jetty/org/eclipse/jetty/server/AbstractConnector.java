@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -19,8 +19,6 @@
 package org.eclipse.jetty.server;
 
 import java.io.IOException;
-import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,9 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.io.ArrayByteBufferPool;
 import org.eclipse.jetty.io.ByteBufferPool;
-import org.eclipse.jetty.io.Connection;
 import org.eclipse.jetty.io.EndPoint;
-import org.eclipse.jetty.io.ssl.SslConnection;
 import org.eclipse.jetty.util.FutureCallback;
 import org.eclipse.jetty.util.annotation.ManagedAttribute;
 import org.eclipse.jetty.util.annotation.ManagedObject;
@@ -47,7 +43,6 @@ import org.eclipse.jetty.util.component.ContainerLifeCycle;
 import org.eclipse.jetty.util.component.Dumpable;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.ScheduledExecutorScheduler;
 import org.eclipse.jetty.util.thread.Scheduler;
 
@@ -145,13 +140,14 @@ public abstract class AbstractConnector extends ContainerLifeCycle implements Co
     private final Scheduler _scheduler;
     private final ByteBufferPool _byteBufferPool;
     private final Thread[] _acceptors;
-    private final Set<EndPoint> _endpoints = Collections.newSetFromMap(new ConcurrentHashMap());
+    private final Set<EndPoint> _endpoints = Collections.newSetFromMap(new ConcurrentHashMap<EndPoint, Boolean>());
     private final Set<EndPoint> _immutableEndPoints = Collections.unmodifiableSet(_endpoints);
     private volatile CountDownLatch _stopping;
     private long _idleTimeout = 30000;
     private String _defaultProtocol;
     private ConnectionFactory _defaultConnectionFactory;
     private String _name;
+    private int _acceptorPriorityDelta;
 
 
     /**
@@ -159,7 +155,7 @@ public abstract class AbstractConnector extends ContainerLifeCycle implements Co
      * @param executor An executor for this connector or null to use the servers executor
      * @param scheduler A scheduler for this connector or null to either a {@link Scheduler} set as a server bean or if none set, then a new {@link ScheduledExecutorScheduler} instance.
      * @param pool A buffer pool for this connector or null to either a {@link ByteBufferPool} set as a server bean or none set, the new  {@link ArrayByteBufferPool} instance.
-     * @param acceptors the number of acceptor threads to use, or 0 for a default value.
+     * @param acceptors the number of acceptor threads to use, or -1 for a default value. If 0, then no acceptor threads will be launched and some other mechanism will need to be used to accept new connections.
      * @param factories The Connection Factories to use.
      */
     public AbstractConnector(
@@ -191,9 +187,9 @@ public abstract class AbstractConnector extends ContainerLifeCycle implements Co
 
         int cores = Runtime.getRuntime().availableProcessors();
         if (acceptors < 0)
-            acceptors = 1 + cores / 16;
-        if (acceptors > 2 * cores)
-            LOG.warn("Acceptors should be <= 2*availableProcessors: " + this);
+            acceptors=Math.max(1, Math.min(4,cores/8));        
+        if (acceptors > cores)
+            LOG.warn("Acceptors should be <= availableProcessors: " + this);
         _acceptors = new Thread[acceptors];
     }
 
@@ -261,7 +257,11 @@ public abstract class AbstractConnector extends ContainerLifeCycle implements Co
 
         _stopping=new CountDownLatch(_acceptors.length);
         for (int i = 0; i < _acceptors.length; i++)
-            getExecutor().execute(new Acceptor(i));
+        {
+            Acceptor a = new Acceptor(i);
+            addBean(a);
+            getExecutor().execute(a);
+        }
 
         LOG.info("Started {}", this);
     }
@@ -299,6 +299,9 @@ public abstract class AbstractConnector extends ContainerLifeCycle implements Co
         _stopping=null;
 
         super.doStop();
+        
+        for (Acceptor a : getBeans(Acceptor.class))
+            removeBean(a);
 
         LOG.info("Stopped {}", this);
     }
@@ -397,6 +400,30 @@ public abstract class AbstractConnector extends ContainerLifeCycle implements Co
         }
     }
 
+    @ManagedAttribute("The priority delta to apply to acceptor threads")
+    public int getAcceptorPriorityDelta()
+    {
+        return _acceptorPriorityDelta;
+    }
+
+    /* ------------------------------------------------------------ */
+    /** Set the acceptor thread priority delta.
+     * <p>This allows the acceptor thread to run at a different priority.
+     * Typically this would be used to lower the priority to give preference 
+     * to handling previously accepted connections rather than accepting 
+     * new connections</p>
+     * @param acceptorPriorityDelta
+     */
+    public void setAcceptorPriorityDelta(int acceptorPriorityDelta)
+    {
+        int old=_acceptorPriorityDelta;
+        _acceptorPriorityDelta = acceptorPriorityDelta;
+        if (old!=acceptorPriorityDelta && isStarted())
+        {
+            for (Thread thread : _acceptors)
+                thread.setPriority(Math.max(Thread.MIN_PRIORITY,Math.min(Thread.MAX_PRIORITY,thread.getPriority()-old+acceptorPriorityDelta)));
+        }
+    }
 
     @Override
     @ManagedAttribute("Protocols supported by this connector")
@@ -440,6 +467,7 @@ public abstract class AbstractConnector extends ContainerLifeCycle implements Co
     private class Acceptor implements Runnable
     {
         private final int _acceptor;
+        private String _name;
 
         private Acceptor(int id)
         {
@@ -449,13 +477,18 @@ public abstract class AbstractConnector extends ContainerLifeCycle implements Co
         @Override
         public void run()
         {
-            Thread current = Thread.currentThread();
-            String name = current.getName();
-            current.setName(name + "-acceptor-" + _acceptor + "-" + AbstractConnector.this);
+            final Thread thread = Thread.currentThread();
+            String name=thread.getName();
+            _name=String.format("%s-acceptor-%d@%x-%s",name,_acceptor,hashCode(),AbstractConnector.this.toString());
+            thread.setName(_name);
+            
+            int priority=thread.getPriority();
+            if (_acceptorPriorityDelta!=0)
+                thread.setPriority(Math.max(Thread.MIN_PRIORITY,Math.min(Thread.MAX_PRIORITY,priority+_acceptorPriorityDelta)));
 
             synchronized (AbstractConnector.this)
             {
-                _acceptors[_acceptor] = current;
+                _acceptors[_acceptor] = thread;
             }
 
             try
@@ -477,7 +510,9 @@ public abstract class AbstractConnector extends ContainerLifeCycle implements Co
             }
             finally
             {
-                current.setName(name);
+                thread.setName(name);
+                if (_acceptorPriorityDelta!=0)
+                    thread.setPriority(priority);
 
                 synchronized (AbstractConnector.this)
                 {
@@ -488,6 +523,16 @@ public abstract class AbstractConnector extends ContainerLifeCycle implements Co
                     stopping.countDown();
             }
         }
+        
+        @Override
+        public String toString()
+        {
+            String name=_name;
+            if (name==null)
+                return String.format("acceptor-%d@%x", _acceptor, hashCode());
+            return name;
+        }
+        
     }
 
 

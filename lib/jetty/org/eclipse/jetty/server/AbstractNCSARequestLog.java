@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -25,7 +25,6 @@ import javax.servlet.http.Cookie;
 
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.PathMap;
-import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.util.DateCache;
 import org.eclipse.jetty.util.annotation.ManagedAttribute;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
@@ -121,7 +120,7 @@ public abstract class AbstractNCSARequestLog extends AbstractLifeCycle implement
             if (authentication instanceof Authentication.User)
                 buf.append(((Authentication.User)authentication).getUserIdentity().getUserPrincipal().getName());
             else
-                buf.append(" - ");
+                buf.append("-");
 
             buf.append(" [");
             if (_logDateCache != null)

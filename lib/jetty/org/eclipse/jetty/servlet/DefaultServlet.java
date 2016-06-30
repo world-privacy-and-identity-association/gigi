@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -25,8 +25,10 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.RequestDispatcher;
@@ -67,6 +69,7 @@ import org.eclipse.jetty.util.resource.ResourceFactory;
 
 /* ------------------------------------------------------------ */
 /** The default servlet.
+ * 
  * This servlet, normally mapped to /, provides the handling for static
  * content, OPTION and TRACE methods for the context.
  * The following initParameters are supported, these can be set either
@@ -121,10 +124,14 @@ import org.eclipse.jetty.util.resource.ResourceFactory;
  *                    If set to true, it will use mapped file buffer to serve static content
  *                    when using NIO connector. Setting this value to false means that
  *                    a direct buffer will be used instead of a mapped file buffer.
- *                    By default, this is set to true.
+ *                    This is set to false by default by this class, but may be overridden
+ *                    by eg webdefault.xml 
  *
  *  cacheControl      If set, all static content will have this value set as the cache-control
  *                    header.
+ *                    
+ * otherGzipFileExtensions
+ *                    Other file extensions that signify that a file is gzip compressed. Eg ".svgz"
  *
  *
  * </PRE>
@@ -164,6 +171,7 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
     private String _relativeResourceBase;
     private ServletHandler _servletHandler;
     private ServletHolder _defaultHolder;
+    private List<String> _gzipEquivalentFileExtensions;
 
     /* ------------------------------------------------------------ */
     @Override
@@ -249,18 +257,19 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
                 throw new UnavailableException("resourceCache specified with resource bases");
             _cache=(ResourceCache)_servletContext.getAttribute(resourceCache);
 
-            LOG.debug("Cache {}={}",resourceCache,_cache);
+            if (LOG.isDebugEnabled())
+                LOG.debug("Cache {}={}",resourceCache,_cache);
         }
 
         _etags = getInitBoolean("etags",_etags);
         
         try
         {
-            if (_cache==null && max_cached_files>0)
+            if (_cache==null && (max_cached_files!=-2 || max_cache_size!=-2 || max_cached_file_size!=-2))
             {
                 _cache= new ResourceCache(null,this,_mimeTypes,_useFileMappedBuffer,_etags);
 
-                if (max_cache_size>0)
+                if (max_cache_size>=0)
                     _cache.setMaxCacheSize(max_cache_size);
                 if (max_cached_file_size>=-1)
                     _cache.setMaxCachedFileSize(max_cached_file_size);
@@ -273,15 +282,33 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
             LOG.warn(Log.EXCEPTION,e);
             throw new UnavailableException(e.toString());
         }
-
-        _servletHandler= _contextHandler.getChildHandlerByClass(ServletHandler.class);
-        for (ServletHolder h :_servletHandler.getServlets())
-            if (h.getServletInstance()==this)
-                _defaultHolder=h;
-
         
-        if (LOG.isDebugEnabled())
-            LOG.debug("resource base = "+_resourceBase);
+       _gzipEquivalentFileExtensions = new ArrayList<String>();
+       String otherGzipExtensions = getInitParameter("otherGzipFileExtensions");
+       if (otherGzipExtensions != null)
+       {
+           //comma separated list
+           StringTokenizer tok = new StringTokenizer(otherGzipExtensions,",",false);
+           while (tok.hasMoreTokens())
+           {
+               String s = tok.nextToken().trim();
+               _gzipEquivalentFileExtensions.add((s.charAt(0)=='.'?s:"."+s));
+           }
+       }
+       else
+       {
+           //.svgz files are gzipped svg files and must be served with Content-Encoding:gzip
+           _gzipEquivalentFileExtensions.add(".svgz");   
+       }
+
+       _servletHandler= _contextHandler.getChildHandlerByClass(ServletHandler.class);
+       for (ServletHolder h :_servletHandler.getServlets())
+           if (h.getServletInstance()==this)
+               _defaultHolder=h;
+
+
+       if (LOG.isDebugEnabled())
+           LOG.debug("resource base = "+_resourceBase);
     }
 
     /**
@@ -426,6 +453,7 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
         // Find the resource and content
         Resource resource=null;
         HttpContent content=null;
+        boolean close_content=true;
         try
         {
             // is gzip enabled?
@@ -469,7 +497,7 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
             }
 
             if (LOG.isDebugEnabled())
-                LOG.debug("uri="+request.getRequestURI()+" resource="+resource+(content!=null?" content":""));
+                LOG.debug(String.format("uri=%s, resource=%s, content=%s",request.getRequestURI(),resource,content));
 
             // Handle resource
             if (resource==null || !resource.exists())
@@ -496,14 +524,14 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
 
                     if (included.booleanValue() || passConditionalHeaders(request,response, resource,content))
                     {
-                        if (gzip)
+                        if (gzip || isGzippedContent(pathInContext))
                         {
                             response.setHeader(HttpHeader.CONTENT_ENCODING.asString(),"gzip");
                             String mt=_servletContext.getMimeType(pathInContext);
                             if (mt!=null)
                                 response.setContentType(mt);
                         }
-                        sendData(request,response,included.booleanValue(),resource,content,reqRanges);
+                        close_content=sendData(request,response,included.booleanValue(),resource,content,reqRanges);
                     }
                 }
             }
@@ -534,7 +562,8 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
                 // else look for a welcome file
                 else if (null!=(welcome=getWelcomeFile(pathInContext)))
                 {
-                    LOG.debug("welcome={}",welcome);
+                    if (LOG.isDebugEnabled())
+                        LOG.debug("welcome={}",welcome);
                     if (_redirectWelcome)
                     {
                         // Redirect to the index
@@ -577,12 +606,29 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
         }
         finally
         {
-            if (content!=null)
-                content.release();
-            else if (resource!=null)
-                resource.close();
+            if (close_content)
+            {
+                if (content!=null)
+                    content.release();
+                else if (resource!=null)
+                    resource.close();
+            }
         }
 
+    }
+
+    /**
+     * @param resource
+     * @return
+     */
+    protected boolean isGzippedContent(String path)
+    {
+        if (path == null) return false;
+      
+        for (String suffix:_gzipEquivalentFileExtensions)
+            if (path.endsWith(suffix))
+                return true;
+        return false;
     }
 
     /* ------------------------------------------------------------ */
@@ -814,16 +860,16 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
     }
 
     /* ------------------------------------------------------------ */
-    protected void sendData(HttpServletRequest request,
+    protected boolean sendData(HttpServletRequest request,
             HttpServletResponse response,
             boolean include,
             Resource resource,
-            HttpContent content,
+            final HttpContent content,
             Enumeration<String> reqRanges)
     throws IOException
     {
         final long content_length = (content==null)?resource.length():content.getContentLength();
-
+        
         // Get the output stream (or writer)
         OutputStream out =null;
         boolean written;
@@ -841,6 +887,9 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
             out = new WriterOutputStream(response.getWriter());
             written=true; // there may be data in writer buffer, so assume written
         }
+        
+        if (LOG.isDebugEnabled())
+            LOG.debug(String.format("sendData content=%s out=%s async=%b",content,out,request.isAsyncSupported()));
 
         if ( reqRanges == null || !reqRanges.hasMoreElements() || content_length<0)
         {
@@ -877,6 +926,7 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
                 if (request.isAsyncSupported())
                 {
                     final AsyncContext context = request.startAsync();
+                    context.setTimeout(0);
 
                     ((HttpOutput)out).sendContent(content,new Callback()
                     {
@@ -884,6 +934,7 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
                         public void succeeded()
                         {   
                             context.complete();
+                            content.release();
                         }
 
                         @Override
@@ -894,14 +945,20 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
                             else
                                 LOG.warn(x);
                             context.complete();
+                            content.release();
+                        }
+                        
+                        @Override
+                        public String toString() 
+                        {
+                            return String.format("DefaultServlet@%x$CB", DefaultServlet.this.hashCode());
                         }
                     });
+                    return false;
                 }
                 // otherwise write content blocking
-                else
-                {
-                    ((HttpOutput)out).sendContent(content);
-                }
+                ((HttpOutput)out).sendContent(content);
+                
             }
         }
         else
@@ -917,7 +974,7 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
                 response.setHeader(HttpHeader.CONTENT_RANGE.asString(),
                         InclusiveByteRange.to416HeaderRangeString(content_length));
                 resource.writeTo(out,0,content_length);
-                return;
+                return true;
             }
 
             //  if there is only a single valid range (must be satisfiable
@@ -933,7 +990,7 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
                 response.setHeader(HttpHeader.CONTENT_RANGE.asString(),
                         singleSatisfiableRange.toHeaderRangeString(content_length));
                 resource.writeTo(out,singleSatisfiableRange.getFirst(content_length),singleLength);
-                return;
+                return true;
             }
 
             //  multiple non-overlapping valid ranges cause a multipart
@@ -1013,12 +1070,20 @@ public class DefaultServlet extends HttpServlet implements ResourceFactory
                 in.close();
             multi.close();
         }
-        return;
+        return true;
     }
 
     /* ------------------------------------------------------------ */
     protected void writeHeaders(HttpServletResponse response,HttpContent content,long count)
-    {        
+    {
+        if (content == null)
+        {
+            // No content, then no headers to process
+            // This is possible during bypass write because of wrapping
+            // See .sendData() for more details.
+            return;
+        }
+        
         if (content.getContentType()!=null && response.getContentType()==null)
             response.setContentType(content.getContentType().toString());
 

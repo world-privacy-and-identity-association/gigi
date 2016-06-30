@@ -1,6 +1,6 @@
 //
 //  ========================================================================
-//  Copyright (c) 1995-2014 Mort Bay Consulting Pty. Ltd.
+//  Copyright (c) 1995-2016 Mort Bay Consulting Pty. Ltd.
 //  ------------------------------------------------------------------------
 //  All rights reserved. This program and the accompanying materials
 //  are made available under the terms of the Eclipse Public License v1.0
@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.jetty.http.DateGenerator;
 import org.eclipse.jetty.http.HttpContent;
-import org.eclipse.jetty.http.HttpContent.ResourceAsHttpContent;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.util.BufferUtil;
 import org.eclipse.jetty.util.log.Log;
@@ -59,9 +58,9 @@ public class ResourceCache
     private final boolean _etagSupported;
     private final boolean  _useFileMappedBuffer;
     
-    private int _maxCachedFileSize =4*1024*1024;
+    private int _maxCachedFileSize =128*1024*1024;
     private int _maxCachedFiles=2048;
-    private int _maxCacheSize =32*1024*1024;
+    private int _maxCacheSize =256*1024*1024;
     
     /* ------------------------------------------------------------ */
     /** Constructor.
@@ -298,7 +297,7 @@ public class ResourceCache
     {
         try
         {
-            if (_useFileMappedBuffer && resource.getFile()!=null) 
+            if (_useFileMappedBuffer && resource.getFile()!=null && resource.length()<Integer.MAX_VALUE) 
                 return BufferUtil.toMappedBuffer(resource.getFile());
             
             return BufferUtil.toBuffer(resource,true);
@@ -505,7 +504,7 @@ public class ResourceCache
         @Override
         public String toString()
         {
-            return String.format("%s %s %d %s %s",_resource,_resource.exists(),_resource.lastModified(),_contentType,_lastModifiedBytes);
+            return String.format("CachedContent@%x{r=%s,e=%b,lm=%s,ct=%s}",hashCode(),_resource,_resource.exists(),BufferUtil.toString(_lastModifiedBytes),_contentType);
         }   
     }
 }
