@@ -36,10 +36,10 @@ public class TestOrgManagement extends OrgTest {
         for (Organisation i : Organisation.getOrganisations(0, 30)) {
             i.delete();
         }
-        executeBasicWebInteraction(cookie, CreateOrgPage.DEFAULT_PATH, "action=new&O=name&contact=mail&L=K%C3%B6ln&ST=" + URLEncoder.encode(DIFFICULT_CHARS, "UTF-8") + "&C=DE&comments=jkl%C3%B6loiuzfdfgjlh%C3%B6&optionalName=opname&postalAddress=postaladdress", 0);
+        executeBasicWebInteraction(cookie, CreateOrgPage.DEFAULT_PATH, "action=new&O=name&contact=mail@serv.tld&L=K%C3%B6ln&ST=" + URLEncoder.encode(DIFFICULT_CHARS, "UTF-8") + "&C=DE&comments=jkl%C3%B6loiuzfdfgjlh%C3%B6&optionalName=opname&postalAddress=postaladdress", 0);
         Organisation[] orgs = Organisation.getOrganisations(0, 30);
         assertEquals(1, orgs.length);
-        assertEquals("mail", orgs[0].getContactEmail());
+        assertEquals("mail@serv.tld", orgs[0].getContactEmail());
         assertEquals("name", orgs[0].getName());
         assertEquals("Köln", orgs[0].getCity());
         assertEquals(DIFFICULT_CHARS, orgs[0].getProvince());
