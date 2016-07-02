@@ -4,7 +4,9 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.sql.SQLException;
@@ -160,4 +162,83 @@ public class TestOrgManagement extends OrgTest {
         assertEquals("Köln" + DIFFICULT_CHARS, o1.getPostalAddress());
         o1.delete();
     }
+
+    /**
+     * Tests various contraints on organisaion fields.
+     */
+    @Test
+    public void testLengthConstraint() throws IOException, GigiApiException {
+        Organisation o1 = createUniqueOrg();
+        String str128 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz-_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz-_";
+        String se = "";
+        String s64 = str128.substring(0, 64);
+        String s65 = str128.substring(0, 65);
+
+        String s128 = str128;
+        String s129 = str128 + "a";
+
+        assertNull(upCertData(o1, o1.getName(), o1.getState(), o1.getProvince(), o1.getCity()));
+
+        // test organisation name
+        assertNotNull(upCertData(o1, "", o1.getState(), o1.getProvince(), o1.getCity()));
+        assertNull(upCertData(o1, "A", o1.getState(), o1.getProvince(), o1.getCity()));
+        assertNull(upCertData(o1, s64, o1.getState(), o1.getProvince(), o1.getCity()));
+        assertNotNull(upCertData(o1, s65, o1.getState(), o1.getProvince(), o1.getCity()));
+
+        // test state
+        assertNotNull(upCertData(o1, o1.getName(), o1.getState(), se, o1.getCity()));
+        assertNull(upCertData(o1, o1.getName(), o1.getState(), "A", o1.getCity()));
+        assertNull(upCertData(o1, o1.getName(), o1.getState(), s128, o1.getCity()));
+        assertNotNull(upCertData(o1, o1.getName(), o1.getState(), s129, o1.getCity()));
+
+        // test town
+        assertNotNull(upCertData(o1, o1.getName(), o1.getState(), o1.getProvince(), se));
+        assertNull(upCertData(o1, o1.getName(), o1.getState(), o1.getProvince(), "A"));
+        assertNull(upCertData(o1, o1.getName(), o1.getState(), o1.getProvince(), s128));
+        assertNotNull(upCertData(o1, o1.getName(), o1.getState(), o1.getProvince(), s129));
+
+        // test country
+        assertNotNull(upCertData(o1, o1.getName(), "", o1.getProvince(), o1.getCity()));
+        assertNotNull(upCertData(o1, o1.getName(), "D", o1.getProvince(), o1.getCity()));
+        assertNull(upCertData(o1, o1.getName(), "DE", o1.getProvince(), o1.getCity()));
+        assertNotNull(upCertData(o1, o1.getName(), "DES", o1.getProvince(), o1.getCity()));
+
+        // test contact mail
+        assertNull(upOptData(o1, o1.getContactEmail()));
+        assertNotNull(upOptData(o1, "_mail@domail"));
+
+    }
+
+    /**
+     * Updates Organisation optional data via web interface.
+     * 
+     * @param o1
+     *            Organisation to update.
+     * @param email
+     *            the new contact email
+     * @return an error message or <code>null</code>
+     */
+    private String upOptData(Organisation o1, String email) throws IOException, MalformedURLException, UnsupportedEncodingException {
+        return executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + o1.getId(), "action=updateOrganisationData&contact=" + email + "&optionalName=" + o1.getOptionalName() + "&postalAddress=" + o1.getPostalAddress(), 0);
+    }
+
+    /**
+     * Updates Organisation certificate data via web interface.
+     * 
+     * @param o1
+     *            Organisation to update.
+     * @param o
+     *            the new name
+     * @param c
+     *            the new country
+     * @param province
+     *            the new "province/state"
+     * @param ct
+     *            the new city or "locality"
+     * @return an error message or <code>null</code>
+     */
+    private String upCertData(Organisation o1, String o, String c, String province, String ct) throws IOException, MalformedURLException, UnsupportedEncodingException {
+        return executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + o1.getId(), "action=updateCertificateData&O=" + o + "&C=" + c + "&ST=" + province + "&L=" + ct, 0);
+    }
+
 }
