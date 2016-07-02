@@ -26,7 +26,9 @@ public class CertificateValiditySelector implements Outputable {
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-        out.print("<select name='validFrom'><option value='now'");
+        out.print("<label for='validFrom'>");
+        out.println(l.getTranslation("start: "));
+        out.print("</label><select name='validFrom'><option value='now'");
         if (from == null) {
             out.print(" selected='selected'");
         }
@@ -49,6 +51,9 @@ public class CertificateValiditySelector implements Outputable {
         }
         out.println("</select>");
 
+        out.print("<label for='validity'>");
+        out.println(l.getTranslation("end: "));
+        out.print("</label>");
         out.print("<input type='text' name='validity' value='");
         out.print(HTMLEncoder.encodeHTML(val));
         out.println("'>");
