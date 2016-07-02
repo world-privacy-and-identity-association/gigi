@@ -117,7 +117,7 @@ public class Manager extends Page {
     }
 
     private void passCATS(User u) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO cats_passed SET user_id=?, variant_id=1")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO cats_passed SET user_id=?, variant_id=1, language='en_EN', version=1")) {
             ps.setInt(1, u.getId());
             ps.execute();
         }

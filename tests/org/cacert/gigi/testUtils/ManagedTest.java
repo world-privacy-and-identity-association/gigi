@@ -321,7 +321,7 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     public static void makeAssurer(int uid) {
-        try (GigiPreparedStatement ps1 = new GigiPreparedStatement("INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?")) {
+        try (GigiPreparedStatement ps1 = new GigiPreparedStatement("INSERT INTO cats_passed SET user_id=?, variant_id=?, language='en_EN', version=1")) {
             ps1.setInt(1, uid);
             ps1.setInt(2, CATS.ASSURER_CHALLENGE_ID);
             ps1.execute();

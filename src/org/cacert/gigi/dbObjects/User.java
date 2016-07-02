@@ -494,14 +494,26 @@ public class User extends CertificateOwner {
     }
 
     public String[] getTrainings() {
-        try (GigiPreparedStatement prep = new GigiPreparedStatement("SELECT `pass_date`, `type_text` FROM `cats_passed` LEFT JOIN `cats_type` ON `cats_type`.`id`=`cats_passed`.`variant_id`  WHERE `user_id`=? ORDER BY `pass_date` ASC")) {
+        try (GigiPreparedStatement prep = new GigiPreparedStatement("SELECT `pass_date`, `type_text`, `language`, `version` FROM `cats_passed` LEFT JOIN `cats_type` ON `cats_type`.`id`=`cats_passed`.`variant_id`  WHERE `user_id`=? ORDER BY `pass_date` ASC")) {
             prep.setInt(1, getId());
             GigiResultSet res = prep.executeQuery();
             List<String> entries = new LinkedList<String>();
 
             while (res.next()) {
-
-                entries.add(DateSelector.getDateFormat().format(res.getTimestamp(1)) + " (" + res.getString(2) + ")");
+                StringBuilder training = new StringBuilder();
+                training.append(DateSelector.getDateFormat().format(res.getTimestamp(1)));
+                training.append(" (");
+                training.append(res.getString(2));
+                if (res.getString(3).length() > 0) {
+                    training.append(" ");
+                    training.append(res.getString(3));
+                }
+                if (res.getString(4).length() > 0) {
+                    training.append(", ");
+                    training.append(res.getString(4));
+                }
+                training.append(")");
+                entries.add(training.toString());
             }
 
             return entries.toArray(new String[0]);
