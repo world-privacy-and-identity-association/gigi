@@ -23,32 +23,37 @@ import org.junit.Test;
 
 public class TestSEAdminPageUserDomainSearch extends ClientTest {
 
-    public TestSEAdminPageUserDomainSearch() throws IOException {
+    private Domain d;
+
+    private String domainName;
+
+    private String unique;
+
+    private int tid;
+
+    public TestSEAdminPageUserDomainSearch() throws IOException, GigiApiException {
         grant(email, Group.SUPPORTER);
         assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
+
+        String mail = createUniqueName() + "@example.com";
+        tid = createVerifiedUser("Först", "Secönd", mail, TEST_PASSWORD);
+        User user = User.getById(tid);
+        unique = createUniqueName();
+        domainName = unique + "pattern.org";
+        this.d = new Domain(user, user, domainName);
     }
 
     @Test
     public void testDomainSearch() throws MalformedURLException, UnsupportedEncodingException, IOException, GigiApiException {
-        String mail = createUniqueName() + "@example.com";
-        int id = createVerifiedUser("Först", "Secönd", mail, TEST_PASSWORD);
-        User user = User.getById(id);
-        String domainName = createUniqueName() + ".org";
-        new Domain(user, user, domainName);
         URLConnection uc = post(FindDomainPage.PATH, "process&domain=" + URLEncoder.encode(domainName, "UTF-8"));
 
-        assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + tid, uc.getHeaderField("Location"));
     }
 
     @Test
     public void testDomainSearchById() throws MalformedURLException, UnsupportedEncodingException, IOException, GigiApiException {
-        String mail = createUniqueName() + "@example.com";
-        int id = createVerifiedUser("Först", "Secönd", mail, TEST_PASSWORD);
-        User user = User.getById(id);
-        String domainName = createUniqueName() + ".org";
-        Domain d = new Domain(user, user, domainName);
         URLConnection uc = post(FindDomainPage.PATH, "process&domain=#" + d.getId());
-        assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + tid, uc.getHeaderField("Location"));
     }
 
     @Test
