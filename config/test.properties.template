@@ -2,6 +2,7 @@ type=local
 serverPort.https=443
 serverPort.http=80
 mail=localhost:8474
+#withSigner=false
 
 # ==== OR ===
 type=autonomous

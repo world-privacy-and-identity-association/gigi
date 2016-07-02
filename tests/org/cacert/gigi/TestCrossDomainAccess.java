@@ -51,7 +51,7 @@ public class TestCrossDomainAccess extends ManagedTest {
         String key = generatePEMCSR(kp, "CN=testmail@example.com");
         Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "testmail@example.com"), Digest.SHA256, key, CSRType.CSR, CertificateProfile.getById(1));
         final PrivateKey pk = kp.getPrivate();
-        c.issue(null, "2y", u).waitFor(60000);
+        await(c.issue(null, "2y", u));
 
         URLConnection con = new URL("https://" + ServerConstants.getSecureHostNamePort()).openConnection();
         authenticateClientCert(pk, c.cert(), (HttpURLConnection) con);

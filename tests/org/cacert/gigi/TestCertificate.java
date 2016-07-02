@@ -36,7 +36,7 @@ public class TestCertificate extends ManagedTest {
         String key1 = generatePEMCSR(kp, "CN=testmail@example.com");
         Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "testmail@example.com"), Digest.SHA256, key1, CSRType.CSR, CertificateProfile.getById(1));
         final PrivateKey pk = kp.getPrivate();
-        c.issue(null, "2y", u).waitFor(60000);
+        await(c.issue(null, "2y", u));
         final X509Certificate ce = c.cert();
         assertNotNull(login(pk, ce));
     }
@@ -49,7 +49,7 @@ public class TestCertificate extends ManagedTest {
                 new SubjectAlternateName(SANType.EMAIL, "testmail@example.com"), new SubjectAlternateName(SANType.DNS, "testmail.example.com"));
 
         testFails(CertificateStatus.DRAFT, c);
-        c.issue(null, "2y", u).waitFor(60000);
+        await(c.issue(null, "2y", u));
         X509Certificate cert = c.cert();
         Collection<List<?>> sans = cert.getSubjectAlternativeNames();
         assertEquals(2, sans.size());
@@ -101,7 +101,7 @@ public class TestCertificate extends ManagedTest {
         final PrivateKey pk = kp.getPrivate();
 
         testFails(CertificateStatus.DRAFT, c);
-        c.issue(null, "2y", u).waitFor(60000);
+        await(c.issue(null, "2y", u));
 
         String cookie = login(u.getEmail(), TEST_PASSWORD);
         testFails(CertificateStatus.ISSUED, c);
@@ -109,7 +109,7 @@ public class TestCertificate extends ManagedTest {
         assertNotNull(login(pk, cert));
         assertEquals(1, countRegex(IOUtils.readURL(get(cookie, Certificates.PATH)), "<td>(?:REVOKED|ISSUED)</td>"));
         assertEquals(1, countRegex(IOUtils.readURL(get(cookie, Certificates.PATH + "?withRevoked")), "<td>(?:REVOKED|ISSUED)</td>"));
-        c.revoke().waitFor(60000);
+        await(c.revoke());
 
         testFails(CertificateStatus.REVOKED, c);
         assertNull(login(pk, cert));

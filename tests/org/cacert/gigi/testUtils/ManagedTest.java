@@ -43,6 +43,7 @@ import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.DomainPingType;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Group;
+import org.cacert.gigi.dbObjects.Job;
 import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.Manager;
@@ -108,6 +109,9 @@ public class ManagedTest extends ConfiguredTest {
                 String[] parts = testProps.getProperty("mail").split(":", 2);
                 ter = new TestEmailReceiver(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])));
                 ter.start();
+                if (testProps.getProperty("withSigner", "false").equals("true")) {
+                    SimpleSigner.runSigner();
+                }
                 return;
             }
             url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort.https");
@@ -154,6 +158,11 @@ public class ManagedTest extends ConfiguredTest {
             e.printStackTrace();
         }
 
+    }
+
+    protected void await(Job j) throws InterruptedException {
+        SimpleSigner.ping();
+        j.waitFor(5000);
     }
 
     public static void purgeDatabase() throws SQLException, IOException {

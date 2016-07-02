@@ -46,7 +46,7 @@ public class IssueCert extends ClientTest {
             String key1 = generatePEMCSR(kp, "EMAIL=testmail@example.com");
             c = new Certificate(u, u, Certificate.buildDN("EMAIL", "testmail@example.com"), Digest.SHA256, key1, CSRType.CSR, CertificateProfile.getById(1));
             pk = kp.getPrivate();
-            c.issue(null, "2y", u).waitFor(60000);
+            await(c.issue(null, "2y", u));
             ce = c.cert();
         } catch (Exception e) {
             throw new Error(e);

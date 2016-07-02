@@ -152,6 +152,17 @@ public class SimpleSigner {
         runner.start();
     }
 
+    public static void ping() {
+        synchronized (SimpleSigner.class) {
+            SimpleSigner.class.notifyAll();
+            try {
+                SimpleSigner.class.wait(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private synchronized static void work() {
         try {
             gencrl();
@@ -166,6 +177,7 @@ public class SimpleSigner {
                 signCertificates();
                 revokeCertificates();
 
+                SimpleSigner.class.notifyAll();
                 SimpleSigner.class.wait(5000);
             } catch (IOException e) {
                 e.printStackTrace();

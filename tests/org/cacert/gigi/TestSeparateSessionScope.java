@@ -34,7 +34,7 @@ public class TestSeparateSessionScope extends ManagedTest {
         User u = User.getById(user);
         Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "hans"), Digest.SHA256, csr, CSRType.CSR, CertificateProfile.getById(1));
         final PrivateKey pk = kp.getPrivate();
-        c.issue(null, "2y", u).waitFor(60000);
+        await(c.issue(null, "2y", u));
         final X509Certificate ce = c.cert();
         String scookie = login(pk, ce);
 
@@ -56,8 +56,8 @@ public class TestSeparateSessionScope extends ManagedTest {
         Certificate c2 = new Certificate(u, u, Certificate.buildDN("CN", "hans"), Digest.SHA256, csr, CSRType.CSR, CertificateProfile.getById(1));
         final PrivateKey pk = kp.getPrivate();
         Job j1 = c.issue(null, "2y", u);
-        c2.issue(null, "2y", u).waitFor(60000);
-        j1.waitFor(60000);
+        await(c2.issue(null, "2y", u));
+        await(j1);
         final X509Certificate ce = c.cert();
         String scookie = login(pk, ce);
 

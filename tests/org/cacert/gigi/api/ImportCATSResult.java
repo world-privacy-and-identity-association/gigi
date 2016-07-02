@@ -48,14 +48,14 @@ public class ImportCATSResult extends ClientTest {
         String key1 = generatePEMCSR(kp, "EMAIL=cats@cacert.org");
         Certificate c = new Certificate(o, u, Certificate.buildDN("EMAIL", "cats@cacert.org"), Digest.SHA256, key1, CSRType.CSR, CertificateProfile.getByName("client-orga"), new Certificate.SubjectAlternateName(SANType.EMAIL, "cats@cacert.org"));
         pk = kp.getPrivate();
-        c.issue(null, "2y", u).waitFor(60000);
+        await(c.issue(null, "2y", u));
         ce = c.cert();
     }
 
     @Test
     public void testLookupSerial() throws GigiApiException, IOException, GeneralSecurityException, InterruptedException {
         Certificate target2 = new Certificate(u, u, Certificate.buildDN("EMAIL", u.getEmail()), Digest.SHA256, generatePEMCSR(generateKeypair(), "EMAIL=" + u.getEmail()), CSRType.CSR, CertificateProfile.getByName("client"), new Certificate.SubjectAlternateName(SANType.EMAIL, "cats@cacert.org"));
-        target2.issue(null, "2y", u).waitFor(60000);
+        await(target2.issue(null, "2y", u));
 
         assertEquals(u.getId(), Integer.parseInt(apiLookup(target2)));
     }
