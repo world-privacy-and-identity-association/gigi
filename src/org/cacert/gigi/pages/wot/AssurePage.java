@@ -2,8 +2,6 @@ package org.cacert.gigi.pages.wot;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Date;
-import java.util.Calendar;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -73,10 +71,10 @@ public class AssurePage extends Page {
         }
 
         try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `users`.`id`, `verified` FROM `users` INNER JOIN `certOwners` ON `certOwners`.`id`=`users`.`id` WHERE `email`=? AND `dob`=? AND `deleted` IS NULL")) {
+            ds.update(req);
+
             ps.setString(1, req.getParameter("email"));
-            Calendar c = Calendar.getInstance();
-            c.set(Integer.parseInt(req.getParameter("year")), Integer.parseInt(req.getParameter("month")) - 1, Integer.parseInt(req.getParameter("day")));
-            ps.setDate(2, new Date(c.getTimeInMillis()));
+            ps.setDate(2, ds.getDate().toSQLDate());
             GigiResultSet rs = ps.executeQuery();
             int id = 0;
             if (rs.next()) {
@@ -101,11 +99,12 @@ public class AssurePage extends Page {
                     }
                 }
             } else {
-                GigiApiException e = new GigiApiException("I'm sorry, there was no email and date of birth matching" //
+                throw new GigiApiException("I'm sorry, there was no email and date of birth matching" //
                         + " what you entered in the system. Please double check your information.");
-                e.format(out, getLanguage(req));
             }
 
+        } catch (GigiApiException e) {
+            e.format(out, getLanguage(req));
         }
     }
 }

@@ -54,6 +54,12 @@ public class TestAssurance extends ManagedTest {
     }
 
     @Test
+    public void testAssureSearchDobInvalid() throws IOException {
+        String loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=mal");
+        assertNotNull(fetchStartErrorMessage(loc));
+    }
+
+    @Test
     public void testAssureSearchDob() throws IOException {
         String loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=2&month=1&year=1910");
         assertTrue(loc, !loc.contains("type=\"checkbox\" name=\"tos_agree\""));
