@@ -25,6 +25,7 @@ import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.PasswordHash;
 import org.cacert.gigi.util.RateLimit;
+import org.cacert.gigi.util.RateLimit.RateLimitException;
 import org.cacert.gigi.util.ServerConstants;
 
 public class LoginPage extends Page {
@@ -40,8 +41,7 @@ public class LoginPage extends Page {
         @Override
         public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
             if (RegisterPage.RATE_LIMIT.isLimitExceeded(req.getRemoteAddr())) {
-                outputError(out, req, "Rate Limit Exceeded");
-                return false;
+                throw new RateLimitException();
             }
             tryAuthWithUnpw(req);
             return false;
@@ -56,12 +56,18 @@ public class LoginPage extends Page {
 
     public static final String LOGIN_RETURNPATH = "login-returnpath";
 
+    private static final String SUBMIT_EXCEPTION = "login-submit-exception";
+
     public LoginPage() {
         super("Password Login");
     }
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        Object o = req.getAttribute(SUBMIT_EXCEPTION);
+        if (o != null) {
+            ((GigiApiException) o).format(resp.getWriter(), getLanguage(req));
+        }
         if (req.getHeader("Host").equals(ServerConstants.getSecureHostNamePort())) {
             resp.getWriter().println(getLanguage(req).getTranslation("Authentication with certificate failed. Try another certificate or use a password."));
         } else {
@@ -81,6 +87,8 @@ public class LoginPage extends Page {
                 try {
                     Form.getForm(req, LoginForm.class).submit(resp.getWriter(), req);
                 } catch (GigiApiException e) {
+                    req.setAttribute(SUBMIT_EXCEPTION, e);
+                    return false;
                 }
             }
         }
@@ -105,7 +113,7 @@ public class LoginPage extends Page {
         return false;
     }
 
-    private void tryAuthWithUnpw(HttpServletRequest req) {
+    private void tryAuthWithUnpw(HttpServletRequest req) throws GigiApiException {
         String un = req.getParameter("username");
         String pw = req.getParameter("password");
         try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `password`, `id` FROM `users` WHERE `email`=? AND verified='1'")) {
@@ -124,9 +132,11 @@ public class LoginPage extends Page {
                     }
                     loginSession(req, User.getById(rs.getInt(2)));
                     req.getSession().setAttribute(LOGIN_METHOD, new TranslateCommand("Password"));
+                    return;
                 }
             }
         }
+        throw new GigiApiException("Username and password didn't match.");
     }
 
     public static User getUser(HttpServletRequest req) {

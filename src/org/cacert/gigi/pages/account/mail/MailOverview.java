@@ -7,6 +7,7 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
@@ -36,8 +37,12 @@ public class MailOverview extends Page {
         PrintWriter out = resp.getWriter();
         if (req.getParameter("addmail") != null) {
             MailAddForm f = Form.getForm(req, MailAddForm.class);
-            if (f.submit(out, req)) {
-                resp.sendRedirect(MailOverview.DEFAULT_PATH);
+            try {
+                if (f.submit(out, req)) {
+                    resp.sendRedirect(MailOverview.DEFAULT_PATH);
+                }
+            } catch (GigiApiException e) {
+                e.format(resp.getWriter(), getLanguage(req));
             }
         } else {
             MailManagementForm f = Form.getForm(req, MailManagementForm.class);

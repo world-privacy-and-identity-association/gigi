@@ -56,6 +56,13 @@ import sun.security.x509.X509Key;
 
 public class TestCertificateAdd extends ClientTest {
 
+    private static class OnPageError extends Error {
+
+        public OnPageError(String page) {
+            super(page);
+        }
+    }
+
     KeyPair kp = generateKeypair();
 
     String csrf;
@@ -295,8 +302,9 @@ public class TestCertificateAdd extends ClientTest {
             assertArrayEquals(new String[] {
                     "client", CertificateRequest.DEFAULT_CN, "", Digest.SHA512.toString()
             }, res);
-        } catch (Error e) {
-            assertTrue(e.getMessage().startsWith("<div>Challenge mismatch"));
+        } catch (OnPageError e) {
+            String error = fetchStartErrorMessage(e.getMessage());
+            assertTrue(error, error.startsWith("<p>Challenge mismatch"));
         }
         return csrf;
     }
@@ -341,9 +349,8 @@ public class TestCertificateAdd extends ClientTest {
 
     private String[] extractFormData(HttpURLConnection uc) throws IOException, Error {
         String result = IOUtils.readURL(uc);
-        if (result.contains("<div class='formError'>")) {
-            String s = fetchStartErrorMessage(result);
-            throw new Error(s);
+        if (result.contains("<div class='bg-danger error-msgs'>")) {
+            throw new OnPageError(result);
         }
 
         String profileKey = extractPattern(result, Pattern.compile("<option value=\"([^\"]*)\" selected>"));

@@ -2,7 +2,6 @@ package org.cacert.gigi.pages.main;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,12 +16,15 @@ import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.output.template.PlainOutputable;
+import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.CalendarUtil;
 import org.cacert.gigi.util.HTMLEncoder;
 import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PasswordStrengthChecker;
+import org.cacert.gigi.util.RateLimit.RateLimitException;
 
 public class Signup extends Form {
 
@@ -92,51 +94,52 @@ public class Signup extends Form {
     }
 
     @Override
-    public synchronized boolean submit(PrintWriter out, HttpServletRequest req) {
+    public synchronized boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
         if (RegisterPage.RATE_LIMIT.isLimitExceeded(req.getRemoteAddr())) {
-            outputError(out, req, "Rate Limit Exceeded");
-            return false;
+            throw new RateLimitException();
         }
 
         update(req);
+        GigiApiException ga = new GigiApiException();
         if (buildupName.getLname().trim().equals("")) {
-            outputError(out, req, "Last name were blank.");
+            ga.mergeInto(new GigiApiException("Last name were blank."));
         }
         if ( !myDoB.isValid()) {
-            outputError(out, req, "Invalid date of birth");
+            ga.mergeInto(new GigiApiException("Invalid date of birth"));
         }
 
         if ( !CalendarUtil.isOfAge(myDoB.getDate(), User.MINIMUM_AGE)) {
-            outputError(out, req, "Entered dated of birth is below the restricted age requirements.");
+            ga.mergeInto(new GigiApiException("Entered dated of birth is below the restricted age requirements."));
         }
 
         if ( !"1".equals(req.getParameter("tos_agree"))) {
-            outputError(out, req, "Acceptance of the ToS is required to continue.");
+            ga.mergeInto(new GigiApiException("Acceptance of the ToS is required to continue."));
         }
         if (email.equals("")) {
-            outputError(out, req, "Email Address was blank");
+            ga.mergeInto(new GigiApiException("Email Address was blank"));
         }
         String pw1 = req.getParameter("pword1");
         String pw2 = req.getParameter("pword2");
         if (pw1 == null || pw1.equals("")) {
-            outputError(out, req, "Pass Phrases were blank");
+            ga.mergeInto(new GigiApiException("Pass Phrases were blank"));
         } else if ( !pw1.equals(pw2)) {
-            outputError(out, req, "Pass Phrases don't match");
+            ga.mergeInto(new GigiApiException("Pass Phrases don't match"));
         }
         int pwpoints = PasswordStrengthChecker.checkpw(pw1, buildupName, email);
         if (pwpoints < 3) {
-            outputError(out, req, "The Pass Phrase you submitted failed to contain enough" + " differing characters and/or contained words from" + " your name and/or email address.");
+            ga.mergeInto(new GigiApiException("The Pass Phrase you submitted failed to contain enough" + " differing characters and/or contained words from" + " your name and/or email address."));
         }
-        if (isFailed(out)) {
-            return false;
+        if ( !ga.isEmpty()) {
+            throw ga;
         }
+        GigiApiException ga2 = new GigiApiException();
         try (GigiPreparedStatement q1 = new GigiPreparedStatement("SELECT * FROM `emails` WHERE `email`=? AND `deleted` IS NULL"); GigiPreparedStatement q2 = new GigiPreparedStatement("SELECT * FROM `certOwners` INNER JOIN `users` ON `users`.`id`=`certOwners`.`id` WHERE `email`=? AND `deleted` IS NULL")) {
             q1.setString(1, email);
             q2.setString(1, email);
             GigiResultSet r1 = q1.executeQuery();
             GigiResultSet r2 = q2.executeQuery();
             if (r1.next() || r2.next()) {
-                outputError(out, req, "This email address is currently valid in the system.");
+                ga2.mergeInto(new GigiApiException("This email address is currently valid in the system."));
             }
         }
         try (GigiPreparedStatement q3 = new GigiPreparedStatement("SELECT `domain` FROM `baddomains` WHERE `domain`=RIGHT(?, LENGTH(`domain`))")) {
@@ -145,7 +148,7 @@ public class Signup extends Form {
             GigiResultSet r3 = q3.executeQuery();
             if (r3.next()) {
                 String domain = r3.getString(1);
-                outputError(out, req, "We don't allow signups from people using email addresses from %s", domain);
+                ga2.mergeInto(new GigiApiException(SprintfCommand.createSimple("We don't allow signups from people using email addresses from {0}.", domain)));
             }
         }
         String mailResult = EmailProvider.FAIL;
@@ -155,32 +158,25 @@ public class Signup extends Form {
         }
         if ( !mailResult.equals(EmailProvider.OK)) {
             if (mailResult.startsWith("4")) {
-                outputError(out, req, "The mail server responsible for your domain indicated" + " a temporary failure. This may be due to anti-SPAM measures, such" + " as greylisting. Please try again in a few minutes.");
+                ga2.mergeInto(new GigiApiException("The mail server responsible for your domain indicated" + " a temporary failure. This may be due to anti-SPAM measures, such" + " as greylisting. Please try again in a few minutes."));
             } else {
-                outputError(out, req, "Email Address given was invalid, or a test connection" + " couldn't be made to your server, or the server" + " rejected the email address as invalid");
+                ga2.mergeInto(new GigiApiException("Email Address given was invalid, or a test connection" + " couldn't be made to your server, or the server" + " rejected the email address as invalid"));
             }
             if (mailResult.equals(EmailProvider.FAIL)) {
-                outputError(out, req, "Failed to make a connection to the mail server");
+                ga2.mergeInto(new GigiApiException("Failed to make a connection to the mail server"));
             } else {
-                outputErrorPlain(out, mailResult);
+                ga2.mergeInto(new GigiApiException(new PlainOutputable(mailResult)));
             }
         }
 
-        if (isFailed(out)) {
-            return false;
+        if ( !ga2.isEmpty()) {
+            throw ga2;
         }
-        try {
-            run(req, pw1);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (GigiApiException e) {
-            e.format(out, Page.getLanguage(req));
-            return false;
-        }
+        run(req, pw1);
         return true;
     }
 
-    private void run(HttpServletRequest req, String password) throws SQLException, GigiApiException {
+    private void run(HttpServletRequest req, String password) throws GigiApiException {
         User u = new User(email, password, buildupName, myDoB.getDate(), Page.getLanguage(req).getLocale());
 
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `alerts` SET `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?")) {

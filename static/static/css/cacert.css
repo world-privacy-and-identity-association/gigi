@@ -17,3 +17,6 @@
 .experthidden{
 	display: none;
 }
+div.error-msgs p{
+	padding: 6px;
+}

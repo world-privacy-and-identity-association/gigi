@@ -51,20 +51,20 @@ public class GigiApiException extends Exception {
     }
 
     public void format(PrintWriter out, Language language) {
-        out.println("<div class='formError'>");
+        out.println("<div class='bg-danger error-msgs'>");
         if (isInternalError()) {
             e.printStackTrace();
-            out.print("<div>");
+            out.print("<p>");
             out.println(language.getTranslation("An internal error occurred."));
-            out.println("</div>");
+            out.println("</p>");
         }
         HashMap<String, Object> map = new HashMap<>();
         for (Outputable message : messages) {
             map.clear();
 
-            out.print("<div>");
+            out.print("<p>");
             message.output(out, language, map);
-            out.println("</div>");
+            out.println("</p>");
         }
         out.println("</div>");
 

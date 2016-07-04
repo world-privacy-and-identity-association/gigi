@@ -97,15 +97,16 @@ public class AssuranceForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) {
+    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
         location = req.getParameter("location");
         date = req.getParameter("date");
+        GigiApiException gae = new GigiApiException();
         if (date == null || location == null) {
-            outputError(out, req, "You need to enter location and date!");
+            gae.mergeInto(new GigiApiException("You need to enter location and date!"));
         }
 
         if ( !"1".equals(req.getParameter("certify")) || !"1".equals(req.getParameter("rules")) || !"1".equals(req.getParameter("tos_agree")) || !"1".equals(req.getParameter("assertion"))) {
-            outputError(out, req, "You failed to check all boxes to validate" + " your adherence to the rules and policies of SomeCA");
+            gae.mergeInto(new GigiApiException("You failed to check all boxes to validate" + " your adherence to the rules and policies of SomeCA"));
         }
         if ("1".equals(req.getParameter("passwordReset"))) {
             aword = req.getParameter("passwordResetValue");
@@ -120,39 +121,33 @@ public class AssuranceForm extends Form {
             try {
                 type = AssuranceType.valueOf(val);
             } catch (IllegalArgumentException e) {
-                outputError(out, req, "Assurance Type wrong.");
+                gae.mergeInto(new GigiApiException("Assurance Type wrong."));
             }
         }
 
         int pointsI = 0;
         String points = req.getParameter("points");
         if (points == null || "".equals(points)) {
-            outputError(out, req, "For an assurance, you need to enter points.");
+            gae.mergeInto(new GigiApiException("For an assurance, you need to enter points."));
         } else {
             try {
                 pointsI = Integer.parseInt(points);
             } catch (NumberFormatException e) {
-                outputError(out, req, "The points entered were not a number.");
+                gae.mergeInto(new GigiApiException("The points entered were not a number."));
             }
         }
 
-        if (isFailed(out)) {
-            return false;
+        if ( !gae.isEmpty()) {
+            throw gae;
         }
-        try {
-            Notary.assure(assurer, assuree, assureeName, dob, pointsI, location, req.getParameter("date"), type);
-            if (aword != null && !aword.equals("")) {
-                Language l = Language.getInstance(assuree.getPreferredLocale());
-                String method = l.getTranslation("A password reset was triggered. If you did a password reset by assurance, please enter your secret password using this form:");
-                String subject = l.getTranslation("Password reset by assurance");
-                PasswordResetPage.initPasswordResetProcess(out, assuree, req, aword, l, method, subject);
-            }
-            return true;
-        } catch (GigiApiException e) {
-            e.format(out, Page.getLanguage(req));
+        Notary.assure(assurer, assuree, assureeName, dob, pointsI, location, req.getParameter("date"), type);
+        if (aword != null && !aword.equals("")) {
+            Language l = Language.getInstance(assuree.getPreferredLocale());
+            String method = l.getTranslation("A password reset was triggered. If you did a password reset by assurance, please enter your secret password using this form:");
+            String subject = l.getTranslation("Password reset by assurance");
+            PasswordResetPage.initPasswordResetProcess(out, assuree, req, aword, l, method, subject);
         }
-
-        return false;
+        return true;
     }
 
     public User getAssuree() {

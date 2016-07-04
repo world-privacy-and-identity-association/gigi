@@ -4,13 +4,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.RandomToken;
 
 /**
@@ -73,7 +71,6 @@ public abstract class Form implements Outputable {
         } else {
             out.println("<form method='POST' action='" + action + "'>");
         }
-        failed = false;
         outputContent(out, l, vars);
         out.print("<input type='hidden' name='" + CSRF_FIELD + "' value='");
         out.print(getCSRFToken());
@@ -91,39 +88,6 @@ public abstract class Form implements Outputable {
      *            Variables supplied from the outside.
      */
     protected abstract void outputContent(PrintWriter out, Language l, Map<String, Object> vars);
-
-    private boolean failed;
-
-    protected void outputError(PrintWriter out, ServletRequest req, String text, Object... contents) {
-        if ( !failed) {
-            failed = true;
-            out.println("<div class='formError'>");
-        }
-        out.print("<div>");
-        if (contents.length == 0) {
-            out.print(Page.translate(req, text));
-        } else {
-            out.print(String.format(Page.translate(req, text), contents));
-        }
-        out.println("</div>");
-    }
-
-    protected void outputErrorPlain(PrintWriter out, String text) {
-        if ( !failed) {
-            failed = true;
-            out.println("<div class='formError'>");
-        }
-        out.print("<div>");
-        out.print(text);
-        out.println("</div>");
-    }
-
-    public boolean isFailed(PrintWriter out) {
-        if (failed) {
-            out.println("</div>");
-        }
-        return failed;
-    }
 
     protected String getCSRFToken() {
         return csrf;

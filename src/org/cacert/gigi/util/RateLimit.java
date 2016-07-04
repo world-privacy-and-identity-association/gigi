@@ -3,7 +3,16 @@ package org.cacert.gigi.util;
 import java.util.HashMap;
 import java.util.TreeSet;
 
+import org.cacert.gigi.GigiApiException;
+
 public class RateLimit {
+
+    public static final class RateLimitException extends GigiApiException {
+
+        public RateLimitException() {
+            super("Rate limit exceeded.");
+        }
+    }
 
     private class Entry implements Comparable<Entry> {
 

@@ -54,14 +54,18 @@ public class AssurePage extends Page {
         PrintWriter out = resp.getWriter();
         if (req.getParameter("search") == null) {
             AssuranceForm form = Form.getForm(req, AssuranceForm.class);
-            if (form.submit(out, req)) {
-                out.println(translate(req, "Assurance complete."));
-            } else {
+            try {
+                if (form.submit(out, req)) {
+                    out.println(translate(req, "Assurance complete."));
+                    return;
+                }
+            } catch (GigiApiException e) {
+                e.format(out, Page.getLanguage(req));
                 try {
                     Notary.checkAssuranceIsPossible(LoginPage.getUser(req), form.getAssuree());
                     form.output(out, getLanguage(req), new HashMap<String, Object>());
-                } catch (GigiApiException e) {
-                    e.format(out, Page.getLanguage(req));
+                } catch (GigiApiException e1) {
+                    e1.format(out, Page.getLanguage(req));
                 }
             }
 
@@ -97,10 +101,9 @@ public class AssurePage extends Page {
                     }
                 }
             } else {
-                out.print("<div class='formError'>");
-
-                out.println(translate(req, "I'm sorry, there was no email and date of birth matching" + " what you entered in the system. Please double check" + " your information."));
-                out.print("</div>");
+                GigiApiException e = new GigiApiException("I'm sorry, there was no email and date of birth matching" //
+                        + " what you entered in the system. Please double check your information.");
+                e.format(out, getLanguage(req));
             }
 
         }

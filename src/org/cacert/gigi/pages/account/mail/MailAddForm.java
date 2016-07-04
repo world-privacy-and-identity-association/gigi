@@ -10,6 +10,7 @@ import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.output.template.PlainOutputable;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
 
@@ -30,17 +31,13 @@ public class MailAddForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) {
+    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
         String formMail = req.getParameter("newemail");
         mail = formMail;
         try {
             new EmailAddress(target, mail, Page.getLanguage(req).getLocale());
         } catch (IllegalArgumentException e) {
-            out.println("<div class='formError'>Error: Invalid address!</div>");
-            return false;
-        } catch (GigiApiException e) {
-            e.format(out, Page.getLanguage(req));
-            return false;
+            throw new GigiApiException(new PlainOutputable("Invalid address."));
         }
         return true;
     }

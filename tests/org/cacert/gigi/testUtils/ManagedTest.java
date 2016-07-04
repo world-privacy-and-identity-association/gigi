@@ -259,7 +259,7 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     public static String fetchStartErrorMessage(String d) throws IOException {
-        String formFail = "<div class='formError'>";
+        String formFail = "<div class='bg-danger error-msgs'>";
         int idx = d.indexOf(formFail);
         if (idx == -1) {
             return null;
