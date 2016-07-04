@@ -127,7 +127,7 @@ public class SimpleSigner {
                             "INNER JOIN certs ON certs.id=jobs.`targetId` " + //
                             "INNER JOIN profiles ON profiles.id=certs.profile " + //
                             "WHERE jobs.state='open' "//
-                            + "AND task='sign'");
+                    + "AND task='sign'");
 
                     getSANSs = new GigiPreparedStatement("SELECT contents, type FROM `subjectAlternativeNames` " + //
                             "WHERE `certId`=?");
@@ -211,7 +211,8 @@ public class SimpleSigner {
             return;
         }
         String[] call = new String[] {
-                "openssl", "ca",//
+                "openssl",
+                "ca",//
                 "-cert",
                 "../unassured.crt",//
                 "-keyfile",
@@ -294,7 +295,6 @@ public class SimpleSigner {
                 try (FileInputStream inStream = new FileInputStream("signer/profiles/" + s)) {
                     caP.load(inStream);
                 }
-                String ca = caP.getProperty("ca") + "_2015_1";
 
                 HashMap<String, String> subj = new HashMap<>();
                 try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT name, value FROM `certAvas` WHERE `certId`=?")) {
@@ -329,7 +329,16 @@ public class SimpleSigner {
                     PKCS10 p10 = new PKCS10(PEM.decode("(NEW )?CERTIFICATE REQUEST", new String(data, "UTF-8")));
                     pk = p10.getSubjectPublicKeyInfo();
                 }
-                PrivateKey i = loadOpensslKey(new File("signer/ca/" + ca + "/ca.key"));
+                String ca = caP.getProperty("ca") + "_2015_1";
+                File parent = new File("signer/ca");
+                for (File f : parent.listFiles()) {
+                    if (f.getName().startsWith(caP.getProperty("ca"))) {
+                        ca = f.getName();
+                        break;
+                    }
+                }
+                File caKey = new File(parent, ca + "/ca.key");
+                PrivateKey i = loadOpensslKey(caKey);
 
                 X509Certificate root = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new FileInputStream("signer/ca/" + ca + "/ca.crt"));
                 byte[] cert = generateCert(pk, i, subj, root.getSubjectX500Principal(), altnames, fromDate, toDate, Digest.valueOf(rs.getString("md").toUpperCase()), caP.getProperty("eku"));
@@ -488,7 +497,7 @@ public class SimpleSigner {
     private static byte[] generateKU() throws IOException {
         try (DerOutputStream dos = new DerOutputStream()) {
             dos.putBitString(new byte[] {
-                (byte) 0b10101000
+                    (byte) 0b10101000
             });
             return dos.toByteArray();
         }
