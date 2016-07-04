@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Outputable;
-import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.CalendarUtil;
+import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.HTMLEncoder;
 
 public class DateSelector implements Outputable {
@@ -22,7 +22,7 @@ public class DateSelector implements Outputable {
 
     public DateSelector(String day, String month, String year, DayDate date) {
         this(day, month, year);
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTF"));
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         cal.setTimeInMillis(date.getTime());
         this.day = cal.get(Calendar.DAY_OF_MONTH);
         this.month = cal.get(Calendar.MONTH) + 1;
