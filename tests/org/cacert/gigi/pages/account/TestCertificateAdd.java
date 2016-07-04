@@ -349,7 +349,7 @@ public class TestCertificateAdd extends ClientTest {
 
     private String[] extractFormData(HttpURLConnection uc) throws IOException, Error {
         String result = IOUtils.readURL(uc);
-        if (result.contains("<div class='bg-danger error-msgs'>")) {
+        if (hasError().matches(result)) {
             throw new OnPageError(result);
         }
 

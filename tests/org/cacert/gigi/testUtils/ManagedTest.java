@@ -53,6 +53,7 @@ import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
 import org.cacert.gigi.util.DatabaseManager;
 import org.cacert.gigi.util.ServerConstants;
 import org.cacert.gigi.util.SimpleSigner;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -256,6 +257,14 @@ public class ManagedTest extends ConfiguredTest {
         uc.getOutputStream().write((param + "&csrf=" + csrf).getBytes("UTF-8"));
         String d = IOUtils.readURL(uc);
         return d;
+    }
+
+    public static org.hamcrest.Matcher<String> hasError() {
+        return CoreMatchers.containsString("<div class='bg-danger error-msgs'>");
+    }
+
+    public static org.hamcrest.Matcher<String> hasNoError() {
+        return CoreMatchers.not(hasError());
     }
 
     public static String fetchStartErrorMessage(String d) throws IOException {
