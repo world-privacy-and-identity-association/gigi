@@ -51,8 +51,9 @@ public abstract class PingTest extends ClientTest {
         openConnection.setDoOutput(true);
         openConnection.getOutputStream().write(content.getBytes("UTF-8"));
         openConnection.getHeaderField("Location");
-        if (((HttpURLConnection) openConnection).getResponseCode() != 302) {
-            throw new Error(IOUtils.readURL(openConnection));
+        int code = ((HttpURLConnection) openConnection).getResponseCode();
+        if (code != 302) {
+            throw new Error("Code was: " + code + "\ncontent was: " + IOUtils.readURL(openConnection));
         }
 
         String newcontent = IOUtils.readURL(get(DomainOverview.PATH));

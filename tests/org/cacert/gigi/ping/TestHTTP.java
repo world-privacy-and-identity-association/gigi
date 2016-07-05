@@ -4,8 +4,13 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.SQLException;
@@ -104,6 +109,85 @@ public class TestHTTP extends PingTest {
         assumeNotNull(httpDom);
         URL u = new URL("http://" + httpDom + "/cacert-" + token + ".txt");
         return IOUtils.readURL(new InputStreamReader(u.openStream(), "UTF-8")).trim();
+
+    }
+
+    @Test
+    public void testHttpRedirect() throws IOException, SQLException, InterruptedException {
+        try (ServerSocket s = openServer()) {
+            testHttpRedirect(s, true);
+        }
+    }
+
+    @Test
+    public void testHttpNoRedirect() throws IOException, SQLException, InterruptedException {
+        try (ServerSocket s = openServer()) {
+            testHttpRedirect(s, false);
+        }
+    }
+
+    private ServerSocket openServer() {
+        String localHTTP = getTestProps().getProperty("domain.localHTTP");
+        assumeNotNull(localHTTP);
+        try {
+            return new ServerSocket(Integer.parseInt(localHTTP));
+        } catch (IOException e) {
+            throw new Error("Requires a free port " + localHTTP);
+        }
+    }
+
+    public void testHttpRedirect(ServerSocket s, boolean doRedirect) throws IOException, SQLException, InterruptedException {
+        String test = getTestProps().getProperty("domain.local");
+        assumeNotNull(test);
+
+        Matcher m = initailizeDomainForm();
+
+        String content = "newdomain=" + URLEncoder.encode(test, "UTF-8") + //
+                "&emailType=y&email=2&HTTPType=y" + //
+                "&ssl-type-0=direct&ssl-port-0=" + //
+                "&ssl-type-1=direct&ssl-port-1=" + //
+                "&ssl-type-2=direct&ssl-port-2=" + //
+                "&ssl-type-3=direct&ssl-port-3=" + //
+                "&adddomain&csrf=" + csrf;
+        String p2 = sendDomainForm(content);
+        try (Socket s0 = s.accept()) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(s0.getInputStream(), "UTF-8"));
+            String fst = br.readLine();
+            assertEquals("GET /cacert-" + m.group(1) + ".txt HTTP/1.1", fst);
+            while ( !br.readLine().equals("")) {
+            }
+            String res = m.group(2);
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(s0.getOutputStream(), "UTF-8"));
+            if ( !doRedirect) {
+                out.println("HTTP/1.1 200 OK");
+                out.println("Content-length: " + res.length());
+                out.println();
+                out.print(res);
+            } else {
+                out.println("HTTP/1.1 302 Moved");
+                out.println("Location: /token");
+                out.println();
+            }
+            out.flush();
+        }
+        waitForPings(2);
+
+        TestMail mail = getMailReciever().receive();
+        mail.verify();
+
+        String newcontent = IOUtils.readURL(get(p2));
+        Pattern pat = Pattern.compile("<td>http</td>\\s*<td>success</td>");
+        pat = Pattern.compile("<td>http</td>\\s*<td>([^<]*)</td>\\s*<td>([^<]*)</td>\\s*<td>([^<]*)</td>");
+        Matcher m0 = pat.matcher(newcontent);
+        assertTrue(newcontent, m0.find());
+        if (doRedirect) {
+            assertEquals("failed", m0.group(1));
+            assertThat(m0.group(3), containsString("code 302"));
+        } else {
+            assertEquals("success", m0.group(1));
+        }
+        pat = Pattern.compile("<td>email</td>\\s*<td>success</td>");
+        assertTrue(newcontent, pat.matcher(newcontent).find());
 
     }
 }

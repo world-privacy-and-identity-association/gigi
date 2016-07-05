@@ -32,6 +32,8 @@ domain.http=you-intstallation-for-the-textfiles
 domain.dnstest=the.dns.zone
 domain.testns=the.authorativ.ns.for.domain.dnstest
 domain.local=a.domain.that.resolves.to.localhost
+#port that is 80 is redirected to
+domain.localHTTP=80
 
 
 email.address=somemail@yourdomain.org

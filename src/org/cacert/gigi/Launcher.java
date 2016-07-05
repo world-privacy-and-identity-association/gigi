@@ -2,6 +2,7 @@ package org.cacert.gigi;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.security.GeneralSecurityException;
 import java.security.Key;
@@ -105,6 +106,7 @@ public class Launcher {
     public synchronized void boot() throws Exception {
         Locale.setDefault(Locale.ENGLISH);
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        HttpURLConnection.setFollowRedirects(false);
 
         conf = GigiConfig.parse(System.in);
         ServerConstants.init(conf.getMainProps());
