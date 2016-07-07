@@ -11,6 +11,7 @@ import java.util.Set;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
+import org.cacert.gigi.dbObjects.CATS.CATSType;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.pages.PasswordResetPage;
@@ -161,7 +162,7 @@ public class User extends CertificateOwner {
     public boolean hasPassedCATS() {
         try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT 1 FROM `cats_passed` where `user_id`=? AND `variant_id`=?")) {
             query.setInt(1, getId());
-            query.setInt(2, CATS.ASSURER_CHALLENGE_ID);
+            query.setInt(2, CATSType.ASSURER_CHALLENGE.getId());
             try (GigiResultSet rs = query.executeQuery()) {
                 if (rs.next()) {
                     return true;

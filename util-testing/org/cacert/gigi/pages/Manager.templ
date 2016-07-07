@@ -45,6 +45,11 @@ Add CATs entry:
 </td><td>
 Email: <input type="text" name="catsEmail"/>
 </td><td>
+<select name="catsType">
+<? foreach($cats_types) { ?>
+<option value="<?=$id?>"><?=$name?></option>
+<? } ?>
+</select>
 <input type="submit" value="Add CATs" name="cats"/>
 </td></tr>
 <tr><td>

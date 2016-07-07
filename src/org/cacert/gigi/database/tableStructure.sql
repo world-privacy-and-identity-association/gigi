@@ -319,6 +319,15 @@ CREATE TABLE "cats_type" (
   UNIQUE ("type_text")
 );
 
+# Add values to table "cats_type"
+INSERT INTO `cats_type` (`type_text`) VALUES ('Agent Qualifying Challenge');
+INSERT INTO `cats_type` (`type_text`) VALUES ('Organisation Agent Qualifying Challenge');
+INSERT INTO `cats_type` (`type_text`) VALUES ('TTP Agent Qualifying Challenge');
+INSERT INTO `cats_type` (`type_text`) VALUES ('TTP TOPUP Agent Qualifying Challenge');
+INSERT INTO `cats_type` (`type_text`) VALUES ('Code Signing Challenge');
+INSERT INTO `cats_type` (`type_text`) VALUES ('Organisation Administrator Data Protection Challenge');
+INSERT INTO `cats_type` (`type_text`) VALUES ('Support Data Protection Challenge');
+
 DROP TABLE IF EXISTS "arbitrations";
 CREATE TABLE IF NOT EXISTS "arbitrations" (
   "user" int NOT NULL,
@@ -376,7 +385,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(16);
+INSERT INTO "schemeVersion" (version)  VALUES(17);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (

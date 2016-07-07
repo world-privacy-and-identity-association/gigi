@@ -9,11 +9,40 @@ import org.cacert.gigi.database.GigiResultSet;
 
 public class CATS {
 
+    public enum CATSType {
+        ASSURER_CHALLENGE("Agent Qualifying Challenge"),
+
+        ORG_AGENT_CHALLENGE("Organisation Agent Qualifying Challenge"),
+
+        TTP_AGENT_CHALLENGE("TTP Agent Qualifying Challenge"),
+
+        TTP_TOPUP_AGENT_CHALLENGE_NAME("TTP TOPUP Agent Qualifying Challenge"),
+
+        CODE_SIGNING_CHALLENGE_NAME("Code Signing Challenge"),
+
+        ORG_ADMIN_DP_CHALLENGE_NAME("Organisation Administrator Data Protection Challenge"),
+
+        SUPPORT_DP_CHALLENGE_NAME("Support Data Protection Challenge");
+
+        private final String displayName;
+
+        private final int id;
+
+        private CATSType(String displayName) {
+            this.displayName = displayName;
+            id = getID(displayName);
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
+
     private static HashMap<String, Integer> names = new HashMap<>();
-
-    public static final String ASSURER_CHALLENGE_NAME = "Assurer's Challenge";
-
-    public static final int ASSURER_CHALLENGE_ID;
 
     private CATS() {
 
@@ -26,7 +55,6 @@ public class CATS {
                 names.put(res.getString(2), res.getInt(1));
             }
         }
-        ASSURER_CHALLENGE_ID = getID(ASSURER_CHALLENGE_NAME);
     }
 
     public static synchronized int getID(String name) {
@@ -42,10 +70,19 @@ public class CATS {
         return i;
     }
 
+    public static void enterResult(User user, CATSType testType, Date passDate, String language, String version) {
+        enterResult(user, testType.id, passDate, language, version);
+    }
+
     public static void enterResult(User user, String testType, Date passDate, String language, String version) {
+        enterResult(user, getID(testType), passDate, language, version);
+    }
+
+    private static void enterResult(User user, int testTypeId, Date passDate, String language, String version) {
+
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `cats_passed` SET `user_id`=?, `variant_id`=?, `pass_date`=?, `language`=?, `version`=?")) {
             ps.setInt(1, user.getId());
-            ps.setInt(2, getID(testType));
+            ps.setInt(2, testTypeId);
             ps.setTimestamp(3, new Timestamp(passDate.getTime()));
             ps.setString(4, language);
             ps.setString(5, version);

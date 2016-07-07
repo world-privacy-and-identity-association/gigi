@@ -23,7 +23,7 @@ import javax.servlet.http.HttpSession;
 import org.cacert.gigi.database.DatabaseConnection;
 import org.cacert.gigi.database.DatabaseConnection.Link;
 import org.cacert.gigi.dbObjects.CACertificate;
-import org.cacert.gigi.dbObjects.CATS;
+import org.cacert.gigi.dbObjects.CATS.CATSType;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.DomainPingConfiguration;
 import org.cacert.gigi.localisation.Language;
@@ -254,7 +254,7 @@ public final class Gigi extends HttpServlet {
         try (Link l = DatabaseConnection.newLink(false)) {
             CACertificate.getById(1);
             CertificateProfile.getById(1);
-            CATS.getID(CATS.ASSURER_CHALLENGE_NAME);
+            CATSType.ASSURER_CHALLENGE.getDisplayName();
         } catch (InterruptedException e) {
             throw new Error(e);
         }

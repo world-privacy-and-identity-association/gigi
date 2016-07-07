@@ -9,6 +9,7 @@ import java.security.KeyPairGenerator;
 import java.security.Signature;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,6 +29,8 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
+import org.cacert.gigi.dbObjects.CATS;
+import org.cacert.gigi.dbObjects.CATS.CATSType;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.dbObjects.CertificateOwner;
@@ -104,7 +107,7 @@ public class Manager extends Page {
                 System.out.println("Creating assurer");
                 createUser(mail);
                 u = User.getByEmail(mail);
-                passCATS(u);
+                passCATS(u, CATSType.ASSURER_CHALLENGE);
                 ps.setInt(1, u.getId());
                 ps.setInt(2, u.getId());
                 ps.setInt(3, 100);
@@ -116,11 +119,8 @@ public class Manager extends Page {
         }
     }
 
-    private void passCATS(User u) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO cats_passed SET user_id=?, variant_id=1, language='en_EN', version=1")) {
-            ps.setInt(1, u.getId());
-            ps.execute();
-        }
+    private void passCATS(User u, CATSType t) {
+        CATS.enterResult(u, t, new Date(System.currentTimeMillis()), "en_EN", "1");
     }
 
     private static Manager instance;
@@ -246,13 +246,19 @@ public class Manager extends Page {
             fetchMails(req, resp, mail);
         } else if (req.getParameter("cats") != null) {
             String mail = req.getParameter("catsEmail");
+            String testId = req.getParameter("catsType");
             User byEmail = User.getByEmail(mail);
             if (byEmail == null) {
                 resp.getWriter().println("User not found.");
                 return;
             }
-            passCATS(byEmail);
-            resp.getWriter().println("User has been passed CATS");
+            if (testId == null) {
+                resp.getWriter().println("No test given.");
+                return;
+            }
+            CATSType test = CATSType.values()[Integer.parseInt(testId)];
+            passCATS(byEmail, test);
+            resp.getWriter().println("Test '" + test.getDisplayName() + "' was added to user account.");
         } else if (req.getParameter("assure") != null) {
             String mail = req.getParameter("assureEmail");
             User byEmail = User.getByEmail(mail);
@@ -375,7 +381,24 @@ public class Manager extends Page {
             fetchMails(req, resp, mail);
             return;
         }
+        HashMap<String, Object> vars = new HashMap<>();
+        vars.put("cats_types", new IterableDataset() {
 
-        form.output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+            CATSType[] type = CATSType.values();
+
+            int i = 0;
+
+            @Override
+            public boolean next(Language l, Map<String, Object> vars) {
+                if (i >= type.length) {
+                    return false;
+                }
+                CATSType t = type[i++];
+                vars.put("id", i - 1);
+                vars.put("name", t.getDisplayName());
+                return true;
+            }
+        });
+        form.output(resp.getWriter(), getLanguage(req), vars);
     }
 }

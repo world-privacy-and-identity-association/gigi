@@ -17,7 +17,7 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.dbObjects.CATS;
+import org.cacert.gigi.dbObjects.CATS.CATSType;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.Certificate.SANType;
@@ -73,7 +73,7 @@ public class ImportCATSResult extends ClientTest {
         apiImport(u2, "Test Training");
         assertEquals(1, u2.getTrainings().length);
         assertFalse(u2.hasPassedCATS());
-        apiImport(u2, CATS.ASSURER_CHALLENGE_NAME);
+        apiImport(u2, CATSType.ASSURER_CHALLENGE.getDisplayName());
         assertEquals(2, u2.getTrainings().length);
         assertTrue(u2.hasPassedCATS());
 
