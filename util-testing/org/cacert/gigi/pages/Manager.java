@@ -201,6 +201,7 @@ public class Manager extends Page {
 
     private void createUser(String email) throws GigiApiException, IllegalAccessException {
         Calendar gc = GregorianCalendar.getInstance();
+        gc.setTimeInMillis(0);
         gc.set(1990, 0, 1);
         User u = new User(email, "xvXV12°§", new Name("Först", "Läst", "Müddle", "Süffix"), new DayDate(gc.getTime().getTime()), Locale.ENGLISH);
         EmailAddress ea = u.getEmails()[0];
