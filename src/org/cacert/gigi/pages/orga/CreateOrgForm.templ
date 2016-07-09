@@ -26,7 +26,12 @@
   </tr>
   <tr>
     <td><?=_Country?>:</td>
-    <td><input class="form-control" type="text" name="C" value="<?=$C?>" maxlength="2" size="5">
+    <td>
+      <select name="C">
+    <? foreach($countryCode) { ?>
+        <option value="<?=$cc?>" <?=$selected?> ><?=$cc?> - <?=$display?></option>
+    <? } ?>
+      </select>
       <?=_(2 letter !'<a href="http://www.iso.org/iso/home/standards/country_codes/iso-3166-1_decoding_table.htm">'ISO code!'</a>')?>
     </td>
   </tr>

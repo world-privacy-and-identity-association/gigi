@@ -202,6 +202,10 @@ public class TestOrgManagement extends OrgTest {
         assertNotNull(upCertData(o1, o1.getName(), "D", o1.getProvince(), o1.getCity()));
         assertNull(upCertData(o1, o1.getName(), "DE", o1.getProvince(), o1.getCity()));
         assertNotNull(upCertData(o1, o1.getName(), "DES", o1.getProvince(), o1.getCity()));
+        // country code does not exist
+        assertNotNull(upCertData(o1, o1.getName(), "DD", o1.getProvince(), o1.getCity()));
+        // 3-letter country code should not be accepted
+        assertNotNull(upCertData(o1, o1.getName(), "DEU", o1.getProvince(), o1.getCity()));
 
         // test contact mail
         assertNull(upOptData(o1, o1.getContactEmail()));

@@ -6,10 +6,13 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.CountryCode;
+import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
@@ -36,12 +39,19 @@ public class CreateOrgForm extends Form {
 
     private boolean isEdit = false;
 
+    private CountryCode[] countryCode;
+
     public CreateOrgForm(HttpServletRequest hsr) {
         super(hsr);
+        try {
+            countryCode = CountryCode.getCountryCodes(CountryCodeType.CODE_2_CHARS);
+        } catch (GigiApiException e) {
+            throw new Error(e); // should not happen
+        }
     }
 
     public CreateOrgForm(HttpServletRequest hsr, Organisation t) {
-        super(hsr);
+        this(hsr);
         isEdit = true;
         result = t;
         o = t.getName();
@@ -90,16 +100,15 @@ public class CreateOrgForm extends Form {
 
     private void checkCertData(HttpServletRequest req) throws GigiApiException {
         o = extractParam(req, "O");
-        c = extractParam(req, "C");
+        c = extractParam(req, "C").toUpperCase();
         st = extractParam(req, "ST");
         l = extractParam(req, "L");
 
         if (o.length() > 64 || o.length() < 1) {
             throw new GigiApiException(SprintfCommand.createSimple("{0} not given or longer than {1} characters", "Organisation name", 64));
         }
-        if (c.length() != 2) {
-            throw new GigiApiException(SprintfCommand.createSimple("{0} not given or not exactly {1} characters long", "Country code", 2));
-        }
+
+        CountryCode.checkCountryCode(c, CountryCodeType.CODE_2_CHARS);
 
         if (st.length() > 128 || st.length() < 1) {
             throw new GigiApiException(SprintfCommand.createSimple("{0} not given or longer than {1} characters", "State/county", 128));
@@ -131,6 +140,28 @@ public class CreateOrgForm extends Form {
         vars.put("email", email);
         vars.put("optionalName", optionalName);
         vars.put("postalAddress", postalAddress);
+        vars.put("countryCode", new IterableDataset() {
+
+            int i = 0;
+
+            @Override
+            public boolean next(Language l, Map<String, Object> vars) {
+                if (i >= countryCode.length) {
+                    return false;
+                }
+                CountryCode t = countryCode[i++];
+                vars.put("id", t.getId());
+                vars.put("cc", t.getCountryCode());
+                vars.put("display", t.getCountry());
+                if (t.getCountryCode().equals(c)) {
+                    vars.put("selected", "selected");
+                } else {
+                    vars.put("selected", "");
+                }
+                return true;
+            }
+        });
+        // vars.put("countryCode", countryCode);
         if (isEdit) {
             vars.put("edit", true);
         }
