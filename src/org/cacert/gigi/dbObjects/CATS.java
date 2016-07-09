@@ -42,6 +42,11 @@ public class CATS {
         }
     }
 
+    /**
+     * The maximal number of months a passed test is considered "recent".
+     */
+    public static final int TEST_MONTHS = 12;
+
     private static HashMap<String, Integer> names = new HashMap<>();
 
     private CATS() {
@@ -87,6 +92,17 @@ public class CATS {
             ps.setString(4, language);
             ps.setString(5, version);
             ps.execute();
+        }
+    }
+
+    public static boolean isInCatsLimit(int uID, int testID) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `cats_passed` WHERE `user_id` = ? AND `variant_id` = ? AND`pass_date` > (now() - interval '1 months' * ?)")) {
+            ps.setInt(1, uID);
+            ps.setInt(2, testID);
+            ps.setInt(3, TEST_MONTHS);
+
+            GigiResultSet rs = ps.executeQuery();
+            return rs.next();
         }
     }
 }
