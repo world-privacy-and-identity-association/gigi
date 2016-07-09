@@ -22,7 +22,6 @@ import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.TranslateCommand;
 import org.cacert.gigi.util.KeyStorage;
-import org.cacert.gigi.util.Notary;
 
 public class Certificate implements IdCachable {
 
@@ -287,7 +286,6 @@ public class Certificate implements IdCachable {
         if (getStatus() != CertificateStatus.DRAFT) {
             throw new IllegalStateException();
         }
-        Notary.writeUserAgreement(actor, "ToS", "certificate issuance", "", true, 0);
 
         return Job.sign(this, start, period);
 
