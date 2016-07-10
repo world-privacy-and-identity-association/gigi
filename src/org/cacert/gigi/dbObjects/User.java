@@ -49,6 +49,11 @@ public class User extends CertificateOwner {
 
     public static final boolean POJAM_ENABLED = false;
 
+    /**
+     * Time in months a verification is considered "recent".
+     */
+    public static final int VERIFICATION_MONTHS = 39;
+
     protected User(GigiResultSet rs) {
         super(rs.getInt("id"));
         updateName(rs);
@@ -567,5 +572,15 @@ public class User extends CertificateOwner {
 
     private Assurance assuranceByRes(GigiResultSet res) {
         return new Assurance(res.getInt("id"), User.getById(res.getInt("from")), User.getById(res.getInt("to")), res.getString("location"), res.getString("method"), res.getInt("points"), res.getString("date"));
+    }
+
+    public static boolean isInVerificationLimit(int id) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `notary` WHERE `to` = ? AND `when` > (now() - (interval '1 month' * ?)) AND (`expire` IS NULL OR `expire` > now()) AND `deleted` IS NULL;")) {
+            ps.setInt(1, id);
+            ps.setInt(2, VERIFICATION_MONTHS);
+
+            GigiResultSet rs = ps.executeQuery();
+            return rs.next();
+        }
     }
 }
