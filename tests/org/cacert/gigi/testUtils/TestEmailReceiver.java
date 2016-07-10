@@ -21,7 +21,7 @@ import org.cacert.gigi.email.TestEmailProvider;
  * intercept the emails. This class resides in the VM that executes the
  * testcases and supplies the intercepted emails to the current test case.
  */
-public final class TestEmailReceiver extends EmailProvider implements Runnable {
+public final class TestEmailReceiver extends EmailProvider implements Runnable, MailReceiver {
 
     /**
      * An email that has been intercepted.
@@ -136,6 +136,7 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable {
      * @return The intercepted {@link TestMail}
      * @see #poll()
      */
+    @Override
     public TestMail receive() {
         TestMail poll;
 
@@ -232,6 +233,7 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable {
     /**
      * Removes all queued mails.
      */
+    @Override
     public void clearMails() {
         mails.clear();
     }

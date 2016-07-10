@@ -7,10 +7,10 @@ import java.io.IOException;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.testUtils.BusinessTest;
 import org.junit.Test;
 
-public class TestOrga extends ManagedTest {
+public class TestOrga extends BusinessTest {
 
     @Test
     public void testAddRm() throws GigiApiException, IOException {

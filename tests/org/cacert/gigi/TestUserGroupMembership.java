@@ -13,10 +13,10 @@ import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.testUtils.BusinessTest;
 import org.junit.Test;
 
-public class TestUserGroupMembership extends ManagedTest {
+public class TestUserGroupMembership extends BusinessTest {
 
     private final Group ttpGroup = Group.getByString("ttp-assurer");
 
@@ -99,7 +99,7 @@ public class TestUserGroupMembership extends ManagedTest {
     }
 
     @Test
-    public void testListGroup() {
+    public void testListGroup() throws GigiApiException {
         Group g = Group.getByString("supporter");
         int start = g.getMembers(0, 10).length;
         User ux = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));

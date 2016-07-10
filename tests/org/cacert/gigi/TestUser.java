@@ -11,11 +11,11 @@ import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.testUtils.BusinessTest;
 import org.cacert.gigi.util.DayDate;
 import org.junit.Test;
 
-public class TestUser extends ManagedTest {
+public class TestUser extends BusinessTest {
 
     @Test
     public void testStoreAndLoad() throws SQLException, GigiApiException {
@@ -30,7 +30,7 @@ public class TestUser extends ManagedTest {
     }
 
     @Test
-    public void testWebStoreAndLoad() throws SQLException {
+    public void testWebStoreAndLoad() throws SQLException, GigiApiException {
         int id = createVerifiedUser("aä", "b", createUniqueName() + "a@email.org", TEST_PASSWORD);
 
         Name u = User.getById(id).getName();
@@ -41,7 +41,7 @@ public class TestUser extends ManagedTest {
     }
 
     @Test
-    public void testAssurerUtilMethods() throws SQLException {
+    public void testAssurerUtilMethods() throws SQLException, GigiApiException {
         int id = createAssuranceUser("aä", "b", createUniqueName() + "a@email.org", TEST_PASSWORD);
 
         User u = User.getById(id);
@@ -112,7 +112,7 @@ public class TestUser extends ManagedTest {
     }
 
     @Test
-    public void testGetByMail() {
+    public void testGetByMail() throws GigiApiException {
         String email = createUniqueName() + "a@email.org";
         int id = createVerifiedUser("aä", "b", email, TEST_PASSWORD);
         User emailUser = User.getByEmail(email);
@@ -121,7 +121,7 @@ public class TestUser extends ManagedTest {
     }
 
     @Test
-    public void testNoCats() {
+    public void testNoCats() throws GigiApiException {
         String email = createUniqueName() + "a@email.org";
         createVerifiedUser("aä", "b", email, TEST_PASSWORD);
         User emailUser = User.getByEmail(email);

@@ -26,6 +26,7 @@ import java.util.Random;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.cacert.gigi.testUtils.ConfiguredTest;
+import org.cacert.gigi.util.ServerConstants;
 import org.junit.Test;
 
 import sun.security.x509.AlgorithmId;
@@ -84,7 +85,7 @@ public class TestSendmail extends ConfiguredTest {
             imapUntil(br, "exp");
             pw.println("log logout");
             imapUntil(br, "log");
-            assertThat(body, containsString("From: support@cacert.local"));
+            assertThat(body, containsString("From: support@" + ServerConstants.getWwwHostName().replaceAll("^www.", "")));
             assertThat(body, containsString("To: gigi-testuser@dogcraft.de"));
             assertThat(body, containsString("Subject: " + subj));
             assertThat(body, containsString(Base64.getEncoder().encodeToString(msg.getBytes("UTF-8"))));

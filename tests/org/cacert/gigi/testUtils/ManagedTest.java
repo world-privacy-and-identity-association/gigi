@@ -37,10 +37,6 @@ import org.cacert.gigi.DevelLauncher;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
-import org.cacert.gigi.database.SQLFileManager.ImportType;
-import org.cacert.gigi.dbObjects.CATS.CATSType;
-import org.cacert.gigi.dbObjects.Domain;
-import org.cacert.gigi.dbObjects.DomainPingType;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Job;
@@ -50,8 +46,6 @@ import org.cacert.gigi.pages.Manager;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
-import org.cacert.gigi.util.DatabaseManager;
-import org.cacert.gigi.util.ServerConstants;
 import org.cacert.gigi.util.SimpleSigner;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
@@ -67,13 +61,6 @@ public class ManagedTest extends ConfiguredTest {
     static {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
     }
-
-    /**
-     * Some password that fulfills the password criteria.
-     */
-    public static final String TEST_PASSWORD = "xvXV12°§";
-
-    public static final String DIFFICULT_CHARS = "ÜÖÄß𐀀";
 
     private static TestEmailReceiver ter;
 
@@ -113,7 +100,6 @@ public class ManagedTest extends ConfiguredTest {
             purgeDatabase();
             String type = testProps.getProperty("type");
             generateMainProps(mainProps);
-            ServerConstants.init(mainProps);
             if (type.equals("local")) {
                 url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort.https");
                 String[] parts = testProps.getProperty("mail").split(":", 2);
@@ -177,16 +163,7 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     public static void purgeDatabase() throws SQLException, IOException {
-        System.out.print("... resetting Database");
-        long ms = System.currentTimeMillis();
-        try {
-            DatabaseManager.run(new String[] {
-                    testProps.getProperty("sql.driver"), testProps.getProperty("sql.url"), testProps.getProperty("sql.user"), testProps.getProperty("sql.password")
-            }, ImportType.TRUNCATE);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        System.out.println(" in " + (System.currentTimeMillis() - ms) + " ms");
+        purgeOnlyDB();
         clearCaches();
     }
 
@@ -200,13 +177,7 @@ public class ManagedTest extends ConfiguredTest {
     private static void generateMainProps(Properties mainProps) {
         mainProps.setProperty("testrunner", "true");
         mainProps.setProperty("host", "127.0.0.1");
-        mainProps.setProperty("name.secure", testProps.getProperty("name.secure"));
-        mainProps.setProperty("name.www", testProps.getProperty("name.www"));
-        mainProps.setProperty("name.static", testProps.getProperty("name.static"));
-        mainProps.setProperty("name.api", testProps.getProperty("name.api"));
 
-        mainProps.setProperty("https.port", testProps.getProperty("serverPort.https"));
-        mainProps.setProperty("http.port", testProps.getProperty("serverPort.http"));
         mainProps.setProperty("emailProvider", "org.cacert.gigi.email.TestEmailProvider");
         mainProps.setProperty("emailProvider.port", "8473");
         mainProps.setProperty("sql.driver", testProps.getProperty("sql.driver"));
@@ -243,7 +214,8 @@ public class ManagedTest extends ConfiguredTest {
         ManagedTest.setAcceptLanguage(null);
     }
 
-    public static TestEmailReceiver getMailReciever() {
+    @Override
+    public MailReceiver getMailReciever() {
         return ter;
     }
 
@@ -344,20 +316,6 @@ public class ManagedTest extends ConfiguredTest {
         makeAssurer(uid);
 
         return uid;
-    }
-
-    public static void makeAssurer(int uid) {
-        try (GigiPreparedStatement ps1 = new GigiPreparedStatement("INSERT INTO cats_passed SET user_id=?, variant_id=?, language='en_EN', version=1")) {
-            ps1.setInt(1, uid);
-            ps1.setInt(2, CATSType.ASSURER_CHALLENGE.getId());
-            ps1.execute();
-        }
-
-        try (GigiPreparedStatement ps2 = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, points='100'")) {
-            ps2.setInt(1, uid);
-            ps2.setInt(2, uid);
-            ps2.execute();
-        }
     }
 
     protected static String stripCookie(String headerField) {
@@ -509,7 +467,7 @@ public class ManagedTest extends ConfiguredTest {
         return (HttpURLConnection) uc;
     }
 
-    public static EmailAddress createVerifiedEmail(User u) throws InterruptedException, GigiApiException {
+    public EmailAddress createVerifiedEmail(User u) throws InterruptedException, GigiApiException {
         EmailAddress adrr = new EmailAddress(u, createUniqueName() + "test@test.tld", Locale.ENGLISH);
         TestMail testMail = getMailReciever().receive();
         assertEquals(adrr.getAddress(), testMail.getTo());
@@ -522,20 +480,6 @@ public class ManagedTest extends ConfiguredTest {
     public static URLConnection cookie(URLConnection openConnection, String cookie) {
         openConnection.setRequestProperty("Cookie", cookie);
         return openConnection;
-    }
-
-    public static void verify(Domain d) {
-        try {
-            System.out.println(d.getId());
-            d.addPing(DomainPingType.EMAIL, "admin");
-            TestMail testMail = ter.receive();
-            testMail.verify();
-            assertTrue(d.isVerified());
-        } catch (GigiApiException e) {
-            throw new Error(e);
-        } catch (IOException e) {
-            throw new Error(e);
-        }
     }
 
 }

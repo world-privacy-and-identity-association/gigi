@@ -11,17 +11,15 @@ import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.testUtils.ClientBusinessTest;
 import org.cacert.gigi.util.DayDate;
 import org.junit.Test;
 
-public class TestObjectCache extends ManagedTest {
-
-    int uid = createVerifiedUser("fname", "lname", createUniqueName() + "@example.com", TEST_PASSWORD);
+public class TestObjectCache extends ClientBusinessTest {
 
     @Test
     public void testUserCache() throws SQLException, GigiApiException {
-        assertThat(User.getById(uid), is(sameInstance(User.getById(uid))));
+        assertThat(User.getById(id), is(sameInstance(User.getById(id))));
 
         Calendar c = Calendar.getInstance();
         c.set(1950, 1, 1, 0, 0, 0);
@@ -35,7 +33,6 @@ public class TestObjectCache extends ManagedTest {
 
     @Test
     public void testDomainCache() throws GigiApiException {
-        User u = User.getById(uid);
         Domain d = new Domain(u, u, "example.org");
 
         assertThat(d, is(sameInstance(Domain.getById(d.getId()))));
@@ -44,7 +41,7 @@ public class TestObjectCache extends ManagedTest {
 
     @Test
     public void testEmailCache() throws GigiApiException {
-        EmailAddress em = new EmailAddress(User.getById(uid), createUniqueName() + "@example.org", Locale.ENGLISH);
+        EmailAddress em = new EmailAddress(u, createUniqueName() + "@example.org", Locale.ENGLISH);
 
         assertThat(em, is(sameInstance(EmailAddress.getById(em.getId()))));
         assertThat(EmailAddress.getById(em.getId()), is(sameInstance(EmailAddress.getById(em.getId()))));

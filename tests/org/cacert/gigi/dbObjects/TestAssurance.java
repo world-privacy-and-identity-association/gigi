@@ -5,11 +5,12 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.sql.Timestamp;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
-import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.testUtils.BusinessTest;
 import org.junit.Test;
 
-public class TestAssurance extends ManagedTest {
+public class TestAssurance extends BusinessTest {
 
     private final Timestamp yesterday = new Timestamp(System.currentTimeMillis() - 24L * 60 * 60 * 1000L);
 
@@ -31,7 +32,7 @@ public class TestAssurance extends ManagedTest {
 
     private final int applicantID;
 
-    public TestAssurance() {
+    public TestAssurance() throws GigiApiException {
         agentID = createAssuranceUser("a", "b", createUniqueName() + "@example.com", TEST_PASSWORD);
         applicantID = createVerifiedUser("a", "c", createUniqueName() + "@example.com", TEST_PASSWORD);
     }
