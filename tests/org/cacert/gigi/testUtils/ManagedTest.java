@@ -268,7 +268,7 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     public static org.hamcrest.Matcher<String> hasError() {
-        return CoreMatchers.containsString("<div class='bg-danger error-msgs'>");
+        return CoreMatchers.containsString("<div class='alert alert-danger error-msgs'>");
     }
 
     public static org.hamcrest.Matcher<String> hasNoError() {
@@ -276,12 +276,12 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     public static String fetchStartErrorMessage(String d) throws IOException {
-        String formFail = "<div class='bg-danger error-msgs'>";
+        String formFail = "<div class='alert alert-danger error-msgs'>";
         int idx = d.indexOf(formFail);
         if (idx == -1) {
             return null;
         }
-        String startError = d.substring(idx + formFail.length(), idx + 100).trim();
+        String startError = d.substring(idx + formFail.length(), idx + formFail.length() + 150).trim();
         return startError;
     }
 

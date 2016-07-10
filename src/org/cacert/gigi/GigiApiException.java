@@ -51,7 +51,7 @@ public class GigiApiException extends Exception {
     }
 
     public void format(PrintWriter out, Language language) {
-        out.println("<div class='bg-danger error-msgs'>");
+        out.println("<div class='alert alert-danger error-msgs'>");
         if (isInternalError()) {
             e.printStackTrace();
             out.print("<p>");
