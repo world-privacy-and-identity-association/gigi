@@ -170,7 +170,7 @@ public abstract class ConfiguredTest {
     }
 
     public static void makeAssurer(int uid) {
-        try (GigiPreparedStatement ps1 = new GigiPreparedStatement("INSERT INTO cats_passed SET user_id=?, variant_id=?, language='en_EN', version=1")) {
+        try (GigiPreparedStatement ps1 = new GigiPreparedStatement("INSERT INTO cats_passed SET user_id=?, variant_id=?, language='en_EN', version='1'")) {
             ps1.setInt(1, uid);
             ps1.setInt(2, CATSType.ASSURER_CHALLENGE.getId());
             ps1.execute();
@@ -201,7 +201,7 @@ public abstract class ConfiguredTest {
     }
 
     public static void purgeOnlyDB() throws SQLException, IOException {
-        System.out.print("... resetting Database");
+        System.out.println("... resetting Database");
         long ms = System.currentTimeMillis();
         try {
             DatabaseManager.run(new String[] {
@@ -210,6 +210,6 @@ public abstract class ConfiguredTest {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        System.out.println(" in " + (System.currentTimeMillis() - ms) + " ms");
+        System.out.println("Database reset complete in " + (System.currentTimeMillis() - ms) + " ms.");
     }
 }
