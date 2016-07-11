@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.email.Sendmail;
+import org.cacert.gigi.email.SendMail;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.SprintfCommand;
@@ -137,7 +137,7 @@ public class PasswordResetPage extends Page {
             outMail.print("\n");
             outMail.print(l.getTranslation("SomeCA.org Support!"));
             outMail.close();
-            Sendmail.getInstance().sendmail(Page.getUser(req).getEmail(), "[SomeCA.org] " + subject, sw.toString(), "support@cacert.org", null, null, null, null, false);
+            SendMail.getInstance().sendMail(Page.getUser(req).getEmail(), "[SomeCA.org] " + subject, sw.toString(), "support@cacert.org", null, null, null, null, false);
             out.println(Page.getLanguage(req).getTranslation("Password reset successful."));
         } catch (IOException e) {
             e.printStackTrace();

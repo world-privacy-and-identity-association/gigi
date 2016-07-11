@@ -25,7 +25,7 @@ import org.cacert.gigi.util.DNSUtil;
 
 public abstract class EmailProvider {
 
-    public abstract void sendmail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException;
+    public abstract void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException;
 
     private static EmailProvider instance;
 
@@ -99,7 +99,7 @@ public abstract class EmailProvider {
                     BufferedReader br = br0;
                     PrintWriter pw = pw0;
                     String line;
-                    if ( !Sendmail.readSMTPResponse(br, 220)) {
+                    if ( !SendMail.readSMTPResponse(br, 220)) {
                         continue;
                     }
 
@@ -120,7 +120,7 @@ public abstract class EmailProvider {
                     if (starttls) {
                         pw.print("STARTTLS\r\n");
                         pw.flush();
-                        if ( !Sendmail.readSMTPResponse(br, 220)) {
+                        if ( !SendMail.readSMTPResponse(br, 220)) {
                             continue;
                         }
                         Socket s1 = ((SSLSocketFactory) SSLSocketFactory.getDefault()).createSocket(s, host, 25, true);
@@ -128,7 +128,7 @@ public abstract class EmailProvider {
                         pw = new PrintWriter(new OutputStreamWriter(s1.getOutputStream(), "UTF-8"));
                         pw.print("EHLO www.cacert.org\r\n");
                         pw.flush();
-                        if ( !Sendmail.readSMTPResponse(br, 250)) {
+                        if ( !SendMail.readSMTPResponse(br, 250)) {
                             continue;
                         }
                     }
@@ -136,18 +136,18 @@ public abstract class EmailProvider {
                     pw.print("MAIL FROM: <returns@cacert.org>\r\n");
                     pw.flush();
 
-                    if ( !Sendmail.readSMTPResponse(br, 250)) {
+                    if ( !SendMail.readSMTPResponse(br, 250)) {
                         continue;
                     }
                     pw.print("RCPT TO: <" + address + ">\r\n");
                     pw.flush();
 
-                    if ( !Sendmail.readSMTPResponse(br, 250)) {
+                    if ( !SendMail.readSMTPResponse(br, 250)) {
                         continue;
                     }
                     pw.print("QUIT\r\n");
                     pw.flush();
-                    if ( !Sendmail.readSMTPResponse(br, 221)) {
+                    if ( !SendMail.readSMTPResponse(br, 221)) {
                         continue;
                     }
 

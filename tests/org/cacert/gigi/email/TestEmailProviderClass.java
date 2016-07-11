@@ -47,7 +47,7 @@ public class TestEmailProviderClass extends ConfiguredTest {
     @BeforeClass
     public static void initMailsystem() throws NoSuchAlgorithmException, KeyManagementException {
         Properties prop = new Properties();
-        prop.setProperty("emailProvider", "org.cacert.gigi.email.Sendmail");
+        prop.setProperty("emailProvider", "org.cacert.gigi.email.SendMail");
         EmailProvider.initSystem(prop, null, null);
         SSLContext c = SSLContext.getInstance("TLS");
         c.init(null, new TrustManager[] {

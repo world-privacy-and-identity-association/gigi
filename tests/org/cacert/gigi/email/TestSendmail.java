@@ -55,7 +55,7 @@ public class TestSendmail extends ConfiguredTest {
 
         String subj = "subj-" + createUniqueName();
         String msg = "msg-" + createUniqueName();
-        EmailProvider.getInstance().sendmail(succmail, subj, msg, "system@cacert.org", "system@cacert.org", "Testtarget", "Testsender", null, false);
+        EmailProvider.getInstance().sendMail(succmail, subj, msg, "system@cacert.org", "system@cacert.org", "Testtarget", "Testsender", null, false);
 
         try (Socket s = SSLSocketFactory.getDefault().createSocket(imap, 993);//
                 PrintWriter pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"), true);//
@@ -110,7 +110,7 @@ public class TestSendmail extends ConfiguredTest {
     private void initSelfsign() throws GeneralSecurityException, CertificateException, IOException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException, SignatureException {
         assumeNotNull(getTestProps().getProperty("emailProvider.smtpHost"), getTestProps().getProperty("emailProvider.smtpPort"));
         Properties prop = new Properties();
-        prop.setProperty("emailProvider", "org.cacert.gigi.email.Sendmail");
+        prop.setProperty("emailProvider", "org.cacert.gigi.email.SendMail");
         prop.setProperty("emailProvider.smtpHost", getTestProps().getProperty("emailProvider.smtpHost"));
         prop.setProperty("emailProvider.smtpPort", getTestProps().getProperty("emailProvider.smtpPort"));
         KeyPair kp = generateKeypair();

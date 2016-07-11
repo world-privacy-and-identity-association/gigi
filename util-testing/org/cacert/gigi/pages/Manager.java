@@ -148,7 +148,7 @@ public class Manager extends Page {
         }
 
         @Override
-        public synchronized void sendmail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
+        public synchronized void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
             HashMap<String, LinkedList<String>> mails = Manager.getInstance().emails;
             LinkedList<String> hismails = mails.get(to);
             if (hismails == null) {

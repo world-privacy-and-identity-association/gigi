@@ -273,7 +273,7 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable, 
     }
 
     @Override
-    public void sendmail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
+    public void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
         mails.add(new TestMail(to, subject, message, from, replyto));
     }
 

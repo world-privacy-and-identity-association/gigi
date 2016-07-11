@@ -8,7 +8,7 @@ public class CommandlineEmailProvider extends EmailProvider {
     public CommandlineEmailProvider(Properties p) {}
 
     @Override
-    public void sendmail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
+    public void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
         synchronized (System.out) {
             System.out.println("== MAIL ==");
             System.out.println("To: " + to);

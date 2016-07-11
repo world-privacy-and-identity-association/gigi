@@ -45,10 +45,10 @@ public class TestEmailProvider extends EmailProvider {
     }
 
     @Override
-    public synchronized void sendmail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
+    public synchronized void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
         while (true) {
             if ( !assureLocalConnection() && target != null) {
-                target.sendmail(to, subject, message, from, replyto, toname, fromname, errorsto, extra);
+                target.sendMail(to, subject, message, from, replyto, toname, fromname, errorsto, extra);
                 return;
             }
             try {

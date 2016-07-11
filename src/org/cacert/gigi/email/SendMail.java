@@ -17,13 +17,13 @@ import java.util.regex.Pattern;
 import org.cacert.gigi.util.PEM;
 import org.cacert.gigi.util.ServerConstants;
 
-public class Sendmail extends EmailProvider {
+public class SendMail extends EmailProvider {
 
     private final String targetHost;
 
     private final int targetPort;
 
-    protected Sendmail(Properties props) {
+    protected SendMail(Properties props) {
         targetHost = props.getProperty("emailProvider.smtpHost", "localhost");
         targetPort = Integer.parseInt(props.getProperty("emailProvider.smtpPort", "25"));
     }
@@ -31,7 +31,7 @@ public class Sendmail extends EmailProvider {
     private static final Pattern NON_ASCII = Pattern.compile("[^a-zA-Z0-9 .-\\[\\]!_@]");
 
     @Override
-    public void sendmail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
+    public void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
 
         String[] bits = from.split(",");
 

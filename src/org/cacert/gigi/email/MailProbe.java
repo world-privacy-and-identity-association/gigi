@@ -22,7 +22,7 @@ public class MailProbe {
         body.append(l.getTranslation("Best regards"));
         body.append("\n");
         body.append(l.getTranslation("SomeCA.org Support!"));
-        EmailProvider.getInstance().sendmail(address, "[SomeCA.org] " + l.getTranslation("Mail Probe"), body.toString(), "support@cacert.org", null, null, null, null, false);
+        EmailProvider.getInstance().sendMail(address, "[SomeCA.org] " + l.getTranslation("Mail Probe"), body.toString(), "support@cacert.org", null, null, null, null, false);
     }
 
 }
