@@ -14,8 +14,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.crypto.SPKAC;
 import org.cacert.gigi.dbObjects.Certificate;
@@ -300,7 +298,7 @@ public class CertificateRequest {
         return profile;
     }
 
-    public synchronized boolean update(String nameIn, String hashAlg, String profileStr, String newOrgStr, String ou, String SANsStr, PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public synchronized boolean update(String nameIn, String hashAlg, String profileStr, String newOrgStr, String ou, String SANsStr) throws GigiApiException {
         GigiApiException error = new GigiApiException();
         this.name = nameIn;
         if (hashAlg != null) {

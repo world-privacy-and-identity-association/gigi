@@ -64,7 +64,7 @@ public class TestCAAValidation extends ClientTest {
         String csr = generatePEMCSR(generateKeypair(), "CN=test");
         CertificateRequest cr = new CertificateRequest(new AuthorizationContext(u, u), csr);
         try {
-            cr.update("", Digest.SHA512.toString(), "server", null, null, "dns:" + domain + "\n", null, null);
+            cr.update("", Digest.SHA512.toString(), "server", null, null, "dns:" + domain + "\n");
         } catch (GigiApiException e) {
             assertThat(e.getMessage(), containsString("has been removed"));
             assertFalse(success);

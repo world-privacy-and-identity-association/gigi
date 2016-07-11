@@ -310,7 +310,7 @@ public class Manager extends Page {
                 byte[] res = s.getEncoded(sign);
 
                 CertificateRequest cr = new CertificateRequest(new AuthorizationContext(u, u), Base64.getEncoder().encodeToString(res), "challange");
-                cr.update(CertificateRequest.DEFAULT_CN, Digest.SHA512.toString(), "client", null, "", "email:" + u.getEmail(), resp.getWriter(), req);
+                cr.update(CertificateRequest.DEFAULT_CN, Digest.SHA512.toString(), "client", null, "", "email:" + u.getEmail());
                 Certificate draft = cr.draft();
                 draft.issue(null, "2y", u).waitFor(10000);
                 if (draft.getStatus() == CertificateStatus.ISSUED) {

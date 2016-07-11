@@ -64,7 +64,7 @@ public class TestCertificateRequest extends ClientTest {
         try {
             u.grantGroup(u, Group.CODESIGNING);
             CertificateRequest cr = new CertificateRequest(ac, generatePEMCSR(kp, "CN=a ab"));
-            cr.update("name", "SHA512", "code-a", null, null, "email:" + email, null, null);
+            cr.update("name", "SHA512", "code-a", null, null, "email:" + email);
             cr.draft();
             fail();
         } catch (GigiApiException e) {
@@ -78,7 +78,7 @@ public class TestCertificateRequest extends ClientTest {
     public void testCodesignNoPermModifiedName() throws Exception {
         try {
             CertificateRequest cr = new CertificateRequest(ac, generatePEMCSR(kp, "CN=a ab"));
-            cr.update("name", "SHA512", "code-a", null, null, "email:" + email, null, null);
+            cr.update("name", "SHA512", "code-a", null, null, "email:" + email);
             cr.draft();
             fail();
         } catch (GigiApiException e) {

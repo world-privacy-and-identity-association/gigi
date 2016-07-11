@@ -75,7 +75,7 @@ public class CertificateIssueForm extends Form {
 
                     try {
                         cr.update(req.getParameter("CN"), req.getParameter("hash_alg"), req.getParameter("profile"), //
-                                req.getParameter("org"), req.getParameter("OU"), req.getParameter("SANs"), out, req);
+                                req.getParameter("org"), req.getParameter("OU"), req.getParameter("SANs"));
                     } catch (GigiApiException e) {
                         error.mergeInto(e);
                     }
