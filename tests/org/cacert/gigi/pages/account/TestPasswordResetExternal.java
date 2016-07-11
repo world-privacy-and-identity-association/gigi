@@ -33,7 +33,7 @@ public class TestPasswordResetExternal extends ClientTest {
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
         assertNull(error);
 
-        TestMail mail = getMailReciever().receive();
+        TestMail mail = getMailReceiver().receive();
         String link = mail.extractLink();
         String npw = TEST_PASSWORD + "'";
         System.out.println(link);

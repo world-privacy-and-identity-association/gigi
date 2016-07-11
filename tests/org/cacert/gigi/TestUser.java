@@ -65,9 +65,9 @@ public class TestUser extends BusinessTest {
 
         User u = User.getById(id);
         new EmailAddress(u, uq + "b@email.org", Locale.ENGLISH);
-        getMailReciever().receive().verify();
+        getMailReceiver().receive().verify();
         new EmailAddress(u, uq + "c@email.org", Locale.ENGLISH);
-        getMailReciever().receive();// no-verify
+        getMailReceiver().receive();// no-verify
         verify(new Domain(u, u, uq + "a-testdomain.org"));
         verify(new Domain(u, u, uq + "b-testdomain.org"));
         verify(new Domain(u, u, uq + "c-testdomain.org"));

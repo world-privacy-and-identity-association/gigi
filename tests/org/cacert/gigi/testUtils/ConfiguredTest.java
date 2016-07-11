@@ -183,14 +183,14 @@ public abstract class ConfiguredTest {
         }
     }
 
-    public MailReceiver getMailReciever() {
+    public MailReceiver getMailReceiver() {
         throw new Error("Feature requires Business or ManagedTest.");
     }
 
     public void verify(Domain d) {
         try {
             d.addPing(DomainPingType.EMAIL, "admin");
-            TestMail testMail = getMailReciever().receive();
+            TestMail testMail = getMailReceiver().receive();
             testMail.verify();
             assertTrue(d.isVerified());
         } catch (GigiApiException e) {

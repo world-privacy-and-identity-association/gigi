@@ -74,7 +74,7 @@ public class TestHTTP extends PingTest {
                 "&adddomain&csrf=" + csrf;
         String p2 = sendDomainForm(content);
 
-        TestMail mail = getMailReciever().receive();
+        TestMail mail = getMailReceiver().receive();
         if (emailVariant == 0) {
             mail.verify();
         }
@@ -172,7 +172,7 @@ public class TestHTTP extends PingTest {
         }
         waitForPings(2);
 
-        TestMail mail = getMailReciever().receive();
+        TestMail mail = getMailReceiver().receive();
         mail.verify();
 
         String newcontent = IOUtils.readURL(get(p2));

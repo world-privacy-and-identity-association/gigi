@@ -99,7 +99,7 @@ public class TestMailManagement extends ClientTest {
         EmailAddress addr = new EmailAddress(u, createUniqueName() + "test@test.tld", Locale.ENGLISH);
         assertNotNull(executeBasicWebInteraction(cookie, path, "default=" + addr.getId()));
         assertNotEquals(User.getById(u.getId()).getEmail(), addr.getAddress());
-        getMailReciever().clearMails();
+        getMailReceiver().clearMails();
     }
 
     @Test
@@ -115,7 +115,7 @@ public class TestMailManagement extends ClientTest {
         assertNotEquals(id, -1);
         assertNotNull(executeBasicWebInteraction(cookie, path, "default=" + id));
         assertNotEquals(User.getById(u.getId()).getEmail(), u2.getEmail());
-        getMailReciever().clearMails();
+        getMailReceiver().clearMails();
     }
 
     @Test

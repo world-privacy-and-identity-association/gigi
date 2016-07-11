@@ -51,18 +51,18 @@ public class RegisterPageTest extends ManagedTest {
         assertNull(data);
         assertSuccessfullRegMail();
 
-        getMailReciever().setEmailCheckError("400 Greylisted");
-        getMailReciever().setApproveRegex(Pattern.compile("a"));
+        getMailReceiver().setEmailCheckError("400 Greylisted");
+        getMailReceiver().setApproveRegex(Pattern.compile("a"));
         query = defaultSignup + URLEncoder.encode("correct4_" + uniq + "@email.de", "UTF-8") + "&general=1&country=1&regional=1&radius=1";
         data = fetchStartErrorMessage(runRegister(query));
         assertNotNull(data);
 
-        assertNull(getMailReciever().poll());
+        assertNull(getMailReceiver().poll());
 
     }
 
     private void assertSuccessfullRegMail() {
-        String link = getMailReciever().receive().extractLink();
+        String link = getMailReceiver().receive().extractLink();
         assertTrue(link, link.startsWith("https://"));
     }
 
@@ -182,7 +182,7 @@ public class RegisterPageTest extends ManagedTest {
 
     @Test
     public void testInvalidMailbox() {
-        getMailReciever().setApproveRegex(Pattern.compile("a"));
+        getMailReceiver().setApproveRegex(Pattern.compile("a"));
         long uniq = System.currentTimeMillis();
         try {
             registerUser("RegisterTest", "User", "testInvalidMailbox" + uniq + "@cacert.org", TEST_PASSWORD);

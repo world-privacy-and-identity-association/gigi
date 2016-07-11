@@ -52,7 +52,7 @@ public class TestSEAdminPageDetails extends ClientTest {
         int id = createVerifiedUser(fname, lname, email, TEST_PASSWORD);
         String email2 = createUniqueName() + "@example.com";
         EmailAddress ea = new EmailAddress(User.getById(id), email2, Locale.ENGLISH);
-        getMailReciever().receive().verify();
+        getMailReceiver().receive().verify();
         // Refresh email Object
         ObjectCache.clearAllCaches();
         ea = EmailAddress.getById(ea.getId());

@@ -144,7 +144,7 @@ public abstract class BusinessTest extends ConfiguredTest {
     }
 
     @Override
-    public MailReceiver getMailReciever() {
+    public MailReceiver getMailReceiver() {
         return InVMEmail.getInstance();
     }
 }

@@ -205,7 +205,7 @@ public class TestSSL extends PingTest {
         boolean secondsSucceeds = sslVariant != 0;
         // assertTrue(secondsSucceeds ^ accept2);
 
-        TestMail mail = getMailReciever().receive();
+        TestMail mail = getMailReceiver().receive();
         if (emailVariant == 0) {
             mail.verify();
         }

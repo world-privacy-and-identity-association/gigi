@@ -16,7 +16,7 @@ public class LoginTest extends ManagedTest {
     public void testLoginUnverified() throws IOException {
         String email = createUniqueName() + "@testmail.org";
         registerUser("an", "bn", email, TEST_PASSWORD);
-        getMailReciever().receive();
+        getMailReceiver().receive();
         assertFalse(isLoggedin(login(email, TEST_PASSWORD)));
     }
 

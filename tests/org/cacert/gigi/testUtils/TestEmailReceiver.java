@@ -124,7 +124,7 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable, 
      * @see #destroy()
      */
     public void start() {
-        new Thread(this, "Mail reciever").start();
+        new Thread(this, "Mail receiver").start();
     }
 
     private LinkedBlockingQueue<TestMail> mails = new LinkedBlockingQueue<TestEmailReceiver.TestMail>();
@@ -144,10 +144,10 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable, 
             poll = mails.poll(60, TimeUnit.SECONDS);
 
         } catch (InterruptedException e) {
-            throw new AssertionError("Interrupted while recieving mails");
+            throw new AssertionError("Interrupted while receiving mails");
         }
         if (poll == null) {
-            throw new AssertionError("Mail recieving timed out");
+            throw new AssertionError("Mail receiving timed out");
         }
 
         return poll;

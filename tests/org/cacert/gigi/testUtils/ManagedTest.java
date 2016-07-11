@@ -215,7 +215,7 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     @Override
-    public MailReceiver getMailReciever() {
+    public MailReceiver getMailReceiver() {
         return ter;
     }
 
@@ -469,11 +469,11 @@ public class ManagedTest extends ConfiguredTest {
 
     public EmailAddress createVerifiedEmail(User u) throws InterruptedException, GigiApiException {
         EmailAddress adrr = new EmailAddress(u, createUniqueName() + "test@test.tld", Locale.ENGLISH);
-        TestMail testMail = getMailReciever().receive();
+        TestMail testMail = getMailReceiver().receive();
         assertEquals(adrr.getAddress(), testMail.getTo());
         String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);
         adrr.verify(hash);
-        getMailReciever().clearMails();
+        getMailReceiver().clearMails();
         return adrr;
     }
 
