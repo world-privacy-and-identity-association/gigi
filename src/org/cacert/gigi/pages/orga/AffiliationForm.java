@@ -43,7 +43,7 @@ public class AffiliationForm extends Form {
                 o.addAdmin(byEmail, LoginPage.getUser(req), req.getParameter("master") != null);
                 return true;
             } else {
-                out.println(Page.getLanguage(req).getTranslation("Requested user is not an assurer. We need an assurer here."));
+                out.println(Page.getLanguage(req).getTranslation("Requested user is not a RA Agent. We need a RA Agent here."));
             }
         }
         out.println(Page.getLanguage(req).getTranslation("No action could have been carried out."));

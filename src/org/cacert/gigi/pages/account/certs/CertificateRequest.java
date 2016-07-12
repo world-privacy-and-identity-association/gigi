@@ -541,12 +541,12 @@ public class CertificateRequest {
                         verifiedCN = name;
                     } else {
                         if (nameTemp.isRequired()) {
-                            error.mergeInto(new GigiApiException("The name entered, does not match the details in your account. You cannot issue certificates with this name. Enter a name that matches the one that has been assured in your account, because a name is required for this certificate type."));
+                            error.mergeInto(new GigiApiException("The name entered, does not match the details in your account. You cannot issue certificates with this name. Enter a name that matches the one that has been verified in your account, because a name is required for this certificate type."));
                         } else if (name.equals(DEFAULT_CN)) {
                             verifiedCN = DEFAULT_CN;
                         } else {
                             name = DEFAULT_CN;
-                            error.mergeInto(new GigiApiException("The name entered, does not match the details in your account. You cannot issue certificates with this name. Enter a name that matches the one that has been assured in your account or keep the default name."));
+                            error.mergeInto(new GigiApiException("The name entered, does not match the details in your account. You cannot issue certificates with this name. Enter a name that matches the one that has been verified in your account or keep the default name."));
                         }
                     }
                 } else {

@@ -174,29 +174,29 @@ public class Notary {
 
     public static void may(User assurer, User assuree, AssuranceType t) throws GigiApiException {
         if (assuree.isInGroup(ASSUREE_BLOCKED)) {
-            throw new GigiApiException("The assuree is blocked.");
+            throw new GigiApiException("The applicant is blocked.");
         }
         if (assurer.isInGroup(ASSURER_BLOCKED)) {
-            throw new GigiApiException("The assurer is blocked.");
+            throw new GigiApiException("The RA Agent is blocked.");
         }
 
         if (t == AssuranceType.NUCLEUS) {
             if ( !assurer.isInGroup(Group.NUCLEUS_ASSURER)) {
-                throw new GigiApiException("Assurer needs to be Nucleus Assurer.");
+                throw new GigiApiException("RA Agent needs to be Nucleus RA Agent.");
             }
             return;
         } else if (t == AssuranceType.TTP_ASSISTED) {
             if ( !assurer.isInGroup(Group.TTP_ASSURER)) {
-                throw new GigiApiException("Assurer needs to be TTP Assurer.");
+                throw new GigiApiException("RA Agent needs to be TTP RA Agent.");
             }
             if ( !assuree.isInGroup(Group.TTP_APPLICANT)) {
-                throw new GigiApiException("Assuree needs to be TTP Applicant.");
+                throw new GigiApiException("Applicant needs to be TTP Applicant.");
             }
             return;
         } else if (t == AssuranceType.FACE_TO_FACE) {
             return;
         }
-        throw new GigiApiException("Assurance type not possible.");
+        throw new GigiApiException("Verification type not possible.");
     }
 
     private static void assureNucleus(User assurer, User assuree, int awarded, String location, String date) throws GigiApiException {

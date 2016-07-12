@@ -62,7 +62,7 @@ public class Organisation extends CertificateOwner {
 
     public Organisation(String name, String state, String province, String city, String email, String optionalName, String postalAddress, User creator) throws GigiApiException {
         if ( !creator.isInGroup(Group.ORGASSURER)) {
-            throw new GigiApiException("Only org-assurers may create organisations.");
+            throw new GigiApiException("Only Organisation RA Agents may create organisations.");
         }
         this.name = name;
         this.state = state;
@@ -137,10 +137,10 @@ public class Organisation extends CertificateOwner {
 
     public synchronized void addAdmin(User admin, User actor, boolean master) throws GigiApiException {
         if ( !admin.canAssure()) {
-            throw new GigiApiException("Cannot add non-assurer.");
+            throw new GigiApiException("Cannot add person who is not RA Agent.");
         }
         if ( !actor.isInGroup(Group.ORGASSURER) && !isMaster(actor)) {
-            throw new GigiApiException("Only org assurer or master-admin may add admins to an organisation.");
+            throw new GigiApiException("Only Organisation RA Agents or Organisation Administrators may add admins to an organisation.");
         }
         try (GigiPreparedStatement ps1 = new GigiPreparedStatement("SELECT 1 FROM `org_admin` WHERE `orgid`=? AND `memid`=? AND `deleted` IS NULL")) {
             ps1.setInt(1, getId());
@@ -161,7 +161,7 @@ public class Organisation extends CertificateOwner {
 
     public void removeAdmin(User admin, User actor) throws GigiApiException {
         if ( !actor.isInGroup(Group.ORGASSURER) && !isMaster(actor)) {
-            throw new GigiApiException("Only org assurer or master-admin may delete admins from an organisation.");
+            throw new GigiApiException("Only Organisation RA Agents or Organisation Administrators may delete admins from an organisation.");
         }
         try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE org_admin SET deleter=?, deleted=NOW() WHERE orgid=? AND memid=?")) {
             ps.setInt(1, actor.getId());

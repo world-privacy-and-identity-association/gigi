@@ -1,9 +1,9 @@
 <table class="table">
 <thead>
-<tr><th colspan="2"><?=_Assurance Confirmation?></th></tr>
+<tr><th colspan="2"><?=_Verification Confirmation?></th></tr>
 </thead>
 <tbody>
-<tr><td colspan="2"><?=_Please check the following details match against what you witnessed when you met ${name} in person. You MUST NOT proceed unless you are sure the details are correct. You may be held responsible by the SomeCA Arbitrator for any issues with this Assurance.?>
+<tr><td colspan="2"><?=_Please check the following details match against what you witnessed when you met ${name} in person. You MUST NOT proceed unless you are sure the details are correct. You may be held responsible by the SomeCA Arbitrator for any issues with this Verification.?>
 </td></tr>
 
 	<tr>
@@ -24,7 +24,7 @@
 	</tr>
 	<tr>
 		<td><?=_Date?></td>
-		<td><input class="form-control" type="text" name="date" value="<?=$date?>"><br/><?=_The date when the assurance took place. Please adjust the date if you assured the person on a different day (YYYY-MM-DD).?></td>
+		<td><input class="form-control" type="text" name="date" value="<?=$date?>"><br/><?=_The date when the verification took place. Please adjust the date if you verified the person on a different day (YYYY-MM-DD).?></td>
 	</tr>
 	<tr>
 		<td><input type="checkbox" name="assertion" value="1"></td>
@@ -32,14 +32,14 @@
 	</tr>
 	<tr>
 		<td><input type="checkbox" name="rules" value="1"></td>
-		<td><?=_I have read and understood the Terms of Service (!'<a href="/policy/TermsOfService.html">'ToS!'</a>'), Assurance Policy and the Assurance Handbook. I am making this Assurance subject to and in compliance with the ToS, Assurance policy and handbook.?></td>
+		<td><?=_I have read and understood the Terms of Service (!'<a href="/policy/TermsOfService.html">'ToS!'</a>'), Verification Policy and the Verification Handbook. I am making this verification subject to and in compliance with the ToS, Verification Policy and Handbook.?></td>
 	</tr>
 	<tr>
 		<td><?=_Policy?>: </td>
 		<td>
 			<a href="/policy/TermsOfService.html" target="_blank"><?=_Terms of Service?></a>
-			 - <a href="/policy/AssurancePolicy.php" target="_blank"><?=_Assurance Policy?></a>
-			 - <a href="http://wiki.cacert.org/AssuranceHandbook2" target="_blank"><?=_Assurance Handbook?></a>
+			 - <a href="/policy/AssurancePolicy.php" target="_blank"><?=_Verification Policy?></a>
+			 - <a href="http://wiki.cacert.org/AssuranceHandbook2" target="_blank"><?=_Verification Handbook?></a>
 		</td>
 	</tr>
 	<tr>
@@ -52,11 +52,11 @@
 	</tr>
 	<tr>
 		<td><input type="checkbox" name="passwordReset" value="1" <? if($aword) { ?>checked<? } ?>></td>
-		<td><?=_I have conducted a passwort reset with assurance. The established "A-Word" is:?><input type="text" name="passwordResetValue" value="<? if($aword) { ?><?=$aword?><? } ?>"></td>
+		<td><?=_I have conducted a password reset with verification. The established "A-Word" is:?><input type="text" name="passwordResetValue" value="<? if($aword) { ?><?=$aword?><? } ?>"></td>
 	</tr>
 	<tr>
 		<td colspan="2">
-			<input type="submit" name="process" value="<?=_I confirm this Assurance?>" />
+			<input type="submit" name="process" value="<?=_I confirm this verification?>" />
 			<input type="submit" name="cancel" value="<?=_Cancel?>" />
 		</td>
 	</tr>
