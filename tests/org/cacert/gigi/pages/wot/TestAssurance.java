@@ -10,14 +10,18 @@ import java.net.MalformedURLException;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Pattern;
 
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.util.DayDate;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
@@ -250,4 +254,35 @@ public class TestAssurance extends ManagedTest {
         return uc;
     }
 
+    @Test
+    public void testMultipleAssurance() throws IOException {
+
+        User users[] = User.findByEmail(assurerM);
+        int agentID = users[0].getId();
+
+        users = User.findByEmail(assureeM);
+        int applicantID = users[0].getId();
+
+        // enter first entry 200 days in the past
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `when`=? ")) {
+            ps.setInt(1, agentID);
+            ps.setInt(2, applicantID);
+            ps.setInt(3, 10);
+            ps.setString(4, "test-location");
+            ps.setString(5, "2010-01-01");
+            ps.setTimestamp(6, new Timestamp(System.currentTimeMillis() - DayDate.MILLI_DAY * 200));
+            ps.execute();
+        }
+
+        // enter second entry
+        String uniqueLoc = createUniqueName();
+        executeSuccess("date=2000-01-01&location=" + uniqueLoc + "&certify=1&rules=1&assertion=1&points=10");
+
+        // enter third entry on the same day
+        URLConnection uc = get(cookie, AssurePage.PATH);
+        uc.setDoOutput(true);
+        uc.getOutputStream().write(("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1910&search").getBytes("UTF-8"));
+        assertThat(IOUtils.readURL(uc), hasError());
+
+    }
 }

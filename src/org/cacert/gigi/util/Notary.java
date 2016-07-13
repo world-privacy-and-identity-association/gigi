@@ -17,6 +17,8 @@ import org.cacert.gigi.output.template.SprintfCommand;
 
 public class Notary {
 
+    public final static int LIMIT_DAYS_VERIFICATION = 90; // conf.getProperty("limit_days_verification");
+
     public static void writeUserAgreement(User member, String document, String method, String comment, boolean active, int secmemid) {
         try (GigiPreparedStatement q = new GigiPreparedStatement("INSERT INTO `user_agreements` SET `memid`=?, `secmemid`=?," + " `document`=?,`date`=NOW(), `active`=?,`method`=?,`comment`=?")) {
             q.setInt(1, member.getId());
@@ -33,13 +35,15 @@ public class Notary {
         if (assurer.getId() == target.getId()) {
             throw new GigiApiException("You cannot assure yourself.");
         }
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `notary` where `to`=? and `from`=? AND `deleted` IS NULL")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `notary` where `to`=? and `from`=? and `method` = ? ::`notaryType` AND `deleted` IS NULL AND `when` > (now() - interval '1 days' * ?)")) {
             ps.setInt(1, target.getId());
             ps.setInt(2, assurer.getId());
+            ps.setString(3, AssuranceType.FACE_TO_FACE.getDescription());
+            ps.setInt(4, LIMIT_DAYS_VERIFICATION);
             GigiResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 rs.close();
-                throw new GigiApiException("You have already assured this member.");
+                throw new GigiApiException(SprintfCommand.createSimple("You have already verified this applicant within the last {0} days.", LIMIT_DAYS_VERIFICATION));
             }
         }
         if ( !assurer.canAssure()) {

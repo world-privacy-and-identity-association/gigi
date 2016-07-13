@@ -11,6 +11,7 @@ import java.util.Set;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
+import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
 import org.cacert.gigi.dbObjects.CATS.CATSType;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
@@ -179,7 +180,7 @@ public class User extends CertificateOwner {
     }
 
     public int getAssurancePoints() {
-        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT sum(points) FROM `notary` where `to`=? AND `deleted` is NULL AND (`expire` IS NULL OR `expire` > CURRENT_TIMESTAMP)")) {
+        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT SUM(lastpoints) FROM ( SELECT DISTINCT ON (`from`) `from`, `to`, `points` as lastpoints, `method` FROM `notary` WHERE `deleted` is NULL AND (`expire` IS NULL OR `expire` > CURRENT_TIMESTAMP) AND `to` = ? ORDER BY  `from`, `when` DESC) as p")) {
             query.setInt(1, getId());
 
             GigiResultSet rs = query.executeQuery();
@@ -194,8 +195,9 @@ public class User extends CertificateOwner {
     }
 
     public int getExperiencePoints() {
-        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT count(*) FROM `notary` where `from`=? AND `deleted` is NULL")) {
+        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT count(*) FROM ( SELECT `to` FROM `notary` WHERE `from`=? AND `deleted` IS NULL AND `method` = ? ::`notaryType` GROUP BY `to`) as p")) {
             query.setInt(1, getId());
+            query.setString(2, AssuranceType.FACE_TO_FACE.getDescription());
 
             GigiResultSet rs = query.executeQuery();
             int points = 0;
