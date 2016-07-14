@@ -75,8 +75,7 @@ public class Template implements Outputable {
      *            the URL to load the template from. UTF-8 is chosen as charset.
      */
     public Template(URL u) {
-        try {
-            Reader r = new InputStreamReader(u.openStream(), "UTF-8");
+        try (Reader r = new InputStreamReader(u.openStream(), "UTF-8")) {
             try {
                 if (u.getProtocol().equals("file")) {
                     source = new File(u.toURI());
@@ -86,7 +85,6 @@ public class Template implements Outputable {
                 e.printStackTrace();
             }
             data = parse(r).getBlock(null);
-            r.close();
         } catch (IOException e) {
             throw new Error(e);
         }
