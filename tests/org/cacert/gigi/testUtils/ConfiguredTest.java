@@ -26,6 +26,7 @@ import org.cacert.gigi.database.SQLFileManager.ImportType;
 import org.cacert.gigi.dbObjects.CATS.CATSType;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.DomainPingType;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
 import org.cacert.gigi.util.DatabaseManager;
 import org.cacert.gigi.util.DomainAssessment;
@@ -178,7 +179,7 @@ public abstract class ConfiguredTest {
 
         try (GigiPreparedStatement ps2 = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, points='100'")) {
             ps2.setInt(1, uid);
-            ps2.setInt(2, uid);
+            ps2.setInt(2, User.getById(uid).getPreferredName().getId());
             ps2.execute();
         }
     }

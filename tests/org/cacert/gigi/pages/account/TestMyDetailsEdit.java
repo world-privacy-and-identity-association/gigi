@@ -4,11 +4,17 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.sql.Date;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.Name;
+import org.cacert.gigi.dbObjects.NamePart;
+import org.cacert.gigi.dbObjects.NamePart.NamePartType;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.ManagedTest;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 public class TestMyDetailsEdit extends ManagedTest {
@@ -22,81 +28,42 @@ public class TestMyDetailsEdit extends ManagedTest {
     public TestMyDetailsEdit() throws IOException {}
 
     @Test
-    public void testChangeFnameValid() throws IOException {
+    public void testAddName() throws IOException {
+        int startn = User.getById(id).getNames().length;
         String newName = createUniqueName();
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "fname=" + newName + "&lname=Hansel&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "fname=" + newName + "&lname=Hansel&action=addName", 0));
         User u = User.getById(id);
-        assertEquals(newName, u.getName().getFname());
+
+        NamePart[] parts = u.getNames()[startn].getParts();
+        assertThat(Arrays.asList(parts), CoreMatchers.hasItem(new NamePart(NamePartType.FIRST_NAME, newName)));
+        assertThat(Arrays.asList(parts), CoreMatchers.hasItem(new NamePart(NamePartType.LAST_NAME, "Hansel")));
+        assertEquals(2, parts.length);
+        assertEquals(startn + 1, User.getById(id).getNames().length);
     }
 
     @Test
-    public void testChangeLnameValid() throws IOException {
+    public void testDelName() throws IOException, GigiApiException {
+        User user = User.getById(id);
+        int startn = user.getNames().length;
         String newName = createUniqueName();
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=" + newName + "&fname=Kurti&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
-        User u = User.getById(id);
-        assertEquals(newName, u.getName().getLname());
+        Name n1 = new Name(user, new NamePart(NamePartType.SINGLE_NAME, newName));
+
+        assertEquals(startn + 1, user.getNames().length);
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "removeName=" + n1.getId(), 0));
+        assertEquals(startn, user.getNames().length);
     }
 
     @Test
-    public void testChangeMnameValid() throws IOException {
-        String newName = createUniqueName();
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "mname=" + newName + "&fname=Kurti&lname=Hansel&suffix=&day=1&month=1&year=2000&processDetails", 0));
-        User u = User.getById(id);
-        assertEquals(newName, u.getName().getMname());
-    }
-
-    @Test
-    public void testChangeSuffixValid() throws IOException {
-        String newName = createUniqueName();
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "mname=&fname=Kurti&lname=Hansel&suffix=" + newName + "&day=1&month=1&year=2000&processDetails", 0));
-        User u = User.getById(id);
-        assertEquals(newName, u.getName().getSuffix());
-    }
-
-    @Test
-    public void testUnsetSuffix() throws IOException {
-        String newName = createUniqueName();
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "mname=&fname=Kurti&lname=Hansel&suffix=" + newName + "&day=1&month=1&year=2000&processDetails", 0));
-        clearCaches();
-        User u = User.getById(id);
-        assertEquals(newName, u.getName().getSuffix());
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "mname=&fname=Kurti&lname=Hansel&suffix=&day=1&month=1&year=2000&processDetails", 0));
-        clearCaches();
-        u = User.getById(id);
-        assertEquals("", u.getName().getSuffix());
-    }
-
-    @Test
-    public void testUnsetFname() throws IOException {
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "fname=&lname=Hansel&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
-        User u = User.getById(id);
-        assertEquals("", u.getName().getFname());
-
-    }
-
-    @Test
-    public void testUnsetLname() throws IOException {
-        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=&fname=Kurti&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
-        User u = User.getById(id);
-        assertEquals("Hansel", u.getName().getLname());
-    }
-
-    @Test
-    public void testUnsetMname() throws IOException {
-        String newName = createUniqueName();
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "mname=" + newName + "&fname=Kurti&lname=Hansel&suffix=&day=1&month=1&year=2000&processDetails", 0));
-        User u = User.getById(id);
-        assertEquals(newName, u.getName().getMname());
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=Hansel&fname=Kurti&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
-        clearCaches();
-        u = User.getById(id);
-        assertEquals("", u.getName().getMname());
-
+    public void testDelDefaultName() throws IOException {
+        User user = User.getById(id);
+        assertEquals(1, user.getNames().length);
+        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "removeName=" + user.getNames()[0].getId(), 0));
+        assertEquals(1, user.getNames().length);
     }
 
     @Test
     public void testChangeDOBValid() throws IOException {
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=Hansel&fname=Kurti&mname=&suffix=&day=1&month=2&year=2000&processDetails", 0));
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "day=1&month=2&year=2000&action=updateDoB", 0));
         User u = User.getById(id);
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         cal.set(Calendar.YEAR, 2000);
@@ -108,6 +75,6 @@ public class TestMyDetailsEdit extends ManagedTest {
 
     @Test
     public void testChangeDOBInvalid() throws IOException {
-        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "lname=Hansel&fname=Kurti&mname=&suffix=&day=1&month=1&year=test&processDetails", 0));
+        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "day=1&month=1&year=test&action=updateDoB", 0));
     }
 }

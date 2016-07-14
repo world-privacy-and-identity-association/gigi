@@ -63,7 +63,7 @@ public class AffiliationForm extends Form {
                     return false;
                 }
                 Affiliation aff = iter.next();
-                vars.put("name", aff.getTarget().getName());
+                vars.put("name", aff.getTarget().getPreferredName());
                 vars.put("master", aff.isMaster() ? l.getTranslation("master") : "");
                 vars.put("e-mail", aff.getTarget().getEmail());
                 return true;

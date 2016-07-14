@@ -32,6 +32,8 @@ public class TestAssurance extends ManagedTest {
 
     private String assureeM;
 
+    private int assureeName;
+
     private String cookie;
 
     @Before
@@ -41,7 +43,8 @@ public class TestAssurance extends ManagedTest {
         assureeM = createUniqueName() + "@cacert-test.org";
 
         createAssuranceUser("a", "b", assurerM, TEST_PASSWORD);
-        createVerifiedUser("a", "c", assureeM, TEST_PASSWORD);
+        int assureeId = createVerifiedUser("a", "c", assureeM, TEST_PASSWORD);
+        assureeName = User.getById(assureeId).getPreferredName().getId();
 
         cookie = login(assurerM, TEST_PASSWORD);
     }
@@ -95,7 +98,7 @@ public class TestAssurance extends ManagedTest {
     @Test
     public void testAssureFormContanisData() throws IOException {
         URLConnection uc = buildupAssureFormConnection(true);
-        uc.getOutputStream().write(("date=2000-01-01&location=testcase&rules=1&assertion=1&points=10").getBytes("UTF-8"));
+        uc.getOutputStream().write(("assuredName=" + assureeName + "&date=2000-01-01&location=testcase&rules=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String data = IOUtils.readURL(uc);
         assertThat(data, containsString("2000-01-01"));
@@ -121,35 +124,24 @@ public class TestAssurance extends ManagedTest {
     }
 
     @Test
-    public void testAssureFormRaceName() throws IOException, SQLException {
-        testAssureFormRace(true, false);
-    }
-
-    @Test
     public void testAssureFormRaceDoB() throws IOException, SQLException {
-        testAssureFormRace(false, false);
-    }
-
-    @Test
-    public void testAssureFormRaceNameBlind() throws IOException, SQLException {
-        testAssureFormRace(true, true);
+        testAssureFormRace(false);
     }
 
     @Test
     public void testAssureFormRaceDoBBlind() throws IOException, SQLException {
-        testAssureFormRace(false, true);
+        testAssureFormRace(true);
     }
 
-    public void testAssureFormRace(boolean name, boolean succeed) throws IOException, SQLException {
+    public void testAssureFormRace(boolean succeed) throws IOException, SQLException {
         URLConnection uc = buildupAssureFormConnection(true);
 
         String assureeCookie = login(assureeM, TEST_PASSWORD);
-        String newName = "lname=" + (name && !succeed ? "a" : "c") + "&fname=a&mname=&suffix=";
-        String newDob = "day=1&month=1&year=" + ( !name && !succeed ? 1911 : 1910);
+        String newDob = "day=1&month=1&year=" + ( !succeed ? 1911 : 1910);
 
-        assertNull(executeBasicWebInteraction(assureeCookie, MyDetails.PATH, newName + "&" + newDob + "&processDetails", 0));
+        assertNull(executeBasicWebInteraction(assureeCookie, MyDetails.PATH, newDob + "&action=updateDoB", 0));
 
-        uc.getOutputStream().write(("date=2000-01-01&location=testcase&certify=1&rules=1&assertion=1&points=10").getBytes("UTF-8"));
+        uc.getOutputStream().write(("assuredName=" + assureeName + "&date=2000-01-01&location=testcase&certify=1&rules=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
         if (succeed) {
@@ -231,7 +223,7 @@ public class TestAssurance extends ManagedTest {
 
     private String execute(String query) throws MalformedURLException, IOException {
         URLConnection uc = buildupAssureFormConnection(true);
-        uc.getOutputStream().write((query).getBytes("UTF-8"));
+        uc.getOutputStream().write(("assuredName=" + assureeName + "&" + query).getBytes("UTF-8"));
         uc.getOutputStream().flush();
         return IOUtils.readURL(uc);
     }

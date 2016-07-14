@@ -9,10 +9,8 @@ import java.util.Locale;
 
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.EmailAddress;
-import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.ClientBusinessTest;
-import org.cacert.gigi.util.DayDate;
 import org.junit.Test;
 
 public class TestObjectCache extends ClientBusinessTest {
@@ -24,7 +22,7 @@ public class TestObjectCache extends ClientBusinessTest {
         Calendar c = Calendar.getInstance();
         c.set(1950, 1, 1, 0, 0, 0);
         c.set(Calendar.MILLISECOND, 0);
-        User u = new User(createUniqueName() + "@example.org", TEST_PASSWORD, new Name("fname", "lname", "mname", "suffix"), new DayDate(c.getTime().getTime()), Locale.ENGLISH);
+        User u = createUser("fname", "lname", createUniqueName() + "@example.org", TEST_PASSWORD);
 
         assertThat(u, is(sameInstance(User.getById(u.getId()))));
         assertThat(User.getById(u.getId()), is(sameInstance(User.getById(u.getId()))));

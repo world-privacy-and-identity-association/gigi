@@ -12,10 +12,7 @@ CREATE TABLE "users" (
   "id" int NOT NULL,
   "email" varchar(255) NOT NULL DEFAULT '',
   "password" varchar(255) NOT NULL DEFAULT '',
-  "fname" varchar(255) NOT NULL DEFAULT '',
-  "mname" varchar(255) NOT NULL DEFAULT '',
-  "lname" varchar(255) NOT NULL DEFAULT '',
-  "suffix" varchar(50) NOT NULL DEFAULT '',
+  "preferredName" int NULL,
   "dob" date NOT NULL,
   "verified" boolean NOT NULL DEFAULT 'false',
   "language" varchar(5) NOT NULL DEFAULT '',
@@ -377,7 +374,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(19);
+INSERT INTO "schemeVersion" (version)  VALUES(20);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (
@@ -655,3 +652,30 @@ INSERT INTO `countryIsoCode`(english, code2, code3, obp_id) VALUES ('South Afric
 INSERT INTO `countryIsoCode`(english, code2, code3, obp_id) VALUES ('Zambia',  'ZM',  'ZMB',  894);
 INSERT INTO `countryIsoCode`(english, code2, code3, obp_id) VALUES ('Zimbabwe',  'ZW',  'ZWE',  716);
 
+
+
+DROP TABLE IF EXISTS "names";
+DROP TYPE IF EXISTS "nameSchemaType";
+CREATE TYPE "nameSchemaType" AS ENUM ('single', 'western');
+
+CREATE TABLE "names" (
+  "id" serial NOT NULL,
+  "uid" int NOT NULL,
+  "type" "nameSchemaType" NOT NULL,
+  "created" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "deleted" timestamp NULL DEFAULT NULL,
+  "deprecated" timestamp NULL DEFAULT NULL,
+  PRIMARY KEY ("id")
+);
+
+
+DROP TABLE IF EXISTS "nameParts";
+DROP TYPE IF EXISTS "namePartType";
+CREATE TYPE "namePartType" AS ENUM ('first-name', 'last-name', 'single-name', 'suffix');
+
+CREATE TABLE "nameParts" (
+  "id" int NOT NULL,
+  "position" int NOT NULL,
+  "type" "namePartType" NOT NULL,
+  "value" varchar(255) NOT NULL
+);

@@ -2,7 +2,9 @@ package org.cacert.gigi.pages.wot;
 
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -14,8 +16,10 @@ import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.ArrayIterable;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
+import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.PasswordResetPage;
@@ -26,7 +30,9 @@ public class AssuranceForm extends Form {
 
     private User assuree;
 
-    private Name assureeName;
+    private Name[] assureeNames;
+
+    private boolean[] selected;
 
     private DayDate dob;
 
@@ -42,12 +48,31 @@ public class AssuranceForm extends Form {
 
     private static final Template templ = new Template(AssuranceForm.class.getResource("AssuranceForm.templ"));
 
-    public AssuranceForm(HttpServletRequest hsr, User assuree) {
+    public AssuranceForm(HttpServletRequest hsr, User assuree) throws GigiApiException {
         super(hsr);
         assurer = Page.getUser(hsr);
         this.assuree = assuree;
-        assureeName = this.assuree.getName();
+
+        if (assurer.getId() == assuree.getId()) {
+            throw new GigiApiException("You cannot verify yourself.");
+        }
+        if ( !assurer.canAssure()) {
+            throw new GigiApiException("You are not a RA-Agent.");
+        }
+
+        Name[] initialNames = this.assuree.getNonDeprecatedNames();
+        LinkedList<Name> names = new LinkedList<>();
+        for (Name name : initialNames) {
+            if (Notary.checkAssuranceIsPossible(assurer, name)) {
+                names.add(name);
+            }
+        }
+        if (names.size() == 0) {
+            throw new GigiApiException(SprintfCommand.createSimple("You have already verified all names of this applicant within the last {0} days.", Notary.LIMIT_DAYS_VERIFICATION));
+        }
+        assureeNames = names.toArray(new Name[names.size()]);
         dob = this.assuree.getDoB();
+        selected = new boolean[assureeNames.length];
     }
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -58,8 +83,17 @@ public class AssuranceForm extends Form {
     public void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
         HashMap<String, Object> res = new HashMap<String, Object>();
         res.putAll(vars);
-        res.put("nameExplicit", assuree.getName());
-        res.put("name", assuree.getName().toString());
+        res.put("names", new ArrayIterable<Name>(assureeNames) {
+
+            @Override
+            public void apply(Name t, Language l, Map<String, Object> vars) {
+                vars.put("nameExplicit", t);
+                vars.put("nameId", t.getId());
+                vars.put("checked", selected[i] ? " checked" : "");
+            }
+
+        });
+        res.put("name", assuree.getPreferredName().toString());
         res.put("maxpoints", assurer.getMaxAssurePoints());
         res.put("dob", sdf.format(assuree.getDoB().toDate()));
         res.put("dobFmt2", sdf2.format(assuree.getDoB().toDate()));
@@ -133,11 +167,19 @@ public class AssuranceForm extends Form {
                 gae.mergeInto(new GigiApiException("The points entered were not a number."));
             }
         }
+        HashSet<String> data = new HashSet<>(Arrays.asList(req.getParameterValues("assuredName")));
+        for (int i = 0; i < assureeNames.length; i++) {
+            selected[i] = data.contains(Integer.toString(assureeNames[i].getId()));
+        }
 
         if ( !gae.isEmpty()) {
             throw gae;
         }
-        Notary.assure(assurer, assuree, assureeName, dob, pointsI, location, req.getParameter("date"), type);
+        for (int i = 0; i < selected.length; i++) {
+            if (selected[i]) {
+                Notary.assure(assurer, assuree, assureeNames[i], dob, pointsI, location, req.getParameter("date"), type);
+            }
+        }
         if (aword != null && !aword.equals("")) {
             Language l = Language.getInstance(assuree.getPreferredLocale());
             String method = l.getTranslation("A password reset was triggered. If you did a password reset by assurance, please enter your secret password using this form:");

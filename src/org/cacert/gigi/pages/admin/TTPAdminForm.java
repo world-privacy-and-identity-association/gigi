@@ -36,7 +36,7 @@ public class TTPAdminForm extends Form {
 
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
-        vars.put("name", u.getName());
+        vars.put("name", u.getPreferredName());
         vars.put("email", u.getEmail());
         vars.put("DoB", u.getDoB());
         vars.put("uid", Integer.toString(u.getId()));

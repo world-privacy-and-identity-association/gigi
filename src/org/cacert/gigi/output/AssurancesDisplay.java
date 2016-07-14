@@ -29,6 +29,7 @@ public class AssurancesDisplay implements Outputable {
             vars.put("verb", l.getTranslation("To"));
         } else {
             vars.put("verb", l.getTranslation("From"));
+            vars.put("myName", "yes");
         }
 
         IterableDataset assuranceGroup = new IterableDataset() {
@@ -44,9 +45,11 @@ public class AssurancesDisplay implements Outputable {
                     vars.put("id", assurance.getId());
                     vars.put("method", assurance.getMethod());
                     if (assurer) {
-                        vars.put("verbVal", assurance.getTo().getName());
+                        vars.put("verbVal", assurance.getTo().getOwner().getPreferredName());
+                        vars.put("myName", assurance.getTo());
                     } else {
-                        vars.put("verbVal", assurance.getFrom().getName());
+                        vars.put("verbVal", assurance.getFrom().getPreferredName());
+                        vars.put("myName", assurance.getTo());
                     }
                     vars.put("date", assurance.getDate());
                     vars.put("location", assurance.getLocation());

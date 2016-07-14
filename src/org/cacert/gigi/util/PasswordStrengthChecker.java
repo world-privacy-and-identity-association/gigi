@@ -1,9 +1,11 @@
 package org.cacert.gigi.util;
 
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Name;
+import org.cacert.gigi.dbObjects.NamePart;
 
 public class PasswordStrengthChecker {
 
@@ -51,7 +53,7 @@ public class PasswordStrengthChecker {
         return points;
     }
 
-    public static int checkpw(String pw, Name name, String email) {
+    public static int checkpw(String pw, String[] nameParts, String email) {
         if (pw == null) {
             return 0;
         }
@@ -59,24 +61,23 @@ public class PasswordStrengthChecker {
         if (contained(pw, email)) {
             light -= 2;
         }
-        if (contained(pw, name.getFname())) {
-            light -= 2;
-        }
-        if (contained(pw, name.getLname())) {
-            light -= 2;
-        }
-        if (contained(pw, name.getMname())) {
-            light -= 2;
-        }
-        if (contained(pw, name.getSuffix())) {
-            light -= 2;
+        for (int i = 0; i < nameParts.length; i++) {
+            if (contained(pw, nameParts[i])) {
+                light -= 2;
+            }
         }
         // TODO dictionary check
         return light;
     }
 
-    public static void assertStrongPassword(String pw, Name name, String email) throws GigiApiException {
-        if (checkpw(pw, name, email) < 3) {
+    public static void assertStrongPassword(String pw, Name[] names, String email) throws GigiApiException {
+        TreeSet<String> parts = new TreeSet<>();
+        for (int i = 0; i < names.length; i++) {
+            for (NamePart string : names[i].getParts()) {
+                parts.add(string.getValue());
+            }
+        }
+        if (checkpw(pw, parts.toArray(new String[parts.size()]), email) < 3) {
             throw new GigiApiException("The Pass Phrase you submitted failed to contain enough" + " differing characters and/or contained words from" + " your name and/or email address.");
         }
     }
@@ -93,4 +94,5 @@ public class PasswordStrengthChecker {
         }
         return false;
     }
+
 }

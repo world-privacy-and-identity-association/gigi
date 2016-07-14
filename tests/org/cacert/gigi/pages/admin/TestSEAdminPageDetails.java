@@ -16,7 +16,6 @@ import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.History;
-import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.admin.support.SupportEnterTicketPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
 import org.cacert.gigi.testUtils.ClientTest;
@@ -39,8 +38,8 @@ public class TestSEAdminPageDetails extends ClientTest {
         URLConnection uc = get(SupportUserDetailsPage.PATH + id);
         uc.setDoOutput(true);
         String res = IOUtils.readURL(uc);
-        assertThat(res, containsString("type=\"text\" value=\"" + fname + "\" name=\"fname\">"));
-        assertThat(res, containsString("type=\"text\" value=\"" + lname + "\" name=\"lname\">"));
+        assertThat(res, containsString(fname));
+        assertThat(res, containsString(lname));
         assertThat(res, containsString(email));
     }
 
@@ -70,31 +69,6 @@ public class TestSEAdminPageDetails extends ClientTest {
     }
 
     @Test
-    public void testUserDetailsEdit() throws MalformedURLException, IOException {
-        String email = createUniqueName() + "@example.com";
-        String fname = "Först";
-        String lname = "Secönd";
-        int id = createVerifiedUser(fname, lname, email, TEST_PASSWORD);
-
-        String userCookie = login(email, TEST_PASSWORD);
-        assertEquals("Först", getFname(IOUtils.readURL(get(userCookie, MyDetails.PATH))));
-        // User can change his name
-        assertNull(executeBasicWebInteraction(userCookie, MyDetails.PATH, "fname=Kurti&lname=Hansel&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
-        assertEquals("Kurti", getFname(IOUtils.readURL(get(userCookie, MyDetails.PATH))));
-        // But when assurer
-        makeAssurer(id);
-        // User cannot change his name, and the form changed
-        assertNotNull(executeBasicWebInteraction(userCookie, MyDetails.PATH, "fname=Kurti2&lname=Hansel&mname=&suffix=&day=1&month=1&year=2000&processDetails", 0));
-        assertNull(getFname(IOUtils.readURL(get(userCookie, MyDetails.PATH))));
-        assertEquals("Kurti", getFnamePlain(IOUtils.readURL(get(userCookie, MyDetails.PATH))));
-
-        // but support still can
-        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "fname=Kurti3&lname=Hansel&mname=&suffix=&dobd=1&dobm=2&doby=2000&detailupdate", 0));
-        assertEquals("Kurti3", getFnamePlain(IOUtils.readURL(get(userCookie, MyDetails.PATH))));
-
-    }
-
-    @Test
     public void testUserDetailsEditToLog() throws MalformedURLException, IOException {
         String email = createUniqueName() + "@example.com";
         String fname = "Först";
@@ -105,29 +79,29 @@ public class TestSEAdminPageDetails extends ClientTest {
         assertEquals(0, logCountAdmin(id));
         assertEquals(0, logCountUser(clientCookie));
         // chaniging both leads to 2 entries
-        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "fname=Kurti&lname=Hansel&mname=&suffix=&dobd=1&dobm=2&doby=2000&detailupdate", 0));
-        assertEquals(2, logCountAdmin(id));
-        assertEquals(2, logCountUser(clientCookie));
+        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "dobd=1&dobm=2&doby=2000&detailupdate", 0));
+        assertEquals(1, logCountAdmin(id));
+        assertEquals(1, logCountUser(clientCookie));
 
         // Sending same data keeps same
-        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "fname=Kurti&lname=Hansel&mname=&suffix=&dobd=1&dobm=2&doby=2000&detailupdate", 0));
+        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "dobd=1&dobm=2&doby=2000&detailupdate", 0));
+        assertEquals(1, logCountAdmin(id));
+        assertEquals(1, logCountUser(clientCookie));
+
+        // changing one leads to one entry
+        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "dobd=1&dobm=3&doby=2000&detailupdate", 0));
         assertEquals(2, logCountAdmin(id));
         assertEquals(2, logCountUser(clientCookie));
 
         // changing one leads to one entry
-        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "fname=Kurti2&lname=Hansel&mname=&suffix=&dobd=1&dobm=2&doby=2000&detailupdate", 0));
+        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "dobd=2&dobm=3&doby=2000&detailupdate", 0));
         assertEquals(3, logCountAdmin(id));
         assertEquals(3, logCountUser(clientCookie));
 
-        // changing one leads to one entry
-        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "fname=Kurti2&lname=Hansel&mname=&suffix=&dobd=2&dobm=2&doby=2000&detailupdate", 0));
-        assertEquals(4, logCountAdmin(id));
-        assertEquals(4, logCountUser(clientCookie));
-
         // changing none -> no entry
-        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "fname=Kurti2&lname=Hansel&mname=&suffix=&dobd=2&dobm=2&doby=2000&detailupdate", 0));
-        assertEquals(4, logCountAdmin(id));
-        assertEquals(4, logCountUser(clientCookie));
+        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "dobd=2&dobm=3&doby=2000&detailupdate", 0));
+        assertEquals(3, logCountAdmin(id));
+        assertEquals(3, logCountUser(clientCookie));
 
     }
 
@@ -154,7 +128,7 @@ public class TestSEAdminPageDetails extends ClientTest {
     }
 
     private String getFname(String res) {
-        Pattern p = Pattern.compile("type=\"text\" name=\"fname\" value=\"([^\"]*)\">");
+        Pattern p = Pattern.compile("<span class='fname'>([^<]*)</span>");
         Matcher m = p.matcher(res);
         if (m.find()) {
             return m.group(1);
@@ -162,12 +136,4 @@ public class TestSEAdminPageDetails extends ClientTest {
         return null;
     }
 
-    private String getFnamePlain(String res) {
-        Pattern p = Pattern.compile("\\s*<td[^>]*>First Name: </td>\\s*<td[^>]*>([^<]*)</td>");
-        Matcher m = p.matcher(res);
-        if (m.find()) {
-            return m.group(1);
-        }
-        return null;
-    }
 }

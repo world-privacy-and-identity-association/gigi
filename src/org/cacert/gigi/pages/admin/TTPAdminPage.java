@@ -74,7 +74,7 @@ public class TTPAdminPage extends Page {
                     return false;
                 }
                 vars.put("id", Integer.toString(users[i].getId()));
-                vars.put("name", users[i].getName().toString());
+                vars.put("name", users[i].getPreferredName().toString());
                 vars.put("email", users[i].getEmail());
 
                 i++;

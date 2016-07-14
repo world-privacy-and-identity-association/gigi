@@ -82,6 +82,6 @@ public class TestFindAgent extends RestrictedApiTest {
         grant(email, Group.LOCATE_AGENT);
         grant(User.getById(u2).getEmail(), Group.LOCATE_AGENT);
         res = IOUtils.readURL(doApi(FindAgent.PATH_INFO, "id=" + id + "&id=" + u2)).replace("\r", "");
-        assertEquals(id + ",true," + u.getName().toString() + "\n" + u2 + ",false," + User.getById(u2).getName().toString() + "\n", res);
+        assertEquals(id + ",true," + u.getPreferredName().toAbbreviatedString() + "\n" + u2 + ",false," + User.getById(u2).getPreferredName().toAbbreviatedString() + "\n", res);
     }
 }

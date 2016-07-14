@@ -22,7 +22,6 @@ import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.Group;
-import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.testUtils.ClientTest;
 import org.cacert.gigi.testUtils.IOUtils;
@@ -73,13 +72,12 @@ public class IssueCert extends ClientTest {
     public void testIssueCertAssured() throws Exception {
         makeAssurer(id);
 
-        Name n = u.getName();
-        String whishName = n.getFname() + " " + n.getLname();
-        String cert = issueCert(generatePEMCSR(kp, "EMAIL=" + email + ",CN=" + whishName), "profile=client-a");
+        String intendedName = "a b";
+        String cert = issueCert(generatePEMCSR(kp, "EMAIL=" + email + ",CN=" + intendedName), "profile=client-a");
 
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         java.security.cert.X509Certificate xcert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(cert.getBytes("UTF-8")));
-        assertEquals(whishName, ((X500Name) xcert.getSubjectDN()).getCommonName());
+        assertEquals(intendedName, ((X500Name) xcert.getSubjectDN()).getCommonName());
 
     }
 

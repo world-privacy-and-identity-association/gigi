@@ -37,6 +37,8 @@ public class TestAssurance extends BusinessTest {
 
     private int applicantID;
 
+    private int applicantNameID;
+
     private User applicant;
 
     private int applicantMultID;
@@ -112,75 +114,67 @@ public class TestAssurance extends BusinessTest {
         agent2ID = createAssuranceUser("a", "d", createUniqueName() + "@example.com", TEST_PASSWORD);
         applicantID = createVerifiedUser("a", "c", createUniqueName() + "@example.com", TEST_PASSWORD);
         applicant = User.getById(applicantID);
+        applicantNameID = User.getById(applicantID).getPreferredName().getId();
         applicantMultID = createVerifiedUser("a", "e", createUniqueName() + "@example.com", TEST_PASSWORD);
     }
 
     @Test
     public void testVerificationYesterday() throws IOException {
-        enterAssuranceWhen(agentID, applicantID, yesterday);
+        enterAssuranceWhen(agentID, applicantNameID, yesterday);
         assertTrue(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testApprox24MonthAgo() throws IOException {
-        enterAssuranceWhen(agentID, applicantID, min24month);
+        enterAssuranceWhen(agentID, applicantNameID, min24month);
         assertTrue(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testApprox39MonthAgo() throws IOException {
-        enterAssuranceWhen(agentID, applicantID, min39month);
+        enterAssuranceWhen(agentID, applicantNameID, min39month);
         assertFalse(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testTomorrowExpired() throws IOException {
-        enterAssuranceExpired(agentID, applicantID, tomorrow);
+        enterAssuranceExpired(agentID, applicantNameID, tomorrow);
         assertTrue(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testYesterdayExpired() throws IOException {
-        enterAssuranceExpired(agentID, applicantID, yesterday);
+        enterAssuranceExpired(agentID, applicantNameID, yesterday);
         assertFalse(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testNormal() throws IOException {
-        enterAssurance(agentID, applicantID);
+        enterAssurance(agentID, applicantNameID);
         assertTrue(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testDeletedYesterday() throws IOException {
-        enterAssuranceDeleted(agentID, applicantID, yesterday);
+        enterAssuranceDeleted(agentID, applicantNameID, yesterday);
         assertFalse(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testMultipleAssurancePossible() throws IOException {
-
         User agent = User.getById(agentID);
         User applicantMult = User.getById(applicantMultID);
 
-        enterAssuranceWhen(agentID, applicantMultID, min39month);
+        enterAssuranceWhen(agentID, applicantMult.getPreferredName().getId(), min39month);
 
         // test that new entry would be possible
-        try {
-            Notary.checkAssuranceIsPossible(agent, applicantMult);
-        } catch (GigiApiException e) {
-            assertTrue(false);
-        }
+        assertTrue(Notary.checkAssuranceIsPossible(agent, applicantMult.getPreferredName()));
 
         // enter new entry
-        enterAssuranceWhen(agentID, applicantMultID, yesterday);
+        enterAssuranceWhen(agentID, applicantMult.getPreferredName().getId(), yesterday);
 
         // test that new entry is not possible
-        try {
-            Notary.checkAssuranceIsPossible(agent, applicantMult);
-        } catch (GigiApiException e) {
-            assertTrue(true);
-        }
+        assertFalse(Notary.checkAssuranceIsPossible(agent, applicantMult.getPreferredName()));
 
     }
 
@@ -190,8 +184,7 @@ public class TestAssurance extends BusinessTest {
         User agent = User.getById(agentID);
         User applicantMult = User.getById(applicantMultID);
 
-        enterAssuranceWhen(agentID, applicantMultID, min39month);
-
+        enterAssuranceWhen(agentID, applicantMult.getPreferredName().getId(), min39month);
         int xPoints = agent.getExperiencePoints();
 
         // test that VP after first entry
@@ -199,40 +192,41 @@ public class TestAssurance extends BusinessTest {
         assertEquals(applicantMult.getAssurancePoints(), 10);
 
         // enter second entry to check correct calculation with larger points
-        enterAssuranceWhen(agentID, applicantMultID, min24month, 20);
+        enterAssuranceWhen(agentID, applicantMult.getPreferredName().getId(), min24month, 20);
         assertEquals(applicantMult.getAssurancePoints(), 20);
 
         // test correct XP calculation
         assertEquals(agent.getExperiencePoints(), xPoints);
 
         // enter third entry to check correct calculation with less points
-        enterAssuranceWhen(agentID, applicantMultID, yesterday, 15);
+        enterAssuranceWhen(agentID, applicantMult.getPreferredName().getId(), yesterday, 15);
         assertEquals(applicantMult.getAssurancePoints(), 15);
 
         // test correct XP calculation
         assertEquals(agent.getExperiencePoints(), xPoints);
 
         // enter expired entry
-        enterAssuranceExpired(agentID, applicantMultID, yesterday);
+        enterAssuranceExpired(agentID, applicantMult.getPreferredName().getId(), yesterday);
         assertEquals(applicantMult.getAssurancePoints(), 15);
 
         // enter deleted entry same agent
-        enterAssuranceDeleted(agentID, applicantMultID, yesterday);
+        enterAssuranceDeleted(agentID, applicantMult.getPreferredName().getId(), yesterday);
         assertEquals(applicantMult.getAssurancePoints(), 15);
 
         // enter expired entry future
-        enterAssuranceExpired(agentID, applicantMultID, tomorrow);
+        enterAssuranceExpired(agentID, applicantMult.getPreferredName().getId(), tomorrow);
         assertEquals(applicantMult.getAssurancePoints(), 10);
 
         // test correct XP calculation
         assertEquals(agent.getExperiencePoints(), xPoints);
 
         // enter entry from different agent
-        enterAssuranceWhen(agent2ID, applicantMultID, yesterday);
+        enterAssuranceWhen(agent2ID, applicantMult.getPreferredName().getId(), yesterday);
         assertEquals(applicantMult.getAssurancePoints(), 20);
 
         // enter entry for second applicant
-        enterAssuranceWhen(agentID, applicantID, yesterday);
+        enterAssuranceWhen(agentID, applicant.getPreferredName().getId(), yesterday);
+
         assertEquals(agent.getExperiencePoints(), xPoints + 2);
 
     }

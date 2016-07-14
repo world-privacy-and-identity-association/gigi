@@ -14,10 +14,8 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Template;
-import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.AuthorizationContext;
-import org.cacert.gigi.util.Notary;
 
 public class AssurePage extends Page {
 
@@ -58,12 +56,7 @@ public class AssurePage extends Page {
                 }
             } catch (GigiApiException e) {
                 e.format(out, Page.getLanguage(req));
-                try {
-                    Notary.checkAssuranceIsPossible(LoginPage.getUser(req), form.getAssuree());
-                    form.output(out, getLanguage(req), new HashMap<String, Object>());
-                } catch (GigiApiException e1) {
-                    e1.format(out, Page.getLanguage(req));
-                }
+                form.output(out, getLanguage(req), new HashMap<String, Object>());
             }
 
             return;
@@ -88,9 +81,7 @@ public class AssurePage extends Page {
 
                     } else {
                         User assuree = User.getById(id);
-                        User myself = LoginPage.getUser(req);
                         try {
-                            Notary.checkAssuranceIsPossible(myself, assuree);
                             new AssuranceForm(req, assuree).output(out, getLanguage(req), new HashMap<String, Object>());
                         } catch (GigiApiException e) {
                             e.format(out, Page.getLanguage(req));

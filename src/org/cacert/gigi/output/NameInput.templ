@@ -1,0 +1,24 @@
+<h3><?=_First-Last-Suffix Name?></h3>
+<h4><?=_Structure?></h4>
+<?=_Name consists of one or more first names, one or more last names and any amount of suffixes?>
+<h4><?=_Variant Generation?></h4>
+<ul>
+<li><?=_First names may be swapped?></li>
+<li><?=_The first Last Name is mandatory, any other ones may be omitted, but must stay in sequence.?></li>
+<li><?=_Any Suffixes may be omitted, but must stay in sequence.?></li>
+</ul>
+<div>
+<input type='text' name='fname' class="form-control" placeholder="<?=_First Names?>" value="<?=$fname?>">
+<input type='text' name='lname' class="form-control" placeholder="<?=_Last Names?>" value="<?=$lname?>">
+<input type='text' name='suffix' class="form-control" placeholder="<?=_Suffixes?>" value="<?=$suffix?>">
+</div>
+<h3><?=_Single Name?></h3>
+<h4><?=_Structure?></h4>
+<?=_Name of one part?>
+<h4><?=_Variant Generation?></h4>
+<ul>
+<li><?=_Name has no variants?></li>
+</ul>
+<div>
+<input type='text' name='name' class="form-control" placeholder="<?=_Name?>" value="<?=$name?>">
+</div>

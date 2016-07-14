@@ -28,8 +28,6 @@ import org.cacert.gigi.util.PasswordStrengthChecker;
  */
 public class User extends CertificateOwner {
 
-    private Name name = new Name(null, null, null, null);
-
     private DayDate dob;
 
     private String email;
@@ -55,15 +53,17 @@ public class User extends CertificateOwner {
      */
     public static final int VERIFICATION_MONTHS = 39;
 
+    private Name preferredName;
+
     protected User(GigiResultSet rs) {
         super(rs.getInt("id"));
         updateName(rs);
     }
 
     private void updateName(GigiResultSet rs) {
-        name = new Name(rs.getString("fname"), rs.getString("lname"), rs.getString("mname"), rs.getString("suffix"));
         dob = new DayDate(rs.getDate("dob"));
         email = rs.getString("email");
+        preferredName = Name.getById(rs.getInt("preferredName"));
 
         String localeStr = rs.getString("language");
         if (localeStr == null || localeStr.equals("")) {
@@ -83,36 +83,68 @@ public class User extends CertificateOwner {
         }
     }
 
-    public User(String email, String password, Name name, DayDate dob, Locale locale) throws GigiApiException {
+    public User(String email, String password, DayDate dob, Locale locale, NamePart... preferred) throws GigiApiException {
         this.email = email;
         this.dob = dob;
-        this.name = name;
         this.locale = locale;
-        try (GigiPreparedStatement query = new GigiPreparedStatement("INSERT INTO `users` SET `email`=?, `password`=?, " + "`fname`=?, `mname`=?, `lname`=?, " + "`suffix`=?, `dob`=?, `language`=?, id=?")) {
+        this.preferredName = new Name(this, preferred);
+        try (GigiPreparedStatement query = new GigiPreparedStatement("INSERT INTO `users` SET `email`=?, `password`=?, `dob`=?, `language`=?, id=?, `preferredName`=?")) {
             query.setString(1, email);
             query.setString(2, PasswordHash.hash(password));
-            query.setString(3, name.getFname());
-            query.setString(4, name.getMname());
-            query.setString(5, name.getLname());
-            query.setString(6, name.getSuffix());
-            query.setDate(7, dob.toSQLDate());
-            query.setString(8, locale.toString());
-            query.setInt(9, getId());
+            query.setDate(3, dob.toSQLDate());
+            query.setString(4, locale.toString());
+            query.setInt(5, getId());
+            query.setInt(6, preferredName.getId());
             query.execute();
         }
         new EmailAddress(this, email, locale);
     }
 
-    public Name getName() {
-        return name;
+    public Name[] getNames() {
+        try (GigiPreparedStatement gps = new GigiPreparedStatement("SELECT `id` FROM `names` WHERE `uid`=? AND `deleted` IS NULL", true)) {
+            return fetchNamesToArray(gps);
+        }
+    }
+
+    public Name[] getNonDeprecatedNames() {
+        try (GigiPreparedStatement gps = new GigiPreparedStatement("SELECT `id` FROM `names` WHERE `uid`=? AND `deleted` IS NULL AND `deprecated` IS NULL", true)) {
+            return fetchNamesToArray(gps);
+        }
+    }
+
+    private Name[] fetchNamesToArray(GigiPreparedStatement gps) {
+        gps.setInt(1, getId());
+        GigiResultSet rs = gps.executeQuery();
+        rs.last();
+        Name[] dt = new Name[rs.getRow()];
+        rs.beforeFirst();
+        for (int i = 0; rs.next(); i++) {
+            dt[i] = Name.getById(rs.getInt(1));
+        }
+        return dt;
     }
 
     public DayDate getDoB() {
         return dob;
     }
 
-    public void setDoB(DayDate dob) {
-        this.dob = dob;
+    public void setDoB(DayDate dob) throws GigiApiException {
+        synchronized (Notary.class) {
+            if (getReceivedAssurances().length != 0) {
+                throw new GigiApiException("No change after assurance allowed.");
+            }
+            this.dob = dob;
+            rawUpdateUserData();
+        }
+
+    }
+
+    protected void setDoBAsSupport(DayDate dob) throws GigiApiException {
+        synchronized (Notary.class) {
+            this.dob = dob;
+            rawUpdateUserData();
+        }
+
     }
 
     public String getEmail() {
@@ -135,16 +167,12 @@ public class User extends CertificateOwner {
     }
 
     private void setPassword(String newPass) throws GigiApiException {
-        PasswordStrengthChecker.assertStrongPassword(newPass, getName(), getEmail());
+        PasswordStrengthChecker.assertStrongPassword(newPass, getNames(), getEmail());
         try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE users SET `password`=? WHERE id=?")) {
             ps.setString(1, PasswordHash.hash(newPass));
             ps.setInt(2, getId());
             ps.executeUpdate();
         }
-    }
-
-    public void setName(Name name) {
-        this.name = name;
     }
 
     public boolean canAssure() {
@@ -180,7 +208,7 @@ public class User extends CertificateOwner {
     }
 
     public int getAssurancePoints() {
-        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT SUM(lastpoints) FROM ( SELECT DISTINCT ON (`from`) `from`, `to`, `points` as lastpoints, `method` FROM `notary` WHERE `deleted` is NULL AND (`expire` IS NULL OR `expire` > CURRENT_TIMESTAMP) AND `to` = ? ORDER BY  `from`, `when` DESC) as p")) {
+        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT SUM(lastpoints) FROM ( SELECT DISTINCT ON (`from`) `from`, `points` as lastpoints FROM `notary` INNER JOIN `names` ON `names`.`id`=`to` WHERE `notary`.`deleted` is NULL AND (`expire` IS NULL OR `expire` > CURRENT_TIMESTAMP) AND `names`.`uid` = ? ORDER BY `from`, `when` DESC) as p")) {
             query.setInt(1, getId());
 
             GigiResultSet rs = query.executeQuery();
@@ -195,7 +223,7 @@ public class User extends CertificateOwner {
     }
 
     public int getExperiencePoints() {
-        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT count(*) FROM ( SELECT `to` FROM `notary` WHERE `from`=? AND `deleted` IS NULL AND `method` = ? ::`notaryType` GROUP BY `to`) as p")) {
+        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT count(*) FROM ( SELECT `names`.`uid` FROM `notary` INNER JOIN `names` ON `names`.`id` = `to` WHERE `from`=? AND `notary`.`deleted` IS NULL AND `method` = ? ::`notaryType` GROUP BY `names`.`uid`) as p")) {
             query.setInt(1, getId());
             query.setString(2, AssuranceType.FACE_TO_FACE.getDescription());
 
@@ -244,7 +272,12 @@ public class User extends CertificateOwner {
     }
 
     public boolean isValidName(String name) {
-        return getName().matches(name);
+        for (Name n : getNames()) {
+            if (n.matches(name) && n.getAssurancePoints() >= 50) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void updateDefaultEmail(EmailAddress newMail) throws GigiApiException {
@@ -287,7 +320,7 @@ public class User extends CertificateOwner {
 
     public synchronized Assurance[] getReceivedAssurances() {
         if (receivedAssurances == null) {
-            try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT * FROM `notary` WHERE `to`=? AND `deleted` IS NULL")) {
+            try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT * FROM `notary` INNER JOIN `names` ON `names`.`id` = `notary`.`to` WHERE `names`.`uid`=? AND `notary`.`deleted` IS NULL")) {
                 query.setInt(1, getId());
 
                 GigiResultSet res = query.executeQuery();
@@ -332,23 +365,10 @@ public class User extends CertificateOwner {
         receivedAssurances = null;
     }
 
-    public void updateUserData() throws GigiApiException {
-        synchronized (Notary.class) {
-            if (getReceivedAssurances().length != 0) {
-                throw new GigiApiException("No change after assurance allowed.");
-            }
-            rawUpdateUserData();
-        }
-    }
-
-    protected void rawUpdateUserData() {
-        try (GigiPreparedStatement update = new GigiPreparedStatement("UPDATE users SET fname=?, lname=?, mname=?, suffix=?, dob=? WHERE id=?")) {
-            update.setString(1, name.getFname());
-            update.setString(2, name.getLname());
-            update.setString(3, name.getMname());
-            update.setString(4, name.getSuffix());
-            update.setDate(5, getDoB().toSQLDate());
-            update.setInt(6, getId());
+    private void rawUpdateUserData() {
+        try (GigiPreparedStatement update = new GigiPreparedStatement("UPDATE users SET dob=? WHERE id=?")) {
+            update.setDate(1, getDoB().toSQLDate());
+            update.setInt(2, getId());
             update.executeUpdate();
         }
     }
@@ -359,6 +379,23 @@ public class User extends CertificateOwner {
 
     public void setPreferredLocale(Locale locale) {
         this.locale = locale;
+
+    }
+
+    public Name getPreferredName() {
+        return preferredName;
+    }
+
+    public synchronized void setPreferredName(Name preferred) throws GigiApiException {
+        if (preferred.getOwner() != this) {
+            throw new GigiApiException("Cannot set a name as preferred one that does not belong to this account.");
+        }
+        this.preferredName = preferred;
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `users` SET `preferredName`=? WHERE `id`=?")) {
+            ps.setInt(1, preferred.getId());
+            ps.setInt(2, getId());
+            ps.executeUpdate();
+        }
 
     }
 
@@ -539,11 +576,11 @@ public class User extends CertificateOwner {
     }
 
     private Assurance assuranceByRes(GigiResultSet res) {
-        return new Assurance(res.getInt("id"), User.getById(res.getInt("from")), User.getById(res.getInt("to")), res.getString("location"), res.getString("method"), res.getInt("points"), res.getString("date"));
+        return new Assurance(res.getInt("id"), User.getById(res.getInt("from")), Name.getById(res.getInt("to")), res.getString("location"), res.getString("method"), res.getInt("points"), res.getString("date"));
     }
 
     public boolean isInVerificationLimit() {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `notary` WHERE `to` = ? AND `when` > (now() - (interval '1 month' * ?)) AND (`expire` IS NULL OR `expire` > now()) AND `deleted` IS NULL;")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `notary` INNER JOIN `names` ON `names`.`id`=`to` WHERE `names`.`uid` = ? AND `when` > (now() - (interval '1 month' * ?)) AND (`expire` IS NULL OR `expire` > now()) AND `notary`.`deleted` IS NULL;")) {
             ps.setInt(1, getId());
             ps.setInt(2, VERIFICATION_MONTHS);
 
@@ -551,4 +588,5 @@ public class User extends CertificateOwner {
             return rs.next();
         }
     }
+
 }

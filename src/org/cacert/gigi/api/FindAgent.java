@@ -77,7 +77,7 @@ public class FindAgent extends APIPoint {
                     continue;
                 }
                 // date, recheck(?), name
-                resp.getWriter().println(i + "," + u1.canAssure() + "," + u1.getName().toString());
+                resp.getWriter().println(i + "," + u1.canAssure() + "," + u1.getPreferredName().toAbbreviatedString());
             }
         } else if (pi.equals(PATH_MAIL)) {
             String id = req.getParameter("from");

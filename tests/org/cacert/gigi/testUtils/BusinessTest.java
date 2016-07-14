@@ -17,7 +17,8 @@ import java.util.regex.Pattern;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.EmailAddress;
-import org.cacert.gigi.dbObjects.Name;
+import org.cacert.gigi.dbObjects.NamePart;
+import org.cacert.gigi.dbObjects.NamePart.NamePartType;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.ping.PingerDaemon;
@@ -118,23 +119,30 @@ public abstract class BusinessTest extends ConfiguredTest {
         c.set(1950, 1, 1, 0, 0, 0);
         c.set(Calendar.MILLISECOND, 0);
 
-        User u = new User(createUniqueName() + "@email.com", TEST_PASSWORD, new Name("a", "m", "c", ""), new DayDate(c.getTimeInMillis()), Locale.ENGLISH);
+        User u = new User(createUniqueName() + "@email.com", TEST_PASSWORD, new DayDate(c.getTimeInMillis()), Locale.ENGLISH, //
+                new NamePart(NamePartType.FIRST_NAME, "a"), new NamePart(NamePartType.FIRST_NAME, "m"), new NamePart(NamePartType.LAST_NAME, "c"));
         InVMEmail.getInstance().mails.poll().verify();
         return u;
     }
 
     public static int createVerifiedUser(String f, String l, String mail, String pw) throws GigiApiException {
-        Calendar c = Calendar.getInstance();
-        c.set(1950, 1, 1, 0, 0, 0);
-        c.set(Calendar.MILLISECOND, 0);
-
-        User u = new User(mail, pw, new Name(f, l, "", ""), new DayDate(c.getTimeInMillis()), Locale.ENGLISH);
+        User u = createUser(f, l, mail, pw);
         try {
             InVMEmail.getInstance().mails.poll().verify();
         } catch (IOException e) {
             throw new Error(e);
         }
         return u.getId();
+    }
+
+    public static User createUser(String f, String l, String mail, String pw) throws GigiApiException {
+        Calendar c = Calendar.getInstance();
+        c.set(1950, 1, 1, 0, 0, 0);
+        c.set(Calendar.MILLISECOND, 0);
+
+        User u = new User(mail, pw, new DayDate(c.getTimeInMillis()), Locale.ENGLISH,//
+                new NamePart(NamePartType.FIRST_NAME, f), new NamePart(NamePartType.LAST_NAME, l));
+        return u;
     }
 
     public static int createAssuranceUser(String f, String l, String mail, String pw) throws GigiApiException {

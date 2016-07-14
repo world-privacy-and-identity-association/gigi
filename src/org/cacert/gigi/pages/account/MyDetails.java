@@ -44,8 +44,10 @@ public class MyDetails extends Page {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (req.getParameter("processDetails") != null) {
-            Form.getForm(req, MyDetailsForm.class).submit(resp.getWriter(), req);
+        if (req.getParameter("action") != null || req.getParameter("removeName") != null || req.getParameter("deprecateName") != null || req.getParameter("preferred") != null) {
+            if (Form.getForm(req, MyDetailsForm.class).submit(resp.getWriter(), req)) {
+                resp.sendRedirect(PATH);
+            }
         }
         super.doPost(req, resp);
     }

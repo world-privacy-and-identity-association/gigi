@@ -497,7 +497,7 @@ public class CertificateRequest {
                     if (nullIsOK) {
                         name = "";
                     } else if (realIsOK) {
-                        name = u.getName().toString();
+                        name = u.getPreferredName().toString();
                     }
                 }
             } else if (name == null || name.equals("")) {
@@ -508,7 +508,7 @@ public class CertificateRequest {
                     if (defaultIsOK) {
                         name = DEFAULT_CN;
                     } else if (realIsOK) {
-                        name = u.getName().toString();
+                        name = u.getPreferredName().toString();
                     }
                 }
             } else {

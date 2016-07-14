@@ -4,15 +4,21 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Locale;
 
 import org.cacert.gigi.dbObjects.Assurance;
+import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Name;
+import org.cacert.gigi.dbObjects.NamePart;
+import org.cacert.gigi.dbObjects.NamePart.NamePartType;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.BusinessTest;
 import org.cacert.gigi.util.DayDate;
+import org.cacert.gigi.util.Notary;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 public class TestUser extends BusinessTest {
@@ -21,10 +27,10 @@ public class TestUser extends BusinessTest {
     public void testStoreAndLoad() throws SQLException, GigiApiException {
         long dob = System.currentTimeMillis();
         dob -= dob % (1000 * 60 * 60 * 24);
-        User u = new User(createUniqueName() + "a@email.org", "password", new Name("user", "last", "", ""), new DayDate(dob), Locale.ENGLISH);
+        User u = createUser("f", "l", createUniqueName() + "a@email.org", TEST_PASSWORD);
         int id = u.getId();
         User u2 = User.getById(id);
-        assertEquals(u.getName(), u2.getName());
+        assertEquals(u.getNames()[0], u2.getNames()[0]);
         assertEquals(u.getDoB().toString(), u2.getDoB().toString());
         assertEquals(u.getEmail(), u2.getEmail());
     }
@@ -33,11 +39,11 @@ public class TestUser extends BusinessTest {
     public void testWebStoreAndLoad() throws SQLException, GigiApiException {
         int id = createVerifiedUser("aä", "b", createUniqueName() + "a@email.org", TEST_PASSWORD);
 
-        Name u = User.getById(id).getName();
+        Name u = User.getById(id).getNames()[0];
 
-        assertEquals("aä", u.getFname());
-        assertEquals("b", u.getLname());
-        assertEquals("", u.getMname());
+        assertThat(Arrays.asList(u.getParts()), CoreMatchers.hasItem(new NamePart(NamePartType.FIRST_NAME, "aä")));
+        assertThat(Arrays.asList(u.getParts()), CoreMatchers.hasItem(new NamePart(NamePartType.LAST_NAME, "b")));
+        assertEquals(2, u.getParts().length);
     }
 
     @Test
@@ -52,26 +58,17 @@ public class TestUser extends BusinessTest {
         assertEquals(2, expPoints);
         assertTrue(u.hasPassedCATS());
         assertEquals(10, u.getMaxAssurePoints());
-        Name name = u.getName();
-        assertEquals("aä", name.getFname());
-        assertEquals("b", name.getLname());
-        assertEquals("", name.getMname());
     }
 
     @Test
-    public void testMatcherMethods() throws SQLException, GigiApiException, IOException {
+    public void testMatcherMethodsDomain() throws SQLException, GigiApiException, IOException {
         String uq = createUniqueName();
         int id = createVerifiedUser("aä", "b", uq + "a@email.org", TEST_PASSWORD);
 
         User u = User.getById(id);
-        new EmailAddress(u, uq + "b@email.org", Locale.ENGLISH);
-        getMailReceiver().receive().verify();
-        new EmailAddress(u, uq + "c@email.org", Locale.ENGLISH);
-        getMailReceiver().receive();// no-verify
         verify(new Domain(u, u, uq + "a-testdomain.org"));
         verify(new Domain(u, u, uq + "b-testdomain.org"));
         verify(new Domain(u, u, uq + "c-testdomain.org"));
-        assertEquals(3, u.getEmails().length);
         assertEquals(3, u.getDomains().length);
         assertTrue(u.isValidDomain(uq + "a-testdomain.org"));
         assertTrue(u.isValidDomain(uq + "b-testdomain.org"));
@@ -80,12 +77,40 @@ public class TestUser extends BusinessTest {
         assertTrue(u.isValidDomain("*." + uq + "a-testdomain.org"));
         assertFalse(u.isValidDomain("a" + uq + "a-testdomain.org"));
         assertFalse(u.isValidDomain("b" + uq + "a-testdomain.org"));
+    }
+
+    @Test
+    public void testMatcherMethodsEmail() throws SQLException, GigiApiException, IOException {
+        String uq = createUniqueName();
+        int id = createVerifiedUser("aä", "b", uq + "a@email.org", TEST_PASSWORD);
+
+        User u = User.getById(id);
+
+        new EmailAddress(u, uq + "b@email.org", Locale.ENGLISH);
+        getMailReceiver().receive().verify();
+        new EmailAddress(u, uq + "c@email.org", Locale.ENGLISH);
+        getMailReceiver().receive();// no-verify
+        assertEquals(3, u.getEmails().length);
 
         assertTrue(u.isValidEmail(uq + "a@email.org"));
         assertTrue(u.isValidEmail(uq + "b@email.org"));
         assertFalse(u.isValidEmail(uq + "b+6@email.org"));
         assertFalse(u.isValidEmail(uq + "b*@email.org"));
         assertFalse(u.isValidEmail(uq + "c@email.org"));
+    }
+
+    @Test
+    public void testMatcherMethodsName() throws SQLException, GigiApiException, IOException {
+        String uq = createUniqueName();
+        int id = createVerifiedUser("aä", "b", uq + "a@email.org", TEST_PASSWORD);
+
+        User u = User.getById(id);
+
+        User[] us = new User[5];
+        for (int i = 0; i < us.length; i++) {
+            us[i] = User.getById(createAssuranceUser("f", "l", createUniqueName() + "@email.com", TEST_PASSWORD));
+            Notary.assure(us[i], u, u.getPreferredName(), u.getDoB(), 10, "here", "2000-01-01", AssuranceType.FACE_TO_FACE);
+        }
 
         assertTrue(u.isValidName("aä b"));
         assertFalse(u.isValidName("aä c"));
@@ -97,7 +122,7 @@ public class TestUser extends BusinessTest {
     public void testDoubleInsert() throws GigiApiException {
         long d = System.currentTimeMillis();
         d -= d % DayDate.MILLI_DAY;
-        User u = new User(createUniqueName() + "@example.org", TEST_PASSWORD, new Name("f", "k", "m", "s"), new DayDate(d + 1000L * 60 * 60 * 24 * 365), Locale.ENGLISH);
+        User u = createUser("f", "l", createUniqueName() + "@example.org", TEST_PASSWORD);
         Assurance[] ma = u.getMadeAssurances();
         Assurance[] ma2 = u.getMadeAssurances();
         Assurance[] ra = u.getReceivedAssurances();

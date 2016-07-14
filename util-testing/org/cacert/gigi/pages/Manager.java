@@ -39,7 +39,8 @@ import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.DomainPingType;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Group;
-import org.cacert.gigi.dbObjects.Name;
+import org.cacert.gigi.dbObjects.NamePart;
+import org.cacert.gigi.dbObjects.NamePart.NamePartType;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
@@ -203,7 +204,9 @@ public class Manager extends Page {
         Calendar gc = GregorianCalendar.getInstance();
         gc.setTimeInMillis(0);
         gc.set(1990, 0, 1);
-        User u = new User(email, "xvXV12°§", new Name("Först", "Läst", "Müddle", "Süffix"), new DayDate(gc.getTime().getTime()), Locale.ENGLISH);
+        User u = new User(email, "xvXV12°§", new DayDate(gc.getTime().getTime()), Locale.ENGLISH, //
+                new NamePart(NamePartType.FIRST_NAME, "Först"), new NamePart(NamePartType.FIRST_NAME, "Müddle"),//
+                new NamePart(NamePartType.LAST_NAME, "Läst"), new NamePart(NamePartType.SUFFIX, "Süffix"));
         EmailAddress ea = u.getEmails()[0];
         verify(email, ea);
     }
@@ -269,7 +272,7 @@ public class Manager extends Page {
             }
             try {
                 for (int i = 0; i < 10; i++) {
-                    Notary.assure(getAssurer(i), byEmail, byEmail.getName(), byEmail.getDoB(), 10, "Testmanager Assure up code", "2014-11-06", AssuranceType.FACE_TO_FACE);
+                    Notary.assure(getAssurer(i), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), 10, "Testmanager Assure up code", "2014-11-06", AssuranceType.FACE_TO_FACE);
                 }
             } catch (GigiApiException e) {
                 throw new Error(e);
@@ -281,7 +284,7 @@ public class Manager extends Page {
             try {
                 for (int i = 0; i < 25; i++) {
                     User a = getAssurer(i);
-                    Notary.assure(byEmail, a, a.getName(), a.getDoB(), 10, "Testmanager exp up code", "2014-11-06", AssuranceType.FACE_TO_FACE);
+                    Notary.assure(byEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", "2014-11-06", AssuranceType.FACE_TO_FACE);
                 }
             } catch (GigiApiException e) {
                 throw new Error(e);

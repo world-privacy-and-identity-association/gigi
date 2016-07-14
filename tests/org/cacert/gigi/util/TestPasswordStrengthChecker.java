@@ -2,19 +2,19 @@ package org.cacert.gigi.util;
 
 import static org.junit.Assert.*;
 
-import org.cacert.gigi.dbObjects.Name;
+import org.cacert.gigi.testUtils.ClientBusinessTest;
 import org.junit.Test;
 
-public class TestPasswordStrengthChecker {
-
-    Name n = new Name("fname", "lname", "mname", "suffix");
+public class TestPasswordStrengthChecker extends ClientBusinessTest {
 
     String e = "email";
 
     public TestPasswordStrengthChecker() {}
 
     private int check(String pw) {
-        return PasswordStrengthChecker.checkpw(pw, n, e);
+        return PasswordStrengthChecker.checkpw(pw, new String[] {
+                "fname", "lname", "mname", "suffix"
+        }, e);
     }
 
     @Test

@@ -75,10 +75,10 @@ public class AuthorizationContext implements Outputable {
             public void output(PrintWriter out, Language l, Map<String, Object> vars) {
                 if (target != actor) {
                     vars.put("user", ((Organisation) target).getName().toString());
-                    vars.put("target", actor.getName().toString());
+                    vars.put("target", actor.getPreferredName().toString());
                     inner.output(out, l, vars);
                 } else {
-                    out.println(actor.getName().toString());
+                    out.println(actor.getPreferredName().toString());
                 }
             }
         });

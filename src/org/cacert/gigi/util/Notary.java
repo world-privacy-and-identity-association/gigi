@@ -31,23 +31,14 @@ public class Notary {
         }
     }
 
-    public static void checkAssuranceIsPossible(User assurer, User target) throws GigiApiException {
-        if (assurer.getId() == target.getId()) {
-            throw new GigiApiException("You cannot assure yourself.");
-        }
+    public static boolean checkAssuranceIsPossible(User assurer, Name target) {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `notary` where `to`=? and `from`=? and `method` = ? ::`notaryType` AND `deleted` IS NULL AND `when` > (now() - interval '1 days' * ?)")) {
             ps.setInt(1, target.getId());
             ps.setInt(2, assurer.getId());
             ps.setString(3, AssuranceType.FACE_TO_FACE.getDescription());
             ps.setInt(4, LIMIT_DAYS_VERIFICATION);
             GigiResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                rs.close();
-                throw new GigiApiException(SprintfCommand.createSimple("You have already verified this applicant within the last {0} days.", LIMIT_DAYS_VERIFICATION));
-            }
-        }
-        if ( !assurer.canAssure()) {
-            throw new GigiApiException("You are not an assurer.");
+            return !rs.next();
         }
     }
 
@@ -105,16 +96,24 @@ public class Notary {
             gae.mergeInto(new GigiApiException("You must enter a location with at least 3 characters eg town and country."));
         }
         synchronized (assuree) {
-
-            try {
-                checkAssuranceIsPossible(assurer, assuree);
-            } catch (GigiApiException e) {
-                gae.mergeInto(e);
+            if (assurer.getId() == assuree.getId()) {
+                throw new GigiApiException("You cannot verify yourself.");
+            }
+            if (assureeName.getOwner() != assuree) {
+                throw new GigiApiException("Internal error, name does not belong to applicant.");
+            }
+            if ( !assurer.canAssure()) {
+                throw new GigiApiException("You are not an RA-Agent.");
             }
 
-            if ( !assuree.getName().equals(assureeName) || !assuree.getDoB().equals(dob)) {
+            if ( !checkAssuranceIsPossible(assurer, assureeName)) {
+                gae.mergeInto(new GigiApiException(SprintfCommand.createSimple("You have already verified this applicant within the last {0} days.", LIMIT_DAYS_VERIFICATION)));
+            }
+
+            if ( !assuree.getDoB().equals(dob)) {
                 gae.mergeInto(new GigiApiException("The person you are assuring changed his personal details."));
             }
+
             if (awarded < 0) {
                 gae.mergeInto(new GigiApiException("The points you are trying to award are out of range."));
             } else {
@@ -134,11 +133,11 @@ public class Notary {
             }
 
             if (type == AssuranceType.FACE_TO_FACE) {
-                assureF2F(assurer, assuree, awarded, location, date);
+                assureF2F(assurer, assuree, assureeName, awarded, location, date);
             } else if (type == AssuranceType.NUCLEUS) {
-                assureNucleus(assurer, assuree, awarded, location, date);
+                assureNucleus(assurer, assuree, assureeName, awarded, location, date);
             } else if (type == AssuranceType.TTP_ASSISTED) {
-                assureTTP(assurer, assuree, awarded, location, date);
+                assureTTP(assurer, assuree, assureeName, awarded, location, date);
             } else {
                 throw new GigiApiException(SprintfCommand.createSimple("Unknown Assurance type: {0}", type.toString()));
             }
@@ -147,11 +146,11 @@ public class Notary {
         }
     }
 
-    private static void assureF2F(User assurer, User assuree, int awarded, String location, String date) throws GigiApiException {
+    private static void assureF2F(User assurer, User assuree, Name name, int awarded, String location, String date) throws GigiApiException {
         may(assurer, assuree, AssuranceType.FACE_TO_FACE);
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?")) {
             ps.setInt(1, assurer.getId());
-            ps.setInt(2, assuree.getId());
+            ps.setInt(2, name.getId());
             ps.setInt(3, awarded);
             ps.setString(4, location);
             ps.setString(5, date);
@@ -159,11 +158,11 @@ public class Notary {
         }
     }
 
-    private static void assureTTP(User assurer, User assuree, int awarded, String location, String date) throws GigiApiException {
+    private static void assureTTP(User assurer, User assuree, Name name, int awarded, String location, String date) throws GigiApiException {
         may(assurer, assuree, AssuranceType.TTP_ASSISTED);
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `method`='TTP-Assisted'")) {
             ps.setInt(1, assurer.getId());
-            ps.setInt(2, assuree.getId());
+            ps.setInt(2, name.getId());
             ps.setInt(3, awarded);
             ps.setString(4, location);
             ps.setString(5, date);
@@ -199,11 +198,11 @@ public class Notary {
         throw new GigiApiException("Verification type not possible.");
     }
 
-    private static void assureNucleus(User assurer, User assuree, int awarded, String location, String date) throws GigiApiException {
+    private static void assureNucleus(User assurer, User assuree, Name name, int awarded, String location, String date) throws GigiApiException {
         may(assurer, assuree, AssuranceType.NUCLEUS);
         // Do up to 35 points as f2f
         int f2fPoints = Math.min(assurer.getMaxAssurePoints(), awarded);
-        assureF2F(assurer, assuree, f2fPoints, location, date);
+        assureF2F(assurer, assuree, name, f2fPoints, location, date);
 
         awarded -= f2fPoints;
         if (awarded <= 0) {
@@ -214,7 +213,7 @@ public class Notary {
         // Valid for 4 Weeks = 28 days
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `method`='Nucleus Bonus', `expire` = CURRENT_TIMESTAMP + interval '28 days'")) {
             ps.setInt(1, assurer.getId());
-            ps.setInt(2, assuree.getId());
+            ps.setInt(2, name.getId());
             ps.setInt(3, awarded);
             ps.setString(4, location);
             ps.setString(5, date);

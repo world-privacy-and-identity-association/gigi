@@ -23,7 +23,7 @@ public class Assurance {
 
     private User from;
 
-    private User to;
+    private Name to;
 
     private String location;
 
@@ -33,7 +33,7 @@ public class Assurance {
 
     private String date;
 
-    public Assurance(int id, User from, User to, String location, String method, int points, String date) {
+    public Assurance(int id, User from, Name to, String location, String method, int points, String date) {
         this.id = id;
         this.from = from;
         this.to = to;
@@ -60,7 +60,7 @@ public class Assurance {
         return points;
     }
 
-    public User getTo() {
+    public Name getTo() {
         return to;
     }
 

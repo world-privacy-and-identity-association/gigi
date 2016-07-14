@@ -1,0 +1,19 @@
+<table class="table">
+  <tbody>
+  <? foreach($exNames) { ?>
+  <tr>
+    <td><?=_Name?>: </td>
+    <td><?=$name?></td>
+    <td><?=$npoints?></td>
+    <td><button class="btn btn-warning" name="deprecateName" value="<?=$id?>" type="submit"<?=$deprecated?>><?=_Deprecate Name?></button></td>
+    <td><button class="btn btn-danger" name="removeName" value="<?=$id?>" type="submit"<?=$preferred?>><?=_Remove Name?></button></td>
+    <td><button class="btn btn-primary" name="preferred" value="<?=$id?>" type="submit"<?=$preferred?>><?=_Set as Preferred?></button></td>
+  </tr>
+  <? } ?>
+  <tr>
+    <td><?=_Name?>: </td>
+    <td colspan="5"><?=$name?>
+    <button class="btn btn-primary" name="action" value="addName" type="submit"><?=_Add Name?></button></td>
+  </tr>
+  </tbody>
+</table>

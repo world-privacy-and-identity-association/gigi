@@ -10,11 +10,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
-import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
+import org.cacert.gigi.output.NameInput;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.PlainOutputable;
 import org.cacert.gigi.output.template.SprintfCommand;
@@ -28,28 +28,25 @@ import org.cacert.gigi.util.RateLimit.RateLimitException;
 
 public class Signup extends Form {
 
-    Name buildupName = new Name("", "", "", "");
+    private NameInput ni;
 
-    String email = "";
+    private String email = "";
 
     private static final Template t = new Template(Signup.class.getResource("Signup.templ"));
 
-    boolean general = true, country = true, regional = true, radius = true;
+    private boolean general = true, country = true, regional = true, radius = true;
 
     public Signup(HttpServletRequest hsr) {
         super(hsr);
-
+        ni = new NameInput();
     }
 
-    DateSelector myDoB = new DateSelector("day", "month", "year");
+    private DateSelector myDoB = new DateSelector("day", "month", "year");
 
     @Override
     public void outputContent(PrintWriter out, Language l, Map<String, Object> outerVars) {
         HashMap<String, Object> vars = new HashMap<String, Object>();
-        vars.put("fname", HTMLEncoder.encodeHTML(buildupName.getFname()));
-        vars.put("mname", HTMLEncoder.encodeHTML(buildupName.getMname()));
-        vars.put("lname", HTMLEncoder.encodeHTML(buildupName.getLname()));
-        vars.put("suffix", HTMLEncoder.encodeHTML(buildupName.getSuffix()));
+        vars.put("name", ni);
         vars.put("dob", myDoB);
         vars.put("email", HTMLEncoder.encodeHTML(email));
         vars.put("general", general ? " checked=\"checked\"" : "");
@@ -62,27 +59,11 @@ public class Signup extends Form {
         t.output(out, l, vars);
     }
 
-    private void update(HttpServletRequest r) {
-        String fname = buildupName.getFname();
-        String lname = buildupName.getLname();
-        String mname = buildupName.getMname();
-        String suffix = buildupName.getSuffix();
-        if (r.getParameter("fname") != null) {
-            fname = r.getParameter("fname");
-        }
-        if (r.getParameter("lname") != null) {
-            lname = r.getParameter("lname");
-        }
-        if (r.getParameter("mname") != null) {
-            mname = r.getParameter("mname");
-        }
-        if (r.getParameter("suffix") != null) {
-            suffix = r.getParameter("suffix");
-        }
+    private void update(HttpServletRequest r) throws GigiApiException {
+        ni.update(r);
         if (r.getParameter("email") != null) {
             email = r.getParameter("email");
         }
-        buildupName = new Name(fname, lname, mname, suffix);
         general = "1".equals(r.getParameter("general"));
         country = "1".equals(r.getParameter("country"));
         regional = "1".equals(r.getParameter("regional"));
@@ -101,9 +82,12 @@ public class Signup extends Form {
 
         update(req);
         GigiApiException ga = new GigiApiException();
-        if (buildupName.getLname().trim().equals("")) {
-            ga.mergeInto(new GigiApiException("Last name were blank."));
+        try {
+            ni.getNameParts();
+        } catch (GigiApiException e) {
+            ga.mergeInto(e);
         }
+
         if ( !myDoB.isValid()) {
             ga.mergeInto(new GigiApiException("Invalid date of birth"));
         }
@@ -125,7 +109,7 @@ public class Signup extends Form {
         } else if ( !pw1.equals(pw2)) {
             ga.mergeInto(new GigiApiException("Pass Phrases don't match"));
         }
-        int pwpoints = PasswordStrengthChecker.checkpw(pw1, buildupName, email);
+        int pwpoints = PasswordStrengthChecker.checkpw(pw1, ni.getNamePartsPlain(), email);
         if (pwpoints < 3) {
             ga.mergeInto(new GigiApiException("The Pass Phrase you submitted failed to contain enough" + " differing characters and/or contained words from" + " your name and/or email address."));
         }
@@ -177,7 +161,7 @@ public class Signup extends Form {
     }
 
     private void run(HttpServletRequest req, String password) throws GigiApiException {
-        User u = new User(email, password, buildupName, myDoB.getDate(), Page.getLanguage(req).getLocale());
+        User u = new User(email, password, myDoB.getDate(), Page.getLanguage(req).getLocale(), ni.getNameParts());
 
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `alerts` SET `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?")) {
             ps.setInt(1, u.getId());

@@ -30,21 +30,12 @@ public class SupportedUser {
         this.ticket = ticket;
     }
 
-    public boolean setName(Name newName) throws GigiApiException {
-        if (newName.equals(target.getName())) {
-            return false;
-        }
-        writeSELog("SE Name change");
-        target.setName(newName);
-        return true;
-    }
-
     public boolean setDob(DayDate dob) throws GigiApiException {
         if (dob.equals(target.getDoB())) {
             return false;
         }
         writeSELog("SE dob change");
-        target.setDoB(dob);
+        target.setDoBAsSupport(dob);
         return true;
     }
 
@@ -88,10 +79,6 @@ public class SupportedUser {
         return target;
     }
 
-    public void submitSupportAction() throws GigiApiException {
-        target.rawUpdateUserData();
-    }
-
     public void grant(Group toMod) {
         target.grantGroup(supporter, toMod);
     }
@@ -105,7 +92,7 @@ public class SupportedUser {
             StringWriter sw = new StringWriter();
             PrintWriter outMail = new PrintWriter(sw);
             outMail.print("Hi," + "\n\n");
-            SprintfCommand.createSimple("supporter {0} triggered:", supporter.getName().toString()).output(outMail, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
+            SprintfCommand.createSimple("supporter {0} triggered:", supporter.getPreferredName().toString()).output(outMail, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
             outMail.print("\n\n");
             message.output(outMail, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
             outMail.print("\n\n");

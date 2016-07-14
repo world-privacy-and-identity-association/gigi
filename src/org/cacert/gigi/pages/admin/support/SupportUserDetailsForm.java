@@ -13,6 +13,7 @@ import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.SupportedUser;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.ArrayIterable;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.GroupSelector;
 import org.cacert.gigi.output.template.Form;
@@ -76,22 +77,11 @@ public class SupportUserDetailsForm extends Form {
             return true;
         }
         dobSelector.update(req);
-        String fname = req.getParameter("fname");
-        String mname = req.getParameter("mname");
-        String lname = req.getParameter("lname");
-        String suffix = req.getParameter("suffix");
-        if (fname == null || mname == null || lname == null | suffix == null) {
-            throw new GigiApiException("Incomplete request!");
-        }
         if ( !dobSelector.isValid()) {
             throw new GigiApiException("Invalid date of birth!");
         }
-        Name newName = new Name(fname, lname, mname, suffix);
-        synchronized (user.getTargetUser()) {
-            if (user.setDob(dobSelector.getDate()) | user.setName(newName)) {
-                user.submitSupportAction();
-            }
-        }
+        user.setDob(dobSelector.getDate());
+
         String subject = "Change Account Data";
         Outputable message = new TranslateCommand("The account data was changed.");
         user.sendSupportNotification(subject, message);
@@ -101,12 +91,16 @@ public class SupportUserDetailsForm extends Form {
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
         User user = this.user.getTargetUser();
-        Name name = user.getName();
         vars.put("mail", user.getEmail());
-        vars.put("fname", name.getFname());
-        vars.put("mname", name.getMname());
-        vars.put("lname", name.getLname());
-        vars.put("suffix", name.getSuffix());
+        vars.put("exNames", new ArrayIterable<Name>(user.getNames()) {
+
+            @Override
+            public void apply(Name t, Language l, Map<String, Object> vars) {
+                vars.put("name", t);
+                vars.put("points", Integer.toString(t.getAssurancePoints()));
+            }
+
+        });
         vars.put("assurer", user.canAssure());
         vars.put("dob", dobSelector);
         vars.put("assurancepoints", user.getAssurancePoints());

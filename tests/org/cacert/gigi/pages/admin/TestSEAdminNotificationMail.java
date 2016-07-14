@@ -31,11 +31,11 @@ public class TestSEAdminNotificationMail extends ClientTest {
     @Test
     public void testChangeAccountData() throws MalformedURLException, IOException {
 
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID, "fname=Kurti3&lname=Hansel&mname=&suffix=&dobd=1&dobm=2&doby=2000&detailupdate", 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID, "dobd=1&dobm=2&doby=2000&detailupdate", 0);
 
         String message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("The account data was changed."));
-        assertThat(message, containsString("supporter " + u.getName() + " triggered:"));
+        assertThat(message, containsString("supporter " + u.getPreferredName().toString() + " triggered:"));
 
     }
 

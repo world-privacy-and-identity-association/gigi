@@ -5,11 +5,12 @@
 <tbody>
 <tr><td colspan="2"><?=_Please check the following details match against what you witnessed when you met ${name} in person. You MUST NOT proceed unless you are sure the details are correct. You may be held responsible by the SomeCA Arbitrator for any issues with this Verification.?>
 </td></tr>
-
+<? foreach($names) { ?>
 	<tr>
 		<td><?=_Name?>: </td>
-		<td><span class="accountdetail"><?=$nameExplicit?></span></td>
+		<td><input type="checkbox" name="assuredName" value="<?=$nameId?>"<?=$checked?>><span class="accountdetail"><?=$nameExplicit?></span></td>
 	</tr>
+<? } ?>
 	<tr>
 		<td><?=_Date of Birth?>: </td>
 		<td><span class="accountdetail dob"><?=$dob?> (<?=$dobFmt2?>)</span></td>
