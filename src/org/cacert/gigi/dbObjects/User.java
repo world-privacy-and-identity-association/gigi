@@ -362,40 +362,6 @@ public class User extends CertificateOwner {
 
     }
 
-    public boolean wantsDirectoryListing() {
-        try (GigiPreparedStatement get = new GigiPreparedStatement("SELECT listme FROM users WHERE id=?")) {
-            get.setInt(1, getId());
-            GigiResultSet exec = get.executeQuery();
-            return exec.next() && exec.getBoolean("listme");
-        }
-    }
-
-    public String getContactInformation() {
-        try (GigiPreparedStatement get = new GigiPreparedStatement("SELECT contactinfo FROM users WHERE id=?")) {
-            get.setInt(1, getId());
-
-            GigiResultSet exec = get.executeQuery();
-            exec.next();
-            return exec.getString("contactinfo");
-        }
-    }
-
-    public void setDirectoryListing(boolean on) {
-        try (GigiPreparedStatement update = new GigiPreparedStatement("UPDATE users SET listme = ? WHERE id = ?")) {
-            update.setBoolean(1, on);
-            update.setInt(2, getId());
-            update.executeUpdate();
-        }
-    }
-
-    public void setContactInformation(String contactInfo) {
-        try (GigiPreparedStatement update = new GigiPreparedStatement("UPDATE users SET contactinfo = ? WHERE id = ?")) {
-            update.setString(1, contactInfo);
-            update.setInt(2, getId());
-            update.executeUpdate();
-        }
-    }
-
     public boolean isInGroup(Group g) {
         return groups.contains(g);
     }

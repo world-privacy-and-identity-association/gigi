@@ -18,17 +18,9 @@ CREATE TABLE "users" (
   "suffix" varchar(50) NOT NULL DEFAULT '',
   "dob" date NOT NULL,
   "verified" boolean NOT NULL DEFAULT 'false',
-  "ccid" int NOT NULL DEFAULT '0',
-  "regid" int NOT NULL DEFAULT '0',
-  "locid" int NOT NULL DEFAULT '0',
-  "listme" boolean NOT NULL DEFAULT 'false',
-  "contactinfo" varchar(255) NOT NULL DEFAULT '',
   "language" varchar(5) NOT NULL DEFAULT '',
   PRIMARY KEY ("id")
 );
-CREATE INDEX ON "users" ("ccid");
-CREATE INDEX ON "users" ("regid");
-CREATE INDEX ON "users" ("locid");
 CREATE INDEX ON "users" ("email");
 CREATE INDEX ON "users" ("verified");
 
@@ -385,7 +377,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(17);
+INSERT INTO "schemeVersion" (version)  VALUES(18);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (
