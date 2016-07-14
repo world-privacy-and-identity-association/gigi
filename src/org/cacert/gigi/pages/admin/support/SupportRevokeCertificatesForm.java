@@ -16,7 +16,9 @@ import org.cacert.gigi.dbObjects.SupportedUser;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
+import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.output.template.TranslateCommand;
 
 public class SupportRevokeCertificatesForm extends Form {
 
@@ -33,6 +35,9 @@ public class SupportRevokeCertificatesForm extends Form {
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
         if (user.getTicket() != null) {
             user.revokeAllCertificates();
+            String subject = "Revoke certificates";
+            Outputable message = new TranslateCommand("All certificates in the account have been revoked.");
+            user.sendSupportNotification(subject, message);
             return true;
         }
         return false;

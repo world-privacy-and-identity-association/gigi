@@ -17,7 +17,10 @@ import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.GroupSelector;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
+import org.cacert.gigi.output.template.Outputable;
+import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.output.template.TranslateCommand;
 import org.cacert.gigi.pages.PasswordResetPage;
 
 public class SupportUserDetailsForm extends Form {
@@ -45,13 +48,18 @@ public class SupportUserDetailsForm extends Form {
             throw new GigiApiException("More than one action requested!");
         }
         if (req.getParameter("grant") != null || req.getParameter("deny") != null) {
+            String actionType = "granted";
             value.update(req);
             Group toMod = value.getGroup();
             if (req.getParameter("grant") != null) {
                 user.grant(toMod);
             } else {
+                actionType = "revoked";
                 user.revoke(toMod);
             }
+            String subject = "Change Group Permissions";
+            Outputable message = SprintfCommand.createSimple("The group permission {0} was {1}.", toMod.getDatabaseName(), actionType);
+            user.sendSupportNotification(subject, message);
             return true;
         }
         if (req.getParameter("resetPass") != null) {
@@ -63,6 +71,8 @@ public class SupportUserDetailsForm extends Form {
             String method = l.getTranslation("A password reset was triggered. Please enter the required text sent to you by support on this page:");
             String subject = l.getTranslation("Password reset by support.");
             PasswordResetPage.initPasswordResetProcess(out, user.getTargetUser(), req, aword, l, method, subject);
+            Outputable message = new TranslateCommand("A password reset was triggered and an email was sent to user.");
+            user.sendSupportNotification(subject, message);
             return true;
         }
         dobSelector.update(req);
@@ -82,6 +92,9 @@ public class SupportUserDetailsForm extends Form {
                 user.submitSupportAction();
             }
         }
+        String subject = "Change Account Data";
+        Outputable message = new TranslateCommand("The account data was changed.");
+        user.sendSupportNotification(subject, message);
         return true;
     }
 

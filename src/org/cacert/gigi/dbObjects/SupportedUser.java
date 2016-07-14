@@ -1,9 +1,20 @@
 package org.cacert.gigi.dbObjects;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Locale;
+
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
+import org.cacert.gigi.email.SendMail;
+import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.template.Outputable;
+import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.util.DayDate;
+import org.cacert.gigi.util.ServerConstants;
 
 public class SupportedUser {
 
@@ -89,4 +100,21 @@ public class SupportedUser {
         target.revokeGroup(supporter, toMod);
     }
 
+    public void sendSupportNotification(String subject, Outputable message) {
+        try {
+            StringWriter sw = new StringWriter();
+            PrintWriter outMail = new PrintWriter(sw);
+            outMail.print("Hi," + "\n\n");
+            SprintfCommand.createSimple("supporter {0} triggered:", supporter.getName().toString()).output(outMail, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
+            outMail.print("\n\n");
+            message.output(outMail, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
+            outMail.print("\n\n");
+            outMail.print("RA DB");
+            outMail.close();
+            String supportemailaddress = "support@" + ServerConstants.getWwwHostName().replaceFirst("^www\\.", "");
+            SendMail.getInstance().sendMail(supportemailaddress, "[" + this.getTicket() + "] RA DB " + subject, sw.toString(), supportemailaddress, null, null, null, null, false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
