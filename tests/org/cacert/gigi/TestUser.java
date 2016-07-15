@@ -55,7 +55,7 @@ public class TestUser extends BusinessTest {
         int assurancePoints = u.getAssurancePoints();
         int expPoints = u.getExperiencePoints();
         assertEquals(100, assurancePoints);
-        assertEquals(2, expPoints);
+        assertEquals(User.EXPERIENCE_POINTS, expPoints);
         assertTrue(u.hasPassedCATS());
         assertEquals(10, u.getMaxAssurePoints());
     }

@@ -227,7 +227,6 @@ public class TestAssurance extends BusinessTest {
         // enter entry for second applicant
         enterAssuranceWhen(agentID, applicant.getPreferredName().getId(), yesterday);
 
-        assertEquals(agent.getExperiencePoints(), xPoints + 2);
-
+        assertEquals(agent.getExperiencePoints(), xPoints + User.EXPERIENCE_POINTS);
     }
 }

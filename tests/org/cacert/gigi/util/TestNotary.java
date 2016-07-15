@@ -46,7 +46,7 @@ public class TestNotary extends BusinessTest {
 
         assertEquals(35, assurer.getMaxAssurePoints());
 
-        assertEquals(2 + 60, assurer.getExperiencePoints());
+        assertEquals(User.EXPERIENCE_POINTS + (30 * User.EXPERIENCE_POINTS), assurer.getExperiencePoints());
 
     }
 

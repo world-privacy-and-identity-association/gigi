@@ -48,6 +48,8 @@ public class User extends CertificateOwner {
 
     public static final boolean POJAM_ENABLED = false;
 
+    public static final int EXPERIENCE_POINTS = 2;
+
     /**
      * Time in months a verification is considered "recent".
      */
@@ -231,7 +233,7 @@ public class User extends CertificateOwner {
             int points = 0;
 
             if (rs.next()) {
-                points = rs.getInt(1) * 2;
+                points = rs.getInt(1) * EXPERIENCE_POINTS;
             }
 
             return points;
@@ -252,19 +254,19 @@ public class User extends CertificateOwner {
         int exp = getExperiencePoints();
         int points = 10;
 
-        if (exp >= 10) {
+        if (exp >= 5 * EXPERIENCE_POINTS) {
             points += 5;
         }
-        if (exp >= 20) {
+        if (exp >= 10 * EXPERIENCE_POINTS) {
             points += 5;
         }
-        if (exp >= 30) {
+        if (exp >= 15 * EXPERIENCE_POINTS) {
             points += 5;
         }
-        if (exp >= 40) {
+        if (exp >= 20 * EXPERIENCE_POINTS) {
             points += 5;
         }
-        if (exp >= 50) {
+        if (exp >= 25 * EXPERIENCE_POINTS) {
             points += 5;
         }
 
