@@ -31,6 +31,7 @@ import org.cacert.gigi.output.Menu;
 import org.cacert.gigi.output.MenuCollector;
 import org.cacert.gigi.output.PageMenuItem;
 import org.cacert.gigi.output.SimpleMenuItem;
+import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Form.CSRFException;
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.Template;
@@ -39,6 +40,7 @@ import org.cacert.gigi.pages.HandlesMixedRequest;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.LogoutPage;
 import org.cacert.gigi.pages.MainPage;
+import org.cacert.gigi.pages.OneFormPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.PasswordResetPage;
 import org.cacert.gigi.pages.RootCertPage;
@@ -46,6 +48,7 @@ import org.cacert.gigi.pages.StaticPage;
 import org.cacert.gigi.pages.TestSecure;
 import org.cacert.gigi.pages.Verify;
 import org.cacert.gigi.pages.account.ChangePasswordPage;
+import org.cacert.gigi.pages.account.FindAgentAccess;
 import org.cacert.gigi.pages.account.History;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.account.UserTrainings;
@@ -154,6 +157,13 @@ public final class Gigi extends HttpServlet {
             putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
             putPage(LogoutPage.PATH, new LogoutPage(), "My Account");
             putPage(History.PATH, new History(false), "My Account");
+            putPage(FindAgentAccess.PATH, new OneFormPage("Access to Find Agent", FindAgentAccess.class) {
+
+                @Override
+                public String getSuccessPath(Form f) {
+                    return FindAgentAccess.PATH;
+                }
+            }, "My Account");
             putPage(History.SUPPORT_PATH, new History(true), null);
             putPage(UserTrainings.PATH, new UserTrainings(false), "My Account");
             putPage(MyDetails.PATH, new MyDetails(), "My Account");
