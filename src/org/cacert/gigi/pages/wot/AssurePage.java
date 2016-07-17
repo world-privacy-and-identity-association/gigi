@@ -25,7 +25,7 @@ public class AssurePage extends Page {
 
     DateSelector ds = new DateSelector("day", "month", "year");
 
-    Template t;
+    private final Template t;
 
     public AssurePage() {
         super("Assure someone");

@@ -181,7 +181,7 @@ public class DevelLauncher {
     private static void addTicketPage(HashMap<String, Page> pages) {
         pages.put("/ticketWait", new Page("ticket") {
 
-            Template t = new Template(DevelLauncher.class.getResource("DevelTicketWait.templ"));
+            private final Template t = new Template(DevelLauncher.class.getResource("DevelTicketWait.templ"));
 
             @Override
             public boolean needsLogin() {

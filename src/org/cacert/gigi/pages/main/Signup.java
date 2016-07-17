@@ -32,13 +32,13 @@ public class Signup extends Form {
 
     String email = "";
 
-    private Template t;
+    private static final Template t = new Template(Signup.class.getResource("Signup.templ"));
 
     boolean general = true, country = true, regional = true, radius = true;
 
     public Signup(HttpServletRequest hsr) {
         super(hsr);
-        t = new Template(Signup.class.getResource("Signup.templ"));
+
     }
 
     DateSelector myDoB = new DateSelector("day", "month", "year");

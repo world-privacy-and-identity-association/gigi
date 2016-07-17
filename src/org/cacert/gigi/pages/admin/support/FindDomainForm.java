@@ -17,10 +17,7 @@ public class FindDomainForm extends Form {
 
     private CertificateOwner res = null;
 
-    private static Template t;
-    static {
-        t = new Template(FindDomainForm.class.getResource("FindDomainForm.templ"));
-    }
+    private static final Template t = new Template(FindDomainForm.class.getResource("FindDomainForm.templ"));
 
     public FindDomainForm(HttpServletRequest hsr) {
         super(hsr);

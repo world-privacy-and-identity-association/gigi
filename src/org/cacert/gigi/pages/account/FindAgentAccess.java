@@ -24,10 +24,7 @@ public class FindAgentAccess extends Form {
 
     public static final String PATH = "/account/find-agent";
 
-    private static Template t;
-    static {
-        t = new Template(ChangePasswordPage.class.getResource("FindAgentAccess.templ"));
-    }
+    private static final Template t = new Template(ChangePasswordPage.class.getResource("FindAgentAccess.templ"));
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {

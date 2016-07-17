@@ -40,10 +40,7 @@ public class AssuranceForm extends Form {
 
     private AssuranceType type = AssuranceType.FACE_TO_FACE;
 
-    private static final Template templ;
-    static {
-        templ = new Template(AssuranceForm.class.getResource("AssuranceForm.templ"));
-    }
+    private static final Template templ = new Template(AssuranceForm.class.getResource("AssuranceForm.templ"));
 
     public AssuranceForm(HttpServletRequest hsr, User assuree) {
         super(hsr);

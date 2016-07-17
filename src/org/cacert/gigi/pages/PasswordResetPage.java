@@ -34,7 +34,7 @@ public class PasswordResetPage extends Page {
 
     public static class PasswordResetForm extends Form {
 
-        private static Template t = new Template(PasswordResetForm.class.getResource("PasswordResetForm.templ"));
+        private static final Template t = new Template(PasswordResetForm.class.getResource("PasswordResetForm.templ"));
 
         private User u;
 

@@ -187,7 +187,6 @@ public final class Gigi extends HttpServlet {
             } catch (UnsupportedEncodingException e) {
                 throw new ServletException(e);
             }
-            baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
             rootMenu = new MenuCollector();
 
             Menu languages = new Menu("Language");
@@ -223,7 +222,7 @@ public final class Gigi extends HttpServlet {
 
     private static Gigi instance;
 
-    private Template baseTemplate;
+    private static final Template baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));;
 
     private PingerDaemon pinger;
 

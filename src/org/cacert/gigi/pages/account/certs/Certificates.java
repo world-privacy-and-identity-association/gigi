@@ -25,7 +25,7 @@ import org.cacert.gigi.util.PEM;
 
 public class Certificates extends Page implements HandlesMixedRequest {
 
-    private Template certDisplay = new Template(Certificates.class.getResource("CertificateDisplay.templ"));
+    private static final Template certDisplay = new Template(Certificates.class.getResource("CertificateDisplay.templ"));
 
     public static final String PATH = "/account/certs";
 

@@ -11,15 +11,11 @@ import org.cacert.gigi.output.template.Template;
 
 public class AssurancesDisplay implements Outputable {
 
-    private static Template template;
+    private static final Template template = new Template(AssurancesDisplay.class.getResource("AssurancesDisplay.templ"));
 
     private boolean assurer;
 
     public String assuranceArray;
-
-    static {
-        template = new Template(AssurancesDisplay.class.getResource("AssurancesDisplay.templ"));
-    }
 
     public AssurancesDisplay(String assuranceArray, boolean assurer) {
         this.assuranceArray = assuranceArray;

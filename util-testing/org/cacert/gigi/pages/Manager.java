@@ -125,7 +125,7 @@ public class Manager extends Page {
 
     private static Manager instance;
 
-    Template t = new Template(Manager.class.getResource("ManagerMails.templ"));
+    private static final Template t = new Template(Manager.class.getResource("ManagerMails.templ"));
 
     HashMap<String, LinkedList<String>> emails = new HashMap<>();
 
@@ -367,7 +367,7 @@ public class Manager extends Page {
         }
     }
 
-    private Template form = new Template(Manager.class.getResource("Manager.templ"));
+    private static final Template form = new Template(Manager.class.getResource("Manager.templ"));
 
     @Override
     public boolean needsLogin() {

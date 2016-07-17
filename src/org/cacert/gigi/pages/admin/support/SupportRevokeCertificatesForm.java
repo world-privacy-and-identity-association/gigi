@@ -20,12 +20,9 @@ import org.cacert.gigi.output.template.Template;
 
 public class SupportRevokeCertificatesForm extends Form {
 
-    private static Template t;
+    private static final Template t = new Template(SupportRevokeCertificatesForm.class.getResource("SupportRevokeCertificatesForm.templ"));
 
     private SupportedUser user;
-    static {
-        t = new Template(SupportRevokeCertificatesForm.class.getResource("SupportRevokeCertificatesForm.templ"));
-    }
 
     public SupportRevokeCertificatesForm(HttpServletRequest hsr, SupportedUser user) {
         super(hsr);

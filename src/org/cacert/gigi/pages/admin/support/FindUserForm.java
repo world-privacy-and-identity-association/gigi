@@ -16,10 +16,7 @@ public class FindUserForm extends Form {
 
     private User users[];
 
-    private static Template t;
-    static {
-        t = new Template(FindDomainForm.class.getResource("FindUserForm.templ"));
-    }
+    private static final Template t = new Template(FindDomainForm.class.getResource("FindUserForm.templ"));
 
     public FindUserForm(HttpServletRequest hsr) {
         super(hsr);

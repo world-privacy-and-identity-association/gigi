@@ -18,7 +18,7 @@ import org.cacert.gigi.pages.LoginPage;
 
 public class DomainPinglogForm extends Form {
 
-    static Template t = new Template(DomainPinglogForm.class.getResource("DomainPinglogForm.templ"));
+    private static final Template t = new Template(DomainPinglogForm.class.getResource("DomainPinglogForm.templ"));
 
     Domain target;
 

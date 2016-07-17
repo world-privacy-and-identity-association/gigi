@@ -14,7 +14,7 @@ import org.cacert.gigi.pages.LoginPage;
 
 public class TTPAdminForm extends Form {
 
-    private static Template t = new Template(TTPAdminForm.class.getResource("TTPAdminForm.templ"));
+    private static final Template t = new Template(TTPAdminForm.class.getResource("TTPAdminForm.templ"));
 
     User u;
 

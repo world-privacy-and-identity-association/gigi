@@ -17,12 +17,9 @@ import org.cacert.gigi.pages.Page;
 
 public class MailManagementForm extends Form {
 
-    private static Template t;
+    private static final Template t = new Template(MailAddForm.class.getResource("MailManagementForm.templ"));
 
     private User target;
-    static {
-        t = new Template(MailAddForm.class.getResource("MailManagementForm.templ"));
-    }
 
     public MailManagementForm(HttpServletRequest hsr, User target) {
         super(hsr);

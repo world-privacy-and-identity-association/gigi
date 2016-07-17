@@ -50,7 +50,7 @@ public class PingConfigForm extends Form {
 
     private SSLType[] sslTypes = new SSLType[MAX_SSL_TESTS];
 
-    private final Template t = new Template(PingConfigForm.class.getResource("PingConfigForm.templ"));
+    private static final Template t = new Template(PingConfigForm.class.getResource("PingConfigForm.templ"));
 
     public PingConfigForm(HttpServletRequest hsr, Domain target) throws GigiApiException {
         super(hsr);

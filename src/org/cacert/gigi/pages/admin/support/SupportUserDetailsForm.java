@@ -22,17 +22,13 @@ import org.cacert.gigi.pages.PasswordResetPage;
 
 public class SupportUserDetailsForm extends Form {
 
-    private static Template t;
+    private static final Template t = new Template(FindDomainForm.class.getResource("SupportUserDetailsForm.templ"));
 
     private SupportedUser user;
 
     private DateSelector dobSelector;
 
     private GroupSelector value = new GroupSelector("groupToModify");
-
-    static {
-        t = new Template(FindDomainForm.class.getResource("SupportUserDetailsForm.templ"));
-    }
 
     public SupportUserDetailsForm(HttpServletRequest hsr, SupportedUser user) {
         super(hsr);

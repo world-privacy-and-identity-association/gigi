@@ -17,12 +17,9 @@ import org.cacert.gigi.util.HTMLEncoder;
 
 public class MyDetailsForm extends Form {
 
-    private static Template assured = new Template(MyDetails.class.getResource("MyDetailsFormAssured.templ"));
+    private static final Template assured = new Template(MyDetails.class.getResource("MyDetailsFormAssured.templ"));
 
-    private static Template templ;
-    static {
-        templ = new Template(MyDetailsForm.class.getResource("MyDetailsForm.templ"));
-    }
+    private static final Template templ = new Template(MyDetailsForm.class.getResource("MyDetailsForm.templ"));
 
     private User target;
 

@@ -15,7 +15,7 @@ import org.cacert.gigi.pages.LoginPage;
 
 public class OrgDomainAddForm extends Form {
 
-    public static Template t = new Template(OrgDomainAddForm.class.getResource("OrgDomainAddForm.templ"));
+    private static final Template t = new Template(OrgDomainAddForm.class.getResource("OrgDomainAddForm.templ"));
 
     Organisation target;
 

@@ -26,11 +26,7 @@ public class MyOrganisationsForm extends Form {
         target = LoginPage.getAuthorizationContext(hsr);
     }
 
-    private static Template template;
-
-    static {
-        template = new Template(MyOrganisationsForm.class.getResource("MyOrganisationsForm.templ"));
-    }
+    private static final Template template = new Template(MyOrganisationsForm.class.getResource("MyOrganisationsForm.templ"));
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) {

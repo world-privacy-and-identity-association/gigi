@@ -15,11 +15,7 @@ import org.cacert.gigi.util.AuthorizationContext;
 
 public class SupportEnterTicketForm extends Form {
 
-    private static Template t;
-
-    static {
-        t = new Template(SupportEnterTicketForm.class.getResource("SupportEnterTicketForm.templ"));
-    }
+    private static final Template t = new Template(SupportEnterTicketForm.class.getResource("SupportEnterTicketForm.templ"));
 
     public SupportEnterTicketForm(HttpServletRequest hsr) {
         super(hsr);

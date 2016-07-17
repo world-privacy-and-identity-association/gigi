@@ -10,7 +10,7 @@ import org.cacert.gigi.output.template.Template;
 
 public class MainPage extends Page {
 
-    Template notLog = new Template(MainPage.class.getResource("MainPageNotLogin.templ"));
+    private static final Template notLog = new Template(MainPage.class.getResource("MainPageNotLogin.templ"));
 
     public MainPage() {
         super("Home");

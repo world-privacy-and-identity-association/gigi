@@ -21,10 +21,7 @@ public class ChangeForm extends Form {
         this.target = target;
     }
 
-    private static Template t;
-    static {
-        t = new Template(ChangePasswordPage.class.getResource("ChangePasswordForm.templ"));
-    }
+    private static final Template t = new Template(ChangePasswordPage.class.getResource("ChangePasswordForm.templ"));
 
     @Override
     public void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {

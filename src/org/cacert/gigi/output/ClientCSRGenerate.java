@@ -12,11 +12,7 @@ import org.cacert.gigi.util.ServerConstants;
 
 public class ClientCSRGenerate {
 
-    private static Template normal;
-
-    static {
-        normal = new Template(ClientCSRGenerate.class.getResource("ClientCSRGenerate.templ"));
-    }
+    private static final Template normal = new Template(ClientCSRGenerate.class.getResource("ClientCSRGenerate.templ"));
 
     public static void output(HttpServletRequest req, HttpServletResponse resp) {
         HashMap<String, Object> vars = new HashMap<String, Object>();

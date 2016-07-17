@@ -23,9 +23,9 @@ import org.cacert.gigi.util.AuthorizationContext;
 
 public class ViewOrgPage extends Page {
 
-    private final Template orgas = new Template(ViewOrgPage.class.getResource("ViewOrgs.templ"));
+    private static final Template orgas = new Template(ViewOrgPage.class.getResource("ViewOrgs.templ"));
 
-    private final Template mainTempl = new Template(ViewOrgPage.class.getResource("EditOrg.templ"));
+    private static final Template mainTempl = new Template(ViewOrgPage.class.getResource("EditOrg.templ"));
 
     public static final String DEFAULT_PATH = "/orga";
 
