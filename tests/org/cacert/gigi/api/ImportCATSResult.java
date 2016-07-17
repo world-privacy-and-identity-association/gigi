@@ -3,18 +3,13 @@ package org.cacert.gigi.api;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
-import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.CATS.CATSType;
@@ -23,34 +18,12 @@ import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.Certificate.SANType;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Digest;
-import org.cacert.gigi.dbObjects.Group;
-import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.testUtils.ClientTest;
 import org.cacert.gigi.testUtils.IOUtils;
+import org.cacert.gigi.testUtils.RestrictedApiTest;
 import org.junit.Test;
 
-public class ImportCATSResult extends ClientTest {
-
-    private PrivateKey pk;
-
-    private X509Certificate ce;
-
-    public ImportCATSResult() throws IOException, GeneralSecurityException, InterruptedException, GigiApiException {
-        makeAssurer(id);
-
-        grant(u.getEmail(), Group.ORGASSURER);
-        clearCaches();
-        u = User.getById(u.getId());
-        Organisation o = new Organisation(Organisation.SELF_ORG_NAME, "NA", "NA", "NA", "contact@cacert.org", "", "", u);
-        assertTrue(o.isSelfOrganisation());
-        KeyPair kp = generateKeypair();
-        String key1 = generatePEMCSR(kp, "EMAIL=cats@cacert.org");
-        Certificate c = new Certificate(o, u, Certificate.buildDN("EMAIL", "cats@cacert.org"), Digest.SHA256, key1, CSRType.CSR, CertificateProfile.getByName("client-orga"), new Certificate.SubjectAlternateName(SANType.EMAIL, "cats@cacert.org"));
-        pk = kp.getPrivate();
-        await(c.issue(null, "2y", u));
-        ce = c.cert();
-    }
+public class ImportCATSResult extends RestrictedApiTest {
 
     @Test
     public void testLookupSerial() throws GigiApiException, IOException, GeneralSecurityException, InterruptedException {
@@ -101,24 +74,16 @@ public class ImportCATSResult extends ClientTest {
         }
     }
 
-    private HttpURLConnection executeImportQuery(String query) throws IOException, MalformedURLException, NoSuchAlgorithmException, KeyManagementException, UnsupportedEncodingException, Error {
-        HttpURLConnection connection = (HttpURLConnection) new URL("https://" + getServerName().replaceFirst("^www.", "api.") + CATSImport.PATH).openConnection();
-        authenticateClientCert(pk, ce, connection);
-        connection.setDoOutput(true);
-        OutputStream os = connection.getOutputStream();
-        os.write(query.getBytes("UTF-8"));
-        return connection;
+    private HttpURLConnection executeImportQuery(String query) throws IOException, GeneralSecurityException {
+        return doApi(CATSImport.PATH, query);
     }
 
-    private String apiLookup(Certificate target) throws IOException, MalformedURLException, NoSuchAlgorithmException, KeyManagementException, UnsupportedEncodingException, GeneralSecurityException {
-        HttpURLConnection connection = (HttpURLConnection) new URL("https://" + getServerName().replaceFirst("^www.", "api.") + CATSResolve.PATH).openConnection();
-        authenticateClientCert(pk, ce, connection);
-        connection.setDoOutput(true);
-        OutputStream os = connection.getOutputStream();
-        os.write(("serial=" + target.cert().getSerialNumber().toString(16).toLowerCase()).getBytes());
+    private String apiLookup(Certificate target) throws IOException, GeneralSecurityException {
+        HttpURLConnection connection = doApi(CATSResolve.PATH, "serial=" + target.cert().getSerialNumber().toString(16).toLowerCase());
         if (connection.getResponseCode() != 200) {
             throw new Error(connection.getResponseMessage());
         }
         return IOUtils.readURL(connection);
     }
+
 }

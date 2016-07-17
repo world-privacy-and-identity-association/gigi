@@ -157,7 +157,7 @@ public class ManagedTest extends ConfiguredTest {
 
     }
 
-    protected void await(Job j) throws InterruptedException {
+    protected static void await(Job j) throws InterruptedException {
         SimpleSigner.ping();
         j.waitFor(5000);
     }
