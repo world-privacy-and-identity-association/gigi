@@ -7,11 +7,16 @@
 <li><?=_The first Last Name is mandatory, any other ones may be omitted, but must stay in sequence.?></li>
 <li><?=_Any Suffixes may be omitted, but must stay in sequence.?></li>
 </ul>
-<div>
+<div class="form-group">
 <input type='text' name='fname' class="form-control" placeholder="<?=_First Names?>" value="<?=$fname?>">
+</div>
+<div class="form-group">
 <input type='text' name='lname' class="form-control" placeholder="<?=_Last Names?>" value="<?=$lname?>">
+</div>
+<div class="form-group">
 <input type='text' name='suffix' class="form-control" placeholder="<?=_Suffixes?>" value="<?=$suffix?>">
 </div>
+
 <h3><?=_Single Name?></h3>
 <h4><?=_Structure?></h4>
 <?=_Name of one part?>
@@ -19,6 +24,6 @@
 <ul>
 <li><?=_Name has no variants?></li>
 </ul>
-<div>
+<div class="form-group">
 <input type='text' name='name' class="form-control" placeholder="<?=_Name?>" value="<?=$name?>">
 </div>
