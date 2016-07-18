@@ -25,11 +25,10 @@ public class AssurePage extends Page {
 
     DateSelector ds = new DateSelector("day", "month", "year");
 
-    private final Template t;
+    private static final Template t = new Template(AssuranceForm.class.getResource("AssureeSearch.templ"));
 
     public AssurePage() {
         super("Assure someone");
-        t = new Template(AssuranceForm.class.getResource("AssureeSearch.templ"));
 
     }
 
