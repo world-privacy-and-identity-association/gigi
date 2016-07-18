@@ -55,7 +55,7 @@ public class DatabaseManager {
                 File localData = new File("doc/sampleData.sql");
                 if (localData.exists()) {
                     try (FileInputStream f = new FileInputStream(localData)) {
-                        SQLFileManager.addFile(stmt, f, ImportType.PRODUCTION);
+                        SQLFileManager.addFile(stmt, f, ImportType.SAMPLE_DATA);
                     }
                 }
                 stmt.executeBatch();

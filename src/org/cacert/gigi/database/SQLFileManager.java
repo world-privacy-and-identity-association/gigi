@@ -22,11 +22,26 @@ public class SQLFileManager {
         /**
          * Execute INSERT statements as-is, and TRUNCATE instead of DROPPING
          */
-        TRUNCATE
+        TRUNCATE,
+        /**
+         * Execute Script as-is if db version is >= specified version in
+         * optional header
+         */
+        SAMPLE_DATA,
     }
 
     public static void addFile(Statement stmt, InputStream f, ImportType type) throws IOException, SQLException {
         String sql = readFile(f);
+        if (type == ImportType.SAMPLE_DATA) {
+            String fl = sql.split("\n")[0];
+            if (fl.matches("--Version: ([0-9]+)")) {
+                int v0 = Integer.parseInt(fl.substring(11));
+                if (DatabaseConnection.CURRENT_SCHEMA_VERSION < v0) {
+                    System.out.println("skipping sample data (data has version " + v0 + ", db has version " + DatabaseConnection.CURRENT_SCHEMA_VERSION + ")");
+                    return;
+                }
+            }
+        }
         sql = sql.replaceAll("--[^\n]*\n", "\n");
         sql = sql.replaceAll("#[^\n]*\n", "\n");
         String[] stmts = sql.split(";");
@@ -46,7 +61,7 @@ public class SQLFileManager {
                 stmt.addBatch(sql2);
                 continue;
             }
-            if (type == ImportType.PRODUCTION || string.startsWith("INSERT")) {
+            if (type == ImportType.PRODUCTION || type == ImportType.SAMPLE_DATA || string.startsWith("INSERT")) {
                 stmt.addBatch(string);
             } else if (type == ImportType.TEST) {
                 stmt.addBatch(string.replace("ENGINE=InnoDB", "ENGINE=Memory"));
