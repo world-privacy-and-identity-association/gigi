@@ -63,6 +63,9 @@ public class DatabaseManager {
             } finally {
                 stmt.close();
             }
+        } catch (SQLException e) {
+            e.getNextException().printStackTrace();
+            throw e;
         } finally {
             conn.close();
         }
