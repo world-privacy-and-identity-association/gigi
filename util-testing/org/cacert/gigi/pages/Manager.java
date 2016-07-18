@@ -34,6 +34,8 @@ import org.cacert.gigi.dbObjects.CATS.CATSType;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.dbObjects.CertificateOwner;
+import org.cacert.gigi.dbObjects.CountryCode;
+import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.DomainPingType;
@@ -313,7 +315,7 @@ public class Manager extends Page {
                     if (vp < 10) {
                         currentVP = vp;
                     }
-                    Notary.assure(getAssurer(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", "2014-11-06", AssuranceType.FACE_TO_FACE);
+                    Notary.assure(getAssurer(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", "2014-11-06", AssuranceType.FACE_TO_FACE, CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS));
                     agentNumber += 1;
                     vp -= currentVP;
                 }
@@ -330,7 +332,7 @@ public class Manager extends Page {
             try {
                 for (int i = 0; i < 25; i++) {
                     User a = getAssurer(i);
-                    Notary.assure(byEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", "2014-11-06", AssuranceType.FACE_TO_FACE);
+                    Notary.assure(byEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", "2014-11-06", AssuranceType.FACE_TO_FACE, CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS));
                 }
             } catch (GigiApiException e) {
                 throw new Error(e);

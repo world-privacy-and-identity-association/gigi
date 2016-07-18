@@ -17,6 +17,7 @@ import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.ArrayIterable;
+import org.cacert.gigi.output.CountrySelector;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.SprintfCommand;
@@ -48,6 +49,8 @@ public class AssuranceForm extends Form {
 
     private static final Template templ = new Template(AssuranceForm.class.getResource("AssuranceForm.templ"));
 
+    private CountrySelector cs;
+
     public AssuranceForm(HttpServletRequest hsr, User assuree) throws GigiApiException {
         super(hsr);
         assurer = Page.getUser(hsr);
@@ -73,6 +76,7 @@ public class AssuranceForm extends Form {
         assureeNames = names.toArray(new Name[names.size()]);
         dob = this.assuree.getDoB();
         selected = new boolean[assureeNames.length];
+        cs = new CountrySelector("countryCode", false);
     }
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -100,6 +104,8 @@ public class AssuranceForm extends Form {
         res.put("location", location);
         res.put("date", date);
         res.put("aword", aword);
+        res.put("countryCode", cs);
+
         final LinkedList<AssuranceType> ats = new LinkedList<>();
         for (AssuranceType at : AssuranceType.values()) {
             try {
@@ -131,6 +137,7 @@ public class AssuranceForm extends Form {
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
         location = req.getParameter("location");
         date = req.getParameter("date");
+        cs.update(req);
         GigiApiException gae = new GigiApiException();
         if (date == null || location == null) {
             gae.mergeInto(new GigiApiException("You need to enter location and date!"));
@@ -187,7 +194,7 @@ public class AssuranceForm extends Form {
             throw new GigiApiException("You must confirm at least one name to verify an account.");
         }
 
-        Notary.assureAll(assurer, assuree, dob, pointsI, location, req.getParameter("date"), type, toAssure.toArray(new Name[toAssure.size()]));
+        Notary.assureAll(assurer, assuree, dob, pointsI, location, req.getParameter("date"), type, toAssure.toArray(new Name[toAssure.size()]), cs.getCountry());
 
         if (aword != null && !aword.equals("")) {
             Language langApplicant = Language.getInstance(assuree.getPreferredLocale());

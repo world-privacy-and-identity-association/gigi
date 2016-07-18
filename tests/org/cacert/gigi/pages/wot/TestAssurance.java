@@ -93,13 +93,13 @@ public class TestAssurance extends ManagedTest {
 
     @Test
     public void testAssureForm() throws IOException {
-        executeSuccess("date=" + validVerificationDateString() + "&location=testcase&certify=1&rules=1&assertion=1&points=10");
+        executeSuccess("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
     }
 
     @Test
     public void testAssureFormEmpty() throws IOException {
         URLConnection uc = buildupAssureFormConnection(true);
-        uc.getOutputStream().write(("date=" + validVerificationDateString() + "&location=testcase&rules=1&assertion=1&points=10").getBytes("UTF-8"));
+        uc.getOutputStream().write(("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&rules=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String data = IOUtils.readURL(uc);
         assertThat(data, hasError());
@@ -108,7 +108,7 @@ public class TestAssurance extends ManagedTest {
     @Test
     public void testAssureFormContanisData() throws IOException {
         URLConnection uc = buildupAssureFormConnection(true);
-        uc.getOutputStream().write(("assuredName=" + assureeName + "&date=" + validVerificationDateString() + "&location=testcase&rules=1&assertion=1&points=10").getBytes("UTF-8"));
+        uc.getOutputStream().write(("assuredName=" + assureeName + "&date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&rules=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String data = IOUtils.readURL(uc);
         assertThat(data, containsString(validVerificationDateString()));
@@ -119,7 +119,7 @@ public class TestAssurance extends ManagedTest {
     public void testAssureFormNoCSRF() throws IOException {
         // override csrf
         HttpURLConnection uc = (HttpURLConnection) buildupAssureFormConnection(false);
-        uc.getOutputStream().write(("date=" + validVerificationDateString() + "&location=testcase&certify=1&rules=1&assertion=1&points=10").getBytes("UTF-8"));
+        uc.getOutputStream().write(("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         assertEquals(500, uc.getResponseCode());
     }
@@ -128,7 +128,7 @@ public class TestAssurance extends ManagedTest {
     public void testAssureFormWrongCSRF() throws IOException {
         // override csrf
         HttpURLConnection uc = (HttpURLConnection) buildupAssureFormConnection(false);
-        uc.getOutputStream().write(("date=" + validVerificationDateString() + "&location=testcase&certify=1&rules=1&assertion=1&points=10&csrf=aragc").getBytes("UTF-8"));
+        uc.getOutputStream().write(("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10&csrf=aragc").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         assertEquals(500, uc.getResponseCode());
     }
@@ -151,7 +151,7 @@ public class TestAssurance extends ManagedTest {
 
         assertNull(executeBasicWebInteraction(assureeCookie, MyDetails.PATH, newDob + "&action=updateDoB", 0));
 
-        uc.getOutputStream().write(("assuredName=" + assureeName + "&date=" + validVerificationDateString() + "&location=testcase&certify=1&rules=1&assertion=1&points=10").getBytes("UTF-8"));
+        uc.getOutputStream().write(("assuredName=" + assureeName + "&date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
         if (succeed) {
@@ -166,7 +166,7 @@ public class TestAssurance extends ManagedTest {
     public void testAssureFormFuture() throws IOException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
         int year = Integer.parseInt(sdf.format(new Date(System.currentTimeMillis()))) + 2;
-        executeFails("date=" + year + "-01-01&location=testcase&certify=1&rules=1&assertion=1&points=10");
+        executeFails("date=" + year + "-01-01&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
     }
 
     @Test
@@ -176,12 +176,12 @@ public class TestAssurance extends ManagedTest {
         c.setTimeInMillis(System.currentTimeMillis());
         c.add(Calendar.HOUR_OF_DAY, 12);
 
-        executeSuccess("date=" + sdf.format(new Date(c.getTimeInMillis())) + "&location=testcase&certify=1&rules=1&assertion=1&points=10");
+        executeSuccess("date=" + sdf.format(new Date(c.getTimeInMillis())) + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
     }
 
     @Test
     public void testAssureFormPastInRange() throws IOException {
-        executeSuccess("date=" + validVerificationDateString() + "&location=testcase&certify=1&rules=1&assertion=1&points=10");
+        executeSuccess("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
     }
 
     @Test
@@ -192,7 +192,7 @@ public class TestAssurance extends ManagedTest {
         c.add(Calendar.MONTH, -Notary.LIMIT_MAX_MONTHS_VERIFICATION);
         c.add(Calendar.DAY_OF_MONTH, 1);
 
-        executeSuccess("date=" + sdf.format(new Date(c.getTimeInMillis())) + "&location=testcase&certify=1&rules=1&assertion=1&points=10");
+        executeSuccess("date=" + sdf.format(new Date(c.getTimeInMillis())) + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
     }
 
     @Test
@@ -202,32 +202,32 @@ public class TestAssurance extends ManagedTest {
         c.setTimeInMillis(System.currentTimeMillis());
         c.add(Calendar.MONTH, -Notary.LIMIT_MAX_MONTHS_VERIFICATION);
 
-        executeFails("date=" + sdf.format(new Date(c.getTimeInMillis())) + "&location=testcase&certify=1&rules=1&assertion=1&points=10");
+        executeFails("date=" + sdf.format(new Date(c.getTimeInMillis())) + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
     }
 
     @Test
     public void testAssureFormNoLoc() throws IOException {
-        executeFails("date=" + validVerificationDateString() + "&location=a&certify=1&rules=1&assertion=1&points=10");
-        executeFails("date=" + validVerificationDateString() + "&location=&certify=1&rules=1&assertion=1&points=10");
+        executeFails("date=" + validVerificationDateString() + "&location=a&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
+        executeFails("date=" + validVerificationDateString() + "&location=&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
     }
 
     @Test
     public void testAssureFormInvalDate() throws IOException {
-        executeFails("date=20000101&location=testcase&certify=1&rules=1&assertion=1&points=10");
-        executeFails("date=&location=testcase&certify=1&rules=1&assertion=1&points=10");
+        executeFails("date=20000101&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
+        executeFails("date=&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
     }
 
     @Test
     public void testAssureFormBoxes() throws IOException {
-        executeFails("date=" + validVerificationDateString() + "&location=testcase&certify=0&rules=1&assertion=1&points=10");
-        executeFails("date=" + validVerificationDateString() + "&location=testcase&certify=1&rules=&assertion=1&points=10");
-        executeFails("date=" + validVerificationDateString() + "&location=testcase&certify=1&rules=1&assertion=z&points=10");
+        executeFails("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=0&rules=1&assertion=1&points=10");
+        executeFails("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=&assertion=1&points=10");
+        executeFails("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=z&points=10");
     }
 
     @Test
     public void testAssureListingValid() throws IOException {
         String uniqueLoc = createUniqueName();
-        execute("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&certify=1&rules=1&assertion=1&points=10");
+        execute("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
 
         String cookie = login(assureeM, TEST_PASSWORD);
         URLConnection url = get(cookie, Points.PATH);
@@ -239,7 +239,7 @@ public class TestAssurance extends ManagedTest {
     @Test
     public void testAssurerListingValid() throws IOException {
         String uniqueLoc = createUniqueName();
-        executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&certify=1&rules=1&assertion=1&points=10");
+        executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
         String cookie = login(assurerM, TEST_PASSWORD);
         URLConnection url = get(cookie, Points.PATH);
         String resp = IOUtils.readURL(url);
@@ -304,7 +304,7 @@ public class TestAssurance extends ManagedTest {
 
         // enter second entry
         String uniqueLoc = createUniqueName();
-        executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&certify=1&rules=1&assertion=1&points=10");
+        executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
 
         // enter third entry on the same day
         URLConnection uc = get(cookie, AssurePage.PATH);

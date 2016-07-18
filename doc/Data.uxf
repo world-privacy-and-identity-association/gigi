@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.2">
+<diagram program="umlet" version="14.2.0">
   <zoom_level>10</zoom_level>
   <element>
     <type>com.baselet.element.old.element.Class</type>
@@ -318,7 +318,7 @@ executed as&gt;</panel_attributes>
       <x>710</x>
       <y>1090</y>
       <w>390</w>
-      <h>180</h>
+      <h>200</h>
     </coordinates>
     <panel_attributes>Assurance
 --
@@ -331,6 +331,7 @@ executed as&gt;</panel_attributes>
 -expire: timestamp
 -sponsor: User (??????????)
 -deleted: timestamp
+-country: varchar(2)
 </panel_attributes>
     <additional_attributes/>
   </element>
@@ -351,14 +352,14 @@ Assurer&gt;</panel_attributes>
     <type>com.baselet.element.old.element.Relation</type>
     <coordinates>
       <x>580</x>
-      <y>1060</y>
+      <y>1070</y>
       <w>150</w>
-      <h>70</h>
+      <h>80</h>
     </coordinates>
     <panel_attributes>lt=-
 m1=0..n
 Assuree&gt;</panel_attributes>
-    <additional_attributes>130;50;30;50</additional_attributes>
+    <additional_attributes>130;60;30;40</additional_attributes>
   </element>
   <element>
     <type>com.baselet.element.old.element.Class</type>

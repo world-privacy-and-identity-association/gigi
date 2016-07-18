@@ -12,6 +12,7 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
+import org.cacert.gigi.dbObjects.CountryCode;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
@@ -80,7 +81,7 @@ public class Notary {
      * @throws GigiApiException
      *             if the assurance fails (for various reasons)
      */
-    public synchronized static void assure(User assurer, User assuree, Name assureeName, DayDate dob, int awarded, String location, String date, AssuranceType type) throws GigiApiException {
+    public synchronized static void assure(User assurer, User assuree, Name assureeName, DayDate dob, int awarded, String location, String date, AssuranceType type, CountryCode country) throws GigiApiException {
         may(assurer, assuree, AssuranceType.FACE_TO_FACE);
         GigiApiException gae = new GigiApiException();
         if ( !gae.isEmpty()) {
@@ -112,6 +113,11 @@ public class Notary {
         } else if (location.length() <= 2) {
             gae.mergeInto(new GigiApiException("You must enter a location with at least 3 characters eg town and country."));
         }
+
+        if (country == null) {
+            gae.mergeInto(new GigiApiException("You failed to enter the country of your meeting."));
+        }
+
         synchronized (assuree) {
             if (assurer.getId() == assuree.getId()) {
                 throw new GigiApiException("You cannot verify yourself.");
@@ -150,11 +156,11 @@ public class Notary {
             }
 
             if (type == AssuranceType.FACE_TO_FACE) {
-                assureF2F(assurer, assuree, assureeName, awarded, location, date);
+                assureF2F(assurer, assuree, assureeName, awarded, location, date, country);
             } else if (type == AssuranceType.NUCLEUS) {
-                assureNucleus(assurer, assuree, assureeName, awarded, location, date);
+                assureNucleus(assurer, assuree, assureeName, awarded, location, date, country);
             } else if (type == AssuranceType.TTP_ASSISTED) {
-                assureTTP(assurer, assuree, assureeName, awarded, location, date);
+                assureTTP(assurer, assuree, assureeName, awarded, location, date, country);
             } else {
                 throw new GigiApiException(SprintfCommand.createSimple("Unknown Verification type: {0}", type.toString()));
             }
@@ -163,26 +169,28 @@ public class Notary {
         }
     }
 
-    private static void assureF2F(User assurer, User assuree, Name name, int awarded, String location, String date) throws GigiApiException {
+    private static void assureF2F(User assurer, User assuree, Name name, int awarded, String location, String date, CountryCode country) throws GigiApiException {
         may(assurer, assuree, AssuranceType.FACE_TO_FACE);
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `country`=?")) {
             ps.setInt(1, assurer.getId());
             ps.setInt(2, name.getId());
             ps.setInt(3, awarded);
             ps.setString(4, location);
             ps.setString(5, date);
+            ps.setString(6, country.getCountryCode());
             ps.execute();
         }
     }
 
-    private static void assureTTP(User assurer, User assuree, Name name, int awarded, String location, String date) throws GigiApiException {
+    private static void assureTTP(User assurer, User assuree, Name name, int awarded, String location, String date, CountryCode country) throws GigiApiException {
         may(assurer, assuree, AssuranceType.TTP_ASSISTED);
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `method`='TTP-Assisted'")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `country`=?, `method`='TTP-Assisted'")) {
             ps.setInt(1, assurer.getId());
             ps.setInt(2, name.getId());
             ps.setInt(3, awarded);
             ps.setString(4, location);
             ps.setString(5, date);
+            ps.setString(6, country.getCountryCode());
             ps.execute();
             assuree.revokeGroup(assurer, Group.TTP_APPLICANT);
         }
@@ -215,11 +223,11 @@ public class Notary {
         throw new GigiApiException("Verification type not possible.");
     }
 
-    private static void assureNucleus(User assurer, User assuree, Name name, int awarded, String location, String date) throws GigiApiException {
+    private static void assureNucleus(User assurer, User assuree, Name name, int awarded, String location, String date, CountryCode country) throws GigiApiException {
         may(assurer, assuree, AssuranceType.NUCLEUS);
         // Do up to 35 points as f2f
         int f2fPoints = Math.min(assurer.getMaxAssurePoints(), awarded);
-        assureF2F(assurer, assuree, name, f2fPoints, location, date);
+        assureF2F(assurer, assuree, name, f2fPoints, location, date, country);
 
         awarded -= f2fPoints;
         if (awarded <= 0) {
@@ -228,17 +236,18 @@ public class Notary {
 
         // Assure remaining points as "Nucleus Bonus"
         // Valid for 4 Weeks = 28 days
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `method`='Nucleus Bonus', `expire` = CURRENT_TIMESTAMP + interval '28 days'")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `country`=?, `method`='Nucleus Bonus', `expire` = CURRENT_TIMESTAMP + interval '28 days'")) {
             ps.setInt(1, assurer.getId());
             ps.setInt(2, name.getId());
             ps.setInt(3, awarded);
             ps.setString(4, location);
             ps.setString(5, date);
+            ps.setString(6, country.getCountryCode());
             ps.execute();
         }
     }
 
-    public synchronized static void assureAll(User assurer, User assuree, DayDate dob, int awarded, String location, String date, AssuranceType type, Name[] toAssure) throws GigiApiException {
+    public synchronized static void assureAll(User assurer, User assuree, DayDate dob, int awarded, String location, String date, AssuranceType type, Name[] toAssure, CountryCode country) throws GigiApiException {
         if (toAssure.length == 0) {
             throw new GigiApiException("You must confirm at least one name to verify an account.");
         }
@@ -247,7 +256,7 @@ public class Notary {
         for (int i = 0; i < toAssure.length; i++) {
             hadLessThan50Points[i] = toAssure[i].getAssurancePoints() < 50;
 
-            assure(assurer, assuree, toAssure[i], dob, awarded, location, date, type);
+            assure(assurer, assuree, toAssure[i], dob, awarded, location, date, type, country);
         }
         sendVerificationNotificationApplicant(assurer, assuree, toAssure, awarded, hadLessThan50Points, hadTotalLessThan100);
     }

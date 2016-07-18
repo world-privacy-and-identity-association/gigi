@@ -60,7 +60,7 @@ public class AssurancesDisplay implements Outputable {
                         vars.put("myName", to == null ? l.getTranslation("own name removed") : to);
                     }
                     vars.put("date", assurance.getDate());
-                    vars.put("location", assurance.getLocation());
+                    vars.put("location", assurance.getLocation() + " (" + (assurance.getCountry() == null ? l.getTranslation("not given") : assurance.getCountry().getCountry()) + ")");
                     vars.put("points", assurance.getPoints());
                     i++;
                     return true;

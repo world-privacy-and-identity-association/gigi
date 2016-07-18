@@ -16,6 +16,7 @@ import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
 import org.cacert.gigi.dbObjects.CATS.CATSType;
+import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.pages.PasswordResetPage;
@@ -595,7 +596,11 @@ public class User extends CertificateOwner {
     }
 
     private Assurance assuranceByRes(GigiResultSet res) {
-        return new Assurance(res.getInt("id"), User.getById(res.getInt("from")), Name.getById(res.getInt("to")), res.getString("location"), res.getString("method"), res.getInt("points"), res.getString("date"));
+        try {
+            return new Assurance(res.getInt("id"), User.getById(res.getInt("from")), Name.getById(res.getInt("to")), res.getString("location"), res.getString("method"), res.getInt("points"), res.getString("date"), res.getString("country") == null ? null : CountryCode.getCountryCode(res.getString("country"), CountryCodeType.CODE_2_CHARS));
+        } catch (GigiApiException e) {
+            throw new Error(e);
+        }
     }
 
     public boolean isInVerificationLimit() {

@@ -8,6 +8,8 @@ import java.util.Date;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
+import org.cacert.gigi.dbObjects.CountryCode;
+import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
 import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.DateSelector;
@@ -16,8 +18,10 @@ import org.junit.Test;
 
 public class TestNotary extends BusinessTest {
 
-    // These tests create a lot of users and therefore require resetting of the
-    // registering-rate-limit.
+    public final CountryCode DE = CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS);
+
+    public TestNotary() throws GigiApiException {}
+
     @Test
     public void testNormalAssurance() throws SQLException, GigiApiException {
         User[] users = new User[30];
@@ -31,7 +35,7 @@ public class TestNotary extends BusinessTest {
         };
 
         try {
-            Notary.assure(assurer, users[0], users[0].getPreferredName(), users[0].getDoB(), -1, "test-notary", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
+            Notary.assure(assurer, users[0], users[0].getPreferredName(), users[0].getDoB(), -1, "test-notary", validVerificationDateString(), AssuranceType.FACE_TO_FACE, DE);
             fail("This shouldn't have passed");
         } catch (GigiApiException e) {
             // expected
@@ -40,7 +44,7 @@ public class TestNotary extends BusinessTest {
             assertEquals(result[i], assurer.getMaxAssurePoints());
 
             assuranceFail(assurer, users[i], result[i] + 1, "test-notary", validVerificationDateString());
-            Notary.assure(assurer, users[i], users[i].getPreferredName(), users[i].getDoB(), result[i], "test-notary", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
+            Notary.assure(assurer, users[i], users[i].getPreferredName(), users[i].getDoB(), result[i], "test-notary", validVerificationDateString(), AssuranceType.FACE_TO_FACE, DE);
             assuranceFail(assurer, users[i], result[i], "test-notary", validVerificationDateString());
         }
 
@@ -52,7 +56,7 @@ public class TestNotary extends BusinessTest {
 
     private void assuranceFail(User assurer, User user, int i, String location, String date) throws SQLException {
         try {
-            Notary.assure(assurer, user, user.getPreferredName(), user.getDoB(), i, location, date, AssuranceType.FACE_TO_FACE);
+            Notary.assure(assurer, user, user.getPreferredName(), user.getDoB(), i, location, date, AssuranceType.FACE_TO_FACE, DE);
             fail("This shouldn't have passed");
         } catch (GigiApiException e) {
             // expected
@@ -77,7 +81,7 @@ public class TestNotary extends BusinessTest {
             assuranceFail(assurer, users[i], -1, "test-notary", validVerificationDateString());
             assuranceFail(assurer, users[i], 11, "test-notary", validVerificationDateString());
             if (User.POJAM_ENABLED) {
-                Notary.assure(assurer, users[i], users[i].getPreferredName(), users[i].getDoB(), 10, "test-notary", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
+                Notary.assure(assurer, users[i], users[i].getPreferredName(), users[i].getDoB(), 10, "test-notary", validVerificationDateString(), AssuranceType.FACE_TO_FACE, DE);
             }
             assuranceFail(assurer, users[i], 10, "test-notary", validVerificationDateString());
         }
@@ -113,7 +117,7 @@ public class TestNotary extends BusinessTest {
         assuranceFail(assuree, assuranceUser, 10, "notary-junit-test", validVerificationDateString());
 
         // valid
-        Notary.assure(assuranceUser, assuree, assuree.getPreferredName(), assuree.getDoB(), 10, "notary-junit-test", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
+        Notary.assure(assuranceUser, assuree, assuree.getPreferredName(), assuree.getDoB(), 10, "notary-junit-test", validVerificationDateString(), AssuranceType.FACE_TO_FACE, DE);
 
         // verify double
         assuranceFail(assuranceUser, assuree, 10, "notary-junit-test", validVerificationDateString());

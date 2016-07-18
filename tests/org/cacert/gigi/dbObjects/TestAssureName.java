@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
+import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
 import org.cacert.gigi.dbObjects.NamePart.NamePartType;
 import org.cacert.gigi.testUtils.ClientBusinessTest;
 import org.cacert.gigi.util.Notary;
@@ -19,13 +20,13 @@ public class TestAssureName extends ClientBusinessTest {
         Name n4 = new Name(u, new NamePart(NamePartType.SINGLE_NAME, "Testiaac"));
 
         assertEquals(0, n0.getAssurancePoints());
-        Notary.assure(u0, u, n0, u.getDoB(), 10, "test mgr", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
+        Notary.assure(u0, u, n0, u.getDoB(), 10, "test mgr", validVerificationDateString(), AssuranceType.FACE_TO_FACE, CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS));
         assertEquals(10, n0.getAssurancePoints());
-        Notary.assure(u0, u, n2, u.getDoB(), 10, "test mgr", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
+        Notary.assure(u0, u, n2, u.getDoB(), 10, "test mgr", validVerificationDateString(), AssuranceType.FACE_TO_FACE, CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS));
         assertEquals(10, n2.getAssurancePoints());
-        Notary.assure(u0, u, n3, u.getDoB(), 10, "test mgr", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
+        Notary.assure(u0, u, n3, u.getDoB(), 10, "test mgr", validVerificationDateString(), AssuranceType.FACE_TO_FACE, CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS));
         assertEquals(10, n3.getAssurancePoints());
-        Notary.assure(u0, u, n4, u.getDoB(), 10, "test mgr", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
+        Notary.assure(u0, u, n4, u.getDoB(), 10, "test mgr", validVerificationDateString(), AssuranceType.FACE_TO_FACE, CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS));
         assertEquals(10, n4.getAssurancePoints());
         assertEquals(10, u.getMaxAssurePoints());
     }

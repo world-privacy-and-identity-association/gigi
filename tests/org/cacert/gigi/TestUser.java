@@ -9,6 +9,8 @@ import java.util.Locale;
 
 import org.cacert.gigi.dbObjects.Assurance;
 import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
+import org.cacert.gigi.dbObjects.CountryCode;
+import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Name;
@@ -109,7 +111,7 @@ public class TestUser extends BusinessTest {
         User[] us = new User[5];
         for (int i = 0; i < us.length; i++) {
             us[i] = User.getById(createAssuranceUser("f", "l", createUniqueName() + "@email.com", TEST_PASSWORD));
-            Notary.assure(us[i], u, u.getPreferredName(), u.getDoB(), 10, "here", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
+            Notary.assure(us[i], u, u.getPreferredName(), u.getDoB(), 10, "here", validVerificationDateString(), AssuranceType.FACE_TO_FACE, CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS));
         }
 
         assertTrue(u.isValidName("aä b"));
