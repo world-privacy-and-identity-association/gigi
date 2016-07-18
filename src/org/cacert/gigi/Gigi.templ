@@ -36,8 +36,9 @@
       <ul class="nav navbar-nav">
         <?=$menu?>
       </ul>
-      <ul class="nav navbra-nav navbar-right">
-      <li><p class="navbar-text"><? if($authContext) { ?><?=$authContext?><? } ?></p></li>
+      <ul class="nav navbar-nav navbar-right">
+      <? if($authContext) { ?><li><p class="navbar-text"><?=$authContext?></p></li><? } ?>
+      <? if($authContext) { ?><li><span class="btn-group"><a href="/logout" class="btn btn-primary">Logout</a></span></li><? } ?>
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->

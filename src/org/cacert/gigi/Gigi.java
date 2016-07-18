@@ -155,7 +155,6 @@ public final class Gigi extends HttpServlet {
 
             putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage(), null);
             putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
-            putPage(LogoutPage.PATH, new LogoutPage(), "My Account");
             putPage(History.PATH, new History(false), "My Account");
             putPage(FindAgentAccess.PATH, new OneFormPage("Access to Find Agent", FindAgentAccess.class) {
 
@@ -170,6 +169,7 @@ public final class Gigi extends HttpServlet {
             putPage(UserTrainings.SUPPORT_PATH, new UserTrainings(true), null);
 
             putPage(PasswordResetPage.PATH, new PasswordResetPage(), null);
+            putPage(LogoutPage.PATH, new LogoutPage(), null);
 
             if (testing) {
                 try {
