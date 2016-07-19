@@ -37,6 +37,8 @@ public class TestAssurance extends BusinessTest {
 
     private int applicantID;
 
+    private User applicant;
+
     private int applicantMultID;
 
     public TestAssurance() throws GigiApiException {
@@ -109,49 +111,50 @@ public class TestAssurance extends BusinessTest {
         agentID = createAssuranceUser("a", "b", createUniqueName() + "@example.com", TEST_PASSWORD);
         agent2ID = createAssuranceUser("a", "d", createUniqueName() + "@example.com", TEST_PASSWORD);
         applicantID = createVerifiedUser("a", "c", createUniqueName() + "@example.com", TEST_PASSWORD);
+        applicant = User.getById(applicantID);
         applicantMultID = createVerifiedUser("a", "e", createUniqueName() + "@example.com", TEST_PASSWORD);
     }
 
     @Test
     public void testVerificationYesterday() throws IOException {
         enterAssuranceWhen(agentID, applicantID, yesterday);
-        assertTrue(User.isInVerificationLimit(applicantID));
+        assertTrue(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testApprox24MonthAgo() throws IOException {
         enterAssuranceWhen(agentID, applicantID, min24month);
-        assertTrue(User.isInVerificationLimit(applicantID));
+        assertTrue(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testApprox39MonthAgo() throws IOException {
         enterAssuranceWhen(agentID, applicantID, min39month);
-        assertFalse(User.isInVerificationLimit(applicantID));
+        assertFalse(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testTomorrowExpired() throws IOException {
         enterAssuranceExpired(agentID, applicantID, tomorrow);
-        assertTrue(User.isInVerificationLimit(applicantID));
+        assertTrue(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testYesterdayExpired() throws IOException {
         enterAssuranceExpired(agentID, applicantID, yesterday);
-        assertFalse(User.isInVerificationLimit(applicantID));
+        assertFalse(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testNormal() throws IOException {
         enterAssurance(agentID, applicantID);
-        assertTrue(User.isInVerificationLimit(applicantID));
+        assertTrue(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testDeletedYesterday() throws IOException {
         enterAssuranceDeleted(agentID, applicantID, yesterday);
-        assertFalse(User.isInVerificationLimit(applicantID));
+        assertFalse(applicant.isInVerificationLimit());
     }
 
     @Test

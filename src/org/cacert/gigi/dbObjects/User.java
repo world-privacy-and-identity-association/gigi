@@ -542,9 +542,9 @@ public class User extends CertificateOwner {
         return new Assurance(res.getInt("id"), User.getById(res.getInt("from")), User.getById(res.getInt("to")), res.getString("location"), res.getString("method"), res.getInt("points"), res.getString("date"));
     }
 
-    public static boolean isInVerificationLimit(int id) {
+    public boolean isInVerificationLimit() {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `notary` WHERE `to` = ? AND `when` > (now() - (interval '1 month' * ?)) AND (`expire` IS NULL OR `expire` > now()) AND `deleted` IS NULL;")) {
-            ps.setInt(1, id);
+            ps.setInt(1, getId());
             ps.setInt(2, VERIFICATION_MONTHS);
 
             GigiResultSet rs = ps.executeQuery();
