@@ -64,7 +64,7 @@ public class AffiliationForm extends Form {
                 }
                 Affiliation aff = iter.next();
                 vars.put("name", aff.getTarget().getPreferredName());
-                vars.put("master", aff.isMaster() ? l.getTranslation("master") : "");
+                vars.put("master", aff.isMaster() ? l.getTranslation("Master") : "");
                 vars.put("e-mail", aff.getTarget().getEmail());
                 return true;
             }
