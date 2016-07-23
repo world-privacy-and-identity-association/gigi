@@ -66,7 +66,7 @@ public class Name implements Outputable, IdCachable {
 
         @Override
         public void output(PrintWriter out) {
-            out.println("<span class='sname'>");
+            out.print("<span class='sname'>");
             out.print(HTMLEncoder.encodeHTML(singlePart.getValue()));
             out.println("</span>");
         }
