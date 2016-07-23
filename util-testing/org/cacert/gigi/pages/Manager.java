@@ -265,19 +265,44 @@ public class Manager extends Page {
             resp.getWriter().println("Test '" + test.getDisplayName() + "' was added to user account.");
         } else if (req.getParameter("assure") != null) {
             String mail = req.getParameter("assureEmail");
+            String verificationPoints = req.getParameter("verificationPoints");
             User byEmail = User.getByEmail(mail);
+
             if (byEmail == null) {
                 resp.getWriter().println("User not found.");
                 return;
             }
+
+            int vp = 0;
+            int agentNumber = 0;
+
             try {
-                for (int i = 0; i < 10; i++) {
-                    Notary.assure(getAssurer(i), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), 10, "Testmanager Assure up code", "2014-11-06", AssuranceType.FACE_TO_FACE);
+                try {
+                    vp = Integer.parseInt(verificationPoints);
+                } catch (NumberFormatException e) {
+                    throw new GigiApiException("No valid Verification Points entered.");
                 }
+
+                if (vp > 100) { // only allow max 100 Verification points
+                    vp = 100;
+                }
+
+                while (vp > 0) {
+                    int currentVP = 10;
+                    if (vp < 10) {
+                        currentVP = vp;
+                    }
+                    Notary.assure(getAssurer(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Assure up code", "2014-11-06", AssuranceType.FACE_TO_FACE);
+                    agentNumber += 1;
+                    vp -= currentVP;
+                }
+
             } catch (GigiApiException e) {
                 throw new Error(e);
             }
-            resp.getWriter().println("User has been assured.");
+
+            resp.getWriter().println("User has been assured " + agentNumber + " times.");
+
         } else if (req.getParameter("letassure") != null) {
             String mail = req.getParameter("letassureEmail");
             User byEmail = User.getByEmail(mail);
