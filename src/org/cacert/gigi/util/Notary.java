@@ -17,7 +17,13 @@ import org.cacert.gigi.output.template.SprintfCommand;
 
 public class Notary {
 
+    // minimum date range between 2 verifications of the RA-Agent to the same
+    // Applicant
     public final static int LIMIT_DAYS_VERIFICATION = 90; // conf.getProperty("limit_days_verification");
+
+    // maximum date range from date when the verification took place and the
+    // entering to the system
+    public final static int LIMIT_MAX_MONTHS_VERIFICATION = 24; // conf.getProperty("limit_max_months_verification");
 
     public static void writeUserAgreement(User member, String document, String method, String comment, boolean active, int secmemid) {
         try (GigiPreparedStatement q = new GigiPreparedStatement("INSERT INTO `user_agreements` SET `memid`=?, `secmemid`=?," + " `document`=?,`date`=NOW(), `active`=?,`method`=?,`comment`=?")) {
@@ -84,6 +90,11 @@ public class Notary {
                 gc.add(Calendar.HOUR_OF_DAY, 12);
                 if (d.getTime() > gc.getTimeInMillis()) {
                     gae.mergeInto(new GigiApiException("You must not enter a date in the future."));
+                }
+                gc.setTimeInMillis(System.currentTimeMillis());
+                gc.add(Calendar.MONTH, -LIMIT_MAX_MONTHS_VERIFICATION);
+                if (d.getTime() < gc.getTimeInMillis()) {
+                    gae.mergeInto(new GigiApiException(SprintfCommand.createSimple("Verifications older than {0} months are not accepted.", LIMIT_MAX_MONTHS_VERIFICATION)));
                 }
             } catch (ParseException e) {
                 gae.mergeInto(new GigiApiException("You must enter the date in this format: YYYY-MM-DD."));

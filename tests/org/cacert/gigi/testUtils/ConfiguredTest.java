@@ -13,6 +13,9 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.Signature;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -30,6 +33,7 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
 import org.cacert.gigi.util.DatabaseManager;
 import org.cacert.gigi.util.DomainAssessment;
+import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PEM;
 import org.cacert.gigi.util.ServerConstants;
 import org.junit.BeforeClass;
@@ -213,4 +217,13 @@ public abstract class ConfiguredTest {
         }
         System.out.println("Database reset complete in " + (System.currentTimeMillis() - ms) + " ms.");
     }
+
+    public static String validVerificationDateString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        c.add(Calendar.MONTH, -Notary.LIMIT_MAX_MONTHS_VERIFICATION + 1);
+        return sdf.format(new Date(c.getTimeInMillis()));
+    }
+
 }

@@ -109,7 +109,7 @@ public class TestUser extends BusinessTest {
         User[] us = new User[5];
         for (int i = 0; i < us.length; i++) {
             us[i] = User.getById(createAssuranceUser("f", "l", createUniqueName() + "@email.com", TEST_PASSWORD));
-            Notary.assure(us[i], u, u.getPreferredName(), u.getDoB(), 10, "here", "2000-01-01", AssuranceType.FACE_TO_FACE);
+            Notary.assure(us[i], u, u.getPreferredName(), u.getDoB(), 10, "here", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
         }
 
         assertTrue(u.isValidName("aä b"));

@@ -31,7 +31,7 @@ public class TestNotary extends BusinessTest {
         };
 
         try {
-            Notary.assure(assurer, users[0], users[0].getPreferredName(), users[0].getDoB(), -1, "test-notary", "2014-01-01", AssuranceType.FACE_TO_FACE);
+            Notary.assure(assurer, users[0], users[0].getPreferredName(), users[0].getDoB(), -1, "test-notary", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
             fail("This shouldn't have passed");
         } catch (GigiApiException e) {
             // expected
@@ -39,9 +39,9 @@ public class TestNotary extends BusinessTest {
         for (int i = 0; i < result.length; i++) {
             assertEquals(result[i], assurer.getMaxAssurePoints());
 
-            assuranceFail(assurer, users[i], result[i] + 1, "test-notary", "2014-01-01");
-            Notary.assure(assurer, users[i], users[i].getPreferredName(), users[i].getDoB(), result[i], "test-notary", "2014-01-01", AssuranceType.FACE_TO_FACE);
-            assuranceFail(assurer, users[i], result[i], "test-notary", "2014-01-01");
+            assuranceFail(assurer, users[i], result[i] + 1, "test-notary", validVerificationDateString());
+            Notary.assure(assurer, users[i], users[i].getPreferredName(), users[i].getDoB(), result[i], "test-notary", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
+            assuranceFail(assurer, users[i], result[i], "test-notary", validVerificationDateString());
         }
 
         assertEquals(35, assurer.getMaxAssurePoints());
@@ -74,12 +74,12 @@ public class TestNotary extends BusinessTest {
         ObjectCache.clearAllCaches(); // reload values from db
         User assurer = User.getById(id);
         for (int i = 0; i < users.length; i++) {
-            assuranceFail(assurer, users[i], -1, "test-notary", "2014-01-01");
-            assuranceFail(assurer, users[i], 11, "test-notary", "2014-01-01");
+            assuranceFail(assurer, users[i], -1, "test-notary", validVerificationDateString());
+            assuranceFail(assurer, users[i], 11, "test-notary", validVerificationDateString());
             if (User.POJAM_ENABLED) {
-                Notary.assure(assurer, users[i], users[i].getPreferredName(), users[i].getDoB(), 10, "test-notary", "2014-01-01", AssuranceType.FACE_TO_FACE);
+                Notary.assure(assurer, users[i], users[i].getPreferredName(), users[i].getDoB(), 10, "test-notary", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
             }
-            assuranceFail(assurer, users[i], 10, "test-notary", "2014-01-01");
+            assuranceFail(assurer, users[i], 10, "test-notary", validVerificationDateString());
         }
     }
 
@@ -95,28 +95,28 @@ public class TestNotary extends BusinessTest {
         // null date
         assuranceFail(assuranceUser, assuree, 10, "notary-junit-test", null);
         // null location
-        assuranceFail(assuranceUser, assuree, 10, null, "2014-01-01");
+        assuranceFail(assuranceUser, assuree, 10, null, validVerificationDateString());
         // empty location
-        assuranceFail(assuranceUser, assuree, 10, "", "2014-01-01");
+        assuranceFail(assuranceUser, assuree, 10, "", validVerificationDateString());
         // date in the future
         assuranceFail(assuranceUser, assuree, 10, "notary-junit-test", DateSelector.getDateFormat().format(new Date(System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000)));
         // location too short
-        assuranceFail(assuranceUser, assuree, 10, "n", "2014-01-01");
+        assuranceFail(assuranceUser, assuree, 10, "n", validVerificationDateString());
         // points too low
-        assuranceFail(assuranceUser, assuree, -1, "notary-junit-test", "2014-01-01");
+        assuranceFail(assuranceUser, assuree, -1, "notary-junit-test", validVerificationDateString());
         // points too high
-        assuranceFail(assuranceUser, assuree, 11, "notary-junit-test", "2014-01-01");
+        assuranceFail(assuranceUser, assuree, 11, "notary-junit-test", validVerificationDateString());
 
         // assure oneself
-        assuranceFail(assuranceUser, assuranceUser, 10, "notary-junit-test", "2014-01-01");
+        assuranceFail(assuranceUser, assuranceUser, 10, "notary-junit-test", validVerificationDateString());
         // not an assurer
-        assuranceFail(assuree, assuranceUser, 10, "notary-junit-test", "2014-01-01");
+        assuranceFail(assuree, assuranceUser, 10, "notary-junit-test", validVerificationDateString());
 
         // valid
-        Notary.assure(assuranceUser, assuree, assuree.getPreferredName(), assuree.getDoB(), 10, "notary-junit-test", "2014-01-01", AssuranceType.FACE_TO_FACE);
+        Notary.assure(assuranceUser, assuree, assuree.getPreferredName(), assuree.getDoB(), 10, "notary-junit-test", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
 
         // assure double
-        assuranceFail(assuranceUser, assuree, 10, "notary-junit-test", "2014-01-01");
+        assuranceFail(assuranceUser, assuree, 10, "notary-junit-test", validVerificationDateString());
 
     }
 }
