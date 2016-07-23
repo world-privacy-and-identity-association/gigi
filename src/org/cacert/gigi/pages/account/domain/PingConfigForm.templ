@@ -49,7 +49,7 @@
     <td></td>
     <td>
         <?=_Please list up to four services using your certificate. You need to have one of them up and using a valid SomeCA certificate or a specific self-signed certificate in order to pass this test?>:
-        <?=_The self-signed certificate needs to contain your domain as CN and ${tokenValue} as organization unit. With -subj "/CN=<domain>/OU=${tokenValue}" OpenSSL command line utilities can generate such a certificate.?>:
+        <?=_The self-signed certificate needs to contain your domain as CN and ${tokenValue} as organization unit. With $!{openSSLHelp} OpenSSL command line utilities can generate such a certificate.?>:
         <table>
         <? foreach($ssl-services){ ?>
         <tr><td><select name='ssl-type-<?=$i?>'>
