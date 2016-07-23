@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import org.cacert.gigi.GigiApiException;
@@ -76,5 +77,21 @@ public class TestMyDetailsEdit extends ManagedTest {
     @Test
     public void testChangeDOBInvalid() throws IOException {
         assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "day=1&month=1&year=test&action=updateDoB", 0));
+    }
+
+    @Test
+    public void testChangeTooYoung() throws IOException {
+        Calendar c = GregorianCalendar.getInstance();
+        c.add(Calendar.YEAR, -User.MINIMUM_AGE);
+        c.add(Calendar.DAY_OF_MONTH, +1);
+        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "day=" + c.get(Calendar.DAY_OF_MONTH) + "&month=" + (c.get(Calendar.MONTH) + 1) + "&year=" + c.get(Calendar.YEAR) + "&action=updateDoB", 0));
+    }
+
+    @Test
+    public void testChangeTooOld() throws IOException {
+        Calendar c = GregorianCalendar.getInstance();
+        c.add(Calendar.YEAR, -User.MAXIMUM_PLAUSIBLE_AGE);
+        c.add(Calendar.DAY_OF_MONTH, -1);
+        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "day=" + c.get(Calendar.DAY_OF_MONTH) + "&month=" + (c.get(Calendar.MONTH) + 1) + "&year=" + c.get(Calendar.YEAR) + "&action=updateDoB", 0));
     }
 }

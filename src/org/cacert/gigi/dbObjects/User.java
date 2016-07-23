@@ -43,6 +43,8 @@ public class User extends CertificateOwner {
 
     public static final int MINIMUM_AGE = 16;
 
+    public static final int MAXIMUM_PLAUSIBLE_AGE = 110;
+
     public static final int POJAM_AGE = 14;
 
     public static final int ADULT_AGE = 18;
@@ -135,6 +137,14 @@ public class User extends CertificateOwner {
         synchronized (Notary.class) {
             if (getReceivedAssurances().length != 0) {
                 throw new GigiApiException("No change after assurance allowed.");
+            }
+
+            if ( !CalendarUtil.isOfAge(dob, User.MINIMUM_AGE)) {
+                throw new GigiApiException("Entered date of birth is below the restricted age requirements.");
+            }
+
+            if (CalendarUtil.isOfAge(dob, User.MAXIMUM_PLAUSIBLE_AGE)) {
+                throw new GigiApiException("Entered date of birth exceeds the maximum age set in our policies. Please check your DoB is correct and contact support if the issue persists.");
             }
             this.dob = dob;
             rawUpdateUserData();

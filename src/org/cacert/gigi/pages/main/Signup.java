@@ -93,7 +93,11 @@ public class Signup extends Form {
         }
 
         if ( !CalendarUtil.isOfAge(myDoB.getDate(), User.MINIMUM_AGE)) {
-            ga.mergeInto(new GigiApiException("Entered dated of birth is below the restricted age requirements."));
+            ga.mergeInto(new GigiApiException("Entered date of birth is below the restricted age requirements."));
+        }
+
+        if (CalendarUtil.isOfAge(myDoB.getDate(), User.MAXIMUM_PLAUSIBLE_AGE)) {
+            ga.mergeInto(new GigiApiException("Entered date of birth exceeds the maximum age set in our policies. Please check your DoB is correct and contact support if the issue persists."));
         }
 
         if ( !"1".equals(req.getParameter("tos_agree"))) {
