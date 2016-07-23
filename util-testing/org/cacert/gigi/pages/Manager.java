@@ -110,7 +110,7 @@ public class Manager extends Page {
                 u = User.getByEmail(mail);
                 passCATS(u, CATSType.ASSURER_CHALLENGE);
                 ps.setInt(1, u.getId());
-                ps.setInt(2, u.getId());
+                ps.setInt(2, u.getPreferredName().getId());
                 ps.setInt(3, 100);
                 ps.setString(4, "Manager init code");
                 ps.setString(5, "1990-01-01");
