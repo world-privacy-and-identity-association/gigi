@@ -5,7 +5,7 @@ org.cacert.gigi Gigi.MenuBuilder.putPage(String, Page, String),2
 org.cacert.gigi Gigi.MenuBuilder.getMenu(String),0
 org.cacert.gigi GigiApiException.GigiApiException(String),0=>org.cacert.gigi GigiApiException.formatPlain(PrintWriter),0
 org.cacert.gigi.output Menu.Menu(String),0=>org.cacert.gigi.output Menu.output(PrintWriter, Language, Map),0
-org.cacert.gigi.output SimpleMenuItem.SimpleMenuItem(String,String),1=>org.cacert.gigi.output SimpleMenuItem.output(PrintWriter, Language, Map),0
+org.cacert.gigi.output SimpleMenuItem.SimpleMenuItem(String, String),1=>org.cacert.gigi.output SimpleMenuItem.output(PrintWriter, Language, Map),0
 org.cacert.gigi.dbObjects Digest.Digest(String),0
 org.cacert.gigi.dbObjects Certificate.CertificateStatus.CertificateStatus(String),0
 org.cacert.gigi.pages Page.Page(String),0

@@ -2,6 +2,7 @@ package org.cacert.gigi.localisation;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Stack;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
@@ -13,6 +14,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
@@ -24,6 +26,8 @@ public final class TranslationCollectingVisitor extends ASTVisitor {
 	private CompilationUnitDeclaration unit;
 	TaintSource[] ts;
 	private TranslationCollector translationCollector;
+
+    Stack<QualifiedAllocationExpression> anonymousConstructorCall = new Stack<>();
 
 	public TranslationCollectingVisitor(CompilationUnitDeclaration unit,
 			TaintSource[] target, TranslationCollector c) {
@@ -67,6 +71,20 @@ public final class TranslationCollectingVisitor extends ASTVisitor {
 		}
 		return super.visit(allocationExpression, scope);
 	}
+
+    @Override
+    public boolean visit(QualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope) {
+        anonymousConstructorCall.push(qualifiedAllocationExpression);
+        return super.visit(qualifiedAllocationExpression, scope);
+    }
+
+    @Override
+    public void endVisit(QualifiedAllocationExpression qualifiedAllocationExpression, BlockScope scope) {
+        if(anonymousConstructorCall.pop() != qualifiedAllocationExpression){
+            throw new Error("stack illegally manipulated");
+        }
+    }
+
 	@Override
 	public boolean visit(ExplicitConstructorCall explicitConstructor,
 			BlockScope scope) {
@@ -76,6 +94,9 @@ public final class TranslationCollectingVisitor extends ASTVisitor {
 		for (TaintSource t0 : ts) {
 			if (t0.equals(t)) {
 				Expression[] ags = explicitConstructor.arguments;
+                if (anonymousConstructorCall.size() > 0) {
+                    ags = anonymousConstructorCall.peek().arguments;
+                }
 				if (ags == null) {
 					System.out.println(explicitConstructor);
 					return true;
@@ -183,7 +204,8 @@ public final class TranslationCollectingVisitor extends ASTVisitor {
 				+ (call == null ? "constructor" : call.sourceStart) + " => "
 				+ caller);
 		System.out.println(e.getClass());
-		System.out.println("To ignore: " + b.toConfLine());
+		System.out.println(
+				"To ignore: " + (b == null ? "don't know" : b.toConfLine()));
 	}
 	private void testEnum(Expression e, MethodBinding binding) {
 		if (binding.parameters.length != 0) {

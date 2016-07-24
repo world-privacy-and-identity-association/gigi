@@ -31,6 +31,7 @@ import org.cacert.gigi.output.Menu;
 import org.cacert.gigi.output.MenuCollector;
 import org.cacert.gigi.output.PageMenuItem;
 import org.cacert.gigi.output.SimpleMenuItem;
+import org.cacert.gigi.output.SimpleUntranslatedMenuItem;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Form.CSRFException;
 import org.cacert.gigi.output.template.Outputable;
@@ -190,9 +191,7 @@ public final class Gigi extends HttpServlet {
             rootMenu = new MenuCollector();
 
             Menu languages = new Menu("Language");
-            for (Locale l : Language.getSupportedLocales()) {
-                languages.addItem(new SimpleMenuItem("?lang=" + l.toString(), l.getDisplayName(l)));
-            }
+            addLanguages(languages);
             categories.add(languages);
             for (Menu menu : categories) {
                 menu.prepare();
@@ -201,6 +200,12 @@ public final class Gigi extends HttpServlet {
 
             // rootMenu.prepare();
             return rootMenu;
+        }
+
+        private void addLanguages(Menu languages) {
+            for (Locale l : Language.getSupportedLocales()) {
+                languages.addItem(new SimpleUntranslatedMenuItem("?lang=" + l.toString(), l.getDisplayName(l)));
+            }
         }
 
         public Map<String, Page> getPages() {
