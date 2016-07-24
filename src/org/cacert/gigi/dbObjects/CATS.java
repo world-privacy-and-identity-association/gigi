@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
+import org.cacert.gigi.util.TimeConditions;
 
 public class CATS {
 
@@ -45,7 +46,7 @@ public class CATS {
     /**
      * The maximal number of months a passed test is considered "recent".
      */
-    public static final int TEST_MONTHS = 12;
+    public static final int TEST_MONTHS = TimeConditions.getInstance().getTestMonths();
 
     private static HashMap<String, Integer> names = new HashMap<>();
 

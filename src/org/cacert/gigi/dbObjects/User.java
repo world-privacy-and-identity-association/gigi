@@ -21,6 +21,7 @@ import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PasswordHash;
 import org.cacert.gigi.util.PasswordStrengthChecker;
+import org.cacert.gigi.util.TimeConditions;
 
 /**
  * Represents an acting, assurable, user. Synchronizing on user means: no
@@ -53,7 +54,7 @@ public class User extends CertificateOwner {
     /**
      * Time in months a verification is considered "recent".
      */
-    public static final int VERIFICATION_MONTHS = 39;
+    public static final int VERIFICATION_MONTHS = TimeConditions.getInstance().getVerificationMonths();
 
     private Name preferredName;
 

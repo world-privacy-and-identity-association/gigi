@@ -36,6 +36,7 @@ import org.cacert.gigi.util.DomainAssessment;
 import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PEM;
 import org.cacert.gigi.util.ServerConstants;
+import org.cacert.gigi.util.TimeConditions;
 import org.junit.BeforeClass;
 
 import sun.security.pkcs10.PKCS10;
@@ -79,6 +80,7 @@ public abstract class ConfiguredTest {
         }
         Properties props = generateProps();
         ServerConstants.init(props);
+        TimeConditions.init(props);
         DomainAssessment.init(props);
 
         if ( !DatabaseConnection.isInited()) {

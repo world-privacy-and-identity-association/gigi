@@ -16,3 +16,8 @@ sql.user=
 sql.password=
 
 highFinancialValue=/path/to/alexa/list
+
+time.testValidMonths=12
+time.reverificationDays=90
+time.verificationFreshMonths=39
+time.verificationMaxAgeMonths=24

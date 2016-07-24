@@ -74,6 +74,7 @@ import org.cacert.gigi.ping.PingerDaemon;
 import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.DomainAssessment;
 import org.cacert.gigi.util.ServerConstants;
+import org.cacert.gigi.util.TimeConditions;
 
 public final class Gigi extends HttpServlet {
 
@@ -250,6 +251,7 @@ public final class Gigi extends HttpServlet {
             instance = this;
             DomainAssessment.init(conf);
             DatabaseConnection.init(conf);
+            TimeConditions.init(conf);
             this.truststore = truststore;
             pinger = new PingerDaemon(truststore);
             pinger.start();
