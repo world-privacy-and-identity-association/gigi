@@ -122,8 +122,7 @@ public class TranslationCollector {
         }
         m.configure(t);
         FileSystem environment = m.getLibraryAccess();
-        CompilerOptions compilerOptions = new CompilerOptions(m.options);// new
-                                                                         // HashMap<>());//m.options);
+        CompilerOptions compilerOptions = new CompilerOptions(m.options);
         compilerOptions.performMethodsFullRecovery = false;
         compilerOptions.performStatementsRecovery = false;
         // check
