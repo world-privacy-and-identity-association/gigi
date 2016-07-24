@@ -32,7 +32,9 @@ public class RegisterPageTest extends ManagedTest {
     public static final String p;
 
     @Before
-    public void setUp() throws Exception {}
+    public void setUp() throws Exception {
+        clearCaches(); // We do many registers in this test suite.
+    }
 
     private static String createBase() {
         return createUniqueName() + "@email.de";
@@ -139,19 +141,32 @@ public class RegisterPageTest extends ManagedTest {
     public void testTooYoung() throws IOException {
         Calendar c = GregorianCalendar.getInstance();
         c.add(Calendar.YEAR, -User.MINIMUM_AGE + 2);
-        testFailedForm("fname=a&lname=b&email=" + createUniqueName() + "@email.de" + p + "&day=1&month=1&year=" + c.get(Calendar.YEAR) + "&tos_agree=1");
+        testFailedForm("fname=a&lname=b&email=" + createUniqueName() + "@email.de" + p + "&day=" + c.get(Calendar.DAY_OF_MONTH) + "&month=" + (c.get(Calendar.MONTH) + 1) + "&year=" + c.get(Calendar.YEAR) + "&tos_agree=1");
+    }
+
+    @Test
+    public void testTooOld() throws IOException {
+        Calendar c = GregorianCalendar.getInstance();
+        c.add(Calendar.YEAR, -User.MAXIMUM_PLAUSIBLE_AGE);
+        c.add(Calendar.DAY_OF_MONTH, -1);
+        testFailedForm("fname=a&lname=b&email=" + createUniqueName() + "@email.de" + p + "&day=" + c.get(Calendar.DAY_OF_MONTH) + "&month=" + (c.get(Calendar.MONTH) + 1) + "&year=" + c.get(Calendar.YEAR) + "&tos_agree=1");
     }
 
     @Test
     public void testDataStays() throws IOException {
         long uniq = System.currentTimeMillis();
-        String run = runRegister("fname=fn" + uniq + "&lname=ln" + uniq + "&email=ma" + uniq + "@cacert.org&pword1=pas" + uniq + "&pword2=pas2" + uniq + "&day=1&month=1&year=0");
+        String run = runRegister("fname=fn" + uniq + "&lname=ln" + uniq + "&email=ma" + uniq + "@cacert.org&pword1=pas" + uniq + "&pword2=pas2" + uniq + "&day=28&month=10&year=1950");
         assertThat(run, containsString("fn" + uniq));
         assertThat(run, containsString("ln" + uniq));
         assertThat(run, containsString("ma" + uniq + "@cacert.org"));
         assertThat(run, not(containsString("pas" + uniq)));
         assertThat(run, not(containsString("pas2" + uniq)));
-
+        // test year
+        assertThat(run, containsString("name=\"year\" value=\"1950\""));
+        // test month
+        assertThat(run, containsString("<option value='10' selected=\"selected\">O"));
+        // test day
+        assertThat(run, containsString("<option selected=\"selected\">28</option>"));
     }
 
     @Test
