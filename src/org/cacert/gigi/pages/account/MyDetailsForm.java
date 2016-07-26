@@ -119,7 +119,7 @@ public class MyDetailsForm extends Form {
         });
         vars.put("name", ni);
         names.output(out, l, vars);
-        if (target.getAssurancePoints() == 0) {
+        if (target.getReceivedAssurances().length == 0) {
             vars.put("DoB", ds);
             templ.output(out, l, vars);
         } else {
