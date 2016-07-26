@@ -323,7 +323,7 @@ public class User extends CertificateOwner {
 
     public synchronized Assurance[] getReceivedAssurances() {
         if (receivedAssurances == null) {
-            try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT * FROM `notary` INNER JOIN `names` ON `names`.`id` = `notary`.`to` WHERE `names`.`uid`=? AND `notary`.`deleted` IS NULL")) {
+            try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT * FROM `notary` INNER JOIN `names` ON `names`.`id` = `notary`.`to` WHERE `names`.`uid`=? AND `notary`.`deleted` IS NULL ORDER BY `when` DESC")) {
                 query.setInt(1, getId());
 
                 GigiResultSet res = query.executeQuery();
@@ -342,7 +342,7 @@ public class User extends CertificateOwner {
 
     public synchronized Assurance[] getMadeAssurances() {
         if (madeAssurances == null) {
-            try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT * FROM notary WHERE `from`=? AND deleted is NULL")) {
+            try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT * FROM notary WHERE `from`=? AND deleted is NULL ORDER BY `when` DESC")) {
                 query.setInt(1, getId());
 
                 try (GigiResultSet res = query.executeQuery()) {
