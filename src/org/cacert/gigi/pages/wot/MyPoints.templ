@@ -1,10 +1,23 @@
+<table>
+    <tr>
+        <td><?=_Verification points?>:</td>
+        <td><?=$assP?></td>
+        <td>(<?=_Sum of most recently issued points per RA-Agent?>)</td>
+    </tr>
+<? if($expP) { ?>
+    <tr>
+        <td><?=_Experience points?>:</td>
+        <td><?=$expP?></td>
+        <td>(<?=_Based on number of applicants verified?>)</td>
+    </tr>
+    <tr>
+        <td><?=_Max points to issue?>:
+        <td><?=$maxP?></td>
+        <td></td>
+    </tr>
+<? } ?>
+<table>
 <h2><?=_Verification Points You Received?></h2>
 <?=$pointlist?>
 <h2><?=_Verification Points You Issued?></h2>
 <?=$madelist?>
-
-<?=_Verification points?>: <?=$assP?><br/>
-<? if($expP) { ?>
-<?=_Experience points?>: <?=$expP?><br/>
-<?=_Max points to issue?>: <?=$maxP?><br/>
-<? } ?>
