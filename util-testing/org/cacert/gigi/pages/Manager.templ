@@ -95,3 +95,33 @@ Domain: <input type="text" name="exemtDom"/>
 <input type="submit" value="Do not exempt this domain from pings" name="delExDom"/>
 </td></tr>
 </table>
+
+<table>
+<tr><th colspan="2">
+Test server settings
+</th></tr>
+
+<tr><td>
+Time for valid tests
+</td><td>
+<?=$testValidMonths?> months
+</td></tr>
+
+<tr><td>
+Time between two verifications
+</td><td>
+<?=$reverificationDays?> days
+</td></tr>
+
+<tr><td>
+Time that a verification is considered recent
+</td><td>
+<?=$verificationFreshMonths?> months
+</td></tr>
+
+<tr><td>
+Maximum time that a verification is accepted
+</td><td>
+<?=$verificationMaxAgeMonths?> months
+</td></tr>
+</table>

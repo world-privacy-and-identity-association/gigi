@@ -52,6 +52,7 @@ import org.cacert.gigi.ping.PingerDaemon;
 import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.Notary;
+import org.cacert.gigi.util.TimeConditions;
 
 import sun.security.x509.X509Key;
 
@@ -428,6 +429,12 @@ public class Manager extends Page {
                 return true;
             }
         });
+
+        vars.put("testValidMonths", TimeConditions.getInstance().getTestMonths());
+        vars.put("reverificationDays", TimeConditions.getInstance().getVerificationLimitDays());
+        vars.put("verificationFreshMonths", TimeConditions.getInstance().getVerificationMonths());
+        vars.put("verificationMaxAgeMonths", TimeConditions.getInstance().getVerificationMaxAgeMonths());
+
         form.output(resp.getWriter(), getLanguage(req), vars);
     }
 }
