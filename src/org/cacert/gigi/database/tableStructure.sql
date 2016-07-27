@@ -261,17 +261,17 @@ CREATE TABLE "notary" (
   "points" int NOT NULL DEFAULT '0',
 # awarded and the "experience points" are calculated virtually
 # Face to Face is default, TOPUP is for the remaining 30Points after two TTP
-# TTP is default ttp assurance
+# TTP is default ttp verification
   "method" "notaryType" NOT NULL DEFAULT 'Face to Face Meeting',
   "location" varchar(255) NOT NULL DEFAULT '',
   "date" varchar(255) NOT NULL DEFAULT '',
-# date when assurance was entered
+# date when verification was entered
   "when" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 #?
   "expire" timestamp NULL DEFAULT NULL,
 #?????????????????
   "sponsor" int NOT NULL DEFAULT '0',
-# date when assurance was deleted (or 0)
+# date when verification was deleted (or 0)
   "deleted" timestamp NULL DEFAULT NULL,
   PRIMARY KEY ("id")
 );

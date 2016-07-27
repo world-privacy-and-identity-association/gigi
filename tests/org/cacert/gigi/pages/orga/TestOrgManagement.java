@@ -118,7 +118,7 @@ public class TestOrgManagement extends OrgTest {
         Organisation o1 = createUniqueOrg();
         o1.addAdmin(u3, u, true);
         try {
-            // must fail because u4 is no assurer
+            // must fail because u4 is no RA-Agent
             o1.addAdmin(u4_dummy, u3, false);
             fail("No exception!");
         } catch (GigiApiException e) {
@@ -131,7 +131,7 @@ public class TestOrgManagement extends OrgTest {
         } catch (GigiApiException e) {
         }
         try {
-            // must fail because u4 is no assurer
+            // must fail because u4 is no RA-Agent
             o1.addAdmin(u4_dummy, u, false);
             fail("No exception!");
         } catch (GigiApiException e) {

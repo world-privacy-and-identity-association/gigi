@@ -297,8 +297,8 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     /**
-     * Creates a new user with 100 Assurance points given by an (invalid)
-     * assurance.
+     * Creates a new user with 100 Verification Points given by an (invalid)
+     * verification.
      * 
      * @param firstName
      *            the first name

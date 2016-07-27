@@ -7,10 +7,10 @@ import org.cacert.gigi.output.template.TranslateCommand;
 
 public enum Group {
     SUPPORTER("supporter", "supporter"), ARBITRATOR("arbitrator", "arbitrator"), //
-    BLOCKEDASSURER("blockedassurer", "may not assure"), BLOCKEDASSUREE("blockedassuree", "may not be assured"), //
+    BLOCKEDASSURER("blockedassurer", "may not verify"), BLOCKEDASSUREE("blockedassuree", "may not be verified"), //
     BLOCKEDLOGIN("blockedlogin", "may not login"), BLOCKEDCERT("blockedcert", "may not issue certificates"), //
-    TTP_ASSURER("ttp-assurer", "may assure via TTP"), TTP_APPLICANT("ttp-applicant", "requests to be assured via ttp"), //
-    CODESIGNING("codesigning", "may issue codesigning certificates"), ORGASSURER("orgassurer", "may assure organisations"), //
+    TTP_ASSURER("ttp-assurer", "may verify via TTP"), TTP_APPLICANT("ttp-applicant", "requests to be verified via ttp"), //
+    CODESIGNING("codesigning", "may issue codesigning certificates"), ORGASSURER("orgassurer", "may verify organisations"), //
     NUCLEUS_ASSURER("nucleus-assurer", "may issue nucleus assurances"), LOCATE_AGENT("locate-agent", "wants access to the locate agent system");
 
     private final String dbName;

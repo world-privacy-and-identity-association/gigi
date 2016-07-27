@@ -107,7 +107,7 @@ public class TestNotary extends BusinessTest {
         // points too high
         assuranceFail(assuranceUser, assuree, 11, "notary-junit-test", validVerificationDateString());
 
-        // assure oneself
+        // verify oneself
         assuranceFail(assuranceUser, assuranceUser, 10, "notary-junit-test", validVerificationDateString());
         // not an assurer
         assuranceFail(assuree, assuranceUser, 10, "notary-junit-test", validVerificationDateString());
@@ -115,7 +115,7 @@ public class TestNotary extends BusinessTest {
         // valid
         Notary.assure(assuranceUser, assuree, assuree.getPreferredName(), assuree.getDoB(), 10, "notary-junit-test", validVerificationDateString(), AssuranceType.FACE_TO_FACE);
 
-        // assure double
+        // verify double
         assuranceFail(assuranceUser, assuree, 10, "notary-junit-test", validVerificationDateString());
 
     }

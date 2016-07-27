@@ -106,7 +106,7 @@ public class Manager extends Page {
             String mail = "test-assurer" + i + "@example.com";
             User u = User.getByEmail(mail);
             if (u == null) {
-                System.out.println("Creating assurer");
+                System.out.println("Creating RA-Agent");
                 createUser(mail);
                 u = User.getByEmail(mail);
                 passCATS(u, CATSType.ASSURER_CHALLENGE);
@@ -293,7 +293,7 @@ public class Manager extends Page {
                     if (vp < 10) {
                         currentVP = vp;
                     }
-                    Notary.assure(getAssurer(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Assure up code", "2014-11-06", AssuranceType.FACE_TO_FACE);
+                    Notary.assure(getAssurer(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", "2014-11-06", AssuranceType.FACE_TO_FACE);
                     agentNumber += 1;
                     vp -= currentVP;
                 }

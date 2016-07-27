@@ -87,7 +87,7 @@ public class Notary {
             throw gae;
         }
         if (date == null || date.equals("")) {
-            gae.mergeInto(new GigiApiException("You must enter the date when you met the assuree."));
+            gae.mergeInto(new GigiApiException("You must enter the date when you met the applicant."));
         } else {
             try {
                 Date d = DateSelector.getDateFormat().parse(date);
@@ -128,7 +128,7 @@ public class Notary {
             }
 
             if ( !assuree.getDoB().equals(dob)) {
-                gae.mergeInto(new GigiApiException("The person you are assuring changed his personal details."));
+                gae.mergeInto(new GigiApiException("The person you are verifying changed his personal details."));
             }
 
             if (awarded < 0) {

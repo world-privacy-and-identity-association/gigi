@@ -226,7 +226,7 @@ public class Name implements Outputable, IdCachable {
     private SchemedName scheme;
 
     /**
-     * This name should not get assured anymore and therefore not be displayed
+     * This name should not get verifed anymore and therefore not be displayed
      * to the RA-Agent. This state is irrevocable.
      */
     private boolean deprecated;
