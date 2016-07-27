@@ -1,0 +1,15 @@
+Subject: <?=_Verification entered?>
+
+<?=_Hi?>,
+
+<?=_RA-Agent ${agent} verified your name(s):?>
+<? foreach($names) { ?>
+<?=_${name}: with ${points} to total ${total} Verification Points.?>
+<? if($rem) { ?><?=_To issue client certificates with this name you need ${rem} more Verification Points.?>
+<? } ?><? if($gotGreater) { ?><?=_You can now issue client certificates with this name.?>
+<? } ?>
+<? } ?>
+<? if($remAll) { ?><?=_To apply for RA Agent status or code signing ability you need ${remAll} more Verification Points.?>
+<? } ?><? if($gotGreaterAll) { ?><?=_You can now apply for RA Agent status or code signing ability.?>
+<? } ?>
+<?=_RA DB?>

@@ -1,5 +1,6 @@
 package org.cacert.gigi.pages.account;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -34,6 +35,8 @@ public class TestPasswordResetExternal extends ClientTest {
         assertNull(error);
 
         TestMail mail = getMailReceiver().receive();
+        assertThat(mail.getSubject(), containsString("Verification"));
+        mail = getMailReceiver().receive();
         String link = mail.extractLink();
         String npw = TEST_PASSWORD + "'";
         System.out.println(link);

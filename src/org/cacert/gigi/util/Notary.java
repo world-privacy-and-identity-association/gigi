@@ -1,9 +1,12 @@
 package org.cacert.gigi.util;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
@@ -12,7 +15,10 @@ import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.ArrayIterable;
 import org.cacert.gigi.output.DateSelector;
+import org.cacert.gigi.output.template.MailTemplate;
 import org.cacert.gigi.output.template.SprintfCommand;
 
 public class Notary {
@@ -229,6 +235,56 @@ public class Notary {
             ps.setString(4, location);
             ps.setString(5, date);
             ps.execute();
+        }
+    }
+
+    public synchronized static void assureAll(User assurer, User assuree, DayDate dob, int awarded, String location, String date, AssuranceType type, Name[] toAssure) throws GigiApiException {
+        boolean[] hadLessThan50Points = new boolean[toAssure.length];
+        boolean hadTotalLessThan100 = assuree.getAssurancePoints() < 100;
+        for (int i = 0; i < toAssure.length; i++) {
+            hadLessThan50Points[i] = toAssure[i].getAssurancePoints() < 50;
+
+            assure(assurer, assuree, toAssure[i], dob, awarded, location, date, type);
+        }
+        sendVerificationNotificationApplicant(assurer, assuree, toAssure, awarded, hadLessThan50Points, hadTotalLessThan100);
+    }
+
+    private static final MailTemplate verificationEntered = new MailTemplate(Notary.class.getResource("VerificationEntered.templ"));
+
+    private static void sendVerificationNotificationApplicant(User assurer, User assuree, Name[] toAssure, final int awarded, final boolean[] hadLessThan50Points, boolean hadTotalLessThan100) {
+        HashMap<String, Object> mailVars = new HashMap<>();
+        mailVars.put("agent", assurer.getPreferredName().toString());
+        mailVars.put("names", new ArrayIterable<Name>(toAssure) {
+
+            @Override
+            public void apply(Name t, Language l, Map<String, Object> vars) {
+                int totalVP = t.getAssurancePoints();
+                vars.put("name", t.toString());
+                vars.put("points", Integer.toString(awarded));
+                vars.put("total", totalVP);
+                if (totalVP < 50) {
+                    vars.put("rem", (50 - totalVP));
+                    vars.remove("gotGreater");
+                } else if (hadLessThan50Points[i]) {
+                    vars.put("gotGreater", true);
+                    vars.remove("rem");
+                }
+            }
+
+        });
+
+        int grandTotalVP = assuree.getAssurancePoints();
+        if (grandTotalVP >= 50 && grandTotalVP < 100) {
+            mailVars.put("remAll", (100 - grandTotalVP));
+            mailVars.remove("gotGreaterAll");
+        } else if (hadTotalLessThan100) {
+            mailVars.put("gotGreaterAll", true);
+            mailVars.remove("remAll");
+        }
+        try {
+            verificationEntered.sendMail(Language.getInstance(assuree.getPreferredLocale()), mailVars, assuree.getEmail());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

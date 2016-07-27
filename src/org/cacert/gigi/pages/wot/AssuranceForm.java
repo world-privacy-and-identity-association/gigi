@@ -175,16 +175,21 @@ public class AssuranceForm extends Form {
         if ( !gae.isEmpty()) {
             throw gae;
         }
+
+        LinkedList<Name> toAssure = new LinkedList<Name>();
         for (int i = 0; i < selected.length; i++) {
             if (selected[i]) {
-                Notary.assure(assurer, assuree, assureeNames[i], dob, pointsI, location, req.getParameter("date"), type);
+                toAssure.add(assureeNames[i]);
             }
         }
+
+        Notary.assureAll(assurer, assuree, dob, pointsI, location, req.getParameter("date"), type, toAssure.toArray(new Name[toAssure.size()]));
+
         if (aword != null && !aword.equals("")) {
-            Language l = Language.getInstance(assuree.getPreferredLocale());
-            String method = l.getTranslation("A password reset was triggered. If you did a password reset by assurance, please enter your secret password using this form:");
-            String subject = l.getTranslation("Password reset by assurance");
-            PasswordResetPage.initPasswordResetProcess(out, assuree, req, aword, l, method, subject);
+            Language langApplicant = Language.getInstance(assuree.getPreferredLocale());
+            String method = langApplicant.getTranslation("A password reset was triggered. If you did a password reset by assurance, please enter your secret password using this form:");
+            String subject = langApplicant.getTranslation("Password reset by assurance");
+            PasswordResetPage.initPasswordResetProcess(out, assuree, req, aword, langApplicant, method, subject);
         }
         return true;
     }
