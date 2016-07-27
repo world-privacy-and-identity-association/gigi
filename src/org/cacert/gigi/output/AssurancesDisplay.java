@@ -26,7 +26,7 @@ public class AssurancesDisplay implements Outputable {
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         final Assurance[] assurances = (Assurance[]) vars.get(assuranceArray);
         if (assurer) {
-            vars.put("verb", l.getTranslation("To"));
+            vars.put("verb", l.getTranslation("To (User Id)"));
         } else {
             vars.put("verb", l.getTranslation("From"));
             vars.put("myName", "yes");
@@ -45,7 +45,7 @@ public class AssurancesDisplay implements Outputable {
                     vars.put("id", assurance.getId());
                     vars.put("method", assurance.getMethod());
                     if (assurer) {
-                        vars.put("verbVal", assurance.getTo().getOwner().getPreferredName());
+                        vars.put("verbVal", assurance.getTo().getOwner().getId());
                         vars.put("myName", assurance.getTo());
                     } else {
                         vars.put("verbVal", assurance.getFrom().getPreferredName());
