@@ -167,7 +167,8 @@ public class AssuranceForm extends Form {
                 gae.mergeInto(new GigiApiException("The points entered were not a number."));
             }
         }
-        HashSet<String> data = new HashSet<>(Arrays.asList(req.getParameterValues("assuredName")));
+        String[] parameterValues = req.getParameterValues("assuredName");
+        HashSet<String> data = new HashSet<>(Arrays.asList(parameterValues==null?new String[0]:parameterValues));
         for (int i = 0; i < assureeNames.length; i++) {
             selected[i] = data.contains(Integer.toString(assureeNames[i].getId()));
         }
