@@ -94,7 +94,7 @@ public class TestEmailProvider extends EmailProvider {
     public synchronized String checkEmailServer(int forUid, String address) throws IOException {
         while (true) {
             if ( !assureLocalConnection() && target != null) {
-                return checkEmailServer(forUid, address);
+                return target.checkEmailServer(forUid, address);
             }
             try {
                 out.writeUTF("challengeAddrBox");
