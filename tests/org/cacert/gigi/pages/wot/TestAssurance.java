@@ -97,6 +97,15 @@ public class TestAssurance extends ManagedTest {
     }
 
     @Test
+    public void testAssureFormEmpty() throws IOException {
+        URLConnection uc = buildupAssureFormConnection(true);
+        uc.getOutputStream().write(("date=" + validVerificationDateString() + "&location=testcase&rules=1&assertion=1&points=10").getBytes("UTF-8"));
+        uc.getOutputStream().flush();
+        String data = IOUtils.readURL(uc);
+        assertThat(data, hasError());
+    }
+
+    @Test
     public void testAssureFormContanisData() throws IOException {
         URLConnection uc = buildupAssureFormConnection(true);
         uc.getOutputStream().write(("assuredName=" + assureeName + "&date=" + validVerificationDateString() + "&location=testcase&rules=1&assertion=1&points=10").getBytes("UTF-8"));

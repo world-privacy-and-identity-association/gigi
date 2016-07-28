@@ -168,7 +168,7 @@ public class AssuranceForm extends Form {
             }
         }
         String[] parameterValues = req.getParameterValues("assuredName");
-        HashSet<String> data = new HashSet<>(Arrays.asList(parameterValues==null?new String[0]:parameterValues));
+        HashSet<String> data = new HashSet<>(Arrays.asList(parameterValues == null ? new String[0] : parameterValues));
         for (int i = 0; i < assureeNames.length; i++) {
             selected[i] = data.contains(Integer.toString(assureeNames[i].getId()));
         }
@@ -182,6 +182,9 @@ public class AssuranceForm extends Form {
             if (selected[i]) {
                 toAssure.add(assureeNames[i]);
             }
+        }
+        if (toAssure.size() == 0) {
+            throw new GigiApiException("You must confirm at least one name to verify an account.");
         }
 
         Notary.assureAll(assurer, assuree, dob, pointsI, location, req.getParameter("date"), type, toAssure.toArray(new Name[toAssure.size()]));

@@ -239,6 +239,9 @@ public class Notary {
     }
 
     public synchronized static void assureAll(User assurer, User assuree, DayDate dob, int awarded, String location, String date, AssuranceType type, Name[] toAssure) throws GigiApiException {
+        if (toAssure.length == 0) {
+            throw new GigiApiException("You must confirm at least one name to verify an account.");
+        }
         boolean[] hadLessThan50Points = new boolean[toAssure.length];
         boolean hadTotalLessThan100 = assuree.getAssurancePoints() < 100;
         for (int i = 0; i < toAssure.length; i++) {
