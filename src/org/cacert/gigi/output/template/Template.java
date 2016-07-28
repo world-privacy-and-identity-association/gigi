@@ -27,7 +27,7 @@ import org.cacert.gigi.util.HTMLEncoder;
  */
 public class Template implements Outputable {
 
-    private static class ParseResult {
+    protected static class ParseResult {
 
         TemplateBlock block;
 
@@ -106,7 +106,11 @@ public class Template implements Outputable {
         }
     }
 
-    private ParseResult parse(Reader r) throws IOException {
+    protected ParseResult parse(Reader r) throws IOException {
+        return parseContent(r);
+    }
+
+    protected ParseResult parseContent(Reader r) throws IOException {
         LinkedList<String> splitted = new LinkedList<String>();
         LinkedList<Translatable> commands = new LinkedList<Translatable>();
         StringBuffer buf = new StringBuffer();
@@ -137,10 +141,10 @@ public class Template implements Outputable {
             if (m.matches()) {
                 String type = m.group(1);
                 String variable = m.group(2);
-                ParseResult body = parse(r);
+                ParseResult body = parseContent(r);
                 if (type.equals("if")) {
                     if ("else".equals(body.getEndType())) {
-                        commands.add(new IfStatement(variable, body.getBlock("else"), parse(r).getBlock("}")));
+                        commands.add(new IfStatement(variable, body.getBlock("else"), parseContent(r).getBlock("}")));
                     } else {
                         commands.add(new IfStatement(variable, body.getBlock("}")));
                     }
@@ -186,6 +190,11 @@ public class Template implements Outputable {
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+        tryReload();
+        data.output(out, l, vars);
+    }
+
+    protected void tryReload() {
         if (source != null && lastLoaded < source.lastModified()) {
             try {
                 System.out.println("Reloading template.... " + source);
@@ -197,7 +206,6 @@ public class Template implements Outputable {
                 e.printStackTrace();
             }
         }
-        data.output(out, l, vars);
     }
 
     protected static void outputVar(PrintWriter out, Language l, Map<String, Object> vars, String varname, boolean unescaped) {
