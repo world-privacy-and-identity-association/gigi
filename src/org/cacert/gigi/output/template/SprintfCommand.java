@@ -78,7 +78,7 @@ public final class SprintfCommand implements Translatable {
         Matcher m = replacant.matcher(parts);
         int pos = 0;
         while (m.find()) {
-            out.print(HTMLEncoder.encodeHTML(parts.substring(pos, m.start())));
+            out.print(escape(vars, parts.substring(pos, m.start())));
             String var = store[Integer.parseInt(m.group(1))];
             if (var.startsWith("$!")) {
                 Template.outputVar(out, l, vars, var.substring(3, var.length() - 1), true);
@@ -92,7 +92,14 @@ public final class SprintfCommand implements Translatable {
             pos = m.end();
 
         }
-        out.print(HTMLEncoder.encodeHTML(parts.substring(pos)));
+        out.print(escape(vars, parts.substring(pos)));
+    }
+
+    private String escape(Map<String, Object> vars, String target) {
+        if (vars.containsKey(OUT_KEY_PLAIN)) {
+            return target;
+        }
+        return HTMLEncoder.encodeHTML(target);
     }
 
     @Override

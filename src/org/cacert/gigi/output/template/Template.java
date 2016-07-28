@@ -201,6 +201,9 @@ public class Template implements Outputable {
     }
 
     protected static void outputVar(PrintWriter out, Language l, Map<String, Object> vars, String varname, boolean unescaped) {
+        if (vars.containsKey(Outputable.OUT_KEY_PLAIN)) {
+            unescaped = true;
+        }
         Object s = vars.get(varname);
 
         if (s == null) {

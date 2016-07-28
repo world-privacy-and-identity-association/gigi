@@ -1,6 +1,7 @@
 package org.cacert.gigi.pages.error;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,7 +16,7 @@ public class AccessDenied extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        getDefaultTemplate().output(resp.getWriter(), Page.getLanguage(req), null);
+        getDefaultTemplate().output(resp.getWriter(), Page.getLanguage(req), Collections.<String, Object>emptyMap());
     }
 
     @Override

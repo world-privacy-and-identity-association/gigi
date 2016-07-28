@@ -26,7 +26,12 @@ public final class TranslateCommand implements Translatable {
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-        out.print(HTMLEncoder.encodeHTML(l.getTranslation(raw)));
+        String translation = l.getTranslation(raw);
+        if (vars.containsKey(Outputable.OUT_KEY_PLAIN)) {
+            out.print(translation);
+        } else {
+            out.print(HTMLEncoder.encodeHTML(translation));
+        }
     }
 
     /**

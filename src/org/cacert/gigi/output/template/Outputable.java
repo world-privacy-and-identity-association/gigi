@@ -10,6 +10,8 @@ import org.cacert.gigi.localisation.Language;
  */
 public interface Outputable {
 
+    public static final String OUT_KEY_PLAIN = "output-content-plain";
+
     /**
      * Writes this object's content to the given output stream.
      * 
