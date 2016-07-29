@@ -115,7 +115,7 @@ public class DateSelector implements Outputable {
     }
 
     public boolean isValid() {
-        if ( !(1900 < year && 1 <= month && month <= 12 && 1 <= day && day <= 32)) {
+        if ( !(1890 < year && 1 <= month && month <= 12 && 1 <= day && day <= 32)) {
             return false;
         }
 
