@@ -43,7 +43,7 @@ public class User extends CertificateOwner {
 
     public static final int MINIMUM_AGE = 16;
 
-    public static final int MAXIMUM_PLAUSIBLE_AGE = 110;
+    public static final int MAXIMUM_PLAUSIBLE_AGE = 120;
 
     public static final int POJAM_AGE = 14;
 
