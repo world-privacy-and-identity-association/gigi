@@ -51,7 +51,7 @@ public class User extends CertificateOwner {
 
     public static final boolean POJAM_ENABLED = false;
 
-    public static final int EXPERIENCE_POINTS = 2;
+    public static final int EXPERIENCE_POINTS = 4;
 
     /**
      * Time in months a verification is considered "recent".
