@@ -2,6 +2,7 @@
 
 *.java	text diff=java
 
+*.templ	text=lf
 *.txt	text
 *.md	text
 
