@@ -26,4 +26,5 @@ Syntax:
   Special variables that $variable defines can be used in the inner text.
  
   
-  
+Adding a "\" before a newline will cause both the backslash and the newline get removed. This allows non-visible line-breaks in templates.
+Note: Mail templates consist of a template for subject and a template for the body. Prolonging the subject-line with this feature is not possible.

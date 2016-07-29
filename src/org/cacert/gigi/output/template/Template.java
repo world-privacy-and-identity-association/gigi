@@ -123,6 +123,9 @@ public class Template implements Outputable {
                     break outer;
                 }
                 buf.append((char) ch);
+                if (endsWith(buf, "\\\n")) {
+                    buf.delete(buf.length() - 2, buf.length());
+                }
             }
             buf.delete(buf.length() - 2, buf.length());
             splitted.add(buf.toString());

@@ -137,4 +137,13 @@ public class TestTemplate {
         vars.put("b", null);
         assertEquals("false", testExecute(Language.getInstance(Locale.ENGLISH), vars, "<? if($b){ ?>true<? } else{?>false<?}?>"));
     }
+
+    @Test
+    public void testIgnoredNewline() {
+        assertEquals("\\ab\\\\n\n\\c", testExecute(Language.getInstance(Locale.ENGLISH), vars, "\\a\\\nb\\\\n\n\\\\\nc"));
+        assertEquals("a\\b\\c", testExecute(Language.getInstance(Locale.ENGLISH), vars, "a\\b\\\n\\c"));
+        // \r's are currently not valid.
+        assertEquals("a\\\r\nb", testExecute(Language.getInstance(Locale.ENGLISH), vars, "a\\\r\nb"));
+    }
+
 }
