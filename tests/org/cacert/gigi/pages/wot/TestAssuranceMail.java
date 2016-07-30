@@ -6,12 +6,18 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URLConnection;
+import java.sql.Timestamp;
 
+import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.database.GigiPreparedStatement;
+import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.util.DayDate;
+import org.cacert.gigi.util.Notary;
 import org.junit.Test;
 
 public class TestAssuranceMail extends ManagedTest {
@@ -71,12 +77,40 @@ public class TestAssuranceMail extends ManagedTest {
         assertNotEquals(0, thirdName);
     }
 
+    private void raiseXP(User agentXP, int recurring) throws GigiApiException {
+        for (int i = 0; i < recurring; i++) {
+            String applicantT = createUniqueName() + "@example.com";
+            int applicantId = createVerifiedUser("John", "Doe", applicantT, TEST_PASSWORD);
+            User applicantXP = User.getById(applicantId);
+            applicantXP = User.getById(applicantId);
+            Notary.assure(agentXP, applicantXP, applicantXP.getNames()[0], applicantXP.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE);
+        }
+    }
+
     private String enterVerification(String query) throws MalformedURLException, IOException {
+        return enterVerification(query, 10);
+
+    }
+
+    private String enterVerification(String query, int points) throws MalformedURLException, IOException {
         URLConnection uc = TestAssurance.buildupAssureFormConnection(cookieAgent, applicant.getEmail(), true);
-        uc.getOutputStream().write((query + "&date=" + validVerificationDateString() + "&location=" + createUniqueName() + "&certify=1&rules=1&assertion=1&points=10").getBytes("UTF-8"));
+        uc.getOutputStream().write((query + "&date=" + validVerificationDateString() + "&location=" + createUniqueName() + "&certify=1&rules=1&assertion=1&points=" + points).getBytes("UTF-8"));
         uc.getOutputStream().flush();
         return IOUtils.readURL(uc);
 
+    }
+
+    private void enterVerificationInPast(int points, int nameId) {
+
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `when`=? ")) {
+            ps.setInt(1, agent.getId());
+            ps.setInt(2, nameId);
+            ps.setInt(3, points);
+            ps.setString(4, "test-location");
+            ps.setString(5, "2010-01-01");
+            ps.setTimestamp(6, new Timestamp(System.currentTimeMillis() - DayDate.MILLI_DAY * 200));
+            ps.execute();
+        }
     }
 
     @Test
@@ -278,5 +312,67 @@ public class TestAssuranceMail extends ManagedTest {
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("James John Doe: with 10 to total 10 Verification Points." + "\n" + requiresMore(40)));
 
+    }
+
+    @Test
+    public void testVerificationMultiple() throws MalformedURLException, IOException, GigiApiException {
+        clearCaches();
+        newApplicant();
+
+        // verify with 35 VP
+        newAgent();
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE);
+        Notary.assure(agent, applicant, applicant.getNames()[1], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE);
+
+        newAgent();
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE);
+        Notary.assure(agent, applicant, applicant.getNames()[1], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE);
+
+        newAgent();
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE);
+        Notary.assure(agent, applicant, applicant.getNames()[1], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE);
+
+        newAgent();
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 5, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE);
+        Notary.assure(agent, applicant, applicant.getNames()[1], applicant.getDoB(), 5, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE);
+
+        // add first Verification in the past result first name 45 VP
+        newAgent();
+        raiseXP(agent, 5);
+        enterVerificationInPast(10, firstName);
+
+        // add second Verification result first name 50 VP
+        enterVerification("assuredName=" + firstName, 15);
+        message = getMailReceiver().receive().getMessage();
+        assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
+        assertThat(message, containsString("John Doe: with 15 to total 50 Verification Points." + "\n" + "You can now issue client certificates with this name."));
+        assertThat(message, containsString(requiresMoreTotal(50)));
+
+        // verify first name to 85 VP
+        newAgent();
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE);
+
+        newAgent();
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE);
+
+        newAgent();
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE);
+
+        newAgent();
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 5, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE);
+
+        // add first Verification in the past result first name 95 VP
+        newAgent();
+        raiseXP(agent, 5);
+        enterVerificationInPast(10, firstName);
+        enterVerificationInPast(10, secondName);
+
+        // add second Verification result first name 100 VP, second name 50 VP
+        enterVerification("assuredName=" + firstName + "&assuredName=" + secondName, 15);
+        message = getMailReceiver().receive().getMessage();
+        assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
+        assertThat(message, containsString("John Doe: with 15 to total 100 Verification Points."));
+        assertThat(message, containsString("James Doe: with 15 to total 50 Verification Points." + "\n" + "You can now issue client certificates with this name."));
+        assertThat(message, containsString("You can now apply for RA Agent status or code signing ability."));
     }
 }
