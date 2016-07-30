@@ -1,80 +1,45 @@
-package org.cacert.gigi.pages.wot;
+package org.cacert.gigi.dbObjects;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URLConnection;
 import java.sql.Timestamp;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
 import org.cacert.gigi.dbObjects.Name;
+import org.cacert.gigi.dbObjects.NamePart;
+import org.cacert.gigi.dbObjects.NamePart.NamePartType;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.pages.account.MyDetails;
-import org.cacert.gigi.testUtils.IOUtils;
-import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.testUtils.BusinessTest;
 import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.Notary;
 import org.junit.Test;
 
-public class TestAssuranceMail extends ManagedTest {
-
-    private String agentM;
-
-    private String applicantM;
-
-    private String cookieAgent;
-
-    private String cookieApplicant;
+public class TestAssuranceMail extends BusinessTest {
 
     private User agent;
 
     private User applicant;
 
-    private int firstName;
+    private Name firstName;
 
-    private int secondName;
+    private Name secondName;
 
-    private int thirdName;
+    private Name thirdName;
 
     private String message;
 
-    private void newAgent() throws IOException {
-        agentM = createUniqueName() + "@example.com";
-        int agentID = createAssuranceUser("Marianne", "Mustermann", agentM, TEST_PASSWORD);
-        agent = User.getById(agentID);
-        cookieAgent = login(agentM, TEST_PASSWORD);
-
+    private void newAgent() throws GigiApiException {
+        agent = User.getById(createAssuranceUser("Marianne", "Mustermann", createUniqueName() + "@example.com", TEST_PASSWORD));
     }
 
-    private void newApplicant() throws IOException {
-        applicantM = createUniqueName() + "@example.com";
-        int applicantId = createVerifiedUser("John", "Doe", applicantM, TEST_PASSWORD);
-        cookieApplicant = login(applicantM, TEST_PASSWORD);
-        executeBasicWebInteraction(cookieApplicant, MyDetails.PATH, "fname=James&lname=Doe&action=addName", 0);
-        executeBasicWebInteraction(cookieApplicant, MyDetails.PATH, "fname=James+John&lname=Doe&action=addName", 0);
-        applicant = User.getById(applicantId);
-        Name[] names = applicant.getNames();
-        firstName = 0;
-        secondName = 0;
-        thirdName = 0;
-        for (int i = 0; i < names.length; i++) {
-            if (names[i].toString().equals("John Doe")) {
-                firstName = names[i].getId();
-            }
-            if (names[i].toString().equals("James Doe")) {
-                secondName = names[i].getId();
-            }
-            if (names[i].toString().equals("James John Doe")) {
-                thirdName = names[i].getId();
-            }
-        }
-        assertNotEquals(0, firstName);
-        assertNotEquals(0, secondName);
-        assertNotEquals(0, thirdName);
+    private void newApplicant() throws GigiApiException {
+        applicant = User.getById(createVerifiedUser("John", "Doe", createUniqueName() + "@example.com", TEST_PASSWORD));
+        firstName = applicant.getPreferredName();
+        secondName = new Name(applicant, new NamePart(NamePartType.FIRST_NAME, "James"), new NamePart(NamePartType.LAST_NAME, "Doe"));
+        thirdName = new Name(applicant, new NamePart(NamePartType.FIRST_NAME, "James"), new NamePart(NamePartType.FIRST_NAME, "John"), new NamePart(NamePartType.LAST_NAME, "Doe"));
     }
 
     private void raiseXP(User agentXP, int recurring) throws GigiApiException {
@@ -87,24 +52,19 @@ public class TestAssuranceMail extends ManagedTest {
         }
     }
 
-    private String enterVerification(String query) throws MalformedURLException, IOException {
-        return enterVerification(query, 10);
-
+    private void enterVerification(Name... names) throws GigiApiException {
+        enterVerification(10, names);
     }
 
-    private String enterVerification(String query, int points) throws MalformedURLException, IOException {
-        URLConnection uc = TestAssurance.buildupAssureFormConnection(cookieAgent, applicant.getEmail(), true);
-        uc.getOutputStream().write((query + "&date=" + validVerificationDateString() + "&location=" + createUniqueName() + "&certify=1&rules=1&assertion=1&points=" + points).getBytes("UTF-8"));
-        uc.getOutputStream().flush();
-        return IOUtils.readURL(uc);
-
+    private void enterVerification(int points, Name... names) throws GigiApiException {
+        Notary.assureAll(agent, applicant, applicant.getDoB(), points, createUniqueName(), validVerificationDateString(), AssuranceType.FACE_TO_FACE, names);
     }
 
-    private void enterVerificationInPast(int points, int nameId) {
+    private void enterVerificationInPast(int points, Name name) {
 
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `when`=? ")) {
             ps.setInt(1, agent.getId());
-            ps.setInt(2, nameId);
+            ps.setInt(2, name.getId());
             ps.setInt(3, points);
             ps.setString(4, "test-location");
             ps.setString(5, "2010-01-01");
@@ -114,13 +74,12 @@ public class TestAssuranceMail extends ManagedTest {
     }
 
     @Test
-    public void testVerificationFirstApplicant() throws MalformedURLException, IOException {
-        clearCaches();
+    public void testVerificationFirstApplicant() throws GigiApiException {
         newApplicant();
         newAgent();
 
         // verify preferred name only
-        enterVerification("assuredName=" + firstName);
+        enterVerification(firstName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 10 Verification Points." + "\n" + requiresMore(40)));
@@ -128,7 +87,7 @@ public class TestAssuranceMail extends ManagedTest {
         // verification first two names
         newAgent();
 
-        enterVerification("assuredName=" + firstName + "&assuredName=" + secondName);
+        enterVerification(firstName, secondName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 20 Verification Points." + "\n" + requiresMore(30)));
@@ -137,7 +96,7 @@ public class TestAssuranceMail extends ManagedTest {
         // verification all three names
         newAgent();
 
-        enterVerification("assuredName=" + firstName + "&assuredName=" + secondName + "&assuredName=" + thirdName);
+        enterVerification(firstName, secondName, thirdName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 30 Verification Points." + "\n" + requiresMore(20)));
@@ -147,7 +106,7 @@ public class TestAssuranceMail extends ManagedTest {
         // New verification preferred name
         newAgent();
 
-        enterVerification("assuredName=" + firstName);
+        enterVerification(firstName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 40 Verification Points." + "\n" + requiresMore(10)));
@@ -155,7 +114,7 @@ public class TestAssuranceMail extends ManagedTest {
         // verification all three names reaches 50 VP
         newAgent();
 
-        enterVerification("assuredName=" + firstName + "&assuredName=" + secondName + "&assuredName=" + thirdName);
+        enterVerification(firstName, secondName, thirdName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 50 Verification Points." + "\n" + "You can now issue client certificates with this name."));
@@ -166,7 +125,7 @@ public class TestAssuranceMail extends ManagedTest {
         // verification all three names reaches 60 VP
         newAgent();
 
-        enterVerification("assuredName=" + firstName + "&assuredName=" + secondName + "&assuredName=" + thirdName);
+        enterVerification(firstName, secondName, thirdName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 60 Verification Points."));
@@ -177,7 +136,7 @@ public class TestAssuranceMail extends ManagedTest {
         // verification all three names reaches 70 VP
         newAgent();
 
-        enterVerification("assuredName=" + firstName + "&assuredName=" + secondName + "&assuredName=" + thirdName);
+        enterVerification(firstName, secondName, thirdName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 70 Verification Points."));
@@ -188,7 +147,7 @@ public class TestAssuranceMail extends ManagedTest {
         // verification all three names reaches 80 VP
         newAgent();
 
-        enterVerification("assuredName=" + firstName + "&assuredName=" + secondName + "&assuredName=" + thirdName);
+        enterVerification(firstName, secondName, thirdName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 80 Verification Points."));
@@ -199,7 +158,7 @@ public class TestAssuranceMail extends ManagedTest {
         // verification all three names reaches 90 VP
         newAgent();
 
-        enterVerification("assuredName=" + firstName + "&assuredName=" + secondName + "&assuredName=" + thirdName);
+        enterVerification(firstName, secondName, thirdName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 90 Verification Points."));
@@ -208,10 +167,9 @@ public class TestAssuranceMail extends ManagedTest {
         assertThat(message, containsString(requiresMoreTotal(10)));
 
         // verification all three names reaches 100 VP
-        clearCaches();
         newAgent();
 
-        enterVerification("assuredName=" + firstName + "&assuredName=" + secondName + "&assuredName=" + thirdName);
+        enterVerification(firstName, secondName, thirdName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 100 Verification Points."));
@@ -222,7 +180,7 @@ public class TestAssuranceMail extends ManagedTest {
         // verification all three names reaches 100 VP
         newAgent();
 
-        enterVerification("assuredName=" + firstName + "&assuredName=" + secondName + "&assuredName=" + thirdName);
+        enterVerification(firstName, secondName, thirdName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 110 Verification Points."));
@@ -239,40 +197,37 @@ public class TestAssuranceMail extends ManagedTest {
     }
 
     @Test
-    public void testVerificationSecondApplicant() throws MalformedURLException, IOException {
-        clearCaches();
+    public void testVerificationSecondApplicant() throws GigiApiException {
         newApplicant();
 
         // verify preferred name only 5 times
         newAgent();
-        enterVerification("assuredName=" + firstName);
+        enterVerification(firstName);
         message = getMailReceiver().receive().getMessage();
 
         newAgent();
-        enterVerification("assuredName=" + firstName);
+        enterVerification(firstName);
         message = getMailReceiver().receive().getMessage();
 
         newAgent();
-        enterVerification("assuredName=" + firstName);
+        enterVerification(firstName);
         message = getMailReceiver().receive().getMessage();
 
         newAgent();
-        enterVerification("assuredName=" + firstName);
+        enterVerification(firstName);
         message = getMailReceiver().receive().getMessage();
 
         newAgent();
-        enterVerification("assuredName=" + firstName);
+        enterVerification(firstName);
 
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 50 Verification Points." + "\n" + "You can now issue client certificates with this name."));
         assertThat(message, containsString(requiresMoreTotal(50)));
 
-        clearCaches();
-
         // verify preferred name second name
         newAgent();
-        enterVerification("assuredName=" + secondName);
+        enterVerification(secondName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("James Doe: with 10 to total 10 Verification Points." + "\n" + requiresMore(40)));
@@ -280,19 +235,19 @@ public class TestAssuranceMail extends ManagedTest {
 
         // verify preferred name second name 4 more times
         newAgent();
-        enterVerification("assuredName=" + secondName);
+        enterVerification(secondName);
         message = getMailReceiver().receive().getMessage();
 
         newAgent();
-        enterVerification("assuredName=" + secondName);
+        enterVerification(secondName);
         message = getMailReceiver().receive().getMessage();
 
         newAgent();
-        enterVerification("assuredName=" + secondName);
+        enterVerification(secondName);
         message = getMailReceiver().receive().getMessage();
 
         newAgent();
-        enterVerification("assuredName=" + secondName);
+        enterVerification(secondName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("James Doe: with 10 to total 50 Verification Points." + "\n" + "You can now issue client certificates with this name."));
@@ -300,14 +255,14 @@ public class TestAssuranceMail extends ManagedTest {
 
         // get more than 100 VP in total
         newAgent();
-        enterVerification("assuredName=" + secondName);
+        enterVerification(secondName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("James Doe: with 10 to total 60 Verification Points."));
 
         // verify third name
         newAgent();
-        enterVerification("assuredName=" + thirdName);
+        enterVerification(thirdName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("James John Doe: with 10 to total 10 Verification Points." + "\n" + requiresMore(40)));
@@ -315,8 +270,7 @@ public class TestAssuranceMail extends ManagedTest {
     }
 
     @Test
-    public void testVerificationMultiple() throws MalformedURLException, IOException, GigiApiException {
-        clearCaches();
+    public void testVerificationMultiple() throws GigiApiException {
         newApplicant();
 
         // verify with 35 VP
@@ -342,7 +296,7 @@ public class TestAssuranceMail extends ManagedTest {
         enterVerificationInPast(10, firstName);
 
         // add second Verification result first name 50 VP
-        enterVerification("assuredName=" + firstName, 15);
+        enterVerification(15, firstName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 15 to total 50 Verification Points." + "\n" + "You can now issue client certificates with this name."));
@@ -368,7 +322,7 @@ public class TestAssuranceMail extends ManagedTest {
         enterVerificationInPast(10, secondName);
 
         // add second Verification result first name 100 VP, second name 50 VP
-        enterVerification("assuredName=" + firstName + "&assuredName=" + secondName, 15);
+        enterVerification(15, firstName, secondName);
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 15 to total 100 Verification Points."));
