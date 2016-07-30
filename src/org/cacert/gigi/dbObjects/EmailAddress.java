@@ -2,6 +2,7 @@ package org.cacert.gigi.dbObjects;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.Locale;
 
 import org.cacert.gigi.GigiApiException;
@@ -148,5 +149,21 @@ public class EmailAddress implements IdCachable, Verifyable {
             myCache.put(em = new EmailAddress(id));
         }
         return em;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public static EmailAddress[] findByAllEmail(String mail) {
+        LinkedList<EmailAddress> results = new LinkedList<EmailAddress>();
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `emails`.`id` FROM `emails` INNER JOIN `users` ON `users`.`id` = `emails`.`memid` INNER JOIN `certOwners` ON `certOwners`.`id` = `users`.`id` WHERE `emails`.`email` LIKE ? AND `emails`.`deleted` IS NULL AND `certOwners`.`deleted` IS NULL ORDER BY `users`.`id`, `emails`.`email` LIMIT 100")) {
+            ps.setString(1, mail);
+            GigiResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                results.add(EmailAddress.getById(rs.getInt(1)));
+            }
+            return results.toArray(new EmailAddress[results.size()]);
+        }
     }
 }

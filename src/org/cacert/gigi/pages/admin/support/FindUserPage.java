@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
@@ -35,9 +35,9 @@ public class FindUserPage extends Page {
         FindUserForm form = Form.getForm(req, FindUserForm.class);
         try {
             form.submit(resp.getWriter(), req);
-            final User[] users = form.getUsers();
-            if (users.length == 1) {
-                resp.sendRedirect(SupportUserDetailsPage.PATH + users[0].getId());
+            final EmailAddress[] emails = form.getEmails();
+            if (emails.length == 1) {
+                resp.sendRedirect(SupportUserDetailsPage.PATH + emails[0].getOwner().getId());
             } else {
                 HashMap<String, Object> vars = new HashMap<String, Object>();
                 vars.put("first", false);
@@ -47,11 +47,11 @@ public class FindUserPage extends Page {
 
                     @Override
                     public boolean next(Language l, Map<String, Object> vars) {
-                        if (i == users.length) {
+                        if (i == emails.length) {
                             return false;
                         }
-                        vars.put("usrid", users[i].getId());
-                        vars.put("usermail", users[i].getEmail());
+                        vars.put("usrid", emails[i].getOwner().getId());
+                        vars.put("usermail", emails[i].getAddress());
                         i++;
                         return true;
                     }

@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.SprintfCommand;
@@ -14,7 +14,7 @@ import org.cacert.gigi.output.template.Template;
 
 public class FindUserForm extends Form {
 
-    private User users[];
+    private EmailAddress emails[];
 
     private static final Template t = new Template(FindDomainForm.class.getResource("FindUserForm.templ"));
 
@@ -24,11 +24,11 @@ public class FindUserForm extends Form {
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
-        User[] users = User.findByEmail(req.getParameter("email"));
-        if (users.length == 0) {
+        EmailAddress[] emails = EmailAddress.findByAllEmail(req.getParameter("email"));
+        if (emails.length == 0) {
             throw new GigiApiException(SprintfCommand.createSimple("No users found matching {0}", req.getParameter("email")));
         }
-        this.users = users;
+        this.emails = emails;
         return true;
     }
 
@@ -37,8 +37,8 @@ public class FindUserForm extends Form {
         t.output(out, l, vars);
     }
 
-    public User[] getUsers() {
-        return users;
+    public EmailAddress[] getEmails() {
+        return emails;
     }
 
 }
