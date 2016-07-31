@@ -35,6 +35,7 @@ import org.cacert.gigi.util.DatabaseManager;
 import org.cacert.gigi.util.DomainAssessment;
 import org.cacert.gigi.util.Notary;
 import org.cacert.gigi.util.PEM;
+import org.cacert.gigi.util.PasswordHash;
 import org.cacert.gigi.util.ServerConstants;
 import org.cacert.gigi.util.TimeConditions;
 import org.junit.BeforeClass;
@@ -82,6 +83,7 @@ public abstract class ConfiguredTest {
         ServerConstants.init(props);
         TimeConditions.init(props);
         DomainAssessment.init(props);
+        PasswordHash.init(props);
 
         if ( !DatabaseConnection.isInited()) {
             DatabaseConnection.init(testProps);
@@ -114,6 +116,7 @@ public abstract class ConfiguredTest {
             }
         }
         mainProps.setProperty("highFinancialValue", out.getAbsolutePath());
+        mainProps.setProperty("scrypt.params", "1;1;1");
         return mainProps;
     }
 

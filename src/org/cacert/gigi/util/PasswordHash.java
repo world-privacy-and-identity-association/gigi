@@ -3,6 +3,7 @@ package org.cacert.gigi.util;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Properties;
 
 import com.lambdaworks.crypto.SCryptUtil;
 
@@ -68,6 +69,49 @@ public class PasswordHash {
     }
 
     public static String hash(String password) {
-        return SCryptUtil.scrypt(password, 1 << 14, 8, 1);
+        return SCryptUtil.scrypt(password, N, r, p);
+    }
+
+    private static int N = 1 << 14;
+
+    private static int r = 8;
+
+    private static int p = 1;
+
+    private static boolean initialized = false;
+
+    public static synchronized void init(Properties prop) {
+        if (initialized) {
+            throw new IllegalStateException("Already initialized.");
+        }
+        String val = prop.getProperty("scrypt.params", "14;8;1");
+        String[] parts = val.split(";", 3);
+        int N = 1 << Integer.parseInt(parts[0]);
+        int r = Integer.parseInt(parts[1]);
+        int p = Integer.parseInt(parts[2]);
+        checkScryptParams(N, r, p);
+        PasswordHash.N = N;
+        PasswordHash.r = r;
+        PasswordHash.p = p;
+        initialized = true;
+    }
+
+    private static void checkScryptParams(int N, int r, int p) {
+        if (N < 2 || (N & (N - 1)) != 0) {
+            throw new IllegalArgumentException("N must be a power of 2 greater than 1");
+        }
+        if (r <= 0) {
+            throw new IllegalArgumentException("Parameter r zero or negative");
+        }
+        if (p <= 0) {
+            throw new IllegalArgumentException("Parameter p zero or negative");
+        }
+
+        if (N > Integer.MAX_VALUE / 128 / r) {
+            throw new IllegalArgumentException("Parameter N is too large");
+        }
+        if (r > Integer.MAX_VALUE / 128 / p) {
+            throw new IllegalArgumentException("Parameter r is too large");
+        }
     }
 }
