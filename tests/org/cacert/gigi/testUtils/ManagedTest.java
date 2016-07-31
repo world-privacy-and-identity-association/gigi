@@ -468,13 +468,17 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     public EmailAddress createVerifiedEmail(User u) throws InterruptedException, GigiApiException {
-        EmailAddress adrr = new EmailAddress(u, createUniqueName() + "test@test.tld", Locale.ENGLISH);
+        return createVerifiedEmail(u, createUniqueName() + "test@test.tld");
+    }
+
+    public EmailAddress createVerifiedEmail(User u, String email) throws InterruptedException, GigiApiException {
+        EmailAddress addr = new EmailAddress(u, email, Locale.ENGLISH);
         TestMail testMail = getMailReceiver().receive();
-        assertEquals(adrr.getAddress(), testMail.getTo());
+        assertEquals(addr.getAddress(), testMail.getTo());
         String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);
-        adrr.verify(hash);
+        addr.verify(hash);
         getMailReceiver().clearMails();
-        return adrr;
+        return addr;
     }
 
     public static URLConnection cookie(URLConnection openConnection, String cookie) {
