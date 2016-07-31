@@ -136,7 +136,7 @@ public class User extends CertificateOwner {
     public void setDoB(DayDate dob) throws GigiApiException {
         synchronized (Notary.class) {
             if (getReceivedAssurances().length != 0) {
-                throw new GigiApiException("No change after assurance allowed.");
+                throw new GigiApiException("No change after verification allowed.");
             }
 
             if ( !CalendarUtil.isOfAge(dob, User.MINIMUM_AGE)) {

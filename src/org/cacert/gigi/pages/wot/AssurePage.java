@@ -26,7 +26,7 @@ public class AssurePage extends Page {
     private static final Template t = new Template(AssuranceForm.class.getResource("AssureeSearch.templ"));
 
     public AssurePage() {
-        super("Assure someone");
+        super("Verify someone");
 
     }
 
@@ -51,7 +51,7 @@ public class AssurePage extends Page {
             AssuranceForm form = Form.getForm(req, AssuranceForm.class);
             try {
                 if (form.submit(out, req)) {
-                    out.println(translate(req, "Assurance complete."));
+                    out.println(translate(req, "Verification complete."));
                     return;
                 }
             } catch (GigiApiException e) {
