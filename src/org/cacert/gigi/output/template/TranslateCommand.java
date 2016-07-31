@@ -1,6 +1,7 @@
 package org.cacert.gigi.output.template;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
@@ -10,7 +11,9 @@ import org.cacert.gigi.util.HTMLEncoder;
 /**
  * Wraps a String that needs to be translated before it is printed to the user.
  */
-public final class TranslateCommand implements Translatable {
+public final class TranslateCommand implements Translatable, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final String raw;
 
