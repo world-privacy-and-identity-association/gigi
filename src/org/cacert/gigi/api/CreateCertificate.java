@@ -79,8 +79,6 @@ public class CreateCertificate extends APIPoint {
             resp.setStatus(500);
             PrintWriter wr = resp.getWriter();
             e.formatPlain(wr);
-        } catch (InterruptedException e) {
-            resp.sendError(500, "Interrupted");
         }
     }
 }

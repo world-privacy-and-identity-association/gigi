@@ -104,8 +104,6 @@ public class CertificateIssueForm extends Form {
             } catch (GeneralSecurityException e) {
                 e.printStackTrace();
                 throw new GigiApiException("Certificate Request format is invalid.");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         } catch (GigiApiException e) {
             e.format(out, Page.getLanguage(req));

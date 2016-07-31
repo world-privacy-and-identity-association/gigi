@@ -51,7 +51,7 @@ public class Job implements IdCachable {
         }
     }
 
-    public synchronized boolean waitFor(int max) throws InterruptedException {
+    public synchronized boolean waitFor(int max) {
         long start = System.currentTimeMillis();
         try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `jobs` WHERE id=? AND state='open'")) {
             ps.setInt(1, id);
@@ -61,7 +61,12 @@ public class Job implements IdCachable {
                 if (max != 0 && System.currentTimeMillis() - start > max) {
                     return false;
                 }
-                Thread.sleep((long) (2000 + Math.random() * 2000));
+                try {
+                    this.wait((long) (2000 + Math.random() * 2000));
+                } catch (InterruptedException ie) {
+                    // Ignore the interruption
+                    ie.printStackTrace();
+                }
                 rs = ps.executeQuery();
             }
         }

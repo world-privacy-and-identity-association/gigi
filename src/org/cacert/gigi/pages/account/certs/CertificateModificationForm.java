@@ -48,15 +48,11 @@ public class CertificateModificationForm extends Form {
         }
         long start = System.currentTimeMillis();
         for (Job job : revokes) {
-            try {
-                int toWait = (int) (60000 + start - System.currentTimeMillis());
-                if (toWait > 0) {
-                    job.waitFor(toWait);
-                } else {
-                    break; // canceled... waited too log
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            int toWait = (int) (60000 + start - System.currentTimeMillis());
+            if (toWait > 0) {
+                job.waitFor(toWait);
+            } else {
+                break; // canceled... waited too log
             }
         }
 

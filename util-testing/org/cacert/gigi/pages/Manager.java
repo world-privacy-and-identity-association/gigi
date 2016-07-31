@@ -352,9 +352,6 @@ public class Manager extends Page {
                 resp.getWriter().println("error");
             } catch (GigiApiException e) {
                 e.format(resp.getWriter(), Language.getInstance(Locale.ENGLISH));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                resp.getWriter().println("interrupted");
             }
 
         } else if (req.getParameter("addExDom") != null) {
