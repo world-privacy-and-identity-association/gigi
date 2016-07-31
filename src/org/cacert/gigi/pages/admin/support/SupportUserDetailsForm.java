@@ -26,7 +26,7 @@ import org.cacert.gigi.pages.PasswordResetPage;
 
 public class SupportUserDetailsForm extends Form {
 
-    private static final Template t = new Template(FindDomainForm.class.getResource("SupportUserDetailsForm.templ"));
+    private static final Template t = new Template(FindUserByDomainForm.class.getResource("SupportUserDetailsForm.templ"));
 
     private SupportedUser user;
 

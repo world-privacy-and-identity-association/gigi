@@ -7,17 +7,17 @@ import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.OneFormPage;
 import org.cacert.gigi.util.AuthorizationContext;
 
-public class FindDomainPage extends OneFormPage {
+public class FindUserByDomainPage extends OneFormPage {
 
     public static final String PATH = "/support/find/domain";
 
-    public FindDomainPage() {
-        super("Find Domain", FindDomainForm.class);
+    public FindUserByDomainPage() {
+        super("Find Domain", FindUserByDomainForm.class);
     }
 
     @Override
     public String getSuccessPath(Form f) {
-        CertificateOwner res = ((FindDomainForm) f).getRes();
+        CertificateOwner res = ((FindUserByDomainForm) f).getRes();
         if (res instanceof User) {
             return SupportUserDetailsPage.PATH + res.getId();
         } else if (res instanceof Organisation) {

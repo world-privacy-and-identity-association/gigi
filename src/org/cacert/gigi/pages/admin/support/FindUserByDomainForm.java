@@ -13,13 +13,13 @@ import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.output.template.Template;
 
-public class FindDomainForm extends Form {
+public class FindUserByDomainForm extends Form {
 
     private CertificateOwner res = null;
 
-    private static final Template t = new Template(FindDomainForm.class.getResource("FindDomainForm.templ"));
+    private static final Template t = new Template(FindUserByDomainForm.class.getResource("FindUserByDomainForm.templ"));
 
-    public FindDomainForm(HttpServletRequest hsr) {
+    public FindUserByDomainForm(HttpServletRequest hsr) {
         super(hsr);
     }
 

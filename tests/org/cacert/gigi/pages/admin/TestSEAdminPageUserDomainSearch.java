@@ -13,7 +13,7 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.pages.admin.support.FindDomainPage;
+import org.cacert.gigi.pages.admin.support.FindUserByDomainPage;
 import org.cacert.gigi.pages.admin.support.SupportEnterTicketPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
 import org.cacert.gigi.testUtils.ClientTest;
@@ -45,20 +45,20 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
 
     @Test
     public void testDomainSearch() throws MalformedURLException, UnsupportedEncodingException, IOException, GigiApiException {
-        URLConnection uc = post(FindDomainPage.PATH, "process&domain=" + URLEncoder.encode(domainName, "UTF-8"));
+        URLConnection uc = post(FindUserByDomainPage.PATH, "process&domain=" + URLEncoder.encode(domainName, "UTF-8"));
 
         assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + tid, uc.getHeaderField("Location"));
     }
 
     @Test
     public void testDomainSearchById() throws MalformedURLException, UnsupportedEncodingException, IOException, GigiApiException {
-        URLConnection uc = post(FindDomainPage.PATH, "process&domain=#" + d.getId());
+        URLConnection uc = post(FindUserByDomainPage.PATH, "process&domain=#" + d.getId());
         assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + tid, uc.getHeaderField("Location"));
     }
 
     @Test
     public void testDomainSearchNonExist() throws MalformedURLException, UnsupportedEncodingException, IOException, GigiApiException {
-        URLConnection uc = post(FindDomainPage.PATH, "process&domain=" + URLEncoder.encode(createUniqueName() + ".de", "UTF-8"));
+        URLConnection uc = post(FindUserByDomainPage.PATH, "process&domain=" + URLEncoder.encode(createUniqueName() + ".de", "UTF-8"));
         assertNotNull(fetchStartErrorMessage(IOUtils.readURL(uc)));
     }
 
@@ -76,7 +76,7 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
             found = true;
         }
         assumeTrue(found);
-        URLConnection uc = post(FindDomainPage.PATH, "process&domain=#" + id);
+        URLConnection uc = post(FindUserByDomainPage.PATH, "process&domain=#" + id);
         assertNotNull(fetchStartErrorMessage(IOUtils.readURL(uc)));
     }
 }

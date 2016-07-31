@@ -10,7 +10,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 
 import org.cacert.gigi.dbObjects.Group;
-import org.cacert.gigi.pages.admin.support.FindUserPage;
+import org.cacert.gigi.pages.admin.support.FindUserByEmailPage;
 import org.cacert.gigi.pages.admin.support.SupportEnterTicketPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
 import org.cacert.gigi.testUtils.ClientTest;
@@ -30,7 +30,7 @@ public class TestSEAdminPageUserMailSearch extends ClientTest {
         String mail = createUniqueName() + "@example.com";
         int id = createVerifiedUser("Först", "Secönd", mail, TEST_PASSWORD);
 
-        URLConnection uc = post(cookie, FindUserPage.PATH, "process&email=" + URLEncoder.encode(mail, "UTF-8"), 0);
+        URLConnection uc = post(cookie, FindUserByEmailPage.PATH, "process&email=" + URLEncoder.encode(mail, "UTF-8"), 0);
         assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
     }
 
@@ -39,7 +39,7 @@ public class TestSEAdminPageUserMailSearch extends ClientTest {
         String mail = createUniqueName() + "@example.tld";
         int id = createVerifiedUser("Först", "Secönd", mail, TEST_PASSWORD);
 
-        URLConnection uc = post(cookie, FindUserPage.PATH, "process&email=" + URLEncoder.encode("%@example.tld", "UTF-8"), 0);
+        URLConnection uc = post(cookie, FindUserByEmailPage.PATH, "process&email=" + URLEncoder.encode("%@example.tld", "UTF-8"), 0);
         assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + id, uc.getHeaderField("Location"));
     }
 
@@ -49,7 +49,7 @@ public class TestSEAdminPageUserMailSearch extends ClientTest {
         int id = createVerifiedUser("Först", "Secönd", mail, TEST_PASSWORD);
         String mail2 = createUniqueName() + "@example.org";
         int id2 = createVerifiedUser("Först", "Secönd", mail2, TEST_PASSWORD);
-        URLConnection uc = post(cookie, FindUserPage.PATH, "process&email=" + URLEncoder.encode("%@example.org", "UTF-8"), 0);
+        URLConnection uc = post(cookie, FindUserByEmailPage.PATH, "process&email=" + URLEncoder.encode("%@example.org", "UTF-8"), 0);
 
         String res = IOUtils.readURL(uc);
         assertThat(res, containsString(SupportUserDetailsPage.PATH + id));
@@ -63,7 +63,7 @@ public class TestSEAdminPageUserMailSearch extends ClientTest {
         String mail2 = createUniqueName() + "@fxample.org";
         int id2 = createVerifiedUser("Först", "Secönd", mail2, TEST_PASSWORD);
 
-        URLConnection uc = post(cookie, FindUserPage.PATH, "process&email=" + URLEncoder.encode("%@_xample.org", "UTF-8"), 0);
+        URLConnection uc = post(cookie, FindUserByEmailPage.PATH, "process&email=" + URLEncoder.encode("%@_xample.org", "UTF-8"), 0);
 
         String res = IOUtils.readURL(uc);
         assertThat(res, containsString(SupportUserDetailsPage.PATH + id));
@@ -72,13 +72,13 @@ public class TestSEAdminPageUserMailSearch extends ClientTest {
 
     @Test
     public void testWildcardMailSearchNoRes() throws MalformedURLException, UnsupportedEncodingException, IOException {
-        URLConnection uc = post(FindUserPage.PATH, "process&email=" + URLEncoder.encode("%@_humpfelkumpf.org", "UTF-8"));
+        URLConnection uc = post(FindUserByEmailPage.PATH, "process&email=" + URLEncoder.encode("%@_humpfelkumpf.org", "UTF-8"));
         assertNotNull(fetchStartErrorMessage(IOUtils.readURL(uc)));
     }
 
     @Test
     public void testFulltextMailSearchNoRes() throws MalformedURLException, UnsupportedEncodingException, IOException {
-        URLConnection uc = post(cookie, FindUserPage.PATH, "process&email=" + URLEncoder.encode(createUniqueName() + "@example.org", "UTF-8"), 0);
+        URLConnection uc = post(cookie, FindUserByEmailPage.PATH, "process&email=" + URLEncoder.encode(createUniqueName() + "@example.org", "UTF-8"), 0);
 
         assertNotNull(fetchStartErrorMessage(IOUtils.readURL(uc)));
     }

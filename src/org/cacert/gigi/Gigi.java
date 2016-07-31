@@ -58,8 +58,8 @@ import org.cacert.gigi.pages.account.certs.Certificates;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.pages.account.mail.MailOverview;
 import org.cacert.gigi.pages.admin.TTPAdminPage;
-import org.cacert.gigi.pages.admin.support.FindDomainPage;
-import org.cacert.gigi.pages.admin.support.FindUserPage;
+import org.cacert.gigi.pages.admin.support.FindUserByDomainPage;
+import org.cacert.gigi.pages.admin.support.FindUserByEmailPage;
 import org.cacert.gigi.pages.admin.support.SupportEnterTicketPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
 import org.cacert.gigi.pages.error.AccessDenied;
@@ -153,8 +153,8 @@ public final class Gigi extends HttpServlet {
             putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Organisation Admin");
 
             putPage(SupportEnterTicketPage.PATH, new SupportEnterTicketPage(), "Support Console");
-            putPage(FindUserPage.PATH, new FindUserPage(), "Support Console");
-            putPage(FindDomainPage.PATH, new FindDomainPage(), "Support Console");
+            putPage(FindUserByEmailPage.PATH, new FindUserByEmailPage(), "Support Console");
+            putPage(FindUserByDomainPage.PATH, new FindUserByDomainPage(), "Support Console");
 
             putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage(), null);
             putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");

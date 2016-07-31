@@ -15,24 +15,24 @@ import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.AuthorizationContext;
 
-public class FindUserPage extends Page {
+public class FindUserByEmailPage extends Page {
 
-    public static final String PATH = "/support/find/user";
+    public static final String PATH = "/support/find/email";
 
-    public FindUserPage() {
-        super("Find User");
+    public FindUserByEmailPage() {
+        super("Find Email");
     }
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HashMap<String, Object> vars = new HashMap<String, Object>();
         vars.put("first", true);
-        new FindUserForm(req).output(resp.getWriter(), Page.getLanguage(req), vars);
+        new FindUserByEmailForm(req).output(resp.getWriter(), Page.getLanguage(req), vars);
     }
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        FindUserForm form = Form.getForm(req, FindUserForm.class);
+        FindUserByEmailForm form = Form.getForm(req, FindUserByEmailForm.class);
         try {
             form.submit(resp.getWriter(), req);
             final EmailAddress[] emails = form.getEmails();

@@ -12,13 +12,13 @@ import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.output.template.Template;
 
-public class FindUserForm extends Form {
+public class FindUserByEmailForm extends Form {
 
     private EmailAddress emails[];
 
-    private static final Template t = new Template(FindDomainForm.class.getResource("FindUserForm.templ"));
+    private static final Template t = new Template(FindUserByDomainForm.class.getResource("FindUserByEmailForm.templ"));
 
-    public FindUserForm(HttpServletRequest hsr) {
+    public FindUserByEmailForm(HttpServletRequest hsr) {
         super(hsr);
     }
 
