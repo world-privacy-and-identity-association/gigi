@@ -104,6 +104,7 @@ public abstract class Form implements Outputable {
      * @throws CSRFException
      *             if no CSRF-token is found or the token is wrong.
      */
+    @SuppressWarnings("unchecked")
     public static <T extends Form> T getForm(HttpServletRequest req, Class<T> target) throws CSRFException {
         String csrf = req.getParameter(CSRF_FIELD);
         if (csrf == null) {
@@ -113,10 +114,17 @@ public abstract class Form implements Outputable {
         if (hs == null) {
             throw new CSRFException();
         }
-        Form f = (Form) hs.getAttribute("form/" + target.getName() + "/" + csrf);
+        Object f = hs.getAttribute("form/" + target.getName() + "/" + csrf);
         if (f == null) {
             throw new CSRFException();
         }
+        if ( !(f instanceof Form)) {
+            throw new CSRFException();
+        }
+        if ( !target.isInstance(f)) {
+            throw new CSRFException();
+        }
+        // Dynamic Cast checked by previous if statement
         return (T) f;
     }
 
