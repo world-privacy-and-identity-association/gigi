@@ -89,7 +89,11 @@ public class CACertificate implements IdCachable {
         CertificateFactory xf = CertificateFactory.getInstance("X509");
         HashMap<X500Principal, X509Certificate> map = new HashMap<>();
         HashMap<X500Principal, String> names = new HashMap<>();
-        for (File f : scandir.listFiles()) {
+        File[] scandirfiles = scandir.listFiles();
+        if (null == scandirfiles) {
+            scandirfiles = new File[0];
+        }
+        for (File f : scandirfiles) {
             X509Certificate cert = (X509Certificate) xf.generateCertificate(new FileInputStream(f));
             X500Principal princip = cert.getSubjectX500Principal();
             map.put(princip, cert);

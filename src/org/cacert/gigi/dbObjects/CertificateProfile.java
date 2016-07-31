@@ -180,7 +180,13 @@ public class CertificateProfile implements IdCachable {
         final HashMap<String, CertificateProfile> myName = new HashMap<String, CertificateProfile>();
         final HashMap<Integer, CertificateProfile> myId = new HashMap<Integer, CertificateProfile>();
 
-        for (File f : new File("config/profiles").listFiles()) {
+        File profiledir = new File("config/profiles");
+        File[] profilelist = profiledir.listFiles();
+        if (null == profilelist) {
+            throw new Error("Unable to list available profiles from " + profiledir.getName());
+        }
+
+        for (File f : profilelist) {
             Properties p = new Properties();
             try (FileInputStream inStream = new FileInputStream(f)) {
                 p.load(inStream);
