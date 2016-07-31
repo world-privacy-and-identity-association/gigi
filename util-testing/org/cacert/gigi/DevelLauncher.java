@@ -122,8 +122,12 @@ public class DevelLauncher {
 
             // Check if we got a proper map (as much as we can tell)
             Object pagesObj = pageF.get(gigi);
+            if ( !(pagesObj instanceof Map)) {
+                throw new Error("Invalid state when initializing page structure");
+            }
+
             @SuppressWarnings("unchecked")
-            HashMap<String, Page> pages = pagesObj instanceof Map ? new HashMap<>((Map<String, Page>) pagesObj) : null;
+            HashMap<String, Page> pages = new HashMap<>((Map<String, Page>) pagesObj);
 
             pages.put("/manage", new Page("Page-manager") {
 
