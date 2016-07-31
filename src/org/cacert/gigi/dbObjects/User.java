@@ -396,7 +396,7 @@ public class User extends CertificateOwner {
 
     }
 
-    public Name getPreferredName() {
+    public synchronized Name getPreferredName() {
         return preferredName;
     }
 
