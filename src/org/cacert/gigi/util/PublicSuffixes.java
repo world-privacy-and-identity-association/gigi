@@ -2,24 +2,31 @@ package org.cacert.gigi.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.IDN;
 import java.util.HashSet;
 
 public class PublicSuffixes {
 
-    HashSet<String> suffixes = new HashSet<>();
+    private HashSet<String> suffixes = new HashSet<>();
 
-    HashSet<String> wildcards = new HashSet<>();
+    private HashSet<String> wildcards = new HashSet<>();
 
-    HashSet<String> exceptions = new HashSet<>();
+    private HashSet<String> exceptions = new HashSet<>();
 
-    private static final String url = "https://publicsuffix.org/list/effective_tld_names.dat";
+    static final String url = "https://publicsuffix.org/list/effective_tld_names.dat";
 
     private static PublicSuffixes instance;
 
     private static PublicSuffixes generateDefault() throws IOException {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(PublicSuffixes.class.getResourceAsStream("effective_tld_names.dat"), "UTF-8"))) {
+        InputStream res = PublicSuffixes.class.getResourceAsStream("effective_tld_names.dat");
+
+        if (null == res) {
+            throw new Error("Public Suffix List could not be loaded.");
+        }
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(res, "UTF-8"))) {
             return new PublicSuffixes(br);
         }
     }
@@ -128,4 +135,5 @@ public class PublicSuffixes {
         }
         return false;
     }
+
 }
