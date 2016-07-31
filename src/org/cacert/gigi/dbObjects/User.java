@@ -257,6 +257,7 @@ public class User extends CertificateOwner {
      * 
      * @return the maximal points @
      */
+    @SuppressWarnings("unused")
     public int getMaxAssurePoints() {
         if ( !CalendarUtil.isOfAge(dob, ADULT_AGE) && POJAM_ENABLED) {
             return 10; // PoJAM
