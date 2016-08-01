@@ -29,6 +29,7 @@ public class UserTrainings extends Page {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         User u;
+        HashMap<String, Object> vars = new HashMap<>();
         if (support) {
             String info = req.getPathInfo();
             int id = Integer.parseInt(info.substring(intStart, info.length() - SUPPORT_PATH.length() + intStart + 1));
@@ -37,10 +38,10 @@ public class UserTrainings extends Page {
                 resp.sendError(404);
                 return;
             }
+            vars.put("username", u.getPreferredName().toString());
         } else {
             u = getUser(req);
         }
-        HashMap<String, Object> vars = new HashMap<>();
         vars.put("entries", new OutputableArrayIterable(u.getTrainings(), "entry"));
         getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
     }

@@ -6,10 +6,8 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.template.OutputableArrayIterable;
-import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.AuthorizationContext;
 
@@ -30,7 +28,8 @@ public class History extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        CertificateOwner u;
+        User u;
+        HashMap<String, Object> vars = new HashMap<>();
         if (support) {
             String info = req.getPathInfo();
             int id = Integer.parseInt(info.substring(intStart, info.length() - SUPPORT_PATH.length() + intStart + 1));
@@ -39,11 +38,11 @@ public class History extends Page {
                 resp.sendError(404);
                 return;
             }
+            vars.put("username", u.getPreferredName().toString());
         } else {
-            u = LoginPage.getAuthorizationContext(req).getTarget();
+            u = getUser(req);
         }
         String[] adminLog = u.getAdminLog();
-        HashMap<String, Object> vars = new HashMap<>();
         vars.put("entries", new OutputableArrayIterable(adminLog, "entry"));
         getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
     }

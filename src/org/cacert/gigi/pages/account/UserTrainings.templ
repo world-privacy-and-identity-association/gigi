@@ -1,6 +1,6 @@
 <table class="table">
 <tbody>
-<tr><th><?=_Trainings?></th></tr>
+<tr><th><? if($username) { ?><?=_Trainings of ${username}?><? } else { ?><?=_Trainings?><? } ?></th></tr>
 <? foreach($entries) { ?>
 <tr><td><?=$entry?></td></tr>
 <? } ?>
