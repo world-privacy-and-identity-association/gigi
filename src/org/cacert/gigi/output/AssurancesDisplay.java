@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 import org.cacert.gigi.dbObjects.Assurance;
+import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Outputable;
@@ -44,12 +45,13 @@ public class AssurancesDisplay implements Outputable {
                     Assurance assurance = assurances[i];
                     vars.put("id", assurance.getId());
                     vars.put("method", assurance.getMethod());
+                    Name to = assurance.getTo();
                     if (assurer) {
-                        vars.put("verbVal", assurance.getTo().getOwner().getId());
-                        vars.put("myName", assurance.getTo());
+                        vars.put("verbVal", to == null ? l.getTranslation("applicant's name removed") : to.getOwner().getId());
+                        vars.put("myName", to == null ? l.getTranslation("applicant's name removed") : to);
                     } else {
                         vars.put("verbVal", assurance.getFrom().getPreferredName());
-                        vars.put("myName", assurance.getTo());
+                        vars.put("myName", to == null ? l.getTranslation("own name removed") : to);
                     }
                     vars.put("date", assurance.getDate());
                     vars.put("location", assurance.getLocation());
