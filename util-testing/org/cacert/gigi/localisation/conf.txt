@@ -5,7 +5,7 @@ org.cacert.gigi Gigi.MenuBuilder.putPage(String, Page, String),2
 org.cacert.gigi Gigi.MenuBuilder.getMenu(String),0
 org.cacert.gigi GigiApiException.GigiApiException(String),0=>org.cacert.gigi GigiApiException.formatPlain(PrintWriter),0
 org.cacert.gigi.output Menu.Menu(String),0=>org.cacert.gigi.output Menu.output(PrintWriter, Language, Map),0
-org.cacert.gigi.output SimpleMenuItem.SimpleMenuItem(String, String),1=>org.cacert.gigi.output SimpleMenuItem.output(PrintWriter, Language, Map),0
+org.cacert.gigi.output SimpleMenuItem.SimpleMenuItem(String, String),1=>org.cacert.gigi.output SimpleMenuItem.printContent(PrintWriter, Language),0
 org.cacert.gigi.dbObjects Digest.Digest(String),0
 org.cacert.gigi.dbObjects Certificate.CertificateStatus.CertificateStatus(String),0
 org.cacert.gigi.pages Page.Page(String),0
@@ -16,4 +16,4 @@ org.cacert.gigi.output.template SprintfCom---invalid---mand.SprintfCommand(Strin
 org.cacert.gigi.output.template TranslateCommand.TranslateCommand(String),0=>org.cacert.gigi.output.template TranslateCommand.output(PrintWriter, Language, Map),0
 org.cacert.gigi.pages.account.domain DomainOverview.DomainOverview(String),0
 org.cacert.gigi.dbObjects Group.Group(String, String),1
-org.cacert.gigi.output.template SprintfCommand.createSimple(String, String[]),0
+org.cacert.gigi.output.template SprintfCommand.createSimple(String, Object[]),0
