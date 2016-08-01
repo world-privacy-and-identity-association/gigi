@@ -92,6 +92,7 @@ public class SupportUserDetailsForm extends Form {
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
         User user = this.user.getTargetUser();
         vars.put("mail", user.getEmail());
+        vars.put("status", l.getTranslation(user.isValidEmail(user.getEmail()) ? "verified" : "not verified"));
         vars.put("exNames", new ArrayIterable<Name>(user.getNames()) {
 
             @Override

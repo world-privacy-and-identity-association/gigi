@@ -49,9 +49,11 @@ public class SupportUserDetailsPage extends Page {
             @Override
             public boolean next(Language l, Map<String, Object> vars) {
                 for (; i < addrs.length;) {
-                    String address = addrs[i++].getAddress();
+                    EmailAddress secAddress = addrs[i++];
+                    String address = secAddress.getAddress();
                     if ( !address.equals(user.getEmail())) {
                         vars.put("secmail", address);
+                        vars.put("status", l.getTranslation(secAddress.isVerified() ? "verified" : "not verified"));
                         return true;
                     }
                 }
