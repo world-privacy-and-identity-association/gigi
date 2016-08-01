@@ -17,7 +17,7 @@
     </tr>
 <? } ?>
 <table>
-<h2><?=_Verification Points You Received?></h2>
+<h2><? if($support) { ?><?=_Verification Points Received by ${username}?><? } else { ?><?=_Verification Points You Received?><? } ?></h2>
 <?=$pointlist?>
-<h2><?=_Verification Points You Issued?></h2>
+<h2><? if($support) { ?><?=_Verification Points Issued by ${username}?><? } else { ?><?=_Verification Points You Issued?><? } ?></h2>
 <?=$madelist?>

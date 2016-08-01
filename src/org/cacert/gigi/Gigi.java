@@ -145,7 +145,7 @@ public final class Gigi extends HttpServlet {
             putPage(DomainOverview.PATH + "*", new DomainOverview(), "Certificates");
 
             putPage(AssurePage.PATH + "/*", new AssurePage(), "Web of Trust");
-            putPage(MyPoints.PATH, new MyPoints(), "Web of Trust");
+            putPage(MyPoints.PATH, new MyPoints(false), "Web of Trust");
             putPage(RequestTTPPage.PATH, new RequestTTPPage(), "Web of Trust");
 
             putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
@@ -170,6 +170,7 @@ public final class Gigi extends HttpServlet {
             putPage(UserTrainings.PATH, new UserTrainings(false), "My Account");
             putPage(MyDetails.PATH, new MyDetails(), "My Account");
             putPage(UserTrainings.SUPPORT_PATH, new UserTrainings(true), null);
+            putPage(MyPoints.SUPPORT_PATH, new MyPoints(true), null);
 
             putPage(PasswordResetPage.PATH, new PasswordResetPage(), null);
             putPage(LogoutPage.PATH, new LogoutPage(), null);
