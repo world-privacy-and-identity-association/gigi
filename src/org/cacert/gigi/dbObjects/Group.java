@@ -11,7 +11,7 @@ public enum Group {
     BLOCKEDLOGIN("blockedlogin", "may not login"), BLOCKEDCERT("blockedcert", "may not issue certificates"), //
     TTP_ASSURER("ttp-assurer", "may verify via TTP"), TTP_APPLICANT("ttp-applicant", "requests to be verified via ttp"), //
     CODESIGNING("codesigning", "may issue codesigning certificates"), ORGASSURER("orgassurer", "may verify organisations"), //
-    NUCLEUS_ASSURER("nucleus-assurer", "may issue nucleus assurances"), LOCATE_AGENT("locate-agent", "wants access to the locate agent system");
+    NUCLEUS_ASSURER("nucleus-assurer", "may enter nucleus verifications"), LOCATE_AGENT("locate-agent", "wants access to the locate agent system");
 
     private final String dbName;
 

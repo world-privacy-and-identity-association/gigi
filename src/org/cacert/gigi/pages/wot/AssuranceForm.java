@@ -152,14 +152,14 @@ public class AssuranceForm extends Form {
             try {
                 type = AssuranceType.valueOf(val);
             } catch (IllegalArgumentException e) {
-                gae.mergeInto(new GigiApiException("Assurance Type wrong."));
+                gae.mergeInto(new GigiApiException("Verification Type wrong."));
             }
         }
 
         int pointsI = 0;
         String points = req.getParameter("points");
         if (points == null || "".equals(points)) {
-            gae.mergeInto(new GigiApiException("For an assurance, you need to enter points."));
+            gae.mergeInto(new GigiApiException("For a verification, you need to enter points."));
         } else {
             try {
                 pointsI = Integer.parseInt(points);
@@ -191,8 +191,8 @@ public class AssuranceForm extends Form {
 
         if (aword != null && !aword.equals("")) {
             Language langApplicant = Language.getInstance(assuree.getPreferredLocale());
-            String method = langApplicant.getTranslation("A password reset was triggered. If you did a password reset by assurance, please enter your secret password using this form:");
-            String subject = langApplicant.getTranslation("Password reset by assurance");
+            String method = langApplicant.getTranslation("A password reset was triggered. If you did a password reset by verification, please enter your secret password using this form:");
+            String subject = langApplicant.getTranslation("Password reset by verification");
             PasswordResetPage.initPasswordResetProcess(out, assuree, req, aword, langApplicant, method, subject);
         }
         return true;
