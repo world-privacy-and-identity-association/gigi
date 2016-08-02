@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
+import java.util.Random;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -165,8 +166,23 @@ public abstract class ConfiguredTest {
 
     private static Link l;
 
-    public static String createUniqueName() {
-        return "test" + System.currentTimeMillis() + "a" + (count++) + "u";
+    public static String createRandomIDString() {
+        final char[] chars = "abcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
+        final int idStringLength = 16;
+
+        Random sr;
+        sr = new Random();
+
+        StringBuilder sb = new StringBuilder(idStringLength);
+        for (int i = 0; i < idStringLength; i++) {
+            sb.append(chars[sr.nextInt(chars.length)]);
+        }
+
+        return sb.toString();
+    }
+
+    public static synchronized String createUniqueName() {
+        return "test" + createRandomIDString() + "a" + (count++) + "u";
     }
 
     public static int countRegex(String text, String pattern) {
