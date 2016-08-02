@@ -5,9 +5,22 @@
         </tr>
         <? foreach($emails) {?>
         <tr>
-            <td><?=$secmail?></td>
+            <td><?=$secmail?> (<?=$status?>)</td>
         </tr>
         <? } ?>
         </tbody>
 </table>
+
+<table class="table">
+        <tbody><tr>
+            <th><?=_Domains?></th>
+        </tr>
+        <? foreach($domains) {?>
+        <tr>
+            <td><?=$domain?> (<?=$status?>)</td>
+        </tr>
+        <? } ?>
+        </tbody>
+</table>
+
 <?=$certifrevoke?>

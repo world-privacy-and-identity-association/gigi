@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.SupportedUser;
 import org.cacert.gigi.dbObjects.User;
@@ -48,15 +49,36 @@ public class SupportUserDetailsPage extends Page {
             @Override
             public boolean next(Language l, Map<String, Object> vars) {
                 for (; i < addrs.length;) {
-                    String address = addrs[i++].getAddress();
+                    EmailAddress secAddress = addrs[i++];
+                    String address = secAddress.getAddress();
                     if ( !address.equals(user.getEmail())) {
                         vars.put("secmail", address);
+                        vars.put("status", l.getTranslation(secAddress.isVerified() ? "verified" : "not verified"));
                         return true;
                     }
                 }
                 return false;
             }
         });
+
+        final Domain[] doms = user.getDomains();
+        vars.put("domains", new IterableDataset() {
+
+            private int point = 0;
+
+            @Override
+            public boolean next(Language l, Map<String, Object> vars) {
+                if (point >= doms.length) {
+                    return false;
+                }
+                Domain domain = doms[point];
+                vars.put("domain", domain.getSuffix());
+                vars.put("status", l.getTranslation(domain.isVerified() ? "verified" : "not verified"));
+                point++;
+                return true;
+            }
+        });
+
         vars.put("certifrevoke", new SupportRevokeCertificatesForm(req, targetUser));
         getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
     }
