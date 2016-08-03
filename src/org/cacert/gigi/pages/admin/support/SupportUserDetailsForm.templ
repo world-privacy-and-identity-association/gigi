@@ -15,7 +15,7 @@
         <tr>
             <td><?=_Date of Birth?>:</td>
             <td>
-                       <?=$dob?>
+                <?=$dob?>
             </td>
         </tr>
         <tr>
@@ -25,11 +25,11 @@
         <tr>
             <td><?=_Is RA Agent?>:</td>
             <td>
-            <? if($assurer) { ?>
-            <?=_Yes?>
-            <? } else { ?>
-            <?=_No?>
-            <? } ?>
+                <? if($assurer) { ?>
+                <?=_Yes?>
+                <? } else { ?>
+                <?=_No?>
+                <? } ?>
             </td>
         </tr>
         <tr>
@@ -55,10 +55,7 @@
             <td><?=_Delete Account?>:</td>
             <td><?=_Delete Account?></td>
         </tr>
-            <tr>
-            <td><?=_Show Lost Password Details?></td>
-        </tr>
-            <tr>
+        <tr>
             <td colspan="2"><a href="history"><?=_Show account history?></a></td>
         </tr>
         <tr><td colspan="2"><input name="detailupdate" type="submit" value="<?=_Update?>"/></td></tr>
