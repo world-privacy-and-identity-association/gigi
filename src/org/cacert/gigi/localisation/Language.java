@@ -99,6 +99,9 @@ public class Language {
     }
 
     public String getTranslation(String text) {
+        if (text == null || text.equals("")) {
+            return text;
+        }
         String string = translations.get(text);
         if (string == null || string.equals("")) {
             return text;
