@@ -156,7 +156,7 @@ public class Notary {
             } else if (type == AssuranceType.TTP_ASSISTED) {
                 assureTTP(assurer, assuree, assureeName, awarded, location, date);
             } else {
-                throw new GigiApiException(SprintfCommand.createSimple("Unknown Assurance type: {0}", type.toString()));
+                throw new GigiApiException(SprintfCommand.createSimple("Unknown Verification type: {0}", type.toString()));
             }
             assurer.invalidateMadeAssurances();
             assuree.invalidateReceivedAssurances();

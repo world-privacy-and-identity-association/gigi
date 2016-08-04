@@ -363,7 +363,7 @@ public class CertificateRequest {
                 }
             }
             error.mergeInto(new GigiApiException(SprintfCommand.createSimple(//
-                    "The requested Subject alternate name \"{0}\" has been removed.", san.getType().toString().toLowerCase() + ":" + san.getName())));
+                    "The requested subject alternate name (SAN) \"{0}\" has been removed.", san.getType().toString().toLowerCase() + ":" + san.getName())));
         }
         SANs = filteredSANs;
     }
