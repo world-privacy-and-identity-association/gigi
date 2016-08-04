@@ -35,7 +35,7 @@ public class TestEmailProvider extends DelegateMailProvider {
     @Override
     public synchronized void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
         while (true) {
-            if ( !assureLocalConnection() && getTarget() != null) {
+            if ( !ensureLocalConnection() && getTarget() != null) {
                 super.sendMail(to, subject, message, from, replyto, toname, fromname, errorsto, extra);
                 return;
             }
@@ -57,7 +57,7 @@ public class TestEmailProvider extends DelegateMailProvider {
         }
     }
 
-    private boolean assureLocalConnection() throws IOException {
+    private boolean ensureLocalConnection() throws IOException {
         if (out != null) {
             try {
                 out.writeUTF("ping");
@@ -81,7 +81,7 @@ public class TestEmailProvider extends DelegateMailProvider {
     @Override
     public synchronized String checkEmailServer(int forUid, String address) throws IOException {
         while (true) {
-            if ( !assureLocalConnection() && getTarget() != null) {
+            if ( !ensureLocalConnection() && getTarget() != null) {
                 return super.checkEmailServer(forUid, address);
             }
             try {
