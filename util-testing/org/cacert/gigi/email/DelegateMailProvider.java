@@ -25,9 +25,9 @@ public abstract class DelegateMailProvider extends EmailProvider {
     }
 
     @Override
-    public void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
+    public void sendMail(String to, String subject, String message, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
         if (target != null) {
-            target.sendMail(to, subject, message, from, replyto, toname, fromname, errorsto, extra);
+            target.sendMail(to, subject, message, replyto, toname, fromname, errorsto, extra);
         }
     }
 

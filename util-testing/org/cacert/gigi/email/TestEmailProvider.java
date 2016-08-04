@@ -33,10 +33,10 @@ public class TestEmailProvider extends DelegateMailProvider {
     }
 
     @Override
-    public synchronized void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
+    public synchronized void sendMail(String to, String subject, String message, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
         while (true) {
             if ( !ensureLocalConnection() && getTarget() != null) {
-                super.sendMail(to, subject, message, from, replyto, toname, fromname, errorsto, extra);
+                super.sendMail(to, subject, message, replyto, toname, fromname, errorsto, extra);
                 return;
             }
             try {
@@ -47,7 +47,6 @@ public class TestEmailProvider extends DelegateMailProvider {
                 write(to);
                 write(subject);
                 write(message);
-                write(from);
                 write(replyto);
                 out.flush();
                 return;

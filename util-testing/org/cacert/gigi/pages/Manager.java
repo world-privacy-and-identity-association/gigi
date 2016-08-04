@@ -164,7 +164,7 @@ public class Manager extends Page {
         }
 
         @Override
-        public synchronized void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
+        public synchronized void sendMail(String to, String subject, String message, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
             HashMap<String, LinkedList<String>> mails = Manager.getInstance().emails;
             LinkedList<String> hismails = mails.get(to);
             if (hismails == null) {
@@ -173,7 +173,7 @@ public class Manager extends Page {
             hismails.addFirst(subject + "\n" + message);
             for (int i = 0; i < toForward.length; i++) {
                 if (toForward[i].matcher(to).matches()) {
-                    super.sendMail(to, subject, message, from, replyto, toname, fromname, errorsto, extra);
+                    super.sendMail(to, subject, message, replyto, toname, fromname, errorsto, extra);
                     return;
                 }
             }

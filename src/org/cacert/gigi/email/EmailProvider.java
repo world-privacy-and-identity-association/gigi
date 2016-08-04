@@ -25,7 +25,7 @@ import org.cacert.gigi.util.DNSUtil;
 
 public abstract class EmailProvider {
 
-    public abstract void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException;
+    public abstract void sendMail(String to, String subject, String message, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException;
 
     private static EmailProvider instance;
 

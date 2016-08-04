@@ -39,8 +39,8 @@ public abstract class BusinessTest extends ConfiguredTest {
         }
 
         @Override
-        public void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
-            TestMail tm = new TestEmailReceiver.TestMail(to, subject, message, fromname, replyto) {
+        public void sendMail(String to, String subject, String message, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
+            TestMail tm = new TestEmailReceiver.TestMail(to, subject, message, replyto) {
 
                 @Override
                 public void verify() throws IOException {

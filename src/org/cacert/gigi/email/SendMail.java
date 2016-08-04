@@ -31,19 +31,17 @@ public class SendMail extends EmailProvider {
     private static final Pattern NON_ASCII = Pattern.compile("[^a-zA-Z0-9 .-\\[\\]!_@]");
 
     @Override
-    public void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
-
-        String[] bits = from.split(",");
-
+    public void sendMail(String to, String subject, String message, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
+        String from = "support@" + ServerConstants.getWwwHostName().replaceAll("^www.", "");
         try (Socket smtp = new Socket(targetHost, targetPort); PrintWriter out = new PrintWriter(new OutputStreamWriter(smtp.getOutputStream(), "UTF-8")); BufferedReader in = new BufferedReader(new InputStreamReader(smtp.getInputStream(), "UTF-8"));) {
             readSMTPResponse(in, 220);
             out.print("HELO www.cacert.org\r\n");
             out.flush();
             readSMTPResponse(in, 250);
-            out.print("MAIL FROM:<returns@cacert.org>\r\n");
+            out.print("MAIL FROM: <" + from + ">\r\n");
             out.flush();
             readSMTPResponse(in, 250);
-            bits = to.split(",");
+            String[] bits = to.split(",");
             for (String user : bits) {
                 out.print("RCPT TO:<" + user.trim() + ">\r\n");
                 out.flush();
@@ -68,7 +66,7 @@ public class SendMail extends EmailProvider {
             } else {
                 out.print("Reply-To: " + from + "\r\n");
             }
-            out.print("From: support@" + ServerConstants.getWwwHostName().replaceAll("^www.", "") + "\r\n");
+            out.print("From: " + from + "\r\n");
             out.print("To: " + to + "\r\n");
             if (NON_ASCII.matcher(subject).matches()) {
 

@@ -34,15 +34,12 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable, 
 
         String message;
 
-        String from;
-
         String replyto;
 
-        public TestMail(String to, String subject, String message, String from, String replyto) {
+        public TestMail(String to, String subject, String message, String replyto) {
             this.to = to;
             this.subject = subject;
             this.message = message;
-            this.from = from;
             this.replyto = replyto;
         }
 
@@ -56,10 +53,6 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable, 
 
         public String getMessage() {
             return message;
-        }
-
-        public String getFrom() {
-            return from;
         }
 
         public String getReplyto() {
@@ -174,9 +167,8 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable, 
                     String to = dis.readUTF();
                     String subject = dis.readUTF();
                     String message = dis.readUTF();
-                    String from = dis.readUTF();
                     String replyto = dis.readUTF();
-                    mails.add(new TestMail(to, subject, message, from, replyto));
+                    mails.add(new TestMail(to, subject, message, replyto));
                 } else if (type.equals("challengeAddrBox")) {
                     String email = dis.readUTF();
                     dos.writeUTF(quickEmailCheck(email));
@@ -273,8 +265,8 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable, 
     }
 
     @Override
-    public void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
-        mails.add(new TestMail(to, subject, message, from, replyto));
+    public void sendMail(String to, String subject, String message, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
+        mails.add(new TestMail(to, subject, message, replyto));
     }
 
 }

@@ -55,7 +55,7 @@ public class TestSendmail extends ConfiguredTest {
 
         String subj = "subj-" + createUniqueName();
         String msg = "msg-" + createUniqueName();
-        EmailProvider.getInstance().sendMail(succmail, subj, msg, "system@cacert.org", "system@cacert.org", "Testtarget", "Testsender", null, false);
+        EmailProvider.getInstance().sendMail(succmail, subj, msg, "system@cacert.org", "Testtarget", "Testsender", null, false);
 
         try (Socket s = SSLSocketFactory.getDefault().createSocket(imap, 993);//
                 PrintWriter pw = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"), true);//

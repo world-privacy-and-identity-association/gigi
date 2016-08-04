@@ -65,7 +65,7 @@ public class MailTemplate extends Template {
         String body = runTemplate(this, l, vars);
         String subject = runTemplate(subjectBlock, l, vars);
 
-        SendMail.getInstance().sendMail(to, SUBJECT_TAG + subject, body, "support@cacert.org", null, null, null, null, false);
+        SendMail.getInstance().sendMail(to, SUBJECT_TAG + subject, body, null, null, null, null, false);
     }
 
     private static String runTemplate(Outputable toRun, Language l, Map<String, Object> vars) {

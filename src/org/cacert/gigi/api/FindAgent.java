@@ -99,7 +99,7 @@ public class FindAgent extends APIPoint {
                 return;
 
             }
-            EmailProvider.getInstance().sendMail(to.getEmail(), "[Find Agent] " + subject, body, to.getEmail(), null, null, null, null, false);
+            EmailProvider.getInstance().sendMail(to.getEmail(), "[Find Agent] " + subject, body, null, null, null, null, false);
         }
     }
 }
