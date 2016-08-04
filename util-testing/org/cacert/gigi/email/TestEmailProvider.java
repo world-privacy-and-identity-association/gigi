@@ -7,15 +7,13 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.security.Key;
-import java.security.cert.Certificate;
 import java.util.Properties;
 
 /**
  * This class intercepts emails so that the test cases can evaluate them
  * automatically.
  */
-public class TestEmailProvider extends EmailProvider {
+public class TestEmailProvider extends DelegateMailProvider {
 
     private ServerSocket servs;
 
@@ -25,18 +23,8 @@ public class TestEmailProvider extends EmailProvider {
 
     private DataInputStream in;
 
-    private EmailProvider target;
-
     protected TestEmailProvider(Properties props) {
-        try {
-            String name = props.getProperty("emailProvider.test.target");
-            if (name != null) {
-                Class<?> c = Class.forName(name);
-                target = (EmailProvider) c.getDeclaredConstructor(Properties.class).newInstance(props);
-            }
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
+        super(props, props.getProperty("emailProvider.test.target"));
         try {
             servs = new ServerSocket(Integer.parseInt(props.getProperty("emailProvider.port")), 10, InetAddress.getByName("127.0.0.1"));
         } catch (IOException e) {
@@ -47,8 +35,8 @@ public class TestEmailProvider extends EmailProvider {
     @Override
     public synchronized void sendMail(String to, String subject, String message, String from, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
         while (true) {
-            if ( !assureLocalConnection() && target != null) {
-                target.sendMail(to, subject, message, from, replyto, toname, fromname, errorsto, extra);
+            if ( !assureLocalConnection() && getTarget() != null) {
+                super.sendMail(to, subject, message, from, replyto, toname, fromname, errorsto, extra);
                 return;
             }
             try {
@@ -93,8 +81,8 @@ public class TestEmailProvider extends EmailProvider {
     @Override
     public synchronized String checkEmailServer(int forUid, String address) throws IOException {
         while (true) {
-            if ( !assureLocalConnection() && target != null) {
-                return target.checkEmailServer(forUid, address);
+            if ( !assureLocalConnection() && getTarget() != null) {
+                return super.checkEmailServer(forUid, address);
             }
             try {
                 out.writeUTF("challengeAddrBox");
@@ -111,14 +99,6 @@ public class TestEmailProvider extends EmailProvider {
             out.writeUTF("<null>");
         } else {
             out.writeUTF(to);
-        }
-    }
-
-    @Override
-    protected void init(Certificate c, Key k) {
-        super.init(c, k);
-        if (target != null) {
-            target.init(c, k);
         }
     }
 }

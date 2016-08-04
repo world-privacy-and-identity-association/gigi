@@ -42,7 +42,7 @@ import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.NamePart;
 import org.cacert.gigi.dbObjects.NamePart.NamePartType;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.email.EmailProvider;
+import org.cacert.gigi.email.DelegateMailProvider;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
@@ -140,9 +140,11 @@ public class Manager extends Page {
         return instance;
     }
 
-    public static class MailFetcher extends EmailProvider {
+    public static class MailFetcher extends DelegateMailProvider {
 
-        public MailFetcher(Properties p) {}
+        public MailFetcher(Properties props) {
+            super(props, props.getProperty("emailProvider.manager.target"));
+        }
 
         @Override
         public String checkEmailServer(int forUid, String address) throws IOException {
@@ -157,6 +159,7 @@ public class Manager extends Page {
                 mails.put(to, hismails = new LinkedList<>());
             }
             hismails.addFirst(subject + "\n" + message);
+            super.sendMail(to, subject, message, from, replyto, toname, fromname, errorsto, extra);
         }
 
     }
