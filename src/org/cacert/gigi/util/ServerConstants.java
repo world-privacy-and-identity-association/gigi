@@ -90,4 +90,8 @@ public class ServerConstants {
         return suffix;
     }
 
+    public static String getSupportMailAddress() {
+        return "support@" + ServerConstants.getWwwHostName().replaceFirst("^www\\.", "");
+    }
+
 }

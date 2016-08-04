@@ -43,7 +43,7 @@ public class TestSEAdminNotificationMail extends ClientTest {
     public void testPasswordReset() throws MalformedURLException, IOException {
         executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID, "aword=SecretWord&resetPass", 0);
         TestMail tm;
-        String targetMail = "support@" + ServerConstants.getWwwHostName().replaceFirst("^www\\.", "");
+        String targetMail = ServerConstants.getSupportMailAddress();
         do {
             tm = getMailReceiver().receive();
         } while ( !tm.getTo().equals(targetMail));

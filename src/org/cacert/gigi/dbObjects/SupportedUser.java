@@ -94,7 +94,7 @@ public class SupportedUser {
             vars.put("ticket", this.getTicket());
             vars.put("subject", subject);
 
-            String supportemailaddress = "support@" + ServerConstants.getWwwHostName().replaceFirst("^www\\.", "");
+            String supportemailaddress = ServerConstants.getSupportMailAddress();
             supportNotification.sendMail(Language.getInstance(Locale.ENGLISH), vars, supportemailaddress);
         } catch (IOException e) {
             e.printStackTrace();

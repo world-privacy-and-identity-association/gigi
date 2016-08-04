@@ -85,7 +85,7 @@ public class TestSendmail extends ConfiguredTest {
             imapUntil(br, "exp");
             pw.println("log logout");
             imapUntil(br, "log");
-            assertThat(body, containsString("From: support@" + ServerConstants.getWwwHostName().replaceAll("^www.", "")));
+            assertThat(body, containsString("From: " + ServerConstants.getSupportMailAddress()));
             assertThat(body, containsString("To: gigi-testuser@dogcraft.de"));
             assertThat(body, containsString("Subject: " + subj));
             assertThat(body, containsString(Base64.getEncoder().encodeToString(msg.getBytes("UTF-8"))));

@@ -32,7 +32,7 @@ public class SendMail extends EmailProvider {
 
     @Override
     public void sendMail(String to, String subject, String message, String replyto, String toname, String fromname, String errorsto, boolean extra) throws IOException {
-        String from = "support@" + ServerConstants.getWwwHostName().replaceAll("^www.", "");
+        String from = ServerConstants.getSupportMailAddress();
         try (Socket smtp = new Socket(targetHost, targetPort); PrintWriter out = new PrintWriter(new OutputStreamWriter(smtp.getOutputStream(), "UTF-8")); BufferedReader in = new BufferedReader(new InputStreamReader(smtp.getInputStream(), "UTF-8"));) {
             readSMTPResponse(in, 220);
             out.print("HELO www.cacert.org\r\n");
