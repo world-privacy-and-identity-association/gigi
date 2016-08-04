@@ -14,7 +14,7 @@ import org.cacert.gigi.localisation.Language;
 
 public class MailTemplate extends Template {
 
-    public static final String SUBJECT_TAG = "[SomeCA.org] ";
+    public static final String SUBJECT_TAG = "[SomeCA] ";
 
     private TemplateBlock subjectBlock;
 
