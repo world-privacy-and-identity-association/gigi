@@ -142,8 +142,20 @@ public class Manager extends Page {
 
     public static class MailFetcher extends DelegateMailProvider {
 
+        Pattern[] toForward;
+
         public MailFetcher(Properties props) {
             super(props, props.getProperty("emailProvider.manager.target"));
+            String str = props.getProperty("emailProvider.manager.filter");
+            if (str == null) {
+                toForward = new Pattern[0];
+            } else {
+                String[] parts = str.split(" ");
+                toForward = new Pattern[parts.length];
+                for (int i = 0; i < parts.length; i++) {
+                    toForward[i] = Pattern.compile(parts[i]);
+                }
+            }
         }
 
         @Override
@@ -159,7 +171,12 @@ public class Manager extends Page {
                 mails.put(to, hismails = new LinkedList<>());
             }
             hismails.addFirst(subject + "\n" + message);
-            super.sendMail(to, subject, message, from, replyto, toname, fromname, errorsto, extra);
+            for (int i = 0; i < toForward.length; i++) {
+                if (toForward[i].matcher(to).matches()) {
+                    super.sendMail(to, subject, message, from, replyto, toname, fromname, errorsto, extra);
+                    return;
+                }
+            }
         }
 
     }
