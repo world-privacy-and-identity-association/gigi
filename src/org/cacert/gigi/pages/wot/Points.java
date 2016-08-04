@@ -11,11 +11,11 @@ import org.cacert.gigi.output.AssurancesDisplay;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.AuthorizationContext;
 
-public class MyPoints extends Page {
+public class Points extends Page {
 
     public static final String SUPPORT_PATH = "/support/user/*/points";
 
-    public static final String PATH = "/wot/mypoints";
+    public static final String PATH = "/wot/points";
 
     private static final int intStart = SUPPORT_PATH.indexOf('*');
 
@@ -25,8 +25,8 @@ public class MyPoints extends Page {
 
     private AssurancesDisplay toOtherDisplay;
 
-    public MyPoints(boolean support) {
-        super(support ? "Support User Points" : "My Points");
+    public Points(boolean support) {
+        super(support ? "Support User Points" : "Points");
         this.support = support;
         myDisplay = new AssurancesDisplay("asArr", false, support);
         toOtherDisplay = new AssurancesDisplay("otherAsArr", true, support);
