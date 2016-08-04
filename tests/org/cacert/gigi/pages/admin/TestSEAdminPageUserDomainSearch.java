@@ -47,13 +47,13 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
     public void testDomainSearch() throws MalformedURLException, UnsupportedEncodingException, IOException, GigiApiException {
         URLConnection uc = post(FindUserByDomainPage.PATH, "process&domain=" + URLEncoder.encode(domainName, "UTF-8"));
 
-        assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + tid, uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + tid + "/", uc.getHeaderField("Location"));
     }
 
     @Test
     public void testDomainSearchById() throws MalformedURLException, UnsupportedEncodingException, IOException, GigiApiException {
         URLConnection uc = post(FindUserByDomainPage.PATH, "process&domain=#" + d.getId());
-        assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + tid, uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + tid + "/", uc.getHeaderField("Location"));
     }
 
     @Test

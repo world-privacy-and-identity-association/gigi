@@ -106,7 +106,6 @@ public class SupportUserDetailsForm extends Form {
         vars.put("dob", dobSelector);
         vars.put("assurancepoints", user.getAssurancePoints());
         vars.put("exppoints", user.getExperiencePoints());
-        vars.put("id", user.getId());
         final Set<Group> gr = user.getGroups();
         vars.put("groups", new IterableDataset() {
 

@@ -30,6 +30,9 @@ public class SupportUserDetailsPage extends Page {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         int id = -1;
+        if ( !req.getPathInfo().endsWith("/")) {
+            resp.sendError(404);
+        }
         String[] idP = req.getPathInfo().split("/");
         try {
             id = Integer.parseInt(idP[idP.length - 1]);

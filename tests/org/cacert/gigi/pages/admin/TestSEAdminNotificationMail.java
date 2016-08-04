@@ -31,7 +31,7 @@ public class TestSEAdminNotificationMail extends ClientTest {
     @Test
     public void testChangeAccountData() throws MalformedURLException, IOException {
 
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID, "dobd=1&dobm=2&doby=2000&detailupdate", 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "dobd=1&dobm=2&doby=2000&detailupdate", 0);
 
         String message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("The account data was changed."));
@@ -41,7 +41,7 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     @Test
     public void testPasswordReset() throws MalformedURLException, IOException {
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID, "aword=SecretWord&resetPass", 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "aword=SecretWord&resetPass", 0);
         TestMail tm;
         String targetMail = ServerConstants.getSupportMailAddress();
         do {
@@ -52,7 +52,7 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     @Test
     public void testGrantUserGroup() throws MalformedURLException, IOException {
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID, "grant&groupToModify=supporter", 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "grant&groupToModify=supporter", 0);
 
         String message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("The group permission supporter was granted."));
@@ -60,7 +60,7 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     @Test
     public void testRemoveUserGroup() throws MalformedURLException, IOException {
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID, "deny&groupToModify=supporter", 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "deny&groupToModify=supporter", 0);
 
         String message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("The group permission supporter was revoked."));
@@ -68,7 +68,7 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     @Test
     public void testRevokeCertificates() throws MalformedURLException, IOException {
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID, "revokeall", 1);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "revokeall", 1);
 
         String message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("All certificates in the account have been revoked."));

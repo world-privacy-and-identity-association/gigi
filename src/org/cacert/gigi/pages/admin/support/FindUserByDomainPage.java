@@ -19,7 +19,7 @@ public class FindUserByDomainPage extends OneFormPage {
     public String getSuccessPath(Form f) {
         CertificateOwner res = ((FindUserByDomainForm) f).getRes();
         if (res instanceof User) {
-            return SupportUserDetailsPage.PATH + res.getId();
+            return SupportUserDetailsPage.PATH + res.getId() + "/";
         } else if (res instanceof Organisation) {
             return "/support/domain/" + res.getId();
         } else {

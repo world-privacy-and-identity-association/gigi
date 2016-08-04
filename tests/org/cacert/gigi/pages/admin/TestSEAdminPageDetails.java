@@ -39,7 +39,7 @@ public class TestSEAdminPageDetails extends ClientTest {
         String fname = "Först";
         String lname = "Secönd";
         int id = createVerifiedUser(fname, lname, email, TEST_PASSWORD);
-        URLConnection uc = get(SupportUserDetailsPage.PATH + id);
+        URLConnection uc = get(SupportUserDetailsPage.PATH + id + "/");
         uc.setDoOutput(true);
         String res = IOUtils.readURL(uc);
         assertThat(res, containsString(fname));
@@ -61,13 +61,13 @@ public class TestSEAdminPageDetails extends ClientTest {
         ea = EmailAddress.getById(ea.getId());
         assertTrue(ea.isVerified());
 
-        String res = IOUtils.readURL(get(SupportUserDetailsPage.PATH + id));
+        String res = IOUtils.readURL(get(SupportUserDetailsPage.PATH + id + "/"));
         assertEquals(2, countRegex(res, Pattern.quote(email)));
         assertEquals(1, countRegex(res, Pattern.quote(email2)));
 
         User.getById(id).updateDefaultEmail(ea);
         clearCaches();
-        res = IOUtils.readURL(get(SupportUserDetailsPage.PATH + id));
+        res = IOUtils.readURL(get(SupportUserDetailsPage.PATH + id + "/"));
         assertEquals(1, countRegex(res, Pattern.quote(email)));
         assertEquals(2, countRegex(res, Pattern.quote(email2)));
     }
@@ -83,27 +83,27 @@ public class TestSEAdminPageDetails extends ClientTest {
         assertEquals(0, logCountAdmin(id));
         assertEquals(0, logCountUser(clientCookie));
         // changing both leads to 2 entries
-        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "dobd=1&dobm=2&doby=2000&detailupdate", 0));
+        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id + "/", "dobd=1&dobm=2&doby=2000&detailupdate", 0));
         assertEquals(1, logCountAdmin(id));
         assertEquals(1, logCountUser(clientCookie));
 
         // Sending same data keeps same
-        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "dobd=1&dobm=2&doby=2000&detailupdate", 0));
+        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id + "/", "dobd=1&dobm=2&doby=2000&detailupdate", 0));
         assertEquals(1, logCountAdmin(id));
         assertEquals(1, logCountUser(clientCookie));
 
         // changing one leads to one entry
-        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "dobd=1&dobm=3&doby=2000&detailupdate", 0));
+        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id + "/", "dobd=1&dobm=3&doby=2000&detailupdate", 0));
         assertEquals(2, logCountAdmin(id));
         assertEquals(2, logCountUser(clientCookie));
 
         // changing one leads to one entry
-        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "dobd=2&dobm=3&doby=2000&detailupdate", 0));
+        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id + "/", "dobd=2&dobm=3&doby=2000&detailupdate", 0));
         assertEquals(3, logCountAdmin(id));
         assertEquals(3, logCountUser(clientCookie));
 
         // changing none -> no entry
-        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "dobd=2&dobm=3&doby=2000&detailupdate", 0));
+        assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id + "/", "dobd=2&dobm=3&doby=2000&detailupdate", 0));
         assertEquals(3, logCountAdmin(id));
         assertEquals(3, logCountUser(clientCookie));
 

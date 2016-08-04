@@ -37,7 +37,7 @@ public class FindUserByEmailPage extends Page {
             form.submit(resp.getWriter(), req);
             final EmailAddress[] emails = form.getEmails();
             if (emails.length == 1) {
-                resp.sendRedirect(SupportUserDetailsPage.PATH + emails[0].getOwner().getId());
+                resp.sendRedirect(SupportUserDetailsPage.PATH + emails[0].getOwner().getId() + "/");
             } else {
                 HashMap<String, Object> vars = new HashMap<String, Object>();
                 vars.put("first", false);
