@@ -20,3 +20,6 @@
 div.error-msgs p{
 	padding: 6px;
 }
+.summary-table td{
+	padding: 0 3px;
+}

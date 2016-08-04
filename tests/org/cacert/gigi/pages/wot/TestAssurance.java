@@ -232,7 +232,7 @@ public class TestAssurance extends ManagedTest {
         String cookie = login(assureeM, TEST_PASSWORD);
         URLConnection url = get(cookie, Points.PATH);
         String resp = IOUtils.readURL(url);
-        resp = resp.split(Pattern.quote("</table>"))[0];
+        resp = resp.split(Pattern.quote("</table>"))[1];
         assertThat(resp, containsString(uniqueLoc));
     }
 
@@ -243,7 +243,7 @@ public class TestAssurance extends ManagedTest {
         String cookie = login(assurerM, TEST_PASSWORD);
         URLConnection url = get(cookie, Points.PATH);
         String resp = IOUtils.readURL(url);
-        resp = resp.split(Pattern.quote("</table>"))[1];
+        resp = resp.split(Pattern.quote("</table>"))[2];
         assertThat(resp, containsString(uniqueLoc));
     }
 
