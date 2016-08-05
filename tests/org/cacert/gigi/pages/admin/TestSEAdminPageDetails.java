@@ -4,13 +4,16 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URLConnection;
+import java.sql.Timestamp;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.ObjectCache;
@@ -20,6 +23,7 @@ import org.cacert.gigi.pages.admin.support.SupportEnterTicketPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
 import org.cacert.gigi.testUtils.ClientTest;
 import org.cacert.gigi.testUtils.IOUtils;
+import org.cacert.gigi.util.DayDate;
 import org.junit.Test;
 
 public class TestSEAdminPageDetails extends ClientTest {
@@ -78,7 +82,7 @@ public class TestSEAdminPageDetails extends ClientTest {
 
         assertEquals(0, logCountAdmin(id));
         assertEquals(0, logCountUser(clientCookie));
-        // chaniging both leads to 2 entries
+        // changing both leads to 2 entries
         assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "dobd=1&dobm=2&doby=2000&detailupdate", 0));
         assertEquals(1, logCountAdmin(id));
         assertEquals(1, logCountUser(clientCookie));
@@ -102,6 +106,49 @@ public class TestSEAdminPageDetails extends ClientTest {
         assertNull(executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + id, "dobd=2&dobm=3&doby=2000&detailupdate", 0));
         assertEquals(3, logCountAdmin(id));
         assertEquals(3, logCountUser(clientCookie));
+
+    }
+
+    @Test
+    public void testUserDetailsMyPoints() throws MalformedURLException, IOException {
+        String email = createUniqueName() + "@example.com";
+        String fname = "Först";
+        String lname = "Secönd";
+        int id = createVerifiedUser(fname, lname, email, TEST_PASSWORD);
+        String clientCookie = login(email, TEST_PASSWORD);
+
+        // try to open mypoints as user
+        HttpURLConnection uc = get(clientCookie, SupportUserDetailsPage.PATH + id + "/points");
+
+        assertEquals(403, uc.getResponseCode());
+
+        // enter verification and open mypoints as supporter
+
+        makeAssurer(this.id);
+        String location = createUniqueName();
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `when`=? ")) {
+            ps.setInt(1, this.id);
+            ps.setInt(2, User.getById(id).getPreferredName().getId());
+            ps.setInt(3, 10);
+            ps.setString(4, location);
+            ps.setString(5, "2010-01-01");
+            ps.setTimestamp(6, new Timestamp(System.currentTimeMillis() - DayDate.MILLI_DAY * 200));
+            ps.execute();
+        }
+
+        uc = get(cookie, SupportUserDetailsPage.PATH + id + "/points");
+
+        String res = IOUtils.readURL(uc);
+        assertThat(res, containsString("Support User Points"));
+        assertThat(res, containsString(location));
+
+        // remove ticket number and try to access mypoints from supporter
+        // account
+        assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "deleteTicket=action", 0).getResponseCode());
+
+        uc = get(cookie, SupportUserDetailsPage.PATH + id + "/points");
+
+        assertEquals(403, uc.getResponseCode());
 
     }
 

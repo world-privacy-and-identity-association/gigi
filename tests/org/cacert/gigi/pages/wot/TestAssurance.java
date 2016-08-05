@@ -230,9 +230,9 @@ public class TestAssurance extends ManagedTest {
         execute("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&certify=1&rules=1&assertion=1&points=10");
 
         String cookie = login(assureeM, TEST_PASSWORD);
-        URLConnection url = get(cookie, MyPoints.PATH);
+        URLConnection url = get(cookie, Points.PATH);
         String resp = IOUtils.readURL(url);
-        resp = resp.split(Pattern.quote("</table>"))[0];
+        resp = resp.split(Pattern.quote("</table>"))[1];
         assertThat(resp, containsString(uniqueLoc));
     }
 
@@ -241,9 +241,9 @@ public class TestAssurance extends ManagedTest {
         String uniqueLoc = createUniqueName();
         executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&certify=1&rules=1&assertion=1&points=10");
         String cookie = login(assurerM, TEST_PASSWORD);
-        URLConnection url = get(cookie, MyPoints.PATH);
+        URLConnection url = get(cookie, Points.PATH);
         String resp = IOUtils.readURL(url);
-        resp = resp.split(Pattern.quote("</table>"))[1];
+        resp = resp.split(Pattern.quote("</table>"))[2];
         assertThat(resp, containsString(uniqueLoc));
     }
 

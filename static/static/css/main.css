@@ -1,0 +1,25 @@
+.container {
+    margin-bottom: 30px;
+}
+.quest {
+    font-weight: bold;
+}
+.quest:after {
+    content:"\A";
+    white-space:pre;
+}
+.subtext {
+    color: #c0c0c0;
+}
+.tooltip-inner {
+    white-space:pre-wrap;
+}
+.experthidden{
+    display: none;
+}
+div.error-msgs p{
+    padding: 6px;
+}
+.summary-table td{
+    padding: 0 3px;
+}

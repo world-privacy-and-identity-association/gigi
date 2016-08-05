@@ -13,7 +13,11 @@
 </tr>
 <? foreach($assurances) {?>
 <tr>
+<? if($support) { ?>
+<td><a href="/support/user/<?=$linkId?>"><?=$id?></a></td>
+<? } else { ?>
 <td><?=$id?></td>
+<? } ?>
 <td><?=$date?></td>
 <td><?=$verbVal?></td>
 <? if($myName) { ?>

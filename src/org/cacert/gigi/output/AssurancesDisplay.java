@@ -18,9 +18,12 @@ public class AssurancesDisplay implements Outputable {
 
     public String assuranceArray;
 
-    public AssurancesDisplay(String assuranceArray, boolean assurer) {
+    private boolean support;
+
+    public AssurancesDisplay(String assuranceArray, boolean assurer, boolean support) {
         this.assuranceArray = assuranceArray;
         this.assurer = assurer;
+        this.support = support;
     }
 
     @Override
@@ -43,13 +46,16 @@ public class AssurancesDisplay implements Outputable {
                     return false;
                 } else {
                     Assurance assurance = assurances[i];
+                    vars.put("support", support);
                     vars.put("id", assurance.getId());
                     vars.put("method", assurance.getMethod());
                     Name to = assurance.getTo();
                     if (assurer) {
+                        vars.put("linkId", assurance.getTo().getOwner().getId());
                         vars.put("verbVal", to == null ? l.getTranslation("applicant's name removed") : to.getOwner().getId());
                         vars.put("myName", to == null ? l.getTranslation("applicant's name removed") : to);
                     } else {
+                        vars.put("linkId", assurance.getFrom().getId());
                         vars.put("verbVal", assurance.getFrom().getPreferredName());
                         vars.put("myName", to == null ? l.getTranslation("own name removed") : to);
                     }
