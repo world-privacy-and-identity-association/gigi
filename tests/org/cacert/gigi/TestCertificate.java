@@ -38,6 +38,7 @@ public class TestCertificate extends ManagedTest {
         final PrivateKey pk = kp.getPrivate();
         await(c.issue(null, "2y", u));
         final X509Certificate ce = c.cert();
+        c.setLoginEnabled(true);
         assertNotNull(login(pk, ce));
     }
 
@@ -106,6 +107,7 @@ public class TestCertificate extends ManagedTest {
         String cookie = login(u.getEmail(), TEST_PASSWORD);
         testFails(CertificateStatus.ISSUED, c);
         X509Certificate cert = c.cert();
+        c.setLoginEnabled(true);
         assertNotNull(login(pk, cert));
         assertEquals(1, countRegex(IOUtils.readURL(get(cookie, Certificates.PATH)), "<td>(?:REVOKED|ISSUED)</td>"));
         assertEquals(1, countRegex(IOUtils.readURL(get(cookie, Certificates.PATH + "?withRevoked")), "<td>(?:REVOKED|ISSUED)</td>"));

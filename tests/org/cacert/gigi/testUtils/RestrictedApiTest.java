@@ -48,6 +48,7 @@ public class RestrictedApiTest extends ClientTest {
             pk = kp.getPrivate();
             await(c.issue(null, "2y", u));
             ce = c.cert();
+            c.setLoginEnabled(true);
         } catch (IOException e) {
             throw new Error(e);
         } catch (GigiApiException e) {

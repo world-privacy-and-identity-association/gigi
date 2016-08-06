@@ -31,6 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cacert.gigi.crypto.SPKAC;
+import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.pages.account.certs.CertificateAdd;
 import org.cacert.gigi.pages.account.certs.CertificateRequest;
@@ -222,14 +223,14 @@ public class TestCertificateAdd extends ClientTest {
         Date start = new Date(now);
         Date end = new Date(now + MS_PER_DAY * 10);
         String validity = "&validFrom=" + sdf.format(start) + "&validity=" + sdf.format(end);
-        X509Certificate res = createCertWithValidity(validity);
+        X509Certificate res = createCertWithValidity(validity, false);
         assertNotNull(validity, res);
         assertEquals(start, res.getNotBefore());
         assertEquals(end, res.getNotAfter());
     }
 
     private void testCertificateValidityRelative(int field, int amount, String length, boolean shouldsucceed) throws IOException, GeneralSecurityException, UnsupportedEncodingException, MalformedURLException, CertificateException {
-        X509Certificate parsed = createCertWithValidity("&validFrom=now&validity=" + length);
+        X509Certificate parsed = createCertWithValidity("&validFrom=now&validity=" + length, false);
         if (parsed == null) {
             assertTrue( !shouldsucceed);
             return;
@@ -248,7 +249,7 @@ public class TestCertificateAdd extends ClientTest {
         assertEquals(c.getTime(), end);
     }
 
-    private X509Certificate createCertWithValidity(String validity) throws IOException, GeneralSecurityException, UnsupportedEncodingException, MalformedURLException, CertificateException {
+    private X509Certificate createCertWithValidity(String validity, boolean login) throws IOException, GeneralSecurityException, UnsupportedEncodingException, MalformedURLException, CertificateException {
         PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
                 CertificateRequest.OID_KEY_USAGE_SSL_CLIENT
         }, new RFC822Name(email));
@@ -263,6 +264,9 @@ public class TestCertificateAdd extends ClientTest {
         out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes("UTF-8"));
         out.write(("&profile=client&CN=" + CertificateRequest.DEFAULT_CN + "&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes("UTF-8"));
         out.write(("&hash_alg=SHA512&").getBytes("UTF-8"));
+        if (login) {
+            out.write(("login=1&").getBytes("UTF-8"));
+        }
         out.write(validity.getBytes("UTF-8"));
 
         String certurl = huc.getHeaderField("Location");
@@ -367,5 +371,14 @@ public class TestCertificateAdd extends ClientTest {
         assertTrue(m.find());
         String resultingCN = m.group(1);
         return resultingCN;
+    }
+
+    @Test
+    public void testSetLoginEnabled() throws IOException, GeneralSecurityException {
+        X509Certificate parsedLoginNotEnabled = createCertWithValidity("&validFrom=now&validity=1m", false);
+        assertNull(CertificateOwner.getByEnabledSerial(parsedLoginNotEnabled.getSerialNumber().toString(16)));
+
+        X509Certificate parsedLoginEnabled = createCertWithValidity("&validFrom=now&validity=1m", true);
+        assertEquals(u, CertificateOwner.getByEnabledSerial(parsedLoginEnabled.getSerialNumber().toString(16)));
     }
 }

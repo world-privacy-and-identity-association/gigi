@@ -116,7 +116,7 @@ public abstract class CertificateOwner implements IdCachable {
     }
 
     public static CertificateOwner getByEnabledSerial(String serial) {
-        try (GigiPreparedStatement prep = new GigiPreparedStatement("SELECT `memid` FROM `certs` WHERE serial=? AND `disablelogin`='f' AND `revoked` is NULL")) {
+        try (GigiPreparedStatement prep = new GigiPreparedStatement("SELECT `memid` FROM `certs` INNER JOIN `logincerts` ON `logincerts`.`id`=`certs`.`id` WHERE serial=? AND `revoked` is NULL")) {
             prep.setString(1, serial.toLowerCase());
             GigiResultSet res = prep.executeQuery();
             if (res.next()) {

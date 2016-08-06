@@ -29,6 +29,7 @@ public class ImportCATSResult extends RestrictedApiTest {
     public void testLookupSerial() throws GigiApiException, IOException, GeneralSecurityException, InterruptedException {
         Certificate target2 = new Certificate(u, u, Certificate.buildDN("EMAIL", u.getEmail()), Digest.SHA256, generatePEMCSR(generateKeypair(), "EMAIL=" + u.getEmail()), CSRType.CSR, CertificateProfile.getByName("client"), new Certificate.SubjectAlternateName(SANType.EMAIL, "cats@cacert.org"));
         await(target2.issue(null, "2y", u));
+        target2.setLoginEnabled(true);
 
         assertEquals(u.getId(), Integer.parseInt(apiLookup(target2)));
     }

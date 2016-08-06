@@ -160,7 +160,6 @@ CREATE TABLE "certs" (
   "revoked" timestamp NULL DEFAULT NULL,
   "expire" timestamp NULL DEFAULT NULL,
   "renewed" boolean NOT NULL DEFAULT 'false',
-  "disablelogin" boolean NOT NULL DEFAULT 'false',
   "pkhash" char(40) DEFAULT NULL,
   "certhash" char(40) DEFAULT NULL,
   "description" varchar(100) NOT NULL DEFAULT '',
@@ -185,10 +184,9 @@ CREATE TABLE "certAvas" (
   PRIMARY KEY ("certId", "name")
 );
 
-DROP TABLE IF EXISTS "clientcerts";
-CREATE TABLE "clientcerts" (
+DROP TABLE IF EXISTS "logincerts";
+CREATE TABLE "logincerts" (
   "id" int NOT NULL,
-  "disablelogin" boolean NOT NULL DEFAULT 'false',
 
   PRIMARY KEY ("id")
 );
@@ -374,7 +372,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(20);
+INSERT INTO "schemeVersion" (version)  VALUES(21);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (

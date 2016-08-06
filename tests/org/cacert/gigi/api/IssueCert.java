@@ -44,6 +44,7 @@ public class IssueCert extends ClientTest {
             kp = generateKeypair();
             String key1 = generatePEMCSR(kp, "EMAIL=testmail@example.com");
             c = new Certificate(u, u, Certificate.buildDN("EMAIL", "testmail@example.com"), Digest.SHA256, key1, CSRType.CSR, CertificateProfile.getById(1));
+            c.setLoginEnabled(true);
             pk = kp.getPrivate();
             await(c.issue(null, "2y", u));
             ce = c.cert();

@@ -90,6 +90,9 @@ public class CertificateIssueForm extends Form {
                         error.format(out, Page.getLanguage(req));
                         return false;
                     }
+                    if (login) {
+                        result.setLoginEnabled(true);
+                    }
                     result.issue(issueDate.getFrom(), issueDate.getTo(), c.getActor()).waitFor(60000);
                     this.result = result;
                     return true;

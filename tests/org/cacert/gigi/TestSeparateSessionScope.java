@@ -36,6 +36,7 @@ public class TestSeparateSessionScope extends ManagedTest {
         final PrivateKey pk = kp.getPrivate();
         await(c.issue(null, "2y", u));
         final X509Certificate ce = c.cert();
+        c.setLoginEnabled(true);
         String scookie = login(pk, ce);
 
         assertTrue(isLoggedin(cookie));
@@ -59,6 +60,7 @@ public class TestSeparateSessionScope extends ManagedTest {
         await(c2.issue(null, "2y", u));
         await(j1);
         final X509Certificate ce = c.cert();
+        c.setLoginEnabled(true);
         String scookie = login(pk, ce);
 
         checkCertLogin(c, pk, scookie, 200);

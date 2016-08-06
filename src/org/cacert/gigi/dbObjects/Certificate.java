@@ -443,4 +443,28 @@ public class Certificate implements IdCachable {
         }
         return null;
     }
+
+    public void setLoginEnabled(boolean activate) {
+        if (activate) {
+            if ( !isLoginEnabled()) {
+                try (GigiPreparedStatement prep = new GigiPreparedStatement("INSERT INTO `logincerts` SET `id`=?")) {
+                    prep.setInt(1, id);
+                    prep.execute();
+                }
+            }
+        } else {
+            try (GigiPreparedStatement prep = new GigiPreparedStatement("DELETE FROM `logincerts` WHERE `id`=?")) {
+                prep.setInt(1, id);
+                prep.execute();
+            }
+        }
+    }
+
+    public boolean isLoginEnabled() {
+        try (GigiPreparedStatement prep = new GigiPreparedStatement("SELECT 1 FROM `logincerts` WHERE `id`=?")) {
+            prep.setInt(1, id);
+            GigiResultSet res = prep.executeQuery();
+            return res.next();
+        }
+    }
 }
