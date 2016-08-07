@@ -507,35 +507,36 @@ public class SimpleSigner {
 
     private static byte[] generateEKU(String eku) throws IOException {
 
-        DerOutputStream dos = new DerOutputStream();
-        for (String name : eku.split(",")) {
-            ObjectIdentifier oid;
-            switch (name) {
-            case "serverAuth":
-                oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.1");
-                break;
-            case "clientAuth":
-                oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.2");
-                break;
-            case "codeSigning":
-                oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.3");
-                break;
-            case "emailProtection":
-                oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.4");
-                break;
-            case "OCSPSigning":
-                oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.9");
-                break;
+        try (DerOutputStream dos = new DerOutputStream()) {
+            for (String name : eku.split(",")) {
+                ObjectIdentifier oid;
+                switch (name) {
+                case "serverAuth":
+                    oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.1");
+                    break;
+                case "clientAuth":
+                    oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.2");
+                    break;
+                case "codeSigning":
+                    oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.3");
+                    break;
+                case "emailProtection":
+                    oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.4");
+                    break;
+                case "OCSPSigning":
+                    oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.9");
+                    break;
 
-            default:
-                throw new Error(name);
+                default:
+                    throw new Error(name);
+                }
+                dos.putOID(oid);
             }
-            dos.putOID(oid);
+            byte[] data = dos.toByteArray();
+            dos.reset();
+            dos.write(DerValue.tag_Sequence, data);
+            return dos.toByteArray();
         }
-        byte[] data = dos.toByteArray();
-        dos.reset();
-        dos.write(DerValue.tag_Sequence, data);
-        return dos.toByteArray();
     }
 
     public static X500Name genX500Name(Map<String, String> subj) throws IOException {
