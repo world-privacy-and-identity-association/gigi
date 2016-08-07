@@ -127,7 +127,7 @@ public class SimpleSigner {
                             "INNER JOIN certs ON certs.id=jobs.`targetId` " + //
                             "INNER JOIN profiles ON profiles.id=certs.profile " + //
                             "WHERE jobs.state='open' "//
-                    + "AND task='sign'");
+                            + "AND task='sign'");
 
                     getSANSs = new GigiPreparedStatement("SELECT contents, type FROM `subjectAlternativeNames` " + //
                             "WHERE `certId`=?");

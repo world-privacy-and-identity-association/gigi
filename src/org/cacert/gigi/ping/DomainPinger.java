@@ -20,7 +20,6 @@ public abstract class DomainPinger {
             enterPingResult.setString(4, token);
             enterPingResult.execute();
         }
-
     }
 
     protected static void updatePingResult(int configId, String state, String result, String token) {
@@ -31,6 +30,6 @@ public abstract class DomainPinger {
             updatePingResult.setString(4, token);
             updatePingResult.execute();
         }
-
     }
+
 }
