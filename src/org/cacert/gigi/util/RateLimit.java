@@ -9,6 +9,8 @@ public class RateLimit {
 
     public static final class RateLimitException extends GigiApiException {
 
+        private static final long serialVersionUID = 1L;
+
         public RateLimitException() {
             super("Rate limit exceeded.");
         }

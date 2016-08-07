@@ -59,6 +59,8 @@ public class TestCertificateAdd extends ClientTest {
 
     private static class OnPageError extends Error {
 
+        private static final long serialVersionUID = 1L;
+
         public OnPageError(String page) {
             super(page);
         }
