@@ -40,7 +40,7 @@ public class EmailAddress implements IdCachable, Verifyable {
 
     public EmailAddress(User owner, String address, Locale mailLocale) throws GigiApiException {
         address = address.toLowerCase();
-        if ( !EmailProvider.MAIL.matcher(address).matches()) {
+        if ( !EmailProvider.isValidMailAddress(address)) {
             throw new IllegalArgumentException("Invalid email.");
         }
         this.address = address;

@@ -22,6 +22,7 @@ import javax.net.ssl.SSLSocketFactory;
 import org.cacert.gigi.crypto.SMIME;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.util.DNSUtil;
+import org.cacert.gigi.util.DomainAssessment;
 
 public abstract class EmailProvider {
 
@@ -71,10 +72,20 @@ public abstract class EmailProvider {
 
     public static final String FAIL = "FAIL";
 
-    public static final Pattern MAIL = Pattern.compile("^([a-zA-Z0-9])+([a-zA-Z0-9\\+\\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\\._-]+)+$");
+    private static final String MAIL_P_RFC_WORD = "[A-Za-z0-9\\+\\.!#$%&'*/=?^_`|~{}-]+";
+
+    private static final String MAIL_P_RFC_LOCAL = MAIL_P_RFC_WORD + "(?:\\." + MAIL_P_RFC_WORD + ")*";
+
+    private static final String MAIL_P_RFC_LABEL = "(?!(?!xn)..--|-)(?:[A-Za-z0-9-]+)(?<!-)";
+
+    private static final String MAIL_P_RFC_ADDRESS = MAIL_P_RFC_LOCAL + "@(?:" + MAIL_P_RFC_LABEL + "\\.)+" + MAIL_P_RFC_LABEL + "\\.?";
+
+    private static final Pattern MAIL_LOCAL = Pattern.compile("^" + MAIL_P_RFC_LOCAL + "$");
+
+    private static final Pattern MAIL_ADDRESS = Pattern.compile("^" + MAIL_P_RFC_ADDRESS + "$");
 
     public String checkEmailServer(int forUid, String address) throws IOException {
-        if (MAIL.matcher(address).matches()) {
+        if (isValidMailAddress(address)) {
             String[] parts = address.split("@", 2);
             String domain = parts[1];
 
@@ -188,6 +199,29 @@ public abstract class EmailProvider {
                 return Integer.compare(i1, i2);
             }
         });
+    }
+
+    public static boolean isValidMailAddress(String address) {
+        if ( !MAIL_ADDRESS.matcher(address).matches()) {
+            return false;
+        }
+
+        String[] parts = address.split("@", 2);
+
+        String local = parts[0];
+        String domain = parts[1];
+
+        if ( !MAIL_LOCAL.matcher(local).matches()) {
+            return false;
+        }
+
+        for (String domainPart : domain.split("\\.", -1)) {
+            if ( !DomainAssessment.isValidDomainPart(domainPart)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }

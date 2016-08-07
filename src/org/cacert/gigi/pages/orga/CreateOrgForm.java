@@ -93,7 +93,7 @@ public class CreateOrgForm extends Form {
         email = extractParam(req, "contact");
         optionalName = extractParam(req, "optionalName");
         postalAddress = extractParam(req, "postalAddress");
-        if ( !EmailProvider.MAIL.matcher(email).matches()) {
+        if ( !EmailProvider.isValidMailAddress(email)) {
             throw new GigiApiException("Contact email is not a valid email address");
         }
     }
