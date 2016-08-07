@@ -164,7 +164,7 @@ public class TestOrgManagement extends OrgTest {
     }
 
     /**
-     * Tests various contraints on organisaion fields.
+     * Tests various contraints on organisation fields.
      */
     @Test
     public void testLengthConstraint() throws IOException, GigiApiException {
