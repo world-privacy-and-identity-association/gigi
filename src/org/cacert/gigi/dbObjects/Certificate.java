@@ -152,7 +152,7 @@ public class Certificate implements IdCachable {
 
             try (GigiPreparedStatement inserter = new GigiPreparedStatement("INSERT INTO certs SET md=?::`mdType`, csr_type=?::`csrType`, crt_name='', memid=?, profile=?")) {
                 inserter.setString(1, md.toString().toLowerCase());
-                inserter.setString(2, csrType.toString());
+                inserter.setString(2, this.csrType.toString());
                 inserter.setInt(3, owner.getId());
                 inserter.setInt(4, profile.getId());
                 inserter.execute();
@@ -170,7 +170,7 @@ public class Certificate implements IdCachable {
 
             try (GigiPreparedStatement insertAVA = new GigiPreparedStatement("INSERT INTO `certAvas` SET `certId`=?, name=?, value=?")) {
                 insertAVA.setInt(1, id);
-                for (Entry<String, String> e : dn.entrySet()) {
+                for (Entry<String, String> e : this.dn.entrySet()) {
                     insertAVA.setString(2, e.getKey());
                     insertAVA.setString(3, e.getValue());
                     insertAVA.execute();
@@ -179,7 +179,7 @@ public class Certificate implements IdCachable {
             File csrFile = KeyStorage.locateCsr(id);
             csrName = csrFile.getPath();
             try (FileOutputStream fos = new FileOutputStream(csrFile)) {
-                fos.write(csr.getBytes("UTF-8"));
+                fos.write(this.csr.getBytes("UTF-8"));
             }
             try (GigiPreparedStatement updater = new GigiPreparedStatement("UPDATE `certs` SET `csr_name`=? WHERE id=?")) {
                 updater.setString(1, csrName);
