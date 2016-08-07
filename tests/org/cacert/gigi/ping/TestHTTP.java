@@ -155,7 +155,7 @@ public class TestHTTP extends PingTest {
             BufferedReader br = new BufferedReader(new InputStreamReader(s0.getInputStream(), "UTF-8"));
             String fst = br.readLine();
             assertEquals("GET /cacert-" + m.group(1) + ".txt HTTP/1.1", fst);
-            while ( !br.readLine().equals("")) {
+            while ( !"".equals(br.readLine())) {
             }
             String res = m.group(2);
             PrintWriter out = new PrintWriter(new OutputStreamWriter(s0.getOutputStream(), "UTF-8"));
