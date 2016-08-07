@@ -98,6 +98,7 @@ public class TestHTTP extends PingTest {
             }
             if (dpc == null) {
                 fail("Http config not found");
+                return;
             }
             String res = executeBasicWebInteraction(cookie, p2, "configId=" + dpc.getId());
             assertThat(res, containsString("only allowed after"));
