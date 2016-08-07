@@ -84,16 +84,16 @@ public class ViewOrgPage extends Page {
         Language lang = getLanguage(req);
         PrintWriter out = resp.getWriter();
         if (idS.length() < DEFAULT_PATH.length() + 2) {
-            final Organisation[] orgas = Organisation.getOrganisations(0, 30);
+            final Organisation[] orgList = Organisation.getOrganisations(0, 30);
             HashMap<String, Object> map = new HashMap<>();
             final List<Organisation> myOrgs = u.getOrganisations(true);
             final boolean orgAss = u.isInGroup(CreateOrgPage.ORG_ASSURER);
             if (orgAss) {
-                map.put("orgas", makeOrgDataset(orgas));
+                map.put("orgas", makeOrgDataset(orgList));
             } else {
                 map.put("orgas", makeOrgDataset(myOrgs.toArray(new Organisation[myOrgs.size()])));
             }
-            this.orgas.output(out, lang, map);
+            orgas.output(out, lang, map);
             return;
         }
         idS = idS.substring(DEFAULT_PATH.length() + 1);
