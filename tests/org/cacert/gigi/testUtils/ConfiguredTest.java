@@ -39,6 +39,7 @@ import org.cacert.gigi.util.PEM;
 import org.cacert.gigi.util.PasswordHash;
 import org.cacert.gigi.util.ServerConstants;
 import org.cacert.gigi.util.TimeConditions;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import sun.security.pkcs10.PKCS10;
@@ -71,6 +72,8 @@ public abstract class ConfiguredTest {
         initEnvironment();
     }
 
+    private static Link l;
+
     public static Properties initEnvironment() throws IOException {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         if (envInited) {
@@ -94,8 +97,16 @@ public abstract class ConfiguredTest {
                 throw new Error(e);
             }
         }
-        return props;
 
+        return props;
+    }
+
+    @AfterClass
+    public static void closeDBLink() {
+        if (l != null) {
+            l.close();
+            l = null;
+        }
     }
 
     private static Properties generateProps() throws Error {
@@ -163,8 +174,6 @@ public abstract class ConfiguredTest {
     }
 
     static int count = 0;
-
-    private static Link l;
 
     public static String createRandomIDString() {
         final char[] chars = "abcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
