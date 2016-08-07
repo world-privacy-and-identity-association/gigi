@@ -329,7 +329,11 @@ public class SimpleSigner {
                 }
                 String ca = caP.getProperty("ca") + "_2015_1";
                 File parent = new File("signer/ca");
-                for (File f : parent.listFiles()) {
+                File[] caFiles = parent.listFiles();
+                if (null == caFiles) {
+                    caFiles = new File[0];
+                }
+                for (File f : caFiles) {
                     if (f.getName().startsWith(caP.getProperty("ca"))) {
                         ca = f.getName();
                         break;
