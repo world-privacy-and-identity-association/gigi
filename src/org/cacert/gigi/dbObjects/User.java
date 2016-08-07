@@ -1,5 +1,8 @@
 package org.cacert.gigi.dbObjects;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,6 +31,8 @@ import org.cacert.gigi.util.TimeConditions;
  * name-change and no assurance.
  */
 public class User extends CertificateOwner {
+
+    private static final long serialVersionUID = -7915843843752264176L;
 
     private DayDate dob;
 
@@ -602,5 +607,9 @@ public class User extends CertificateOwner {
             return rs.next();
         }
     }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {}
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {}
 
 }

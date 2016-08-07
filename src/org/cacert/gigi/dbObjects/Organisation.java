@@ -1,5 +1,8 @@
 package org.cacert.gigi.dbObjects;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +13,8 @@ import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.dbObjects.wrappers.DataContainer;
 
 public class Organisation extends CertificateOwner {
+
+    private static final long serialVersionUID = -2386342985586320843L;
 
     @DataContainer
     public static class Affiliation {
@@ -253,4 +258,9 @@ public class Organisation extends CertificateOwner {
     public boolean isSelfOrganisation() {
         return SELF_ORG_NAME.equals(getName());
     }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {}
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {}
+
 }

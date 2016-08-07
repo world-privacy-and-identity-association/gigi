@@ -1,6 +1,7 @@
 package org.cacert.gigi.util;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -13,13 +14,15 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.SprintfCommand;
 
-public class AuthorizationContext implements Outputable {
+public class AuthorizationContext implements Outputable, Serializable {
 
-    CertificateOwner target;
+    private static final long serialVersionUID = -2596733469159940154L;
 
-    User actor;
+    private CertificateOwner target;
 
-    String supporterTicketId;
+    private User actor;
+
+    private String supporterTicketId;
 
     public AuthorizationContext(CertificateOwner target, User actor) {
         this.target = target;

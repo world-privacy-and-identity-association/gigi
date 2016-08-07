@@ -1,12 +1,19 @@
 package org.cacert.gigi.dbObjects;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 
-public abstract class CertificateOwner implements IdCachable {
+public abstract class CertificateOwner implements IdCachable, Serializable {
+
+    private static final long serialVersionUID = -672580485730247314L;
 
     private static final ObjectCache<CertificateOwner> myCache = new ObjectCache<>();
 
@@ -125,4 +132,31 @@ public abstract class CertificateOwner implements IdCachable {
             return null;
         }
     }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.writeLong(getId());
+    }
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        id = (int) ois.readLong();
+    }
+
+    protected Object readResolve() throws ObjectStreamException {
+        /**
+         * Returning the Object by looking up its ID in the cache.
+         *
+         * @see http://www.javalobby.org/java/forums/t17491.html
+         * @see http://www.jguru.com/faq/view.jsp?EID=44039
+         * @see http://thecodersbreakfast.net/
+         *      ?post/2011/05/12/Serialization-and-magic-methods
+         */
+        CertificateOwner co = getById(this.getId());
+
+        if (null == co) {
+            throw new Error("Unknown Certificate Owner");
+        }
+
+        return co;
+    }
+
 }
