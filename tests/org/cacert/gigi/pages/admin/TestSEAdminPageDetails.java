@@ -9,7 +9,6 @@ import java.net.MalformedURLException;
 import java.net.URLConnection;
 import java.sql.Timestamp;
 import java.util.Locale;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cacert.gigi.GigiApiException;
@@ -172,15 +171,6 @@ public class TestSEAdminPageDetails extends ClientTest {
             c++;
         }
         return c;
-    }
-
-    private String getFname(String res) {
-        Pattern p = Pattern.compile("<span class='fname'>([^<]*)</span>");
-        Matcher m = p.matcher(res);
-        if (m.find()) {
-            return m.group(1);
-        }
-        return null;
     }
 
 }
