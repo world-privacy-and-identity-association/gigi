@@ -58,10 +58,18 @@ public class DayDate {
 
     @Override
     public boolean equals(Object obj) {
+        if (null == obj) {
+            return false;
+        }
         if ( !(obj instanceof DayDate)) {
             throw new Error("You may not compare this date somthing other than a DayDate");
         }
         return ((DayDate) obj).time == time;
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(time);
     }
 
     public java.util.Date toDate() {
