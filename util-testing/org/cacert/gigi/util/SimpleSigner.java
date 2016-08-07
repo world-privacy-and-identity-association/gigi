@@ -232,8 +232,6 @@ public class SimpleSigner {
         }
     }
 
-    private static int counter = 0;
-
     private static void signCertificates() throws SQLException {
         GigiResultSet rs = readyCerts.executeQuery();
 
