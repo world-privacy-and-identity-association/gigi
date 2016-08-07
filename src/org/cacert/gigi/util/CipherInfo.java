@@ -300,6 +300,7 @@ public class CipherInfo implements Comparable<CipherInfo> {
 
     public static String[] getCompleteRanking() {
         if (cipherRanking == null) {
+            @SuppressWarnings("unchecked")
             String[] ciphers = filterCiphers((Iterable<String>) cig.names.keySet());
             cipherRanking = ciphers;
         }
