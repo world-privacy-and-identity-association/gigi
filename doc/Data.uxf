@@ -198,7 +198,7 @@ owns&gt;
     <panel_attributes>DomainPinglog
 --
 -state: {open, success, failed}
--challange: String
+-challenge: String
 -result: String
 </panel_attributes>
     <additional_attributes/>
