@@ -2,6 +2,7 @@ package org.cacert.gigi.output.template;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,6 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.util.RandomToken;
 
 /**
@@ -59,6 +61,32 @@ public abstract class Form implements Outputable {
      *             if internal operations went wrong.
      */
     public abstract boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException;
+
+    /**
+     * Calls {@link #submit(PrintWriter, HttpServletRequest)} while catching and
+     * displaying errors ({@link GigiApiException}), and re-outputing the form
+     * via {@link #output(PrintWriter, Language, Map)}.
+     * 
+     * @param out
+     *            the target to write the form and errors to
+     * @param req
+     *            the request that this submit originated (for submit and for
+     *            language)
+     * @return as {@link #submit(PrintWriter, HttpServletRequest)}: true, iff
+     *         the form succeeded and the user should be redirected.
+     */
+    public boolean submitProtected(PrintWriter out, HttpServletRequest req) {
+        try {
+            boolean succeeded = submit(out, req);
+            if (succeeded) {
+                return true;
+            }
+        } catch (GigiApiException e) {
+            e.format(out, LoginPage.getLanguage(req));
+        }
+        output(out, LoginPage.getLanguage(req), new HashMap<String, Object>());
+        return false;
+    }
 
     protected String getCsrfFieldName() {
         return CSRF_FIELD;

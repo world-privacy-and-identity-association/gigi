@@ -12,7 +12,6 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
-import org.cacert.gigi.pages.Page;
 
 public class DomainManagementForm extends Form {
 
@@ -29,20 +28,15 @@ public class DomainManagementForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) {
-        try {
-            String dels = req.getParameter("delete");
+    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+        String dels = req.getParameter("delete");
 
-            int delId = Integer.parseInt(dels);
-            Domain d = Domain.getById(delId);
-            if (d != null && d.getOwner() == target) {
-                d.delete();
-            } else {
-                throw new GigiApiException("Domain was not found.");
-            }
-        } catch (GigiApiException e) {
-            e.format(out, Page.getLanguage(req));
-            return false;
+        int delId = Integer.parseInt(dels);
+        Domain d = Domain.getById(delId);
+        if (d != null && d.getOwner() == target) {
+            d.delete();
+        } else {
+            throw new GigiApiException("Domain was not found.");
         }
         return true;
     }

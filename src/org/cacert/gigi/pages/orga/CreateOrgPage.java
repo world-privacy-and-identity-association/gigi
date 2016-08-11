@@ -29,8 +29,8 @@ public class CreateOrgPage extends Page {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        CreateOrgForm form = Form.getForm(req, CreateOrgForm.class);
         try {
-            CreateOrgForm form = Form.getForm(req, CreateOrgForm.class);
             if (form.submit(resp.getWriter(), req)) {
                 resp.sendRedirect(ViewOrgPage.DEFAULT_PATH + "/" + form.getResult().getId());
                 return;
@@ -38,6 +38,7 @@ public class CreateOrgPage extends Page {
         } catch (GigiApiException e) {
             e.format(resp.getWriter(), getLanguage(req));
         }
+        form.output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
     }
 
     @Override

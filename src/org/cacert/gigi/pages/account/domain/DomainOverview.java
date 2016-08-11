@@ -91,7 +91,7 @@ public class DomainOverview extends Page {
             }
         } else if (req.getParameter("domdel") != null) {
             DomainManagementForm f = Form.getForm(req, DomainManagementForm.class);
-            if (f.submit(resp.getWriter(), req)) {
+            if (f.submitProtected(resp.getWriter(), req)) {
                 resp.sendRedirect(PATH);
             }
         }
