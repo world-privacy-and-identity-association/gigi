@@ -13,6 +13,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.CountryCode;
+import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.Organisation.Affiliation;
 import org.cacert.gigi.dbObjects.User;
@@ -145,7 +147,7 @@ public class TestOrgManagement extends OrgTest {
     @Test
     public void testUpdateOrgCertData() throws IOException, GigiApiException {
         Organisation o1 = createUniqueOrg();
-        o1.updateCertData("name", "DE", DIFFICULT_CHARS, "Köln");
+        o1.updateCertData("name", CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS), DIFFICULT_CHARS, "Köln");
         assertEquals("name", o1.getName());
         assertEquals("DE", o1.getState());
         assertEquals(DIFFICULT_CHARS, o1.getProvince());

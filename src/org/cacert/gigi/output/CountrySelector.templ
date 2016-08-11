@@ -1,0 +1,6 @@
+<select name='<?=$name?>'>
+<option value='invalid'><? if($optional) { ?><?=_not specified?><? } else { ?><?=_please select...?><? } ?></option>
+<? foreach($countryCode) { ?>
+    <option value="<?=$cc?>" <?=$selected?> ><?=$cc?> - <?=$display?></option>
+<? } ?>
+</select>

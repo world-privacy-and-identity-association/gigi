@@ -65,12 +65,12 @@ public class Organisation extends CertificateOwner {
 
     private String postalAddress;
 
-    public Organisation(String name, String state, String province, String city, String email, String optionalName, String postalAddress, User creator) throws GigiApiException {
+    public Organisation(String name, CountryCode state, String province, String city, String email, String optionalName, String postalAddress, User creator) throws GigiApiException {
         if ( !creator.isInGroup(Group.ORGASSURER)) {
             throw new GigiApiException("Only Organisation RA Agents may create organisations.");
         }
         this.name = name;
-        this.state = state;
+        this.state = state.getCountryCode();
         this.province = province;
         this.city = city;
         this.email = email;
@@ -80,7 +80,7 @@ public class Organisation extends CertificateOwner {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO organisations SET id=?, name=?, state=?, province=?, city=?, contactEmail=?, optional_name=?, postal_address=?, creator=?")) {
             ps.setInt(1, id);
             ps.setString(2, name);
-            ps.setString(3, state);
+            ps.setString(3, state.getCountryCode());
             ps.setString(4, province);
             ps.setString(5, city);
             ps.setString(6, email);
@@ -206,7 +206,7 @@ public class Organisation extends CertificateOwner {
         }
     }
 
-    public void updateCertData(String o, String c, String st, String l) {
+    public void updateCertData(String o, CountryCode c, String st, String l) {
         for (Certificate cert : getCertificates(false)) {
             if (cert.getStatus() == CertificateStatus.ISSUED) {
                 cert.revoke();
@@ -214,14 +214,14 @@ public class Organisation extends CertificateOwner {
         }
         try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `organisations` SET `name`=?, `state`=?, `province`=?, `city`=? WHERE `id`=?")) {
             ps.setString(1, o);
-            ps.setString(2, c);
+            ps.setString(2, c.getCountryCode());
             ps.setString(3, st);
             ps.setString(4, l);
             ps.setInt(5, getId());
             ps.executeUpdate();
         }
         name = o;
-        state = c;
+        state = c.getCountryCode();
         province = st;
         city = l;
     }

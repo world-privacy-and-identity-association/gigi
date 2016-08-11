@@ -255,5 +255,4 @@ public abstract class ConfiguredTest {
         c.add(Calendar.MONTH, -Notary.LIMIT_MAX_MONTHS_VERIFICATION + 1);
         return sdf.format(new Date(c.getTimeInMillis()));
     }
-
 }

@@ -6,13 +6,11 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.dbObjects.CountryCode;
-import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.CountrySelector;
 import org.cacert.gigi.output.template.Form;
-import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
@@ -24,8 +22,6 @@ public class CreateOrgForm extends Form {
     private Organisation result;
 
     private String o = "";
-
-    private String c = "";
 
     private String st = "";
 
@@ -39,12 +35,12 @@ public class CreateOrgForm extends Form {
 
     private boolean isEdit = false;
 
-    private CountryCode[] countryCode;
+    private CountrySelector cs;
 
     public CreateOrgForm(HttpServletRequest hsr) {
         super(hsr);
         try {
-            countryCode = CountryCode.getCountryCodes(CountryCodeType.CODE_2_CHARS);
+            cs = new CountrySelector("C", false);
         } catch (GigiApiException e) {
             throw new Error(e); // should not happen
         }
@@ -55,7 +51,11 @@ public class CreateOrgForm extends Form {
         isEdit = true;
         result = t;
         o = t.getName();
-        c = t.getState();
+        try {
+            cs = new CountrySelector("C", false, t.getState());
+        } catch (GigiApiException e) {
+            throw new Error(e);
+        }
         st = t.getProvince();
         l = t.getCity();
         email = t.getContactEmail();
@@ -73,7 +73,7 @@ public class CreateOrgForm extends Form {
         if (action.equals("new")) {
             checkCertData(req);
             checkOrganisationData(req);
-            Organisation ne = new Organisation(o, c, st, l, email, optionalName, postalAddress, LoginPage.getUser(req));
+            Organisation ne = new Organisation(o, cs.getCountry(), st, l, email, optionalName, postalAddress, LoginPage.getUser(req));
             result = ne;
             return true;
         } else if (action.equals("updateOrganisationData")) {
@@ -82,7 +82,7 @@ public class CreateOrgForm extends Form {
             return true;
         } else if (action.equals("updateCertificateData")) {
             checkCertData(req);
-            result.updateCertData(o, c, st, l);
+            result.updateCertData(o, cs.getCountry(), st, l);
             return true;
         }
 
@@ -100,7 +100,6 @@ public class CreateOrgForm extends Form {
 
     private void checkCertData(HttpServletRequest req) throws GigiApiException {
         o = extractParam(req, "O");
-        c = extractParam(req, "C").toUpperCase();
         st = extractParam(req, "ST");
         l = extractParam(req, "L");
 
@@ -108,7 +107,7 @@ public class CreateOrgForm extends Form {
             throw new GigiApiException(SprintfCommand.createSimple("{0} not given or longer than {1} characters", "Organisation name", 64));
         }
 
-        CountryCode.checkCountryCode(c, CountryCodeType.CODE_2_CHARS);
+        cs.update(req);
 
         if (st.length() > 128 || st.length() < 1) {
             throw new GigiApiException(SprintfCommand.createSimple("{0} not given or longer than {1} characters", "State/county", 128));
@@ -134,34 +133,13 @@ public class CreateOrgForm extends Form {
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
         vars.put("O", o);
-        vars.put("C", c);
+        vars.put("C", cs);
         vars.put("ST", st);
         vars.put("L", this.l);
         vars.put("email", email);
         vars.put("optionalName", optionalName);
         vars.put("postalAddress", postalAddress);
-        vars.put("countryCode", new IterableDataset() {
-
-            int i = 0;
-
-            @Override
-            public boolean next(Language l, Map<String, Object> vars) {
-                if (i >= countryCode.length) {
-                    return false;
-                }
-                CountryCode t = countryCode[i++];
-                vars.put("id", t.getId());
-                vars.put("cc", t.getCountryCode());
-                vars.put("display", t.getCountry());
-                if (t.getCountryCode().equals(c)) {
-                    vars.put("selected", "selected");
-                } else {
-                    vars.put("selected", "");
-                }
-                return true;
-            }
-        });
-        // vars.put("countryCode", countryCode);
+        vars.put("countryCode", cs);
         if (isEdit) {
             vars.put("edit", true);
         }
