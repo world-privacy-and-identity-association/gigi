@@ -79,21 +79,21 @@ public class SMIME {
 
     private static void mimeEncode(String contents, String signature, PrintWriter to) {
         String boundary = generateBoundary(contents, null);
-        to.println("MIME-Version: 1.0");
-        to.println("Content-Type: multipart/signed; protocol=\"application/x-pkcs7-signature\"; micalg=\"sha1\"; boundary=\"" + boundary + "\"");
-        to.println("");
-        to.println("This is an S/MIME signed message");
-        to.println("");
-        to.println("--" + boundary);
-        to.println(contents);
-        to.println("--" + boundary);
-        to.println("Content-Type: application/x-pkcs7-signature; name=\"smime.p7s\"");
-        to.println("Content-Transfer-Encoding: base64");
-        to.println("Content-Disposition: attachment; filename=\"smime.p7s\"");
-        to.println("");
-        to.println(signature);
-        to.println();
-        to.println("--" + boundary + "--");
+        to.print("MIME-Version: 1.0\r\n");
+        to.print("Content-Type: multipart/signed; protocol=\"application/x-pkcs7-signature\"; micalg=\"sha1\"; boundary=\"" + boundary + "\"\r\n");
+        to.print("\r\n");
+        to.print("This is an S/MIME signed message\r\n");
+        to.print("\r\n");
+        to.print("--" + boundary + "\r\n");
+        to.print(contents + "\r\n");
+        to.print("--" + boundary + "\r\n");
+        to.print("Content-Type: application/x-pkcs7-signature; name=\"smime.p7s\"\r\n");
+        to.print("Content-Transfer-Encoding: base64\r\n");
+        to.print("Content-Disposition: attachment; filename=\"smime.p7s\"\r\n");
+        to.print("\r\n");
+        to.print(signature + "\r\n");
+        to.print("\r\n");
+        to.print("--" + boundary + "--\r\n");
     }
 
     private static String generateBoundary(String contents, String contents2) {
