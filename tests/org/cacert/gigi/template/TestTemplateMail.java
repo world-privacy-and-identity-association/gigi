@@ -1,5 +1,6 @@
 package org.cacert.gigi.template;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class TestTemplateMail extends BusinessTest {
         testExecuteMail(vars, "Subject: subj\n\n<?=$var?>l");
         TestMail tm = getMailReceiver().receive();
         assertEquals(MailTemplate.SUBJECT_TAG + "subj", tm.getSubject());
-        assertEquals("vall", tm.getMessage());
+        assertThat(tm.getMessage(), startsWith("vall"));
     }
 
     @Test
@@ -40,7 +41,7 @@ public class TestTemplateMail extends BusinessTest {
         testExecuteMail(vars, "Subject: a<?=$var?>b\n\n<?=$var2?>l");
         TestMail tm = getMailReceiver().receive();
         assertEquals(MailTemplate.SUBJECT_TAG + "aval\">b", tm.getSubject());
-        assertEquals("sl\">l", tm.getMessage());
+        assertThat(tm.getMessage(), startsWith("sl\">l"));
 
     }
 
@@ -49,7 +50,7 @@ public class TestTemplateMail extends BusinessTest {
         testExecuteMail(vars, "Subject: a<?=_a<?>b\n\nc<?=_b\"?>l");
         TestMail tm = getMailReceiver().receive();
         assertEquals(MailTemplate.SUBJECT_TAG + "aa<b", tm.getSubject());
-        assertEquals("cb\"l", tm.getMessage());
+        assertThat(tm.getMessage(), startsWith("cb\"l"));
 
     }
 }

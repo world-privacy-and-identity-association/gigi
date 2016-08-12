@@ -14,6 +14,8 @@ import org.cacert.gigi.localisation.Language;
 
 public class MailTemplate extends Template {
 
+    private static final Template FOOTER = new Template(MailTemplate.class.getResource("MailFooter.templ"));
+
     public static final String SUBJECT_TAG = "[SomeCA] ";
 
     private TemplateBlock subjectBlock;
@@ -63,6 +65,7 @@ public class MailTemplate extends Template {
         vars.put(Outputable.OUT_KEY_PLAIN, true);
 
         String body = runTemplate(this, l, vars);
+        body += runTemplate(FOOTER, l, vars);
         String subject = runTemplate(subjectBlock, l, vars);
 
         SendMail.getInstance().sendMail(to, SUBJECT_TAG + subject, body, null, null, null, null, false);
