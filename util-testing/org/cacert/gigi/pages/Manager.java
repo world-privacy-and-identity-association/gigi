@@ -227,7 +227,7 @@ public class Manager extends Page {
         Calendar gc = GregorianCalendar.getInstance();
         gc.setTimeInMillis(0);
         gc.set(1990, 0, 1);
-        User u = new User(email, "xvXV12°§", new DayDate(gc.getTime().getTime()), Locale.ENGLISH, //
+        User u = new User(email, "xvXV12°§", new DayDate(gc.getTime().getTime()), Locale.ENGLISH, null, //
                 new NamePart(NamePartType.FIRST_NAME, "Först"), new NamePart(NamePartType.FIRST_NAME, "Müddle"),//
                 new NamePart(NamePartType.LAST_NAME, "Läst"), new NamePart(NamePartType.SUFFIX, "Süffix"));
         EmailAddress ea = u.getEmails()[0];

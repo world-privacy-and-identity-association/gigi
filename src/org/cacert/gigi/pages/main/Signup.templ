@@ -4,21 +4,29 @@
     <th colspan="3"><?=_My Details?></th>
   </tr>
   </thead>
+
   <tbody>
   <tr>
     <td><?=_Name?>: </td>
     <td><?=$name?></td>
     <td rowspan="4"><?=$!helpOnNames?></td>
   </tr>
+
   <tr>
-    <td><?=_Date of Birth (minimum age: ${dobmin} years)?><br>
+    <td><?=_Date of Birth?>:<br>
         (<?=_yyyy-mm-dd?>)</td>
     <td><?=$dob?></td>
-    <td>&nbsp;</td>
+    <td><?=_The required minimum age is ${dobmin} years.?></td>
   </tr>
 
   <tr>
-    <td><?=_Email Address?>: </td>
+    <td><?=_Residence Country?>:</td>
+    <td><?=$countryCode?></td>
+    <td><?=_The country in which you currently reside. This information is optional and used for statistical purposes only.?></td>
+  </tr>
+
+  <tr>
+    <td><?=_Email Address?>:</td>
     <td><input type="text" name="email" size="30" value="<?=$email?>" autocomplete="off"></td>
     <td><?=_I own or am authorised to control this email address?></td>
   </tr>
@@ -28,6 +36,7 @@
     <td><input class="form-control" type="password" name="pword1" size="30" autocomplete="off"></td>
     <td rowspan="2">&nbsp;</td>
   </tr>
+
   <tr>
     <td><?=_Pass Phrase Again?><font color="red">*</font>: </td>
     <td><input class="form-control" type="password" name="pword2" size="30" autocomplete="off"></td>

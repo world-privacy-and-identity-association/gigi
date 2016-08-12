@@ -10,6 +10,7 @@ import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.ArrayIterable;
+import org.cacert.gigi.output.CountrySelector;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.NameInput;
 import org.cacert.gigi.output.template.Form;
@@ -30,12 +31,20 @@ public class MyDetailsForm extends Form {
 
     private NameInput ni;
 
+    private CountrySelector cs;
+
     public MyDetailsForm(HttpServletRequest hsr, User target) {
         super(hsr);
         this.target = target;
         ni = new NameInput();
 
         this.ds = new DateSelector("day", "month", "year", target.getDoB());
+
+        if (target.getResidenceCountry() == null) {
+            this.cs = new CountrySelector("residenceCountry", true);
+        } else {
+            this.cs = new CountrySelector("residenceCountry", true, target.getResidenceCountry());
+        }
     }
 
     @Override
@@ -82,6 +91,10 @@ public class MyDetailsForm extends Form {
                 ds.update(req);
                 target.setDoB(ds.getDate());
             }
+            if ("updateResidenceCountry".equals(action)) {
+                cs.update(req);
+                target.setResidenceCountry(cs.getCountry());
+            }
         } catch (GigiApiException e) {
             e.format(out, Page.getLanguage(req));
             return false;
@@ -119,6 +132,7 @@ public class MyDetailsForm extends Form {
         });
         vars.put("name", ni);
         names.output(out, l, vars);
+        vars.put("residenceCountry", cs);
         if (target.getReceivedAssurances().length == 0) {
             vars.put("DoB", ds);
             templ.output(out, l, vars);

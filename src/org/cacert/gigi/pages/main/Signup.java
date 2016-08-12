@@ -13,6 +13,7 @@ import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.CountrySelector;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.NameInput;
 import org.cacert.gigi.output.template.Form;
@@ -36,9 +37,12 @@ public class Signup extends Form {
 
     private boolean general = true, country = true, regional = true, radius = true;
 
+    private CountrySelector cs;
+
     public Signup(HttpServletRequest hsr) {
         super(hsr);
         ni = new NameInput();
+        cs = new CountrySelector("residenceCountry", true);
     }
 
     private DateSelector myDoB = new DateSelector("day", "month", "year");
@@ -56,6 +60,7 @@ public class Signup extends Form {
         vars.put("helpOnNames", String.format(l.getTranslation("Help on Names %sin the wiki%s"), "<a href=\"//wiki.cacert.org/FAQ/HowToEnterNamesInJoinForm\" target=\"_blank\">", "</a>"));
         vars.put("csrf", getCSRFToken());
         vars.put("dobmin", User.MINIMUM_AGE + "");
+        vars.put("countryCode", cs);
         t.output(out, l, vars);
     }
 
@@ -78,9 +83,13 @@ public class Signup extends Form {
         } catch (GigiApiException e) {
             problems.mergeInto(e);
         }
+
+        cs.update(r);
+
         if ( !problems.isEmpty()) {
             throw problems;
         }
+
     }
 
     @Override
@@ -178,7 +187,7 @@ public class Signup extends Form {
     }
 
     private void run(HttpServletRequest req, String password) throws GigiApiException {
-        User u = new User(email, password, myDoB.getDate(), Page.getLanguage(req).getLocale(), ni.getNameParts());
+        User u = new User(email, password, myDoB.getDate(), Page.getLanguage(req).getLocale(), cs.getCountry(), ni.getNameParts());
 
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `alerts` SET `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?")) {
             ps.setInt(1, u.getId());
@@ -189,6 +198,6 @@ public class Signup extends Form {
             ps.execute();
         }
         Notary.writeUserAgreement(u, "ToS", "account creation", "", true, 0);
-
     }
+
 }

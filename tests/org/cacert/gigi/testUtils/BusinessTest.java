@@ -119,7 +119,7 @@ public abstract class BusinessTest extends ConfiguredTest {
         c.set(1950, 1, 1, 0, 0, 0);
         c.set(Calendar.MILLISECOND, 0);
 
-        User u = new User(createUniqueName() + "@email.com", TEST_PASSWORD, new DayDate(c.getTimeInMillis()), Locale.ENGLISH, //
+        User u = new User(createUniqueName() + "@email.com", TEST_PASSWORD, new DayDate(c.getTimeInMillis()), Locale.ENGLISH, null, //
                 new NamePart(NamePartType.FIRST_NAME, "a"), new NamePart(NamePartType.FIRST_NAME, "m"), new NamePart(NamePartType.LAST_NAME, "c"));
         InVMEmail.getInstance().mails.poll().verify();
         return u;
@@ -140,7 +140,7 @@ public abstract class BusinessTest extends ConfiguredTest {
         c.set(1950, 1, 1, 0, 0, 0);
         c.set(Calendar.MILLISECOND, 0);
 
-        User u = new User(mail, pw, new DayDate(c.getTimeInMillis()), Locale.ENGLISH,//
+        User u = new User(mail, pw, new DayDate(c.getTimeInMillis()), Locale.ENGLISH, null, //
                 new NamePart(NamePartType.FIRST_NAME, f), new NamePart(NamePartType.LAST_NAME, l));
         return u;
     }

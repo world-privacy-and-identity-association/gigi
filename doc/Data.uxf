@@ -96,6 +96,7 @@ administers&gt;</panel_attributes>
 -primaryEmail: String
 -locale: Locale
 -Name
+-country: varchar(2)
 --
 +hasPassedCATS(): boolean
 +isInGroup(:Group): boolean

@@ -66,6 +66,8 @@ public class User extends CertificateOwner {
 
     private Name preferredName;
 
+    private CountryCode residenceCountry;
+
     protected User(GigiResultSet rs) {
         super(rs.getInt("id"));
         updateName(rs);
@@ -75,6 +77,14 @@ public class User extends CertificateOwner {
         dob = new DayDate(rs.getDate("dob"));
         email = rs.getString("email");
         preferredName = Name.getById(rs.getInt("preferredName"));
+
+        try {
+            if (rs.getString("Country") != null) {
+                residenceCountry = CountryCode.getCountryCode(rs.getString("Country"), CountryCode.CountryCodeType.CODE_2_CHARS);
+            }
+        } catch (GigiApiException e) {
+            throw new Error(e);
+        }
 
         String localeStr = rs.getString("language");
         if (localeStr == null || localeStr.equals("")) {
@@ -94,18 +104,19 @@ public class User extends CertificateOwner {
         }
     }
 
-    public User(String email, String password, DayDate dob, Locale locale, NamePart... preferred) throws GigiApiException {
+    public User(String email, String password, DayDate dob, Locale locale, CountryCode residenceCountry, NamePart... preferred) throws GigiApiException {
         this.email = email;
         this.dob = dob;
         this.locale = locale;
         this.preferredName = new Name(this, preferred);
-        try (GigiPreparedStatement query = new GigiPreparedStatement("INSERT INTO `users` SET `email`=?, `password`=?, `dob`=?, `language`=?, id=?, `preferredName`=?")) {
+        try (GigiPreparedStatement query = new GigiPreparedStatement("INSERT INTO `users` SET `email`=?, `password`=?, `dob`=?, `language`=?, id=?, `preferredName`=?, `country` = ?")) {
             query.setString(1, email);
             query.setString(2, PasswordHash.hash(password));
             query.setDate(3, dob.toSQLDate());
             query.setString(4, locale.toString());
             query.setInt(5, getId());
             query.setInt(6, preferredName.getId());
+            query.setString(7, residenceCountry == null ? null : residenceCountry.getCountryCode());
             query.execute();
         }
         new EmailAddress(this, email, locale);
@@ -617,4 +628,20 @@ public class User extends CertificateOwner {
 
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {}
 
+    public CountryCode getResidenceCountry() {
+        return residenceCountry;
+    }
+
+    public void setResidenceCountry(CountryCode residenceCountry) {
+        this.residenceCountry = residenceCountry;
+        rawUpdateCountryData();
+    }
+
+    private void rawUpdateCountryData() {
+        try (GigiPreparedStatement update = new GigiPreparedStatement("UPDATE users SET country=? WHERE id=?")) {
+            update.setString(1, residenceCountry == null ? null : residenceCountry.getCountryCode());
+            update.setInt(2, getId());
+            update.executeUpdate();
+        }
+    }
 }
