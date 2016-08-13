@@ -51,7 +51,7 @@ public class NameInput implements Outputable {
         if ( !"western".equals(scheme) && !"single".equals("scheme")) {
             throw new GigiApiException("Invalid name type.");
         }
-        if (name != null && name.contains(" ")) {
+        if (name.contains(" ")) {
             throw new GigiApiException("Single names may only have one part.");
         }
 
