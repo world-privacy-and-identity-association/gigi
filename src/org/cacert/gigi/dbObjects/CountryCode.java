@@ -1,5 +1,7 @@
 package org.cacert.gigi.dbObjects;
 
+import java.util.Random;
+
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
@@ -146,6 +148,12 @@ public class CountryCode {
         }
 
         throw new RuntimeException("Internal Error: CountryCode for country not found" + this.getCountry());
+    }
+
+    public static CountryCode getRandomCountry(CountryCodeType cType) {
+        CountryCode[] cc = CountryCode.getCountryCodes(cType);
+        int rnd = new Random().nextInt(cc.length);
+        return cc[rnd];
     }
 
 }

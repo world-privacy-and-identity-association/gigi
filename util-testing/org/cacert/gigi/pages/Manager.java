@@ -104,7 +104,7 @@ public class Manager extends Page {
     }
 
     private User createAssurer(int i) throws GigiApiException, IllegalAccessException {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `country`=?")) {
             String mail = "test-assurer" + i + "@example.com";
             User u = User.getByEmail(mail);
             if (u == null) {
@@ -117,6 +117,7 @@ public class Manager extends Page {
                 ps.setInt(3, 100);
                 ps.setString(4, "Manager init code");
                 ps.setString(5, "1990-01-01");
+                ps.setString(6, CountryCode.getRandomCountry(CountryCode.CountryCodeType.CODE_2_CHARS).getCountryCode());
                 ps.execute();
             }
             return u;
@@ -227,8 +228,11 @@ public class Manager extends Page {
         Calendar gc = GregorianCalendar.getInstance();
         gc.setTimeInMillis(0);
         gc.set(1990, 0, 1);
-        User u = new User(email, "xvXV12°§", new DayDate(gc.getTime().getTime()), Locale.ENGLISH, null, //
-                new NamePart(NamePartType.FIRST_NAME, "Först"), new NamePart(NamePartType.FIRST_NAME, "Müddle"),//
+
+        CountryCode country = CountryCode.getRandomCountry(CountryCode.CountryCodeType.CODE_2_CHARS);
+
+        User u = new User(email, "xvXV12°§", new DayDate(gc.getTime().getTime()), Locale.ENGLISH, country, //
+                new NamePart(NamePartType.FIRST_NAME, "Först"), new NamePart(NamePartType.FIRST_NAME, "Müddle"), //
                 new NamePart(NamePartType.LAST_NAME, "Läst"), new NamePart(NamePartType.SUFFIX, "Süffix"));
         EmailAddress ea = u.getEmails()[0];
         verify(email, ea);
@@ -315,7 +319,7 @@ public class Manager extends Page {
                     if (vp < 10) {
                         currentVP = vp;
                     }
-                    Notary.assure(getAssurer(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", "2014-11-06", AssuranceType.FACE_TO_FACE, CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS));
+                    Notary.assure(getAssurer(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", "2014-11-06", AssuranceType.FACE_TO_FACE, CountryCode.getRandomCountry(CountryCodeType.CODE_2_CHARS));
                     agentNumber += 1;
                     vp -= currentVP;
                 }
@@ -332,7 +336,7 @@ public class Manager extends Page {
             try {
                 for (int i = 0; i < 25; i++) {
                     User a = getAssurer(i);
-                    Notary.assure(byEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", "2014-11-06", AssuranceType.FACE_TO_FACE, CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS));
+                    Notary.assure(byEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", "2014-11-06", AssuranceType.FACE_TO_FACE, CountryCode.getRandomCountry(CountryCodeType.CODE_2_CHARS));
                 }
             } catch (GigiApiException e) {
                 throw new Error(e);
