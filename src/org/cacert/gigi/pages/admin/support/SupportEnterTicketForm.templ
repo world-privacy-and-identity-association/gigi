@@ -4,10 +4,10 @@
         </tr>
         <tr>
             <td><?=_Ticket no?>:</td>
-            <td><input type="text" <? if($ticketNo) {?>value="<?=$ticketNo?>" <? } ?>name="ticketno"></td>
+            <td><input type="text" class="form-control" <? if($ticketNo) {?>value="<?=$ticketNo?>" <? } ?>name="ticketno"></td>
         </tr>
         <tr>
-            <td colspan="2"><input class="form-control" type="submit" name="setTicket" value="<?=_Set ticket number?>"></td>
+            <td colspan="2"><input type="submit" name="setTicket" value="<?=_Set ticket number?>"></td>
         </tr>
 <? if($ticketNo) {?>
         <tr>
