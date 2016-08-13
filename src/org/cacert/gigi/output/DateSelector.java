@@ -90,7 +90,7 @@ public class DateSelector implements Outputable {
         if (year != 0) {
             out.print(year);
         }
-        out.print("\" size=\"4\" autocomplete=\"off\">");
+        out.println("\" size=\"4\" autocomplete=\"off\">");
     }
 
     public void update(HttpServletRequest r) throws GigiApiException {
