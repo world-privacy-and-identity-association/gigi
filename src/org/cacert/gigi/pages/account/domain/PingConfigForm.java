@@ -147,8 +147,8 @@ public class PingConfigForm extends Form {
 
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
+        vars.put("notEmbedded", true);
         outputEmbeddableContent(out, l, vars);
-        out.print("<input type=\"submit\" value=\"Update\"/>");
     }
 
     protected void outputEmbeddableContent(PrintWriter out, Language l, Map<String, Object> vars) {
