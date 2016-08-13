@@ -1,17 +1,4 @@
-<table class="table">
-  <thead>
-  <tr>
-    <th colspan="2" class="title"><?=_Add Domain?></th>
-  </tr>
-  </thead>
-<tbody>
-  <tr>
-    <td><?=_Domain?> </td>
-    <td><input class="form-control" type="text" name="newdomain" value="" required> (<?=_In the following:?> <span class='exampleDomainPlace'>example.org</span>)</td>
-  </tr>
-  <?=$pingconfig?>
-  <tr>
-    <td colspan="2"><input type="submit" name="adddomain" value="<?=_I own or am authorised to control this domain?>"></td>
-  </tr>
-</tbody>
-</table>
+<label for="newdomain"><?=_Domain?>: </label><input class="form-control" type="text" name="newdomain" value="" required> (<?=_In the following:?> <span class='exampleDomainPlace'>example.org</span>)
+
+<?=$pingconfig?>
+<input type="submit" name="adddomain" value="<?=_I own or am authorised to control this domain?>">

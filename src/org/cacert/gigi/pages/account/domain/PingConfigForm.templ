@@ -1,63 +1,42 @@
-  <tr><th></th><th><?=_Verification mechanisms?></th></tr>
+<h3><?=_Verification mechanisms?></h3>
 
-  <tr>
-    <td class='domainPinglogFirstCell'><input type="checkbox" name="emailType" value="y"<?=$!mail?>></td>
-    <td><?=_Verify by sending an email to authoritative email addresses?> </td>
-  </tr>
-  <tr>
-    <td></td>
-    <td class='radio'>
-        <?=_Select the destination mail address:?><br/>
-        <? foreach($authEmails) { ?>
-        <input type="radio" id="email_<?=$i?>" name="email" value="<?=$i?>"<?=$!checked?>/>
-        <label for="email_<?=$i?>"><span class='name'><?=$email?>@<span class='exampleDomain'>example.org</span></span></label><div class='elements'></div>
-        <? } ?>
-	</td>
-  </tr>
-
-  <tr>
-    <td><input type="checkbox" name="DNSType" value="y"<?=$!dns?>></td>
-    <td><?=_Verify by reading DNS-TXT entries?> </td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>
-        <?=_Please insert the following DNS TXT entry into the Zone-file of your domain:?><br/>
-        <pre>
-        <?=$tokenName?>._cacert._auth IN TXT <?=$tokenValue?>
-        </pre>
-    </td>
-  </tr>
-
-  <tr>
-    <td><input type="checkbox" name="HTTPType" value="y"<?=$!http?>></td>
-    <td><?=_Verify by reading HTTP-content?> </td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>
-        <?=_Please make the following content available under ?><pre class='string'>http://<span class='exampleDomain'>example.org</span>/cacert-<?=$tokenName?>.txt</pre><br/>
-        <pre><?=$tokenValue?></pre>
-    </td>
-  </tr>
-
-  <tr>
-    <td><input type="checkbox" name="SSLType" value="y"<?=$!ssl?>></td>
-    <td><?=_Verify by searching for installed certificate.?> </td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>
-        <?=_Please list up to four services using your certificate. You need to have one of them up and using a valid SomeCA certificate or a specific self-signed certificate in order to pass this test?>:
-        <?=_The self-signed certificate needs to contain your domain as CN and ${tokenValue} as organization unit. With $!{openSSLHelp} OpenSSL command line utilities can generate such a certificate.?>:
-        <table>
-        <? foreach($ssl-services){ ?>
-        <tr><td><select name='ssl-type-<?=$i?>'>
-        	<?foreach($ssl-types){ ?>
-          <option<?=$!selected?>><?=$name?></option><? } ?></select>
-        </td><td>Port: <input type='text' name='ssl-port-<?=$i?>' value='<?=$port?>'></td></tr>
-        <? } ?>
-        </table>
-    </td>
-  </tr>
+<div class="panel panel-info">
+  <div class="panel-heading"><input type="checkbox" name="emailType" value="y"<?=$!mail?>> <?=_Verify by sending an email to authoritative email addresses?></div>
+  <div class="panel-body">
+    <?=_Select the destination mail address:?><br/>
+    <? foreach($authEmails) { ?>
+      <input type="radio" id="email_<?=$i?>" name="email" value="<?=$i?>"<?=$!checked?>/>
+      <label for="email_<?=$i?>"><span class='name'><?=$email?>@<span class='exampleDomain'>example.org</span></span></label><div class='elements'></div>
+    <? } ?>
+  </div>
+</div>
+<div class="panel panel-info">
+  <div class="panel-heading"><input type="checkbox" name="DNSType" value="y"<?=$!dns?>> <?=_Verify by reading DNS-TXT entries?></div>
+  <div class="panel-body">
+    <?=_Please insert the following DNS TXT entry into the Zone-file of your domain:?><br/>
+    <pre><?=$tokenName?>._cacert._auth IN TXT <?=$tokenValue?></pre>
+  </div>
+</div>
+<div class="panel panel-info">
+  <div class="panel-heading"><input type="checkbox" name="HTTPType" value="y"<?=$!http?>> <?=_Verify by reading HTTP-content?></div>
+  <div class="panel-body">
+    <?=_Please make the following content available under ?><pre class='string'>http://<span class='exampleDomain'>example.org</span>/cacert-<?=$tokenName?>.txt</pre><br/>
+    <pre><?=$tokenValue?></pre>
+  </div>
+</div>
+<div class="panel panel-info">
+  <div class="panel-heading"><input type="checkbox" name="SSLType" value="y"<?=$!ssl?>> <?=_Verify by searching for installed certificate.?></div>
+  <div class="panel-body">
+    <?=_Please list up to four services using your certificate. You need to have one of them up and using a valid SomeCA certificate or a specific self-signed certificate in order to pass this test?>:
+    <?=_The self-signed certificate needs to contain your domain as CN and ${tokenValue} as organization unit. With $!{openSSLHelp} OpenSSL command line utilities can generate such a certificate.?>:
+    <table>
+    <? foreach($ssl-services){ ?>
+    <tr><td><select name='ssl-type-<?=$i?>'>
+      <?foreach($ssl-types){ ?>
+      <option<?=$!selected?>><?=$name?></option><? } ?></select>
+    </td><td>Port: <input type='text' name='ssl-port-<?=$i?>' value='<?=$port?>'></td></tr>
+    <? } ?>
+    </table>
+  </div>
+</div>
   

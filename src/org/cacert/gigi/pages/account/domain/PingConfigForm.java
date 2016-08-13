@@ -147,9 +147,8 @@ public class PingConfigForm extends Form {
 
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
-        out.print("<table class=\"wrapper dataTable\"><tbody>");
         outputEmbeddableContent(out, l, vars);
-        out.print("<tr><td></td><td><input type=\"submit\" value=\"Update\"/></td></tbody></table>");
+        out.print("<input type=\"submit\" value=\"Update\"/>");
     }
 
     protected void outputEmbeddableContent(PrintWriter out, Language l, Map<String, Object> vars) {
