@@ -12,6 +12,7 @@ import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
+import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.AuthorizationContext;
 
@@ -19,15 +20,15 @@ public class FindUserByEmailPage extends Page {
 
     public static final String PATH = "/support/find/email";
 
+    private static final Template USERTABLE = new Template(FindUserByDomainPage.class.getResource("FindUserByEmailUsertable.templ"));
+
     public FindUserByEmailPage() {
         super("Find Email");
     }
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        HashMap<String, Object> vars = new HashMap<String, Object>();
-        vars.put("first", true);
-        new FindUserByEmailForm(req).output(resp.getWriter(), Page.getLanguage(req), vars);
+        new FindUserByEmailForm(req).output(resp.getWriter(), Page.getLanguage(req), new HashMap<String, Object>());
     }
 
     @Override
@@ -40,7 +41,6 @@ public class FindUserByEmailPage extends Page {
                 resp.sendRedirect(SupportUserDetailsPage.PATH + emails[0].getOwner().getId() + "/");
             } else {
                 HashMap<String, Object> vars = new HashMap<String, Object>();
-                vars.put("first", false);
                 vars.put("usertable", new IterableDataset() {
 
                     int i = 0;
@@ -56,11 +56,11 @@ public class FindUserByEmailPage extends Page {
                         return true;
                     }
                 });
-                form.output(resp.getWriter(), getLanguage(req), vars);
+                USERTABLE.output(resp.getWriter(), getLanguage(req), vars);
             }
         } catch (GigiApiException e) {
             e.format(resp.getWriter(), Page.getLanguage(req));
-            doGet(req, resp);
+            form.output(resp.getWriter(), Page.getLanguage(req), new HashMap<String, Object>());
         }
     }
 
