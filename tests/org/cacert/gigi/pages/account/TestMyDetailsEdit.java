@@ -32,7 +32,7 @@ public class TestMyDetailsEdit extends ManagedTest {
     public void testAddName() throws IOException {
         int startn = User.getById(id).getNames().length;
         String newName = createUniqueName();
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "fname=" + newName + "&lname=Hansel&action=addName", 0));
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "name-type=western&fname=" + newName + "&lname=Hansel&action=addName", 0));
         User u = User.getById(id);
 
         NamePart[] parts = u.getNames()[startn].getParts();

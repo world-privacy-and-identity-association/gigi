@@ -26,6 +26,8 @@ public class NameInput implements Outputable {
 
     private String name = "";
 
+    private String scheme = "western";
+
     public NameInput() {}
 
     public void update(HttpServletRequest req) throws GigiApiException {
@@ -33,6 +35,7 @@ public class NameInput implements Outputable {
         lname = req.getParameter("lname");
         suffix = req.getParameter("suffix");
         name = req.getParameter("name");
+        scheme = req.getParameter("name-type");
         if (fname == null) {
             fname = "";
         }
@@ -44,6 +47,9 @@ public class NameInput implements Outputable {
         }
         if (name == null) {
             name = "";
+        }
+        if ( !"western".equals(scheme) && !"single".equals("scheme")) {
+            throw new GigiApiException("Invalid name type.");
         }
         if (name != null && name.contains(" ")) {
             throw new GigiApiException("Single names may only have one part.");
@@ -57,6 +63,8 @@ public class NameInput implements Outputable {
         vars.put("lname", lname);
         vars.put("suffix", suffix);
         vars.put("name", name);
+        vars.put("western", "western".equals(scheme));
+        vars.put("single", "single".equals(scheme));
         t.output(out, l, vars);
     }
 
@@ -65,7 +73,7 @@ public class NameInput implements Outputable {
     }
 
     public NamePart[] getNameParts() throws GigiApiException {
-        if (name != null && !name.isEmpty()) {
+        if ("single".equals(scheme)) {
             return new NamePart[] {
                     new NamePart(NamePartType.SINGLE_NAME, name)
             };

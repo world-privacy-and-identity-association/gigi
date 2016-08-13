@@ -60,7 +60,6 @@ public class Signup extends Form {
     }
 
     private void update(HttpServletRequest r) throws GigiApiException {
-        ni.update(r);
         if (r.getParameter("email") != null) {
             email = r.getParameter("email");
         }
@@ -68,9 +67,19 @@ public class Signup extends Form {
         country = "1".equals(r.getParameter("country"));
         regional = "1".equals(r.getParameter("regional"));
         radius = "1".equals(r.getParameter("radius"));
+        GigiApiException problems = new GigiApiException();
+        try {
+            ni.update(r);
+        } catch (GigiApiException e) {
+            problems.mergeInto(e);
+        }
         try {
             myDoB.update(r);
         } catch (GigiApiException e) {
+            problems.mergeInto(e);
+        }
+        if ( !problems.isEmpty()) {
+            throw problems;
         }
     }
 
@@ -80,8 +89,12 @@ public class Signup extends Form {
             throw new RateLimitException();
         }
 
-        update(req);
         GigiApiException ga = new GigiApiException();
+        try {
+            update(req);
+        } catch (GigiApiException e) {
+            ga.mergeInto(e);
+        }
         try {
             ni.getNameParts();
         } catch (GigiApiException e) {

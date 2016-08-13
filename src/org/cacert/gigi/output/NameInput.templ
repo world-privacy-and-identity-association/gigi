@@ -1,7 +1,9 @@
-<h3><?=_First-Last-Suffix Name?></h3>
-<h4><?=_Structure?></h4>
-<?=_Name consists of one or more first names, one or more last names and any amount of suffixes?>
-<h4><?=_Variant Generation?></h4>
+<div class="panel panel-info panel-activatable">
+  <div class="panel-heading"><h3><input id="western-name" type="radio" name="name-type" value="western"<? if($western) { ?>checked<? } ?>><label for="western-name"><?=_First-Last-Suffix Name?></label></h3></div>
+  <div class="panel-body">
+    <h4><?=_Structure?></h4>
+    <?=_Name consists of one or more first names, one or more last names and any amount of suffixes?>
+    <h4><?=_Variant Generation?></h4>
 <ul>
   <li><?=_First names may be swapped?></li>
   <li><?=_The first Last Name is mandatory, any other ones may be omitted, but must stay in sequence.?></li>
@@ -16,9 +18,15 @@
 <div class="form-group">
   <input type='text' name='suffix' class="form-control" placeholder="<?=_Suffixes?>" value="<?=$suffix?>">
 </div>
+    
+  </div>
+</div>
 
-<h3><?=_Single Name?></h3>
-<h4><?=_Structure?></h4>
+
+<div class="panel panel-info panel-activatable">
+  <div class="panel-heading"><h3><input id="single-name" type="radio" name="name-type" value="single"<? if($single) { ?>checked<? } ?>><label for="single-name"><?=_Single Name?></label></h3></div>
+  <div class="panel-body">
+    <h4><?=_Structure?></h4>
 <?=_Name of one part?>
 <h4><?=_Variant Generation?></h4>
 <ul>
@@ -27,3 +35,7 @@
 <div class="form-group">
   <input type='text' name='name' class="form-control" placeholder="<?=_Name?>" value="<?=$name?>">
 </div>
+  </div>
+</div>
+
+

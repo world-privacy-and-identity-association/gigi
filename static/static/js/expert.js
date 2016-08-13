@@ -20,14 +20,27 @@
 		$(".panel-activatable").map(function() {
 			var panel = $(this);
 			var refresh = function(){
-				if(this.checked){
+				var radio = this.type == "radio";
+				if(radio && this.form.currentRadios === undefined) {
+					this.form.currentRadios = {};
+				}
+				if(this.checked) {
 					panel.find(".panel-body").removeClass("hidden");
-				}else{
+					if(radio) {
+						var rds = this.form.currentRadios;
+						if(rds[this.name] !== undefined){
+							$(rds[this.name]).trigger("change");
+						}
+						rds[this.name] = this;
+					}
+				} else {
 					panel.find(".panel-body").addClass("hidden");
 				}
 			};
 			panel.find(".panel-heading [type=\"checkbox\"]").map(refresh);
-			panel.find(".panel-heading [type=\"checkbox\"]").click(refresh);
+			panel.find(".panel-heading [type=\"checkbox\"]").change(refresh);
+			panel.find(".panel-heading [type=\"radio\"]").map(refresh);
+			panel.find(".panel-heading [type=\"radio\"]").change(refresh);
 			return this.id;
 		});
 	}
