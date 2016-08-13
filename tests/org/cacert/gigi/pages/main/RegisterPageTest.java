@@ -212,4 +212,31 @@ public class RegisterPageTest extends ManagedTest {
         assertTrue(startError, !startError.startsWith("</div>"));
     }
 
+    @Test
+    public void testRegisterWithCountry() throws IOException, InterruptedException {
+        long uniq = System.currentTimeMillis();
+        String email = "country" + uniq + "@email.de";
+
+        String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname=" + URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&day=1&month=1&year=1910&tos_agree=1&mname=mn&suffix=sf&email=";
+
+        String query = defaultSignup + URLEncoder.encode(email, "UTF-8") + "&general=1&country=1&regional=1&radius=1&name-type=western&residenceCountry=DE";
+        String data = fetchStartErrorMessage(runRegister(query));
+        assertNull(data);
+        User u = User.getByEmail(email);
+        assertEquals("DE", u.getResidenceCountry().getCountryCode());
+    }
+
+    @Test
+    public void testRegisterWithoutCountry() throws IOException, InterruptedException {
+        long uniq = System.currentTimeMillis();
+        String email = "countryno" + uniq + "@email.de";
+
+        String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname=" + URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&day=1&month=1&year=1910&tos_agree=1&mname=mn&suffix=sf&email=";
+
+        String query = defaultSignup + URLEncoder.encode(email, "UTF-8") + "&general=1&country=1&regional=1&radius=1&name-type=western&residenceCountry=invalid";
+        String data = fetchStartErrorMessage(runRegister(query));
+        assertNull(data);
+        User u = User.getByEmail(email);
+        assertEquals(null, u.getResidenceCountry());
+    }
 }

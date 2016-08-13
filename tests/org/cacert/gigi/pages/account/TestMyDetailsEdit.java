@@ -94,4 +94,18 @@ public class TestMyDetailsEdit extends ManagedTest {
         c.add(Calendar.DAY_OF_MONTH, -1);
         assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "day=" + c.get(Calendar.DAY_OF_MONTH) + "&month=" + (c.get(Calendar.MONTH) + 1) + "&year=" + c.get(Calendar.YEAR) + "&action=updateDoB", 0));
     }
+
+    @Test
+    public void testChangeResidenceCountry() throws IOException {
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "residenceCountry=DE&action=updateResidenceCountry", 0));
+        User user = User.getById(id);
+        assertEquals("DE", user.getResidenceCountry().getCountryCode());
+    }
+
+    @Test
+    public void testChangeResidenceCountryToNull() throws IOException {
+        User user = User.getById(id);
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "residenceCountry=invalid&action=updateResidenceCountry", 0));
+        assertEquals(null, user.getResidenceCountry());
+    }
 }
