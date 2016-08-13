@@ -1,4 +1,4 @@
-<table class="table">
+	<table class="table">
 <thead>
 <tr><th colspan="2"><?=_Verification Confirmation?></th></tr>
 </thead>
@@ -16,23 +16,23 @@
 		<td><span class="accountdetail dob"><?=$dob?> (<?=$dobFmt2?>)</span></td>
 	</tr>
 	<tr>
-		<td><input type="checkbox" name="certify" value="1"></td>
+		<td><input type="checkbox" name="certify" value="1" required></td>
 		<td><?=_I certify that ${name} has appeared in person.?></td>
 	</tr>
 	<tr>
 		<td><?=_Location?></td>
-		<td><input class="form-control" type="text" name="location" value="<?=$location?>"></td>
+		<td><input class="form-control" type="text" name="location" value="<?=$location?>" required></td>
 	</tr>
 	<tr>
 		<td><?=_Date?></td>
-		<td><input class="form-control" type="text" name="date" value="<?=$date?>"><br/><?=_The date when the verification took place. Please adjust the date if you verified the person on a different day (YYYY-MM-DD).?></td>
+		<td><input class="form-control" type="text" name="date" value="<?=$date?>" required><br/><?=_The date when the verification took place. Please adjust the date if you verified the person on a different day (YYYY-MM-DD).?></td>
 	</tr>
 	<tr>
-		<td><input type="checkbox" name="assertion" value="1"></td>
+		<td><input type="checkbox" name="assertion" value="1" required></td>
 		<td><?=_I believe that the assertion of identity I am making is correct, complete and verifiable. I have seen original documentation attesting to this identity. I accept that the SomeCA Arbitrator may call upon me to provide evidence in any dispute, and I may be held responsible.?></td>
 	</tr>
 	<tr>
-		<td><input type="checkbox" name="rules" value="1"></td>
+		<td><input type="checkbox" name="rules" value="1" required></td>
 		<td><?=_I have read and understood the Terms of Service (!'<a href="/policy/TermsOfService.html">'ToS!'</a>'), Verification Policy and the Verification Handbook. I am making this verification subject to and in compliance with the ToS, Verification Policy and Handbook.?></td>
 	</tr>
 	<tr>
@@ -45,7 +45,7 @@
 	</tr>
 	<tr>
 		<td><?=_Points?></td>
-		<td><input class="form-control" type="text" name="points"><br/>(Max. <?=$maxpoints?>)</td>
+		<td><input class="form-control" type="text" name="points" required><br/>(Max. <?=$maxpoints?>)</td>
 	</tr>
 	<tr>
 		<td><?=_Type?></td>
