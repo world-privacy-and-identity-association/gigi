@@ -1,6 +1,6 @@
 <h3><?=_Verification mechanisms?></h3>
 
-<div class="panel panel-info">
+<div class="panel panel-info panel-activatable">
   <div class="panel-heading"><input type="checkbox" name="emailType" value="y"<?=$!mail?>> <?=_Verify by sending an email to authoritative email addresses?></div>
   <div class="panel-body">
     <?=_Select the destination mail address:?><br/>
@@ -10,21 +10,21 @@
     <? } ?>
   </div>
 </div>
-<div class="panel panel-info">
+<div class="panel panel-info panel-activatable">
   <div class="panel-heading"><input type="checkbox" name="DNSType" value="y"<?=$!dns?>> <?=_Verify by reading DNS-TXT entries?></div>
   <div class="panel-body">
     <?=_Please insert the following DNS TXT entry into the Zone-file of your domain:?><br/>
     <pre><?=$tokenName?>._cacert._auth IN TXT <?=$tokenValue?></pre>
   </div>
 </div>
-<div class="panel panel-info">
+<div class="panel panel-info panel-activatable">
   <div class="panel-heading"><input type="checkbox" name="HTTPType" value="y"<?=$!http?>> <?=_Verify by reading HTTP-content?></div>
   <div class="panel-body">
     <?=_Please make the following content available under ?><pre class='string'>http://<span class='exampleDomain'>example.org</span>/cacert-<?=$tokenName?>.txt</pre><br/>
     <pre><?=$tokenValue?></pre>
   </div>
 </div>
-<div class="panel panel-info">
+<div class="panel panel-info panel-activatable">
   <div class="panel-heading"><input type="checkbox" name="SSLType" value="y"<?=$!ssl?>> <?=_Verify by searching for installed certificate.?></div>
   <div class="panel-body">
     <?=_Please list up to four services using your certificate. You need to have one of them up and using a valid SomeCA certificate or a specific self-signed certificate in order to pass this test?>:
