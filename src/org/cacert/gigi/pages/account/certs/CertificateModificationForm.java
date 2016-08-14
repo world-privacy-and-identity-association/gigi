@@ -17,9 +17,9 @@ import org.cacert.gigi.pages.LoginPage;
 
 public class CertificateModificationForm extends Form {
 
-    CertificateOwner target;
+    private CertificateOwner target;
 
-    final boolean withRevoked;
+    private final boolean withRevoked;
 
     public CertificateModificationForm(HttpServletRequest hsr, boolean withRevoked) {
         super(hsr);
@@ -33,6 +33,10 @@ public class CertificateModificationForm extends Form {
 
     @Override
     public boolean submit(PrintWriter out, HttpServletRequest req) {
+        String action = req.getParameter("action");
+        if ( !"revoke".equals(action)) {
+            return false;
+        }
         String[] certs = req.getParameterValues("certs[]");
         if (certs == null) {
             // nothing to do
@@ -63,6 +67,13 @@ public class CertificateModificationForm extends Form {
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
         vars.put("certs", new CertificateIterable(target.getCertificates(withRevoked)));
         vars.put("certTable", certTable);
+        if (withRevoked) {
+            vars.put("all", "btn-primary");
+            vars.put("current", "btn-info");
+        } else {
+            vars.put("all", "btn-info");
+            vars.put("current", "btn-primary");
+        }
         myTemplate.output(out, l, vars);
     }
 
