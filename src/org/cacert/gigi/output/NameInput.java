@@ -48,7 +48,7 @@ public class NameInput implements Outputable {
         if (name == null) {
             name = "";
         }
-        if ( !"western".equals(scheme) && !"single".equals("scheme")) {
+        if ( !"western".equals(scheme) && !"single".equals(scheme)) {
             throw new GigiApiException("Invalid name type.");
         }
         if (name.contains(" ")) {
