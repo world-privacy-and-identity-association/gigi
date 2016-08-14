@@ -17,6 +17,7 @@ import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.MailTemplate;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.util.AuthorizationContext;
+import org.cacert.gigi.util.HTMLEncoder;
 import org.cacert.gigi.util.RandomToken;
 import org.cacert.gigi.util.ServerConstants;
 
@@ -88,8 +89,11 @@ public class PasswordResetPage extends Page {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PasswordResetForm form = Form.getForm(req, PasswordResetForm.class);
-        if (form.submitProtected(resp.getWriter(), req)) {
-            resp.getWriter().println(getLanguage(req).getTranslation("Password reset successful."));
+        PrintWriter w = resp.getWriter();
+        if (form.submitProtected(w, req)) {
+            w.println("<div class='alert alert-success'>");
+            w.println(HTMLEncoder.encodeHTML(getLanguage(req).getTranslation("Password reset successful.")));
+            w.println("</div>");
             return;
         }
     }
