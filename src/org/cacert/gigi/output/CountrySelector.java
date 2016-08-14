@@ -24,20 +24,21 @@ public class CountrySelector implements Outputable {
 
     private boolean optional;
 
-    public CountrySelector(String name, boolean optional) throws GigiApiException {
+    public CountrySelector(String name, boolean optional) {
         this.name = name;
         this.optional = optional;
     }
 
-    public CountrySelector(String name, boolean optional, String state) throws GigiApiException {
+    public CountrySelector(String name, boolean optional, CountryCode state) {
         this(name, optional);
-        selected = CountryCode.getCountryCode(state, CountryCodeType.CODE_2_CHARS);
-
+        selected = state == null ? null : state.convertToCountryCodeType(CountryCodeType.CODE_2_CHARS);
     }
 
     public void update(HttpServletRequest r) throws GigiApiException {
         String vS = r.getParameter(name);
+
         selected = null;
+
         if (vS == null || vS.equals("invalid")) {
             if (optional) {
                 return;
@@ -45,8 +46,8 @@ public class CountrySelector implements Outputable {
                 throw new GigiApiException("Country code required.");
             }
         }
-        selected = CountryCode.getCountryCode(vS, CountryCodeType.CODE_2_CHARS);
 
+        selected = CountryCode.getCountryCode(vS, CountryCodeType.CODE_2_CHARS);
     }
 
     @Override
@@ -63,9 +64,12 @@ public class CountrySelector implements Outputable {
                     vars.put("selected", "");
                 }
             }
+
         });
+
         vars.put("optional", optional);
         vars.put("name", name);
+
         t.output(out, l, vars);
     }
 

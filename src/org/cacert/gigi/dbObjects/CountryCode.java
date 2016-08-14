@@ -55,10 +55,13 @@ public class CountryCode {
 
     private final String countryCode;
 
-    public CountryCode(int id, String country, String countryCode) {
+    private final CountryCodeType ctype;
+
+    private CountryCode(int id, String country, String countryCode, CountryCodeType ctype) {
         this.id = id;
         this.country = country;
         this.countryCode = countryCode;
+        this.ctype = ctype;
     }
 
     public int getId() {
@@ -73,7 +76,11 @@ public class CountryCode {
         return countryCode;
     }
 
-    public static CountryCode[] getCountryCodes(CountryCodeType clength) throws GigiApiException {
+    public CountryCodeType getCountryCodeType() {
+        return ctype;
+    }
+
+    public static CountryCode[] getCountryCodes(CountryCodeType clength) {
         try (GigiPreparedStatement ps = new GigiPreparedStatement(clength.getListQuery(), true)) {
             GigiResultSet rs = ps.executeQuery();
 
@@ -84,7 +91,7 @@ public class CountryCode {
 
             CountryCode[] finalResult = new CountryCode[totalCount];
             while (rs.next()) {
-                finalResult[i] = new CountryCode(rs.getInt("id"), rs.getString("country"), rs.getString("countrycode"));
+                finalResult[i] = new CountryCode(rs.getInt("id"), rs.getString("country"), rs.getString("countrycode"), clength);
                 i += 1;
             }
 
@@ -96,6 +103,7 @@ public class CountryCode {
         if (countrycode.length() != cType.getLen()) {
             throw new GigiApiException(SprintfCommand.createSimple("Country code length does not have the required length of {0} characters", Integer.toString(cType.getLen())));
         }
+
         try (GigiPreparedStatement ps = new GigiPreparedStatement(cType.getValidationQuery())) {
             ps.setString(1, countrycode.toUpperCase());
             GigiResultSet rs = ps.executeQuery();
@@ -104,7 +112,10 @@ public class CountryCode {
                 throw new GigiApiException(SprintfCommand.createSimple("Country code {0} is not available in database", countrycode.toUpperCase()));
             }
         }
+    }
 
+    public static CountryCode getCountryCode(String countrycode) throws GigiApiException {
+        return getCountryCode(countrycode, CountryCodeType.CODE_2_CHARS);
     }
 
     public static CountryCode getCountryCode(String countrycode, CountryCodeType cType) throws GigiApiException {
@@ -118,8 +129,23 @@ public class CountryCode {
             if ( !rs.next()) {
                 throw new GigiApiException(SprintfCommand.createSimple("Country code {0} is not available in database", countrycode.toUpperCase()));
             }
-            return new CountryCode(rs.getInt("id"), rs.getString("country"), rs.getString("countrycode"));
+            return new CountryCode(rs.getInt("id"), rs.getString("country"), rs.getString("countrycode"), cType);
+        }
+    }
+
+    public CountryCode convertToCountryCodeType(CountryCodeType ctype) {
+        if (this.ctype.equals(ctype)) {
+            return this;
         }
 
+        CountryCode[] cclist = getCountryCodes(ctype);
+        for (CountryCode cc : cclist) {
+            if (cc.getId() == this.getId()) {
+                return cc;
+            }
+        }
+
+        throw new RuntimeException("Internal Error: CountryCode for country not found" + this.getCountry());
     }
+
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.CountryCode;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
@@ -39,11 +40,7 @@ public class CreateOrgForm extends Form {
 
     public CreateOrgForm(HttpServletRequest hsr) {
         super(hsr);
-        try {
-            cs = new CountrySelector("C", false);
-        } catch (GigiApiException e) {
-            throw new Error(e); // should not happen
-        }
+        cs = new CountrySelector("C", false);
     }
 
     public CreateOrgForm(HttpServletRequest hsr, Organisation t) {
@@ -51,11 +48,15 @@ public class CreateOrgForm extends Form {
         isEdit = true;
         result = t;
         o = t.getName();
+
+        CountryCode orgState = null;
         try {
-            cs = new CountrySelector("C", false, t.getState());
+            orgState = CountryCode.getCountryCode(t.getState());
         } catch (GigiApiException e) {
             throw new Error(e);
         }
+        cs = new CountrySelector("C", false, orgState);
+
         st = t.getProvince();
         l = t.getCity();
         email = t.getContactEmail();
