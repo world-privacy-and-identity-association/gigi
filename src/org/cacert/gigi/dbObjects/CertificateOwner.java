@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 
@@ -51,6 +52,8 @@ public abstract class CertificateOwner implements IdCachable, Serializable {
                     } else {
                         System.err.print("Malformed cert owner: " + id);
                     }
+                } catch (GigiApiException e) {
+                    throw new Error(e);
                 }
             }
         }

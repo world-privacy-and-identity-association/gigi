@@ -32,6 +32,10 @@ public class CountrySelector implements Outputable {
     public CountrySelector(String name, boolean optional, CountryCode state) {
         this(name, optional);
         selected = state == null ? null : state.convertToCountryCodeType(CountryCodeType.CODE_2_CHARS);
+        if (state.getCountryCodeType() != CountryCodeType.CODE_2_CHARS) {
+            throw new IllegalArgumentException("Got country code of illegal type.");
+        }
+        selected = state;
     }
 
     public void update(HttpServletRequest r) throws GigiApiException {

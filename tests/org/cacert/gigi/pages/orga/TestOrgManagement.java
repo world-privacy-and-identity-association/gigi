@@ -149,7 +149,7 @@ public class TestOrgManagement extends OrgTest {
         Organisation o1 = createUniqueOrg();
         o1.updateCertData("name", CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS), DIFFICULT_CHARS, "Köln");
         assertEquals("name", o1.getName());
-        assertEquals("DE", o1.getState());
+        assertEquals("DE", o1.getState().getCountryCode());
         assertEquals(DIFFICULT_CHARS, o1.getProvince());
         assertEquals("Köln", o1.getCity());
         o1.delete();
@@ -179,25 +179,25 @@ public class TestOrgManagement extends OrgTest {
         String s128 = str128;
         String s129 = str128 + "a";
 
-        assertNull(upCertData(o1, o1.getName(), o1.getState(), o1.getProvince(), o1.getCity()));
+        assertNull(upCertData(o1, o1.getName(), null, o1.getProvince(), o1.getCity()));
 
         // test organisation name
-        assertNotNull(upCertData(o1, "", o1.getState(), o1.getProvince(), o1.getCity()));
-        assertNull(upCertData(o1, "A", o1.getState(), o1.getProvince(), o1.getCity()));
-        assertNull(upCertData(o1, s64, o1.getState(), o1.getProvince(), o1.getCity()));
-        assertNotNull(upCertData(o1, s65, o1.getState(), o1.getProvince(), o1.getCity()));
+        assertNotNull(upCertData(o1, "", null, o1.getProvince(), o1.getCity()));
+        assertNull(upCertData(o1, "A", null, o1.getProvince(), o1.getCity()));
+        assertNull(upCertData(o1, s64, null, o1.getProvince(), o1.getCity()));
+        assertNotNull(upCertData(o1, s65, null, o1.getProvince(), o1.getCity()));
 
         // test state
-        assertNotNull(upCertData(o1, o1.getName(), o1.getState(), se, o1.getCity()));
-        assertNull(upCertData(o1, o1.getName(), o1.getState(), "A", o1.getCity()));
-        assertNull(upCertData(o1, o1.getName(), o1.getState(), s128, o1.getCity()));
-        assertNotNull(upCertData(o1, o1.getName(), o1.getState(), s129, o1.getCity()));
+        assertNotNull(upCertData(o1, o1.getName(), null, se, o1.getCity()));
+        assertNull(upCertData(o1, o1.getName(), null, "A", o1.getCity()));
+        assertNull(upCertData(o1, o1.getName(), null, s128, o1.getCity()));
+        assertNotNull(upCertData(o1, o1.getName(), null, s129, o1.getCity()));
 
         // test town
-        assertNotNull(upCertData(o1, o1.getName(), o1.getState(), o1.getProvince(), se));
-        assertNull(upCertData(o1, o1.getName(), o1.getState(), o1.getProvince(), "A"));
-        assertNull(upCertData(o1, o1.getName(), o1.getState(), o1.getProvince(), s128));
-        assertNotNull(upCertData(o1, o1.getName(), o1.getState(), o1.getProvince(), s129));
+        assertNotNull(upCertData(o1, o1.getName(), null, o1.getProvince(), se));
+        assertNull(upCertData(o1, o1.getName(), null, o1.getProvince(), "A"));
+        assertNull(upCertData(o1, o1.getName(), null, o1.getProvince(), s128));
+        assertNotNull(upCertData(o1, o1.getName(), null, o1.getProvince(), s129));
 
         // test country
         assertNotNull(upCertData(o1, o1.getName(), "", o1.getProvince(), o1.getCity()));
@@ -236,7 +236,8 @@ public class TestOrgManagement extends OrgTest {
      * @param o
      *            the new name
      * @param c
-     *            the new country
+     *            the new country or <code>null</code> to keep the current
+     *            country.
      * @param province
      *            the new "province/state"
      * @param ct
@@ -244,6 +245,9 @@ public class TestOrgManagement extends OrgTest {
      * @return an error message or <code>null</code>
      */
     private String upCertData(Organisation o1, String o, String c, String province, String ct) throws IOException, MalformedURLException, UnsupportedEncodingException {
+        if (c == null) {
+            c = o1.getState().getCountryCode();
+        }
         return executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + o1.getId(), "action=updateCertificateData&O=" + o + "&C=" + c + "&ST=" + province + "&L=" + ct, 0);
     }
 

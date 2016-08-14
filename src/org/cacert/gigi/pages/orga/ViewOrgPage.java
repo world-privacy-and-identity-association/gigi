@@ -132,7 +132,7 @@ public class ViewOrgPage extends Page {
                 Organisation org = orgas[count++];
                 vars.put("id", Integer.toString(org.getId()));
                 vars.put("name", org.getName());
-                vars.put("country", org.getState());
+                vars.put("country", org.getState().getCountryCode());
                 return true;
             }
         };

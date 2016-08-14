@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.CountryCode;
-import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
@@ -50,13 +49,7 @@ public class CreateOrgForm extends Form {
         result = t;
         o = t.getName();
 
-        CountryCode orgState = null;
-        try {
-            orgState = CountryCode.getCountryCode(t.getState(), CountryCodeType.CODE_2_CHARS);
-        } catch (GigiApiException e) {
-            throw new Error(e);
-        }
-        cs = new CountrySelector("C", false, orgState);
+        cs = new CountrySelector("C", false, t.getState());
 
         st = t.getProvince();
         l = t.getCity();

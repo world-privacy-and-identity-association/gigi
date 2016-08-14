@@ -10,6 +10,7 @@ import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
+import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
 import org.cacert.gigi.dbObjects.wrappers.DataContainer;
 
 public class Organisation extends CertificateOwner {
@@ -53,7 +54,7 @@ public class Organisation extends CertificateOwner {
 
     private String name;
 
-    private String state;
+    private CountryCode state;
 
     private String province;
 
@@ -69,8 +70,11 @@ public class Organisation extends CertificateOwner {
         if ( !creator.isInGroup(Group.ORGASSURER)) {
             throw new GigiApiException("Only Organisation RA Agents may create organisations.");
         }
+        if (state == null || state.getCountryCodeType() != CountryCodeType.CODE_2_CHARS) {
+            throw new GigiApiException("Got country code of illegal type.");
+        }
         this.name = name;
-        this.state = state.getCountryCode();
+        this.state = state;
         this.province = province;
         this.city = city;
         this.email = email;
@@ -93,10 +97,10 @@ public class Organisation extends CertificateOwner {
         }
     }
 
-    protected Organisation(GigiResultSet rs) {
+    protected Organisation(GigiResultSet rs) throws GigiApiException {
         super(rs.getInt("id"));
         name = rs.getString("name");
-        state = rs.getString("state");
+        state = CountryCode.getCountryCode(rs.getString("state"), CountryCodeType.CODE_2_CHARS);
         province = rs.getString("province");
         city = rs.getString("city");
         email = rs.getString("contactEmail");
@@ -108,7 +112,7 @@ public class Organisation extends CertificateOwner {
         return name;
     }
 
-    public String getState() {
+    public CountryCode getState() {
         return state;
     }
 
@@ -206,7 +210,10 @@ public class Organisation extends CertificateOwner {
         }
     }
 
-    public void updateCertData(String o, CountryCode c, String st, String l) {
+    public void updateCertData(String o, CountryCode c, String st, String l) throws GigiApiException {
+        if (c == null || c.getCountryCodeType() != CountryCodeType.CODE_2_CHARS) {
+            throw new GigiApiException("Got country code of illegal type.");
+        }
         for (Certificate cert : getCertificates(false)) {
             if (cert.getStatus() == CertificateStatus.ISSUED) {
                 cert.revoke();
@@ -221,7 +228,7 @@ public class Organisation extends CertificateOwner {
             ps.executeUpdate();
         }
         name = o;
-        state = c.getCountryCode();
+        state = c;
         province = st;
         city = l;
     }
