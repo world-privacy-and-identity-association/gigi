@@ -101,11 +101,7 @@ public class Verify extends Page {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        try {
-            if (Form.getForm(req, VerificationForm.class).submit(resp.getWriter(), req)) {
-            }
-        } catch (GigiApiException e) {
-            e.format(resp.getWriter(), getLanguage(req));
+        if (Form.getForm(req, VerificationForm.class).submitProtected(resp.getWriter(), req)) {
         }
     }
 

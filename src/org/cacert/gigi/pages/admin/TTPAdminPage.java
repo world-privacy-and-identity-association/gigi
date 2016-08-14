@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
@@ -31,12 +30,9 @@ public class TTPAdminPage extends Page {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        try {
-            Form.getForm(req, TTPAdminForm.class).submit(resp.getWriter(), req);
-        } catch (GigiApiException e) {
-            e.format(resp.getWriter(), getLanguage(req));
+        if (Form.getForm(req, TTPAdminForm.class).submitProtected(resp.getWriter(), req)) {
+            resp.sendRedirect(PATH);
         }
-        resp.sendRedirect(PATH);
     }
 
     private static final int PAGE_LEN = 30;

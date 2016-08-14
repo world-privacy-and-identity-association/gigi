@@ -88,14 +88,10 @@ public class PasswordResetPage extends Page {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PasswordResetForm form = Form.getForm(req, PasswordResetForm.class);
-        try {
-            form.submit(resp.getWriter(), req);
+        if (form.submitProtected(resp.getWriter(), req)) {
             resp.getWriter().println(getLanguage(req).getTranslation("Password reset successful."));
             return;
-        } catch (GigiApiException e) {
-            e.format(resp.getWriter(), getLanguage(req));
         }
-        form.output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
     }
 
     @Override

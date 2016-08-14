@@ -6,7 +6,6 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Assurance;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.template.Form;
@@ -24,11 +23,7 @@ public class RequestTTPPage extends Page {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        try {
-            Form.getForm(req, RequestTTPForm.class).submit(resp.getWriter(), req);
-        } catch (GigiApiException e) {
-            e.format(resp.getWriter(), getLanguage(req));
-        }
+        Form.getForm(req, RequestTTPForm.class).submitProtected(resp.getWriter(), req);
     }
 
     @Override

@@ -49,16 +49,10 @@ public class AssurePage extends Page {
         PrintWriter out = resp.getWriter();
         if (req.getParameter("search") == null) {
             AssuranceForm form = Form.getForm(req, AssuranceForm.class);
-            try {
-                if (form.submit(out, req)) {
-                    out.println(translate(req, "Verification complete."));
-                    return;
-                }
-            } catch (GigiApiException e) {
-                e.format(out, Page.getLanguage(req));
-                form.output(out, getLanguage(req), new HashMap<String, Object>());
+            if (form.submitProtected(out, req)) {
+                out.println(translate(req, "Verification complete."));
+                return;
             }
-
             return;
         }
 

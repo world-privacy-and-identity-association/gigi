@@ -20,14 +20,9 @@ public abstract class OneFormPage extends Page {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        try {
-            Form form = Form.getForm(req, c);
-            if (form.submit(resp.getWriter(), req)) {
-                resp.sendRedirect(getSuccessPath(form));
-            }
-        } catch (GigiApiException e) {
-            e.format(resp.getWriter(), getLanguage(req));
-            doGet(req, resp);
+        Form form = Form.getForm(req, c);
+        if (form.submitProtected(resp.getWriter(), req)) {
+            resp.sendRedirect(getSuccessPath(form));
         }
     }
 

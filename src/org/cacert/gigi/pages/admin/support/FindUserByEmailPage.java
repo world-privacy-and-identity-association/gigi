@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
@@ -34,8 +33,7 @@ public class FindUserByEmailPage extends Page {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         FindUserByEmailForm form = Form.getForm(req, FindUserByEmailForm.class);
-        try {
-            form.submit(resp.getWriter(), req);
+        if (form.submitProtected(resp.getWriter(), req)) {
             final EmailAddress[] emails = form.getEmails();
             if (emails.length == 1) {
                 resp.sendRedirect(SupportUserDetailsPage.PATH + emails[0].getOwner().getId() + "/");
@@ -58,9 +56,6 @@ public class FindUserByEmailPage extends Page {
                 });
                 USERTABLE.output(resp.getWriter(), getLanguage(req), vars);
             }
-        } catch (GigiApiException e) {
-            e.format(resp.getWriter(), Page.getLanguage(req));
-            form.output(resp.getWriter(), Page.getLanguage(req), new HashMap<String, Object>());
         }
     }
 

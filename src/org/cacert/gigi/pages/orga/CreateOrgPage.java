@@ -6,7 +6,6 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.pages.Page;
@@ -30,15 +29,10 @@ public class CreateOrgPage extends Page {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         CreateOrgForm form = Form.getForm(req, CreateOrgForm.class);
-        try {
-            if (form.submit(resp.getWriter(), req)) {
-                resp.sendRedirect(ViewOrgPage.DEFAULT_PATH + "/" + form.getResult().getId());
-                return;
-            }
-        } catch (GigiApiException e) {
-            e.format(resp.getWriter(), getLanguage(req));
+        if (form.submitProtected(resp.getWriter(), req)) {
+            resp.sendRedirect(ViewOrgPage.DEFAULT_PATH + "/" + form.getResult().getId());
+            return;
         }
-        form.output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
     }
 
     @Override
