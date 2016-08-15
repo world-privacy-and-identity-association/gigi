@@ -44,12 +44,12 @@
         <tr>
             <td><?=_Groups?>:</td>
             <td><p><? foreach($groups) { ?><?=$group_name?>, <? } ?></p>
-            <p><?=$groupSelector?><input type='submit' value='<?=_Grant Group?>' name='grant'><input type='submit' value='<?=_Deny Group?>' name='deny'></p>
+            <p><?=$groupSelector?><input class="btn btn-info" type='submit' value='<?=_Grant Group?>' name='grant'> <input class="btn btn-info" type='submit' value='<?=_Deny Group?>' name='deny'></p>
             </td>
         </tr>
         <tr>
             <td><?=_Reset Password?>:</td>
-            <td><input type="text" name="aword"> <input type="submit" value="<?=_Reset Password?>" name="resetPass"></td>
+            <td><input type="text" name="aword"> <input class="btn btn-primary" type="submit" value="<?=_Reset Password?>" name="resetPass"></td>
         </tr>
         <tr>
             <td><?=_Delete Account?>:</td>
@@ -58,7 +58,7 @@
         <tr>
             <td colspan="2"><a href="history"><?=_Show account history?></a></td>
         </tr>
-        <tr><td colspan="2"><input name="detailupdate" type="submit" value="<?=_Update?>"/></td></tr>
+        <tr><td colspan="2"><input class="btn btn-warning" name="detailupdate" type="submit" value="<?=_Update?>"/></td></tr>
     </tbody>
 </table>
 <br/>

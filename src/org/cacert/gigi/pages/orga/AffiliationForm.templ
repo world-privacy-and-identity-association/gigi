@@ -10,13 +10,13 @@
     <td><?=$name?></td>
     <td><?=$e-mail?></td>
     <td><?=$master?></td>
-    <td><button type="submit" name="del" value="<?=$e-mail?>">X</button> </td>
+    <td><button class="btn btn-warning" type="submit" name="del" value="<?=$e-mail?>">X</button> </td>
   </tr>
 <? } ?>
   <tr>
     <td></td>
     <td><input class="form-control" type="text" name="email" required></td>
     <td><input type="checkbox" name="master" value="y"></td>
-    <td><input type="submit" name="do_affiliate" value="<?=_Add?>"></td>
+    <td><input class="btn btn-primary" type="submit" name="do_affiliate" value="<?=_Add?>"></td>
   </tr>
 </table>

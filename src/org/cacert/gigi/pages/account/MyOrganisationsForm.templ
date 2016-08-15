@@ -2,9 +2,9 @@
 <h2><?=_My Organisations?></h2>
 <table class="table">
 <? foreach($orgas) { ?>
-<tr><td><?=$orgName?></td><td><?=$orgID?></td><td><input type='submit' value='<?=_switch to this organisation?>' name='org:<?=$orgID?>'/></td></tr>
+<tr><td><?=$orgName?></td><td><?=$orgID?></td><td><input class="btn btn-info" type='submit' value='<?=_switch to this organisation?>' name='org:<?=$orgID?>'/></td></tr>
 <? } ?>
 </table>
 <? if($personal) { ?>
-<input type='submit' value='<?=_switch back to personal use?>' name='org-leave'/>
+<input class="btn btn-primary" type='submit' value='<?=_switch back to personal use?>' name='org-leave'/>
 <? } ?>
