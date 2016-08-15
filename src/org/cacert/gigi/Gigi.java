@@ -58,6 +58,7 @@ import org.cacert.gigi.pages.account.certs.Certificates;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
 import org.cacert.gigi.pages.account.mail.MailOverview;
 import org.cacert.gigi.pages.admin.TTPAdminPage;
+import org.cacert.gigi.pages.admin.support.FindCertPage;
 import org.cacert.gigi.pages.admin.support.FindUserByDomainPage;
 import org.cacert.gigi.pages.admin.support.FindUserByEmailPage;
 import org.cacert.gigi.pages.admin.support.SupportEnterTicketPage;
@@ -138,7 +139,7 @@ public final class Gigi extends HttpServlet {
 
             putPage("/secure", new TestSecure(), null);
             putPage(Verify.PATH, new Verify(), null);
-            putPage(Certificates.PATH + "/*", new Certificates(), "Certificates");
+            putPage(Certificates.PATH + "/*", new Certificates(false), "Certificates");
             putPage(RegisterPage.PATH, new RegisterPage(), "SomeCA.org");
             putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
             putPage(MailOverview.DEFAULT_PATH, new MailOverview(), "Certificates");
@@ -155,6 +156,7 @@ public final class Gigi extends HttpServlet {
             putPage(SupportEnterTicketPage.PATH, new SupportEnterTicketPage(), "Support Console");
             putPage(FindUserByEmailPage.PATH, new FindUserByEmailPage(), "Support Console");
             putPage(FindUserByDomainPage.PATH, new FindUserByDomainPage(), "Support Console");
+            putPage(FindCertPage.PATH, new FindCertPage(), "Support Console");
 
             putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage(), null);
             putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
@@ -171,6 +173,7 @@ public final class Gigi extends HttpServlet {
             putPage(MyDetails.PATH, new MyDetails(), "My Account");
             putPage(UserTrainings.SUPPORT_PATH, new UserTrainings(true), null);
             putPage(Points.SUPPORT_PATH, new Points(true), null);
+            putPage(Certificates.SUPPORT_PATH + "/*", new Certificates(true), null);
 
             putPage(PasswordResetPage.PATH, new PasswordResetPage(), null);
             putPage(LogoutPage.PATH, new LogoutPage(), null);

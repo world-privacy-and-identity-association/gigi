@@ -4,22 +4,31 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cacert.gigi.dbObjects.CACertificate;
 import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
+import org.cacert.gigi.dbObjects.Certificate.SubjectAlternateName;
+import org.cacert.gigi.dbObjects.CertificateOwner;
+import org.cacert.gigi.dbObjects.Organisation;
+import org.cacert.gigi.dbObjects.SupportedUser;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
+import org.cacert.gigi.output.TrustchainIterable;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.HandlesMixedRequest;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.CertExporter;
 import org.cacert.gigi.util.PEM;
 
@@ -29,33 +38,13 @@ public class Certificates extends Page implements HandlesMixedRequest {
 
     public static final String PATH = "/account/certs";
 
-    static class TrustchainIterable implements IterableDataset {
+    public static final String SUPPORT_PATH = "/support/certs";
 
-        CACertificate cert;
+    private final boolean support;
 
-        public TrustchainIterable(CACertificate cert) {
-            this.cert = cert;
-        }
-
-        @Override
-        public boolean next(Language l, Map<String, Object> vars) {
-            if (cert == null) {
-                return false;
-            }
-            vars.put("name", cert.getKeyname());
-            vars.put("link", cert.getLink());
-            if (cert.isSelfsigned()) {
-                cert = null;
-                return true;
-            }
-            cert = cert.getParent();
-            return true;
-        }
-
-    }
-
-    public Certificates() {
-        super("Certificates");
+    public Certificates(boolean support) {
+        super(support ? "Support Certificates" : "Certificates");
+        this.support = support;
     }
 
     @Override
@@ -113,11 +102,18 @@ public class Certificates extends Page implements HandlesMixedRequest {
         if (req.getQueryString() != null && !req.getQueryString().equals("") && !req.getQueryString().equals("withRevoked")) {
             return;// Block actions by get parameters.
         }
+        if (support && "revoke".equals(req.getParameter("action"))) {
+            if (Form.getForm(req, RevokeSingleCertForm.class).submitProtected(resp.getWriter(), req)) {
+                resp.sendRedirect(req.getPathInfo());
+                return;
+            }
+        }
         if ( !req.getPathInfo().equals(PATH)) {
             resp.sendError(500);
             return;
         }
         Form.getForm(req, CertificateModificationForm.class).submit(resp.getWriter(), req);
+
         doGet(req, resp);
     }
 
@@ -130,15 +126,93 @@ public class Certificates extends Page implements HandlesMixedRequest {
 
             String serial = pi;
             Certificate c = Certificate.getBySerial(serial);
-            if (c == null || LoginPage.getAuthorizationContext(req).getTarget().getId() != c.getOwner().getId()) {
+            Language l = LoginPage.getLanguage(req);
+
+            if ( !support && (c == null || LoginPage.getAuthorizationContext(req).getTarget().getId() != c.getOwner().getId())) {
                 resp.sendError(404);
                 return;
             }
             HashMap<String, Object> vars = new HashMap<>();
             vars.put("serial", URLEncoder.encode(serial, "UTF-8"));
-            vars.put("trustchain", new TrustchainIterable(c.getParent()));
+
+            CertificateStatus st = c.getStatus();
+
+            if (support) {
+                vars.put("support", "support");
+                CertificateOwner user = c.getOwner();
+                if (st == CertificateStatus.ISSUED) {
+                    if (user instanceof User) {
+                        vars.put("revokeForm", new RevokeSingleCertForm(req, c, new SupportedUser((User) user, getUser(req), LoginPage.getAuthorizationContext(req).getSupporterTicketId())));
+                    }
+                }
+            }
+
+            CertificateOwner co = c.getOwner();
+            int ownerId = co.getId();
+            vars.put("certid", c.getStatus());
+            if (co instanceof Organisation) {
+                vars.put("type", l.getTranslation("Organisation Acount"));
+                vars.put("name", Organisation.getById(ownerId).getName());
+                vars.put("link", ""); // TODO
+            } else {
+                vars.put("type", l.getTranslation("Personal Account"));
+                vars.put("name", User.getById(ownerId).getPreferredName());
+                vars.put("link", "/support/user/" + ownerId + "/");
+            }
+            vars.put("status", c.getStatus());
+            vars.put("DN", c.getDistinguishedName());
+            vars.put("digest", c.getMessageDigest());
+            vars.put("profile", c.getProfile().getVisibleName());
+            vars.put("fingerprint", "TBD"); // TODO function needs to be
+                                            // implemented in Certificate.java
             try {
-                vars.put("cert", PEM.encode("CERTIFICATE", c.cert().getEncoded()));
+
+                if (st == CertificateStatus.ISSUED || st == CertificateStatus.REVOKED) {
+                    X509Certificate certx = c.cert();
+                    vars.put("issued", certx.getNotBefore());
+                    vars.put("expire", certx.getNotAfter());
+                    vars.put("cert", PEM.encode("CERTIFICATE", c.cert().getEncoded()));
+                } else {
+                    vars.put("issued", l.getTranslation("N/A"));
+                    vars.put("expire", l.getTranslation("N/A"));
+                    vars.put("cert", l.getTranslation("N/A"));
+                }
+                if (st == CertificateStatus.REVOKED) {
+                    vars.put("revoked", c.getRevocationDate());
+                } else {
+                    vars.put("revoked", l.getTranslation("N/A"));
+                }
+                if (st == CertificateStatus.ISSUED || st == CertificateStatus.REVOKED) {
+                    vars.put("trustchain", new TrustchainIterable(c.getParent()));
+                    try {
+                        vars.put("cert", PEM.encode("CERTIFICATE", c.cert().getEncoded()));
+                    } catch (GeneralSecurityException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    vars.put("trustchain", l.getTranslation("N/A"));
+                    vars.put("cert", l.getTranslation("N/A"));
+                }
+                final List<SubjectAlternateName> san = c.getSANs();
+                vars.put("san", new IterableDataset() {
+
+                    int j = 0;
+
+                    @Override
+                    public boolean next(Language l, Map<String, Object> vars) {
+                        if (j == san.size()) {
+                            return false;
+                        }
+                        vars.put("entry", san.get(j).getName() + (j < san.size() - 1 ? ", " : ""));
+                        j++;
+                        return true;
+                    }
+                });
+                if (c.isLoginEnabled()) {
+                    vars.put("login", l.getTranslation("Yes"));
+                } else {
+                    vars.put("login", l.getTranslation("No"));
+                }
             } catch (GeneralSecurityException e) {
                 e.printStackTrace();
             }
@@ -151,4 +225,15 @@ public class Certificates extends Page implements HandlesMixedRequest {
         new CertificateModificationForm(req, req.getParameter("withRevoked") != null).output(out, getLanguage(req), vars);
     }
 
+    @Override
+    public boolean isPermitted(AuthorizationContext ac) {
+        if (ac == null) {
+            return false;
+        }
+        if (support) {
+            return ac.canSupport();
+        } else {
+            return true;
+        }
+    }
 }

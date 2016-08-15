@@ -1,0 +1,23 @@
+<table class="table">
+  <tbody><tr>
+    <th colspan="2"><?=_Find Certificate?></th>
+  </tr>
+
+  <tr>
+    <td><?=_Search for?>:</td>
+    <td>
+       <input type="radio" name="certType" value="serial" <?=$serial?>> <?=_Serial Number?></input>
+       <input type="radio" name="certType" value="email" <?=$email?>> <?=_Email Address?></input>
+       <input type="radio" name="certType" value="DNS" <?=$dns?>> <?=_Domain?></input>
+    </td>
+  </tr>
+
+  <tr>
+    <td><?=_Data?>:</td>
+    <td><input class="form-control" name="cert" value="" size="30" title="<?=_use % as wildcard?>" placeholder="<?=_use % as wildcard?>" type="text" required/></td>
+  </tr>
+
+  <tr>
+    <td colspan="2"><input class="btn btn-primary" name="process" value="<?=_Next?>" type="submit"/></td>
+  </tr>
+</tbody></table>

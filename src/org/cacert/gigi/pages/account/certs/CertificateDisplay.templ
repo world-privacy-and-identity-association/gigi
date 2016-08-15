@@ -1,12 +1,124 @@
-<a href='<?=$serial?>.crt'><?=_PEM encoded Certificate?></a>
-<? foreach($trustchain) { ?>
- <?=_issued by?> <a href='<?=$link?>'><?=$name?></a>
-<? } ?><br/>
-<a href='<?=$serial?>.crt?chain'><?=_PEM encoded Certificate Cain?></a><br/>
-<a href='<?=$serial?>.crt?chain&noAnchor'><?=_PEM encoded Certificate Cain (Excluding Anchor)?></a><br/>
-<a href='<?=$serial?>.cer'><?=_DER encoded Certificate?></a><br/>
-<a href='<?=$serial?>.cer?install&chain'><?=_Install into browser.?></a><br/>
-<a href='<?=$serial?>.cer?install'><?=_Install into browser. (Chrome)?></a>. <?=_Please ensure that the intermediate certificates listed above are installed prior to installing the certificate.?><br/>
-<pre>
-<?=$cert?>
-</pre>
+<table>
+<? if($support) {?>
+
+  <tr>
+    <th colspan="2"><?=_Support Info?>:</th>
+  </tr>
+
+  <tr>
+    <td><?=$type?>:</td>
+    <td><a href="<?=$link?>"><?=$name?></a></td>
+  </tr>
+<? } ?>
+
+
+  <tr>
+    <th colspan="2"><?=_X.509 Info?>:</th>
+  </tr>
+
+  <tr>
+    <td><?=_Profile?>:</td>
+    <td><?=$profile?></td>
+  </tr
+
+  <tr>
+    <td><?=_Serial Number?>:</td>
+    <td><?=$serial?></td>
+  </tr
+
+<? if($support) {?>
+  <tr>
+    <td><?=_Trustchain?>:</td>
+    <td>
+    <? foreach($trustchain) { ?>
+      <?=_issued by?> <code><?=$name?></code>
+    <? } ?>
+    </td>
+  </tr>
+<? } else { ?>
+  <tr>
+    <td valign="top"><?=_Certificate and Chain?>:</td>
+    <td>
+        <a href='<?=$serial?>.crt'><?=_PEM encoded Certificate?></a>
+        <? foreach($trustchain) { ?>
+            <?=_issued by?> <a href='<?=$link?>'><?=$name?></a>
+        <? } ?><br/>
+        <a href='<?=$serial?>.crt?chain'><?=_PEM encoded Certificate Chain?></a><br/>
+        <a href='<?=$serial?>.crt?chain&noAnchor'><?=_PEM encoded Certificate Chain (Excluding Anchor)?></a><br/>
+        <a href='<?=$serial?>.cer'><?=_DER encoded Certificate?></a><br/>
+        <a href='<?=$serial?>.cer?install&chain'><?=_Install into browser.?></a><br/>
+        <a href='<?=$serial?>.cer?install'><?=_Install into browser. (Chrome)?></a>. <?=_Please ensure that the intermediate certificates listed above are installed prior to installing the certificate.?><br/>
+    </td>
+  </tr>
+<? } ?>
+
+  <tr>
+    <th colspan="2"><?=_Validity?>:</th>
+  </tr>
+
+  <tr>
+    <td><?=_Status?>:</td>
+    <td><?=$status?></td>
+  </tr>
+
+  <tr>
+    <td><?=_Issue Date?>:</td>
+    <td><?=$issued?></td>
+  </tr>
+
+  <tr>
+    <td><?=_Expire Date?>:</td>
+    <td><?=$expire?></td>
+  </tr>
+
+  <tr>
+    <td><?=_Revocation Date?>:</td>
+    <td><?=$revoked?></td>
+  </tr>
+
+  <tr>
+    <th colspan="2"><?=_Certificate Info?>:</th>
+  </tr>
+
+  <tr>
+    <td><?=_Fingerprint?>:</td>
+    <td><?=$fingerprint?></td>
+  </tr>
+
+  <tr>
+    <td valign="top"><?=_Certificate (PEM)?>:</td>
+    <td><pre><?=$cert?></pre></td>
+  </tr>
+
+  <tr>
+    <th colspan="2"><?=_Certificate Details?>:</th>
+  </tr>
+
+  <tr>
+    <td><?=_Login enabled?>:</td>
+    <td><?=$login?></td>
+  </tr>
+
+  <tr>
+    <td><?=_Digest?>:</td>
+    <td><?=$digest?></td>
+  </tr>
+
+  <tr>
+    <td><?=_Distinguished Name (DN)?>:</td>
+    <td><?=$DN?></td>
+  </tr>
+
+  <tr>
+    <td><?=_Subject Alternative Names (SAN)?>:</td>
+    <td>
+    <? foreach($san) { ?>
+      <?=$entry?>
+    <? } ?>
+    </td>
+  </tr>
+
+</table>
+<? if($revokeForm) {?>
+<?=$revokeForm?>
+<? } ?>

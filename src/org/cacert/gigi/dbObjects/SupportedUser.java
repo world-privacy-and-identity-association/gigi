@@ -47,6 +47,15 @@ public class SupportedUser {
         }
     }
 
+    public void revokeCertificate(Certificate cert) throws GigiApiException {
+
+        // TODO Check for open jobs!
+        if (cert.getStatus() == CertificateStatus.ISSUED) {
+            writeSELog("SE Revoke certificate");
+            cert.revoke().waitFor(60000);
+        }
+    }
+
     private void writeSELog(String type) throws GigiApiException {
         if (ticket == null) {
             throw new GigiApiException("No ticket set!");

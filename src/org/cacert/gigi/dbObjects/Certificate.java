@@ -467,4 +467,30 @@ public class Certificate implements IdCachable {
             return res.next();
         }
     }
+
+    public static Certificate[] findBySerialPattern(String serial) {
+        try (GigiPreparedStatement prep = new GigiPreparedStatement("SELECT `id` FROM `certs` WHERE `serial` LIKE ? GROUP BY `id`  LIMIT 100", true)) {
+            prep.setString(1, serial);
+            return fetchCertsToArray(prep);
+        }
+    }
+
+    public static Certificate[] findBySANPattern(String request, SANType type) {
+        try (GigiPreparedStatement prep = new GigiPreparedStatement("SELECT `certId` FROM `subjectAlternativeNames` WHERE `contents` LIKE ? and `type`=?::`SANType` GROUP BY `certId` LIMIT 100", true)) {
+            prep.setString(1, request);
+            prep.setString(2, type.getOpensslName());
+            return fetchCertsToArray(prep);
+        }
+    }
+
+    private static Certificate[] fetchCertsToArray(GigiPreparedStatement prep) {
+        GigiResultSet res = prep.executeQuery();
+        res.last();
+        Certificate[] certs = new Certificate[res.getRow()];
+        res.beforeFirst();
+        for (int i = 0; res.next(); i++) {
+            certs[i] = Certificate.getById(res.getInt(1));
+        }
+        return certs;
+    }
 }
