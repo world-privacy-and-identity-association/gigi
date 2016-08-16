@@ -372,7 +372,7 @@ public final class Gigi extends HttpServlet {
         if (req.getParameter("lang") != null) {
             Locale l = Language.getLocaleFromString(req.getParameter("lang"));
             Language lu = Language.getInstance(l);
-            req.getSession().setAttribute(Language.SESSION_ATTRIB_NAME, lu.getLocale());
+            req.getSession().setAttribute(Language.SESSION_ATTRIB_NAME, lu != null ? lu.getLocale() : Locale.ENGLISH);
         }
         final Page p = getPage(req.getPathInfo());
 
