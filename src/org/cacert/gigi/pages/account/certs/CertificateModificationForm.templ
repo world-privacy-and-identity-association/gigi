@@ -1,2 +1,3 @@
+<a href="?" class="btn <?=$current?>"><?=_Show Current Certificates?></a> <a href="?withRevoked" class="btn <?=$all?>"><?=_Show All Certificates?></a>
 <?=$certTable?>
-<input type="submit" value="<?=_Revoke Selected Certificates?>"/>
+<button class="btn btn-danger" name="action" value="revoke"><?=_Revoke Selected Certificates?></button>

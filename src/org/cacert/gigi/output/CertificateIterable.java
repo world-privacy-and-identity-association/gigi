@@ -3,16 +3,20 @@ package org.cacert.gigi.output;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.Map;
 
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.IterableDataset;
+import org.cacert.gigi.util.CalendarUtil;
 
 public class CertificateIterable implements IterableDataset {
 
     private Certificate[] certificates;
+
+    public static final int EXPIRING_IN_DAYS = 14;
 
     public CertificateIterable(Certificate[] certificates) {
         this.certificates = certificates;
@@ -34,14 +38,30 @@ public class CertificateIterable implements IterableDataset {
         try {
             CertificateStatus st = c.getStatus();
             vars.put("revokable", st != CertificateStatus.REVOKED && st == CertificateStatus.ISSUED);
+            String issuedWarning = "";
+            String expiredWarning = "";
             if (st == CertificateStatus.ISSUED || st == CertificateStatus.REVOKED) {
                 X509Certificate cert = c.cert();
                 vars.put("issued", cert.getNotBefore());
                 vars.put("expire", cert.getNotAfter());
+
+                if (cert.getNotBefore().after(new Date())) {
+                    issuedWarning = "bg-warning";
+                }
+                vars.put("classIssued", issuedWarning);
+
+                if (cert.getNotAfter().before(CalendarUtil.timeDifferenceDays(EXPIRING_IN_DAYS))) {
+                    expiredWarning = "bg-warning";
+                }
+                if (cert.getNotAfter().before(new Date())) {
+                    expiredWarning = "bg-danger";
+                }
+                vars.put("classExpired", expiredWarning);
             } else {
                 vars.put("issued", l.getTranslation("N/A"));
                 vars.put("expire", l.getTranslation("N/A"));
             }
+
             if (st == CertificateStatus.REVOKED) {
                 vars.put("revoked", c.getRevocationDate());
             } else {

@@ -35,4 +35,11 @@ public class CalendarUtil {
         Date dob = cal.getTime();
         return new DayDate(dob.getTime());
     }
+
+    public static Date timeDifferenceDays(int days) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        c.add(Calendar.DAY_OF_MONTH, days);
+        return c.getTime();
+    }
 }
