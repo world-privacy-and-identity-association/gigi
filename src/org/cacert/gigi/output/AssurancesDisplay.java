@@ -51,7 +51,7 @@ public class AssurancesDisplay implements Outputable {
                     vars.put("method", assurance.getMethod());
                     Name to = assurance.getTo();
                     if (assurer) {
-                        vars.put("linkId", assurance.getTo().getOwner().getId());
+                        vars.put("linkId", to == null ? "" : to.getOwner().getId());
                         vars.put("verbVal", to == null ? l.getTranslation("applicant's name removed") : to.getOwner().getId());
                         vars.put("myName", to == null ? l.getTranslation("applicant's name removed") : to);
                     } else {
