@@ -7,12 +7,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.RandomAccess;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.output.template.SprintfCommand;
 
+/**
+ * Represents a country containing its ISO 3166-1-Code and its English name.
+ */
 public class Country {
 
     public enum CountryCodeType {
@@ -30,17 +34,36 @@ public class Country {
         }
     }
 
+    /**
+     * Id of the database entry.
+     */
     private final int id;
 
+    /**
+     * English name of the country.
+     */
     private final String country;
 
+    /**
+     * ISO 3166-1 alpha-2 code of the country.
+     */
     private final String countryCode2;
 
+    /**
+     * ISO 3166-1 alpha-3 code of the country.
+     */
     private final String countryCode3;
 
+    /**
+     * A unmodifiable {@link RandomAccess}-List of all Countries.
+     */
     private static final List<Country> countries;
 
+    /**
+     * An unmodifiable index of all 2- and 3-letter country codes.
+     */
     private static final Map<String, Country> byString;
+
     static {
         LinkedList<Country> cs = new LinkedList<>();
         HashMap<String, Country> ccd = new HashMap<>();
@@ -72,10 +95,22 @@ public class Country {
         return country;
     }
 
+    /**
+     * Returns the default (ISO 3166-1 alpha-2) country code of this country.
+     * 
+     * @return the country code
+     */
     public String getCode() {
         return countryCode2;
     }
 
+    /**
+     * Gets the specified type of country code for this country.
+     * 
+     * @param type
+     *            the type of the code
+     * @return the corresponding code
+     */
     public String getCode(CountryCodeType type) {
         switch (type) {
         case CODE_2_CHARS:
@@ -87,14 +122,40 @@ public class Country {
         }
     }
 
+    /**
+     * Gets an unmodifiable, {@link RandomAccess}-List of all countries.
+     * 
+     * @return the list.
+     */
     public static List<Country> getCountries() {
         return countries;
     }
 
+    /**
+     * Checks a country code for its validity and conformance to the given type.
+     * 
+     * @param countrycode
+     *            the code to check
+     * @param cType
+     *            the type it should have
+     * @throws GigiApiException
+     *             if the code was wrong
+     */
     public static void checkCountryCode(String countrycode, CountryCodeType cType) throws GigiApiException {
         getCountryByCode(countrycode, cType);
     }
 
+    /**
+     * Fetches the {@link Country} object for the given country code.
+     * 
+     * @param countrycode
+     *            the code to fetch the county for
+     * @param cType
+     *            the type of the code
+     * @return the specified country
+     * @throws GigiApiException
+     *             if the code was wrong.
+     */
     public static Country getCountryByCode(String countrycode, CountryCodeType cType) throws GigiApiException {
         if (countrycode.length() != cType.getLen()) {
             throw new GigiApiException(SprintfCommand.createSimple("Country code length does not have the required length of {0} characters", Integer.toString(cType.getLen())));
