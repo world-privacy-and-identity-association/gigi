@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.RandomAccess;
 
 import org.cacert.gigi.GigiApiException;
@@ -167,9 +166,4 @@ public class Country {
         return i;
     }
 
-    public static Country getRandomCountry() {
-        List<Country> cc = Country.getCountries();
-        int rnd = new Random().nextInt(cc.size());
-        return cc.get(rnd);
-    }
 }

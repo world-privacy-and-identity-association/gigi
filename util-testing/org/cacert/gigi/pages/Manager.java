@@ -14,9 +14,11 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,6 +60,12 @@ import org.cacert.gigi.util.TimeConditions;
 import sun.security.x509.X509Key;
 
 public class Manager extends Page {
+
+    public static Country getRandomCountry() {
+        List<Country> cc = Country.getCountries();
+        int rnd = new Random().nextInt(cc.size());
+        return cc.get(rnd);
+    }
 
     public static final String PATH = "/manager";
 
@@ -116,7 +124,7 @@ public class Manager extends Page {
                 ps.setInt(3, 100);
                 ps.setString(4, "Manager init code");
                 ps.setString(5, "1990-01-01");
-                ps.setString(6, Country.getRandomCountry().getCode());
+                ps.setString(6, getRandomCountry().getCode());
                 ps.execute();
             }
             return u;
@@ -228,7 +236,7 @@ public class Manager extends Page {
         gc.setTimeInMillis(0);
         gc.set(1990, 0, 1);
 
-        Country country = Country.getRandomCountry();
+        Country country = getRandomCountry();
 
         User u = new User(email, "xvXV12°§", new DayDate(gc.getTime().getTime()), Locale.ENGLISH, country, //
                 new NamePart(NamePartType.FIRST_NAME, "Först"), new NamePart(NamePartType.FIRST_NAME, "Müddle"), //
@@ -318,7 +326,7 @@ public class Manager extends Page {
                     if (vp < 10) {
                         currentVP = vp;
                     }
-                    Notary.assure(getAssurer(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getRandomCountry());
+                    Notary.assure(getAssurer(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", "2014-11-06", AssuranceType.FACE_TO_FACE, getRandomCountry());
                     agentNumber += 1;
                     vp -= currentVP;
                 }
@@ -335,7 +343,7 @@ public class Manager extends Page {
             try {
                 for (int i = 0; i < 25; i++) {
                     User a = getAssurer(i);
-                    Notary.assure(byEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getRandomCountry());
+                    Notary.assure(byEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", "2014-11-06", AssuranceType.FACE_TO_FACE, getRandomCountry());
                 }
             } catch (GigiApiException e) {
                 throw new Error(e);
