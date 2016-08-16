@@ -99,7 +99,7 @@ public class TestMyDetailsEdit extends ManagedTest {
     public void testChangeResidenceCountry() throws IOException {
         assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "residenceCountry=DE&action=updateResidenceCountry", 0));
         User user = User.getById(id);
-        assertEquals("DE", user.getResidenceCountry().getCountryCode());
+        assertEquals("DE", user.getResidenceCountry().getCode());
     }
 
     @Test

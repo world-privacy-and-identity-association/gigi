@@ -13,8 +13,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.dbObjects.CountryCode;
-import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
+import org.cacert.gigi.dbObjects.Country;
+import org.cacert.gigi.dbObjects.Country.CountryCodeType;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.Organisation.Affiliation;
 import org.cacert.gigi.dbObjects.User;
@@ -147,9 +147,9 @@ public class TestOrgManagement extends OrgTest {
     @Test
     public void testUpdateOrgCertData() throws IOException, GigiApiException {
         Organisation o1 = createUniqueOrg();
-        o1.updateCertData("name", CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS), DIFFICULT_CHARS, "Köln");
+        o1.updateCertData("name", Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS), DIFFICULT_CHARS, "Köln");
         assertEquals("name", o1.getName());
-        assertEquals("DE", o1.getState().getCountryCode());
+        assertEquals("DE", o1.getState().getCode());
         assertEquals(DIFFICULT_CHARS, o1.getProvince());
         assertEquals("Köln", o1.getCity());
         o1.delete();
@@ -246,7 +246,7 @@ public class TestOrgManagement extends OrgTest {
      */
     private String upCertData(Organisation o1, String o, String c, String province, String ct) throws IOException, MalformedURLException, UnsupportedEncodingException {
         if (c == null) {
-            c = o1.getState().getCountryCode();
+            c = o1.getState().getCode();
         }
         return executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + o1.getId(), "action=updateCertificateData&O=" + o + "&C=" + c + "&ST=" + province + "&L=" + ct, 0);
     }

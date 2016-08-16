@@ -3,9 +3,10 @@ package org.cacert.gigi.dbObjects;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
+import org.cacert.gigi.dbObjects.Country.CountryCodeType;
 import org.cacert.gigi.testUtils.BusinessTest;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.CoreMatchers;
@@ -34,19 +35,18 @@ public class TestCountryCode extends BusinessTest {
 
     @Test
     public void testList() throws GigiApiException {
-        CountryCode[] ccs = CountryCode.getCountryCodes(type);
-        for (CountryCode cc : ccs) {
-            assertSame(type, cc.getCountryCodeType());
-            assertThat(cc.getCountryCode(), stringLength(type.getLen()));
+        List<Country> ccs = Country.getCountries();
+        for (Country cc : ccs) {
+            assertThat(cc.getCode(type), stringLength(type.getLen()));
         }
     }
 
     @Test
     public void testFetch() throws GigiApiException {
         String ref = type == CountryCodeType.CODE_2_CHARS ? "DE" : "DEU";
-        CountryCode cc = CountryCode.getCountryCode(ref, type);
-        assertEquals(ref, cc.getCountryCode());
-        assertEquals("Germany", cc.getCountry());
+        Country cc = Country.getCountryByCode(ref, type);
+        assertEquals(ref, cc.getCode(type));
+        assertEquals("Germany", cc.getName());
     }
 
     @Test
@@ -54,16 +54,16 @@ public class TestCountryCode extends BusinessTest {
         String ref = type == CountryCodeType.CODE_2_CHARS ? "DE" : "DEU";
         String reff = type == CountryCodeType.CODE_2_CHARS ? "DF" : "DFU";
 
-        CountryCode.checkCountryCode(ref, type);
+        Country.checkCountryCode(ref, type);
         try {
-            CountryCode.checkCountryCode(reff, type);
+            Country.checkCountryCode(reff, type);
         } catch (GigiApiException e) {
             assertThat(e.getMessage(), CoreMatchers.containsString("was wrong"));
         }
 
-        CountryCode.getCountryCode(ref, type);
+        Country.getCountryByCode(ref, type);
         try {
-            CountryCode.getCountryCode(reff, type);
+            Country.getCountryByCode(reff, type);
         } catch (GigiApiException e) {
             assertThat(e.getMessage(), CoreMatchers.containsString("was wrong"));
         }
@@ -72,7 +72,7 @@ public class TestCountryCode extends BusinessTest {
     @Test
     public void testSingleInstance() throws GigiApiException {
         String ref = type == CountryCodeType.CODE_2_CHARS ? "DE" : "DEU";
-        assertSame(CountryCode.getCountryCode(ref, type), CountryCode.getCountryCode(ref, type));
+        assertSame(Country.getCountryByCode(ref, type), Country.getCountryByCode(ref, type));
     }
 
     private Matcher<String> stringLength(final int len) {

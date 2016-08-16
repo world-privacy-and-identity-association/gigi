@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
-import org.cacert.gigi.dbObjects.CountryCode;
+import org.cacert.gigi.dbObjects.Country;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.testUtils.IOUtils;
@@ -236,7 +236,7 @@ public class TestAssurance extends ManagedTest {
         String resp = IOUtils.readURL(url);
         resp = resp.split(Pattern.quote("</table>"))[1];
         assertThat(resp, containsString(uniqueLoc));
-        assertThat(resp, containsString(CountryCode.getCountryCode("DE", CountryCode.CountryCodeType.CODE_2_CHARS).getCountry()));
+        assertThat(resp, containsString(Country.getCountryByCode("DE", Country.CountryCodeType.CODE_2_CHARS).getName()));
     }
 
     @Test
@@ -248,7 +248,7 @@ public class TestAssurance extends ManagedTest {
         String resp = IOUtils.readURL(url);
         resp = resp.split(Pattern.quote("</table>"))[2];
         assertThat(resp, containsString(uniqueLoc));
-        assertThat(resp, containsString(CountryCode.getCountryCode("DE", CountryCode.CountryCodeType.CODE_2_CHARS).getCountry()));
+        assertThat(resp, containsString(Country.getCountryByCode("DE", Country.CountryCodeType.CODE_2_CHARS).getName()));
     }
 
     private void executeFails(String query) throws MalformedURLException, IOException {

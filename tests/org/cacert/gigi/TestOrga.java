@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 
-import org.cacert.gigi.dbObjects.CountryCode;
-import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
+import org.cacert.gigi.dbObjects.Country;
+import org.cacert.gigi.dbObjects.Country.CountryCodeType;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
@@ -24,7 +24,7 @@ public class TestOrga extends BusinessTest {
         u3.grantGroup(u1, Group.ORGASSURER);
         User u4 = User.getById(createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
         u4.grantGroup(u1, Group.ORGASSURER);
-        Organisation o1 = new Organisation("name", CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS), "prov", "city", "email", "optional name", "postal address", u1);
+        Organisation o1 = new Organisation("name", Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS), "prov", "city", "email", "optional name", "postal address", u1);
         assertEquals(0, o1.getAllAdmins().size());
         o1.addAdmin(u2, u1, false);
         assertEquals(1, o1.getAllAdmins().size());

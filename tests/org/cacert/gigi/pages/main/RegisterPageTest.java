@@ -223,7 +223,7 @@ public class RegisterPageTest extends ManagedTest {
         String data = fetchStartErrorMessage(runRegister(query));
         assertNull(data);
         User u = User.getByEmail(email);
-        assertEquals("DE", u.getResidenceCountry().getCountryCode());
+        assertEquals("DE", u.getResidenceCountry().getCode());
     }
 
     @Test

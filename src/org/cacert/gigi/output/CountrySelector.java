@@ -1,13 +1,14 @@
 package org.cacert.gigi.output;
 
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.dbObjects.CountryCode;
-import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
+import org.cacert.gigi.dbObjects.Country;
+import org.cacert.gigi.dbObjects.Country.CountryCodeType;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.Template;
@@ -16,11 +17,11 @@ public class CountrySelector implements Outputable {
 
     private static final Template t = new Template(CountrySelector.class.getResource("CountrySelector.templ"));
 
-    private CountryCode[] all = CountryCode.getCountryCodes(CountryCodeType.CODE_2_CHARS);
+    private List<Country> all = Country.getCountries();
 
     private String name;
 
-    private CountryCode selected;
+    private Country selected;
 
     private boolean optional;
 
@@ -29,12 +30,8 @@ public class CountrySelector implements Outputable {
         this.optional = optional;
     }
 
-    public CountrySelector(String name, boolean optional, CountryCode state) {
+    public CountrySelector(String name, boolean optional, Country state) {
         this(name, optional);
-        selected = state == null ? null : state.convertToCountryCodeType(CountryCodeType.CODE_2_CHARS);
-        if (state.getCountryCodeType() != CountryCodeType.CODE_2_CHARS) {
-            throw new IllegalArgumentException("Got country code of illegal type.");
-        }
         selected = state;
     }
 
@@ -51,18 +48,18 @@ public class CountrySelector implements Outputable {
             }
         }
 
-        selected = CountryCode.getCountryCode(vS, CountryCodeType.CODE_2_CHARS);
+        selected = Country.getCountryByCode(vS, CountryCodeType.CODE_2_CHARS);
     }
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-        vars.put("countryCode", new ArrayIterable<CountryCode>(all) {
+        vars.put("countryCode", new IterableIterable<Country>(all) {
 
             @Override
-            public void apply(CountryCode t, Language l, Map<String, Object> vars) {
-                vars.put("cc", t.getCountryCode());
-                vars.put("display", t.getCountry());
-                if (selected != null && t.getCountryCode().equals(selected.getCountryCode())) {
+            public void apply(Country t, Language l, Map<String, Object> vars) {
+                vars.put("cc", t.getCode());
+                vars.put("display", t.getName());
+                if (selected != null && t.getCode().equals(selected.getCode())) {
                     vars.put("selected", "selected");
                 } else {
                     vars.put("selected", "");
@@ -77,7 +74,7 @@ public class CountrySelector implements Outputable {
         t.output(out, l, vars);
     }
 
-    public CountryCode getCountry() {
+    public Country getCountry() {
         return selected;
     }
 

@@ -18,9 +18,9 @@ import java.security.cert.X509Certificate;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
-import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
+import org.cacert.gigi.dbObjects.Country.CountryCodeType;
 import org.cacert.gigi.dbObjects.CertificateProfile;
-import org.cacert.gigi.dbObjects.CountryCode;
+import org.cacert.gigi.dbObjects.Country;
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.Group;
@@ -89,7 +89,7 @@ public class IssueCert extends ClientTest {
         makeAssurer(id);
         u.grantGroup(u, Group.ORGASSURER);
 
-        Organisation o1 = new Organisation("name", CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS), "pr", "st", "test@mail", "", "", u);
+        Organisation o1 = new Organisation("name", Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS), "pr", "st", "test@mail", "", "", u);
         o1.addAdmin(u, u, false);
         String testdom = createUniqueName() + "-example.com";
         Domain d2 = new Domain(u, o1, testdom);

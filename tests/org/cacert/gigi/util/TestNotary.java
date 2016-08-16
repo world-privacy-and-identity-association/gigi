@@ -8,8 +8,8 @@ import java.util.Date;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
-import org.cacert.gigi.dbObjects.CountryCode;
-import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
+import org.cacert.gigi.dbObjects.Country;
+import org.cacert.gigi.dbObjects.Country.CountryCodeType;
 import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.DateSelector;
@@ -18,7 +18,7 @@ import org.junit.Test;
 
 public class TestNotary extends BusinessTest {
 
-    public final CountryCode DE = CountryCode.getCountryCode("DE", CountryCodeType.CODE_2_CHARS);
+    public final Country DE = Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS);
 
     public TestNotary() throws GigiApiException {}
 

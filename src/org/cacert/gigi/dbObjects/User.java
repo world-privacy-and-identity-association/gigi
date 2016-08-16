@@ -16,7 +16,7 @@ import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
 import org.cacert.gigi.dbObjects.CATS.CATSType;
-import org.cacert.gigi.dbObjects.CountryCode.CountryCodeType;
+import org.cacert.gigi.dbObjects.Country.CountryCodeType;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.pages.PasswordResetPage;
@@ -66,7 +66,7 @@ public class User extends CertificateOwner {
 
     private Name preferredName;
 
-    private CountryCode residenceCountry;
+    private Country residenceCountry;
 
     protected User(GigiResultSet rs) {
         super(rs.getInt("id"));
@@ -80,7 +80,7 @@ public class User extends CertificateOwner {
 
         try {
             if (rs.getString("Country") != null) {
-                residenceCountry = CountryCode.getCountryCode(rs.getString("Country"), CountryCode.CountryCodeType.CODE_2_CHARS);
+                residenceCountry = Country.getCountryByCode(rs.getString("Country"), Country.CountryCodeType.CODE_2_CHARS);
             }
         } catch (GigiApiException e) {
             throw new Error(e);
@@ -104,7 +104,7 @@ public class User extends CertificateOwner {
         }
     }
 
-    public User(String email, String password, DayDate dob, Locale locale, CountryCode residenceCountry, NamePart... preferred) throws GigiApiException {
+    public User(String email, String password, DayDate dob, Locale locale, Country residenceCountry, NamePart... preferred) throws GigiApiException {
         this.email = email;
         this.dob = dob;
         this.locale = locale;
@@ -116,7 +116,7 @@ public class User extends CertificateOwner {
             query.setString(4, locale.toString());
             query.setInt(5, getId());
             query.setInt(6, preferredName.getId());
-            query.setString(7, residenceCountry == null ? null : residenceCountry.getCountryCode());
+            query.setString(7, residenceCountry == null ? null : residenceCountry.getCode());
             query.execute();
         }
         new EmailAddress(this, email, locale);
@@ -608,7 +608,7 @@ public class User extends CertificateOwner {
 
     private Assurance assuranceByRes(GigiResultSet res) {
         try {
-            return new Assurance(res.getInt("id"), User.getById(res.getInt("from")), Name.getById(res.getInt("to")), res.getString("location"), res.getString("method"), res.getInt("points"), res.getString("date"), res.getString("country") == null ? null : CountryCode.getCountryCode(res.getString("country"), CountryCodeType.CODE_2_CHARS));
+            return new Assurance(res.getInt("id"), User.getById(res.getInt("from")), Name.getById(res.getInt("to")), res.getString("location"), res.getString("method"), res.getInt("points"), res.getString("date"), res.getString("country") == null ? null : Country.getCountryByCode(res.getString("country"), CountryCodeType.CODE_2_CHARS));
         } catch (GigiApiException e) {
             throw new Error(e);
         }
@@ -628,18 +628,18 @@ public class User extends CertificateOwner {
 
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {}
 
-    public CountryCode getResidenceCountry() {
+    public Country getResidenceCountry() {
         return residenceCountry;
     }
 
-    public void setResidenceCountry(CountryCode residenceCountry) {
+    public void setResidenceCountry(Country residenceCountry) {
         this.residenceCountry = residenceCountry;
         rawUpdateCountryData();
     }
 
     private void rawUpdateCountryData() {
         try (GigiPreparedStatement update = new GigiPreparedStatement("UPDATE users SET country=? WHERE id=?")) {
-            update.setString(1, residenceCountry == null ? null : residenceCountry.getCountryCode());
+            update.setString(1, residenceCountry == null ? null : residenceCountry.getCode());
             update.setInt(2, getId());
             update.executeUpdate();
         }

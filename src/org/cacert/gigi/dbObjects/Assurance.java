@@ -33,9 +33,9 @@ public class Assurance {
 
     private String date;
 
-    private CountryCode country;
+    private Country country;
 
-    public Assurance(int id, User from, Name to, String location, String method, int points, String date, CountryCode country) {
+    public Assurance(int id, User from, Name to, String location, String method, int points, String date, Country country) {
         this.id = id;
         this.from = from;
         this.to = to;
@@ -75,7 +75,7 @@ public class Assurance {
         return date;
     }
 
-    public CountryCode getCountry() {
+    public Country getCountry() {
         return country;
     }
 }
