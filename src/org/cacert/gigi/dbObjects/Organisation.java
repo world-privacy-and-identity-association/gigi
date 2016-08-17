@@ -54,7 +54,7 @@ public class Organisation extends CertificateOwner {
 
     private String name;
 
-    private Country state;
+    private Country country;
 
     private String province;
 
@@ -66,15 +66,15 @@ public class Organisation extends CertificateOwner {
 
     private String postalAddress;
 
-    public Organisation(String name, Country state, String province, String city, String email, String optionalName, String postalAddress, User creator) throws GigiApiException {
+    public Organisation(String name, Country country, String province, String city, String email, String optionalName, String postalAddress, User creator) throws GigiApiException {
         if ( !creator.isInGroup(Group.ORGASSURER)) {
             throw new GigiApiException("Only Organisation RA Agents may create organisations.");
         }
-        if (state == null) {
+        if (country == null) {
             throw new GigiApiException("Got country code of illegal type.");
         }
         this.name = name;
-        this.state = state;
+        this.country = country;
         this.province = province;
         this.city = city;
         this.email = email;
@@ -84,7 +84,7 @@ public class Organisation extends CertificateOwner {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO organisations SET id=?, name=?, state=?, province=?, city=?, contactEmail=?, optional_name=?, postal_address=?, creator=?")) {
             ps.setInt(1, id);
             ps.setString(2, name);
-            ps.setString(3, state.getCode());
+            ps.setString(3, country.getCode());
             ps.setString(4, province);
             ps.setString(5, city);
             ps.setString(6, email);
@@ -100,7 +100,7 @@ public class Organisation extends CertificateOwner {
     protected Organisation(GigiResultSet rs) throws GigiApiException {
         super(rs.getInt("id"));
         name = rs.getString("name");
-        state = Country.getCountryByCode(rs.getString("state"), CountryCodeType.CODE_2_CHARS);
+        country = Country.getCountryByCode(rs.getString("state"), CountryCodeType.CODE_2_CHARS);
         province = rs.getString("province");
         city = rs.getString("city");
         email = rs.getString("contactEmail");
@@ -113,7 +113,7 @@ public class Organisation extends CertificateOwner {
     }
 
     public Country getState() {
-        return state;
+        return country;
     }
 
     public String getProvince() {
@@ -228,7 +228,7 @@ public class Organisation extends CertificateOwner {
             ps.executeUpdate();
         }
         name = o;
-        state = c;
+        country = c;
         province = st;
         city = l;
     }

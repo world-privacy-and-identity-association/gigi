@@ -30,9 +30,9 @@ public class CountrySelector implements Outputable {
         this.optional = optional;
     }
 
-    public CountrySelector(String name, boolean optional, Country state) {
+    public CountrySelector(String name, boolean optional, Country country) {
         this(name, optional);
-        selected = state;
+        selected = country;
     }
 
     public void update(HttpServletRequest r) throws GigiApiException {
