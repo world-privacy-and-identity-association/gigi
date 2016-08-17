@@ -1,60 +1,66 @@
-#!/bin/bash
-if [ "$JDBC_DRIVER" == "" ]
-then
-JDBC_DRIVER=/usr/share/java/postgresql-jdbc4.jar
-#echo "JDBC_DRIVER environment variable not set. Assumed path: $JDBC_DRIVER"
-fi
-if [ "$GIGI_EXEC" == "" ]
-then
-GIGI_EXEC=/usr/share/java/gigi.jar
-#echo "GIGI_EXEC environment variable not set. Assumed path: $GIGI_EXEC" 
-fi
+#!/bin/sh
 
-cd /var/lib/cacert-gigi
+: ${GIGI_CONF_DIR:=/etc/cacert/gigi}
 
-if [ "$1" == "start" ]
-then
-	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.Launcher
-elif [ "$1" == "debug" ]
-then
-	java -cp $JDBC_DRIVER:$GIGI_EXEC -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 org.cacert.gigi.Launcher
-elif [ "$1" == "start-daemon" ]
-then
-	if [ ! -e /etc/cacert/gigi/conf.tar ]; then
-		echo "Config missing."
-		exit 1;
-	fi
-	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.Launcher < /etc/cacert/gigi/conf.tar >> /var/log/cacert-gigi.log 2>&1 &
-	echo $! > /var/run/cacert-gigi.pid
-elif [ "$1" == "signer" ]
-then
-	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.SimpleSigner
-elif [ "$1" == "reset-database" ]
-then
-	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.DatabaseManager
-elif [ "$1" == "fetch-alexa" ]
-then
-	java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.HighFinancialValueFetcher $2 $3
-elif [ "$1" == "fetch-locales" ]
-then
-    if [ "$2" == "" ]; then
-		java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.FetchLocales
-	else
-		java -cp $JDBC_DRIVER:$GIGI_EXEC org.cacert.gigi.util.FetchLocales "$2"
-	fi
-elif [ "$1" == "signer-conf" ]
-then
-	mkdir /var/lib/cacert-gigi/config
-	cd /var/lib/cacert-gigi/config
-	tar x gigi.properties
-else
-	echo "Usage: gigi <option>"
-	echo "debug - starts gigi in debug mode (on port 8000, with config from stdin)"
-	echo "fetch-locales - (re)fetch the localisation"
-	echo "reset-database - resets the database"
-	echo "signer - starts the simple signer"
-	echo "signer-conf - extract config for simple signer (and reset-database) from the tar from stdin"
-	echo "start - starts gigi"
-	echo "start-daemon - starts gigi in background (using config from /etc/cacert/gigi/conf.tar)"
+[ -r "$GIGI_CONF_DIR/launcher.conf" ] && . "$GIGI_CONF_DIR/launcher.conf"
 
-fi
+# assign default values
+: \
+    ${JDBC_DRIVER:=/usr/share/java/postgresql-jdbc4.jar} \
+    ${GIGI_EXEC:=/usr/share/java/gigi.jar} \
+    ${GIGI_DATA_DIR:=/var/lib/cacert-gigi}
+
+die() {
+    if [ $# -ge 1 ]; then
+        printf >&2 'Could not %s.\n' "$1"
+    fi
+    exit 1
+}
+
+cd "$GIGI_DATA_DIR" || die 'move to data directory'
+
+runGigiClass() {
+    class=$1
+    shift
+    if [ $# -ge 1 ]; then
+        java_opts="$1"
+        shift
+    fi
+    exec java $java_opts -cp "$JDBC_DRIVER:$GIGI_EXEC" org.cacert.gigi.$class "$@"
+}
+
+command="$1"
+shift
+case "$command" in
+    start) runGigiClass Launcher ;;
+    debug) runGigiClass Launcher "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000" ;;
+    start-daemon)
+        exec 3</etc/cacert/gigi/conf.tar || die 'open config'
+        exec 4>>/var/log/cacert-gigi.log || die 'open log'
+        runGigiClass Launcher <&3 >&4 2>&1 &
+        echo $! > /var/run/cacert-gigi.pid
+        ;;
+    signer) runGigiClass util.SimpleSigner ;;
+    reset-database) runGigiClass util.DatabaseManager ;;
+    fetch-alexa) runGigiClass util.HighFinancialValueFetcher "" "$@" ;;
+    fetch-locales) runGigiClass util.FetchLocales "" "$@" ;;
+    signer-conf)
+        mkdir -p "$GIGI_DATA_DIR/config" || die 'create config directory'
+        cd "$GIGI_DATA_DIR/config" || die 'move to config directory'
+        tar x gigi.properties
+        ;;
+    *)
+        cat >&2 << 'EOF'
+Usage: gigi COMMAND [ARGUMENT...]
+
+Commands:
+    start - start gigi
+    debug - start gigi in debug mode (on port 8000, with config from stdin)
+    start-daemon - start gigi in background (using config from /etc/cacert/gig/config.tar)
+    signer - start the simple signer
+    signer-conf - extract config for simple signer (and reset-database) from the tar from stdin
+    reset-database - reset the database
+    fetch-alexa - fetch domains with high financial value from Alexa top 1 million list; required argument: target file, optional argument: number of domains to save
+    fetch-locales - fetch the localisation; optional argument: URL pattern to indicate download location
+EOF
+esac
