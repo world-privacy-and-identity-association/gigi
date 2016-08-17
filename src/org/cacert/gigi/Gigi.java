@@ -68,6 +68,7 @@ import org.cacert.gigi.pages.error.PageNotFound;
 import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.pages.orga.CreateOrgPage;
 import org.cacert.gigi.pages.orga.ViewOrgPage;
+import org.cacert.gigi.pages.statistics.StatisticsRoles;
 import org.cacert.gigi.pages.wot.AssurePage;
 import org.cacert.gigi.pages.wot.Points;
 import org.cacert.gigi.pages.wot.RequestTTPPage;
@@ -135,6 +136,7 @@ public final class Gigi extends HttpServlet {
             });
             putPage("/", new MainPage(), null);
             putPage("/roots", new RootCertPage(truststore), "SomeCA.org");
+            putPage(StatisticsRoles.PATH, new StatisticsRoles(), "SomeCA.org");
             putPage("/about", new AboutPage(), "SomeCA.org");
 
             putPage("/secure", new TestSecure(), null);

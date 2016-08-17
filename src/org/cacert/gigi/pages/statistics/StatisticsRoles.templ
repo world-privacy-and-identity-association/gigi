@@ -1,0 +1,26 @@
+<table class="table">
+    <tr>
+        <th>
+            <?=_Role?>
+        </th>
+        <th>
+            <?=_User Name?>
+        </th>
+        <th>
+            <?=_Email Address?>
+        </th>
+    </tr>
+<? foreach($groups) {?>
+    <tr>
+        <th><?=$group_name?></th>
+        <th colspan="2"><?=_Total?>: <?=$count?></th>
+    </tr>
+    <? foreach($memberlist) {?>
+    <tr>
+        <td></td>
+        <td><?=$name?></td>
+        <td><?=$email?></td>
+    </tr>
+    <? } ?>
+<? } ?>
+</table>
