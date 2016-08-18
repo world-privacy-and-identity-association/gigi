@@ -17,18 +17,10 @@ public class Domain implements IdCachable, Verifyable {
 
     private int id;
 
-    private Domain(int id) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `memid`, `domain` FROM `domains` WHERE `id`=? AND `deleted` IS NULL")) {
-            ps.setInt(1, id);
-
-            GigiResultSet rs = ps.executeQuery();
-            if ( !rs.next()) {
-                throw new IllegalArgumentException("Invalid domain id " + id);
-            }
-            this.id = id;
-            owner = CertificateOwner.getById(rs.getInt(1));
-            suffix = rs.getString(2);
-        }
+    private Domain(GigiResultSet rs, int id) {
+        this.id = id;
+        owner = CertificateOwner.getById(rs.getInt(1));
+        suffix = rs.getString(2);
     }
 
     public Domain(User actor, CertificateOwner owner, String suffix) throws GigiApiException {
@@ -163,10 +155,17 @@ public class Domain implements IdCachable, Verifyable {
 
     private static final ObjectCache<Domain> myCache = new ObjectCache<>();
 
-    public static synchronized Domain getById(int id) throws IllegalArgumentException {
+    public static synchronized Domain getById(int id) {
         Domain em = myCache.get(id);
         if (em == null) {
-            myCache.put(em = new Domain(id));
+            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `memid`, `domain` FROM `domains` WHERE `id`=? AND `deleted` IS NULL")) {
+                ps.setInt(1, id);
+                GigiResultSet rs = ps.executeQuery();
+                if ( !rs.next()) {
+                    return null;
+                }
+                myCache.put(em = new Domain(rs, id));
+            }
         }
         return em;
     }
