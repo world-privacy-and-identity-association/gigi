@@ -34,7 +34,7 @@ public class FindUserByDomainForm extends Form {
                 throw new GigiApiException(SprintfCommand.createSimple("No personal domains found matching the id {0}", request.substring(1)));
             }
         } else {
-            d = Domain.searchUserIdByDomain(request);
+            d = Domain.searchDomain(request);
         }
         if (d == null) {
             throw new GigiApiException(SprintfCommand.createSimple("No personal domains found matching {0}", request));

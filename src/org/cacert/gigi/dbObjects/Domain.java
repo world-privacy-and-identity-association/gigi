@@ -173,7 +173,7 @@ public class Domain implements IdCachable, Verifyable {
         return em;
     }
 
-    public static Domain searchUserIdByDomain(String domain) {
+    public static Domain searchDomain(String domain) {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `id` FROM `domains` WHERE `domain` = ? AND `deleted` IS NULL")) {
             ps.setString(1, domain);
             GigiResultSet res = ps.executeQuery();

@@ -34,13 +34,13 @@ public class TestDomain extends ClientTest {
     public void testDelete() throws IOException {
         String domain = uniq + ".de";
         assertNull(addDomain(cookie, domain));
-        Domain d0 = Domain.searchUserIdByDomain(domain);
+        Domain d0 = Domain.searchDomain(domain);
         assertNull(executeBasicWebInteraction(cookie, DomainOverview.PATH, "delete=" + d0.getId(), 0));
         // double delete
         assertNotNull(executeBasicWebInteraction(cookie, DomainOverview.PATH, "delete=" + d0.getId(), 0));
         // re-add
         assertNull(addDomain(cookie, domain));
-        Domain d1 = Domain.searchUserIdByDomain(domain);
+        Domain d1 = Domain.searchDomain(domain);
         assertNotEquals(d0.getId(), d1.getId());
         assertNull(executeBasicWebInteraction(cookie, DomainOverview.PATH, "delete=" + d1.getId(), 0));
     }
