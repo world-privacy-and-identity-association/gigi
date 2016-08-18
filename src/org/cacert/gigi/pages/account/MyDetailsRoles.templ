@@ -1,0 +1,9 @@
+<div class="panel panel-default">
+  <div class="panel-heading"><?=_Permissions / Group Assignments?></div>
+  <div class="panel-body">
+  <h4><?=_Support Managed Permissions?>:</h4>
+  <? foreach($support-groups) { ?><?=$group_concat?><?=$group?><? } ?>
+  <h4><?=_User Managed Permissions?>:</h4>
+  <? foreach($groups) { ?><?=$group_concat?><?=$group?><? } ?>
+  </div>
+</div>

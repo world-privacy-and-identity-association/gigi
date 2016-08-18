@@ -39,11 +39,13 @@ public class GroupSelector implements Outputable {
         out.println("<select name='" + name + "'>");
         for (Group g : Group.values()) {
             if (supportFlag == g.isManagedBySupport()) {
-                out.print("<option name='" + g.getDatabaseName());
+                out.print("<option value='" + g.getDatabaseName());
                 if (g.equals(value)) {
                     out.print(" selected");
                 }
-                out.println("'>" + g.getDatabaseName() + "</option>");
+                out.println("'>");
+                g.getName().output(out, l, vars);
+                out.println("</option>");
             }
         }
         out.println("</select>");

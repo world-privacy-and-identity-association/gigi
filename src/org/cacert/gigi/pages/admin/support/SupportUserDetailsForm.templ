@@ -42,11 +42,18 @@
         </tr>
         
         <tr>
-            <td><?=_Groups?>:</td>
-            <td><p><? foreach($groups) { ?><?=$group_name?>, <? } ?></p>
+            <td><?=_Support Managed Groups?>:</td>
+            <td><p><? foreach($support-groups) { ?><?=$group_concat?><?=$group?><? } ?></p>
             <p><?=$groupSelector?><input class="btn btn-info" type='submit' value='<?=_Grant Group?>' name='grant'> <input class="btn btn-info" type='submit' value='<?=_Deny Group?>' name='deny'></p>
             </td>
         </tr>
+
+        <tr>
+            <td><?=_User Managed Groups?>:</td>
+            <td><p><? foreach($groups) { ?><?=$group_concat?><?=$group?><? } ?></p>
+            </td>
+        </tr>
+
         <tr>
             <td><?=_Reset Password?>:</td>
             <td><input type="text" name="aword"> <input class="btn btn-primary" type="submit" value="<?=_Reset Password?>" name="resetPass"></td>

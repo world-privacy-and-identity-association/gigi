@@ -2,16 +2,19 @@ package org.cacert.gigi.pages.account;
 
 import java.io.PrintWriter;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.ArrayIterable;
 import org.cacert.gigi.output.CountrySelector;
 import org.cacert.gigi.output.DateSelector;
+import org.cacert.gigi.output.GroupIterator;
 import org.cacert.gigi.output.NameInput;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Template;
@@ -24,6 +27,8 @@ public class MyDetailsForm extends Form {
     private static final Template templ = new Template(MyDetailsForm.class.getResource("MyDetailsForm.templ"));
 
     private static final Template names = new Template(MyDetailsForm.class.getResource("NamesForm.templ"));
+
+    private static final Template roles = new Template(MyDetailsForm.class.getResource("MyDetailsRoles.templ"));
 
     private User target;
 
@@ -131,7 +136,13 @@ public class MyDetailsForm extends Form {
 
         });
         vars.put("name", ni);
+        final Set<Group> gr = target.getGroups();
         names.output(out, l, vars);
+
+        vars.put("support-groups", new GroupIterator(gr.iterator(), true));
+        vars.put("groups", new GroupIterator(gr.iterator(), false));
+        roles.output(out, l, vars);
+
         vars.put("residenceCountry", cs);
         if (target.getReceivedAssurances().length == 0) {
             vars.put("DoB", ds);
@@ -140,6 +151,7 @@ public class MyDetailsForm extends Form {
             vars.put("DoB", target.getDoB());
             assured.output(out, l, vars);
         }
+
     }
 
 }

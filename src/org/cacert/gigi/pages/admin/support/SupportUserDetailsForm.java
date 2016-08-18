@@ -1,7 +1,6 @@
 package org.cacert.gigi.pages.admin.support;
 
 import java.io.PrintWriter;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,9 +14,9 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.ArrayIterable;
 import org.cacert.gigi.output.DateSelector;
+import org.cacert.gigi.output.GroupIterator;
 import org.cacert.gigi.output.GroupSelector;
 import org.cacert.gigi.output.template.Form;
-import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.output.template.Template;
@@ -107,20 +106,8 @@ public class SupportUserDetailsForm extends Form {
         vars.put("assurancepoints", user.getAssurancePoints());
         vars.put("exppoints", user.getExperiencePoints());
         final Set<Group> gr = user.getGroups();
-        vars.put("groups", new IterableDataset() {
-
-            Iterator<Group> i = gr.iterator();
-
-            @Override
-            public boolean next(Language l, Map<String, Object> vars) {
-                if ( !i.hasNext()) {
-                    return false;
-                }
-                Group g = i.next();
-                vars.put("group_name", g.getName());
-                return true;
-            }
-        });
+        vars.put("support-groups", new GroupIterator(gr.iterator(), true));
+        vars.put("groups", new GroupIterator(gr.iterator(), false));
         vars.put("groupSelector", value);
         t.output(out, l, vars);
     }
