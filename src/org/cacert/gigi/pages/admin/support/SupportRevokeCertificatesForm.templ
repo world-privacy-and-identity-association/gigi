@@ -22,7 +22,7 @@
             <? } ?>
         <tr>
             <th colspan="6">
-                    <input class="btn btn-danger" name="revokeall" value="<?=_revoke certificates?>" type="submit">
+                    <input class="btn btn-danger btn-confirm" data-confirm="<?=_Do you really want to revoke ALL certificates of this user??>" data-reply="<?=_Cancel?>,<?=_Confirm?>" name="revokeall" value="<?=_revoke certificates?>" type="submit">
             </th>
         </tr>
     </tbody></table>

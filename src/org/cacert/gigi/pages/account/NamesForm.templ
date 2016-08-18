@@ -11,8 +11,8 @@
   <tr>
     <td><?=$name?></td>
     <td><?=$npoints?></td>
-    <td><button class="btn btn-warning" name="deprecateName" value="<?=$id?>" type="submit"<?=$deprecated?>><?=_Deprecate Name?></button></td>
-    <td><button class="btn btn-danger" name="removeName" value="<?=$id?>" type="submit"<?=$preferred?>><?=_Remove Name?></button></td>
+    <td><button class="btn btn-warning btn-confirm" data-confirm="<?=_Do you really want to deprecate this name??>" data-reply="<?=_Cancel?>,<?=_Confirm?>" name="deprecateName" value="<?=$id?>" type="submit"<?=$deprecated?>><?=_Deprecate Name?></button></td>
+    <td><button class="btn btn-danger btn-confirm" data-confirm="<?=_Do you really want to delete this name??>" data-reply="<?=_Cancel?>,<?=_Confirm?>" name="removeName" value="<?=$id?>" type="submit"<?=$preferred?>><?=_Remove Name?></button></td>
     <td><button class="btn btn-primary" name="preferred" value="<?=$id?>" type="submit"<?=$preferred?>><?=_Set as Preferred?></button></td>
   </tr>
   <? } ?>
