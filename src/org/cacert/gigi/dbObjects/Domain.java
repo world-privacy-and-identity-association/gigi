@@ -66,9 +66,12 @@ public class Domain implements IdCachable, Verifyable {
         if (id == 0) {
             throw new GigiApiException("not inserted.");
         }
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `domains` SET `deleted`=CURRENT_TIMESTAMP WHERE `id`=?")) {
-            ps.setInt(1, id);
-            ps.execute();
+        synchronized (Domain.class) {
+            myCache.remove(this);
+            try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `domains` SET `deleted`=CURRENT_TIMESTAMP WHERE `id`=?")) {
+                ps.setInt(1, id);
+                ps.execute();
+            }
         }
     }
 
