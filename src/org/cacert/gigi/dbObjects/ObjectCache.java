@@ -34,6 +34,6 @@ public class ObjectCache<T extends IdCachable> {
     }
 
     public void remove(T toRm) {
-        hashmap.remove(toRm);
+        hashmap.remove(toRm.getId());
     }
 }
