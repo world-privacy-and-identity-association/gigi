@@ -15,6 +15,7 @@ import org.cacert.gigi.output.ArrayIterable;
 import org.cacert.gigi.output.CountrySelector;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.GroupIterator;
+import org.cacert.gigi.output.GroupSelector;
 import org.cacert.gigi.output.NameInput;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Template;
@@ -37,6 +38,8 @@ public class MyDetailsForm extends Form {
     private NameInput ni;
 
     private CountrySelector cs;
+
+    private GroupSelector selectedGroup = new GroupSelector("groupToModify", false);
 
     public MyDetailsForm(HttpServletRequest hsr, User target) {
         super(hsr);
@@ -100,6 +103,18 @@ public class MyDetailsForm extends Form {
                 cs.update(req);
                 target.setResidenceCountry(cs.getCountry());
             }
+
+            if ("addGroup".equals(action) || "removeGroup".equals(action)) {
+                selectedGroup.update(req);
+                Group toMod = selectedGroup.getGroup();
+                if ("addGroup".equals(action)) {
+                    target.grantGroup(target, toMod);
+                } else {
+                    target.revokeGroup(target, toMod);
+                }
+                return true;
+            }
+
         } catch (GigiApiException e) {
             e.format(out, Page.getLanguage(req));
             return false;
@@ -136,12 +151,7 @@ public class MyDetailsForm extends Form {
 
         });
         vars.put("name", ni);
-        final Set<Group> gr = target.getGroups();
         names.output(out, l, vars);
-
-        vars.put("support-groups", new GroupIterator(gr.iterator(), true));
-        vars.put("groups", new GroupIterator(gr.iterator(), false));
-        roles.output(out, l, vars);
 
         vars.put("residenceCountry", cs);
         if (target.getReceivedAssurances().length == 0) {
@@ -152,6 +162,11 @@ public class MyDetailsForm extends Form {
             assured.output(out, l, vars);
         }
 
+        final Set<Group> gr = target.getGroups();
+        vars.put("support-groups", new GroupIterator(gr.iterator(), true));
+        vars.put("groups", new GroupIterator(gr.iterator(), false));
+        vars.put("groupSelector", selectedGroup);
+        roles.output(out, l, vars);
     }
 
 }

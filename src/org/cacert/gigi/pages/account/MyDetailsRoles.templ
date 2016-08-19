@@ -5,5 +5,7 @@
   <? foreach($support-groups) { ?><?=$group_concat?><?=$group?><? } ?>
   <h4><?=_User Managed Permissions?>:</h4>
   <? foreach($groups) { ?><?=$group_concat?><?=$group?><? } ?>
+  <h4><?=_Set User Managed Permissions?>:</h4>
+  <?=$groupSelector?> <button class="btn btn-info" name="action" value="addGroup"><?=_Add Group?></button> <button class="btn btn-info" name="action" value="removeGroup"><?=_Remove Group?></button>
   </div>
 </div>
