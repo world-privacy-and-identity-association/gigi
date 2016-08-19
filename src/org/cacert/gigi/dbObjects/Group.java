@@ -6,24 +6,32 @@ import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.TranslateCommand;
 
 public enum Group {
-    SUPPORTER("supporter", "supporter"), ARBITRATOR("arbitrator", "arbitrator"), //
-    BLOCKEDASSURER("blockedassurer", "may not verify"), BLOCKEDASSUREE("blockedassuree", "may not be verified"), //
-    BLOCKEDLOGIN("blockedlogin", "may not login"), BLOCKEDCERT("blockedcert", "may not issue certificates"), //
-    TTP_ASSURER("ttp-assurer", "may verify via TTP"), TTP_APPLICANT("ttp-applicant", "requests to be verified via ttp"), //
-    CODESIGNING("codesigning", "may issue codesigning certificates"), ORGASSURER("orgassurer", "may verify organisations"), //
-    NUCLEUS_ASSURER("nucleus-assurer", "may enter nucleus verifications"), LOCATE_AGENT("locate-agent", "wants access to the locate agent system");
+    SUPPORTER("supporter", "supporter", true), ARBITRATOR("arbitrator", "arbitrator", true), //
+    BLOCKEDASSURER("blockedassurer", "may not verify", true), BLOCKEDASSUREE("blockedassuree", "may not be verified", true), //
+    BLOCKEDLOGIN("blockedlogin", "may not login", true), BLOCKEDCERT("blockedcert", "may not issue certificates", true), //
+    TTP_ASSURER("ttp-assurer", "may verify via TTP", true), TTP_APPLICANT("ttp-applicant", "requests to be verified via ttp", true), //
+    CODESIGNING("codesigning", "may issue codesigning certificates", true), ORGASSURER("orgassurer", "may verify organisations", true), //
+    NUCLEUS_ASSURER("nucleus-assurer", "may enter nucleus verifications", true), LOCATE_AGENT("locate-agent", "wants access to the locate agent system", false);
 
     private final String dbName;
 
     private final TranslateCommand tc;
 
-    private Group(String name, String display) {
+    private final boolean managedBySupport; // true if flag is handled by
+                                            // support, false if handled by user
+
+    private Group(String name, String display, boolean managedBySupport) {
         dbName = name;
         tc = new TranslateCommand(display);
+        this.managedBySupport = managedBySupport;
     }
 
     public static Group getByString(String name) {
         return valueOf(name.toUpperCase().replace('-', '_'));
+    }
+
+    public boolean isManagedBySupport() {
+        return managedBySupport;
     }
 
     public String getDatabaseName() {

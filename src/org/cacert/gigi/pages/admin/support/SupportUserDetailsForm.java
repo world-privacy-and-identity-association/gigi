@@ -32,7 +32,7 @@ public class SupportUserDetailsForm extends Form {
 
     private DateSelector dobSelector;
 
-    private GroupSelector value = new GroupSelector("groupToModify");
+    private GroupSelector value = new GroupSelector("groupToModify", true);
 
     public SupportUserDetailsForm(HttpServletRequest hsr, SupportedUser user) {
         super(hsr);

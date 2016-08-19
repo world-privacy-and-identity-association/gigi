@@ -13,12 +13,15 @@ import org.cacert.gigi.util.HTMLEncoder;
 
 public class GroupSelector implements Outputable {
 
-    String name;
+    private final String name;
 
-    Group value = null;
+    private Group value = null;
 
-    public GroupSelector(String name) {
+    private final boolean supportFlag;
+
+    public GroupSelector(String name, boolean supportFlag) {
         this.name = HTMLEncoder.encodeHTML(name);
+        this.supportFlag = supportFlag;
     }
 
     public void update(HttpServletRequest r) throws GigiApiException {
@@ -35,11 +38,13 @@ public class GroupSelector implements Outputable {
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         out.println("<select name='" + name + "'>");
         for (Group g : Group.values()) {
-            out.print("<option name='" + g.getDatabaseName());
-            if (g.equals(value)) {
-                out.print(" selected");
+            if (supportFlag == g.isManagedBySupport()) {
+                out.print("<option name='" + g.getDatabaseName());
+                if (g.equals(value)) {
+                    out.print(" selected");
+                }
+                out.println("'>" + g.getDatabaseName() + "</option>");
             }
-            out.println("'>" + g.getDatabaseName() + "</option>");
         }
         out.println("</select>");
     }
