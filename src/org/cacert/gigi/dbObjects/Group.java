@@ -18,7 +18,8 @@ public enum Group implements DBEnum {
     CODESIGNING("codesigning", "may issue codesigning certificates", true, false, false), //
     ORGASSURER("orgassurer", "may verify organisations", true, false, true), //
     NUCLEUS_ASSURER("nucleus-assurer", "may enter nucleus verifications", true, false, true), //
-    LOCATE_AGENT("locate-agent", "wants access to the locate agent system", false, true, false);
+    LOCATE_AGENT("locate-agent", "wants access to the locate agent system", false, true, false), //
+    VERIFY_NOTIFICATION("verify-notification", "wants to receive an email notification for any Verification they enter", false, true, false);
 
     private final String dbName;
 

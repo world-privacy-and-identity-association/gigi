@@ -327,7 +327,7 @@ CREATE TABLE IF NOT EXISTS "arbitrations" (
 DROP TABLE IF EXISTS "user_groups";
 
 DROP TYPE IF EXISTS "userGroup";
-CREATE TYPE "userGroup" AS enum('supporter','arbitrator','blockedassuree','blockedassurer','blockedlogin','ttp-assurer','ttp-applicant', 'codesigning', 'orgassurer', 'blockedcert', 'nucleus-assurer', 'locate-agent');
+CREATE TYPE "userGroup" AS enum('supporter','arbitrator','blockedassuree','blockedassurer','blockedlogin','ttp-assurer','ttp-applicant', 'codesigning', 'orgassurer', 'blockedcert', 'nucleus-assurer', 'locate-agent', 'verify-notification');
 
 CREATE TABLE IF NOT EXISTS "user_groups" (
   "id" serial NOT NULL,
@@ -374,7 +374,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(23);
+INSERT INTO "schemeVersion" (version)  VALUES(24);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (

@@ -59,6 +59,8 @@ public class Notary {
 
     public static final Group ASSUREE_BLOCKED = Group.BLOCKEDASSUREE;
 
+    public static final Group VERIFY_NOTIFICATION = Group.VERIFY_NOTIFICATION;
+
     /**
      * This method assures another user.
      * 
@@ -259,9 +261,14 @@ public class Notary {
             assure(assurer, assuree, toAssure[i], dob, awarded, location, date, type, country);
         }
         sendVerificationNotificationApplicant(assurer, assuree, toAssure, awarded, hadLessThan50Points, hadTotalLessThan100);
+        if (assurer.isInGroup(VERIFY_NOTIFICATION)) {
+            sendVerificationNotificationAgent(assurer, assuree, toAssure, awarded, location, date, country);
+        }
     }
 
     private static final MailTemplate verificationEntered = new MailTemplate(Notary.class.getResource("VerificationEntered.templ"));
+
+    private static final MailTemplate verificationAgentEntered = new MailTemplate(Notary.class.getResource("VerificationAgentEntered.templ"));
 
     private static void sendVerificationNotificationApplicant(User assurer, User assuree, Name[] toAssure, final int awarded, final boolean[] hadLessThan50Points, boolean hadTotalLessThan100) {
         HashMap<String, Object> mailVars = new HashMap<>();
@@ -295,6 +302,29 @@ public class Notary {
         }
         try {
             verificationEntered.sendMail(Language.getInstance(assuree.getPreferredLocale()), mailVars, assuree.getEmail());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void sendVerificationNotificationAgent(User agent, User applicant, Name[] toVerify, final int awarded, String location, String date, Country country) {
+        HashMap<String, Object> mailVars = new HashMap<>();
+        mailVars.put("email", applicant.getEmail());
+        mailVars.put("location", location);
+        mailVars.put("date", date);
+        mailVars.put("country", country.getName());
+        mailVars.put("points", Integer.toString(awarded));
+        mailVars.put("names", new ArrayIterable<Name>(toVerify) {
+
+            @Override
+            public void apply(Name t, Language l, Map<String, Object> vars) {
+                vars.put("name", t.toString());
+            }
+
+        });
+
+        try {
+            verificationAgentEntered.sendMail(Language.getInstance(applicant.getPreferredLocale()), mailVars, agent.getEmail());
         } catch (IOException e) {
             e.printStackTrace();
         }
