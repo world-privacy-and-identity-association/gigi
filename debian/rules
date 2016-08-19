@@ -8,7 +8,7 @@
 	dh $@ 
 
 build:
-	ant pack
+	ant pack pack-testing
 
 override_dh_auto_clean:
 	echo i dont clean
