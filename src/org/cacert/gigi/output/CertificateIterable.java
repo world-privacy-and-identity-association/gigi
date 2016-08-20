@@ -72,11 +72,7 @@ public class CertificateIterable implements IterableDataset {
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
-        if (c.isLoginEnabled()) {
-            vars.put("login", l.getTranslation("No"));
-        } else {
-            vars.put("login", l.getTranslation("Yes"));
-        }
+        vars.put("login", c.isLoginEnabled());
         return true;
     }
 }

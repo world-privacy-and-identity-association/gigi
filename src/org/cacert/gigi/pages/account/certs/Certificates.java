@@ -208,11 +208,7 @@ public class Certificates extends Page implements HandlesMixedRequest {
                         return true;
                     }
                 });
-                if (c.isLoginEnabled()) {
-                    vars.put("login", l.getTranslation("Yes"));
-                } else {
-                    vars.put("login", l.getTranslation("No"));
-                }
+                vars.put("login", c.isLoginEnabled());
             } catch (GeneralSecurityException e) {
                 e.printStackTrace();
             }

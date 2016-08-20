@@ -224,6 +224,8 @@ public class Template implements Outputable {
             ((Outputable) s).output(out, l, vars);
         } else if (s instanceof DayDate) {
             out.print(DateSelector.getDateFormat().format(((DayDate) s).toDate()));
+        } else if (s instanceof Boolean) {
+            out.print(((Boolean) s) ? l.getTranslation("yes") : l.getTranslation("no"));
         } else if (s instanceof Date) {
             SimpleDateFormat sdfUI = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
