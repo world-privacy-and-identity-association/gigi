@@ -52,7 +52,7 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     @Test
     public void testGrantUserGroup() throws MalformedURLException, IOException {
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "grant&groupToModify=supporter", 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "addGroup&groupToModify=supporter", 0);
 
         String message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("The group permission supporter was granted."));
@@ -60,7 +60,7 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     @Test
     public void testRemoveUserGroup() throws MalformedURLException, IOException {
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "deny&groupToModify=supporter", 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "removeGroup&groupToModify=supporter", 0);
 
         String message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("The group permission supporter was revoked."));

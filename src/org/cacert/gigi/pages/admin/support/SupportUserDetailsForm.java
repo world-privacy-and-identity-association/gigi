@@ -44,14 +44,14 @@ public class SupportUserDetailsForm extends Form {
         if (user.getTicket() == null) {
             return false;
         }
-        if ((req.getParameter("detailupdate") != null ? 1 : 0) + (req.getParameter("grant") != null ? 1 : 0) + (req.getParameter("deny") != null ? 1 : 0) + (req.getParameter("resetPass") != null ? 1 : 0) != 1) {
+        if ((req.getParameter("detailupdate") != null ? 1 : 0) + (req.getParameter("addGroup") != null ? 1 : 0) + (req.getParameter("removeGroup") != null ? 1 : 0) + (req.getParameter("resetPass") != null ? 1 : 0) != 1) {
             throw new GigiApiException("More than one action requested!");
         }
-        if (req.getParameter("grant") != null || req.getParameter("deny") != null) {
+        if (req.getParameter("addGroup") != null || req.getParameter("removeGroup") != null) {
             String actionType = "granted";
             value.update(req);
             Group toMod = value.getGroup();
-            if (req.getParameter("grant") != null) {
+            if (req.getParameter("addGroup") != null) {
                 user.grant(toMod);
             } else {
                 actionType = "revoked";
