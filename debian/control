@@ -2,7 +2,7 @@ Source: cacert-gigi
 Section: java
 Priority: optional
 Maintainer: unknown <software@cacert.org>
-Build-Depends: debhelper (>= 8.0.0), openjdk-8-jdk-gigi
+Build-Depends: debhelper (>= 8.0.0), java7-sdk-headless
 Standards-Version: 3.9.4
 Homepage: http://cacert.org
 #Vcs-Git: git://git.debian.org/collab-maint/cacert-gigi.git
@@ -10,20 +10,20 @@ Homepage: http://cacert.org
 
 Package: cacert-gigi
 Architecture: all
-Depends: openjdk-8-jdk-gigi, cacert-gigi-setuid, libpostgresql-jdbc-java, ${shlibs:Depends}, ${misc:Depends}
+Depends: java7-runtime-headless, cacert-gigi-setuid, libpostgresql-jdbc-java, ${shlibs:Depends}, ${misc:Depends}
 Conflicts: cacert-gigi-testing
 Description: CAcert Web-DB software.
  This program is used to manage accounts and certificates.
 
 Package: cacert-gigi-testing
 Architecture: all
-Depends:  openjdk-8-jdk-gigi, cacert-gigi-setuid, libpostgresql-jdbc-java, ${shlibs:Depends}, ${misc:Depends}
+Depends:  java7-runtime-headless, cacert-gigi-setuid, libpostgresql-jdbc-java, ${shlibs:Depends}, ${misc:Depends}
 Conflicts: cacert-gigi
 Description: CAcert Web-DB software testing version.
  This program is the release to the testing server.
 
 Package: cacert-gigi-setuid
 Architecture: any
-Depends: openjdk-8-jdk-gigi, ${shlibs:Depends}, ${misc:Depends}
+Depends: java7-runtime-headless, ${shlibs:Depends}, ${misc:Depends}
 Description: CAcert Web-DB software's setuid native library.
  It is used to drop privilleges after allocating ports.
