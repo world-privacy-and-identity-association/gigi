@@ -3,6 +3,7 @@ package org.cacert.gigi.pages.account;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.Date;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -10,6 +11,7 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Name;
 import org.cacert.gigi.dbObjects.NamePart;
 import org.cacert.gigi.dbObjects.NamePart.NamePartType;
@@ -107,5 +109,33 @@ public class TestMyDetailsEdit extends ManagedTest {
         User user = User.getById(id);
         assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "residenceCountry=invalid&action=updateResidenceCountry", 0));
         assertEquals(null, user.getResidenceCountry());
+    }
+
+    @Test
+    public void testModifyUserGroup() throws IOException {
+        User user = User.getById(id);
+        // test add group
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "action=addGroup&groupToModify=" + URLEncoder.encode(Group.LOCATE_AGENT.getDatabaseName(), "UTF-8"), 0));
+
+        user = User.getById(id);
+        user.refreshGroups();
+        assertTrue(user.isInGroup(Group.LOCATE_AGENT));
+
+        // test remove group
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "action=removeGroup&groupToModify=" + URLEncoder.encode(Group.LOCATE_AGENT.getDatabaseName(), "UTF-8"), 0));
+
+        user = User.getById(id);
+        user.refreshGroups();
+        assertFalse(user.isInGroup(Group.LOCATE_AGENT));
+
+        // test add group that only support can add
+        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "action=addGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDatabaseName(), "UTF-8"), 0));
+
+        user = User.getById(id);
+        user.refreshGroups();
+        assertFalse(user.isInGroup(Group.SUPPORTER));
+
+        // test add invalid group
+        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "action=addGroup&groupToModify=non-existing", 0));
     }
 }
