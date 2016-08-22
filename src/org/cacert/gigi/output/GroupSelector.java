@@ -28,7 +28,7 @@ public class GroupSelector implements Outputable {
         String vS = r.getParameter(name);
         value = null;
         for (Group g : Group.values()) {
-            if (g.getDatabaseName().equals(vS)) {
+            if (g.getDatabaseName().equals(vS) && g.isManagedBySupport() == supportFlag) {
                 value = g;
             }
         }
