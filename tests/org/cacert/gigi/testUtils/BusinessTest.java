@@ -15,8 +15,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.EmailAddress;
+import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.NamePart;
 import org.cacert.gigi.dbObjects.NamePart.NamePartType;
 import org.cacert.gigi.dbObjects.User;
@@ -154,5 +156,22 @@ public abstract class BusinessTest extends ConfiguredTest {
     @Override
     public MailReceiver getMailReceiver() {
         return InVMEmail.getInstance();
+    }
+
+    private User supporter;
+
+    public User getSupporter() throws GigiApiException, IOException {
+        if (supporter != null) {
+            return supporter;
+        }
+        supporter = createVerifiedUser();
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `user_groups` SET `user`=?, `permission`=?::`userGroup`, `grantedby`=?")) {
+            ps.setInt(1, supporter.getId());
+            ps.setString(2, Group.SUPPORTER.getDatabaseName());
+            ps.setInt(3, supporter.getId());
+            ps.execute();
+        }
+        supporter.refreshGroups();
+        return supporter;
     }
 }

@@ -42,7 +42,6 @@ import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Job;
 import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.pages.Manager;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.pages.main.RegisterPage;
 import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
@@ -289,11 +288,9 @@ public class ManagedTest extends ConfiguredTest {
         }
     }
 
-    public static void grant(String email, Group g) throws IOException {
-        HttpURLConnection huc = (HttpURLConnection) new URL("https://" + getServerName() + Manager.PATH).openConnection();
-        huc.setDoOutput(true);
-        huc.getOutputStream().write(("addpriv=y&priv=" + URLEncoder.encode(g.getDatabaseName(), "UTF-8") + "&email=" + URLEncoder.encode(email, "UTF-8")).getBytes("UTF-8"));
-        assertEquals(200, huc.getResponseCode());
+    public static void grant(User u, Group g) throws IOException, GigiApiException {
+        u.grantGroup(getSupporter(), g);
+        clearCaches();
     }
 
     /**
@@ -486,4 +483,21 @@ public class ManagedTest extends ConfiguredTest {
         return openConnection;
     }
 
+    private static User supporter;
+
+    public static User getSupporter() throws GigiApiException, IOException {
+        if (supporter != null) {
+            return supporter;
+        }
+        int i = createVerifiedUser("fn", "ln", createUniqueName() + "@email.com", TEST_PASSWORD);
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `user_groups` SET `user`=?, `permission`=?::`userGroup`, `grantedby`=?")) {
+            ps.setInt(1, i);
+            ps.setString(2, Group.SUPPORTER.getDatabaseName());
+            ps.setInt(3, i);
+            ps.execute();
+        }
+        clearCaches();
+        supporter = User.getById(i);
+        return supporter;
+    }
 }

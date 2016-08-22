@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.admin.TTPAdminPage;
@@ -20,20 +21,20 @@ public class TestTTPAdmin extends ClientTest {
     }
 
     @Test
-    public void testHasRight() throws IOException {
+    public void testHasRight() throws IOException, GigiApiException {
         testTTPAdmin(true);
     }
 
     @Test
-    public void testHasNoRight() throws IOException {
+    public void testHasNoRight() throws IOException, GigiApiException {
         testTTPAdmin(false);
     }
 
-    public void testTTPAdmin(boolean hasRight) throws IOException {
+    public void testTTPAdmin(boolean hasRight) throws IOException, GigiApiException {
         if (hasRight) {
-            grant(email, Group.getByString("ttp-assurer"));
+            grant(u, Group.getByString("ttp-assurer"));
         }
-        grant(u.getEmail(), TTPAdminPage.TTP_APPLICANT);
+        grant(u, TTPAdminPage.TTP_APPLICANT);
         cookie = login(u.getEmail(), TEST_PASSWORD);
 
         assertEquals( !hasRight ? 403 : 200, fetchStatusCode(TTPAdminPage.PATH));

@@ -26,7 +26,7 @@ import org.junit.Test;
 
 public class TestOrgManagement extends OrgTest {
 
-    public TestOrgManagement() throws IOException {
+    public TestOrgManagement() throws IOException, GigiApiException {
 
     }
 

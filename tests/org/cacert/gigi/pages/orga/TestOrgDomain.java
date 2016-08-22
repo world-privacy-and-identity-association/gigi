@@ -13,7 +13,7 @@ import org.junit.Test;
 
 public class TestOrgDomain extends OrgTest {
 
-    public TestOrgDomain() throws IOException {
+    public TestOrgDomain() throws IOException, GigiApiException {
 
     }
 

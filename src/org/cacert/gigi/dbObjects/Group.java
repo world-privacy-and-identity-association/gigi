@@ -6,24 +6,26 @@ import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.TranslateCommand;
 
 public enum Group {
-    SUPPORTER("supporter", "supporter", true, true), //
-    ARBITRATOR("arbitrator", "arbitrator", true, true), //
-    BLOCKEDASSURER("blockedassurer", "may not verify", true, false), //
-    BLOCKEDASSUREE("blockedassuree", "may not be verified", true, false), //
-    BLOCKEDLOGIN("blockedlogin", "may not login", true, false), //
-    BLOCKEDCERT("blockedcert", "may not issue certificates", true, false), //
-    TTP_ASSURER("ttp-assurer", "may verify via TTP", true, true), //
-    TTP_APPLICANT("ttp-applicant", "requests to be verified via ttp", true, false), //
-    CODESIGNING("codesigning", "may issue codesigning certificates", true, false), //
-    ORGASSURER("orgassurer", "may verify organisations", true, true), //
-    NUCLEUS_ASSURER("nucleus-assurer", "may enter nucleus verifications", true, true), //
-    LOCATE_AGENT("locate-agent", "wants access to the locate agent system", false, false);
+    SUPPORTER("supporter", "supporter", true, false, true), //
+    ARBITRATOR("arbitrator", "arbitrator", true, false, true), //
+    BLOCKEDASSURER("blockedassurer", "may not verify", true, false, false), //
+    BLOCKEDASSUREE("blockedassuree", "may not be verified", true, false, false), //
+    BLOCKEDLOGIN("blockedlogin", "may not login", true, false, false), //
+    BLOCKEDCERT("blockedcert", "may not issue certificates", true, false, false), //
+    TTP_ASSURER("ttp-assurer", "may verify via TTP", true, false, true), //
+    TTP_APPLICANT("ttp-applicant", "requests to be verified via ttp", false, true, false), //
+    CODESIGNING("codesigning", "may issue codesigning certificates", true, false, false), //
+    ORGASSURER("orgassurer", "may verify organisations", true, false, true), //
+    NUCLEUS_ASSURER("nucleus-assurer", "may enter nucleus verifications", true, false, true), //
+    LOCATE_AGENT("locate-agent", "wants access to the locate agent system", false, true, false);
 
     private final String dbName;
 
     private final TranslateCommand tc;
 
     private final boolean managedBySupport;
+
+    private final boolean managedByUser;
 
     private final boolean isSelfViewable;
 
@@ -40,9 +42,16 @@ public enum Group {
      * @param isSelfViewable
      *            true iff user should be able to see others in the same group
      */
-    private Group(String name, String display, boolean managedBySupport, boolean isSelfViewable) {
+    private Group(String name, String display, boolean managedBySupport, boolean managedByUser, boolean isSelfViewable) {
         dbName = name;
         tc = new TranslateCommand(display);
+        if (managedByUser && managedBySupport) {
+            throw new IllegalArgumentException("We do not allow groups to be user and support managable.");
+        }
+        if (managedByUser && isSelfViewable) {
+            throw new IllegalArgumentException("We do not allow groups to be self-viewable and managable by user.");
+        }
+        this.managedByUser = managedByUser;
         this.managedBySupport = managedBySupport;
         this.isSelfViewable = isSelfViewable;
     }
@@ -53,6 +62,10 @@ public enum Group {
 
     public boolean isManagedBySupport() {
         return managedBySupport;
+    }
+
+    public boolean isManagedByUser() {
+        return managedByUser;
     }
 
     public boolean isSelfViewable() {

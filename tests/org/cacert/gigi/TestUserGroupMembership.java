@@ -3,6 +3,7 @@ package org.cacert.gigi;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,10 +24,10 @@ public class TestUserGroupMembership extends BusinessTest {
     private final Group supporter = Group.getByString("supporter");
 
     @Test
-    public void testAddObject() throws GigiApiException, SQLException {
+    public void testAddObject() throws GigiApiException, SQLException, IOException {
         User u = User.getById(createVerifiedUser("fname", "lname", createUniqueName() + "@example.org", TEST_PASSWORD));
 
-        User granter = User.getById(createVerifiedUser("grFname", "lname", createUniqueName() + "@example.org", TEST_PASSWORD));
+        User granter = getSupporter();
         assertBehavesEmpty(u);
 
         u.grantGroup(granter, ttpGroup);
@@ -55,10 +56,10 @@ public class TestUserGroupMembership extends BusinessTest {
     }
 
     @Test
-    public void testRemoveObject() throws GigiApiException, SQLException {
+    public void testRemoveObject() throws GigiApiException, SQLException, IOException {
         User u = User.getById(createVerifiedUser("fname", "lname", createUniqueName() + "@example.org", TEST_PASSWORD));
 
-        User granter = User.getById(createVerifiedUser("grFname", "lname", createUniqueName() + "@example.org", TEST_PASSWORD));
+        User granter = getSupporter();
 
         assertBehavesEmpty(u);
         u.grantGroup(granter, ttpGroup);
@@ -99,20 +100,20 @@ public class TestUserGroupMembership extends BusinessTest {
     }
 
     @Test
-    public void testListGroup() throws GigiApiException {
-        Group g = Group.getByString("supporter");
+    public void testListGroup() throws GigiApiException, IOException {
+        Group g = Group.SUPPORTER;
         int start = g.getMembers(0, 10).length;
         User ux = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
         User ux2 = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
         assertEquals(0, g.getMembers(0, 10).length + start);
-        ux.grantGroup(ux, g);
-        assertEquals(1, g.getMembers(0, 10).length + start);
-        ux2.grantGroup(ux, g);
+        ux.grantGroup(getSupporter(), g); // creates a supporter
         assertEquals(2, g.getMembers(0, 10).length + start);
+        ux2.grantGroup(ux, g);
+        assertEquals(3, g.getMembers(0, 10).length + start);
         ux2.revokeGroup(ux, g);
-        assertEquals(1, g.getMembers(0, 10).length + start);
+        assertEquals(2, g.getMembers(0, 10).length + start);
         ux.revokeGroup(ux, g);
-        assertEquals(0, g.getMembers(0, 10).length + start);
+        assertEquals(1, g.getMembers(0, 10).length + start);
 
     }
 

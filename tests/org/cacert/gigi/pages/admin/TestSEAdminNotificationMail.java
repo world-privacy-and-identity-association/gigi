@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.pages.admin.support.SupportEnterTicketPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
@@ -18,8 +19,9 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     private int targetID;
 
-    public TestSEAdminNotificationMail() throws IOException {
-        grant(email, Group.SUPPORTER);
+    public TestSEAdminNotificationMail() throws IOException, GigiApiException {
+        grant(u, Group.SUPPORTER);
+        cookie = login(email, TEST_PASSWORD);
         assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
 
         String email = createUniqueName() + "@example.com";

@@ -32,7 +32,8 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
     private int tid;
 
     public TestSEAdminPageUserDomainSearch() throws IOException, GigiApiException {
-        grant(email, Group.SUPPORTER);
+        grant(u, Group.SUPPORTER);
+        cookie = login(email, TEST_PASSWORD);
         assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
 
         String mail = createUniqueName() + "@example.com";

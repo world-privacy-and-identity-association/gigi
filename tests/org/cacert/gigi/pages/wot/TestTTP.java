@@ -21,7 +21,7 @@ public class TestTTP extends ClientTest {
     public void testTTPApply() throws IOException {
         String ttp = IOUtils.readURL(get(RequestTTPPage.PATH));
         assertThat(ttp, containsString("<form"));
-        executeBasicWebInteraction(cookie, RequestTTPPage.PATH, "country=0");
+        assertNull(executeBasicWebInteraction(cookie, RequestTTPPage.PATH, "country=0"));
 
         ttp = IOUtils.readURL(get(RequestTTPPage.PATH));
         assertThat(ttp, not(containsString("<form")));

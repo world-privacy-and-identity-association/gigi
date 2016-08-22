@@ -39,7 +39,7 @@ public class RestrictedApiTest extends ClientTest {
         initEnvironment();
         try {
             User u = User.getById(createAssuranceUser("f", "l", createUniqueName() + "@email.com", TEST_PASSWORD));
-            grant(u.getEmail(), Group.ORGASSURER);
+            grant(u, Group.ORGASSURER);
             clearCaches();
             u = User.getById(u.getId());
             Organisation o = new Organisation(Organisation.SELF_ORG_NAME, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS), "NA", "NA", "contact@cacert.org", "", "", u);

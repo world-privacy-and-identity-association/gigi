@@ -22,8 +22,9 @@ import org.junit.Test;
 
 public class TestSEAdminPageUserMailSearch extends ClientTest {
 
-    public TestSEAdminPageUserMailSearch() throws IOException {
-        grant(email, Group.SUPPORTER);
+    public TestSEAdminPageUserMailSearch() throws IOException, GigiApiException {
+        grant(u, Group.SUPPORTER);
+        cookie = login(email, TEST_PASSWORD);
         assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
     }
 

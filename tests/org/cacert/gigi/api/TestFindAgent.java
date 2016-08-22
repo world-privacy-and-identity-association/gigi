@@ -33,7 +33,7 @@ public class TestFindAgent extends RestrictedApiTest {
         assertEquals(501, v.getResponseCode());
         assertThat(IOUtils.readURL(new InputStreamReader(v.getErrorStream(), "UTF-8")), containsString(FindAgentAccess.PATH));
 
-        grant(u.getEmail(), Group.LOCATE_AGENT);
+        grant(u, Group.LOCATE_AGENT);
         v = doApi(FindAgent.PATH_RESOLVE, "serial=" + target2.getSerial().toLowerCase());
         assertEquals(u.getId(), Integer.parseInt(IOUtils.readURL(v)));
     }
@@ -58,13 +58,13 @@ public class TestFindAgent extends RestrictedApiTest {
         assertThat(v.getResponseMessage(), containsString("needs to enable access"));
 
         // even if sender enables service
-        grant((userUFirst ? u : us2).getEmail(), Group.LOCATE_AGENT);
+        grant((userUFirst ? u : us2), Group.LOCATE_AGENT);
         v = doApi(FindAgent.PATH_MAIL, "from=" + id + "&to=" + u2 + "&subject=the-subject&body=body");
         assertEquals(v.getResponseMessage(), 501, v.getResponseCode());
         assertThat(v.getResponseMessage(), containsString("needs to enable access"));
 
         // receiver needs to enable access as well
-        grant((userUFirst ? us2 : u).getEmail(), Group.LOCATE_AGENT);
+        grant((userUFirst ? us2 : u), Group.LOCATE_AGENT);
         v = doApi(FindAgent.PATH_MAIL, "from=" + id + "&to=" + u2 + "&subject=the-subject&body=body");
         assertEquals(v.getResponseMessage(), 200, v.getResponseCode());
         TestMail mail = getMailReceiver().receive();
@@ -79,8 +79,8 @@ public class TestFindAgent extends RestrictedApiTest {
 
         String res = IOUtils.readURL(doApi(FindAgent.PATH_INFO, "id=" + id + "&id=" + u2)).replace("\r", "");
         assertEquals(res, "");
-        grant(email, Group.LOCATE_AGENT);
-        grant(User.getById(u2).getEmail(), Group.LOCATE_AGENT);
+        grant(u, Group.LOCATE_AGENT);
+        grant(User.getById(u2), Group.LOCATE_AGENT);
         res = IOUtils.readURL(doApi(FindAgent.PATH_INFO, "id=" + id + "&id=" + u2)).replace("\r", "");
         assertEquals(id + ",true," + u.getPreferredName().toAbbreviatedString() + "\n" + u2 + ",false," + User.getById(u2).getPreferredName().toAbbreviatedString() + "\n", res);
     }

@@ -27,8 +27,9 @@ import org.junit.Test;
 
 public class TestSEAdminPageDetails extends ClientTest {
 
-    public TestSEAdminPageDetails() throws IOException {
-        grant(email, Group.SUPPORTER);
+    public TestSEAdminPageDetails() throws IOException, GigiApiException {
+        grant(u, Group.SUPPORTER);
+        cookie = login(email, TEST_PASSWORD);
         assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
     }
 

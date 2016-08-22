@@ -10,9 +10,9 @@ import org.cacert.gigi.dbObjects.Organisation;
 
 public class OrgTest extends ClientTest {
 
-    public OrgTest() throws IOException {
+    public OrgTest() throws IOException, GigiApiException {
         makeAssurer(u.getId());
-        u.grantGroup(u, Group.ORGASSURER);
+        u.grantGroup(getSupporter(), Group.ORGASSURER);
         clearCaches();
         cookie = login(email, TEST_PASSWORD);
     }

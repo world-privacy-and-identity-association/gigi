@@ -20,11 +20,9 @@ public class TestCertificateRequest extends ClientTest {
 
     AuthorizationContext ac;
 
-    public TestCertificateRequest() throws GeneralSecurityException, IOException {
+    public TestCertificateRequest() throws GeneralSecurityException, IOException, GigiApiException {
         ac = new AuthorizationContext(u, u);
         makeAssurer(u.getId());
-        grant(email, Group.CODESIGNING);
-
     }
 
     @Test
@@ -62,7 +60,7 @@ public class TestCertificateRequest extends ClientTest {
     @Test
     public void testCodesignModifiedName() throws Exception {
         try {
-            u.grantGroup(u, Group.CODESIGNING);
+            u.grantGroup(getSupporter(), Group.CODESIGNING);
             CertificateRequest cr = new CertificateRequest(ac, generatePEMCSR(kp, "CN=a ab"));
             cr.update("name", "SHA512", "code-a", null, null, "email:" + email);
             cr.draft();

@@ -96,6 +96,28 @@ public class Manager extends Page {
         }
     }
 
+    public User getSupporter() {
+        if (supporter != null) {
+            return supporter;
+        }
+        try {
+            User u = createAssurer( -1);
+            if ( !u.isInGroup(Group.SUPPORTER)) {
+                try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `user_groups` SET `user`=?, `permission`=?::`userGroup`, `grantedby`=?")) {
+                    ps.setInt(1, u.getId());
+                    ps.setString(2, Group.SUPPORTER.getDatabaseName());
+                    ps.setInt(3, u.getId());
+                    ps.execute();
+                }
+                u.refreshGroups();
+            }
+            supporter = u;
+        } catch (ReflectiveOperationException | GigiApiException e) {
+            e.printStackTrace();
+        }
+        return supporter;
+    }
+
     public User getAssurer(int i) {
         if (assurers[i] != null) {
             return assurers[i];
@@ -261,6 +283,8 @@ public class Manager extends Page {
 
     User[] assurers = new User[25];
 
+    User supporter;
+
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (req.getParameter("create") != null) {
@@ -273,7 +297,11 @@ public class Manager extends Page {
                 return;
             }
             if (req.getParameter("addpriv") != null) {
-                u.grantGroup(u, Group.getByString(req.getParameter("priv")));
+                try {
+                    u.grantGroup(getSupporter(), Group.getByString(req.getParameter("priv")));
+                } catch (GigiApiException e) {
+                    throw new Error(e);
+                }
                 resp.getWriter().println("Privilege granted");
             } else {
                 u.revokeGroup(u, Group.getByString(req.getParameter("priv")));

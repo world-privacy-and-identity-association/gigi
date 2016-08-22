@@ -85,7 +85,7 @@ public class SupportedUser {
         return target;
     }
 
-    public void grant(Group toMod) {
+    public void grant(Group toMod) throws GigiApiException {
         target.grantGroup(supporter, toMod);
     }
 

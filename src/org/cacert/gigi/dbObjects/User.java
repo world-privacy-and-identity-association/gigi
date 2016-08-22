@@ -45,7 +45,7 @@ public class User extends CertificateOwner {
 
     private Locale locale;
 
-    private final Set<Group> groups = new HashSet<>();
+    private Set<Group> groups = new HashSet<>();
 
     public static final int MINIMUM_AGE = 16;
 
@@ -93,15 +93,21 @@ public class User extends CertificateOwner {
             locale = Language.getLocaleFromString(localeStr);
         }
 
+        refreshGroups();
+    }
+
+    public synchronized void refreshGroups() {
+        HashSet<Group> hs = new HashSet<>();
         try (GigiPreparedStatement psg = new GigiPreparedStatement("SELECT `permission` FROM `user_groups` WHERE `user`=? AND `deleted` is NULL")) {
-            psg.setInt(1, rs.getInt("id"));
+            psg.setInt(1, getId());
 
             try (GigiResultSet rs2 = psg.executeQuery()) {
                 while (rs2.next()) {
-                    groups.add(Group.getByString(rs2.getString(1)));
+                    hs.add(Group.getByString(rs2.getString(1)));
                 }
             }
         }
+        groups = hs;
     }
 
     public User(String email, String password, DayDate dob, Locale locale, Country residenceCountry, NamePart... preferred) throws GigiApiException {
@@ -438,7 +444,10 @@ public class User extends CertificateOwner {
         return Collections.unmodifiableSet(groups);
     }
 
-    public void grantGroup(User granter, Group toGrant) {
+    public void grantGroup(User granter, Group toGrant) throws GigiApiException {
+        if (toGrant.isManagedBySupport() && !granter.isInGroup(Group.SUPPORTER)) {
+            throw new GigiApiException("Group may only be managed by supporter");
+        }
         groups.add(toGrant);
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `user_groups` SET `user`=?, `permission`=?::`userGroup`, `grantedby`=?")) {
             ps.setInt(1, getId());

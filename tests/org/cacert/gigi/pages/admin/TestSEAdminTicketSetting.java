@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.pages.admin.support.FindUserByDomainPage;
 import org.cacert.gigi.pages.admin.support.FindUserByEmailPage;
@@ -15,8 +16,9 @@ import org.junit.Test;
 
 public class TestSEAdminTicketSetting extends ClientTest {
 
-    public TestSEAdminTicketSetting() throws IOException {
-        grant(email, Group.SUPPORTER);
+    public TestSEAdminTicketSetting() throws IOException, GigiApiException {
+        grant(u, Group.SUPPORTER);
+        cookie = login(email, TEST_PASSWORD);
     }
 
     @Test

@@ -17,18 +17,18 @@ public class GroupSelector implements Outputable {
 
     private Group value = null;
 
-    private final boolean supportFlag;
+    private final boolean bySupporter;
 
-    public GroupSelector(String name, boolean supportFlag) {
+    public GroupSelector(String name, boolean bySupporter) {
         this.name = HTMLEncoder.encodeHTML(name);
-        this.supportFlag = supportFlag;
+        this.bySupporter = bySupporter;
     }
 
     public void update(HttpServletRequest r) throws GigiApiException {
         String vS = r.getParameter(name);
         value = null;
         for (Group g : Group.values()) {
-            if (g.getDatabaseName().equals(vS) && g.isManagedBySupport() == supportFlag) {
+            if (g.getDatabaseName().equals(vS) && mayManage(g)) {
                 value = g;
             }
         }
@@ -38,7 +38,7 @@ public class GroupSelector implements Outputable {
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         out.println("<select name='" + name + "'>");
         for (Group g : Group.values()) {
-            if (supportFlag == g.isManagedBySupport()) {
+            if (mayManage(g)) {
                 out.print("<option value='" + g.getDatabaseName());
                 if (g.equals(value)) {
                     out.print(" selected");
@@ -49,6 +49,10 @@ public class GroupSelector implements Outputable {
             }
         }
         out.println("</select>");
+    }
+
+    private boolean mayManage(Group g) {
+        return (bySupporter && g.isManagedBySupport()) || ( !bySupporter && g.isManagedByUser());
     }
 
     public Group getGroup() {
