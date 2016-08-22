@@ -19,10 +19,12 @@ import java.util.regex.Pattern;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.Country;
+import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.MyDetails;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
+import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
 import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.Notary;
 import org.hamcrest.Matcher;
@@ -323,4 +325,52 @@ public class TestAssurance extends ManagedTest {
         executeFails("date=" + validVerificationDateString() + "&location=testcase&countryCode=&certify=1&rules=1&assertion=1&points=10");
     }
 
+    @Test
+    public void testRANotificationSet() throws IOException, GigiApiException {
+        getMailReceiver().clearMails();
+
+        User users[] = User.findByEmail(assurerM);
+        assertTrue("user RA Agent not found", users != null && users.length > 0);
+
+        User u = users[0];
+        u.grantGroup(u, Group.VERIFY_NOTIFICATION);
+        clearCaches();
+        cookie = login(assurerM, TEST_PASSWORD);
+
+        String targetMail = u.getEmail();
+
+        // enter verification
+        String uniqueLoc = createUniqueName();
+        executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
+        TestMail tm;
+
+        do {
+            tm = getMailReceiver().receive();
+        } while ( !tm.getTo().equals(targetMail));
+        assertThat(tm.getMessage(), containsString("You entered a verification for the account with email address " + assureeM));
+
+    }
+
+    @Test
+    public void testRANotificationNotSet() throws IOException, GigiApiException {
+        getMailReceiver().clearMails();
+
+        User users[] = User.findByEmail(assurerM);
+        assertTrue("user RA Agent not found", users != null && users.length > 0);
+
+        User u = users[0];
+        u.revokeGroup(u, Group.VERIFY_NOTIFICATION);
+        clearCaches();
+        cookie = login(assurerM, TEST_PASSWORD);
+
+        // enter verification
+        String uniqueLoc = createUniqueName();
+        executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
+
+        TestMail tm;
+
+        tm = getMailReceiver().receive();
+        assertThat(tm.getMessage(), not(containsString("You entered a verification for the account with email address " + assureeM)));
+
+    }
 }
