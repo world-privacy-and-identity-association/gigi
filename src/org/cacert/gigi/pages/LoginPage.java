@@ -188,7 +188,7 @@ public class LoginPage extends Page {
         return uc;
     }
 
-    private static final Group LOGIN_BLOCKED = Group.getByString("blockedlogin");
+    private static final Group LOGIN_BLOCKED = Group.BLOCKEDLOGIN;
 
     private void loginSession(HttpServletRequest req, User user) {
         if (user.isInGroup(LOGIN_BLOCKED)) {

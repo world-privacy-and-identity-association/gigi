@@ -55,9 +55,9 @@ public class Notary {
         }
     }
 
-    public static final Group ASSURER_BLOCKED = Group.getByString("blockedassurer");
+    public static final Group ASSURER_BLOCKED = Group.BLOCKEDASSURER;
 
-    public static final Group ASSUREE_BLOCKED = Group.getByString("blockedassuree");
+    public static final Group ASSUREE_BLOCKED = Group.BLOCKEDASSUREE;
 
     /**
      * This method assures another user.

@@ -27,7 +27,7 @@ public class TestTTP extends ClientTest {
         assertThat(ttp, not(containsString("<form")));
         ObjectCache.clearAllCaches();
         u = User.getById(u.getId());
-        assertTrue(u.isInGroup(Group.getByString("ttp-applicant")));
+        assertTrue(u.isInGroup(Group.TTP_APPLICANT));
     }
 
     @Test

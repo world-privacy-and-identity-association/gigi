@@ -19,9 +19,9 @@ import org.junit.Test;
 
 public class TestUserGroupMembership extends BusinessTest {
 
-    private final Group ttpGroup = Group.getByString("ttp-assurer");
+    private final Group ttpGroup = Group.TTP_ASSURER;
 
-    private final Group supporter = Group.getByString("supporter");
+    private final Group supporter = Group.SUPPORTER;
 
     @Test
     public void testAddObject() throws GigiApiException, SQLException, IOException {

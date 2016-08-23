@@ -16,7 +16,7 @@ import org.cacert.gigi.pages.LoginPage;
 
 public class RequestTTPForm extends Form {
 
-    public static final Group TTP_APPLICANT = Group.getByString("ttp-applicant");
+    public static final Group TTP_APPLICANT = Group.TTP_APPLICANT;
 
     private static final Template t = new Template(RequestTTPForm.class.getResource("RequestTTPForm.templ"));
 

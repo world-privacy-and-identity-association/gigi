@@ -13,7 +13,7 @@ import org.cacert.gigi.util.AuthorizationContext;
 
 public class CreateOrgPage extends Page {
 
-    public static final Group ORG_ASSURER = Group.getByString("orgassurer");
+    public static final Group ORG_ASSURER = Group.ORGASSURER;
 
     public static final String DEFAULT_PATH = "/orga/new";
 

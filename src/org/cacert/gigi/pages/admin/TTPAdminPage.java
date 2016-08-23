@@ -22,7 +22,7 @@ public class TTPAdminPage extends Page {
 
     public static final String PATH = "/admin/ttp";
 
-    public static final Group TTP_APPLICANT = Group.getByString("ttp-applicant");
+    public static final Group TTP_APPLICANT = Group.TTP_APPLICANT;
 
     public TTPAdminPage() {
         super("TTP-Admin");
@@ -85,6 +85,6 @@ public class TTPAdminPage extends Page {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && ac.isInGroup(Group.getByString("ttp-assurer"));
+        return ac != null && ac.isInGroup(Group.TTP_ASSURER);
     }
 }
