@@ -10,6 +10,7 @@ import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.MailTemplate;
 import org.cacert.gigi.output.template.Outputable;
+import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.ServerConstants;
 
@@ -53,6 +54,14 @@ public class SupportedUser {
         if (cert.getStatus() == CertificateStatus.ISSUED) {
             writeSELog("SE Revoke certificate");
             cert.revoke().waitFor(60000);
+            // send notification to support
+            String subject = "Revoke certificate";
+            Outputable message = SprintfCommand.createSimple("Certificate with serial number {0} for {1} <{2}>, has been revoked.", cert.getSerial(), target.getPreferredName().toString(), target.getEmail());
+            sendSupportNotification(subject, message);
+            // send notification to user
+            subject = "Revoke certificate";
+            message = SprintfCommand.createSimple("Certificate with serial number {0} with subject distinguished name {1} has been revoked.", cert.getSerial(), cert.getDistinguishedName());
+            sendSupportUserNotification(subject, message);
         }
     }
 
@@ -105,6 +114,21 @@ public class SupportedUser {
 
             String supportemailaddress = ServerConstants.getSupportMailAddress();
             supportNotification.sendMail(Language.getInstance(Locale.ENGLISH), vars, supportemailaddress);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static final MailTemplate supportUserNotification = new MailTemplate(SupportedUser.class.getResource("SupportUserNotificationMail.templ"));
+
+    public void sendSupportUserNotification(String subject, Outputable message) {
+        try {
+            HashMap<String, Object> vars = new HashMap<>();
+            vars.put("action", message);
+            vars.put("ticket", this.getTicket());
+            vars.put("subject", subject);
+
+            supportUserNotification.sendMail(Language.getInstance(Locale.ENGLISH), vars, target.getEmail());
         } catch (IOException e) {
             e.printStackTrace();
         }

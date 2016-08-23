@@ -13,12 +13,13 @@ import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.SupportedUser;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Outputable;
+import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.output.template.Template;
-import org.cacert.gigi.output.template.TranslateCommand;
 
 public class SupportRevokeCertificatesForm extends Form {
 
@@ -35,9 +36,15 @@ public class SupportRevokeCertificatesForm extends Form {
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
         if (user.getTicket() != null) {
             user.revokeAllCertificates();
+            User target = user.getTargetUser();
+            // send notification to support
             String subject = "Revoke certificates";
-            Outputable message = new TranslateCommand("All certificates in the account have been revoked.");
+            Outputable message = SprintfCommand.createSimple("All certificates in the account {0} <{1}> have been revoked.", target.getPreferredName().toString(), target.getEmail());
             user.sendSupportNotification(subject, message);
+            // send notification to user
+            subject = "Revoke certificate";
+            message = SprintfCommand.createSimple("All certificates in your account have been revoked.");
+            user.sendSupportUserNotification(subject, message);
             return true;
         }
         return false;

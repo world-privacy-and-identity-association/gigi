@@ -48,18 +48,23 @@ public class SupportUserDetailsForm extends Form {
             throw new GigiApiException("More than one action requested!");
         }
         if (req.getParameter("addGroup") != null || req.getParameter("removeGroup") != null) {
-            String actionType = "granted";
             value.update(req);
             Group toMod = value.getGroup();
+            boolean grant;
             if (req.getParameter("addGroup") != null) {
+                grant = true;
                 user.grant(toMod);
             } else {
-                actionType = "revoked";
+                grant = false;
                 user.revoke(toMod);
             }
             String subject = "Change Group Permissions";
-            Outputable message = SprintfCommand.createSimple("The group permission {0} was {1}.", toMod.getDatabaseName(), actionType);
+            // send notification to support
+            Outputable message = SprintfCommand.createSimple(grant ? "The group permission '{0}' was granted." : "The group permission '{0}' was revoked.", toMod.getName());
             user.sendSupportNotification(subject, message);
+            // send notification to user
+            message = SprintfCommand.createSimple(grant ? "The group permission '{0}' was granted to your account." : "The group permission '{0}' was revoked from your account.", toMod.getName());
+            user.sendSupportUserNotification(subject, message);
             return true;
         }
         if (req.getParameter("resetPass") != null) {
@@ -81,9 +86,13 @@ public class SupportUserDetailsForm extends Form {
         }
         user.setDob(dobSelector.getDate());
 
-        String subject = "Change Account Data";
-        Outputable message = new TranslateCommand("The account data was changed.");
+        String subject = "Change DoB Data";
+        // send notification to support
+        Outputable message = new TranslateCommand("The DoB was changed.");
         user.sendSupportNotification(subject, message);
+        // send notification to user
+        message = SprintfCommand.createSimple("The DoB in your account was changed to {0}.", dobSelector.getDate());
+        user.sendSupportUserNotification(subject, message);
         return true;
     }
 

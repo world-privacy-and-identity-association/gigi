@@ -4,10 +4,17 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Locale;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Group;
+import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.pages.admin.support.SupportEnterTicketPage;
 import org.cacert.gigi.pages.admin.support.SupportUserDetailsPage;
 import org.cacert.gigi.testUtils.ClientTest;
@@ -35,10 +42,13 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
         executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "dobd=1&dobm=2&doby=2000&detailupdate", 0);
 
+        // mail to support
         String message = getMailReceiver().receive().getMessage();
-        assertThat(message, containsString("The account data was changed."));
+        assertThat(message, containsString("The DoB was changed"));
         assertThat(message, containsString("supporter " + u.getPreferredName().toString() + " triggered:"));
-
+        // mail to user
+        message = getMailReceiver().receive().getMessage();
+        assertThat(message, containsString("The DoB in your account was changed to 2000-02-01."));
     }
 
     @Test
@@ -54,26 +64,46 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     @Test
     public void testGrantUserGroup() throws MalformedURLException, IOException {
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "addGroup&groupToModify=supporter", 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "addGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDatabaseName(), "UTF-8"), 0);
 
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        Group.SUPPORTER.getName().output(pw, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
+
+        // mail to support
         String message = getMailReceiver().receive().getMessage();
-        assertThat(message, containsString("The group permission supporter was granted."));
+        assertThat(message, containsString("The group permission '" + sw.toString() + "' was granted."));
+        // mail to user
+        message = getMailReceiver().receive().getMessage();
+        assertThat(message, containsString("The group permission '" + sw.toString() + "' was granted to your account."));
     }
 
     @Test
     public void testRemoveUserGroup() throws MalformedURLException, IOException {
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "removeGroup&groupToModify=supporter", 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "removeGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDatabaseName(), "UTF-8"), 0);
 
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        Group.SUPPORTER.getName().output(pw, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
+
+        // mail to support
         String message = getMailReceiver().receive().getMessage();
-        assertThat(message, containsString("The group permission supporter was revoked."));
+        assertThat(message, containsString("The group permission '" + sw.toString() + "' was revoked."));
+        // mail to user
+        message = getMailReceiver().receive().getMessage();
+        assertThat(message, containsString("The group permission '" + sw.toString() + "' was revoked from your account."));
     }
 
     @Test
-    public void testRevokeCertificates() throws MalformedURLException, IOException {
+    public void testRevokeAllCertificates() throws MalformedURLException, IOException {
         executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "revokeall", 1);
+        User user = User.getById(targetID);
 
+        // mail to support
         String message = getMailReceiver().receive().getMessage();
-        assertThat(message, containsString("All certificates in the account have been revoked."));
-
+        assertThat(message, containsString("All certificates in the account " + user.getPreferredName().toString()));
+        // mail to user
+        message = getMailReceiver().receive().getMessage();
+        assertThat(message, containsString("All certificates in your account have been revoked."));
     }
 }
