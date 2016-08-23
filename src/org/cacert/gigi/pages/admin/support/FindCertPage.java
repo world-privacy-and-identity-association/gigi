@@ -39,7 +39,7 @@ public class FindCertPage extends Page {
         if (form.submitProtected(resp.getWriter(), req)) {
             final Certificate[] certs = form.getCerts();
             if (certs.length == 1) {
-                resp.sendRedirect(Certificates.SUPPORT_PATH + certs[0].getSerial() + "/");
+                resp.sendRedirect(Certificates.SUPPORT_PATH + "/" + certs[0].getSerial());
             } else {
                 HashMap<String, Object> vars = new HashMap<String, Object>();
                 Language l = LoginPage.getLanguage(req);
