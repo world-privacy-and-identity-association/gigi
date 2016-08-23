@@ -26,13 +26,12 @@ public class GroupSelector implements Outputable {
 
     public void update(HttpServletRequest r) throws GigiApiException {
         String vS = r.getParameter(name);
-        value = null;
-        for (Group g : Group.values()) {
-            if (g.getDatabaseName().equals(vS) && mayManage(g)) {
-                value = g;
-            }
+        if (vS == null) {
+            throw new GigiApiException("No value for group.");
         }
-        if (value == null) {
+        try {
+            value = Group.getByString(vS);
+        } catch (IllegalArgumentException e) {
             throw new GigiApiException("Invalid value for group.");
         }
     }
