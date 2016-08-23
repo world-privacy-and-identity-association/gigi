@@ -32,6 +32,9 @@ public class GroupSelector implements Outputable {
                 value = g;
             }
         }
+        if (value == null) {
+            throw new GigiApiException("Invalid value for group.");
+        }
     }
 
     @Override
