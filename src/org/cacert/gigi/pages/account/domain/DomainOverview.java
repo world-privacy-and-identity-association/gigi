@@ -35,7 +35,7 @@ public class DomainOverview extends Page {
                 resp.getWriter().println(getLanguage(req).getTranslation("Access denied"));
                 return;
             }
-            if (u.getId() != d.getOwner().getId()) {
+            if (d == null || u.getId() != d.getOwner().getId()) {
                 resp.getWriter().println(getLanguage(req).getTranslation("Access denied"));
                 return;
             }
