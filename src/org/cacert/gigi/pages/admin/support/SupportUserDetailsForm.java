@@ -17,11 +17,7 @@ import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.output.GroupIterator;
 import org.cacert.gigi.output.GroupSelector;
 import org.cacert.gigi.output.template.Form;
-import org.cacert.gigi.output.template.Outputable;
-import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.output.template.Template;
-import org.cacert.gigi.output.template.TranslateCommand;
-import org.cacert.gigi.pages.PasswordResetPage;
 
 public class SupportUserDetailsForm extends Form {
 
@@ -50,21 +46,11 @@ public class SupportUserDetailsForm extends Form {
         if (req.getParameter("addGroup") != null || req.getParameter("removeGroup") != null) {
             value.update(req);
             Group toMod = value.getGroup();
-            boolean grant;
             if (req.getParameter("addGroup") != null) {
-                grant = true;
                 user.grant(toMod);
             } else {
-                grant = false;
                 user.revoke(toMod);
             }
-            String subject = "Change Group Permissions";
-            // send notification to support
-            Outputable message = SprintfCommand.createSimple(grant ? "The group permission '{0}' was granted." : "The group permission '{0}' was revoked.", toMod.getName());
-            user.sendSupportNotification(subject, message);
-            // send notification to user
-            message = SprintfCommand.createSimple(grant ? "The group permission '{0}' was granted to your account." : "The group permission '{0}' was revoked from your account.", toMod.getName());
-            user.sendSupportUserNotification(subject, message);
             return true;
         }
         if (req.getParameter("resetPass") != null) {
@@ -72,12 +58,7 @@ public class SupportUserDetailsForm extends Form {
             if (aword == null || aword.equals("")) {
                 throw new GigiApiException("An A-Word is required to perform a password reset.");
             }
-            Language l = Language.getInstance(user.getTargetUser().getPreferredLocale());
-            String method = l.getTranslation("A password reset was triggered. Please enter the required text sent to you by support on this page:");
-            String subject = l.getTranslation("Password reset by support.");
-            PasswordResetPage.initPasswordResetProcess(out, user.getTargetUser(), req, aword, l, method, subject);
-            Outputable message = new TranslateCommand("A password reset was triggered and an email was sent to user.");
-            user.sendSupportNotification(subject, message);
+            user.triggerPasswordReset(aword, out, req);
             return true;
         }
         dobSelector.update(req);
@@ -85,14 +66,6 @@ public class SupportUserDetailsForm extends Form {
             throw new GigiApiException("Invalid date of birth!");
         }
         user.setDob(dobSelector.getDate());
-
-        String subject = "Change DoB Data";
-        // send notification to support
-        Outputable message = new TranslateCommand("The DoB was changed.");
-        user.sendSupportNotification(subject, message);
-        // send notification to user
-        message = SprintfCommand.createSimple("The DoB in your account was changed to {0}.", dobSelector.getDate());
-        user.sendSupportUserNotification(subject, message);
         return true;
     }
 
