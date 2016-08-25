@@ -18,7 +18,7 @@ public class HTTPFetch extends DomainPinger {
             URL u = new URL("http://" + domain.getSuffix() + "/cacert-" + tokenParts[0] + ".txt");
             HttpURLConnection huc = (HttpURLConnection) u.openConnection();
             if (huc.getResponseCode() != 200) {
-                enterPingResult(confId, "error", "Invaild status code " + huc.getResponseCode() + ".", null);
+                enterPingResult(confId, "error", "Invalid status code " + huc.getResponseCode() + ".", null);
                 return;
             }
             BufferedReader br = new BufferedReader(new InputStreamReader(huc.getInputStream(), "UTF-8"));
@@ -31,7 +31,7 @@ public class HTTPFetch extends DomainPinger {
                 enterPingResult(confId, PING_SUCCEDED, "", null);
                 return;
             }
-            enterPingResult(confId, "error", "Challange tokens differed.", null);
+            enterPingResult(confId, "error", "Challenge tokens differed.", null);
             return;
         } catch (IOException e) {
             e.printStackTrace();
