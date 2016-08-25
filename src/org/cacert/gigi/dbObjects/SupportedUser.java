@@ -73,7 +73,7 @@ public class SupportedUser {
             cert.revoke().waitFor(60000);
             // send notification to support
             String subject = "Revoke certificate";
-            Outputable message = SprintfCommand.createSimple("Certificate with serial number {0} for {1} <{2}>, has been revoked.", cert.getSerial(), target.getPreferredName().toString(), target.getEmail());
+            Outputable message = SprintfCommand.createSimple("Certificate with serial number {0} for {1} <{2}> has been revoked.", cert.getSerial(), target.getPreferredName().toString(), target.getEmail());
             sendSupportNotification(subject, message);
             // send notification to user
             subject = "Revoke certificate";
