@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -327,7 +328,8 @@ public class SimpleSigner {
                     PKCS10 p10 = new PKCS10(PEM.decode("(NEW )?CERTIFICATE REQUEST", new String(data, "UTF-8")));
                     pk = p10.getSubjectPublicKeyInfo();
                 }
-                String ca = caP.getProperty("ca") + "_2015_1";
+                Calendar cal = GregorianCalendar.getInstance();
+                String ca = caP.getProperty("ca") + "_" + cal.get(Calendar.YEAR) + (cal.get(Calendar.MONTH) >= 6 ? "_2" : "_1");
                 File parent = new File("signer/ca");
                 File[] caFiles = parent.listFiles();
                 if (null == caFiles) {
