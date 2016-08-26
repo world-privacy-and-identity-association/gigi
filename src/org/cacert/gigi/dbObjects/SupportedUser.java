@@ -127,7 +127,7 @@ public class SupportedUser {
         }
     }
 
-    public void revoke(Group toMod) {
+    public void revoke(Group toMod) throws GigiApiException {
         target.revokeGroup(supporter, toMod);
         String subject = "Change Group Permissions";
         // send notification to support

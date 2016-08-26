@@ -18,6 +18,7 @@ import org.cacert.gigi.output.GroupIterator;
 import org.cacert.gigi.output.GroupSelector;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.pages.LoginPage;
 
 public class SupportUserDetailsForm extends Form {
 
@@ -39,6 +40,9 @@ public class SupportUserDetailsForm extends Form {
     public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
         if (user.getTicket() == null) {
             return false;
+        }
+        if (user.getTargetUser() == LoginPage.getUser(req)) {
+            throw new GigiApiException("Supporter may not modify himself.");
         }
         if ((req.getParameter("detailupdate") != null ? 1 : 0) + (req.getParameter("addGroup") != null ? 1 : 0) + (req.getParameter("removeGroup") != null ? 1 : 0) + (req.getParameter("resetPass") != null ? 1 : 0) != 1) {
             throw new GigiApiException("More than one action requested!");

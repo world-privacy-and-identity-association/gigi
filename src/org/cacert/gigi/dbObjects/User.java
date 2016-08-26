@@ -448,6 +448,9 @@ public class User extends CertificateOwner {
         if (toGrant.isManagedBySupport() && !granter.isInGroup(Group.SUPPORTER)) {
             throw new GigiApiException("Group may only be managed by supporter");
         }
+        if (toGrant.isManagedBySupport() && granter == this) {
+            throw new GigiApiException("Group may only be managed by supporter that is not oneself");
+        }
         groups.add(toGrant);
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `user_groups` SET `user`=?, `permission`=?::`userGroup`, `grantedby`=?")) {
             ps.setInt(1, getId());
@@ -457,7 +460,10 @@ public class User extends CertificateOwner {
         }
     }
 
-    public void revokeGroup(User revoker, Group toRevoke) {
+    public void revokeGroup(User revoker, Group toRevoke) throws GigiApiException {
+        if (toRevoke.isManagedBySupport() && !revoker.isInGroup(Group.SUPPORTER)) {
+            throw new GigiApiException("Group may only be managed by supporter");
+        }
         groups.remove(toRevoke);
         try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `user_groups` SET `deleted`=CURRENT_TIMESTAMP, `revokedby`=? WHERE `deleted` IS NULL AND `permission`=?::`userGroup` AND `user`=?")) {
             ps.setInt(1, revoker.getId());

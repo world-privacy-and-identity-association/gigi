@@ -296,16 +296,16 @@ public class Manager extends Page {
                 resp.getWriter().println("User not found.");
                 return;
             }
-            if (req.getParameter("addpriv") != null) {
-                try {
+            try {
+                if (req.getParameter("addpriv") != null) {
                     u.grantGroup(getSupporter(), Group.getByString(req.getParameter("priv")));
-                } catch (GigiApiException e) {
-                    throw new Error(e);
+                    resp.getWriter().println("Privilege granted");
+                } else {
+                    u.revokeGroup(getSupporter(), Group.getByString(req.getParameter("priv")));
+                    resp.getWriter().println("Privilege revoked");
                 }
-                resp.getWriter().println("Privilege granted");
-            } else {
-                u.revokeGroup(u, Group.getByString(req.getParameter("priv")));
-                resp.getWriter().println("Privilege revoked");
+            } catch (GigiApiException e) {
+                throw new Error(e);
             }
         } else if (req.getParameter("fetch") != null) {
             String mail = req.getParameter("femail");
