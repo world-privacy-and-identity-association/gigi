@@ -53,7 +53,7 @@ public class TestCAAValidation extends ClientTest {
     public Boolean success;
 
     @Test
-    public void testCAA() {
+    public void testCAA() throws GigiApiException {
         assertEquals(success, CAA.verifyDomainAccess(u, CertificateProfile.getByName("server"), domain));
     }
 

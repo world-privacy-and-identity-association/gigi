@@ -336,17 +336,18 @@ public class CertificateRequest {
                     try {
                         DomainAssessment.checkCertifiableDomain(san.getName(), user.isInGroup(Group.CODESIGNING), false);
                         valid = true;
-                    } catch (GigiApiException e) {
-                        valid = false;
-                    }
-                    if ( !valid || !CAA.verifyDomainAccess(owner, p, san.getName()) || (pDNS != null && !domainTemp.isMultiple())) {
-                        // remove
-                    } else {
-                        if (pDNS == null) {
-                            pDNS = san.getName();
+                        if ( !valid || !CAA.verifyDomainAccess(owner, p, san.getName()) || (pDNS != null && !domainTemp.isMultiple())) {
+                            // remove
+                        } else {
+                            if (pDNS == null) {
+                                pDNS = san.getName();
+                            }
+                            filteredSANs.add(san);
+                            continue;
                         }
-                        filteredSANs.add(san);
-                        continue;
+                    } catch (GigiApiException e) {
+                        error.mergeInto(e);
+                        valid = false;
                     }
                 }
             } else if (san.getType() == SANType.EMAIL) {

@@ -2,8 +2,10 @@ package org.cacert.gigi.util;
 
 import javax.naming.NamingException;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.output.template.SprintfCommand;
 
 public class CAA {
 
@@ -44,14 +46,14 @@ public class CAA {
         }
     }
 
-    public static boolean verifyDomainAccess(CertificateOwner owner, CertificateProfile p, String name) {
+    public static boolean verifyDomainAccess(CertificateOwner owner, CertificateProfile p, String name) throws GigiApiException {
         try {
             if (name.startsWith("*.")) {
                 return verifyDomainAccess(owner, p, name.substring(2), true);
             }
             return verifyDomainAccess(owner, p, name, false);
         } catch (NamingException e) {
-            return false;
+            throw new GigiApiException(SprintfCommand.createSimple("Internal Name Server/Resolution Error: {0}", e.getMessage()));
         }
     }
 
@@ -84,10 +86,14 @@ public class CAA {
 
     private static CAARecord[] getEffectiveCAARecords(String name) throws NamingException {
         CAARecord[] caa = DNSUtil.getCAAEntries(name);
+        String publicSuffix = PublicSuffixes.getInstance().getRegistrablePart(name);
         // TODO missing alias processing
         while (caa.length == 0 && name.contains(".")) {
             name = name.split("\\.", 2)[1];
             caa = DNSUtil.getCAAEntries(name);
+            if (name.equals(publicSuffix)) {
+                return caa;
+            }
         }
         return caa;
     }
