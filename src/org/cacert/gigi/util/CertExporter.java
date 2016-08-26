@@ -30,9 +30,11 @@ public class CertExporter {
 
     private CertExporter() {}
 
-    public static void writeCertCrt(Certificate c, ServletOutputStream out, boolean doChain, boolean includeAnchor) throws IOException, GeneralSecurityException {
+    public static void writeCertCrt(Certificate c, ServletOutputStream out, boolean doChain, boolean includeAnchor, boolean includeLeaf) throws IOException, GeneralSecurityException {
         X509Certificate cert = c.cert();
-        out.println(PEM.encode("CERTIFICATE", cert.getEncoded()));
+        if (includeLeaf) {
+            out.println(PEM.encode("CERTIFICATE", cert.getEncoded()));
+        }
         if (doChain) {
             CACertificate ca = c.getParent();
             while ( !ca.isSelfsigned()) {

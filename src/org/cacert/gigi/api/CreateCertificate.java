@@ -71,7 +71,7 @@ public class CreateCertificate extends APIPoint {
                 return;
             }
 
-            CertExporter.writeCertCrt(result, resp.getOutputStream(), req.getParameter("chain") != null, req.getParameter("noAnchor") == null);
+            CertExporter.writeCertCrt(result, resp.getOutputStream(), req.getParameter("chain") != null, req.getParameter("noAnchor") == null, true);
             return;
         } catch (GeneralSecurityException e) {
             resp.sendError(500, "Crypto failed");

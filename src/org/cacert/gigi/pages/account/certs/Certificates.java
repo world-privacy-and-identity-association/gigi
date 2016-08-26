@@ -81,8 +81,9 @@ public class Certificates extends Page implements HandlesMixedRequest {
             ServletOutputStream out = resp.getOutputStream();
             boolean doChain = req.getParameter("chain") != null;
             boolean includeAnchor = req.getParameter("noAnchor") == null;
+            boolean includeLeaf = req.getParameter("noLeaf") == null;
             if (crt) {
-                CertExporter.writeCertCrt(c, out, doChain, includeAnchor);
+                CertExporter.writeCertCrt(c, out, doChain, includeAnchor, includeLeaf);
             } else if (cer) {
                 CertExporter.writeCertCer(c, out, doChain, includeAnchor);
             }
