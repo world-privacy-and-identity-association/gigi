@@ -94,4 +94,8 @@ public class ServerConstants {
         return "support@" + ServerConstants.getWwwHostName().replaceFirst("^www\\.", "");
     }
 
+    public static String getBoardMailAddress() {
+        return "board@" + ServerConstants.getWwwHostName().replaceFirst("^www\\.", "");
+    }
+
 }

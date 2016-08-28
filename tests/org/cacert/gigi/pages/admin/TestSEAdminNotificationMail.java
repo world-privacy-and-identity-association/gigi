@@ -64,11 +64,11 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     @Test
     public void testGrantUserGroup() throws MalformedURLException, IOException {
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "addGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDatabaseName(), "UTF-8"), 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "addGroup&groupToModify=" + URLEncoder.encode(Group.CODESIGNING.getDatabaseName(), "UTF-8"), 0);
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
-        Group.SUPPORTER.getName().output(pw, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
+        Group.CODESIGNING.getName().output(pw, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
 
         // mail to support
         String message = getMailReceiver().receive().getMessage();
@@ -80,11 +80,11 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     @Test
     public void testRemoveUserGroup() throws MalformedURLException, IOException {
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "removeGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDatabaseName(), "UTF-8"), 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "removeGroup&groupToModify=" + URLEncoder.encode(Group.CODESIGNING.getDatabaseName(), "UTF-8"), 0);
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
-        Group.SUPPORTER.getName().output(pw, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
+        Group.CODESIGNING.getName().output(pw, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
 
         // mail to support
         String message = getMailReceiver().receive().getMessage();
@@ -92,6 +92,46 @@ public class TestSEAdminNotificationMail extends ClientTest {
         // mail to user
         message = getMailReceiver().receive().getMessage();
         assertThat(message, containsString("The group permission '" + sw.toString() + "' was revoked from your account."));
+    }
+
+    @Test
+    public void testGrantSupporterGroup() throws MalformedURLException, IOException {
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "addGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDatabaseName(), "UTF-8"), 0);
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        Group.SUPPORTER.getName().output(pw, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
+        User target = User.getById(targetID);
+
+        // mail to support
+        String message = getMailReceiver().receive().getMessage();
+        assertThat(message, containsString("The group permission '" + sw.toString() + "' was granted."));
+        // mail to user
+        message = getMailReceiver().receive().getMessage();
+        assertThat(message, containsString("The group permission '" + sw.toString() + "' was granted to your account."));
+        // mail to board
+        message = getMailReceiver().receive().getMessage();
+        assertThat(message, containsString("The group permission '" + sw.toString() + "' was granted for '" + target.getPreferredName().toString() + "'."));
+    }
+
+    @Test
+    public void testRemoveSupporterGroup() throws MalformedURLException, IOException {
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "removeGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDatabaseName(), "UTF-8"), 0);
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        Group.SUPPORTER.getName().output(pw, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
+        User target = User.getById(targetID);
+
+        // mail to support
+        String message = getMailReceiver().receive().getMessage();
+        assertThat(message, containsString("The group permission '" + sw.toString() + "' was revoked."));
+        // mail to user
+        message = getMailReceiver().receive().getMessage();
+        assertThat(message, containsString("The group permission '" + sw.toString() + "' was revoked from your account."));
+        // mail to board
+        message = getMailReceiver().receive().getMessage();
+        assertThat(message, containsString("The group permission '" + sw.toString() + "' was revoked for '" + target.getPreferredName().toString() + "'."));
     }
 
     @Test

@@ -120,6 +120,11 @@ public class SupportedUser {
         // send notification to user
         message = SprintfCommand.createSimple("The group permission '{0}' was granted to your account.", toMod.getName());
         sendSupportUserNotification(subject, message);
+        if (toMod == Group.SUPPORTER) {
+            subject = "Support role granted";
+            message = SprintfCommand.createSimple("The group permission '{0}' was granted for '{1}'.", toMod.getName(), target.getPreferredName().toString());
+            sendBoardNotification(subject, message);
+        }
     }
 
     public void revoke(Group toMod) {
@@ -131,6 +136,11 @@ public class SupportedUser {
         // send notification to user
         message = SprintfCommand.createSimple("The group permission '{0}' was revoked from your account.", toMod.getName());
         sendSupportUserNotification(subject, message);
+        if (toMod == Group.SUPPORTER) {
+            subject = "Support role revoked";
+            message = SprintfCommand.createSimple("The group permission '{0}' was revoked for '{1}'.", toMod.getName(), target.getPreferredName().toString());
+            sendBoardNotification(subject, message);
+        }
     }
 
     private static final MailTemplate supportNotification = new MailTemplate(SupportedUser.class.getResource("SupportNotificationMail.templ"));
@@ -172,5 +182,20 @@ public class SupportedUser {
         PasswordResetPage.initPasswordResetProcess(out, target, req, aword, l, method, subject);
         Outputable message = new TranslateCommand("A password reset was triggered and an email was sent to user.");
         sendSupportNotification(subject, message);
+    }
+
+    private void sendBoardNotification(String subject, Outputable message) {
+        try {
+            HashMap<String, Object> vars = new HashMap<>();
+            vars.put("supporter", supporter.getPreferredName().toString());
+            vars.put("action", message);
+            vars.put("ticket", this.getTicket());
+            vars.put("subject", subject);
+
+            String boardemailaddress = ServerConstants.getBoardMailAddress();
+            supportNotification.sendMail(Language.getInstance(Locale.ENGLISH), vars, boardemailaddress);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
