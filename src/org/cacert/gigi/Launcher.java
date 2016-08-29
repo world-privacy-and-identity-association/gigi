@@ -112,6 +112,10 @@ public class Launcher {
 
     GigiConfig conf;
 
+    private boolean isSystemPort(int port) {
+        return 1 <= port && port <= 1024;
+    }
+
     public synchronized void boot(InputStream in) throws Exception {
         Locale.setDefault(Locale.ENGLISH);
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
@@ -127,7 +131,7 @@ public class Launcher {
         initHandlers();
 
         s.start();
-        if ((ServerConstants.getSecurePort() <= 1024 || ServerConstants.getPort() <= 1024) && !System.getProperty("os.name").toLowerCase().contains("win")) {
+        if ((isSystemPort(ServerConstants.getSecurePort()) || isSystemPort(ServerConstants.getPort())) && !System.getProperty("os.name").toLowerCase().contains("win")) {
             SetUID uid = new SetUID();
             if ( !uid.setUid(65536 - 2, 65536 - 2).getSuccess()) {
                 Log.getLogger(Launcher.class).warn("Couldn't set uid!");
@@ -177,16 +181,19 @@ public class Launcher {
 
         protected static ServerConnector createConnector(GigiConfig conf, Server s, HttpConfiguration httpConfig, boolean doHttps) throws GeneralSecurityException, IOException {
             ServerConnector connector;
+            int port;
             if (doHttps) {
                 connector = new ServerConnector(s, createConnectionFactory(conf), new HttpConnectionFactory(httpConfig));
+                port = ServerConstants.getSecurePort();
             } else {
                 connector = new ServerConnector(s, new HttpConnectionFactory(httpConfig));
+                port = ServerConstants.getPort();
             }
-            connector.setHost(conf.getMainProps().getProperty("host"));
-            if (doHttps) {
-                connector.setPort(ServerConstants.getSecurePort());
+            if (port == -1) {
+                connector.setInheritChannel(true);
             } else {
-                connector.setPort(ServerConstants.getPort());
+                connector.setHost(conf.getMainProps().getProperty("host"));
+                connector.setPort(port);
             }
             connector.setAcceptQueueSize(100);
             return connector;
