@@ -1,6 +1,9 @@
 package org.cacert.gigi;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
@@ -96,19 +99,25 @@ public class Launcher {
 
     public static void main(String[] args) throws Exception {
         System.setProperty("jdk.tls.ephemeralDHKeySize", "4096");
-        new Launcher().boot();
+        InputStream in;
+        if (args.length >= 1) {
+            in = new FileInputStream(new File(args[0]));
+        } else {
+            in = System.in;
+        }
+        new Launcher().boot(in);
     }
 
     Server s;
 
     GigiConfig conf;
 
-    public synchronized void boot() throws Exception {
+    public synchronized void boot(InputStream in) throws Exception {
         Locale.setDefault(Locale.ENGLISH);
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         HttpURLConnection.setFollowRedirects(false);
 
-        conf = GigiConfig.parse(System.in);
+        conf = GigiConfig.parse(in);
         ServerConstants.init(conf.getMainProps());
         initEmails(conf);
 
