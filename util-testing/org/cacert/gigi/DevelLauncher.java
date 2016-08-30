@@ -70,9 +70,7 @@ public class DevelLauncher {
 
         DevelLauncher.writeGigiConfig(dos, "changeit".getBytes("UTF-8"), "changeit".getBytes("UTF-8"), mainProps, cacerts, keystore);
         dos.flush();
-        InputStream oldin = System.in;
-        System.setIn(new ByteArrayInputStream(chunkConfig.toByteArray()));
-        new Launcher().boot();
+        new Launcher().boot(new ByteArrayInputStream(chunkConfig.toByteArray()));
         addDevelPage(true);
         new Thread("ticket awaiter") {
 
@@ -94,7 +92,6 @@ public class DevelLauncher {
                 }
             }
         }.start();
-        System.setIn(oldin);
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
         System.out.println("Cacert-gigi system sucessfully started.");
         System.out.println("Press enter to shutdown.");

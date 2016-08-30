@@ -12,7 +12,7 @@ public class ServerConstants {
 
     private static String apiHostName = "api.cacert.local";
 
-    private static String securePort, port;
+    private static String securePort, port, secureBindPort, bindPort;
 
     private static String suffix = "cacert.local";
 
@@ -24,6 +24,8 @@ public class ServerConstants {
         if ( !conf.getProperty("http.port").equals("80")) {
             port = ":" + conf.getProperty("http.port");
         }
+        secureBindPort = conf.getProperty("https.bindPort", conf.getProperty("https.port"));
+        bindPort = conf.getProperty("http.bindPort", conf.getProperty("http.port"));
         wwwHostName = conf.getProperty("name.www");
         secureHostName = conf.getProperty("name.secure");
         staticHostName = conf.getProperty("name.static");
@@ -73,6 +75,13 @@ public class ServerConstants {
     }
 
     public static int getSecurePort() {
+        if (secureBindPort != null && !secureBindPort.isEmpty()) {
+            if (secureBindPort.equals("stdin")) {
+                return -1;
+            } else {
+                return Integer.parseInt(secureBindPort);
+            }
+        }
         if (securePort.isEmpty()) {
             return 443;
         }
@@ -80,6 +89,13 @@ public class ServerConstants {
     }
 
     public static int getPort() {
+        if (bindPort != null && !bindPort.isEmpty()) {
+            if (bindPort.equals("stdin")) {
+                return -1;
+            } else {
+                return Integer.parseInt(bindPort);
+            }
+        }
         if (port.isEmpty()) {
             return 80;
         }
