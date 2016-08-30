@@ -1,0 +1,4 @@
+#!/bin/sh
+. /lib/lsb/init-functions
+printf >&2 'systemctl redirect failed\n'
+exit 1

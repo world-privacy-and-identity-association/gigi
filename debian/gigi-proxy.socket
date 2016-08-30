@@ -1,0 +1,8 @@
+[Unit]
+Description=Gigi Webserver module socket
+
+[Socket]
+ListenStream=80
+
+[Install]
+WantedBy=sockets.target
