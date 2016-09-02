@@ -58,7 +58,7 @@ import sun.security.x509.X500Name;
 
 public class CertificateRequest {
 
-    public static final String DEFAULT_CN = "CAcert WoT User";
+    public static final String DEFAULT_CN = "SomeCA User";
 
     public static final ObjectIdentifier OID_KEY_USAGE_SSL_SERVER = ObjectIdentifier.newInternal(new int[] {
             1, 3, 6, 1, 5, 5, 7, 3, 1

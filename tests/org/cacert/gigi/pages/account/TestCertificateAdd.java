@@ -85,7 +85,7 @@ public class TestCertificateAdd extends ClientTest {
 
         String[] res = fillOutForm("CSR=" + URLEncoder.encode(pem, "UTF-8"));
         assertArrayEquals(new String[] {
-                "server", "CAcert WoT User", "dns:a." + uniq + ".tld\ndns:" + uniq + ".tld\n", Digest.SHA256.toString()
+                "server", CertificateRequest.DEFAULT_CN, "dns:a." + uniq + ".tld\ndns:" + uniq + ".tld\n", Digest.SHA256.toString()
         }, res);
     }
 
@@ -141,7 +141,7 @@ public class TestCertificateAdd extends ClientTest {
         huc.setDoOutput(true);
         OutputStream out = huc.getOutputStream();
         out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes("UTF-8"));
-        out.write(("&CN=CAcert+WoT+User&profile=client&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes("UTF-8"));
+        out.write(("&CN=" + URLEncoder.encode(CertificateRequest.DEFAULT_CN, "UTF-8") + "&profile=client&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes("UTF-8"));
         out.write(("&hash_alg=SHA512").getBytes("UTF-8"));
         URLConnection uc = authenticate(new URL(huc.getHeaderField("Location") + ".crt"));
         String crt = IOUtils.readURL(new InputStreamReader(uc.getInputStream(), "UTF-8"));
@@ -166,7 +166,7 @@ public class TestCertificateAdd extends ClientTest {
         Certificate c = CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(cert));
         gui = c.toString();
         assertThat(gui, containsString("clientAuth"));
-        assertThat(gui, containsString("CN=CAcert WoT User"));
+        assertThat(gui, containsString("CN=" + CertificateRequest.DEFAULT_CN));
         assertThat(gui, containsString("SHA512withRSA"));
         assertThat(gui, containsString("RFC822Name: " + email));
 

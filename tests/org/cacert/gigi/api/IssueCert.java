@@ -25,6 +25,7 @@ import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Organisation;
+import org.cacert.gigi.pages.account.certs.CertificateRequest;
 import org.cacert.gigi.testUtils.ClientTest;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.junit.Test;
@@ -57,11 +58,11 @@ public class IssueCert extends ClientTest {
 
     @Test
     public void testIssueCert() throws Exception {
-        String cert = issueCert(generatePEMCSR(kp, "EMAIL=" + email + ",CN=CAcert WoT User"), "profile=client");
+        String cert = issueCert(generatePEMCSR(kp, "EMAIL=" + email + ",CN=" + CertificateRequest.DEFAULT_CN), "profile=client");
 
         CertificateFactory cf = CertificateFactory.getInstance("X509");
         java.security.cert.X509Certificate xcert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(cert.getBytes("UTF-8")));
-        assertEquals("CAcert WoT User", ((X500Name) xcert.getSubjectDN()).getCommonName());
+        assertEquals(CertificateRequest.DEFAULT_CN, ((X500Name) xcert.getSubjectDN()).getCommonName());
 
     }
 
