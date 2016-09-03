@@ -142,7 +142,7 @@ public class CACertificate implements IdCachable {
                             id = q2.lastInsertId();
                         }
                         if (self) {
-                            try (GigiPreparedStatement q3 = new GigiPreparedStatement("UPDATE `cacerts` SET `parentRoot`=?, `id`=?")) {
+                            try (GigiPreparedStatement q3 = new GigiPreparedStatement("UPDATE `cacerts` SET `parentRoot`=? WHERE `id`=?")) {
                                 q3.setInt(1, id);
                                 q3.setInt(2, id);
                                 q3.execute();
