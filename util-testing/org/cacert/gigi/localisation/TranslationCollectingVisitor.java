@@ -34,6 +34,12 @@ public final class TranslationCollectingVisitor extends ASTVisitor {
 
     Stack<QualifiedAllocationExpression> anonymousConstructorCall = new Stack<>();
 
+    private boolean hadErrors = false;
+
+    public boolean hadErrors() {
+        return hadErrors;
+    }
+
     public TranslationCollectingVisitor(CompilationUnitDeclaration unit, TaintSource[] target, TranslationCollector c) {
         this.unit = unit;
         ts = target;
@@ -188,6 +194,7 @@ public final class TranslationCollectingVisitor extends ASTVisitor {
         System.out.println("Cannot Handle: " + e + " in " + (call == null ? "constructor" : call.sourceStart) + " => " + caller);
         System.out.println(e.getClass());
         System.out.println("To ignore: " + (b == null ? "don't know" : b.toConfLine()));
+        hadErrors = true;
     }
 
     private void testEnum(Expression e, MethodBinding binding) {

@@ -125,7 +125,7 @@
 			<classpath refid="cacert-gigi.classpath" />
 			<classpath refid="cacert-gigi.test.classpath.jdt" />
 		</javac>
-		<java classname="org.cacert.gigi.localisation.TranslationCollector">
+		<java classname="org.cacert.gigi.localisation.TranslationCollector" failonerror="true">
 			<arg value="util-testing/org/cacert/gigi/localisation/conf.txt"/>
 			<arg value="."/>
 			<arg value="messages.po"/>

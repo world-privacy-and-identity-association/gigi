@@ -79,6 +79,8 @@ public class TranslationCollector {
 
     public final File base;
 
+    private boolean hadErrors = false;
+
     public TranslationCollector(File base, File conf) {
         this.base = base;
         taint = new LinkedList<>();
@@ -94,7 +96,6 @@ public class TranslationCollector {
         System.out.println("Total Translatable Strings: " + translations.size());
         TreeSet<TranslationEntry> trs = new TreeSet<>(translations.values());
         writePOFile(out, trs);
-
     }
 
     public void add(String text, String line) {
@@ -199,6 +200,7 @@ public class TranslationCollector {
                 for (TypeDeclaration td : parsedUnit.types) {
                     td.traverse(v, td.scope);
                 }
+                hadErrors |= v.hadErrors();
             }
             parsedUnits[i] = parsedUnit;
         }
@@ -223,7 +225,13 @@ public class TranslationCollector {
     private LinkedList<TaintSource> taint;
 
     public static void main(String[] args) throws IOException {
-        new TranslationCollector(new File(args[1]), new File(args[0])).run(new File(args[2]));
+        TranslationCollector tc = new TranslationCollector(new File(args[1]), new File(args[0]));
+        tc.run(new File(args[2]));
+        if (tc.hadErrors) {
+            System.exit(1);
+        } else {
+            System.exit(0);
+        }
     }
 
     public static void writePOFile(File target, Collection<TranslationEntry> strings) throws IOException {
