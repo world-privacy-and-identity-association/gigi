@@ -1,0 +1,4 @@
+debian/gigi-proxy.service /lib/systemd/system
+debian/gigi-proxy.socket /lib/systemd/system
+debian/gigi-standalone.service /lib/systemd/system
+debian/gigi-simple-signer.service /lib/systemd/system

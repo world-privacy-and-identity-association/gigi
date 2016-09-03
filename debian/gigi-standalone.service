@@ -1,0 +1,14 @@
+[Unit]
+Description=Gigi Webserver module for ET, stand-alone
+Wants=postgresql@9.4-main.service
+After=postgresql@9.4-main.service
+Conflicts=gigi-proxy.service
+
+[Service]
+ExecStart=/usr/bin/java -cp /usr/share/java/postgresql-jdbc4.jar:/usr/share/java/gigi.jar org.cacert.gigi.Launcher /etc/cacert/gigi/conf.tar
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_SETUID
+WorkingDirectory=/var/lib/cacert-gigi
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=full
+ProtectHome=yes

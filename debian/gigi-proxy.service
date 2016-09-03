@@ -1,0 +1,21 @@
+[Unit]
+Description=Gigi Webserver module for ET
+Wants=postgresql@9.4-main.service
+After=postgresql@9.4-main.service
+Conflicts=gigi-standalone.service
+
+[Service]
+ExecStart=/usr/bin/java -cp /usr/share/java/postgresql-jdbc4.jar:/usr/share/java/gigi.jar org.cacert.gigi.Launcher /etc/cacert/gigi/conf.tar
+StandardInput=socket
+StandardOutput=journal
+StandardError=journal
+WorkingDirectory=/var/lib/cacert-gigi
+User=gigi
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=full
+ProtectHome=yes
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target
