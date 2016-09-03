@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.database.DBEnum;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.output.template.Outputable;
@@ -25,7 +26,7 @@ import org.cacert.gigi.util.KeyStorage;
 
 public class Certificate implements IdCachable {
 
-    public enum SANType {
+    public enum SANType implements DBEnum {
         EMAIL("email"), DNS("DNS");
 
         private final String opensslName;
@@ -35,6 +36,11 @@ public class Certificate implements IdCachable {
         }
 
         public String getOpensslName() {
+            return opensslName;
+        }
+
+        @Override
+        public String getDBName() {
             return opensslName;
         }
     }
@@ -478,7 +484,7 @@ public class Certificate implements IdCachable {
     public static Certificate[] findBySANPattern(String request, SANType type) {
         try (GigiPreparedStatement prep = new GigiPreparedStatement("SELECT `certId` FROM `subjectAlternativeNames` WHERE `contents` LIKE ? and `type`=?::`SANType` GROUP BY `certId` LIMIT 100", true)) {
             prep.setString(1, request);
-            prep.setString(2, type.getOpensslName());
+            prep.setEnum(2, type);
             return fetchCertsToArray(prep);
         }
     }

@@ -54,14 +54,16 @@ public class EmailAddress implements IdCachable, Verifyable {
                 if (id != 0) {
                     throw new IllegalStateException("already inserted.");
                 }
-                try (GigiPreparedStatement psCheck = new GigiPreparedStatement("SELECT 1 FROM `emails` WHERE email=? AND deleted is NULL"); GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `emails` SET memid=?, email=?")) {
-                    ps.setInt(1, owner.getId());
-                    ps.setString(2, address);
+                try (GigiPreparedStatement psCheck = new GigiPreparedStatement("SELECT 1 FROM `emails` WHERE email=? AND deleted is NULL")) {
                     psCheck.setString(1, address);
                     GigiResultSet res = psCheck.executeQuery();
                     if (res.next()) {
                         throw new GigiApiException("The email address is already known to the system.");
                     }
+                }
+                try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `emails` SET memid=?, email=?")) {
+                    ps.setInt(1, owner.getId());
+                    ps.setString(2, address);
                     ps.execute();
                     id = ps.lastInsertId();
                 }

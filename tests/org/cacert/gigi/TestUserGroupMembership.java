@@ -46,7 +46,7 @@ public class TestUserGroupMembership extends BusinessTest {
             assertTrue(rs.next());
             assertEquals(0, rs.getInt("revokedby"));
             assertEquals(granter.getId(), rs.getInt("grantedby"));
-            assertEquals(ttpGroup.getDatabaseName(), rs.getString("permission"));
+            assertEquals(ttpGroup.getDBName(), rs.getString("permission"));
 
             assertNull(rs.getDate("deleted"));
             assertNotNull(rs.getDate("granted"));
@@ -78,7 +78,7 @@ public class TestUserGroupMembership extends BusinessTest {
             assertTrue(rs.next());
             assertEquals(granter.getId(), rs.getInt("revokedby"));
             assertEquals(granter.getId(), rs.getInt("grantedby"));
-            assertEquals(ttpGroup.getDatabaseName(), rs.getString("permission"));
+            assertEquals(ttpGroup.getDBName(), rs.getString("permission"));
 
             assertNotNull(rs.getDate("deleted"));
             assertNotNull(rs.getDate("granted"));

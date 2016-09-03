@@ -167,7 +167,7 @@ public abstract class BusinessTest extends ConfiguredTest {
         supporter = createVerifiedUser();
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `user_groups` SET `user`=?, `permission`=?::`userGroup`, `grantedby`=?")) {
             ps.setInt(1, supporter.getId());
-            ps.setString(2, Group.SUPPORTER.getDatabaseName());
+            ps.setString(2, Group.SUPPORTER.getDBName());
             ps.setInt(3, supporter.getId());
             ps.execute();
         }

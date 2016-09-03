@@ -492,7 +492,7 @@ public class ManagedTest extends ConfiguredTest {
         int i = createVerifiedUser("fn", "ln", createUniqueName() + "@email.com", TEST_PASSWORD);
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `user_groups` SET `user`=?, `permission`=?::`userGroup`, `grantedby`=?")) {
             ps.setInt(1, i);
-            ps.setString(2, Group.SUPPORTER.getDatabaseName());
+            ps.setString(2, Group.SUPPORTER.getDBName());
             ps.setInt(3, i);
             ps.execute();
         }

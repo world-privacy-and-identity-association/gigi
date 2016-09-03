@@ -1,11 +1,12 @@
 package org.cacert.gigi.dbObjects;
 
+import org.cacert.gigi.database.DBEnum;
 import org.cacert.gigi.dbObjects.wrappers.DataContainer;
 
 @DataContainer
 public class Assurance {
 
-    public enum AssuranceType {
+    public enum AssuranceType implements DBEnum {
         FACE_TO_FACE("Face to Face Meeting"), TOPUP("TOPUP"), TTP_ASSISTED("TTP-Assisted"), NUCLEUS("Nucleus Bonus");
 
         private final String description;
@@ -15,6 +16,11 @@ public class Assurance {
         }
 
         public String getDescription() {
+            return description;
+        }
+
+        @Override
+        public String getDBName() {
             return description;
         }
     }

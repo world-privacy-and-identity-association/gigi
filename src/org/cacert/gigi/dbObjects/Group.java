@@ -1,11 +1,12 @@
 package org.cacert.gigi.dbObjects;
 
+import org.cacert.gigi.database.DBEnum;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.TranslateCommand;
 
-public enum Group {
+public enum Group implements DBEnum {
     SUPPORTER("supporter", "supporter", true, false, true), //
     ARBITRATOR("arbitrator", "arbitrator", true, false, true), //
     BLOCKEDASSURER("blockedassurer", "may not verify", true, false, false), //
@@ -72,13 +73,9 @@ public enum Group {
         return isSelfViewable;
     }
 
-    public String getDatabaseName() {
-        return dbName;
-    }
-
     public User[] getMembers(int offset, int count) {
         try (GigiPreparedStatement gps = new GigiPreparedStatement("SELECT `user` FROM `user_groups` WHERE `permission`=?::`userGroup` AND `deleted` IS NULL OFFSET ? LIMIT ?", true)) {
-            gps.setString(1, dbName);
+            gps.setEnum(1, this);
             gps.setInt(2, offset);
             gps.setInt(3, count);
             GigiResultSet grs = gps.executeQuery();
@@ -95,7 +92,7 @@ public enum Group {
 
     public int getMemberCount() {
         try (GigiPreparedStatement gps = new GigiPreparedStatement("SELECT COUNT(`user`) FROM `user_groups` WHERE `permission`=?::`userGroup` AND `deleted` IS NULL", true)) {
-            gps.setString(1, dbName);
+            gps.setEnum(1, this);
             GigiResultSet grs = gps.executeQuery();
             if ( !grs.next()) {
                 return 0;
@@ -106,5 +103,10 @@ public enum Group {
 
     public Outputable getName() {
         return tc;
+    }
+
+    @Override
+    public String getDBName() {
+        return dbName;
     }
 }

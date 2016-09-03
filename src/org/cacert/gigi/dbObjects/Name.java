@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.database.DBEnum;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.NamePart.NamePartType;
@@ -12,6 +13,16 @@ import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.util.HTMLEncoder;
 
 public class Name implements Outputable, IdCachable {
+
+    public static enum NameSchemaType implements DBEnum {
+        SINGLE, WESTERN;
+
+        @Override
+        public String getDBName() {
+            return toString().toLowerCase();
+        }
+
+    }
 
     private abstract static class SchemedName {
 
@@ -27,7 +38,7 @@ public class Name implements Outputable, IdCachable {
          */
         public abstract String toAbbreviatedString();
 
-        public abstract String getSchemeName();
+        public abstract NameSchemaType getSchemeName();
 
         /**
          * @see Name#output(PrintWriter, Language, Map)
@@ -60,8 +71,8 @@ public class Name implements Outputable, IdCachable {
         }
 
         @Override
-        public String getSchemeName() {
-            return "single";
+        public NameSchemaType getSchemeName() {
+            return NameSchemaType.SINGLE;
         }
 
         @Override
@@ -201,8 +212,8 @@ public class Name implements Outputable, IdCachable {
         }
 
         @Override
-        public String getSchemeName() {
-            return "western";
+        public NameSchemaType getSchemeName() {
+            return NameSchemaType.WESTERN;
         }
 
         @Override
@@ -260,7 +271,7 @@ public class Name implements Outputable, IdCachable {
             }
             try (GigiPreparedStatement inserter = new GigiPreparedStatement("INSERT INTO `names` SET `uid`=?, `type`=?::`nameSchemaType`")) {
                 inserter.setInt(1, u.getId());
-                inserter.setString(2, scheme.getSchemeName());
+                inserter.setEnum(2, scheme.getSchemeName());
                 inserter.execute();
                 id = inserter.lastInsertId();
             }
@@ -268,7 +279,7 @@ public class Name implements Outputable, IdCachable {
                 inserter.setInt(1, id);
                 for (int i = 0; i < np.length; i++) {
                     inserter.setInt(2, i);
-                    inserter.setString(3, np[i].getType().getDbValue());
+                    inserter.setEnum(3, np[i].getType());
                     inserter.setString(4, np[i].getValue());
                     inserter.execute();
                 }

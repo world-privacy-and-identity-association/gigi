@@ -41,7 +41,7 @@ public class GroupSelector implements Outputable {
         out.println("<select name='" + name + "'>");
         for (Group g : Group.values()) {
             if (mayManage(g)) {
-                out.print("<option value='" + g.getDatabaseName());
+                out.print("<option value='" + g.getDBName());
                 if (g.equals(value)) {
                     out.print(" selected");
                 }

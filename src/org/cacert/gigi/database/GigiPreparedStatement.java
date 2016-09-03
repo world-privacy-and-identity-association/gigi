@@ -76,6 +76,15 @@ public class GigiPreparedStatement implements AutoCloseable {
         }
     }
 
+    public void setEnum(int parameterIndex, DBEnum x) {
+        try {
+            target.setString(parameterIndex, x.getDBName());
+        } catch (SQLException e) {
+            handleSQL(e);
+            throw new Error(e);
+        }
+    }
+
     public void setDate(int parameterIndex, Date x) {
         try {
             target.setDate(parameterIndex, x);
@@ -112,6 +121,14 @@ public class GigiPreparedStatement implements AutoCloseable {
             target.setBoolean(parameterIndex, x);
         } catch (SQLException e) {
             handleSQL(e);
+            throw new Error(e);
+        }
+    }
+
+    public int getParameterCount() {
+        try {
+            return target.getParameterMetaData().getParameterCount();
+        } catch (SQLException e) {
             throw new Error(e);
         }
     }

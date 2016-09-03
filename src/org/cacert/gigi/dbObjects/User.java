@@ -130,18 +130,19 @@ public class User extends CertificateOwner {
 
     public Name[] getNames() {
         try (GigiPreparedStatement gps = new GigiPreparedStatement("SELECT `id` FROM `names` WHERE `uid`=? AND `deleted` IS NULL", true)) {
+            gps.setInt(1, getId());
             return fetchNamesToArray(gps);
         }
     }
 
     public Name[] getNonDeprecatedNames() {
         try (GigiPreparedStatement gps = new GigiPreparedStatement("SELECT `id` FROM `names` WHERE `uid`=? AND `deleted` IS NULL AND `deprecated` IS NULL", true)) {
+            gps.setInt(1, getId());
             return fetchNamesToArray(gps);
         }
     }
 
     private Name[] fetchNamesToArray(GigiPreparedStatement gps) {
-        gps.setInt(1, getId());
         GigiResultSet rs = gps.executeQuery();
         rs.last();
         Name[] dt = new Name[rs.getRow()];
@@ -261,7 +262,7 @@ public class User extends CertificateOwner {
     public int getExperiencePoints() {
         try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT count(*) FROM ( SELECT `names`.`uid` FROM `notary` INNER JOIN `names` ON `names`.`id` = `to` WHERE `from`=? AND `notary`.`deleted` IS NULL AND `method` = ? ::`notaryType` GROUP BY `names`.`uid`) as p")) {
             query.setInt(1, getId());
-            query.setString(2, AssuranceType.FACE_TO_FACE.getDescription());
+            query.setEnum(2, AssuranceType.FACE_TO_FACE);
 
             GigiResultSet rs = query.executeQuery();
             int points = 0;
@@ -454,7 +455,7 @@ public class User extends CertificateOwner {
         groups.add(toGrant);
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `user_groups` SET `user`=?, `permission`=?::`userGroup`, `grantedby`=?")) {
             ps.setInt(1, getId());
-            ps.setString(2, toGrant.getDatabaseName());
+            ps.setEnum(2, toGrant);
             ps.setInt(3, granter.getId());
             ps.execute();
         }
@@ -467,7 +468,7 @@ public class User extends CertificateOwner {
         groups.remove(toRevoke);
         try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `user_groups` SET `deleted`=CURRENT_TIMESTAMP, `revokedby`=? WHERE `deleted` IS NULL AND `permission`=?::`userGroup` AND `user`=?")) {
             ps.setInt(1, revoker.getId());
-            ps.setString(2, toRevoke.getDatabaseName());
+            ps.setEnum(2, toRevoke);
             ps.setInt(3, getId());
             ps.execute();
         }

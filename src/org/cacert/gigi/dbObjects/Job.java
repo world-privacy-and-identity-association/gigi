@@ -3,6 +3,7 @@ package org.cacert.gigi.dbObjects;
 import java.sql.Date;
 
 import org.cacert.gigi.GigiApiException;
+import org.cacert.gigi.database.DBEnum;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.output.CertificateValiditySelector;
@@ -15,7 +16,7 @@ public class Job implements IdCachable {
         this.id = id;
     }
 
-    public static enum JobType {
+    public static enum JobType implements DBEnum {
         SIGN("sign"), REVOKE("revoke");
 
         private final String name;
@@ -24,7 +25,8 @@ public class Job implements IdCachable {
             this.name = name;
         }
 
-        public String getName() {
+        @Override
+        public String getDBName() {
             return name;
         }
     }
@@ -33,7 +35,7 @@ public class Job implements IdCachable {
         CertificateValiditySelector.checkValidityLength(period);
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `jobs` SET targetId=?, task=?::`jobType`, executeFrom=?, executeTo=?")) {
             ps.setInt(1, targetId.getId());
-            ps.setString(2, JobType.SIGN.getName());
+            ps.setEnum(2, JobType.SIGN);
             ps.setDate(3, start);
             ps.setString(4, period);
             ps.execute();
@@ -45,7 +47,7 @@ public class Job implements IdCachable {
 
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `jobs` SET targetId=?, task=?::`jobType`")) {
             ps.setInt(1, targetId.getId());
-            ps.setString(2, JobType.REVOKE.getName());
+            ps.setEnum(2, JobType.REVOKE);
             ps.execute();
             return cache.put(new Job(ps.lastInsertId()));
         }
@@ -85,7 +87,7 @@ public class Job implements IdCachable {
         if (i != null) {
             return i;
         }
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `jobs` WHERE id=?'")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `jobs` WHERE id=?")) {
             ps.setInt(1, id);
             GigiResultSet rs = ps.executeQuery();
             if (rs.next()) {

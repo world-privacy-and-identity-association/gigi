@@ -110,7 +110,7 @@ public class Domain implements IdCachable, Verifyable {
     public void addPing(DomainPingType type, String config) throws GigiApiException {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `pingconfig` SET `domainid`=?, `type`=?::`pingType`, `info`=?")) {
             ps.setInt(1, id);
-            ps.setString(2, type.toString().toLowerCase());
+            ps.setEnum(2, type);
             ps.setString(3, config);
             ps.execute();
         }

@@ -161,11 +161,10 @@ public abstract class EmailProvider {
                         continue;
                     }
 
-                    try (GigiPreparedStatement statmt = new GigiPreparedStatement("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`=?, `uid`=?, `type`='fast', `status`=?::`pingState`")) {
+                    try (GigiPreparedStatement statmt = new GigiPreparedStatement("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`=?, `uid`=?, `type`='fast', `status`='success'::`pingState`")) {
                         statmt.setString(1, address);
                         statmt.setString(2, line);
                         statmt.setInt(3, forUid);
-                        statmt.setString(4, "success");
                         statmt.execute();
                     }
 
@@ -178,11 +177,10 @@ public abstract class EmailProvider {
 
             }
         }
-        try (GigiPreparedStatement statmt = new GigiPreparedStatement("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`=?, `uid`=?, `type`='fast', `status`=?::`pingState`")) {
+        try (GigiPreparedStatement statmt = new GigiPreparedStatement("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`=?, `uid`=?, `type`='fast'::`emailPingType`, `status`='failed'::`pingState`")) {
             statmt.setString(1, address);
             statmt.setString(2, "Failed to make a connection to the mail server");
             statmt.setInt(3, forUid);
-            statmt.setString(4, "failed");
             statmt.execute();
         }
         return FAIL;

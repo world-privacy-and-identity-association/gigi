@@ -1,15 +1,16 @@
 package org.cacert.gigi.dbObjects;
 
+import org.cacert.gigi.database.DBEnum;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.dbObjects.wrappers.DataContainer;
 
 @DataContainer
 public class NamePart {
 
-    public enum NamePartType {
+    public enum NamePartType implements DBEnum {
         FIRST_NAME, LAST_NAME, SINGLE_NAME, SUFFIX;
 
-        public String getDbValue() {
+        public String getDBName() {
             return name().toLowerCase().replace("_", "-");
         }
     }

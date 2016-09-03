@@ -64,7 +64,7 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     @Test
     public void testGrantUserGroup() throws MalformedURLException, IOException {
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "addGroup&groupToModify=" + URLEncoder.encode(Group.CODESIGNING.getDatabaseName(), "UTF-8"), 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "addGroup&groupToModify=" + URLEncoder.encode(Group.CODESIGNING.getDBName(), "UTF-8"), 0);
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -80,7 +80,7 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     @Test
     public void testRemoveUserGroup() throws MalformedURLException, IOException {
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "removeGroup&groupToModify=" + URLEncoder.encode(Group.CODESIGNING.getDatabaseName(), "UTF-8"), 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "removeGroup&groupToModify=" + URLEncoder.encode(Group.CODESIGNING.getDBName(), "UTF-8"), 0);
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -96,7 +96,7 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     @Test
     public void testGrantSupporterGroup() throws MalformedURLException, IOException {
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "addGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDatabaseName(), "UTF-8"), 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "addGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDBName(), "UTF-8"), 0);
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -116,7 +116,7 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     @Test
     public void testRemoveSupporterGroup() throws MalformedURLException, IOException {
-        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "removeGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDatabaseName(), "UTF-8"), 0);
+        executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "removeGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDBName(), "UTF-8"), 0);
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);

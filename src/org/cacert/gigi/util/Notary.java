@@ -48,7 +48,7 @@ public class Notary {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `notary` where `to`=? and `from`=? and `method` = ? ::`notaryType` AND `deleted` IS NULL AND `when` > (now() - interval '1 days' * ?)")) {
             ps.setInt(1, target.getId());
             ps.setInt(2, assurer.getId());
-            ps.setString(3, AssuranceType.FACE_TO_FACE.getDescription());
+            ps.setEnum(3, AssuranceType.FACE_TO_FACE);
             ps.setInt(4, LIMIT_DAYS_VERIFICATION);
             GigiResultSet rs = ps.executeQuery();
             return !rs.next();

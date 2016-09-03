@@ -115,21 +115,21 @@ public class TestMyDetailsEdit extends ManagedTest {
     public void testModifyUserGroup() throws IOException {
         User user = User.getById(id);
         // test add group
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "action=addGroup&groupToModify=" + URLEncoder.encode(Group.LOCATE_AGENT.getDatabaseName(), "UTF-8"), 0));
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "action=addGroup&groupToModify=" + URLEncoder.encode(Group.LOCATE_AGENT.getDBName(), "UTF-8"), 0));
 
         user = User.getById(id);
         user.refreshGroups();
         assertTrue(user.isInGroup(Group.LOCATE_AGENT));
 
         // test remove group
-        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "action=removeGroup&groupToModify=" + URLEncoder.encode(Group.LOCATE_AGENT.getDatabaseName(), "UTF-8"), 0));
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "action=removeGroup&groupToModify=" + URLEncoder.encode(Group.LOCATE_AGENT.getDBName(), "UTF-8"), 0));
 
         user = User.getById(id);
         user.refreshGroups();
         assertFalse(user.isInGroup(Group.LOCATE_AGENT));
 
         // test add group that only support can add
-        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "action=addGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDatabaseName(), "UTF-8"), 0));
+        assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "action=addGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDBName(), "UTF-8"), 0));
 
         user = User.getById(id);
         user.refreshGroups();
