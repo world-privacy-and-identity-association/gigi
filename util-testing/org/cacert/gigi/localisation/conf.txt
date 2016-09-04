@@ -15,5 +15,5 @@ org.cacert.gigi.output.template SprintfCommand.SprintfCommand(String, List),0=>o
 org.cacert.gigi.output.template SprintfCom---invalid---mand.SprintfCommand(String),0=>org.cacert.gigi.output.template Template.parseCommand(String),0
 org.cacert.gigi.output.template TranslateCommand.TranslateCommand(String),0=>org.cacert.gigi.output.template TranslateCommand.output(PrintWriter, Language, Map),0
 org.cacert.gigi.pages.account.domain DomainOverview.DomainOverview(String),0
-org.cacert.gigi.dbObjects Group.Group(String, String),1
+org.cacert.gigi.dbObjects Group.Group(String, String, boolean, boolean, boolean),1
 org.cacert.gigi.output.template SprintfCommand.createSimple(String, Object[]),0
