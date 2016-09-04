@@ -105,7 +105,7 @@ public final class TranslationCollectingVisitor extends ASTVisitor {
                     ags = anonymousConstructorCall.peek().arguments;
                 }
                 if (ags == null) {
-                    System.out.println(explicitConstructor);
+                    System.err.println(explicitConstructor);
                     return true;
                 }
                 Expression e = ags[t0.getTgt()];
@@ -119,7 +119,7 @@ public final class TranslationCollectingVisitor extends ASTVisitor {
     @Override
     public boolean visit(org.eclipse.jdt.internal.compiler.ast.MessageSend call, org.eclipse.jdt.internal.compiler.lookup.BlockScope scope) {
         if (call.binding == null) {
-            System.out.println("Unbound:" + call + " in " + call.sourceStart());
+            System.err.println("Unbound:" + call + " in " + call.sourceStart());
             return true;
         }
         // System.out.println("Message");
@@ -129,7 +129,7 @@ public final class TranslationCollectingVisitor extends ASTVisitor {
             if (t0.equals(t)) {
                 Expression[] ags = call.arguments;
                 if (ags == null) {
-                    System.out.println(call);
+                    System.err.println(call);
                     return true;
                 }
                 Expression e = ags[t0.getTgt()];
@@ -168,12 +168,12 @@ public final class TranslationCollectingVisitor extends ASTVisitor {
             }
             if (m2.receiver.resolvedType.isCompatibleWith(scope.getJavaLangEnum())) {
                 testEnum(m2.receiver, m2.binding);
-                System.out.println("ENUM-SRC: !" + m2.receiver);
+                System.err.println("ENUM-SRC: !" + m2.receiver);
             }
         }
         if (e.resolvedType.isCompatibleWith(scope.getJavaLangEnum())) {
             // TODO ?
-            System.out.println("ENUM-Not-Hanled");
+            System.err.println("ENUM-Not-Hanled");
         }
 
         TaintSource b = cm == null ? null : new TaintSource(cm);
@@ -188,35 +188,35 @@ public final class TranslationCollectingVisitor extends ASTVisitor {
             return;
         }
 
-        System.out.println();
+        System.err.println();
 
-        System.out.println(new String(scope.enclosingClassScope().referenceType().compilationResult.fileName));
-        System.out.println("Cannot Handle: " + e + " in " + (call == null ? "constructor" : call.sourceStart) + " => " + caller);
-        System.out.println(e.getClass());
-        System.out.println("To ignore: " + (b == null ? "don't know" : b.toConfLine()));
+        System.err.println(new String(scope.enclosingClassScope().referenceType().compilationResult.fileName));
+        System.err.println("Cannot Handle: " + e + " in " + (call == null ? "constructor" : call.sourceStart) + " => " + caller);
+        System.err.println(e.getClass());
+        System.err.println("To ignore: " + (b == null ? "don't know" : b.toConfLine()));
         hadErrors = true;
     }
 
     private void testEnum(Expression e, MethodBinding binding) {
         if (binding.parameters.length != 0) {
-            System.out.println("ERROR: meth");
+            System.err.println("ERROR: meth");
             return;
         }
-        System.out.println(e.resolvedType.getClass());
+        System.err.println(e.resolvedType.getClass());
         String s2 = new String(e.resolvedType.qualifiedPackageName()) + "." + (new String(e.resolvedType.qualifiedSourceName()).replace('.', '$'));
         try {
             Class<?> c = Class.forName(s2);
             Enum<?>[] e1 = (Enum[]) c.getMethod("values").invoke(null);
             Method m = c.getMethod(new String(binding.selector));
             for (int j = 0; j < e1.length; j++) {
-                System.out.println(m.invoke(e1[j]));
+                System.err.println(m.invoke(e1[j]));
             }
         } catch (ClassNotFoundException e1) {
             e1.printStackTrace();
         } catch (ReflectiveOperationException e1) {
             e1.printStackTrace();
         }
-        System.out.println("ENUM-done: " + e + "!");
+        System.err.println("ENUM-done: " + e + "!");
         return;
     }
 }

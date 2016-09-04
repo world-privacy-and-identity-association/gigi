@@ -93,7 +93,7 @@ public class TranslationCollector {
         scanTemplates();
         scanCode(taint);
 
-        System.out.println("Total Translatable Strings: " + translations.size());
+        System.err.println("Total Translatable Strings: " + translations.size());
         TreeSet<TranslationEntry> trs = new TreeSet<>(translations.values());
         writePOFile(out, trs);
     }
@@ -111,7 +111,7 @@ public class TranslationCollector {
     }
 
     private void scanCode(LinkedList<TaintSource> taint) throws Error {
-        PrintWriter out = new PrintWriter(System.out);
+        PrintWriter out = new PrintWriter(System.err);
         Main m = new Main(out, out, false, null, null);
         File[] fs = recurse(new File(new File(new File(base, "src"), "org"), "cacert"), new LinkedList<File>(), ".java").toArray(new File[0]);
         String[] t = new String[fs.length + 3];
@@ -179,12 +179,12 @@ public class TranslationCollector {
                         err++;
                     }
                     if (OUTPUT_WARNINGS || problem.isError()) {
-                        System.out.println(problem);
+                        System.err.println(problem);
                         StringBuilder prob = new StringBuilder();
                         prob.append(parsedUnit.compilationResult.fileName);
                         prob.append(":");
                         prob.append(problem.getSourceLineNumber());
-                        System.out.println(prob.toString());
+                        System.err.println(prob.toString());
                     }
                 }
                 if (err > 0) {
@@ -193,7 +193,7 @@ public class TranslationCollector {
             }
 
             if (parsedUnit.types == null) {
-                System.out.println("No types");
+                System.err.println("No types");
 
             } else {
                 TranslationCollectingVisitor v = new TranslationCollectingVisitor(parsedUnit, taint.toArray(new TaintSource[taint.size()]), this);
