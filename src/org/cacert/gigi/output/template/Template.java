@@ -1,6 +1,5 @@
 package org.cacert.gigi.output.template;
 
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,6 +9,7 @@ import java.io.Reader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.DateSelector;
 import org.cacert.gigi.util.DayDate;
+import org.cacert.gigi.util.EditDistance;
 import org.cacert.gigi.util.HTMLEncoder;
 
 /**
@@ -66,6 +67,12 @@ public class Template implements Outputable {
 
     private static final Pattern ELSE_PATTERN = Pattern.compile(" ?\\} ?else ?\\{ ?");
 
+    private static final String[] POSSIBLE_CONTROL_PATTERNS = new String[] {
+            "if", "else", "foreach"
+    };
+
+    private static final String UNKOWN_CONTROL_STRUCTURE_MSG = "Unknown control structure \"%s\", did you mean \"%s\"?";
+
     /**
      * Creates a new template by parsing the contents from the given URL. This
      * constructor will fail on syntax error. When the URL points to a file,
@@ -111,14 +118,30 @@ public class Template implements Outputable {
     }
 
     protected ParseResult parseContent(Reader r) throws IOException {
+        ParseContext context = new ParseContext(r);
+        ParseResult result = parseContent(context);
+        if (context.parseException.isEmpty()) {
+            return result;
+        }
+        while (context.curChar != -1) {
+            parseContent(context);
+        }
+        throw context.parseException;
+    }
+
+    protected ParseResult parseContent(ParseContext context) throws IOException {
         LinkedList<String> splitted = new LinkedList<String>();
         LinkedList<Translatable> commands = new LinkedList<Translatable>();
         StringBuffer buf = new StringBuffer();
         String blockType = null;
+        ParseContext tContext = null;
         outer:
         while (true) {
+            if (tContext != null) {
+                context.merge(tContext);
+            }
             while ( !endsWith(buf, "<?")) {
-                int ch = r.read();
+                int ch = context.read();
                 if (ch == -1) {
                     break outer;
                 }
@@ -127,13 +150,15 @@ public class Template implements Outputable {
                     buf.delete(buf.length() - 2, buf.length());
                 }
             }
+            tContext = context.copy();
             buf.delete(buf.length() - 2, buf.length());
             splitted.add(buf.toString());
             buf.delete(0, buf.length());
             while ( !endsWith(buf, "?>")) {
-                int ch = r.read();
+                int ch = context.read();
                 if (ch == -1) {
-                    throw new EOFException();
+                    context.addError("Expected \"?>\"");
+                    return null;
                 }
                 buf.append((char) ch);
             }
@@ -144,18 +169,23 @@ public class Template implements Outputable {
             if (m.matches()) {
                 String type = m.group(1);
                 String variable = m.group(2);
-                ParseResult body = parseContent(r);
+                ParseContext bodyContext = tContext.copy();
+                ParseResult body = parseContent(bodyContext);
                 if (type.equals("if")) {
                     if ("else".equals(body.getEndType())) {
-                        commands.add(new IfStatement(variable, body.getBlock("else"), parseContent(r).getBlock("}")));
+                        ParseContext bodyContext2 = bodyContext.copy();
+                        commands.add(new IfStatement(variable, body.getBlock("else"), parseContent(bodyContext).getBlock("}")));
+                        bodyContext.merge(bodyContext2);
                     } else {
                         commands.add(new IfStatement(variable, body.getBlock("}")));
                     }
                 } else if (type.equals("foreach")) {
                     commands.add(new ForeachStatement(variable, body.getBlock("}")));
                 } else {
-                    throw new IOException("Syntax error: unknown control structure: " + type);
+                    String bestMatching = EditDistance.getBestMatchingStringByEditDistance(type, POSSIBLE_CONTROL_PATTERNS);
+                    tContext.addError(String.format(UNKOWN_CONTROL_STRUCTURE_MSG, type, bestMatching));
                 }
+                tContext.merge(bodyContext);
                 continue;
             } else if ((m = ELSE_PATTERN.matcher(com)).matches()) {
                 blockType = "else";
@@ -164,18 +194,22 @@ public class Template implements Outputable {
                 blockType = "}";
                 break;
             } else {
-                commands.add(parseCommand(com));
+                commands.add(parseCommand(com, tContext));
             }
         }
+        if (tContext != null) {
+            context.merge(tContext);
+        }
         splitted.add(buf.toString());
-        return new ParseResult(new TemplateBlock(splitted.toArray(new String[splitted.size()]), commands.toArray(new Translatable[commands.size()])), blockType);
+        ParseResult result = new ParseResult(new TemplateBlock(splitted.toArray(new String[splitted.size()]), commands.toArray(new Translatable[commands.size()])), blockType);
+        return result;
     }
 
     private boolean endsWith(StringBuffer buf, String string) {
         return buf.length() >= string.length() && buf.substring(buf.length() - string.length(), buf.length()).equals(string);
     }
 
-    private Translatable parseCommand(String s2) {
+    private Translatable parseCommand(String s2, ParseContext context) {
         if (s2.startsWith("=_")) {
             final String raw = s2.substring(2);
             if ( !s2.contains("$") && !s2.contains("!'")) {
@@ -187,7 +221,10 @@ public class Template implements Outputable {
             final String raw = s2.substring(2);
             return new OutputVariableCommand(raw);
         } else {
-            throw new Error("Unknown processing instruction: " + s2);
+            context.addError("Unknown processing instruction \"" + s2 + "\"," + " did you mean \"" + EditDistance.getBestMatchingStringByEditDistance(s2, new String[] {
+                    "=_", "=$"
+            }) + "\"?");
+            return null;
         }
     }
 
@@ -218,7 +255,7 @@ public class Template implements Outputable {
         Object s = vars.get(varname);
 
         if (s == null) {
-            System.out.println("Empty variable: " + varname);
+            System.err.println("Empty variable: " + varname);
         }
         if (s instanceof Outputable) {
             ((Outputable) s).output(out, l, vars);
@@ -239,5 +276,85 @@ public class Template implements Outputable {
 
     public void addTranslations(Collection<String> s) {
         data.addTranslations(s);
+    }
+
+    private class ParseContext {
+
+        public static final int CONTEXT_LENGTH = 20;
+
+        private Reader reader;
+
+        public final TemplateParseException parseException = new TemplateParseException(source);
+
+        int line = 1;
+
+        int column = 0;
+
+        private int curChar = -1;
+
+        private int[] charContext = new int[CONTEXT_LENGTH];
+
+        protected int contextPosition = 0;
+
+        public ParseContext(Reader reader) {
+            this.reader = reader;
+        }
+
+        public void addError(String message) {
+            addError(line, column, message);
+        }
+
+        public void addError(int line, int column, String message) {
+            StringBuffer charContextBuffer = new StringBuffer();
+            int j = contextPosition;
+            for (int i = 0; i < CONTEXT_LENGTH; i++) {
+                if (charContext[j] != 0) {
+                    if (charContext[j] == '\n') {
+                        charContextBuffer.append("\\n");
+                    } else {
+                        charContextBuffer.appendCodePoint(charContext[j]);
+                    }
+                }
+                j = (j + 1) % CONTEXT_LENGTH;
+            }
+            parseException.addError(line, column, message, charContextBuffer.toString());
+        }
+
+        public void merge(ParseContext other) {
+            line = other.line;
+            column = other.column;
+            parseException.append(other.parseException);
+        }
+
+        public void append(ParseContext other) {
+            parseException.append(other.parseException);
+        }
+
+        public int read() throws IOException {
+            int ch;
+            while ((ch = reader.read()) == '\r') {
+            }
+            curChar = ch;
+            if (ch == '\n') {
+                line++;
+                column = 0;
+            } else {
+                column++;
+            }
+            if (ch != -1) {
+                charContext[contextPosition] = ch;
+                contextPosition = (contextPosition + 1) % CONTEXT_LENGTH;
+            }
+            return ch;
+        }
+
+        public ParseContext copy() {
+            ParseContext newParseContext = new ParseContext(reader);
+            newParseContext.line = line;
+            newParseContext.column = column;
+            newParseContext.charContext = Arrays.copyOf(charContext, charContext.length);
+            newParseContext.contextPosition = contextPosition;
+            return newParseContext;
+        }
     }
 }
