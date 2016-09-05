@@ -28,7 +28,7 @@ public class FindCertForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         this.certType = req.getParameter("certType");
         String request = req.getParameter("cert").trim();
 

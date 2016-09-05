@@ -27,7 +27,7 @@ public class FindAgentAccess extends Form {
     private static final Template t = new Template(ChangePasswordPage.class.getResource("FindAgentAccess.templ"));
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         String nv = req.getParameter("new-val");
         if (nv == null) {
             return false;

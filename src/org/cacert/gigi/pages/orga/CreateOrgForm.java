@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
-import org.cacert.gigi.dbObjects.Country;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.localisation.Language;
@@ -59,7 +58,7 @@ public class CreateOrgForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         String action = req.getParameter("action");
         if (action == null) {
             return false;

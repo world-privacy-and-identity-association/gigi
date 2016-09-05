@@ -48,30 +48,24 @@ public class Verify extends Page {
                 Domain domain = Domain.getById(Integer.parseInt(id));
                 subject = domain.getSuffix();
                 target = domain;
+            } else {
+                throw new IllegalArgumentException();
             }
         }
 
         @Override
-        public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
-            HashMap<String, Object> data = new HashMap<>();
-            data.put("subject", subject);
+        public boolean submit(HttpServletRequest req) throws GigiApiException {
             if ("email".equals(type)) {
                 try {
                     target.verify(hash);
-                    emailAddressVerified.output(out, getLanguage(req), data);
                 } catch (IllegalArgumentException e) {
-                    out.println(translate(req, "The email address is invalid."));
-                } catch (GigiApiException e) {
-                    e.format(out, getLanguage(req));
+                    throw new GigiApiException("The email address is invalid.");
                 }
             } else if ("domain".equals(type)) {
                 try {
                     target.verify(hash);
-                    domainVerified.output(out, getLanguage(req), data);
                 } catch (IllegalArgumentException e) {
-                    out.println(translate(req, "The domain is invalid."));
-                } catch (GigiApiException e) {
-                    e.format(out, getLanguage(req));
+                    throw new GigiApiException("The domain is invalid.");
                 }
             }
             return true;
@@ -101,7 +95,17 @@ public class Verify extends Page {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (Form.getForm(req, VerificationForm.class).submitProtected(resp.getWriter(), req)) {
+        VerificationForm form = Form.getForm(req, VerificationForm.class);
+        if (form.submitProtected(resp.getWriter(), req)) {
+            String type = form.type;
+            HashMap<String, Object> data = new HashMap<>();
+            data.put("subject", form.subject);
+            PrintWriter out = resp.getWriter();
+            if ("email".equals(type)) {
+                emailAddressVerified.output(out, getLanguage(req), data);
+            } else if ("domain".equals(type)) {
+                domainVerified.output(out, getLanguage(req), data);
+            }
         }
     }
 
@@ -111,7 +115,6 @@ public class Verify extends Page {
             new VerificationForm(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
         } catch (IllegalArgumentException e) {
             resp.getWriter().println(translate(req, "The object to verify is invalid."));
-
         }
     }
 

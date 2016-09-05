@@ -16,7 +16,6 @@ import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
-import org.cacert.gigi.pages.Page;
 
 public class AffiliationForm extends Form {
 
@@ -30,7 +29,7 @@ public class AffiliationForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         if (req.getParameter("del") != null) {
             User toRemove = User.getByEmail(req.getParameter("del"));
             if (toRemove != null) {
@@ -43,11 +42,10 @@ public class AffiliationForm extends Form {
                 o.addAdmin(byEmail, LoginPage.getUser(req), req.getParameter("master") != null);
                 return true;
             } else {
-                out.println(Page.getLanguage(req).getTranslation("Requested user is not a RA Agent. We need a RA Agent here."));
+                throw new GigiApiException("Requested user is not a RA Agent. We need a RA Agent here.");
             }
         }
-        out.println(Page.getLanguage(req).getTranslation("No action could have been carried out."));
-        return false;
+        throw new GigiApiException("No action could have been carried out.");
     }
 
     @Override

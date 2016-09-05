@@ -93,7 +93,7 @@ public class Signup extends Form {
     }
 
     @Override
-    public synchronized boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public synchronized boolean submit(HttpServletRequest req) throws GigiApiException {
         if (RegisterPage.RATE_LIMIT.isLimitExceeded(req.getRemoteAddr())) {
             throw new RateLimitException();
         }

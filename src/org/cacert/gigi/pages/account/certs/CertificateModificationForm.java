@@ -32,7 +32,7 @@ public class CertificateModificationForm extends Form {
     private static final Template myTemplate = new Template(CertificateModificationForm.class.getResource("CertificateModificationForm.templ"));
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) {
+    public boolean submit(HttpServletRequest req) {
         String action = req.getParameter("action");
         if ( !"revoke".equals(action)) {
             return false;

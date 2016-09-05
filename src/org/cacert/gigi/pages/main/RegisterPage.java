@@ -44,7 +44,7 @@ public class RegisterPage extends Page {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Signup s = Form.getForm(req, Signup.class);
         try {
-            if (s.submit(resp.getWriter(), req)) {
+            if (s.submit(req)) {
                 HttpSession hs = req.getSession();
                 hs.setAttribute(SIGNUP_PROCESS, null);
                 resp.getWriter().println(translate(req, "Your information has been submitted" + " into our system. You will now be sent an email with a web link," + " you need to open that link in your web browser within 24 hours" + " or your information will be removed from our system!"));

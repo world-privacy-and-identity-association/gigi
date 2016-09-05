@@ -27,7 +27,7 @@ public class RevokeSingleCertForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         if (target != null) {
             target.revokeCertificate(c);
         } else {

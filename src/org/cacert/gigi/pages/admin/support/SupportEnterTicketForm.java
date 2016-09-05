@@ -22,7 +22,7 @@ public class SupportEnterTicketForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         if (req.getParameter("setTicket") != null) {
             // [asdmASDM]\d{8}\.\d+
             String ticket = req.getParameter("ticketno");

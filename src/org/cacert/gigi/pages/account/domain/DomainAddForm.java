@@ -12,7 +12,6 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.Template;
-import org.cacert.gigi.pages.Page;
 
 public class DomainAddForm extends Form {
 
@@ -29,7 +28,7 @@ public class DomainAddForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         try {
             String parameter = req.getParameter("newdomain");
             if (parameter.trim().isEmpty()) {
@@ -37,14 +36,10 @@ public class DomainAddForm extends Form {
             }
             Domain d = new Domain(target, target, parameter);
             pcf.setTarget(d);
-            pcf.submit(out, req);
+            pcf.submit(req);
             return true;
         } catch (NumberFormatException e) {
-            new GigiApiException("A number could not be parsed").format(out, Page.getLanguage(req));
-            return false;
-        } catch (GigiApiException e) {
-            e.format(out, Page.getLanguage(req));
-            return false;
+            throw new GigiApiException("A number could not be parsed");
         }
     }
 

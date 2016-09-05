@@ -1,7 +1,6 @@
 package org.cacert.gigi.pages.account.mail;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,21 +33,20 @@ public class MailOverview extends Page {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        PrintWriter out = resp.getWriter();
-        if (req.getParameter("addmail") != null) {
-            MailAddForm f = Form.getForm(req, MailAddForm.class);
-            try {
-                if (f.submit(out, req)) {
+        try {
+            if (req.getParameter("addmail") != null) {
+                MailAddForm f = Form.getForm(req, MailAddForm.class);
+                if (f.submit(req)) {
                     resp.sendRedirect(MailOverview.DEFAULT_PATH);
                 }
-            } catch (GigiApiException e) {
-                e.format(resp.getWriter(), getLanguage(req));
+            } else {
+                MailManagementForm f = Form.getForm(req, MailManagementForm.class);
+                if (f.submit(req)) {
+                    resp.sendRedirect(MailOverview.DEFAULT_PATH);
+                }
             }
-        } else {
-            MailManagementForm f = Form.getForm(req, MailManagementForm.class);
-            if (f.submit(out, req)) {
-                resp.sendRedirect(MailOverview.DEFAULT_PATH);
-            }
+        } catch (GigiApiException e) {
+            e.format(resp.getWriter(), getLanguage(req));
         }
         super.doPost(req, resp);
     }

@@ -39,7 +39,7 @@ public class LoginPage extends Page {
         }
 
         @Override
-        public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+        public boolean submit(HttpServletRequest req) throws GigiApiException {
             if (RegisterPage.RATE_LIMIT.isLimitExceeded(req.getRemoteAddr())) {
                 throw new RateLimitException();
             }
@@ -64,14 +64,17 @@ public class LoginPage extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Object o = req.getAttribute(SUBMIT_EXCEPTION);
-        if (o != null) {
-            ((GigiApiException) o).format(resp.getWriter(), getLanguage(req));
-        }
         if (req.getHeader("Host").equals(ServerConstants.getSecureHostNamePort())) {
             resp.getWriter().println(getLanguage(req).getTranslation("Authentication with certificate failed. Try another certificate or use a password."));
         } else {
             new LoginForm(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+        }
+    }
+
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (Form.printFormErrors(req, resp.getWriter())) {
+            Form.getForm(req, LoginForm.class).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
         }
     }
 
@@ -84,10 +87,7 @@ public class LoginPage extends Page {
                 tryAuthWithCertificate(req, cert);
             }
             if (req.getMethod().equals("POST")) {
-                try {
-                    Form.getForm(req, LoginForm.class).submit(resp.getWriter(), req);
-                } catch (GigiApiException e) {
-                    req.setAttribute(SUBMIT_EXCEPTION, e);
+                if ( !Form.getForm(req, LoginForm.class).submitExceptionProtected(req)) {
                     return false;
                 }
             }

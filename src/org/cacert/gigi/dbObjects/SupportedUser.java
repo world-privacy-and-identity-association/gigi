@@ -1,7 +1,6 @@
 package org.cacert.gigi.dbObjects;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -175,11 +174,11 @@ public class SupportedUser {
         }
     }
 
-    public void triggerPasswordReset(String aword, PrintWriter out, HttpServletRequest req) {
+    public void triggerPasswordReset(String aword, HttpServletRequest req) {
         Language l = Language.getInstance(target.getPreferredLocale());
         String method = l.getTranslation("A password reset was triggered. Please enter the required text sent to you by support on this page:");
         String subject = l.getTranslation("Password reset by support.");
-        PasswordResetPage.initPasswordResetProcess(out, target, req, aword, l, method, subject);
+        PasswordResetPage.initPasswordResetProcess(target, req, aword, l, method, subject);
         Outputable message = new TranslateCommand("A password reset was triggered and an email was sent to user.");
         sendSupportNotification(subject, message);
     }

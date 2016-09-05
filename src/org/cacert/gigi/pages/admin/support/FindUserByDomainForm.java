@@ -24,7 +24,7 @@ public class FindUserByDomainForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         String request = req.getParameter("domain");
         Domain d = null;
         if (request.matches("#[0-9]+")) {

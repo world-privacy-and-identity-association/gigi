@@ -27,6 +27,7 @@ public class DomainOverview extends Page {
         CertificateOwner u = LoginPage.getAuthorizationContext(req).getTarget();
         String pi = req.getPathInfo();
         if (pi.length() - PATH.length() > 0) {
+            Form.printFormErrors(req, resp.getWriter());
             int i = Integer.parseInt(pi.substring(PATH.length()));
             Domain d;
             try {
@@ -63,30 +64,31 @@ public class DomainOverview extends Page {
     }
 
     @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String pi = req.getPathInfo();
         if (pi.length() - PATH.length() > 0) {
-            try {
-                if (req.getParameter("configId") != null) {
-                    if ( !Form.getForm(req, DomainPinglogForm.class).submit(resp.getWriter(), req)) {
-                        // error?
-                    }
-
-                } else {
-                    if ( !Form.getForm(req, PingConfigForm.class).submit(resp.getWriter(), req)) {
-
-                    }
+            if (req.getParameter("configId") != null) {
+                if (Form.getForm(req, DomainPinglogForm.class).submitExceptionProtected(req)) {
+                    resp.sendRedirect(pi);
+                    return true;
                 }
-            } catch (GigiApiException e) {
-                e.format(resp.getWriter(), getLanguage(req));
-                return;
+
+            } else {
+                if (Form.getForm(req, PingConfigForm.class).submitExceptionProtected(req)) {
+                    resp.sendRedirect(pi);
+                    return true;
+                }
             }
 
-            resp.sendRedirect(pi);
         }
+        return super.beforePost(req, resp);
+    }
+
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (req.getParameter("adddomain") != null) {
             DomainAddForm f = Form.getForm(req, DomainAddForm.class);
-            if (f.submit(resp.getWriter(), req)) {
+            if (f.submitProtected(resp.getWriter(), req)) {
                 resp.sendRedirect(PATH);
             }
         } else if (req.getParameter("delete") != null) {

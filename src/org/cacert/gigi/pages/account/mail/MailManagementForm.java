@@ -27,7 +27,7 @@ public class MailManagementForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         try {
             String d;
             if ((d = req.getParameter("default")) != null) {
@@ -37,14 +37,10 @@ public class MailManagementForm extends Form {
             } else if ((d = req.getParameter("reping")) != null) {
                 EmailAddress.getById(Integer.parseInt(d)).requestReping(Page.getLanguage(req));
             }
-        } catch (GigiApiException e) {
-            e.format(out, Page.getLanguage(req));
-            return false;
+            return true;
         } catch (IOException e1) {
-            new GigiApiException("Error while doing reping.").format(out, Page.getLanguage(req));
-            return false;
+            throw new GigiApiException("Error while doing reping.");
         }
-        return true;
     }
 
     @Override

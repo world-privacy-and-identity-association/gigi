@@ -29,7 +29,7 @@ public class OrgDomainAddForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         String domain = req.getParameter("domain");
         new Domain(LoginPage.getUser(req), target, domain);
         return true;

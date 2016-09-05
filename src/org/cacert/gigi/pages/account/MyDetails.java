@@ -32,23 +32,29 @@ public class MyDetails extends Page {
     }
 
     @Override
-    public boolean beforeTemplate(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (req.getParameter("orgaForm") != null) {
-            Form.getForm(req, MyOrganisationsForm.class).submit(resp.getWriter(), req);
-        } else {
-            return false;
+    public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (req.getParameter("orgaForm") != null && Form.getForm(req, MyOrganisationsForm.class).submitExceptionProtected(req)) {
+            resp.sendRedirect(PATH);
+            return true;
         }
-        resp.sendRedirect(PATH);
-        return true;
+        if (req.getParameter("action") != null || req.getParameter("removeName") != null || req.getParameter("deprecateName") != null || req.getParameter("preferred") != null) {
+            if (Form.getForm(req, MyDetailsForm.class).submitExceptionProtected(req)) {
+                resp.sendRedirect(PATH);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (req.getParameter("action") != null || req.getParameter("removeName") != null || req.getParameter("deprecateName") != null || req.getParameter("preferred") != null) {
-            if (Form.getForm(req, MyDetailsForm.class).submit(resp.getWriter(), req)) {
-                resp.sendRedirect(PATH);
+        if (Form.printFormErrors(req, resp.getWriter())) {
+            if (req.getParameter("orgaForm") != null) {
+                Form.getForm(req, MyOrganisationsForm.class).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+            }
+            if (req.getParameter("action") != null || req.getParameter("removeName") != null || req.getParameter("deprecateName") != null || req.getParameter("preferred") != null) {
+                Form.getForm(req, MyDetailsForm.class).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
             }
         }
-        super.doPost(req, resp);
     }
 }

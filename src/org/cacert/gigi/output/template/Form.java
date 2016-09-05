@@ -11,6 +11,7 @@ import javax.servlet.http.HttpSession;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.pages.LoginPage;
+import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.RandomToken;
 
 /**
@@ -18,7 +19,21 @@ import org.cacert.gigi.util.RandomToken;
  */
 public abstract class Form implements Outputable {
 
+    public static class PermamentFormException extends RuntimeException {
+
+        public PermamentFormException(GigiApiException cause) {
+            super(cause);
+        }
+
+        @Override
+        public synchronized GigiApiException getCause() {
+            return (GigiApiException) super.getCause();
+        }
+    }
+
     public static final String CSRF_FIELD = "csrf";
+
+    private static final String SUBMIT_EXCEPTION = "form-submit-exception";
 
     private final String csrf;
 
@@ -52,15 +67,13 @@ public abstract class Form implements Outputable {
     /**
      * Update the forms internal state based on submitted data.
      * 
-     * @param out
-     *            the stream to the user.
      * @param req
      *            the request to take the initial data from.
      * @return true, iff the form succeeded and the user should be redirected.
      * @throws GigiApiException
-     *             if internal operations went wrong.
+     *             if form data had problems or operations went wrong.
      */
-    public abstract boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException;
+    public abstract boolean submit(HttpServletRequest req) throws GigiApiException;
 
     /**
      * Calls {@link #submit(PrintWriter, HttpServletRequest)} while catching and
@@ -77,8 +90,10 @@ public abstract class Form implements Outputable {
      */
     public boolean submitProtected(PrintWriter out, HttpServletRequest req) {
         try {
-            boolean succeeded = submit(out, req);
+            boolean succeeded = submit(req);
             if (succeeded) {
+                HttpSession hs = req.getSession();
+                hs.removeAttribute("form/" + getClass().getName() + "/" + csrf);
                 return true;
             }
         } catch (GigiApiException e) {
@@ -86,6 +101,45 @@ public abstract class Form implements Outputable {
         }
         output(out, LoginPage.getLanguage(req), new HashMap<String, Object>());
         return false;
+    }
+
+    public boolean submitExceptionProtected(HttpServletRequest req) {
+        try {
+            if (submit(req)) {
+                HttpSession hs = req.getSession();
+                hs.removeAttribute("form/" + getClass().getName() + "/" + csrf);
+                return true;
+            }
+            return false;
+        } catch (PermamentFormException e) {
+            req.setAttribute(SUBMIT_EXCEPTION, e);
+            return false;
+        } catch (GigiApiException e) {
+            req.setAttribute(SUBMIT_EXCEPTION, e);
+            return false;
+        }
+    }
+
+    /**
+     * Prints any errors in any form submits on this request.
+     * 
+     * @param req
+     *            The request to extract the errors from.
+     * @param out
+     *            the output stream to the user to write the errors to.
+     * @return true if no permanent errors occurred and the form should be
+     *         reprinted.
+     */
+    public static boolean printFormErrors(HttpServletRequest req, PrintWriter out) {
+        Object o = req.getAttribute(SUBMIT_EXCEPTION);
+        if (o != null && (o instanceof PermamentFormException)) {
+            ((PermamentFormException) o).getCause().format(out, Page.getLanguage(req));
+            return false;
+        }
+        if (o != null && (o instanceof GigiApiException)) {
+            ((GigiApiException) o).format(out, Page.getLanguage(req));
+        }
+        return true;
     }
 
     protected String getCsrfFieldName() {

@@ -437,7 +437,10 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     public static String executeBasicWebInteraction(String cookie, String path, String query, int formIndex) throws IOException, MalformedURLException, UnsupportedEncodingException {
-        URLConnection uc = post(cookie, path, query, formIndex);
+        HttpURLConnection uc = post(cookie, path, query, formIndex);
+        if (uc.getResponseCode() == 302) {
+            return null;
+        }
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
         return error;
     }

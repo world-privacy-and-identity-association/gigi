@@ -18,6 +18,7 @@ import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.AuthorizationContext;
+import org.cacert.gigi.util.HTMLEncoder;
 
 public class SupportUserDetailsPage extends Page {
 
@@ -90,11 +91,15 @@ public class SupportUserDetailsPage extends Page {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             if (req.getParameter("revokeall") != null) {
-                if ( !Form.getForm(req, SupportRevokeCertificatesForm.class).submit(resp.getWriter(), req)) {
+                if ( !Form.getForm(req, SupportRevokeCertificatesForm.class).submitProtected(resp.getWriter(), req)) {
                     throw new GigiApiException("No ticket number set.");
                 }
             } else if (req.getParameter("detailupdate") != null || req.getParameter("resetPass") != null || req.getParameter("removeGroup") != null || req.getParameter("addGroup") != null) {
-                if ( !Form.getForm(req, SupportUserDetailsForm.class).submit(resp.getWriter(), req)) {
+                SupportUserDetailsForm f = Form.getForm(req, SupportUserDetailsForm.class);
+                if (f.wasWithPasswordReset()) {
+                    resp.getWriter().println(HTMLEncoder.encodeHTML(translate(req, "Password reset successful.")));
+                }
+                if ( !f.submitProtected(resp.getWriter(), req)) {
                     throw new GigiApiException("No ticket number set.");
                 }
             }

@@ -20,7 +20,6 @@ import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
-import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.AuthorizationContext;
 import org.cacert.gigi.util.RandomToken;
 
@@ -57,61 +56,58 @@ public class CertificateIssueForm extends Form {
     CertificateValiditySelector issueDate = new CertificateValiditySelector();
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         String csr = req.getParameter("CSR");
         String spkac = req.getParameter("SPKAC");
         try {
-            try {
-                if (csr != null) {
-                    cr = new CertificateRequest(c, csr);
-                    cr.checkKeyStrength(out);
-                } else if (spkac != null) {
-                    cr = new CertificateRequest(c, spkac, spkacChallenge);
-                    cr.checkKeyStrength(out);
-                } else if (cr != null) {
-                    login = "1".equals(req.getParameter("login"));
-                    issueDate.update(req);
-                    GigiApiException error = new GigiApiException();
+            if (csr != null) {
+                cr = new CertificateRequest(c, csr);
+                // TODO cr.checkKeyStrength(out);
+                return false;
+            } else if (spkac != null) {
+                cr = new CertificateRequest(c, spkac, spkacChallenge);
+                // TODO cr.checkKeyStrength(out);
+                return false;
+            } else if (cr != null) {
+                login = "1".equals(req.getParameter("login"));
+                issueDate.update(req);
+                GigiApiException error = new GigiApiException();
 
-                    try {
-                        cr.update(req.getParameter("CN"), req.getParameter("hash_alg"), req.getParameter("profile"), //
-                                req.getParameter("org"), req.getParameter("OU"), req.getParameter("SANs"));
-                    } catch (GigiApiException e) {
-                        error.mergeInto(e);
-                    }
-
-                    Certificate result = null;
-                    try {
-                        result = cr.draft();
-                    } catch (GigiApiException e) {
-                        error.mergeInto(e);
-                    }
-                    if ( !error.isEmpty() || result == null) {
-                        error.format(out, Page.getLanguage(req));
-                        return false;
-                    }
-                    if (login) {
-                        result.setLoginEnabled(true);
-                    }
-                    result.issue(issueDate.getFrom(), issueDate.getTo(), c.getActor()).waitFor(60000);
-                    this.result = result;
-                    return true;
-                } else {
-                    throw new GigiApiException("Error no action.");
+                try {
+                    cr.update(req.getParameter("CN"), req.getParameter("hash_alg"), req.getParameter("profile"), //
+                            req.getParameter("org"), req.getParameter("OU"), req.getParameter("SANs"));
+                } catch (GigiApiException e) {
+                    error.mergeInto(e);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-                throw new GigiApiException("Certificate Request format is invalid.");
-            } catch (GeneralSecurityException e) {
-                e.printStackTrace();
-                throw new GigiApiException("Certificate Request format is invalid.");
+
+                Certificate result = null;
+                try {
+                    result = cr.draft();
+                } catch (GigiApiException e) {
+                    error.mergeInto(e);
+                }
+                if ( !error.isEmpty() || result == null) {
+                    throw error;
+                }
+                if (login) {
+                    result.setLoginEnabled(true);
+                }
+                result.issue(issueDate.getFrom(), issueDate.getTo(), c.getActor()).waitFor(60000);
+                this.result = result;
+                return true;
+            } else {
+                throw new GigiApiException("Error no action.");
             }
-        } catch (GigiApiException e) {
-            e.format(out, Page.getLanguage(req));
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new GigiApiException("Certificate Request format is invalid.");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            throw new GigiApiException("Certificate Request format is invalid.");
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+            throw new GigiApiException("Certificate Request format is invalid.");
         }
-        return false;
     }
 
     @Override

@@ -134,7 +134,7 @@ public class AssuranceForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         location = req.getParameter("location");
         date = req.getParameter("date");
         cs.update(req);
@@ -196,13 +196,17 @@ public class AssuranceForm extends Form {
 
         Notary.assureAll(assurer, assuree, dob, pointsI, location, req.getParameter("date"), type, toAssure.toArray(new Name[toAssure.size()]), cs.getCountry());
 
-        if (aword != null && !aword.equals("")) {
+        if (isWithPasswordReset()) {
             Language langApplicant = Language.getInstance(assuree.getPreferredLocale());
             String method = langApplicant.getTranslation("A password reset was triggered. If you did a password reset by verification, please enter your secret password using this form:");
             String subject = langApplicant.getTranslation("Password reset by verification");
-            PasswordResetPage.initPasswordResetProcess(out, assuree, req, aword, langApplicant, method, subject);
+            PasswordResetPage.initPasswordResetProcess(assuree, req, aword, langApplicant, method, subject);
         }
         return true;
+    }
+
+    public boolean isWithPasswordReset() {
+        return aword != null && !aword.equals("");
     }
 
     public User getAssuree() {

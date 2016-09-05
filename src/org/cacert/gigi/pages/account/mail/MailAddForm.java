@@ -28,7 +28,7 @@ public class MailAddForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         String formMail = req.getParameter("newemail");
         mail = formMail;
         try {

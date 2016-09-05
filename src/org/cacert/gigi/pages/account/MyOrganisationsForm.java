@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.Gigi;
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
@@ -29,7 +30,7 @@ public class MyOrganisationsForm extends Form {
     private static final Template template = new Template(MyOrganisationsForm.class.getResource("MyOrganisationsForm.templ"));
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         if (req.getParameter("org-leave") != null) {
             req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(target.getActor(), target.getActor()));
             return true;
@@ -43,8 +44,7 @@ public class MyOrganisationsForm extends Form {
                 if (orgId == -1) {
                     orgId = id;
                 } else {
-                    out.println(LoginPage.getLanguage(req).getTranslation("Error: invalid parameter."));
-                    return false;
+                    throw new GigiApiException("Error: invalid parameter.");
                 }
             }
         }

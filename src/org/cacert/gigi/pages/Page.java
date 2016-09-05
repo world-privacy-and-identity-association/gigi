@@ -58,6 +58,29 @@ public abstract class Page implements PermissionCheckable {
      *             if output goes wrong.
      */
     public boolean beforeTemplate(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (req.getMethod().equals("POST")) {
+            return beforePost(req, resp);
+        }
+        return false;
+    }
+
+    /**
+     * This method can be overridden to execute code and do stuff before the
+     * default template is applied when the request is a post request and the
+     * default implementation of
+     * {@link #beforeTemplate(HttpServletRequest, HttpServletResponse)} is
+     * called.
+     * 
+     * @param req
+     *            the request to handle.
+     * @param resp
+     *            the response to write to
+     * @return true, if the request is consumed and the default template should
+     *         not be applied.
+     * @throws IOException
+     *             if output goes wrong.
+     */
+    public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         return false;
     }
 

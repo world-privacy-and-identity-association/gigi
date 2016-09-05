@@ -59,7 +59,7 @@ public class PasswordResetPage extends Page {
         }
 
         @Override
-        public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+        public boolean submit(HttpServletRequest req) throws GigiApiException {
             try (GigiPreparedStatement passwordReset = new GigiPreparedStatement("UPDATE `passwordResetTickets` SET `used` = CURRENT_TIMESTAMP WHERE `used` IS NULL AND `created` < CURRENT_TIMESTAMP - interval '1 hours' * ?;")) {
                 passwordReset.setInt(1, HOUR_MAX);
                 passwordReset.execute();
@@ -114,7 +114,7 @@ public class PasswordResetPage extends Page {
 
     private static final MailTemplate passwordResetMail = new MailTemplate(PasswordResetPage.class.getResource("PasswordResetMail.templ"));
 
-    public static void initPasswordResetProcess(PrintWriter out, User targetUser, HttpServletRequest req, String aword, Language l, String method, String subject) {
+    public static void initPasswordResetProcess(User targetUser, HttpServletRequest req, String aword, Language l, String method, String subject) {
         String ptok = RandomToken.generateToken(32);
         int id = targetUser.generatePasswordResetTicket(Page.getUser(req), ptok, aword);
         try {
@@ -126,7 +126,6 @@ public class PasswordResetPage extends Page {
             vars.put("hour_max", HOUR_MAX);
 
             passwordResetMail.sendMail(l, vars, Page.getUser(req).getEmail());
-            out.println(Page.getLanguage(req).getTranslation("Password reset successful."));
         } catch (IOException e) {
             e.printStackTrace();
         }

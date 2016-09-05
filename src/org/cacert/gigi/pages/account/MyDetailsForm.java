@@ -19,7 +19,6 @@ import org.cacert.gigi.output.GroupSelector;
 import org.cacert.gigi.output.NameInput;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Template;
-import org.cacert.gigi.pages.Page;
 
 public class MyDetailsForm extends Form {
 
@@ -56,7 +55,7 @@ public class MyDetailsForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         try {
             String rn = req.getParameter("removeName");
             if (rn != null) {
@@ -115,12 +114,8 @@ public class MyDetailsForm extends Form {
                 return true;
             }
 
-        } catch (GigiApiException e) {
-            e.format(out, Page.getLanguage(req));
-            return false;
         } catch (NumberFormatException e) {
-            new GigiApiException("Invalid value.").format(out, Page.getLanguage(req));
-            return false;
+            throw new GigiApiException("Invalid value.");
         }
         return false;
     }

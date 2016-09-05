@@ -28,7 +28,7 @@ public class DomainManagementForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         String dels = req.getParameter("delete");
 
         int delId = Integer.parseInt(dels);

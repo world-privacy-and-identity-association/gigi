@@ -26,8 +26,7 @@ public class ChangePasswordPage extends Page {
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        ChangeForm f = Form.getForm(req, ChangeForm.class);
-        f.submit(resp.getWriter(), req);
+        Form.getForm(req, ChangeForm.class).submitProtected(resp.getWriter(), req);
     }
 
     @Override

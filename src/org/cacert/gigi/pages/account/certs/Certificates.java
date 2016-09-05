@@ -49,6 +49,9 @@ public class Certificates extends Page implements HandlesMixedRequest {
 
     @Override
     public boolean beforeTemplate(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if ("POST".equals(req.getMethod())) {
+            return beforePost(req, resp);
+        }
 
         String pi = req.getPathInfo().substring(PATH.length());
         if (pi.length() == 0) {
@@ -99,23 +102,42 @@ public class Certificates extends Page implements HandlesMixedRequest {
     }
 
     @Override
+    public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (support && "revoke".equals(req.getParameter("action"))) {
+            if (Form.getForm(req, RevokeSingleCertForm.class).submitExceptionProtected(req)) {
+                resp.sendRedirect(req.getPathInfo());
+                return true;
+            }
+            return false;
+        }
+        if ( !req.getPathInfo().equals(PATH)) {
+            resp.sendError(500);
+            return true;
+        }
+        if (Form.getForm(req, CertificateModificationForm.class).submitExceptionProtected(req)) {
+            resp.sendRedirect(PATH);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (req.getQueryString() != null && !req.getQueryString().equals("") && !req.getQueryString().equals("withRevoked")) {
             return;// Block actions by get parameters.
         }
+
         if (support && "revoke".equals(req.getParameter("action"))) {
-            if (Form.getForm(req, RevokeSingleCertForm.class).submitProtected(resp.getWriter(), req)) {
-                resp.sendRedirect(req.getPathInfo());
-                return;
+            if (Form.printFormErrors(req, resp.getWriter())) {
+                Form.getForm(req, RevokeSingleCertForm.class).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
             }
+            return;
         }
         if ( !req.getPathInfo().equals(PATH)) {
             resp.sendError(500);
             return;
         }
-        Form.getForm(req, CertificateModificationForm.class).submit(resp.getWriter(), req);
-
-        doGet(req, resp);
+        Form.getForm(req, CertificateModificationForm.class).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
     }
 
     @Override

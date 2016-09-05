@@ -23,7 +23,7 @@ public class FindUserByEmailForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         EmailAddress[] emails = EmailAddress.findByAllEmail(req.getParameter("email"));
         if (emails.length == 0) {
             throw new GigiApiException(SprintfCommand.createSimple("No users found matching {0}", req.getParameter("email")));

@@ -28,23 +28,31 @@ public class CertificateAdd extends Page {
     }
 
     @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         CertificateIssueForm f = Form.getForm(req, CertificateIssueForm.class);
-        if (f.submit(resp.getWriter(), req)) {
+        if (f.submitExceptionProtected(req)) {
             Certificate c = f.getResult();
             if (c.getStatus() != CertificateStatus.ISSUED) {
                 resp.getWriter().println("Timeout while waiting for certificate.");
-                return;
+                return false;
             }
             String ser = c.getSerial();
             if (ser.isEmpty()) {
                 resp.getWriter().println("Timeout while waiting for certificate.");
-                return;
+                return false;
             }
             resp.sendRedirect(Certificates.PATH + "/" + ser);
+            return true;
         }
-        f.output(resp.getWriter(), getLanguage(req), Collections.<String, Object>emptyMap());
+        return super.beforePost(req, resp);
+    }
 
+    @Override
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (Form.printFormErrors(req, resp.getWriter())) {
+            CertificateIssueForm f = Form.getForm(req, CertificateIssueForm.class);
+            f.output(resp.getWriter(), getLanguage(req), Collections.<String, Object>emptyMap());
+        }
     }
 
     @Override

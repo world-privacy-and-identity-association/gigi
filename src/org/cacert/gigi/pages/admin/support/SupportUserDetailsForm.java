@@ -30,6 +30,8 @@ public class SupportUserDetailsForm extends Form {
 
     private GroupSelector value = new GroupSelector("groupToModify", true);
 
+    private boolean wasWithPasswordReset = false;
+
     public SupportUserDetailsForm(HttpServletRequest hsr, SupportedUser user) {
         super(hsr);
         this.user = user;
@@ -37,9 +39,9 @@ public class SupportUserDetailsForm extends Form {
     }
 
     @Override
-    public boolean submit(PrintWriter out, HttpServletRequest req) throws GigiApiException {
+    public boolean submit(HttpServletRequest req) throws GigiApiException {
         if (user.getTicket() == null) {
-            return false;
+            throw new GigiApiException("No ticket number set.");
         }
         if (user.getTargetUser() == LoginPage.getUser(req)) {
             throw new GigiApiException("Supporter may not modify himself.");
@@ -62,7 +64,8 @@ public class SupportUserDetailsForm extends Form {
             if (aword == null || aword.equals("")) {
                 throw new GigiApiException("An A-Word is required to perform a password reset.");
             }
-            user.triggerPasswordReset(aword, out, req);
+            user.triggerPasswordReset(aword, req);
+            wasWithPasswordReset = true;
             return true;
         }
         dobSelector.update(req);
@@ -71,6 +74,10 @@ public class SupportUserDetailsForm extends Form {
         }
         user.setDob(dobSelector.getDate());
         return true;
+    }
+
+    public boolean wasWithPasswordReset() {
+        return wasWithPasswordReset;
     }
 
     @Override
