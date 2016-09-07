@@ -12,7 +12,7 @@ org.cacert.gigi.pages Page.Page(String),0
 org.cacert.gigi.pages OneFormPage.OneFormPage(String, Class),0
 org.cacert.gigi.pages StaticPage.StaticPage(String, InputStream),0
 org.cacert.gigi.output.template SprintfCommand.SprintfCommand(String, List),0=>org.cacert.gigi.output.template SprintfCommand.output(PrintWriter, Language, Map),0
-org.cacert.gigi.output.template SprintfCom---invalid---mand.SprintfCommand(String),0=>org.cacert.gigi.output.template Template.parseCommand(String),0
+org.cacert.gigi.output.template SprintfCom---invalid---mand.SprintfCommand(String),0=>org.cacert.gigi.output.template Template.parseCommand(String, ParseContext),0
 org.cacert.gigi.output.template TranslateCommand.TranslateCommand(String),0=>org.cacert.gigi.output.template TranslateCommand.output(PrintWriter, Language, Map),0
 org.cacert.gigi.pages.account.domain DomainOverview.DomainOverview(String),0
 org.cacert.gigi.dbObjects Group.Group(String, String, boolean, boolean, boolean),1

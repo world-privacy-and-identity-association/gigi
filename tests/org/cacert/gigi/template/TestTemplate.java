@@ -142,8 +142,8 @@ public class TestTemplate {
     public void testIgnoredNewline() {
         assertEquals("\\ab\\\\n\n\\c", testExecute(Language.getInstance(Locale.ENGLISH), vars, "\\a\\\nb\\\\n\n\\\\\nc"));
         assertEquals("a\\b\\c", testExecute(Language.getInstance(Locale.ENGLISH), vars, "a\\b\\\n\\c"));
-        // \r's are currently not valid.
-        assertEquals("a\\\r\nb", testExecute(Language.getInstance(Locale.ENGLISH), vars, "a\\\r\nb"));
+        // \r's are now valid.
+        assertEquals("ab", testExecute(Language.getInstance(Locale.ENGLISH), vars, "a\\\r\nb"));
     }
 
 }
