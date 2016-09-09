@@ -53,16 +53,16 @@ public abstract class PingTest extends ClientTest {
         openConnection.getHeaderField("Location");
         int code = ((HttpURLConnection) openConnection).getResponseCode();
         if (code != 302) {
-            throw new Error("Code was: " + code + "\ncontent was: " + IOUtils.readURL(openConnection));
+            throw new Error("Code was: " + code + "\ncontent was: " + fetchStartErrorMessage(IOUtils.readURL(openConnection)));
         }
 
         String newcontent = IOUtils.readURL(get(DomainOverview.PATH));
-        Pattern dlink = Pattern.compile(DomainOverview.PATH + "([0-9]+)'>");
+        Pattern dlink = Pattern.compile(DomainOverview.PATH + "/([0-9]+)'>");
         Matcher m1 = dlink.matcher(newcontent);
         if ( !m1.find()) {
             throw new Error(newcontent);
         }
-        return DomainOverview.PATH + m1.group(1);
+        return DomainOverview.PATH + "/" + m1.group(1);
     }
 
     protected Matcher initailizeDomainForm() throws IOException, Error {

@@ -6,14 +6,15 @@ import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.output.template.Form.CSRFException;
+import org.cacert.gigi.pages.ManagedMultiFormPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.AuthorizationContext;
 
-public class MailOverview extends Page {
+public class MailOverview extends ManagedMultiFormPage {
 
     public static final String DEFAULT_PATH = "/account/mails";
 
@@ -23,36 +24,43 @@ public class MailOverview extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        final User us = getUser(req);
+        User user = getUser(req);
+        output(req, resp, new MailAddForm(req, user), new MailManagementForm(req, user));
+    }
+
+    private void output(HttpServletRequest req, HttpServletResponse resp, MailAddForm addForm, MailManagementForm mgmtForm) throws IOException {
         Language lang = Page.getLanguage(req);
         HashMap<String, Object> vars = new HashMap<>();
-        vars.put("addForm", new MailAddForm(req, us));
-        vars.put("manForm", new MailManagementForm(req, us));
+        vars.put("addForm", addForm);
+        vars.put("manForm", mgmtForm);
         getDefaultTemplate().output(resp.getWriter(), lang, vars);
     }
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        try {
-            if (req.getParameter("addmail") != null) {
-                MailAddForm f = Form.getForm(req, MailAddForm.class);
-                if (f.submit(req)) {
-                    resp.sendRedirect(MailOverview.DEFAULT_PATH);
-                }
+        Form current = getForm(req);
+        if (Form.printFormErrors(req, resp.getWriter())) {
+            User user = getUser(req);
+            if (current instanceof MailAddForm) {
+                output(req, resp, (MailAddForm) current, new MailManagementForm(req, user));
             } else {
-                MailManagementForm f = Form.getForm(req, MailManagementForm.class);
-                if (f.submit(req)) {
-                    resp.sendRedirect(MailOverview.DEFAULT_PATH);
-                }
+                output(req, resp, new MailAddForm(req, user), (MailManagementForm) current);
             }
-        } catch (GigiApiException e) {
-            e.format(resp.getWriter(), getLanguage(req));
         }
-        super.doPost(req, resp);
+    }
+
+    @Override
+    public Form getForm(HttpServletRequest req) throws CSRFException {
+        if (req.getParameter("addmail") != null) {
+            return Form.getForm(req, MailAddForm.class);
+        } else {
+            return Form.getForm(req, MailManagementForm.class);
+        }
     }
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
         return ac != null && ac.getTarget() instanceof User;
     }
+
 }

@@ -15,6 +15,20 @@ import org.cacert.gigi.output.template.Template;
 
 public class FindCertForm extends Form {
 
+    public static class FindResult extends SuccessMessageResult {
+
+        private final Certificate[] certs;
+
+        public FindResult(Certificate[] certs) {
+            super(null);
+            this.certs = certs;
+        }
+
+        public Certificate[] getCerts() {
+            return certs;
+        }
+    }
+
     private static final Template t = new Template(FindCertForm.class.getResource("FindCertForm.templ"));
 
     private final String SERIAL = "serial";
@@ -28,7 +42,7 @@ public class FindCertForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         this.certType = req.getParameter("certType");
         String request = req.getParameter("cert").trim();
 
@@ -50,7 +64,7 @@ public class FindCertForm extends Form {
                 throw new GigiApiException(SprintfCommand.createSimple("No certificate found matching {0}", request));
             }
         }
-        return true;
+        return new FindCertForm.FindResult(getCerts());
     }
 
     @Override

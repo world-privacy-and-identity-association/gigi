@@ -31,10 +31,16 @@ public class FindUserByEmailPage extends Page {
     }
 
     @Override
+    public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        return Form.getForm(req, FindUserByEmailForm.class).submitExceptionProtected(req, resp);
+    }
+
+    @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        FindUserByEmailForm form = Form.getForm(req, FindUserByEmailForm.class);
-        if (form.submitProtected(resp.getWriter(), req)) {
-            final EmailAddress[] emails = form.getEmails();
+        if (Form.printFormErrors(req, resp.getWriter())) {
+            Form.getForm(req, FindUserByEmailForm.class).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+        } else {
+            final EmailAddress[] emails = ((FindUserByEmailForm.FindEmailResult) req.getAttribute(Form.SUBMIT_RESULT)).getEmails();
             if (emails.length == 1) {
                 resp.sendRedirect(SupportUserDetailsPage.PATH + emails[0].getOwner().getId() + "/");
             } else {

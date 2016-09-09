@@ -15,6 +15,7 @@ import org.cacert.gigi.dbObjects.EmailAddress;
 import org.cacert.gigi.dbObjects.Verifyable;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.output.template.Scope;
 import org.cacert.gigi.output.template.SprintfCommand;
 
 public class Verify extends Page {
@@ -54,21 +55,26 @@ public class Verify extends Page {
         }
 
         @Override
-        public boolean submit(HttpServletRequest req) throws GigiApiException {
+        public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
+            HashMap<String, Object> data = new HashMap<>();
+            data.put("subject", subject);
             if ("email".equals(type)) {
                 try {
                     target.verify(hash);
                 } catch (IllegalArgumentException e) {
                     throw new GigiApiException("The email address is invalid.");
                 }
+                return new SuccessMessageResult(new Scope(emailAddressVerified, data));
             } else if ("domain".equals(type)) {
                 try {
                     target.verify(hash);
                 } catch (IllegalArgumentException e) {
                     throw new GigiApiException("The domain is invalid.");
                 }
+                return new SuccessMessageResult(new Scope(domainVerified, data));
+            } else {
+                throw new GigiApiException("Invalid object type.");
             }
-            return true;
         }
 
         @Override
@@ -94,18 +100,14 @@ public class Verify extends Page {
     }
 
     @Override
+    public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        return Form.getForm(req, VerificationForm.class).submitExceptionProtected(req, resp);
+    }
+
+    @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        VerificationForm form = Form.getForm(req, VerificationForm.class);
-        if (form.submitProtected(resp.getWriter(), req)) {
-            String type = form.type;
-            HashMap<String, Object> data = new HashMap<>();
-            data.put("subject", form.subject);
-            PrintWriter out = resp.getWriter();
-            if ("email".equals(type)) {
-                emailAddressVerified.output(out, getLanguage(req), data);
-            } else if ("domain".equals(type)) {
-                domainVerified.output(out, getLanguage(req), data);
-            }
+        if (Form.printFormErrors(req, resp.getWriter())) {
+            Form.getForm(req, VerificationForm.class).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
         }
     }
 

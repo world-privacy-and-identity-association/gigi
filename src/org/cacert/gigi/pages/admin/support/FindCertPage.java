@@ -34,10 +34,14 @@ public class FindCertPage extends Page {
     }
 
     @Override
+    public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        return Form.getForm(req, FindCertForm.class).submitExceptionProtected(req, resp);
+    }
+
+    @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        FindCertForm form = Form.getForm(req, FindCertForm.class);
-        if (form.submitProtected(resp.getWriter(), req)) {
-            final Certificate[] certs = form.getCerts();
+        if ( !Form.printFormErrors(req, resp.getWriter())) {
+            final Certificate[] certs = ((FindCertForm.FindResult) req.getAttribute(Form.SUBMIT_RESULT)).getCerts();
             if (certs.length == 1) {
                 resp.sendRedirect(Certificates.SUPPORT_PATH + "/" + certs[0].getSerial());
             } else {

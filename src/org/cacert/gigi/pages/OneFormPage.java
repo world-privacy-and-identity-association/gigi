@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.output.template.Form;
 
-public abstract class OneFormPage extends Page {
+public class OneFormPage extends Page {
 
     Class<? extends Form> c;
 
@@ -19,10 +19,15 @@ public abstract class OneFormPage extends Page {
     }
 
     @Override
+    public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        return Form.getForm(req, c).submitExceptionProtected(req, resp);
+    }
+
+    @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Form form = Form.getForm(req, c);
-        if (form.submitProtected(resp.getWriter(), req)) {
-            resp.sendRedirect(getSuccessPath(form));
+        if (Form.printFormErrors(req, resp.getWriter())) {
+            form.output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
         }
     }
 
@@ -34,7 +39,5 @@ public abstract class OneFormPage extends Page {
             new GigiApiException().format(resp.getWriter(), getLanguage(req));
         }
     }
-
-    public abstract String getSuccessPath(Form f);
 
 }

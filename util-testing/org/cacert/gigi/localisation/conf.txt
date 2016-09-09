@@ -17,3 +17,5 @@ org.cacert.gigi.output.template TranslateCommand.TranslateCommand(String),0=>org
 org.cacert.gigi.pages.account.domain DomainOverview.DomainOverview(String),0
 org.cacert.gigi.dbObjects Group.Group(String, String, boolean, boolean, boolean),1
 org.cacert.gigi.output.template SprintfCommand.createSimple(String, Object[]),0
+org.cacert.gigi.pages ManagedFormPage.ManagedFormPage(String, Class),0
+org.cacert.gigi.pages ManagedMultiFormPage.ManagedMultiFormPage(String),0

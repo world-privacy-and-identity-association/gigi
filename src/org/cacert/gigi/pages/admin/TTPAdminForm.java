@@ -27,11 +27,11 @@ public class TTPAdminForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         if (req.getParameter("deny") != null) {
             u.revokeGroup(ttpAdmin, TTPAdminPage.TTP_APPLICANT);
         }
-        return false;
+        return new RedirectResult(TTPAdminPage.PATH);
     }
 
     @Override

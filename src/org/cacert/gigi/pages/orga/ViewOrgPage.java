@@ -13,14 +13,15 @@ import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
+import org.cacert.gigi.output.template.Form.CSRFException;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
-import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.pages.ManagedMultiFormPage;
 import org.cacert.gigi.pages.account.domain.DomainManagementForm;
 import org.cacert.gigi.util.AuthorizationContext;
 
-public class ViewOrgPage extends Page {
+public class ViewOrgPage extends ManagedMultiFormPage {
 
     private static final Template orgas = new Template(ViewOrgPage.class.getResource("ViewOrgs.templ"));
 
@@ -38,38 +39,22 @@ public class ViewOrgPage extends Page {
     }
 
     @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        User u = LoginPage.getUser(req);
+    public Form getForm(HttpServletRequest req) throws CSRFException {
         if (req.getParameter("do_affiliate") != null || req.getParameter("del") != null) {
-            AffiliationForm form = Form.getForm(req, AffiliationForm.class);
-            if (form.submitProtected(resp.getWriter(), req)) {
-                resp.sendRedirect(DEFAULT_PATH + "/" + form.getOrganisation().getId());
-            }
-            return;
+            return Form.getForm(req, AffiliationForm.class);
         } else {
-            if ( !u.isInGroup(CreateOrgPage.ORG_ASSURER)) {
-                resp.sendError(403, "Access denied");
-                return;
+            if ( !getUser(req).isInGroup(CreateOrgPage.ORG_ASSURER)) {
+                return null;
             }
 
             if (req.getParameter("addDomain") != null) {
-                OrgDomainAddForm form = Form.getForm(req, OrgDomainAddForm.class);
-                if (form.submitProtected(resp.getWriter(), req)) {
-                    resp.sendRedirect(DEFAULT_PATH + "/" + form.getOrganisation().getId());
-                }
+                return Form.getForm(req, OrgDomainAddForm.class);
             } else if (req.getParameter("delete") != null) {
-                DomainManagementForm form = Form.getForm(req, DomainManagementForm.class);
-                if (form.submitProtected(resp.getWriter(), req)) {
-                    resp.sendRedirect(DEFAULT_PATH + "/" + form.getTarget().getId());
-                }
+                return Form.getForm(req, DomainManagementForm.class);
             } else {
-                CreateOrgForm form = Form.getForm(req, CreateOrgForm.class);
-                if (form.submitProtected(resp.getWriter(), req)) {
-                    resp.sendRedirect(DEFAULT_PATH + "/" + form.getResult().getId());
-                }
+                return Form.getForm(req, CreateOrgForm.class);
             }
         }
-
     }
 
     @Override

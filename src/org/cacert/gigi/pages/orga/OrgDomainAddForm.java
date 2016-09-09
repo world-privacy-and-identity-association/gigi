@@ -24,15 +24,11 @@ public class OrgDomainAddForm extends Form {
         this.target = target;
     }
 
-    public Organisation getOrganisation() {
-        return target;
-    }
-
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         String domain = req.getParameter("domain");
         new Domain(LoginPage.getUser(req), target, domain);
-        return true;
+        return new RedirectResult(ViewOrgPage.DEFAULT_PATH + "/" + target.getId());
     }
 
     @Override

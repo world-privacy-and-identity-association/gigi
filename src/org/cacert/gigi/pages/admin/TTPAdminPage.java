@@ -29,9 +29,14 @@ public class TTPAdminPage extends Page {
     }
 
     @Override
+    public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        return Form.getForm(req, TTPAdminForm.class).submitExceptionProtected(req, resp);
+    }
+
+    @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (Form.getForm(req, TTPAdminForm.class).submitProtected(resp.getWriter(), req)) {
-            resp.sendRedirect(PATH);
+        if (Form.printFormErrors(req, resp.getWriter())) {
+            Form.getForm(req, TTPAdminForm.class).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
         }
     }
 

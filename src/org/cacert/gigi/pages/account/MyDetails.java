@@ -33,15 +33,11 @@ public class MyDetails extends Page {
 
     @Override
     public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (req.getParameter("orgaForm") != null && Form.getForm(req, MyOrganisationsForm.class).submitExceptionProtected(req)) {
-            resp.sendRedirect(PATH);
-            return true;
+        if (req.getParameter("orgaForm") != null) {
+            return Form.getForm(req, MyOrganisationsForm.class).submitExceptionProtected(req, resp);
         }
         if (req.getParameter("action") != null || req.getParameter("removeName") != null || req.getParameter("deprecateName") != null || req.getParameter("preferred") != null) {
-            if (Form.getForm(req, MyDetailsForm.class).submitExceptionProtected(req)) {
-                resp.sendRedirect(PATH);
-                return true;
-            }
+            return Form.getForm(req, MyDetailsForm.class).submitExceptionProtected(req, resp);
         }
         return false;
     }

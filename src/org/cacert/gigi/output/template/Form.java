@@ -6,11 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.localisation.Language;
-import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.RandomToken;
 
@@ -31,9 +31,66 @@ public abstract class Form implements Outputable {
         }
     }
 
+    /**
+     * Encapsulates a (non-failure) outcome of a form.
+     */
+    public static abstract class SubmissionResult {
+
+        public abstract boolean endsForm();
+    }
+
+    /**
+     * The form has finished and the user should see the successful completion
+     * on a regular page.
+     */
+    public static class RedirectResult extends SubmissionResult {
+
+        private final String target;
+
+        public RedirectResult(String target) {
+            this.target = target;
+        }
+
+        @Override
+        public boolean endsForm() {
+            return true;
+        }
+
+    }
+
+    /**
+     * The form has not finished and should be re-emitted, however no error
+     * occurred.
+     */
+    public static class FormContinue extends SubmissionResult {
+
+        @Override
+        public boolean endsForm() {
+            return false;
+        }
+    }
+
+    /**
+     * The form has successfully finished and a message should be emitted on a
+     * stateful page.
+     */
+    public static class SuccessMessageResult extends SubmissionResult {
+
+        private final Outputable message;
+
+        public SuccessMessageResult(Outputable message) {
+            this.message = message;
+        }
+
+        @Override
+        public boolean endsForm() {
+            return true;
+        }
+    }
+
     public static final String CSRF_FIELD = "csrf";
 
-    private static final String SUBMIT_EXCEPTION = "form-submit-exception";
+    public static final String SUBMIT_RESULT = "form-submit-result";
 
     private final String csrf;
 
@@ -73,49 +130,26 @@ public abstract class Form implements Outputable {
      * @throws GigiApiException
      *             if form data had problems or operations went wrong.
      */
-    public abstract boolean submit(HttpServletRequest req) throws GigiApiException;
+    public abstract SubmissionResult submit(HttpServletRequest req) throws GigiApiException;
 
-    /**
-     * Calls {@link #submit(PrintWriter, HttpServletRequest)} while catching and
-     * displaying errors ({@link GigiApiException}), and re-outputing the form
-     * via {@link #output(PrintWriter, Language, Map)}.
-     * 
-     * @param out
-     *            the target to write the form and errors to
-     * @param req
-     *            the request that this submit originated (for submit and for
-     *            language)
-     * @return as {@link #submit(PrintWriter, HttpServletRequest)}: true, iff
-     *         the form succeeded and the user should be redirected.
-     */
-    public boolean submitProtected(PrintWriter out, HttpServletRequest req) {
+    public boolean submitExceptionProtected(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            boolean succeeded = submit(req);
-            if (succeeded) {
-                HttpSession hs = req.getSession();
-                hs.removeAttribute("form/" + getClass().getName() + "/" + csrf);
+            SubmissionResult res = submit(req);
+            req.setAttribute(SUBMIT_RESULT, res);
+            if (res instanceof RedirectResult) {
+                resp.sendRedirect(((RedirectResult) res).target);
                 return true;
             }
-        } catch (GigiApiException e) {
-            e.format(out, LoginPage.getLanguage(req));
-        }
-        output(out, LoginPage.getLanguage(req), new HashMap<String, Object>());
-        return false;
-    }
-
-    public boolean submitExceptionProtected(HttpServletRequest req) {
-        try {
-            if (submit(req)) {
+            if (res.endsForm()) {
                 HttpSession hs = req.getSession();
                 hs.removeAttribute("form/" + getClass().getName() + "/" + csrf);
-                return true;
             }
             return false;
         } catch (PermamentFormException e) {
-            req.setAttribute(SUBMIT_EXCEPTION, e);
+            req.setAttribute(SUBMIT_RESULT, e);
             return false;
         } catch (GigiApiException e) {
-            req.setAttribute(SUBMIT_EXCEPTION, e);
+            req.setAttribute(SUBMIT_RESULT, e);
             return false;
         }
     }
@@ -128,16 +162,29 @@ public abstract class Form implements Outputable {
      * @param out
      *            the output stream to the user to write the errors to.
      * @return true if no permanent errors occurred and the form should be
-     *         reprinted.
+     *         reprinted (and it has not already been successfully submitted)
      */
     public static boolean printFormErrors(HttpServletRequest req, PrintWriter out) {
-        Object o = req.getAttribute(SUBMIT_EXCEPTION);
+        Object o = req.getAttribute(SUBMIT_RESULT);
         if (o != null && (o instanceof PermamentFormException)) {
             ((PermamentFormException) o).getCause().format(out, Page.getLanguage(req));
             return false;
         }
         if (o != null && (o instanceof GigiApiException)) {
             ((GigiApiException) o).format(out, Page.getLanguage(req));
+            return true;
+        }
+        if (o != null && (o instanceof FormContinue)) {
+            return true;
+        }
+        if (o != null && (o instanceof SuccessMessageResult)) {
+            Outputable message = ((SuccessMessageResult) o).message;
+            if (message != null) {
+                out.println("<div class='alert alert-success'>");
+                message.output(out, Page.getLanguage(req), new HashMap<String, Object>());
+                out.println("</div>");
+            }
+            return false;
         }
         return true;
     }

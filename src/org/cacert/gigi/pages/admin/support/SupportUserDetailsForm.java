@@ -18,6 +18,7 @@ import org.cacert.gigi.output.GroupIterator;
 import org.cacert.gigi.output.GroupSelector;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.output.template.TranslateCommand;
 import org.cacert.gigi.pages.LoginPage;
 
 public class SupportUserDetailsForm extends Form {
@@ -30,8 +31,6 @@ public class SupportUserDetailsForm extends Form {
 
     private GroupSelector value = new GroupSelector("groupToModify", true);
 
-    private boolean wasWithPasswordReset = false;
-
     public SupportUserDetailsForm(HttpServletRequest hsr, SupportedUser user) {
         super(hsr);
         this.user = user;
@@ -39,7 +38,7 @@ public class SupportUserDetailsForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         if (user.getTicket() == null) {
             throw new GigiApiException("No ticket number set.");
         }
@@ -57,7 +56,7 @@ public class SupportUserDetailsForm extends Form {
             } else {
                 user.revoke(toMod);
             }
-            return true;
+            return new RedirectResult(req.getPathInfo());
         }
         if (req.getParameter("resetPass") != null) {
             String aword = req.getParameter("aword");
@@ -65,19 +64,14 @@ public class SupportUserDetailsForm extends Form {
                 throw new GigiApiException("An A-Word is required to perform a password reset.");
             }
             user.triggerPasswordReset(aword, req);
-            wasWithPasswordReset = true;
-            return true;
+            return new SuccessMessageResult(new TranslateCommand("Password reset successful."));
         }
         dobSelector.update(req);
         if ( !dobSelector.isValid()) {
             throw new GigiApiException("Invalid date of birth!");
         }
         user.setDob(dobSelector.getDate());
-        return true;
-    }
-
-    public boolean wasWithPasswordReset() {
-        return wasWithPasswordReset;
+        return new RedirectResult(req.getPathInfo());
     }
 
     @Override

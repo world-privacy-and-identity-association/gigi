@@ -55,7 +55,7 @@ public class MyDetailsForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         try {
             String rn = req.getParameter("removeName");
             if (rn != null) {
@@ -67,7 +67,7 @@ public class MyDetailsForm extends Form {
                     throw new GigiApiException("Cannot remove the account's preferred name.");
                 }
                 n.remove();
-                return true;
+                return new RedirectResult(MyDetails.PATH);
             }
             String dn = req.getParameter("deprecateName");
             if (dn != null) {
@@ -79,31 +79,29 @@ public class MyDetailsForm extends Form {
                     throw new GigiApiException("Cannot deprecate the account's preferred name.");
                 }
                 n.deprecate();
-                return true;
+                return new RedirectResult(MyDetails.PATH);
             }
             String pn = req.getParameter("preferred");
             if (pn != null) {
                 Name n = Name.getById(Integer.parseInt(pn));
                 target.setPreferredName(n);
-                return true;
+                return new RedirectResult(MyDetails.PATH);
             }
 
             String action = req.getParameter("action");
             if ("addName".equals(action)) {
                 ni.update(req);
                 ni.createName(target);
-                return true;
-            }
-            if ("updateDoB".equals(action)) {
+                return new RedirectResult(MyDetails.PATH);
+            } else if ("updateDoB".equals(action)) {
                 ds.update(req);
                 target.setDoB(ds.getDate());
-            }
-            if ("updateResidenceCountry".equals(action)) {
+                return new RedirectResult(MyDetails.PATH);
+            } else if ("updateResidenceCountry".equals(action)) {
                 cs.update(req);
                 target.setResidenceCountry(cs.getCountry());
-            }
-
-            if ("addGroup".equals(action) || "removeGroup".equals(action)) {
+                return new RedirectResult(MyDetails.PATH);
+            } else if ("addGroup".equals(action) || "removeGroup".equals(action)) {
                 selectedGroup.update(req);
                 Group toMod = selectedGroup.getGroup();
                 if ("addGroup".equals(action)) {
@@ -111,13 +109,14 @@ public class MyDetailsForm extends Form {
                 } else {
                     target.revokeGroup(target, toMod);
                 }
-                return true;
+                return new RedirectResult(MyDetails.PATH);
+            } else {
+                throw new GigiApiException("Invalid action.");
             }
 
         } catch (NumberFormatException e) {
             throw new GigiApiException("Invalid value.");
         }
-        return false;
     }
 
     @Override

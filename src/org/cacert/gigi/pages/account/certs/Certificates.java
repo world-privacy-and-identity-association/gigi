@@ -104,21 +104,13 @@ public class Certificates extends Page implements HandlesMixedRequest {
     @Override
     public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (support && "revoke".equals(req.getParameter("action"))) {
-            if (Form.getForm(req, RevokeSingleCertForm.class).submitExceptionProtected(req)) {
-                resp.sendRedirect(req.getPathInfo());
-                return true;
-            }
-            return false;
+            return Form.getForm(req, RevokeSingleCertForm.class).submitExceptionProtected(req, resp);
         }
         if ( !req.getPathInfo().equals(PATH)) {
             resp.sendError(500);
             return true;
         }
-        if (Form.getForm(req, CertificateModificationForm.class).submitExceptionProtected(req)) {
-            resp.sendRedirect(PATH);
-            return true;
-        }
-        return false;
+        return Form.getForm(req, CertificateModificationForm.class).submitExceptionProtected(req, resp);
     }
 
     @Override

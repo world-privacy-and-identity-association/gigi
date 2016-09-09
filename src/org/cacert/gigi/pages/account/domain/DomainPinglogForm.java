@@ -28,10 +28,10 @@ public class DomainPinglogForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         CertificateOwner u = LoginPage.getAuthorizationContext(req).getTarget();
 
-        int i = Integer.parseInt(req.getPathInfo().substring(DomainOverview.PATH.length()));
+        int i = Integer.parseInt(req.getPathInfo().substring(DomainOverview.PATH.length() + 1));
         Domain d = Domain.getById(i);
         if (u.getId() != d.getOwner().getId()) {
             throw new GigiApiException("Error, owner mismatch.");
@@ -42,7 +42,7 @@ public class DomainPinglogForm extends Form {
             throw new GigiApiException("Error, target mismatch.");
         }
         dpc.requestReping();
-        return true;
+        return new RedirectResult(req.getPathInfo());
     }
 
     @Override

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Job;
@@ -32,15 +33,14 @@ public class CertificateModificationForm extends Form {
     private static final Template myTemplate = new Template(CertificateModificationForm.class.getResource("CertificateModificationForm.templ"));
 
     @Override
-    public boolean submit(HttpServletRequest req) {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         String action = req.getParameter("action");
         if ( !"revoke".equals(action)) {
-            return false;
+            throw new GigiApiException("Incorrect action given.");
         }
         String[] certs = req.getParameterValues("certs[]");
         if (certs == null) {
-            // nothing to do
-            return false;
+            throw new GigiApiException("No certificates to revoke.");
         }
         LinkedList<Job> revokes = new LinkedList<Job>();
         for (String serial : certs) {
@@ -59,8 +59,7 @@ public class CertificateModificationForm extends Form {
                 break; // canceled... waited too log
             }
         }
-
-        return false;
+        return new RedirectResult(req.getPathInfo());
     }
 
     @Override

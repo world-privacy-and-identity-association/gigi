@@ -7,32 +7,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.dbObjects.Group;
-import org.cacert.gigi.output.template.Form;
-import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.pages.ManagedFormPage;
 import org.cacert.gigi.util.AuthorizationContext;
 
-public class CreateOrgPage extends Page {
+public class CreateOrgPage extends ManagedFormPage {
 
     public static final Group ORG_ASSURER = Group.ORGASSURER;
 
     public static final String DEFAULT_PATH = "/orga/new";
 
     public CreateOrgPage() {
-        super("Create Organisation");
+        super("Create Organisation", CreateOrgForm.class);
     }
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
         return ac != null && ac.isInGroup(ORG_ASSURER);
-    }
-
-    @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        CreateOrgForm form = Form.getForm(req, CreateOrgForm.class);
-        if (form.submitProtected(resp.getWriter(), req)) {
-            resp.sendRedirect(ViewOrgPage.DEFAULT_PATH + "/" + form.getResult().getId());
-            return;
-        }
     }
 
     @Override

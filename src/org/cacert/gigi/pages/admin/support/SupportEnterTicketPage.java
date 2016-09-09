@@ -26,11 +26,7 @@ public class SupportEnterTicketPage extends Page {
             return false;
         }
         SupportEnterTicketForm f = Form.getForm(req, SupportEnterTicketForm.class);
-        if (f.submitExceptionProtected(req)) {
-            resp.sendRedirect(PATH);
-            return true;
-        }
-        return false;
+        return f.submitExceptionProtected(req, resp);
 
     }
 

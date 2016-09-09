@@ -32,7 +32,6 @@ import org.cacert.gigi.output.MenuCollector;
 import org.cacert.gigi.output.PageMenuItem;
 import org.cacert.gigi.output.SimpleMenuItem;
 import org.cacert.gigi.output.SimpleUntranslatedMenuItem;
-import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Form.CSRFException;
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.Template;
@@ -56,6 +55,7 @@ import org.cacert.gigi.pages.account.UserTrainings;
 import org.cacert.gigi.pages.account.certs.CertificateAdd;
 import org.cacert.gigi.pages.account.certs.Certificates;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
+import org.cacert.gigi.pages.account.domain.EditDomain;
 import org.cacert.gigi.pages.account.mail.MailOverview;
 import org.cacert.gigi.pages.admin.TTPAdminPage;
 import org.cacert.gigi.pages.admin.support.FindCertPage;
@@ -145,7 +145,8 @@ public final class Gigi extends HttpServlet {
             putPage(RegisterPage.PATH, new RegisterPage(), "SomeCA.org");
             putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
             putPage(MailOverview.DEFAULT_PATH, new MailOverview(), "Certificates");
-            putPage(DomainOverview.PATH + "*", new DomainOverview(), "Certificates");
+            putPage(DomainOverview.PATH, new DomainOverview(), "Certificates");
+            putPage(EditDomain.PATH + "*", new EditDomain(), null);
 
             putPage(AssurePage.PATH + "/*", new AssurePage(), "Web of Trust");
             putPage(Points.PATH, new Points(false), "Web of Trust");
@@ -163,13 +164,7 @@ public final class Gigi extends HttpServlet {
             putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage(), null);
             putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
             putPage(History.PATH, new History(false), "My Account");
-            putPage(FindAgentAccess.PATH, new OneFormPage("Access to Find Agent", FindAgentAccess.class) {
-
-                @Override
-                public String getSuccessPath(Form f) {
-                    return FindAgentAccess.PATH;
-                }
-            }, "My Account");
+            putPage(FindAgentAccess.PATH, new OneFormPage("Access to Find Agent", FindAgentAccess.class), "My Account");
             putPage(History.SUPPORT_PATH, new History(true), null);
             putPage(UserTrainings.PATH, new UserTrainings(false), "My Account");
             putPage(MyDetails.PATH, new MyDetails(), "My Account");

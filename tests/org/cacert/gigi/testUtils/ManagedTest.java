@@ -234,6 +234,9 @@ public class ManagedTest extends ConfiguredTest {
         uc.addRequestProperty("Cookie", headerField);
         uc.setDoOutput(true);
         uc.getOutputStream().write((param + "&csrf=" + csrf).getBytes("UTF-8"));
+        if (uc.getResponseCode() == 302) {
+            return "";
+        }
         String d = IOUtils.readURL(uc);
         return d;
     }
@@ -345,6 +348,9 @@ public class ManagedTest extends ConfiguredTest {
         headerField = huc.getHeaderField("Set-Cookie");
         if (headerField == null) {
             return "";
+        }
+        if (huc.getResponseCode() != 302) {
+            fail(fetchStartErrorMessage(IOUtils.readURL(huc)));
         }
         return stripCookie(headerField);
     }

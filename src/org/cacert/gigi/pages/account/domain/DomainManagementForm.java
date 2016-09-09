@@ -12,6 +12,7 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.pages.orga.ViewOrgPage;
 
 public class DomainManagementForm extends Form {
 
@@ -28,7 +29,7 @@ public class DomainManagementForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         String dels = req.getParameter("delete");
 
         int delId = Integer.parseInt(dels);
@@ -38,11 +39,11 @@ public class DomainManagementForm extends Form {
         } else {
             throw new GigiApiException("Domain was not found.");
         }
-        return true;
-    }
-
-    public CertificateOwner getTarget() {
-        return target;
+        if (foreign) {
+            return new RedirectResult(ViewOrgPage.DEFAULT_PATH + "/" + target.getId());
+        } else {
+            return new RedirectResult(DomainOverview.PATH);
+        }
     }
 
     @Override
@@ -60,7 +61,7 @@ public class DomainManagementForm extends Form {
                 Domain domain = doms[point];
                 vars.put("id", domain.getId());
                 if ( !foreign) {
-                    vars.put("domainhref", DomainOverview.PATH + domain.getId());
+                    vars.put("domainhref", DomainOverview.PATH + "/" + domain.getId());
                 }
                 vars.put("domain", domain.getSuffix());
                 vars.put("status", l.getTranslation(domain.isVerified() ? "verified" : "not verified"));

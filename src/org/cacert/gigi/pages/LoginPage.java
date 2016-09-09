@@ -39,12 +39,12 @@ public class LoginPage extends Page {
         }
 
         @Override
-        public boolean submit(HttpServletRequest req) throws GigiApiException {
+        public RedirectResult submit(HttpServletRequest req) throws GigiApiException {
             if (RegisterPage.RATE_LIMIT.isLimitExceeded(req.getRemoteAddr())) {
                 throw new RateLimitException();
             }
             tryAuthWithUnpw(req);
-            return false;
+            return new RedirectResult(redirectPath(req));
         }
 
         @Override
@@ -55,8 +55,6 @@ public class LoginPage extends Page {
     }
 
     public static final String LOGIN_RETURNPATH = "login-returnpath";
-
-    private static final String SUBMIT_EXCEPTION = "login-submit-exception";
 
     public LoginPage() {
         super("Password Login");
@@ -80,32 +78,34 @@ public class LoginPage extends Page {
 
     @Override
     public boolean beforeTemplate(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String redir = (String) req.getSession().getAttribute(LOGIN_RETURNPATH);
         if (req.getSession().getAttribute("loggedin") == null) {
             X509Certificate cert = getCertificateFromRequest(req);
             if (cert != null) {
                 tryAuthWithCertificate(req, cert);
             }
             if (req.getMethod().equals("POST")) {
-                if ( !Form.getForm(req, LoginForm.class).submitExceptionProtected(req)) {
-                    return false;
-                }
+                return Form.getForm(req, LoginForm.class).submitExceptionProtected(req, resp);
             }
         }
 
         if (req.getSession().getAttribute("loggedin") != null) {
-            String s = redir;
-            if (s != null) {
-                if ( !s.startsWith("/")) {
-                    s = "/" + s;
-                }
-                resp.sendRedirect(s);
-            } else {
-                resp.sendRedirect("/");
-            }
+            resp.sendRedirect(redirectPath(req));
             return true;
         }
         return false;
+    }
+
+    private static String redirectPath(HttpServletRequest req) {
+        String redir = (String) req.getSession().getAttribute(LOGIN_RETURNPATH);
+        String s = redir;
+        if (s != null) {
+            if ( !s.startsWith("/")) {
+                s = "/" + s;
+            }
+            return s;
+        } else {
+            return "/";
+        }
     }
 
     @Override

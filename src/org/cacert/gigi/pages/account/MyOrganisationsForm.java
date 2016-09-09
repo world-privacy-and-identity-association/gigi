@@ -30,10 +30,10 @@ public class MyOrganisationsForm extends Form {
     private static final Template template = new Template(MyOrganisationsForm.class.getResource("MyOrganisationsForm.templ"));
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         if (req.getParameter("org-leave") != null) {
             req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(target.getActor(), target.getActor()));
-            return true;
+            return new RedirectResult(MyDetails.PATH);
         }
         Enumeration<String> i = req.getParameterNames();
         int orgId = -1;
@@ -52,11 +52,10 @@ public class MyOrganisationsForm extends Form {
             if (org.getId() == orgId) {
 
                 req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(org, target.getActor()));
-                return true;
+                return new RedirectResult(MyDetails.PATH);
             }
         }
-        System.out.println("Switch fialed");
-        return false;
+        throw new PermamentFormException(new GigiApiException("Context switch failed."));
     }
 
     @Override

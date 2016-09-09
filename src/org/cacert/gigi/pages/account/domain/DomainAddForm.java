@@ -28,7 +28,7 @@ public class DomainAddForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         try {
             String parameter = req.getParameter("newdomain");
             if (parameter.trim().isEmpty()) {
@@ -37,7 +37,7 @@ public class DomainAddForm extends Form {
             Domain d = new Domain(target, target, parameter);
             pcf.setTarget(d);
             pcf.submit(req);
-            return true;
+            return new RedirectResult(DomainOverview.PATH);
         } catch (NumberFormatException e) {
             throw new GigiApiException("A number could not be parsed");
         }

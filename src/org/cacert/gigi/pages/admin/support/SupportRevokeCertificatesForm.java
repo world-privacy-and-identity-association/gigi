@@ -30,12 +30,12 @@ public class SupportRevokeCertificatesForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         if (user.getTicket() == null) {
             throw new GigiApiException("No ticket number set.");
         }
         user.revokeAllCertificates();
-        return true;
+        return new RedirectResult(req.getPathInfo());
     }
 
     @Override

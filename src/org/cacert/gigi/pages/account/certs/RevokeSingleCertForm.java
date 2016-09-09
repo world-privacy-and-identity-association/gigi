@@ -27,13 +27,13 @@ public class RevokeSingleCertForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public RedirectResult submit(HttpServletRequest req) throws GigiApiException {
         if (target != null) {
             target.revokeCertificate(c);
         } else {
             c.revoke().waitFor(60000);
         }
-        return true;
+        return new RedirectResult(req.getPathInfo());
     }
 
     @Override

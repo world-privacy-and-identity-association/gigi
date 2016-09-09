@@ -58,10 +58,10 @@ public class CreateOrgForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         String action = req.getParameter("action");
         if (action == null) {
-            return false;
+            throw new GigiApiException("No action given.");
         }
 
         if (action.equals("new")) {
@@ -69,18 +69,16 @@ public class CreateOrgForm extends Form {
             checkOrganisationData(req);
             Organisation ne = new Organisation(o, cs.getCountry(), st, l, email, optionalName, postalAddress, LoginPage.getUser(req));
             result = ne;
-            return true;
         } else if (action.equals("updateOrganisationData")) {
             checkOrganisationData(req);
             result.updateOrgData(email, optionalName, postalAddress);
-            return true;
         } else if (action.equals("updateCertificateData")) {
             checkCertData(req);
             result.updateCertData(o, cs.getCountry(), st, l);
-            return true;
+        } else {
+            throw new GigiApiException("No valid action given.");
         }
-
-        return false;
+        return new RedirectResult(ViewOrgPage.DEFAULT_PATH + "/" + result.getId());
     }
 
     private void checkOrganisationData(HttpServletRequest req) throws GigiApiException {
@@ -118,10 +116,6 @@ public class CreateOrgForm extends Form {
             return "";
         }
         return parameter.trim();
-    }
-
-    public Organisation getResult() {
-        return result;
     }
 
     @Override

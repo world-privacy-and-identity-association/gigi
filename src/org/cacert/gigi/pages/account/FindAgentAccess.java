@@ -27,17 +27,17 @@ public class FindAgentAccess extends Form {
     private static final Template t = new Template(ChangePasswordPage.class.getResource("FindAgentAccess.templ"));
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         String nv = req.getParameter("new-val");
         if (nv == null) {
-            return false;
+            throw new GigiApiException("Parameter new-val missing.");
         }
         if (nv.equals("enable")) {
             target.grantGroup(target, Group.LOCATE_AGENT);
         } else {
             target.revokeGroup(target, Group.LOCATE_AGENT);
         }
-        return true;
+        return new RedirectResult(FindAgentAccess.PATH);
     }
 
     @Override

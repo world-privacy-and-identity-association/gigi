@@ -27,7 +27,7 @@ public class MailManagementForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         try {
             String d;
             if ((d = req.getParameter("default")) != null) {
@@ -37,7 +37,7 @@ public class MailManagementForm extends Form {
             } else if ((d = req.getParameter("reping")) != null) {
                 EmailAddress.getById(Integer.parseInt(d)).requestReping(Page.getLanguage(req));
             }
-            return true;
+            return new RedirectResult(MailOverview.DEFAULT_PATH);
         } catch (IOException e1) {
             throw new GigiApiException("Error while doing reping.");
         }

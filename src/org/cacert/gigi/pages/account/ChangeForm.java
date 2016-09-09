@@ -10,6 +10,7 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.output.template.TranslateCommand;
 
 public class ChangeForm extends Form {
 
@@ -28,7 +29,7 @@ public class ChangeForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         String oldpassword = req.getParameter("oldpassword");
         String p1 = req.getParameter("pword1");
         String p2 = req.getParameter("pword2");
@@ -47,7 +48,7 @@ public class ChangeForm extends Form {
         if ( !error.isEmpty()) {
             throw error;
         }
-        return true;
+        return new SuccessMessageResult(new TranslateCommand("Password changed."));
     }
 
 }

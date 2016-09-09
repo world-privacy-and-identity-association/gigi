@@ -12,6 +12,7 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.OutputableArrayIterable;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.output.template.TranslateCommand;
 import org.cacert.gigi.pages.LoginPage;
 
 public class RequestTTPForm extends Form {
@@ -32,7 +33,7 @@ public class RequestTTPForm extends Form {
     };
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         String country = req.getParameter("country");
         if (country != null) {
             int cid = Integer.parseInt(country);
@@ -46,12 +47,11 @@ public class RequestTTPForm extends Form {
         User uReq = LoginPage.getUser(req);
 
         if ( !u.equals(uReq)) {
-            return false;
+            throw new GigiApiException("Internal logic error.");
         }
 
         u.grantGroup(u, TTP_APPLICANT);
-
-        return false;
+        return new SuccessMessageResult(new TranslateCommand("Successfully applied for TTP."));
     }
 
     @Override

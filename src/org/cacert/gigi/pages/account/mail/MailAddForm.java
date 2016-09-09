@@ -28,7 +28,7 @@ public class MailAddForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         String formMail = req.getParameter("newemail");
         mail = formMail;
         try {
@@ -36,7 +36,7 @@ public class MailAddForm extends Form {
         } catch (IllegalArgumentException e) {
             throw new GigiApiException(new PlainOutputable("Invalid address."));
         }
-        return true;
+        return new RedirectResult(MailOverview.DEFAULT_PATH);
     }
 
     @Override

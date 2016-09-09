@@ -16,7 +16,6 @@ import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.AuthorizationContext;
-import org.cacert.gigi.util.HTMLEncoder;
 
 public class AssurePage extends Page {
 
@@ -46,16 +45,21 @@ public class AssurePage extends Page {
     }
 
     @Override
+    public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        if (req.getParameter("search") == null) {
+            AssuranceForm form = Form.getForm(req, AssuranceForm.class);
+            return form.submitExceptionProtected(req, resp);
+        }
+        return super.beforePost(req, resp);
+    }
+
+    @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
         if (req.getParameter("search") == null) {
-            AssuranceForm form = Form.getForm(req, AssuranceForm.class);
-            if (form.submitProtected(out, req)) {
-                if (form.isWithPasswordReset()) {
-                    resp.getWriter().println(HTMLEncoder.encodeHTML(translate(req, "Password reset successful.")));
-                }
-                out.println(translate(req, "Verification complete."));
-                return;
+            if (Form.printFormErrors(req, out)) {
+                AssuranceForm form = Form.getForm(req, AssuranceForm.class);
+                form.output(out, getLanguage(req), new HashMap<String, Object>());
             }
             return;
         }

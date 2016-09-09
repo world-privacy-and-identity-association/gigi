@@ -1,13 +1,16 @@
 package org.cacert.gigi.pages.admin.support;
 
-import org.cacert.gigi.dbObjects.CertificateOwner;
-import org.cacert.gigi.dbObjects.Organisation;
-import org.cacert.gigi.dbObjects.User;
-import org.cacert.gigi.output.template.Form;
-import org.cacert.gigi.pages.OneFormPage;
+import java.io.IOException;
+import java.util.HashMap;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.cacert.gigi.pages.ManagedFormPage;
+import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.AuthorizationContext;
 
-public class FindUserByDomainPage extends OneFormPage {
+public class FindUserByDomainPage extends ManagedFormPage {
 
     public static final String PATH = "/support/find/domain";
 
@@ -16,15 +19,8 @@ public class FindUserByDomainPage extends OneFormPage {
     }
 
     @Override
-    public String getSuccessPath(Form f) {
-        CertificateOwner res = ((FindUserByDomainForm) f).getRes();
-        if (res instanceof User) {
-            return SupportUserDetailsPage.PATH + res.getId() + "/";
-        } else if (res instanceof Organisation) {
-            return "/support/domain/" + res.getId();
-        } else {
-            throw new Error("Unknown owner type.");
-        }
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        new FindUserByDomainForm(req).output(resp.getWriter(), Page.getLanguage(req), new HashMap<String, Object>());
     }
 
     @Override

@@ -16,8 +16,8 @@ import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.MailTemplate;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.output.template.TranslateCommand;
 import org.cacert.gigi.util.AuthorizationContext;
-import org.cacert.gigi.util.HTMLEncoder;
 import org.cacert.gigi.util.RandomToken;
 import org.cacert.gigi.util.ServerConstants;
 
@@ -59,7 +59,7 @@ public class PasswordResetPage extends Page {
         }
 
         @Override
-        public boolean submit(HttpServletRequest req) throws GigiApiException {
+        public SuccessMessageResult submit(HttpServletRequest req) throws GigiApiException {
             try (GigiPreparedStatement passwordReset = new GigiPreparedStatement("UPDATE `passwordResetTickets` SET `used` = CURRENT_TIMESTAMP WHERE `used` IS NULL AND `created` < CURRENT_TIMESTAMP - interval '1 hours' * ?;")) {
                 passwordReset.setInt(1, HOUR_MAX);
                 passwordReset.execute();
@@ -75,26 +75,26 @@ public class PasswordResetPage extends Page {
                 throw new GigiApiException("New passwords differ.");
             }
             u.consumePasswordResetTicket(id, tok, p1);
-            return true;
+            return new SuccessMessageResult(new TranslateCommand("Password reset successful."));
         }
 
         @Override
         protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
-
             t.output(out, l, vars);
         }
 
     }
 
     @Override
+    public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        return Form.getForm(req, PasswordResetForm.class).submitExceptionProtected(req, resp);
+    }
+
+    @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        PasswordResetForm form = Form.getForm(req, PasswordResetForm.class);
-        PrintWriter w = resp.getWriter();
-        if (form.submitProtected(w, req)) {
-            w.println("<div class='alert alert-success'>");
-            w.println(HTMLEncoder.encodeHTML(getLanguage(req).getTranslation("Password reset successful.")));
-            w.println("</div>");
-            return;
+        if (Form.printFormErrors(req, resp.getWriter())) {
+            PasswordResetForm form = Form.getForm(req, PasswordResetForm.class);
+            form.output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
         }
     }
 

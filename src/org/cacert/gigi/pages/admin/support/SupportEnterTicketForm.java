@@ -22,22 +22,22 @@ public class SupportEnterTicketForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         if (req.getParameter("setTicket") != null) {
             // [asdmASDM]\d{8}\.\d+
             String ticket = req.getParameter("ticketno");
             if (ticket.matches("[asdmASDM]\\d{8}\\.\\d+")) {
                 AuthorizationContext ac = LoginPage.getAuthorizationContext(req);
                 req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(ac.getActor(), ticket));
-                return true;
+                return new RedirectResult(SupportEnterTicketPage.PATH);
             }
-            return false;
+            throw new GigiApiException("Ticket format malformed");
         } else if (req.getParameter("deleteTicket") != null) {
             AuthorizationContext ac = LoginPage.getAuthorizationContext(req);
             req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(ac.getActor(), ac.getActor()));
-            return true;
+            return new RedirectResult(SupportEnterTicketPage.PATH);
         }
-        return false;
+        throw new GigiApiException("No valid action given.");
     }
 
     @Override

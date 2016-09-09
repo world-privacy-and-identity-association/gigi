@@ -22,8 +22,15 @@ public class RequestTTPPage extends Page {
     }
 
     @Override
+    public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        return Form.getForm(req, RequestTTPForm.class).submitExceptionProtected(req, resp);
+    }
+
+    @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Form.getForm(req, RequestTTPForm.class).submitProtected(resp.getWriter(), req);
+        if (Form.printFormErrors(req, resp.getWriter())) {
+            Form.getForm(req, RequestTTPForm.class).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+        }
     }
 
     @Override

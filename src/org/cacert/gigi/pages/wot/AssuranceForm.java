@@ -20,14 +20,35 @@ import org.cacert.gigi.output.ArrayIterable;
 import org.cacert.gigi.output.CountrySelector;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
+import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.output.template.TranslateCommand;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.pages.PasswordResetPage;
 import org.cacert.gigi.util.DayDate;
 import org.cacert.gigi.util.Notary;
 
 public class AssuranceForm extends Form {
+
+    public static class ConcatOutputable implements Outputable {
+
+        private Outputable[] outputables;
+
+        public ConcatOutputable(Outputable... outputables) {
+            this.outputables = outputables;
+        }
+
+        @Override
+        public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+            for (int i = 0; i < outputables.length; i++) {
+                if (i != 0) {
+                    out.println();
+                }
+                outputables[i].output(out, l, vars);
+            }
+        }
+    }
 
     private User assuree;
 
@@ -134,7 +155,7 @@ public class AssuranceForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         location = req.getParameter("location");
         date = req.getParameter("date");
         cs.update(req);
@@ -195,14 +216,15 @@ public class AssuranceForm extends Form {
         }
 
         Notary.assureAll(assurer, assuree, dob, pointsI, location, req.getParameter("date"), type, toAssure.toArray(new Name[toAssure.size()]), cs.getCountry());
-
+        Outputable result = new TranslateCommand("Verification complete.");
         if (isWithPasswordReset()) {
             Language langApplicant = Language.getInstance(assuree.getPreferredLocale());
             String method = langApplicant.getTranslation("A password reset was triggered. If you did a password reset by verification, please enter your secret password using this form:");
             String subject = langApplicant.getTranslation("Password reset by verification");
             PasswordResetPage.initPasswordResetProcess(assuree, req, aword, langApplicant, method, subject);
+            result = new ConcatOutputable(result, new TranslateCommand("Password reset successful."));
         }
-        return true;
+        return new SuccessMessageResult(result);
     }
 
     public boolean isWithPasswordReset() {

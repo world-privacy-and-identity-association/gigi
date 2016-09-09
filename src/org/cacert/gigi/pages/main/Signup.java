@@ -20,6 +20,7 @@ import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.PlainOutputable;
 import org.cacert.gigi.output.template.SprintfCommand;
 import org.cacert.gigi.output.template.Template;
+import org.cacert.gigi.output.template.TranslateCommand;
 import org.cacert.gigi.pages.Page;
 import org.cacert.gigi.util.CalendarUtil;
 import org.cacert.gigi.util.HTMLEncoder;
@@ -93,7 +94,7 @@ public class Signup extends Form {
     }
 
     @Override
-    public synchronized boolean submit(HttpServletRequest req) throws GigiApiException {
+    public synchronized SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         if (RegisterPage.RATE_LIMIT.isLimitExceeded(req.getRemoteAddr())) {
             throw new RateLimitException();
         }
@@ -183,7 +184,7 @@ public class Signup extends Form {
             throw ga2;
         }
         run(req, pw1);
-        return true;
+        return new SuccessMessageResult(new TranslateCommand("Your information has been submitted" + " into our system. You will now be sent an email with a web link," + " you need to open that link in your web browser within 24 hours" + " or your information will be removed from our system!"));
     }
 
     private void run(HttpServletRequest req, String password) throws GigiApiException {

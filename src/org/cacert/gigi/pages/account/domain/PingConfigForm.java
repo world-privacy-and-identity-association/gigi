@@ -108,7 +108,7 @@ public class PingConfigForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         target.clearPings();
         if (req.getParameter("emailType") != null && req.getParameter("email") != null) {
             try {
@@ -142,7 +142,7 @@ public class PingConfigForm extends Form {
             }
         }
         Gigi.notifyPinger(null);
-        return true;
+        return new RedirectResult(req.getPathInfo());
     }
 
     @Override

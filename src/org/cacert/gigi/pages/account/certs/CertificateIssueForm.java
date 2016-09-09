@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.dbObjects.Certificate.SubjectAlternateName;
 import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Organisation;
@@ -56,18 +57,18 @@ public class CertificateIssueForm extends Form {
     CertificateValiditySelector issueDate = new CertificateValiditySelector();
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         String csr = req.getParameter("CSR");
         String spkac = req.getParameter("SPKAC");
         try {
             if (csr != null) {
                 cr = new CertificateRequest(c, csr);
                 // TODO cr.checkKeyStrength(out);
-                return false;
+                return new FormContinue();
             } else if (spkac != null) {
                 cr = new CertificateRequest(c, spkac, spkacChallenge);
                 // TODO cr.checkKeyStrength(out);
-                return false;
+                return new FormContinue();
             } else if (cr != null) {
                 login = "1".equals(req.getParameter("login"));
                 issueDate.update(req);
@@ -94,7 +95,15 @@ public class CertificateIssueForm extends Form {
                 }
                 result.issue(issueDate.getFrom(), issueDate.getTo(), c.getActor()).waitFor(60000);
                 this.result = result;
-                return true;
+                Certificate c = result;
+                if (c.getStatus() != CertificateStatus.ISSUED) {
+                    throw new PermamentFormException(new GigiApiException("Timeout while waiting for certificate."));
+                }
+                String ser = c.getSerial();
+                if (ser.isEmpty()) {
+                    throw new PermamentFormException(new GigiApiException("Timeout while waiting for certificate."));
+                }
+                return new RedirectResult(Certificates.PATH + "/" + ser);
             } else {
                 throw new GigiApiException("Error no action.");
             }

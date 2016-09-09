@@ -29,18 +29,18 @@ public class AffiliationForm extends Form {
     }
 
     @Override
-    public boolean submit(HttpServletRequest req) throws GigiApiException {
+    public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         if (req.getParameter("del") != null) {
             User toRemove = User.getByEmail(req.getParameter("del"));
             if (toRemove != null) {
                 o.removeAdmin(toRemove, LoginPage.getUser(req));
-                return true;
+                return new RedirectResult(ViewOrgPage.DEFAULT_PATH + "/" + o.getId());
             }
         } else if (req.getParameter("do_affiliate") != null) {
             User byEmail = User.getByEmail(req.getParameter("email"));
             if (byEmail != null && byEmail.canAssure()) {
                 o.addAdmin(byEmail, LoginPage.getUser(req), req.getParameter("master") != null);
-                return true;
+                return new RedirectResult(ViewOrgPage.DEFAULT_PATH + "/" + o.getId());
             } else {
                 throw new GigiApiException("Requested user is not a RA Agent. We need a RA Agent here.");
             }
@@ -68,9 +68,5 @@ public class AffiliationForm extends Form {
             }
         });
         t.output(out, l, vars);
-    }
-
-    public Organisation getOrganisation() {
-        return o;
     }
 }
