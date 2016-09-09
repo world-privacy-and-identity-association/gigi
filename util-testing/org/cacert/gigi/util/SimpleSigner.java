@@ -127,8 +127,8 @@ public class SimpleSigner {
                     readyCerts = new GigiPreparedStatement("SELECT certs.id AS id, certs.csr_name, jobs.id AS jobid, csr_type, md, `executeFrom`, `executeTo`, profile FROM jobs " + //
                             "INNER JOIN certs ON certs.id=jobs.`targetId` " + //
                             "INNER JOIN profiles ON profiles.id=certs.profile " + //
-                            "WHERE jobs.state='open' "//
-                            + "AND task='sign'");
+                            "WHERE jobs.state='open' " + //
+                            "AND task='sign'");
 
                     getSANSs = new GigiPreparedStatement("SELECT contents, type FROM `subjectAlternativeNames` " + //
                             "WHERE `certId`=?");
@@ -335,10 +335,13 @@ public class SimpleSigner {
                 if (null == caFiles) {
                     caFiles = new File[0];
                 }
-                for (File f : caFiles) {
-                    if (f.getName().startsWith(caP.getProperty("ca"))) {
-                        ca = f.getName();
-                        break;
+                if ( !new File(parent, ca).exists()) {
+                    System.out.println("CA " + ca + " not found. Searching for anything other remotely fitting.");
+                    for (File f : caFiles) {
+                        if (f.getName().startsWith(caP.getProperty("ca"))) {
+                            ca = f.getName();
+                            break;
+                        }
                     }
                 }
                 File caKey = new File(parent, ca + "/ca.key");
