@@ -4,7 +4,14 @@
 <p><?=_CAcert Inc.'s public certification services are governed by a CPS as amended from time to time which is incorporated into this Agreement by reference. The Subscriber will use the SSL Server Certificate in accordance with SomeCA Inc.'s CPS and supporting documentation published at?> <a href="http://www.cacert.org/cps.php">http://www.cacert.org/cps.php</a></p>
 
 <p><?=_If the Subscriber's name and/or domain name registration change the subscriber will immediately inform SomeCA Inc. who shall revoke the digital certificate. When the Digital Certificate expires or is revoked the company will permanently remove the certificate from the server on which it is installed and will not use it for any purpose thereafter. The person responsible for key management and security is fully authorized to install and utilize the certificate to represent this organization's electronic presence.?></p>
-
+<span id="placeholderName" class="js-hint"><?=$placeholderName?></span>
+<? if($defaultName) { ?>
+<span id="defaultName" class="js-hint"><?=$defaultName?></span>
+<span id="defaultEmail" class="js-hint"><?=$defaultEmail?></span>
+<? } ?>
+<? if($defaultDomain) { ?>
+<span id="defaultDomain" class="js-hint"><?=$defaultDomain?></span>
+<? } ?>
 <table class="table">
   <thead>
   <tr>

@@ -13,7 +13,9 @@ import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.dbObjects.Certificate.SubjectAlternateName;
 import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.Organisation;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.localisation.Language;
 import org.cacert.gigi.output.CertificateValiditySelector;
 import org.cacert.gigi.output.HashAlgorithms;
@@ -144,7 +146,16 @@ public class CertificateIssueForm extends Form {
             content.append(SAN.getName());
             content.append('\n');
         }
-
+        vars2.put("placeholderName", CertificateRequest.DEFAULT_CN);
+        if (c.getTarget() instanceof User) {
+            User target = (User) c.getTarget();
+            vars2.put("defaultName", target.getPreferredName().toString());
+            vars2.put("defaultEmail", target.getEmail());
+            Domain[] domains = target.getDomains();
+            if (domains.length > 0) {
+                vars2.put("defaultDomain", domains[0].getSuffix());
+            }
+        }
         vars2.put("CN", cr.getName());
         if (c.getTarget() instanceof Organisation) {
             vars2.put("orga", "true");

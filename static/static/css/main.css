@@ -23,3 +23,6 @@ div.error-msgs p{
 .summary-table td{
     padding: 0 3px;
 }
+.js-hint {
+    display: none;
+}
