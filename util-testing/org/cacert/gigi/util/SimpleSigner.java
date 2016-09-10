@@ -514,6 +514,7 @@ public class SimpleSigner {
 
         try (DerOutputStream dos = new DerOutputStream()) {
             for (String name : eku.split(",")) {
+                name = name.trim();
                 ObjectIdentifier oid;
                 switch (name) {
                 case "serverAuth":
