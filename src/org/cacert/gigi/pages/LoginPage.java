@@ -164,11 +164,11 @@ public class LoginPage extends Page {
     }
 
     public static String extractSerialFormCert(X509Certificate x509Certificate) {
-        return x509Certificate.getSerialNumber().toString(16).toUpperCase();
+        return x509Certificate.getSerialNumber().toString(16).toLowerCase();
     }
 
     public static User fetchUserBySerial(String serial) {
-        if ( !serial.matches("[A-Fa-f0-9]+")) {
+        if ( !serial.matches("[a-f0-9]+")) {
             throw new Error("serial malformed.");
         }
 

@@ -29,7 +29,7 @@ public class CATSResolve extends APIPoint {
             return;
         }
 
-        CertificateOwner o = CertificateOwner.getByEnabledSerial(target);
+        CertificateOwner o = CertificateOwner.getByEnabledSerial(target.toLowerCase());
         if ( !(o instanceof User)) {
             resp.sendError(500, "Error, requires valid serial");
             return;
