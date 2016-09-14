@@ -2,17 +2,18 @@ JAVA_HOME=/usr/lib/jvm/default-java
 SYSTEM= $(shell uname | awk '{print tolower($$0)}')
 JAVAH=javah
 CC=gcc
-CFLAGS=-O3 -g -flto -Wall -Werror -Wextra -pedantic -fPIC
-CFLAGS+=-I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/$(SYSTEM)
+CFLAGS=-flto -Wall -Werror -Wextra -pedantic -fPIC
+CPPFLAGS=-I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/$(SYSTEM)
 LDFLAGS=-shared
 
 
 all: libsetuid.so
 
-libsetuid.so: org_cacert_gigi_natives_SetUID.c
-	$(JAVAH) -classpath ../bin/ -jni org.cacert.gigi.natives.SetUID && \
-	$(CC) $(CFLAGS) $(LDFLAGS) -o libsetuid.so org_cacert_gigi_natives_SetUID.c
+org_cacert_gigi_natives_SetUID.h: ../src/org/cacert/gigi/natives/SetUID.java
+	$(JAVAH) -classpath ../bin/ -jni org.cacert.gigi.natives.SetUID
+
+libsetuid.so: org_cacert_gigi_natives_SetUID.c org_cacert_gigi_natives_SetUID.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o $@ $<
 
 clean:
-	rm -f *.so
-	rm -f *.h
+	-$(RM) *.so *.h
