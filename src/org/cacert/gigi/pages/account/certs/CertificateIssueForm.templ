@@ -1,5 +1,5 @@
-<h3><?=_CAcert Certificate Acceptable Use Policy?></h3>
-<p><?=_I hereby represent that I am fully authorized by the owner of the information contained in the CSR sent to SomeCA Inc. to apply for an Digital Certificate for secure and authenticated electronic transactions. I understand that a digital certificate serves to identify the Subscriber for the purposes of electronic communication and that the management of the private keys associated with such certificates is the responsibility of the subscriber's technical staff and/or contractors.?></p>
+<h3><?=_SomeCA Acceptable Use Policy?></h3>
+<p><?=_I hereby represent that I am fully authorized by the owner of the information contained in the CSR sent to SomeCA to apply for an Digital Certificate for secure and authenticated electronic transactions. I understand that a digital certificate serves to identify the Subscriber for the purposes of electronic communication and that the management of the private keys associated with such certificates is the responsibility of the subscriber's technical staff and/or contractors.?></p>
 
 <p><?=_CAcert Inc.'s public certification services are governed by a CPS as amended from time to time which is incorporated into this Agreement by reference. The Subscriber will use the SSL Server Certificate in accordance with SomeCA Inc.'s CPS and supporting documentation published at?> <a href="http://www.cacert.org/cps.php">http://www.cacert.org/cps.php</a></p>
 
@@ -21,25 +21,37 @@
   <tbody>
   <tr>
     <td>
-    <label for='profile'><?=_Key type?></label>
+      <label for='profile'><?=_Key type?></label>
     </td>
     <td>
-    <select name="profile" id='profile'>
+      <select name="profile" id='profile'>
     <? foreach($profiles) { ?>
-      <option value="<?=$key?>"<?=$!selected?>><?=$name?></option>
+        <option value="<?=$key?>"<?=$!selected?>><?=$name?></option>
     <? } ?>
-    </select>
+      </select>
+      <br />
+      <?=_Select desired type. To have your name added to a certificate you need to get your name verified with at least 50 !'<a href="/wot/rules" target="blank">'Verification Points (VP)!'</a>'.?>
     </td>
   </tr>
   <tr>
     <td>
-    <label for='CN'><?=_Your name?></label>
+      <label for='CN'><?=_Your name?></label>
     </td>
-    <td><input class="form-control" type='text' id='CN' name='CN' value='<?=$CN?>'/></td>
+    <td>
+      <input class="form-control" type='text' id='CN' name='CN' value='<?=$CN?>'/>
+      <?=_For a client certificate you need to enter a name with at least 50 VP or 'SomeCA user' will be used.?><br />
+      <?=_For a server certificate leave this field blank.?>
+    </td>
   </tr>
   <tr>
-    <td>SANs</td>
-    <td align="left"><textarea class="form-control" rows='5' name='SANs' placeholder="dns:my.domain.example.com, dns:*.example.com, email:my.email@example.com (or newline separated)"><?=$emails?></textarea></td>
+    <td>
+      <label for='SANs'>SANs</label>
+    </td>
+    <td align="left">
+      <textarea class="form-control" rows='5' name='SANs' placeholder="dns:my.domain.example.com, dns:*.example.com, email:my.email@example.com (or newline separated)"><?=$emails?></textarea><br />
+      <?=_Syntax for SAN?>: dns:my.domain.example.com, dns:*.example.com, email:my.email@example.com <?=_(or newline separated)?><br />
+      <?=_Recommendation for inexperienced users: only use one email address for client certificates.?>
+      </td>
   </tr>
   <? if($orga) { ?>
   <tr>
@@ -78,8 +90,9 @@
       <input type="checkbox" id="login" name="login" value="1" checked="checked" />
     </td>
     <td align="left">
-      <label for="login"><?=_Enable certificate login with this certificate?><br />
-      <?=_By allowing certificate login, this certificate can be used to log into this account at !'<code>https://secure.cacert.org/</code>'.?></label>
+      <label for="login"><?=_Enable certificate login with this certificate?></label><br />
+      <span><?=_By allowing certificate login, this certificate can be used to log into this account at !'<code>https://secure.cacert.org/</code>'.?><br />
+      <?=_Recommendation: Have at least one client certificate for login enabled.?></span>
     </td>
   </tr>
   <tr>
@@ -90,7 +103,10 @@
   </tr>
 
   <tr>
-    <td colspan="2"><input class="btn btn-primary" type="submit" name="process" value="<?=_Issue Certificate?>" /></td>
+    <td colspan="2">
+      <input class="btn btn-primary" type="submit" name="process" value="<?=_Issue Certificate?>" />  
+      <?=_Once the request is submitted, please be patient until the certificate is signed.?>
+    </td>
   </tr>
   </tbody>
 </table>
