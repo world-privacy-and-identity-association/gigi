@@ -344,22 +344,28 @@ public class DatabaseConnection {
         }
     }
 
-    public static synchronized Link newLink(boolean readOnly) throws InterruptedException {
-        if (instances.get(Thread.currentThread()) != null) {
-            throw new Error("There is already a connection allocated for this thread.");
-        }
-        if (pool.isEmpty() && connCount < 5) {
-            pool.addLast(new DatabaseConnection());
-            connCount++;
+    public static Link newLink(boolean readOnly) throws InterruptedException {
+        synchronized (DatabaseConnection.class) {
+
+            if (instances.get(Thread.currentThread()) != null) {
+                throw new Error("There is already a connection allocated for this thread.");
+            }
+            if (pool.isEmpty() && connCount < 5) {
+                pool.addLast(new DatabaseConnection());
+                connCount++;
+            }
         }
         DatabaseConnection conn = pool.takeFirst();
-        try {
-            conn.c.setReadOnly(readOnly);
-        } catch (SQLException e) {
-            throw new Error(e);
+        synchronized (DatabaseConnection.class) {
+            try {
+                conn.c.setReadOnly(readOnly);
+            } catch (SQLException e) {
+                throw new Error(e);
+            }
+            Link l = new Link(conn);
+            instances.put(Thread.currentThread(), l);
+            return l;
         }
-        Link l = new Link(conn);
-        instances.put(Thread.currentThread(), l);
-        return l;
+
     }
 }
