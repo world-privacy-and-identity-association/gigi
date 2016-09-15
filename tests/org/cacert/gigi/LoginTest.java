@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -36,6 +37,23 @@ public class LoginTest extends ManagedTest {
         String email = createUniqueName() + "@testmail.org";
         createVerifiedUser("an", "bn", email, TEST_PASSWORD);
         assertTrue(isLoggedin(login(email, TEST_PASSWORD)));
+    }
+
+    @Test
+    public void testLoginRedirectBack() throws IOException {
+        String email = createUniqueName() + "@testmail.org";
+        createVerifiedUser("an", "bn", email, TEST_PASSWORD);
+
+        URL u0 = new URL("https://" + getServerName() + SECURE_REFERENCE);
+        HttpURLConnection huc0 = (HttpURLConnection) u0.openConnection();
+        String headerField = stripCookie(huc0.getHeaderField("Set-Cookie"));
+
+        HttpURLConnection huc = post(headerField, "/login", "username=" + URLEncoder.encode(email, "UTF-8") + "&password=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8"), 0);
+
+        headerField = huc.getHeaderField("Set-Cookie");
+        assertNotNull(headerField);
+        assertEquals(302, huc.getResponseCode());
+        assertEquals("https://" + getServerName().replaceFirst(":443$", "") + SECURE_REFERENCE, huc.getHeaderField("Location"));
     }
 
     @Test
