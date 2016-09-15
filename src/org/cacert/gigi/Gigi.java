@@ -361,7 +361,7 @@ public final class Gigi extends HttpServlet {
         if (clientSerial != null) {
             X509Certificate[] cert = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
             if (cert == null || cert[0] == null//
-                    || !cert[0].getSerialNumber().toString(16).toUpperCase().equals(clientSerial) //
+                    || !cert[0].getSerialNumber().toString(16).toLowerCase().equals(clientSerial) //
                     || !cert[0].getIssuerDN().equals(hs.getAttribute(CERT_ISSUER))) {
                 hs.invalidate();
                 resp.sendError(403, "Certificate mismatch.");
