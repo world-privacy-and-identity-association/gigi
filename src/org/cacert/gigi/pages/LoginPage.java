@@ -96,7 +96,7 @@ public class LoginPage extends Page {
     }
 
     private static String redirectPath(HttpServletRequest req) {
-        String redir = (String) req.getSession().getAttribute(LOGIN_RETURNPATH);
+        String redir = (String) req.getAttribute(LOGIN_RETURNPATH);
         String s = redir;
         if (s != null) {
             if ( !s.startsWith("/")) {
@@ -194,6 +194,7 @@ public class LoginPage extends Page {
         if (user.isInGroup(LOGIN_BLOCKED)) {
             return;
         }
+        req.setAttribute(LOGIN_RETURNPATH, req.getSession().getAttribute(LOGIN_RETURNPATH));
         req.getSession().invalidate();
         HttpSession hs = req.getSession();
         hs.setAttribute(LOGGEDIN, true);
