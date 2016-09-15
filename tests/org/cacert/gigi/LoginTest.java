@@ -4,8 +4,19 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLConnection;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 
+import org.cacert.gigi.dbObjects.Certificate;
+import org.cacert.gigi.dbObjects.Certificate.CSRType;
+import org.cacert.gigi.dbObjects.CertificateProfile;
+import org.cacert.gigi.dbObjects.Digest;
+import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.ManagedTest;
 import org.junit.Test;
@@ -58,4 +69,23 @@ public class LoginTest extends ManagedTest {
         assertThat(readURL, containsString("Password"));
     }
 
+    @Test
+    public void testLoginCertificate() throws IOException, GeneralSecurityException, GigiApiException, InterruptedException {
+        String email = createUniqueName() + "@testmail.org";
+        int user = createVerifiedUser("an", "bn", email, TEST_PASSWORD);
+        KeyPair kp = generateKeypair();
+        String csr = generatePEMCSR(kp, "CN=hans");
+        User u = User.getById(user);
+        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "hans"), Digest.SHA256, csr, CSRType.CSR, CertificateProfile.getById(1));
+        final PrivateKey pk = kp.getPrivate();
+        await(c.issue(null, "2y", u));
+        final X509Certificate ce = c.cert();
+        c.setLoginEnabled(true);
+        String cookie = login(pk, ce);
+        URL u2 = new URL("https://" + getServerName().replaceFirst("^www.", "secure.") + SECURE_REFERENCE);
+        HttpURLConnection huc = (HttpURLConnection) u2.openConnection();
+        huc.addRequestProperty("Cookie", cookie);
+        authenticateClientCert(pk, ce, huc);
+        assertEquals(200, huc.getResponseCode());
+    }
 }
