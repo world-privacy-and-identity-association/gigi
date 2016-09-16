@@ -28,6 +28,7 @@ import org.cacert.gigi.database.DatabaseConnection.Link;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.SQLFileManager.ImportType;
 import org.cacert.gigi.dbObjects.CATS.CATSType;
+import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.dbObjects.DomainPingType;
 import org.cacert.gigi.dbObjects.User;
@@ -192,6 +193,10 @@ public abstract class ConfiguredTest {
 
     public static synchronized String createUniqueName() {
         return "test" + createRandomIDString() + "a" + (count++) + "u";
+    }
+
+    public static CertificateProfile getClientProfile() {
+        return CertificateProfile.getByName("client");
     }
 
     public static int countRegex(String text, String pattern) {

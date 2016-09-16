@@ -17,7 +17,7 @@ public class TestCertificate extends ClientBusinessTest {
     public void testSetLoginEnabled() throws GeneralSecurityException, IOException, GigiApiException {
         KeyPair kp = generateKeypair();
         String key = generatePEMCSR(kp, "CN=testmail@example.com");
-        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "testmail@example.com"), Digest.SHA256, key, CSRType.CSR, CertificateProfile.getById(1));
+        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "testmail@example.com"), Digest.SHA256, key, CSRType.CSR, getClientProfile());
 
         assertFalse(c.isLoginEnabled());
         c.setLoginEnabled(true);

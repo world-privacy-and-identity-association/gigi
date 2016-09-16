@@ -16,7 +16,6 @@ import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
 import org.cacert.gigi.dbObjects.Certificate.SANType;
 import org.cacert.gigi.dbObjects.Certificate.SubjectAlternateName;
-import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.account.certs.Certificates;
@@ -34,7 +33,7 @@ public class TestCertificate extends ManagedTest {
     public void testClientCertLoginStates() throws IOException, GeneralSecurityException, SQLException, InterruptedException, GigiApiException {
         KeyPair kp = generateKeypair();
         String key1 = generatePEMCSR(kp, "CN=testmail@example.com");
-        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "testmail@example.com"), Digest.SHA256, key1, CSRType.CSR, CertificateProfile.getById(1));
+        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "testmail@example.com"), Digest.SHA256, key1, CSRType.CSR, getClientProfile());
         final PrivateKey pk = kp.getPrivate();
         await(c.issue(null, "2y", u));
         final X509Certificate ce = c.cert();
@@ -46,7 +45,7 @@ public class TestCertificate extends ManagedTest {
     public void testSANs() throws IOException, GeneralSecurityException, SQLException, InterruptedException, GigiApiException {
         KeyPair kp = generateKeypair();
         String key = generatePEMCSR(kp, "CN=testmail@example.com");
-        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "testmail@example.com"), Digest.SHA256, key, CSRType.CSR, CertificateProfile.getById(1),//
+        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "testmail@example.com"), Digest.SHA256, key, CSRType.CSR, getClientProfile(),//
                 new SubjectAlternateName(SANType.EMAIL, "testmail@example.com"), new SubjectAlternateName(SANType.DNS, "testmail.example.com"));
 
         testFails(CertificateStatus.DRAFT, c);
@@ -98,7 +97,7 @@ public class TestCertificate extends ManagedTest {
     public void testCertLifeCycle() throws IOException, GeneralSecurityException, SQLException, InterruptedException, GigiApiException {
         KeyPair kp = generateKeypair();
         String key = generatePEMCSR(kp, "CN=testmail@example.com");
-        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "testmail@example.com"), Digest.SHA256, key, CSRType.CSR, CertificateProfile.getById(1));
+        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "testmail@example.com"), Digest.SHA256, key, CSRType.CSR, getClientProfile());
         final PrivateKey pk = kp.getPrivate();
 
         testFails(CertificateStatus.DRAFT, c);

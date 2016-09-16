@@ -18,7 +18,6 @@ import java.security.cert.X509Certificate;
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
 import org.cacert.gigi.dbObjects.Certificate.CertificateStatus;
-import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Country;
 import org.cacert.gigi.dbObjects.Country.CountryCodeType;
 import org.cacert.gigi.dbObjects.Digest;
@@ -46,7 +45,7 @@ public class IssueCert extends ClientTest {
         try {
             kp = generateKeypair();
             String key1 = generatePEMCSR(kp, "EMAIL=testmail@example.com");
-            c = new Certificate(u, u, Certificate.buildDN("EMAIL", "testmail@example.com"), Digest.SHA256, key1, CSRType.CSR, CertificateProfile.getById(1));
+            c = new Certificate(u, u, Certificate.buildDN("EMAIL", "testmail@example.com"), Digest.SHA256, key1, CSRType.CSR, getClientProfile());
             c.setLoginEnabled(true);
             pk = kp.getPrivate();
             await(c.issue(null, "2y", u));

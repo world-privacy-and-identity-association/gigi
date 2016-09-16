@@ -15,7 +15,6 @@ import java.sql.SQLException;
 
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.Certificate.CSRType;
-import org.cacert.gigi.dbObjects.CertificateProfile;
 import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.Job;
 import org.cacert.gigi.dbObjects.User;
@@ -32,7 +31,7 @@ public class TestSeparateSessionScope extends ManagedTest {
         KeyPair kp = generateKeypair();
         String csr = generatePEMCSR(kp, "CN=hans");
         User u = User.getById(user);
-        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "hans"), Digest.SHA256, csr, CSRType.CSR, CertificateProfile.getById(1));
+        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "hans"), Digest.SHA256, csr, CSRType.CSR, getClientProfile());
         final PrivateKey pk = kp.getPrivate();
         await(c.issue(null, "2y", u));
         final X509Certificate ce = c.cert();
@@ -53,8 +52,8 @@ public class TestSeparateSessionScope extends ManagedTest {
         KeyPair kp = generateKeypair();
         String csr = generatePEMCSR(kp, "CN=hans");
         User u = User.getById(user);
-        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "hans"), Digest.SHA256, csr, CSRType.CSR, CertificateProfile.getById(1));
-        Certificate c2 = new Certificate(u, u, Certificate.buildDN("CN", "hans"), Digest.SHA256, csr, CSRType.CSR, CertificateProfile.getById(1));
+        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "hans"), Digest.SHA256, csr, CSRType.CSR, getClientProfile());
+        Certificate c2 = new Certificate(u, u, Certificate.buildDN("CN", "hans"), Digest.SHA256, csr, CSRType.CSR, getClientProfile());
         final PrivateKey pk = kp.getPrivate();
         Job j1 = c.issue(null, "2y", u);
         await(c2.issue(null, "2y", u));
