@@ -53,7 +53,7 @@ public class LoginTest extends ManagedTest {
         headerField = huc.getHeaderField("Set-Cookie");
         assertNotNull(headerField);
         assertEquals(302, huc.getResponseCode());
-        assertEquals("https://" + getServerName().replaceFirst(":443$", "") + SECURE_REFERENCE, huc.getHeaderField("Location"));
+        assertEquals("https://" + getServerName() + SECURE_REFERENCE, huc.getHeaderField("Location"));
     }
 
     @Test
@@ -100,7 +100,7 @@ public class LoginTest extends ManagedTest {
         final X509Certificate ce = c.cert();
         c.setLoginEnabled(true);
         String cookie = login(pk, ce);
-        URL u2 = new URL("https://" + getServerName().replaceFirst("^www.", "secure.") + SECURE_REFERENCE);
+        URL u2 = new URL("https://" + getSecureServerName() + SECURE_REFERENCE);
         HttpURLConnection huc = (HttpURLConnection) u2.openConnection();
         huc.addRequestProperty("Cookie", cookie);
         authenticateClientCert(pk, ce, huc);

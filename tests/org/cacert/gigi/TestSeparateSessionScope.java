@@ -70,7 +70,7 @@ public class TestSeparateSessionScope extends ManagedTest {
     }
 
     private void checkCertLogin(Certificate c2, final PrivateKey pk, String scookie, int expected) throws IOException, NoSuchAlgorithmException, KeyManagementException, GeneralSecurityException {
-        URL u = new URL("https://" + getServerName().replaceAll("^www", "secure") + SECURE_REFERENCE);
+        URL u = new URL("https://" + getSecureServerName() + SECURE_REFERENCE);
         HttpURLConnection huc = (HttpURLConnection) u.openConnection();
         authenticateClientCert(pk, c2.cert(), huc);
         huc.setRequestProperty("Cookie", scookie);

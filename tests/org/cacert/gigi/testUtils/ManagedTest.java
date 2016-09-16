@@ -74,7 +74,11 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     public static String getServerName() {
-        return url;
+        return url.replaceFirst(":443$", "");
+    }
+
+    public static String getSecureServerName() {
+        return getServerName().replaceAll("^www\\.", "secure.");
     }
 
     static {
@@ -357,10 +361,10 @@ public class ManagedTest extends ConfiguredTest {
 
     public static String login(final PrivateKey pk, final X509Certificate ce) throws NoSuchAlgorithmException, KeyManagementException, IOException, MalformedURLException {
 
-        HttpURLConnection connection = (HttpURLConnection) new URL("https://" + getServerName().replaceFirst("^www.", "secure.") + "/login").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("https://" + getSecureServerName() + "/login").openConnection();
         authenticateClientCert(pk, ce, connection);
         if (connection.getResponseCode() == 302) {
-            assertEquals("https://" + getServerName().replaceFirst("^www.", "secure.").replaceFirst(":443$", "") + "/", connection.getHeaderField("Location").replaceFirst(":443$", ""));
+            assertEquals("https://" + getSecureServerName() + "/", connection.getHeaderField("Location").replaceFirst(":443$", ""));
             return stripCookie(connection.getHeaderField("Set-Cookie"));
         } else {
             return null;
