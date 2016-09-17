@@ -22,6 +22,7 @@ import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.TranslateCommand;
+import org.cacert.gigi.pages.account.certs.CertificateRequest;
 import org.cacert.gigi.util.KeyStorage;
 
 public class Certificate implements IdCachable {
@@ -139,6 +140,33 @@ public class Certificate implements IdCachable {
 
     private CACertificate ca;
 
+    /**
+     * Creates a new Certificate. WARNING: this is an internal API. Creating
+     * certificates for users must be done using the {@link CertificateRequest}
+     * -API.
+     * 
+     * @param owner
+     *            the owner for whom the certificate should be created.
+     * @param actor
+     *            the acting user that creates the certificate
+     * @param dn
+     *            the distinguished name of the subject of this certificate (as
+     *            Map using OpenSSL-Style keys)
+     * @param md
+     *            the {@link Digest} to sign the certificate with
+     * @param csr
+     *            the CSR/SPKAC-Request containing the public key in question
+     * @param csrType
+     *            the type of the csr parameter
+     * @param profile
+     *            the profile under which this certificate is to be issued
+     * @param sans
+     *            additional subject alternative names
+     * @throws GigiApiException
+     *             in case the request is malformed or internal errors occur
+     * @throws IOException
+     *             when the request cannot be written.
+     */
     public Certificate(CertificateOwner owner, User actor, HashMap<String, String> dn, Digest md, String csr, CSRType csrType, CertificateProfile profile, SubjectAlternateName... sans) throws GigiApiException, IOException {
         if ( !profile.canBeIssuedBy(owner, actor)) {
             throw new GigiApiException("You are not allowed to issue these certificates.");
