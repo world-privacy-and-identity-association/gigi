@@ -132,9 +132,23 @@ public class Launcher {
 
         s.start();
         if ((isSystemPort(ServerConstants.getSecurePort()) || isSystemPort(ServerConstants.getPort())) && !System.getProperty("os.name").toLowerCase().contains("win")) {
-            SetUID uid = new SetUID();
-            if ( !uid.setUid(65536 - 2, 65536 - 2).getSuccess()) {
-                Log.getLogger(Launcher.class).warn("Couldn't set uid!");
+            String uid_s = conf.getMainProps().getProperty("gigi.uid", Integer.toString(65536 - 2));
+            String gid_s = conf.getMainProps().getProperty("gigi.gid", Integer.toString(65536 - 2));
+            try {
+                int uid = Integer.parseInt(uid_s);
+                int gid = Integer.parseInt(gid_s);
+                if (uid == -1 && gid == -1) {
+                    // skip setuid step
+                } else if (uid > 0 && gid > 0 && uid < 65536 && gid < 65536) {
+                    SetUID.Status status = new SetUID().setUid(uid, gid);
+                    if ( !status.getSuccess()) {
+                        Log.getLogger(Launcher.class).warn(status.getMessage());
+                    }
+                } else {
+                    Log.getLogger(Launcher.class).warn("Invalid uid or gid (must satisfy 0 < id < 65536)");
+                }
+            } catch (NumberFormatException e) {
+                Log.getLogger(Launcher.class).warn("Invalid gigi.uid or gigi.gid", e);
             }
         }
     }

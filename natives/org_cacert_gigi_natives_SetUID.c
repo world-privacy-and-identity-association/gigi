@@ -18,20 +18,45 @@ static jobject getStatus(JNIEnv *env, int successCode, const char * message) {
 }
 
 JNIEXPORT jobject JNICALL Java_org_cacert_gigi_natives_SetUID_setUid
-        (JNIEnv *env, jobject obj, jint uid, jint gid) {
+        (JNIEnv *env, jobject obj, jint uid_, jint gid_) {
 
     /* We don't need the reference for the object/class we are working on */
     (void)obj;
-
-    if(setgid((int)gid)) {
-        return (jobject)getStatus(env, 0, "Error while setting GID.");
+    /* Fix uid and gid types */
+    uid_t uid = (uid_t)uid_;
+    if ((jint)uid != uid_) {
+      return getStatus(env, 0, "UID does not fit in uid_t type.");
+    }
+    gid_t gid = (gid_t)gid_;
+    if ((jint)gid != gid_) {
+      return getStatus(env, 0, "GID does not fit in gid_t type.");
     }
 
-    if(setuid((int)uid)) {
-        return (jobject)getStatus(env, 0, "Error while setting UID.");
+    unsigned char work = 0;
+
+    if(getgid() != gid || getegid() != gid) {
+        if(setgid(gid)) {
+            return getStatus(env, 0, "Error while setting GID.");
+        }
+        work |= 1;
     }
 
-    return (jobject)getStatus(env, 1, "Successfully set uid/gid.");
+    if(getuid() != uid || geteuid() != uid) {
+        if(setuid(uid)) {
+            return getStatus(env, 0, "Error while setting UID.");
+        }
+        work |= 2;
+    }
+
+    char *status;
+    switch (work) {
+    case 0: status = "UID and GID already set."; break;
+    case 1: status = "Successfully set GID (UID already set)."; break;
+    case 2: status = "Successfully set UID (GID already set)."; break;
+    case 3: status = "Successfully set UID and GID."; break;
+    default: return getStatus(env, 0, "Unexpected internal state.");
+    }
+    return getStatus(env, 1, status);
 }
 
 #ifdef __cplusplus
