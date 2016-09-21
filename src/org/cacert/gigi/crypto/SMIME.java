@@ -45,6 +45,7 @@ public class SMIME {
     }
 
     public static void smime(String contents, PrivateKey pKey, X509Certificate c, PrintWriter to) throws IOException, GeneralSecurityException {
+        contents = normalizeNewlinesToCRLF(contents);
 
         Signature signature = Signature.getInstance("SHA1WithRSA");
         signature.initSign(pKey);
@@ -73,6 +74,10 @@ public class SMIME {
         p7.encodeSignedData(bOut);
 
         mimeEncode(contents, PEM.formatBase64(bOut.toByteArray()), to);
+    }
+
+    private static String normalizeNewlinesToCRLF(String contents) {
+        return contents.replace("\r\n", "\r").replace("\r", "\n").replace("\n", "\r\n");
     }
 
     private static Random r = new Random();
