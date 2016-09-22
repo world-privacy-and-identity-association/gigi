@@ -129,7 +129,9 @@ public class Domain implements IdCachable, Verifyable {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `domainPinglog` SET `state`='success' WHERE `challenge`=? AND `state`='open' AND `configId` IN (SELECT `id` FROM `pingconfig` WHERE `domainid`=? AND `type`='email')")) {
             ps.setString(1, hash);
             ps.setInt(2, id);
-            ps.executeUpdate();
+            if ( !ps.executeMaybeUpdate()) {
+                throw new IllegalArgumentException("Given token could not be found to complete the verification process (Domain Ping).");
+            }
         }
     }
 

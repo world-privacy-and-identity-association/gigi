@@ -49,6 +49,19 @@ public class GigiPreparedStatement implements AutoCloseable {
         }
     }
 
+    public boolean executeMaybeUpdate() {
+        try {
+            int updated = target.executeUpdate();
+            if (updated > 1) {
+                throw new Error("More than one record (" + updated + ") updated.");
+            }
+            return updated == 1;
+        } catch (SQLException e) {
+            handleSQL(e);
+            throw new Error(e);
+        }
+    }
+
     public boolean execute() {
         try {
             return target.execute();

@@ -62,14 +62,14 @@ public class Verify extends Page {
                 try {
                     target.verify(hash);
                 } catch (IllegalArgumentException e) {
-                    throw new GigiApiException("The email address is invalid.");
+                    throw new PermamentFormException(new GigiApiException("Given token could not be found to complete the verification process (Email Ping)."));
                 }
                 return new SuccessMessageResult(new Scope(emailAddressVerified, data));
             } else if ("domain".equals(type)) {
                 try {
                     target.verify(hash);
                 } catch (IllegalArgumentException e) {
-                    throw new GigiApiException("The domain is invalid.");
+                    throw new PermamentFormException(new GigiApiException("Given token could not be found to complete the verification process (Domain Ping)."));
                 }
                 return new SuccessMessageResult(new Scope(domainVerified, data));
             } else {

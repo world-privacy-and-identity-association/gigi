@@ -96,11 +96,13 @@ public class EmailAddress implements IdCachable, Verifyable {
     }
 
     public synchronized void verify(String hash) throws GigiApiException {
-        try (GigiPreparedStatement stmt = new GigiPreparedStatement("UPDATE `emailPinglog` SET `status`='success'::`pingState` WHERE `email`=? AND `uid`=? AND `type`='active' AND `challenge`=?")) {
+        try (GigiPreparedStatement stmt = new GigiPreparedStatement("UPDATE `emailPinglog` SET `status`='success'::`pingState` WHERE `email`=? AND `uid`=? AND `type`='active' AND `challenge`=? AND `status`='open'::`pingState`")) {
             stmt.setString(1, address);
             stmt.setInt(2, owner.getId());
             stmt.setString(3, hash);
-            stmt.executeUpdate();
+            if ( !stmt.executeMaybeUpdate()) {
+                throw new IllegalArgumentException("Given token could not be found to complete the verification process (Domain Ping).");
+            }
         }
         // Verify user with that primary email
         try (GigiPreparedStatement ps2 = new GigiPreparedStatement("update `users` set `verified`='1' where `id`=? and `email`=? and `verified`='0'")) {
