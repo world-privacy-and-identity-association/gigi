@@ -1,6 +1,7 @@
 package org.cacert.gigi.api;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.email.EmailProvider;
 import org.cacert.gigi.pages.account.FindAgentAccess;
 import org.cacert.gigi.util.ServerConstants;
+import org.json.JSONWriter;
 
 public class FindAgent extends APIPoint {
 
@@ -69,16 +71,29 @@ public class FindAgent extends APIPoint {
             resp.setContentType("text/plain; charset=UTF-8");
             resp.getWriter().print(us.getId());
         } else if (pi.equals(PATH_INFO)) {
-            resp.setContentType("text/plain; charset=UTF-8");
+            resp.setContentType("application/json; charset=UTF-8");
+            PrintWriter out = resp.getWriter();
             String[] uids = req.getParameterValues("id");
+            JSONWriter jw = new JSONWriter(out);
+            jw.array();
             for (String i : uids) {
                 User u1 = User.getById(Integer.parseInt(i));
                 if ( !u1.isInGroup(Group.LOCATE_AGENT)) {
                     continue;
                 }
                 // date, recheck(?), name
-                resp.getWriter().println(i + "," + u1.canAssure() + "," + u1.getPreferredName().toAbbreviatedString());
+                jw.object();
+                jw.key("id");
+                jw.value(u1.getId());
+
+                jw.key("canAssure");
+                jw.value(u1.canAssure());
+
+                jw.key("name");
+                jw.value(u1.getPreferredName().toAbbreviatedString());
+                jw.endObject();
             }
+            jw.endArray();
         } else if (pi.equals(PATH_MAIL)) {
             String id = req.getParameter("from");
             String rid = req.getParameter("to");

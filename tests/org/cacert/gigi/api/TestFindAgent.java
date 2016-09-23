@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.dbObjects.Certificate;
@@ -20,6 +21,9 @@ import org.cacert.gigi.pages.account.FindAgentAccess;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.RestrictedApiTest;
 import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.junit.Test;
 
 public class TestFindAgent extends RestrictedApiTest {
@@ -78,10 +82,21 @@ public class TestFindAgent extends RestrictedApiTest {
         int u2 = createVerifiedUser("f", "l", createUniqueName() + "@email.com", TEST_PASSWORD);
 
         String res = IOUtils.readURL(doApi(FindAgent.PATH_INFO, "id=" + id + "&id=" + u2)).replace("\r", "");
-        assertEquals(res, "");
+        res = IOUtils.readURL(doApi(FindAgent.PATH_INFO, "id=" + id + "&id=" + u2)).replace("\r", "");
+        assertEquals(new JSONArray().toString(), new JSONArray(new JSONTokener(res)).toString());
         grant(u, Group.LOCATE_AGENT);
         grant(User.getById(u2), Group.LOCATE_AGENT);
         res = IOUtils.readURL(doApi(FindAgent.PATH_INFO, "id=" + id + "&id=" + u2)).replace("\r", "");
-        assertEquals(id + ",true," + u.getPreferredName().toAbbreviatedString() + "\n" + u2 + ",false," + User.getById(u2).getPreferredName().toAbbreviatedString() + "\n", res);
+        JSONTokener jt = new JSONTokener(res);
+        JSONObject j1 = new JSONObject();
+        j1.put("id", id);
+        j1.put("canAssure", true);
+        j1.put("name", u.getPreferredName().toAbbreviatedString());
+        JSONObject j2 = new JSONObject();
+        j2.put("id", u2);
+        j2.put("canAssure", false);
+        j2.put("name", User.getById(u2).getPreferredName().toAbbreviatedString());
+        JSONArray ja = new JSONArray(Arrays.asList(j1, j2));
+        assertEquals(ja.toString(), new JSONArray(jt).toString());
     }
 }
