@@ -4,6 +4,7 @@
 	<classpathentry kind="src" path="lib/jetty"/>
 	<classpathentry kind="src" path="lib/jtar"/>
 	<classpathentry kind="src" path="lib/scrypt"/>
+	<classpathentry kind="src" path="lib/json"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="util"/>
 	<classpathentry kind="src" path="tests"/>
