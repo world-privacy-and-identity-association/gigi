@@ -50,7 +50,7 @@ public abstract class CertificateOwner implements IdCachable, Serializable {
                     } else if (rs.getString("oid") != null) {
                         myCache.put(u = new Organisation(rs));
                     } else {
-                        System.err.print("Malformed cert owner: " + id);
+                        System.err.println("Malformed cert owner: " + id);
                     }
                 } catch (GigiApiException e) {
                     throw new Error(e);
