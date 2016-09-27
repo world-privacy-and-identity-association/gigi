@@ -149,7 +149,7 @@ public class TestOrgManagement extends OrgTest {
         Organisation o1 = createUniqueOrg();
         o1.updateCertData("name", Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS), DIFFICULT_CHARS, "Köln");
         assertEquals("name", o1.getName());
-        assertEquals("DE", o1.getState().getCode());
+        assertEquals("DE", o1.getCountry().getCode());
         assertEquals(DIFFICULT_CHARS, o1.getProvince());
         assertEquals("Köln", o1.getCity());
         o1.delete();
@@ -246,7 +246,7 @@ public class TestOrgManagement extends OrgTest {
      */
     private String upCertData(Organisation o1, String o, String c, String province, String ct) throws IOException, MalformedURLException, UnsupportedEncodingException {
         if (c == null) {
-            c = o1.getState().getCode();
+            c = o1.getCountry().getCode();
         }
         return executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + o1.getId(), "action=updateCertificateData&O=" + o + "&C=" + c + "&ST=" + province + "&L=" + ct, 0);
     }

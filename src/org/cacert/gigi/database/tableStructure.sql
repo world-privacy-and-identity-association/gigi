@@ -27,7 +27,7 @@ DROP TABLE IF EXISTS "organisations";
 CREATE TABLE IF NOT EXISTS "organisations" (
   "id" int NOT NULL,
   "name" varchar(64) NOT NULL,
-  "state" varchar(2) NOT NULL,
+  "country" varchar(2) NOT NULL,
   "province" varchar(128) NOT NULL,
   "city" varchar(128) NOT NULL,
   "contactEmail" varchar(100) NOT NULL,
@@ -374,7 +374,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(24);
+INSERT INTO "schemeVersion" (version)  VALUES(25);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (

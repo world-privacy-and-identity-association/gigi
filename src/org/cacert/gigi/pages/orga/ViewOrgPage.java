@@ -117,7 +117,7 @@ public class ViewOrgPage extends ManagedMultiFormPage {
                 Organisation org = orgas[count++];
                 vars.put("id", Integer.toString(org.getId()));
                 vars.put("name", org.getName());
-                vars.put("country", org.getState().getCode());
+                vars.put("country", org.getCountry().getCode());
                 return true;
             }
         };

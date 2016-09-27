@@ -81,7 +81,7 @@ public class Organisation extends CertificateOwner {
         this.optionalName = optionalName;
         this.postalAddress = postalAddress;
         int id = getId();
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO organisations SET id=?, name=?, state=?, province=?, city=?, contactEmail=?, optional_name=?, postal_address=?, creator=?")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO organisations SET id=?, name=?, country=?, province=?, city=?, contactEmail=?, optional_name=?, postal_address=?, creator=?")) {
             ps.setInt(1, id);
             ps.setString(2, name);
             ps.setString(3, country.getCode());
@@ -100,7 +100,7 @@ public class Organisation extends CertificateOwner {
     protected Organisation(GigiResultSet rs) throws GigiApiException {
         super(rs.getInt("id"));
         name = rs.getString("name");
-        country = Country.getCountryByCode(rs.getString("state"), CountryCodeType.CODE_2_CHARS);
+        country = Country.getCountryByCode(rs.getString("country"), CountryCodeType.CODE_2_CHARS);
         province = rs.getString("province");
         city = rs.getString("city");
         email = rs.getString("contactEmail");
@@ -112,7 +112,7 @@ public class Organisation extends CertificateOwner {
         return name;
     }
 
-    public Country getState() {
+    public Country getCountry() {
         return country;
     }
 
@@ -219,7 +219,7 @@ public class Organisation extends CertificateOwner {
                 cert.revoke();
             }
         }
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `organisations` SET `name`=?, `state`=?, `province`=?, `city`=? WHERE `id`=?")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `organisations` SET `name`=?, `country`=?, `province`=?, `city`=? WHERE `id`=?")) {
             ps.setString(1, o);
             ps.setString(2, c.getCode());
             ps.setString(3, st);

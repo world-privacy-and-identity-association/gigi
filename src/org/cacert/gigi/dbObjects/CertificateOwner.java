@@ -37,27 +37,33 @@ public abstract class CertificateOwner implements IdCachable, Serializable {
     }
 
     public static synchronized CertificateOwner getById(int id) {
-        CertificateOwner u = myCache.get(id);
-        if (u == null) {
-            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT *, `users`.`id` AS uid, `organisations`.`id` AS oid FROM `certOwners` LEFT JOIN `users` ON `users`.`id`=`certOwners`.`id` LEFT JOIN `organisations` ON `organisations`.`id` = `certOwners`.`id` WHERE `certOwners`.`id`=? AND `deleted` is null")) {
-                ps.setInt(1, id);
-                try (GigiResultSet rs = ps.executeQuery()) {
-                    if ( !rs.next()) {
-                        return null;
-                    }
-                    if (rs.getString("uid") != null) {
-                        myCache.put(u = new User(rs));
-                    } else if (rs.getString("oid") != null) {
-                        myCache.put(u = new Organisation(rs));
-                    } else {
-                        System.err.println("Malformed cert owner: " + id);
-                    }
-                } catch (GigiApiException e) {
-                    throw new Error(e);
-                }
-            }
+        CertificateOwner cached = myCache.get(id);
+        if (cached != null) {
+            return cached;
         }
-        return u;
+
+        try (GigiPreparedStatement psU = new GigiPreparedStatement("SELECT *, `users`.`id` AS uid FROM `certOwners` INNER JOIN `users` ON `users`.`id`=`certOwners`.`id` WHERE `certOwners`.`id`=? AND `deleted` is null")) {
+            psU.setInt(1, id);
+            GigiResultSet rsU = psU.executeQuery();
+            if (rsU.next()) {
+                return myCache.put(new User(rsU));
+            }
+        } catch (GigiApiException e) {
+            throw new Error(e);
+        }
+
+        try (GigiPreparedStatement psO = new GigiPreparedStatement("SELECT *, `organisations`.`id` AS oid FROM `certOwners` INNER JOIN `organisations` ON `organisations`.`id`=`certOwners`.`id` WHERE `certOwners`.`id`=? AND `deleted` is null")) {
+            psO.setInt(1, id);
+            GigiResultSet rsO = psO.executeQuery();
+            if (rsO.next()) {
+                return myCache.put(new Organisation(rsO));
+            }
+        } catch (GigiApiException e) {
+            throw new Error(e);
+        }
+
+        System.err.println("Malformed cert owner: " + id);
+        return null;
     }
 
     public Domain[] getDomains() {

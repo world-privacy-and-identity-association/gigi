@@ -424,7 +424,7 @@ public class CertificateRequest {
         if (ctx.getTarget() instanceof Organisation) {
             Organisation org = (Organisation) ctx.getTarget();
             subject.put("O", org.getName());
-            subject.put("C", org.getState().getCode());
+            subject.put("C", org.getCountry().getCode());
             subject.put("ST", org.getProvince());
             subject.put("L", org.getCity());
             if (ou != null) {
