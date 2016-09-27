@@ -959,46 +959,6 @@ public class JSONArray implements Iterable<Object> {
         }
         return this;
     }
-    
-    /**
-     * Creates a JSONPointer using an intialization string and tries to 
-     * match it to an item within this JSONArray. For example, given a
-     * JSONArray initialized with this document:
-     * <pre>
-     * [
-     *     {"b":"c"}
-     * ]
-     * </pre>
-     * and this JSONPointer string: 
-     * <pre>
-     * "/0/b"
-     * </pre>
-     * Then this method will return the String "c"
-     * A JSONPointerException may be thrown from code called by this method.
-     *
-     * @param jsonPointer string that can be used to create a JSONPointer
-     * @return the item matched by the JSONPointer, otherwise null
-     */
-    public Object query(String jsonPointer) {
-        return new JSONPointer(jsonPointer).queryFrom(this);
-    }
-    
-    /**
-     * Queries and returns a value from this object using {@code jsonPointer}, or
-     * returns null if the query fails due to a missing key.
-     * 
-     * @param jsonPointer the string representation of the JSON pointer
-     * @return the queried value or {@code null}
-     * @throws IllegalArgumentException if {@code jsonPointer} has invalid syntax
-     */
-    public Object optQuery(String jsonPointer) {
-        JSONPointer pointer = new JSONPointer(jsonPointer);
-        try {
-            return pointer.queryFrom(this);
-        } catch (JSONPointerException e) {
-            return null;
-        }
-    }
 
     /**
      * Remove an index and close the hole.

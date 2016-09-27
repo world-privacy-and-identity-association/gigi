@@ -1339,46 +1339,6 @@ public class JSONObject {
     }
 
     /**
-     * Creates a JSONPointer using an intialization string and tries to 
-     * match it to an item within this JSONObject. For example, given a
-     * JSONObject initialized with this document:
-     * <pre>
-     * {
-     *     "a":{"b":"c"}
-     * }
-     * </pre>
-     * and this JSONPointer string: 
-     * <pre>
-     * "/a/b"
-     * </pre>
-     * Then this method will return the String "c".
-     * A JSONPointerException may be thrown from code called by this method.
-     *   
-     * @param jsonPointer string that can be used to create a JSONPointer
-     * @return the item matched by the JSONPointer, otherwise null
-     */
-    public Object query(String jsonPointer) {
-        return new JSONPointer(jsonPointer).queryFrom(this);
-    }
-    
-    /**
-     * Queries and returns a value from this object using {@code jsonPointer}, or
-     * returns null if the query fails due to a missing key.
-     * 
-     * @param jsonPointer the string representation of the JSON pointer
-     * @return the queried value or {@code null}
-     * @throws IllegalArgumentException if {@code jsonPointer} has invalid syntax
-     */
-    public Object optQuery(String jsonPointer) {
-        JSONPointer pointer = new JSONPointer(jsonPointer);
-        try {
-            return pointer.queryFrom(this);
-        } catch (JSONPointerException e) {
-            return null;
-        }
-    }
-
-    /**
      * Produce a string in double quotes with backslash sequences in all the
      * right places. A backslash will be inserted within </, producing <\/,
      * allowing JSON text to be delivered in HTML. In JSON text, a string cannot
