@@ -97,6 +97,7 @@
 			<src path="lib/jetty" />
 			<src path="lib/jtar" />
 			<src path="lib/scrypt" />
+			<src path="lib/json" />
 			<src path="src" />
 			<classpath refid="cacert-gigi.classpath" />
 		</javac>
