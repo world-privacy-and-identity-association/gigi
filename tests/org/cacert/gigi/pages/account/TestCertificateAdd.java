@@ -85,7 +85,7 @@ public class TestCertificateAdd extends ClientTest {
 
         String[] res = fillOutForm("CSR=" + URLEncoder.encode(pem, "UTF-8"));
         assertArrayEquals(new String[] {
-                "server", CertificateRequest.DEFAULT_CN, "dns:a." + uniq + ".tld\ndns:" + uniq + ".tld\n", Digest.SHA256.toString()
+                "server", CertificateRequest.DEFAULT_CN, "dns:a." + uniq + ".tld\ndns:" + uniq + ".tld\n", Digest.SHA512.toString()
         }, res);
     }
 
@@ -109,11 +109,11 @@ public class TestCertificateAdd extends ClientTest {
                 CertificateRequest.OID_KEY_USAGE_SSL_CLIENT
         }, new RFC822Name(email));
 
-        String pem = generatePEMCSR(kp, "CN=a b,email=" + email, atts, "SHA512WithRSA");
+        String pem = generatePEMCSR(kp, "CN=a b,email=" + email, atts, "SHA256WithRSA");
 
         String[] res = fillOutForm("CSR=" + URLEncoder.encode(pem, "UTF-8"));
         assertArrayEquals(new String[] {
-                "client", "a b", "email:" + email + "\n", Digest.SHA512.toString()
+                "client", "a b", "email:" + email + "\n", Digest.SHA256.toString()
         }, res);
     }
 

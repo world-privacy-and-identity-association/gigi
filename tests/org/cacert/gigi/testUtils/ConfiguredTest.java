@@ -163,7 +163,7 @@ public abstract class ConfiguredTest {
     }
 
     public static String generatePEMCSR(KeyPair kp, String dn, PKCS10Attributes atts) throws GeneralSecurityException, IOException {
-        return generatePEMCSR(kp, dn, atts, "SHA256WithRSA");
+        return generatePEMCSR(kp, dn, atts, "SHA512WithRSA");
     }
 
     public static String generatePEMCSR(KeyPair kp, String dn, PKCS10Attributes atts, String signature) throws GeneralSecurityException, IOException {
