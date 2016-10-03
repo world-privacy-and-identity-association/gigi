@@ -21,6 +21,8 @@ public class GigiAPI extends HttpServlet {
 
     public GigiAPI() {
         api.put(CreateCertificate.PATH, new CreateCertificate());
+        api.put(Emails.PATH, new Emails());
+        api.put(EmailReping.PATH, new EmailReping());
         api.put(RevokeCertificate.PATH, new RevokeCertificate());
         api.put(CATSImport.PATH, new CATSImport());
         api.put(CATSResolve.PATH, new CATSResolve());
