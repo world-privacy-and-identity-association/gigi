@@ -315,17 +315,7 @@ public final class Gigi extends HttpServlet {
 
     }
 
-    private static String staticTemplateVarHttp = "http://" + ServerConstants.getStaticHostNamePort();
-
-    private static String staticTemplateVarHttps = "https://" + ServerConstants.getStaticHostNamePortSecure();
-
-    private static String getStaticTemplateVar(boolean https) {
-        if (https) {
-            return staticTemplateVarHttps;
-        } else {
-            return staticTemplateVarHttp;
-        }
-    }
+    private static String staticTemplateVar = "//" + ServerConstants.getStaticHostNamePort();
 
     @Override
     protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
@@ -429,7 +419,7 @@ public final class Gigi extends HttpServlet {
             vars.put(Menu.AUTH_VALUE, currentAuthContext);
             vars.put("menu", rootMenu);
             vars.put("title", lang.getTranslation(p.getTitle()));
-            vars.put("static", getStaticTemplateVar(isSecure));
+            vars.put("static", staticTemplateVar);
             vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
             vars.put("content", content);
             if (currentAuthContext != null) {
