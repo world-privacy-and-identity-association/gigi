@@ -19,3 +19,4 @@ NoNewPrivileges=yes
 
 [Install]
 WantedBy=multi-user.target
+Also=gigi-proxy.socket
