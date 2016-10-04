@@ -48,7 +48,7 @@ public class CreateOrgForm extends Form {
         result = t;
         o = t.getName();
 
-        cs = new CountrySelector("C", false, t.getState());
+        cs = new CountrySelector("C", false, t.getCountry());
 
         st = t.getProvince();
         l = t.getCity();

@@ -68,22 +68,15 @@ public class User extends CertificateOwner {
 
     private Country residenceCountry;
 
-    protected User(GigiResultSet rs) {
+    protected User(GigiResultSet rs) throws GigiApiException {
         super(rs.getInt("id"));
-        updateName(rs);
-    }
 
-    private void updateName(GigiResultSet rs) {
         dob = new DayDate(rs.getDate("dob"));
         email = rs.getString("email");
         preferredName = Name.getById(rs.getInt("preferredName"));
 
-        try {
-            if (rs.getString("Country") != null) {
-                residenceCountry = Country.getCountryByCode(rs.getString("Country"), Country.CountryCodeType.CODE_2_CHARS);
-            }
-        } catch (GigiApiException e) {
-            throw new Error(e);
+        if (rs.getString("country") != null) {
+            residenceCountry = Country.getCountryByCode(rs.getString("Country"), Country.CountryCodeType.CODE_2_CHARS);
         }
 
         String localeStr = rs.getString("language");
