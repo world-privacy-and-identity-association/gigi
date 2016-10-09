@@ -225,6 +225,8 @@ public class CertificateRequest {
             selectedDigest = Digest.SHA512;
         } else if (sign.toLowerCase().startsWith("sha384")) {
             selectedDigest = Digest.SHA384;
+        } else if (sign.toLowerCase().startsWith("sha256")) {
+            selectedDigest = Digest.SHA256;
         }
     }
 

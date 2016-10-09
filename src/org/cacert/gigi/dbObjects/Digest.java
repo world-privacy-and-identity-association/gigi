@@ -2,9 +2,13 @@ package org.cacert.gigi.dbObjects;
 
 import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.TranslateCommand;
+import org.cacert.gigi.output.template.SprintfCommand;
+import java.util.Arrays;
 
 public enum Digest {
-    SHA256("Currently recommended, because the other algorithms" + " might break on some older versions of the GnuTLS library" + " (older than 3.x) still shipped in Debian for example."), SHA384(""), SHA512("Highest protection against hash collision attacks of the algorithms offered here.");
+    SHA256(new SprintfCommand("Most compatible choice (see {0}documentation{1} for details)", Arrays.asList("!'<a href='//links.teracara.org/sha2-256'>", "!'</a>"))),
+    SHA384("Best matched with ECC P-384"),
+    SHA512("Highest collision resistance, recommended");
 
     private final Outputable exp;
 
@@ -12,12 +16,16 @@ public enum Digest {
         exp = new TranslateCommand(explanation);
     }
 
+    private Digest(Outputable exp) {
+        this.exp = exp;
+    }
+
     public Outputable getExp() {
         return exp;
     }
 
     public static Digest getDefault() {
-        return SHA256;
+        return SHA512;
     }
 
 }
