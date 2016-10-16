@@ -24,6 +24,15 @@ public abstract class APIPoint {
             resp.sendError(403, "Error, cert authing required. Serial not found: " + serial);
             return;
         }
+        if (req.getMethod().equals("GET")) {
+            if (u instanceof User) {
+                processGet(req, resp, (User) u);
+                return;
+            } else {
+                resp.sendError(500, "Error, requires a User certificate.");
+                return;
+            }
+        }
 
         if ( !req.getMethod().equals("POST")) {
             resp.sendError(500, "Error, POST required.");
@@ -46,6 +55,10 @@ public abstract class APIPoint {
     }
 
     protected void process(HttpServletRequest req, HttpServletResponse resp, User u) throws IOException {
+        resp.sendError(500, "Error, Post not allowed.");
+    }
 
+    protected void processGet(HttpServletRequest req, HttpServletResponse resp, User u) throws IOException {
+        resp.sendError(500, "Error, Get not allowed.");
     }
 }
