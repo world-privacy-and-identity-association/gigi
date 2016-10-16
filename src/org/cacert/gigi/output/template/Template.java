@@ -236,9 +236,8 @@ public class Template implements Outputable {
 
     protected void tryReload() {
         if (source != null && lastLoaded < source.lastModified()) {
-            try {
-                System.out.println("Reloading template.... " + source);
-                InputStreamReader r = new InputStreamReader(new FileInputStream(source), "UTF-8");
+            System.out.println("Reloading template.... " + source);
+            try (InputStreamReader r = new InputStreamReader(new FileInputStream(source), "UTF-8")) {
                 data = parse(r).getBlock(null);
                 r.close();
                 lastLoaded = source.lastModified() + 1000;
