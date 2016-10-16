@@ -70,7 +70,7 @@ public class CreateCertificate extends APIPoint {
                 resp.sendError(510, "Error, issuing timed out");
                 return;
             }
-
+            resp.addHeader("Content-Type", "text/plain");
             CertExporter.writeCertCrt(result, resp.getOutputStream(), req.getParameter("chain") != null, req.getParameter("noAnchor") == null, true);
             return;
         } catch (GeneralSecurityException e) {
