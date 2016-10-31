@@ -235,6 +235,24 @@ public class DatabaseConnection {
         }
         credentials = conf;
         try (Link i = newLink(false)) {
+            try (GigiPreparedStatement empty = new GigiPreparedStatement("SELECT * from information_schema.tables WHERE table_schema='public' AND table_name='schemeVersion'")) {
+                if ( !empty.executeQuery().next()) {
+                    try (InputStream resourceAsStream = DatabaseConnection.class.getResourceAsStream("tableStructure.sql")) {
+                        if (resourceAsStream == null) {
+                            throw new Error("DB-Install-Script not found.");
+                        }
+                        try (Statement s = getInstance().c.createStatement()) {
+                            SQLFileManager.addFile(s, resourceAsStream, ImportType.PRODUCTION);
+                            s.executeBatch();
+                        }
+                    }
+                    return;
+                }
+            } catch (IOException e) {
+                throw new Error(e);
+            } catch (SQLException e) {
+                throw new Error(e);
+            }
             int version = 0;
             try (GigiPreparedStatement gigiPreparedStatement = new GigiPreparedStatement("SELECT version FROM \"schemeVersion\" ORDER BY version DESC LIMIT 1;")) {
                 GigiResultSet rs = gigiPreparedStatement.executeQuery();
@@ -256,8 +274,7 @@ public class DatabaseConnection {
 
     private static void upgrade(int version) {
         try {
-            Statement s = getInstance().c.createStatement();
-            try {
+            try (Statement s = getInstance().c.createStatement()) {
                 while (version < CURRENT_SCHEMA_VERSION) {
                     addUpgradeScript(Integer.toString(version), s);
                     version++;
@@ -266,8 +283,6 @@ public class DatabaseConnection {
                 System.out.println("UPGRADING Database to version " + version);
                 s.executeBatch();
                 System.out.println("done.");
-            } finally {
-                s.close();
             }
         } catch (SQLException e) {
             e.printStackTrace();
