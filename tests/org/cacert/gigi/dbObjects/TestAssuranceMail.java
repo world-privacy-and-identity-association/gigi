@@ -46,7 +46,7 @@ public class TestAssuranceMail extends BusinessTest {
             int applicantId = createVerifiedUser("John", "Doe", applicantT, TEST_PASSWORD);
             User applicantXP = User.getById(applicantId);
             applicantXP = User.getById(applicantId);
-            Notary.assure(agentXP, applicantXP, applicantXP.getNames()[0], applicantXP.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
+            Notary.assure(agentXP, applicantXP, applicantXP.getNames()[0], applicantXP.getDoB(), 10, "Test location", validVerificationDateString(), AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
         }
     }
 
@@ -273,20 +273,20 @@ public class TestAssuranceMail extends BusinessTest {
 
         // verify with 35 VP
         newAgent();
-        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
-        Notary.assure(agent, applicant, applicant.getNames()[1], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", validVerificationDateString(), AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
+        Notary.assure(agent, applicant, applicant.getNames()[1], applicant.getDoB(), 10, "Test location", validVerificationDateString(), AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
 
         newAgent();
-        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
-        Notary.assure(agent, applicant, applicant.getNames()[1], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", validVerificationDateString(), AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
+        Notary.assure(agent, applicant, applicant.getNames()[1], applicant.getDoB(), 10, "Test location", validVerificationDateString(), AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
 
         newAgent();
-        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
-        Notary.assure(agent, applicant, applicant.getNames()[1], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", validVerificationDateString(), AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
+        Notary.assure(agent, applicant, applicant.getNames()[1], applicant.getDoB(), 10, "Test location", validVerificationDateString(), AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
 
         newAgent();
-        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 5, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
-        Notary.assure(agent, applicant, applicant.getNames()[1], applicant.getDoB(), 5, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 5, "Test location", validVerificationDateString(), AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
+        Notary.assure(agent, applicant, applicant.getNames()[1], applicant.getDoB(), 5, "Test location", validVerificationDateString(), AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
 
         // add first Verification in the past result first name 45 VP
         newAgent();
@@ -302,16 +302,16 @@ public class TestAssuranceMail extends BusinessTest {
 
         // verify first name to 85 VP
         newAgent();
-        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", validVerificationDateString(), AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
 
         newAgent();
-        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", validVerificationDateString(), AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
 
         newAgent();
-        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 10, "Test location", validVerificationDateString(), AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
 
         newAgent();
-        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 5, "Test location", "2014-11-06", AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
+        Notary.assure(agent, applicant, applicant.getNames()[0], applicant.getDoB(), 5, "Test location", validVerificationDateString(), AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
 
         // add first Verification in the past result first name 95 VP
         newAgent();
