@@ -41,7 +41,6 @@ public abstract class EmailProvider {
 
     protected final void sendSigned(String contents, PrintWriter output) throws IOException, GeneralSecurityException {
         if (k == null || c == null) {
-            output.print("Content-Transfer-Encoding: base64\r\n\r\n");
             output.print(contents);
         } else {
             SMIME.smime(contents, k, c, output);
