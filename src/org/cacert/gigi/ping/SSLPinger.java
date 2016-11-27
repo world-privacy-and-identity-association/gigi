@@ -178,7 +178,7 @@ public class SSLPinger extends DomainPinger {
                             @Override
                             public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
                                 java.security.cert.X509Certificate c = chain[0];
-                                if ( !c.getExtendedKeyUsage().contains("1.3.6.1.5.5.7.3.1")) {
+                                if (c.getExtendedKeyUsage() != null && !c.getExtendedKeyUsage().contains("1.3.6.1.5.5.7.3.1")) {
                                     throw new java.security.cert.CertificateException("Illegal EKU");
                                 }
                             }
