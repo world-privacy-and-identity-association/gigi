@@ -39,6 +39,8 @@ import sun.security.x509.X500Name;
 
 public class SSLPinger extends DomainPinger {
 
+    private static final String OID_EKU_serverAuth = "1.3.6.1.5.5.7.3.1";
+
     public static final String[] TYPES = new String[] {
             "xmpp", "server-xmpp", "smtp", "imap"
     };
@@ -178,7 +180,7 @@ public class SSLPinger extends DomainPinger {
                             @Override
                             public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
                                 java.security.cert.X509Certificate c = chain[0];
-                                if (c.getExtendedKeyUsage() != null && !c.getExtendedKeyUsage().contains("1.3.6.1.5.5.7.3.1")) {
+                                if (c.getExtendedKeyUsage() != null && !c.getExtendedKeyUsage().contains(OID_EKU_serverAuth)) {
                                     throw new java.security.cert.CertificateException("Illegal EKU");
                                 }
                             }
