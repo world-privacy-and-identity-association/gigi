@@ -17,7 +17,6 @@ import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.ping.SSLPinger;
-import org.cacert.gigi.util.HTMLEncoder;
 import org.cacert.gigi.util.RandomToken;
 
 public class PingConfigForm extends Form {
@@ -154,7 +153,6 @@ public class PingConfigForm extends Form {
     protected void outputEmbeddableContent(PrintWriter out, Language l, Map<String, Object> vars) {
         vars.put("tokenName", tokenName);
         vars.put("tokenValue", tokenValue);
-        vars.put("openSSLHelp", "<code>" + HTMLEncoder.encodeHTML("-subj \"/CN=<domain>/OU=" + tokenValue + "\"") + "</code>");
         vars.put("authEmails", new IterableDataset() {
 
             int i = 0;

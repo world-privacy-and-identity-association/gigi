@@ -180,8 +180,8 @@ public class SSLPinger extends DomainPinger {
                             @Override
                             public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws java.security.cert.CertificateException {
                                 java.security.cert.X509Certificate c = chain[0];
-                                if (c.getExtendedKeyUsage() != null && !c.getExtendedKeyUsage().contains(OID_EKU_serverAuth)) {
-                                    throw new java.security.cert.CertificateException("Illegal EKU");
+                                if (c.getExtendedKeyUsage() == null || !c.getExtendedKeyUsage().contains(OID_EKU_serverAuth)) {
+                                    throw new java.security.cert.CertificateException("Extended Key Usage for SSL Server Authentication missing");
                                 }
                             }
 
