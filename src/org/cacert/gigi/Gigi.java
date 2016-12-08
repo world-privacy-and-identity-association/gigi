@@ -127,7 +127,7 @@ public final class Gigi extends HttpServlet {
                     return ac == null;
                 }
             });
-            getMenu("SomeCA.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePort() + "/login", "Certificate Login") {
+            getMenu("SomeCA.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePortSecure() + "/login", "Certificate Login") {
 
                 @Override
                 public boolean isPermitted(AuthorizationContext ac) {
@@ -317,6 +317,8 @@ public final class Gigi extends HttpServlet {
 
     private static String staticTemplateVar = "//" + ServerConstants.getStaticHostNamePort();
 
+    private static String staticTemplateVarSecure = "//" + ServerConstants.getStaticHostNamePortSecure();
+
     @Override
     protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
         if ("/error".equals(req.getPathInfo()) || "/denied".equals(req.getPathInfo())) {
@@ -341,7 +343,7 @@ public final class Gigi extends HttpServlet {
         if (originHeader != null //
                 && !(originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getWwwHostNamePortSecure()) + "(/.*|)") || //
                         originHeader.matches("^" + Pattern.quote("http://" + ServerConstants.getWwwHostNamePort()) + "(/.*|)") || //
-                        originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getSecureHostNamePort()) + "(/.*|)"))) {
+                        originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getSecureHostNamePortSecure()) + "(/.*|)"))) {
             resp.setContentType("text/html; charset=utf-8");
             resp.getWriter().println("<html><head><title>Alert</title></head><body>No cross domain access allowed.<br/><b>If you don't know why you're seeing this you may have been fished! Please change your password immediately!</b></body></html>");
             return;
@@ -419,7 +421,7 @@ public final class Gigi extends HttpServlet {
             vars.put(Menu.AUTH_VALUE, currentAuthContext);
             vars.put("menu", rootMenu);
             vars.put("title", lang.getTranslation(p.getTitle()));
-            vars.put("static", staticTemplateVar);
+            vars.put("static", isSecure ? staticTemplateVarSecure : staticTemplateVar);
             vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
             vars.put("content", content);
             if (currentAuthContext != null) {
@@ -437,7 +439,7 @@ public final class Gigi extends HttpServlet {
     }
 
     public static void addXSSHeaders(HttpServletResponse hsr, boolean doHttps) {
-        hsr.addHeader("Access-Control-Allow-Origin", "https://" + ServerConstants.getWwwHostNamePortSecure() + " https://" + ServerConstants.getSecureHostNamePort());
+        hsr.addHeader("Access-Control-Allow-Origin", "https://" + ServerConstants.getWwwHostNamePortSecure() + " https://" + ServerConstants.getSecureHostNamePortSecure());
         hsr.addHeader("Access-Control-Max-Age", "60");
         if (doHttps) {
             hsr.addHeader("Content-Security-Policy", httpsCSP);
@@ -460,7 +462,7 @@ public final class Gigi extends HttpServlet {
         csp.append(";media-src 'none'; object-src 'none'");
         csp.append(";script-src https://" + ServerConstants.getStaticHostNamePortSecure());
         csp.append(";style-src https://" + ServerConstants.getStaticHostNamePortSecure());
-        csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://" + ServerConstants.getWwwHostNamePortSecure());
+        csp.append(";form-action https://" + ServerConstants.getSecureHostNamePortSecure() + " https://" + ServerConstants.getWwwHostNamePortSecure());
         // csp.append(";report-url https://api.cacert.org/security/csp/report");
         return csp.toString();
     }
@@ -473,7 +475,7 @@ public final class Gigi extends HttpServlet {
         csp.append(";media-src 'none'; object-src 'none'");
         csp.append(";script-src http://" + ServerConstants.getStaticHostNamePort());
         csp.append(";style-src http://" + ServerConstants.getStaticHostNamePort());
-        csp.append(";form-action https://" + ServerConstants.getSecureHostNamePort() + " https://" + ServerConstants.getWwwHostNamePort());
+        csp.append(";form-action https://" + ServerConstants.getSecureHostNamePortSecure() + " https://" + ServerConstants.getWwwHostNamePort());
         // csp.append(";report-url http://api.cacert.org/security/csp/report");
         return csp.toString();
     }

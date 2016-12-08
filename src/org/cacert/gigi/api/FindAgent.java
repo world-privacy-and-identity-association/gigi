@@ -65,7 +65,7 @@ public class FindAgent extends APIPoint {
             if ( !us.isInGroup(Group.LOCATE_AGENT)) {
                 resp.setStatus(501);
                 resp.setContentType("text/plain; charset=UTF-8");
-                resp.getWriter().println("https://" + ServerConstants.getSecureHostNamePort() + FindAgentAccess.PATH);
+                resp.getWriter().println("https://" + ServerConstants.getSecureHostNamePortSecure() + FindAgentAccess.PATH);
                 return;
             }
             resp.setContentType("text/plain; charset=UTF-8");

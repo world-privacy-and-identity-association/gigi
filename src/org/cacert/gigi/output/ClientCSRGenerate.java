@@ -18,7 +18,7 @@ public class ClientCSRGenerate {
         HashMap<String, Object> vars = new HashMap<String, Object>();
         vars.put("minsize", "2048");
         vars.put("normalhost", "https://" + ServerConstants.getWwwHostNamePortSecure());
-        vars.put("securehost", "https://" + ServerConstants.getSecureHostNamePort());
+        vars.put("securehost", "https://" + ServerConstants.getSecureHostNamePortSecure());
         vars.put("statichost", "https://" + ServerConstants.getStaticHostNamePortSecure());
         try {
             normal.output(resp.getWriter(), Page.getLanguage(req), vars);

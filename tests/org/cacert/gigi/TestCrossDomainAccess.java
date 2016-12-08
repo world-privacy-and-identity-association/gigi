@@ -53,7 +53,7 @@ public class TestCrossDomainAccess extends ManagedTest {
         c.setLoginEnabled(true);
         await(c.issue(null, "2y", u));
 
-        URLConnection con = new URL("https://" + ServerConstants.getSecureHostNamePort()).openConnection();
+        URLConnection con = new URL("https://" + ServerConstants.getSecureHostNamePortSecure()).openConnection();
         authenticateClientCert(pk, c.cert(), (HttpURLConnection) con);
         con.setRequestProperty("Origin", "https://" + ServerConstants.getWwwHostNamePortSecure());
         String contains = IOUtils.readURL(con);

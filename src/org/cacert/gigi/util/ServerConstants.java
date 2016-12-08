@@ -50,7 +50,7 @@ public class ServerConstants {
         return apiHostName;
     }
 
-    public static String getSecureHostNamePort() {
+    public static String getSecureHostNamePortSecure() {
         return secureHostName + securePort;
     }
 

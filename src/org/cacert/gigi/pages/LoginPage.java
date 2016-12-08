@@ -62,7 +62,7 @@ public class LoginPage extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (req.getHeader("Host").equals(ServerConstants.getSecureHostNamePort())) {
+        if (req.getHeader("Host").equals(ServerConstants.getSecureHostNamePortSecure())) {
             resp.getWriter().println(getLanguage(req).getTranslation("Authentication with certificate failed. Try another certificate or use a password."));
         } else {
             new LoginForm(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
