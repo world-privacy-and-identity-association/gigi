@@ -7,6 +7,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.Signature;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
@@ -60,6 +61,14 @@ import org.cacert.gigi.util.TimeConditions;
 import sun.security.x509.X509Key;
 
 public class Manager extends Page {
+
+    public static String validVerificationDateString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        c.add(Calendar.MONTH, -Notary.LIMIT_MAX_MONTHS_VERIFICATION + 1);
+        return sdf.format(new Date(c.getTimeInMillis()));
+    }
 
     public static Country getRandomCountry() {
         List<Country> cc = Country.getCountries();
@@ -354,7 +363,7 @@ public class Manager extends Page {
                     if (vp < 10) {
                         currentVP = vp;
                     }
-                    Notary.assure(getAssurer(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", "2014-11-06", AssuranceType.FACE_TO_FACE, getRandomCountry());
+                    Notary.assure(getAssurer(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", validVerificationDateString(), AssuranceType.FACE_TO_FACE, getRandomCountry());
                     agentNumber += 1;
                     vp -= currentVP;
                 }
@@ -371,7 +380,7 @@ public class Manager extends Page {
             try {
                 for (int i = 0; i < 25; i++) {
                     User a = getAssurer(i);
-                    Notary.assure(byEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", "2014-11-06", AssuranceType.FACE_TO_FACE, getRandomCountry());
+                    Notary.assure(byEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", validVerificationDateString(), AssuranceType.FACE_TO_FACE, getRandomCountry());
                 }
             } catch (GigiApiException e) {
                 throw new Error(e);
