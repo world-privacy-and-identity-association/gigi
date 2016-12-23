@@ -105,6 +105,7 @@ CREATE TABLE "domainPinglog" (
   "challenge" varchar(16),
   "result" varchar(255)
 );
+CREATE INDEX ON "domainPinglog" ("configId","when");
 
 DROP TABLE IF EXISTS "baddomains";
 CREATE TABLE "baddomains" (
@@ -374,7 +375,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(25);
+INSERT INTO "schemeVersion" (version)  VALUES(26);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (

@@ -38,15 +38,15 @@ public class PingerDaemon extends Thread {
     }
 
     public void runWithConnection() {
-        searchNeededPings = new GigiPreparedStatement("SELECT  `pc`.`id`" //
-                + " FROM  `pingconfig` AS `pc`" //
-                + " INNER JOIN `domains` AS `d` ON `pc`.`domainid` = `d`.`id`" //
-                + " LEFT JOIN `domainPinglog` AS `dpl` ON `pc`.`id` = `dpl`.`configId`" //
-                + " WHERE  `pc`.`deleted` IS NULL" //
-                + " AND  `d`.`deleted` IS NULL" //
-                + " GROUP BY `pc`.`id`"//
-                + " HAVING  ( MAX(`dpl`.`when`) < CURRENT_TIMESTAMP - interval '6 mons')" //
-                + " OR  COUNT(`dpl`.`configId`) < 1");
+        searchNeededPings = new GigiPreparedStatement("SELECT `pc`.`id`" //
+                + " FROM `pingconfig` AS `pc`" //
+                + " INNER JOIN `domains` AS `d` ON `d`.`id` = `pc`.`domainid`" //
+                + " WHERE `d`.`deleted` IS NULL" //
+                + "  AND `pc`.`deleted` IS NULL" //
+                + "  AND NOT EXISTS (" //
+                + "    SELECT 1 FROM `domainPinglog` AS `dpl`" //
+                + "    WHERE `dpl`.`configId` = `pc`.`id`" //
+                + "     AND `dpl`.`when` >= CURRENT_TIMESTAMP - interval '6 mons')");
         pingers.put(DomainPingType.EMAIL, new EmailPinger());
         pingers.put(DomainPingType.SSL, new SSLPinger(truststore));
         pingers.put(DomainPingType.HTTP, new HTTPFetch());
