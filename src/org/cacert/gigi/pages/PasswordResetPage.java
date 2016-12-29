@@ -125,7 +125,7 @@ public class PasswordResetPage extends Page {
                     + "?id=" + id + "&token=" + URLEncoder.encode(ptok, "UTF-8"));
             vars.put("hour_max", HOUR_MAX);
 
-            passwordResetMail.sendMail(l, vars, Page.getUser(req).getEmail());
+            passwordResetMail.sendMail(l, vars, targetUser.getEmail());
         } catch (IOException e) {
             e.printStackTrace();
         }
