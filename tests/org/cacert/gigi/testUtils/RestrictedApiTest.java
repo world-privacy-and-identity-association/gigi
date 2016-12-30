@@ -22,6 +22,7 @@ import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.Group;
 import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.util.ServerConstants;
 import org.junit.BeforeClass;
 
 public class RestrictedApiTest extends ClientTest {
@@ -29,6 +30,8 @@ public class RestrictedApiTest extends ClientTest {
     protected static PrivateKey pk;
 
     protected static X509Certificate ce;
+
+    protected static Organisation selfOrg;
 
     public RestrictedApiTest() {
         makeAssurer(id);
@@ -42,15 +45,15 @@ public class RestrictedApiTest extends ClientTest {
             grant(u, Group.ORGASSURER);
             clearCaches();
             u = User.getById(u.getId());
-            Organisation o = new Organisation(Organisation.SELF_ORG_NAME, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS), "NA", "NA", "contact@cacert.org", "", "", u);
-            assertTrue(o.isSelfOrganisation());
+            selfOrg = new Organisation(Organisation.SELF_ORG_NAME, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS), "NA", "NA", "contact@cacert.org", "", "", u);
+            assertTrue(selfOrg.isSelfOrganisation());
             KeyPair kp = generateKeypair();
-            String key1 = generatePEMCSR(kp, "EMAIL=cats@cacert.org");
-            Certificate c = new Certificate(o, u, Certificate.buildDN("EMAIL", "cats@cacert.org"), Digest.SHA256, key1, CSRType.CSR, CertificateProfile.getByName("client-orga"), new Certificate.SubjectAlternateName(SANType.EMAIL, "cats@cacert.org"));
+            String key1 = generatePEMCSR(kp, "EMAIL=" + ServerConstants.getQuizMailAddress());
+            Certificate apiCert = new Certificate(selfOrg, u, Certificate.buildDN("EMAIL", ServerConstants.getQuizMailAddress()), Digest.SHA256, key1, CSRType.CSR, CertificateProfile.getByName("client-orga"), new Certificate.SubjectAlternateName(SANType.EMAIL, ServerConstants.getQuizMailAddress()));
             pk = kp.getPrivate();
-            await(c.issue(null, "2y", u));
-            ce = c.cert();
-            c.setLoginEnabled(true);
+            await(apiCert.issue(null, "2y", u));
+            ce = apiCert.cert();
+            apiCert.setLoginEnabled(true);
         } catch (IOException e) {
             throw new Error(e);
         } catch (GigiApiException e) {

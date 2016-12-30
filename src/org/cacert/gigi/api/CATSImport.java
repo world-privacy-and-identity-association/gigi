@@ -8,24 +8,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.dbObjects.CATS;
 import org.cacert.gigi.dbObjects.CertificateOwner;
-import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
 
-public class CATSImport extends APIPoint {
+public class CATSImport extends CATSRestrictedApi {
 
     public static final String PATH = "/cats/import";
 
     @Override
-    public void process(HttpServletRequest req, HttpServletResponse resp, CertificateOwner u) throws IOException {
-        if ( !(u instanceof Organisation)) {
-            resp.sendError(500, "Error, invalid cert");
-            return;
-        }
-        if ( !((Organisation) u).isSelfOrganisation()) {
-            resp.sendError(500, "Error, invalid cert");
-            return;
-
-        }
+    public void processAuthenticated(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String target = req.getParameter("mid");
         String testType = req.getParameter("variant");
         String date = req.getParameter("date");

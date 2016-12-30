@@ -114,4 +114,8 @@ public class ServerConstants {
         return "board@" + ServerConstants.getWwwHostName().replaceFirst("^www\\.", "");
     }
 
+    public static String getQuizMailAddress() {
+        return "quiz@" + ServerConstants.getWwwHostName().replaceFirst("^www\\.", "");
+    }
+
 }

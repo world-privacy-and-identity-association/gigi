@@ -5,31 +5,28 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.CertificateOwner;
-import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
 
-public class CATSResolve extends APIPoint {
+public class CATSResolve extends CATSRestrictedApi {
 
     public static final String PATH = "/cats/resolve";
 
     @Override
-    public void process(HttpServletRequest req, HttpServletResponse resp, CertificateOwner u) throws IOException {
-        if ( !(u instanceof Organisation)) {
-            resp.sendError(500, "Error, invalid cert");
-            return;
-        }
-        if ( !((Organisation) u).isSelfOrganisation()) {
-            resp.sendError(500, "Error, invalid cert");
-            return;
-        }
+    public void processAuthenticated(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String target = req.getParameter("serial");
         if (target == null) {
             resp.sendError(500, "Error, requires a serial parameter");
             return;
         }
-
-        CertificateOwner o = CertificateOwner.getByEnabledSerial(target.toLowerCase());
+        target = target.toLowerCase();
+        Certificate clientCert = Certificate.getBySerial(target);
+        if (clientCert == null) {
+            resp.sendError(500, "Error, requires valid serial");
+            return;
+        }
+        CertificateOwner o = CertificateOwner.getByEnabledSerial(target);
         if ( !(o instanceof User)) {
             resp.sendError(500, "Error, requires valid serial");
             return;

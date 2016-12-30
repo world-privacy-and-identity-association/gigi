@@ -6,6 +6,7 @@ import java.security.cert.X509Certificate;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.pages.LoginPage;
@@ -19,8 +20,9 @@ public abstract class APIPoint {
             return;
         }
         String serial = LoginPage.extractSerialFormCert(cert);
+        Certificate clientCert = Certificate.getBySerial(serial);
         CertificateOwner u = CertificateOwner.getByEnabledSerial(serial);
-        if (u == null) {
+        if (u == null || clientCert == null) {
             resp.sendError(403, "Error, cert authing required. Serial not found: " + serial);
             return;
         }
@@ -42,6 +44,10 @@ public abstract class APIPoint {
             resp.sendError(500, "Error, no query String allowed.");
             return;
         }
+        process(req, resp, u, clientCert);
+    }
+
+    protected void process(HttpServletRequest req, HttpServletResponse resp, CertificateOwner u, Certificate clientCert) throws IOException {
         process(req, resp, u);
     }
 
