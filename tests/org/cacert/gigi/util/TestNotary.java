@@ -9,6 +9,8 @@ import java.util.Date;
 import org.cacert.gigi.GigiApiException;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
+import org.cacert.gigi.dbObjects.CATS;
+import org.cacert.gigi.dbObjects.CATS.CATSType;
 import org.cacert.gigi.dbObjects.Country;
 import org.cacert.gigi.dbObjects.Country.CountryCodeType;
 import org.cacert.gigi.dbObjects.Group;
@@ -149,5 +151,21 @@ public class TestNotary extends BusinessTest {
         assertEquals(50, assuree.getAssurancePoints());
         assertEquals(50, n1.getAssurancePoints());
         assertEquals(50, n2.getAssurancePoints());
+    }
+
+    @Test
+    public void testNucleusProcess() throws SQLException, GigiApiException, IOException {
+        User assuranceUser = User.getById(createAssuranceUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
+        assuranceUser.grantGroup(getSupporter(), Group.NUCLEUS_ASSURER);
+        User assuranceUser2 = User.getById(createAssuranceUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
+        assuranceUser2.grantGroup(getSupporter(), Group.NUCLEUS_ASSURER);
+        User assuree = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
+        Notary.assure(assuranceUser, assuree, assuree.getPreferredName(), assuree.getDoB(), 50, "test", validVerificationDateString(), AssuranceType.NUCLEUS, DE);
+        Notary.assure(assuranceUser2, assuree, assuree.getPreferredName(), assuree.getDoB(), 50, "test", validVerificationDateString(), AssuranceType.NUCLEUS, DE);
+
+        assertEquals(100, assuree.getAssurancePoints());
+        assertFalse(assuree.canAssure());
+        CATS.enterResult(assuree, CATSType.ASSURER_CHALLENGE, new Date(), "de", "1");
+        assertTrue(assuree.canAssure());
     }
 }
