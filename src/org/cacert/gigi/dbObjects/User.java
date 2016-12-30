@@ -238,7 +238,7 @@ public class User extends CertificateOwner {
     }
 
     public int getAssurancePoints() {
-        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT SUM(lastpoints) FROM ( SELECT DISTINCT ON (`from`) `from`, `points` as lastpoints FROM `notary` INNER JOIN `names` ON `names`.`id`=`to` WHERE `notary`.`deleted` is NULL AND (`expire` IS NULL OR `expire` > CURRENT_TIMESTAMP) AND `names`.`uid` = ? ORDER BY `from`, `when` DESC) as p")) {
+        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT SUM(lastpoints) FROM ( SELECT DISTINCT ON (`from`, `method`) `from`, `points` as lastpoints FROM `notary` INNER JOIN `names` ON `names`.`id`=`to` WHERE `notary`.`deleted` is NULL AND (`expire` IS NULL OR `expire` > CURRENT_TIMESTAMP) AND `names`.`uid` = ? ORDER BY `from`, `method`, `when` DESC) as p")) {
             query.setInt(1, getId());
 
             GigiResultSet rs = query.executeQuery();

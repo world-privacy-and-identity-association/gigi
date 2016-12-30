@@ -2,6 +2,7 @@ package org.cacert.gigi.util;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -10,6 +11,10 @@ import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.dbObjects.Assurance.AssuranceType;
 import org.cacert.gigi.dbObjects.Country;
 import org.cacert.gigi.dbObjects.Country.CountryCodeType;
+import org.cacert.gigi.dbObjects.Group;
+import org.cacert.gigi.dbObjects.Name;
+import org.cacert.gigi.dbObjects.NamePart;
+import org.cacert.gigi.dbObjects.NamePart.NamePartType;
 import org.cacert.gigi.dbObjects.ObjectCache;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.output.DateSelector;
@@ -122,5 +127,27 @@ public class TestNotary extends BusinessTest {
         // verify double
         assuranceFail(assuranceUser, assuree, 10, "notary-junit-test", validVerificationDateString());
 
+    }
+
+    @Test
+    public void testNucleus() throws SQLException, GigiApiException, IOException {
+        User assuranceUser = User.getById(createAssuranceUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
+        assuranceUser.grantGroup(getSupporter(), Group.NUCLEUS_ASSURER);
+        User assuree = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
+        Name n1 = assuree.getPreferredName();
+        Name n2 = new Name(assuree, new NamePart(NamePartType.FIRST_NAME, "F2"), new NamePart(NamePartType.LAST_NAME, "L2"));
+
+        assertEquals(0, assuree.getExperiencePoints());
+        assertEquals(User.EXPERIENCE_POINTS, assuranceUser.getExperiencePoints());
+        assertEquals(0, assuree.getAssurancePoints());
+        assertEquals(0, n2.getAssurancePoints());
+        Notary.assureAll(assuranceUser, assuree, assuree.getDoB(), 50, "notary-junit-test", validVerificationDateString(), AssuranceType.NUCLEUS, new Name[] {
+                n1, n2
+        }, DE);
+        assertEquals(0, assuree.getExperiencePoints());
+        assertEquals(2 * User.EXPERIENCE_POINTS, assuranceUser.getExperiencePoints());
+        assertEquals(50, assuree.getAssurancePoints());
+        assertEquals(50, n1.getAssurancePoints());
+        assertEquals(50, n2.getAssurancePoints());
     }
 }

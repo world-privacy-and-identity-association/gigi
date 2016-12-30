@@ -385,7 +385,7 @@ public class Name implements Outputable, IdCachable {
     }
 
     public int getAssurancePoints() {
-        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT SUM(`points`) FROM (SELECT DISTINCT ON (`from`) `points` FROM `notary` WHERE `to`=? AND `deleted` IS NULL AND (`expire` IS NULL OR `expire` > CURRENT_TIMESTAMP) ORDER BY `from`, `when` DESC) AS p")) {
+        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT SUM(`points`) FROM (SELECT DISTINCT ON (`from`, `method`) `points` FROM `notary` WHERE `to`=? AND `deleted` IS NULL AND (`expire` IS NULL OR `expire` > CURRENT_TIMESTAMP) ORDER BY `from`, `method`, `when` DESC) AS p")) {
             query.setInt(1, getId());
 
             GigiResultSet rs = query.executeQuery();
