@@ -7,7 +7,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.cacert.gigi.dbObjects.Certificate;
 import org.cacert.gigi.dbObjects.CertificateOwner;
+import org.cacert.gigi.dbObjects.Organisation;
 import org.cacert.gigi.dbObjects.User;
+import org.cacert.gigi.util.ServerConstants;
 
 public class CATSResolve extends CATSRestrictedApi {
 
@@ -27,6 +29,16 @@ public class CATSResolve extends CATSRestrictedApi {
             return;
         }
         CertificateOwner o = CertificateOwner.getByEnabledSerial(target);
+        if (o instanceof Organisation) {
+            Organisation org = (Organisation) o;
+            if (org.isSelfOrganisation()) {
+                if (hasMail(clientCert, ServerConstants.getQuizAdminMailAddress())) {
+                    resp.setContentType("text/plain; charset=UTF-8");
+                    resp.getWriter().print("admin");
+                    return;
+                }
+            }
+        }
         if ( !(o instanceof User)) {
             resp.sendError(500, "Error, requires valid serial");
             return;

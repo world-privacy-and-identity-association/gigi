@@ -21,6 +21,7 @@ import org.cacert.gigi.dbObjects.Digest;
 import org.cacert.gigi.dbObjects.User;
 import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.RestrictedApiTest;
+import org.cacert.gigi.util.ServerConstants;
 import org.junit.Test;
 
 public class ImportCATSResult extends RestrictedApiTest {
@@ -32,6 +33,12 @@ public class ImportCATSResult extends RestrictedApiTest {
         target2.setLoginEnabled(true);
 
         assertEquals(u.getId(), Integer.parseInt(apiLookup(target2)));
+
+        Certificate target3 = new Certificate(selfOrg, u, Certificate.buildDN("EMAIL", ServerConstants.getQuizAdminMailAddress()), Digest.SHA256, generatePEMCSR(generateKeypair(), "EMAIL=" + ServerConstants.getQuizAdminMailAddress()), CSRType.CSR, CertificateProfile.getByName("client-orga"), new Certificate.SubjectAlternateName(SANType.EMAIL, ServerConstants.getQuizAdminMailAddress()));
+        await(target3.issue(null, "2y", u));
+        target3.setLoginEnabled(true);
+
+        assertEquals("admin", apiLookup(target3));
     }
 
     @Test

@@ -118,4 +118,8 @@ public class ServerConstants {
         return "quiz@" + ServerConstants.getWwwHostName().replaceFirst("^www\\.", "");
     }
 
+    public static String getQuizAdminMailAddress() {
+        return "quiz-admin@" + ServerConstants.getWwwHostName().replaceFirst("^www\\.", "");
+    }
+
 }
