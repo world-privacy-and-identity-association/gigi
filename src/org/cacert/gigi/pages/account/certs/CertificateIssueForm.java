@@ -21,10 +21,13 @@ import org.cacert.gigi.output.CertificateValiditySelector;
 import org.cacert.gigi.output.HashAlgorithms;
 import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
+import org.cacert.gigi.output.template.Outputable;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.LoginPage;
 import org.cacert.gigi.util.AuthorizationContext;
+import org.cacert.gigi.util.HTMLEncoder;
 import org.cacert.gigi.util.RandomToken;
+import org.cacert.gigi.util.ServerConstants;
 
 /**
  * This class represents a form that is used for issuing certificates. This
@@ -161,6 +164,15 @@ public class CertificateIssueForm extends Form {
             vars2.put("orga", "true");
             vars2.put("department", cr.getOu());
         }
+        vars2.put("secureHostname", new Outputable() {
+
+            @Override
+            public void output(PrintWriter out, Language l, Map<String, Object> vars) {
+                out.print("<code>");
+                out.print(HTMLEncoder.encodeHTML("https://" + ServerConstants.getSecureHostNamePortSecure()));
+                out.print("</code>");
+            }
+        });
         vars2.put("validity", issueDate);
         vars2.put("emails", content.toString());
         vars2.put("hashs", new HashAlgorithms(cr.getSelectedDigest()));
