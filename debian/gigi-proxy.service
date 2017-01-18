@@ -17,6 +17,9 @@ PrivateDevices=yes
 ProtectSystem=full
 ProtectHome=yes
 NoNewPrivileges=yes
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictRealtime=yes
 
 [Install]
 WantedBy=multi-user.target
