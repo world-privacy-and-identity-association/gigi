@@ -78,6 +78,10 @@ public class PingerDaemon extends Thread {
                 }
             } catch (Throwable t) {
                 t.printStackTrace();
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                }
             }
         }
     }
