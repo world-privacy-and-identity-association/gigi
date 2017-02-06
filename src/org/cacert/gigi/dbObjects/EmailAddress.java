@@ -95,6 +95,15 @@ public class EmailAddress implements IdCachable, Verifyable {
         return address;
     }
 
+    public synchronized boolean isVerifyable(String hash) throws GigiApiException {
+        try (GigiPreparedStatement stmt = new GigiPreparedStatement("SELECT 1 FROM `emailPinglog` WHERE `email`=? AND `uid`=? AND `type`='active' AND `challenge`=? AND `status`='open'::`pingState`")) {
+            stmt.setString(1, address);
+            stmt.setInt(2, owner.getId());
+            stmt.setString(3, hash);
+            return stmt.executeQuery().next();
+        }
+    }
+
     public synchronized void verify(String hash) throws GigiApiException {
         try (GigiPreparedStatement stmt = new GigiPreparedStatement("UPDATE `emailPinglog` SET `status`='success'::`pingState` WHERE `email`=? AND `uid`=? AND `type`='active' AND `challenge`=? AND `status`='open'::`pingState`")) {
             stmt.setString(1, address);

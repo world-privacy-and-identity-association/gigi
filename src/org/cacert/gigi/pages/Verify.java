@@ -52,6 +52,13 @@ public class Verify extends Page {
             } else {
                 throw new IllegalArgumentException();
             }
+            try {
+                if ( !target.isVerifyable(hash)) {
+                    throw new IllegalArgumentException();
+                }
+            } catch (GigiApiException e) {
+                throw new IllegalArgumentException(e);
+            }
         }
 
         @Override

@@ -125,6 +125,14 @@ public class Domain implements IdCachable, Verifyable {
         configs = null;
     }
 
+    public synchronized boolean isVerifyable(String hash) throws GigiApiException {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `domainPinglog` WHERE `challenge`=? AND `state`='open' AND `configId` IN (SELECT `id` FROM `pingconfig` WHERE `domainid`=? AND `type`='email')")) {
+            ps.setString(1, hash);
+            ps.setInt(2, id);
+            return ps.executeQuery().next();
+        }
+    }
+
     public synchronized void verify(String hash) throws GigiApiException {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `domainPinglog` SET `state`='success' WHERE `challenge`=? AND `state`='open' AND `configId` IN (SELECT `id` FROM `pingconfig` WHERE `domainid`=? AND `type`='email')")) {
             ps.setString(1, hash);
