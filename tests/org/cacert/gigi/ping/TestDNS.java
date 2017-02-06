@@ -16,6 +16,7 @@ import org.cacert.gigi.testUtils.PingTest;
 import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
 import org.cacert.gigi.util.DNSUtil;
 import org.cacert.gigi.util.RandomToken;
+import org.cacert.gigi.util.SystemKeywords;
 import org.junit.Test;
 
 public class TestDNS extends PingTest {
@@ -90,7 +91,7 @@ public class TestDNS extends PingTest {
     private String readDNS(String token) throws NamingException {
         String test = getTestProps().getProperty("domain.dnstest");
         assumeNotNull(test);
-        String targetDomain = token + "._cacert._auth." + test;
+        String targetDomain = token + "." + SystemKeywords.DNS_PREFIX + "._auth." + test;
         String testns = getTestProps().getProperty("domain.testns");
         assumeNotNull(testns);
         String[] data = DNSUtil.getTXTEntries(targetDomain, testns);

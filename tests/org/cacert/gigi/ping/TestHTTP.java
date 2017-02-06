@@ -27,6 +27,7 @@ import org.cacert.gigi.testUtils.IOUtils;
 import org.cacert.gigi.testUtils.PingTest;
 import org.cacert.gigi.testUtils.TestEmailReceiver.TestMail;
 import org.cacert.gigi.util.RandomToken;
+import org.cacert.gigi.util.SystemKeywords;
 import org.junit.Test;
 
 public class TestHTTP extends PingTest {
@@ -108,7 +109,7 @@ public class TestHTTP extends PingTest {
     private String readHTTP(String token) throws IOException {
         String httpDom = getTestProps().getProperty("domain.http");
         assumeNotNull(httpDom);
-        URL u = new URL("http://" + httpDom + "/cacert-" + token + ".txt");
+        URL u = new URL("http://" + httpDom + "/" + SystemKeywords.HTTP_CHALLENGE_PREFIX + token + ".txt");
         return IOUtils.readURL(new InputStreamReader(u.openStream(), "UTF-8")).trim();
 
     }
@@ -154,7 +155,7 @@ public class TestHTTP extends PingTest {
         try (Socket s0 = s.accept()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(s0.getInputStream(), "UTF-8"));
             String fst = br.readLine();
-            assertEquals("GET /cacert-" + m.group(1) + ".txt HTTP/1.1", fst);
+            assertEquals("GET /" + SystemKeywords.HTTP_CHALLENGE_PREFIX + m.group(1) + ".txt HTTP/1.1", fst);
             while ( !"".equals(br.readLine())) {
             }
             String res = m.group(2);

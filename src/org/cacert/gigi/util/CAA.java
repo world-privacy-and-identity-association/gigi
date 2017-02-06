@@ -101,7 +101,7 @@ public class CAA {
     private static boolean authorized(CertificateOwner owner, CertificateProfile p, String data) {
         String[] parts = data.split(";");
         String ca = parts[0].trim();
-        if ( !ca.equals("cacert.org")) {
+        if ( !ca.equals(SystemKeywords.CAA_NAME)) {
             return false;
         }
         for (int i = 1; i < parts.length; i++) {

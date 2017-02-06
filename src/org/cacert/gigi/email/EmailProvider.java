@@ -23,6 +23,7 @@ import org.cacert.gigi.crypto.SMIME;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.util.DNSUtil;
 import org.cacert.gigi.util.DomainAssessment;
+import org.cacert.gigi.util.SystemKeywords;
 
 public abstract class EmailProvider {
 
@@ -112,7 +113,7 @@ public abstract class EmailProvider {
                         continue;
                     }
 
-                    pw.print("EHLO www.cacert.org\r\n");
+                    pw.print("EHLO " + SystemKeywords.SMTP_NAME + "\r\n");
                     pw.flush();
                     boolean starttls = false;
                     do {
@@ -135,14 +136,14 @@ public abstract class EmailProvider {
                         Socket s1 = ((SSLSocketFactory) SSLSocketFactory.getDefault()).createSocket(s, host, 25, true);
                         br = new BufferedReader(new InputStreamReader(s1.getInputStream(), "UTF-8"));
                         pw = new PrintWriter(new OutputStreamWriter(s1.getOutputStream(), "UTF-8"));
-                        pw.print("EHLO www.cacert.org\r\n");
+                        pw.print("EHLO " + SystemKeywords.SMTP_NAME + "\r\n");
                         pw.flush();
                         if ( !SendMail.readSMTPResponse(br, 250)) {
                             continue;
                         }
                     }
 
-                    pw.print("MAIL FROM: <returns@cacert.org>\r\n");
+                    pw.print("MAIL FROM: <" + SystemKeywords.SMTP_PSEUDO_FROM + ">\r\n");
                     pw.flush();
 
                     if ( !SendMail.readSMTPResponse(br, 250)) {

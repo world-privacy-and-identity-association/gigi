@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import org.cacert.gigi.database.GigiPreparedStatement;
 import org.cacert.gigi.database.GigiResultSet;
 import org.cacert.gigi.pages.account.domain.DomainOverview;
+import org.cacert.gigi.util.SystemKeywords;
 import org.junit.After;
 
 /**
@@ -69,7 +70,7 @@ public abstract class PingTest extends ClientTest {
         String content1 = IOUtils.readURL(get(DomainOverview.PATH));
         csrf = getCSRF(1, content1);
 
-        Pattern p = Pattern.compile("([A-Za-z0-9]+)._cacert._auth IN TXT ([A-Za-z0-9]+)");
+        Pattern p = Pattern.compile("([A-Za-z0-9]+)." + SystemKeywords.DNS_PREFIX + "._auth IN TXT ([A-Za-z0-9]+)");
         Matcher m = p.matcher(content1);
         m.find();
         return m;

@@ -18,6 +18,7 @@ import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.ping.SSLPinger;
 import org.cacert.gigi.util.RandomToken;
+import org.cacert.gigi.util.SystemKeywords;
 
 public class PingConfigForm extends Form {
 
@@ -151,6 +152,8 @@ public class PingConfigForm extends Form {
     }
 
     protected void outputEmbeddableContent(PrintWriter out, Language l, Map<String, Object> vars) {
+        vars.put("httpPrefix", SystemKeywords.HTTP_CHALLENGE_PREFIX);
+        vars.put("dnsPrefix", SystemKeywords.DNS_PREFIX);
         vars.put("tokenName", tokenName);
         vars.put("tokenValue", tokenValue);
         vars.put("authEmails", new IterableDataset() {

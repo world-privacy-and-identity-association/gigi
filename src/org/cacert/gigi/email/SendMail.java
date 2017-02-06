@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 import org.cacert.gigi.util.PEM;
 import org.cacert.gigi.util.ServerConstants;
+import org.cacert.gigi.util.SystemKeywords;
 
 public class SendMail extends EmailProvider {
 
@@ -35,7 +36,7 @@ public class SendMail extends EmailProvider {
         String from = ServerConstants.getSupportMailAddress();
         try (Socket smtp = new Socket(targetHost, targetPort); PrintWriter out = new PrintWriter(new OutputStreamWriter(smtp.getOutputStream(), "UTF-8")); BufferedReader in = new BufferedReader(new InputStreamReader(smtp.getInputStream(), "UTF-8"));) {
             readSMTPResponse(in, 220);
-            out.print("HELO www.cacert.org\r\n");
+            out.print("HELO " + SystemKeywords.SMTP_NAME + "\r\n");
             out.flush();
             readSMTPResponse(in, 250);
             out.print("MAIL FROM: <" + from + ">\r\n");

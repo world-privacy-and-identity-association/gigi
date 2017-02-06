@@ -8,6 +8,7 @@ import java.net.URL;
 
 import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Domain;
+import org.cacert.gigi.util.SystemKeywords;
 
 public class HTTPFetch extends DomainPinger {
 
@@ -15,7 +16,7 @@ public class HTTPFetch extends DomainPinger {
     public void ping(Domain domain, String expToken, CertificateOwner user, int confId) {
         try {
             String[] tokenParts = expToken.split(":", 2);
-            URL u = new URL("http://" + domain.getSuffix() + "/cacert-" + tokenParts[0] + ".txt");
+            URL u = new URL("http://" + domain.getSuffix() + "/" + SystemKeywords.HTTP_CHALLENGE_PREFIX + tokenParts[0] + ".txt");
             HttpURLConnection huc = (HttpURLConnection) u.openConnection();
             if (huc.getResponseCode() != 200) {
                 enterPingResult(confId, "error", "Invalid status code " + huc.getResponseCode() + ".", null);

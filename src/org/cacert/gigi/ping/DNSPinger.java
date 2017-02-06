@@ -8,6 +8,7 @@ import javax.naming.NamingException;
 import org.cacert.gigi.dbObjects.CertificateOwner;
 import org.cacert.gigi.dbObjects.Domain;
 import org.cacert.gigi.util.DNSUtil;
+import org.cacert.gigi.util.SystemKeywords;
 
 public class DNSPinger extends DomainPinger {
 
@@ -28,7 +29,7 @@ public class DNSPinger extends DomainPinger {
         for (String NS : nameservers) {
             boolean found = false;
             try {
-                for (String token : DNSUtil.getTXTEntries(tokenParts[0] + "._cacert._auth." + domain.getSuffix(), NS)) {
+                for (String token : DNSUtil.getTXTEntries(tokenParts[0] + "." + SystemKeywords.DNS_PREFIX + "._auth." + domain.getSuffix(), NS)) {
                     if (token.isEmpty()) {
                         continue;
                     }
