@@ -436,7 +436,7 @@ public class ManagedTest extends ConfiguredTest {
         Matcher m = p.matcher(content);
         for (int i = 0; i < formIndex + 1; i++) {
             if ( !m.find()) {
-                throw new Error("No CSRF Token");
+                throw new Error("No CSRF Token:\n" + content);
             }
         }
         return m.group(1);
