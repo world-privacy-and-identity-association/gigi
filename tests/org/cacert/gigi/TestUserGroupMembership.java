@@ -48,8 +48,8 @@ public class TestUserGroupMembership extends BusinessTest {
             assertEquals(granter.getId(), rs.getInt("grantedby"));
             assertEquals(ttpGroup.getDBName(), rs.getString("permission"));
 
-            assertNull(rs.getDate("deleted"));
-            assertNotNull(rs.getDate("granted"));
+            assertNull(rs.getTimestamp("deleted"));
+            assertNotNull(rs.getTimestamp("granted"));
 
             assertFalse(rs.next());
         }
@@ -80,8 +80,8 @@ public class TestUserGroupMembership extends BusinessTest {
             assertEquals(granter.getId(), rs.getInt("grantedby"));
             assertEquals(ttpGroup.getDBName(), rs.getString("permission"));
 
-            assertNotNull(rs.getDate("deleted"));
-            assertNotNull(rs.getDate("granted"));
+            assertNotNull(rs.getTimestamp("deleted"));
+            assertNotNull(rs.getTimestamp("granted"));
 
             assertFalse(rs.next());
         }

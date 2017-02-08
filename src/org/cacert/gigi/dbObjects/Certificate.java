@@ -471,7 +471,7 @@ public class Certificate implements IdCachable {
                 prep.setInt(1, getId());
                 GigiResultSet res = prep.executeQuery();
                 if (res.next()) {
-                    return new java.util.Date(res.getDate("revoked").getTime());
+                    return new java.util.Date(res.getTimestamp("revoked").getTime());
                 }
             }
         }
