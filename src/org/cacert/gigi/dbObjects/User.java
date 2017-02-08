@@ -617,7 +617,7 @@ public class User extends CertificateOwner {
 
     private Assurance assuranceByRes(GigiResultSet res) {
         try {
-            return new Assurance(res.getInt("id"), User.getById(res.getInt("from")), Name.getById(res.getInt("to")), res.getString("location"), res.getString("method"), res.getInt("points"), res.getString("date"), res.getString("country") == null ? null : Country.getCountryByCode(res.getString("country"), CountryCodeType.CODE_2_CHARS));
+            return new Assurance(res.getInt("id"), User.getById(res.getInt("from")), Name.getById(res.getInt("to")), res.getString("location"), res.getString("method"), res.getInt("points"), res.getString("date"), res.getString("country") == null ? null : Country.getCountryByCode(res.getString("country"), CountryCodeType.CODE_2_CHARS), res.getTimestamp("expire"));
         } catch (GigiApiException e) {
             throw new Error(e);
         }

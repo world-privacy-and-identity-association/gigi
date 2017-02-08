@@ -12,7 +12,7 @@
 <td><?=_Method?></td>
 </tr>
 <? foreach($assurances) {?>
-<tr>
+<tr <? if($expired) { ?> class="info" <? } ?> >
 <? if($support) { ?>
 <td><a href="/support/user/<?=$linkId?>/"><?=$id?></a></td>
 <? } else { ?>
@@ -29,3 +29,4 @@
 </tr>
 <? } ?>
 </table>
+<?=$info?>

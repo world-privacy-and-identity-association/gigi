@@ -31,9 +31,11 @@ public class AssurancesDisplay implements Outputable {
         final Assurance[] assurances = (Assurance[]) vars.get(assuranceArray);
         if (assurer) {
             vars.put("verb", l.getTranslation("To (User Id)"));
+            vars.put("info", "");
         } else {
             vars.put("verb", l.getTranslation("From"));
             vars.put("myName", "yes");
+            vars.put("info", l.getTranslation("Coloured rows show expired nucleus bonus verifications which are not counted to the total of verification points."));
         }
 
         IterableDataset assuranceGroup = new IterableDataset() {
@@ -62,6 +64,7 @@ public class AssurancesDisplay implements Outputable {
                     vars.put("date", assurance.getDate());
                     vars.put("location", assurance.getLocation() + " (" + (assurance.getCountry() == null ? l.getTranslation("not given") : assurance.getCountry().getName()) + ")");
                     vars.put("points", assurance.getPoints());
+                    vars.put("expired", assurance.isExpired());
                     i++;
                     return true;
                 }

@@ -1,5 +1,7 @@
 package org.cacert.gigi.dbObjects;
 
+import java.util.Date;
+
 import org.cacert.gigi.database.DBEnum;
 import org.cacert.gigi.dbObjects.wrappers.DataContainer;
 
@@ -41,7 +43,9 @@ public class Assurance {
 
     private Country country;
 
-    public Assurance(int id, User from, Name to, String location, String method, int points, String date, Country country) {
+    private Date expireDate;
+
+    public Assurance(int id, User from, Name to, String location, String method, int points, String date, Country country, Date expireDate) {
         this.id = id;
         this.from = from;
         this.to = to;
@@ -50,7 +54,7 @@ public class Assurance {
         this.points = points;
         this.date = date;
         this.country = country;
-
+        this.expireDate = expireDate;
     }
 
     public User getFrom() {
@@ -83,5 +87,20 @@ public class Assurance {
 
     public Country getCountry() {
         return country;
+    }
+
+    public Date getExpireDate() {
+        return expireDate;
+    }
+
+    public boolean isExpired() {
+        boolean expired = false;
+        if (expireDate == null) {
+            expired = false;
+        } else {
+            Date now = new Date();
+            expired = expireDate.before(now);
+        }
+        return expired;
     }
 }
