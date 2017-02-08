@@ -1,5 +1,6 @@
 debian/gigi-proxy.service /lib/systemd/system
 debian/gigi-proxy.service.d/SystemCallFilter.conf /lib/systemd/system/gigi-proxy.service.d
+debian/gigi-proxy.service.d/Z-Disable-SystemCallFilter.conf /lib/systemd/system/gigi-proxy.service.d
 debian/gigi-proxy.socket /lib/systemd/system
 debian/gigi-standalone.service /lib/systemd/system
 debian/gigi-simple-signer.service /lib/systemd/system
