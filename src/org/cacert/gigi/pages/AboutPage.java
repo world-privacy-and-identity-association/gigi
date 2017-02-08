@@ -19,7 +19,11 @@ public class AboutPage extends Page {
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         PrintWriter out = resp.getWriter();
         HashMap<String, Object> o = new HashMap<>();
-        o.put("version", Package.getPackage("org.cacert.gigi").getImplementationVersion());
+        String version = Package.getPackage("org.cacert.gigi").getImplementationVersion();
+        if (version == null) {
+            version = "development";
+        }
+        o.put("version", version);
         getDefaultTemplate().output(out, getLanguage(req), o);
     }
 
