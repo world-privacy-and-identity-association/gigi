@@ -16,11 +16,14 @@ public class TimeConditions {
 
     private final int verificationMaxAgeMonths;
 
+    private final int emailPingMonths;
+
     private TimeConditions(Properties ppts) {
         testValidMonths = Integer.parseInt(ppts.getProperty("time.testValidMonths", "12"));
         reverificationDays = Integer.parseInt(ppts.getProperty("time.reverificationDays", "90"));
         verificationFreshMonths = Integer.parseInt(ppts.getProperty("time.verificationFreshMonths", "39"));
         verificationMaxAgeMonths = Integer.parseInt(ppts.getProperty("time.verificationMaxAgeMonths", "24"));
+        emailPingMonths = Integer.parseInt(ppts.getProperty("time.emailPingMonths", "6"));
     }
 
     public static synchronized TimeConditions getInstance() {
@@ -76,4 +79,13 @@ public class TimeConditions {
         return verificationMaxAgeMonths;
     }
 
+    /**
+     * Maximum time in months that an email address can be used for creating
+     * client certificates before a reping is neccessary
+     * 
+     * @return the configured number of months
+     */
+    public int getEmailPingMonths() {
+        return emailPingMonths;
+    }
 }

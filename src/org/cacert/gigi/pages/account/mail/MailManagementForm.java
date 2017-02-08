@@ -14,6 +14,7 @@ import org.cacert.gigi.output.template.Form;
 import org.cacert.gigi.output.template.IterableDataset;
 import org.cacert.gigi.output.template.Template;
 import org.cacert.gigi.pages.Page;
+import org.cacert.gigi.util.TimeConditions;
 
 public class MailManagementForm extends Form {
 
@@ -86,6 +87,7 @@ public class MailManagementForm extends Form {
 
         };
         vars.put("emails", ds);
+        vars.put("maxMonth", TimeConditions.getInstance().getEmailPingMonths());
         t.output(out, l, vars);
     }
 }

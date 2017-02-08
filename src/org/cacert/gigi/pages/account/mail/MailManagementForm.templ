@@ -8,7 +8,7 @@
   <tr>
     <td><?=_Default?></td>
     <td><?=_Status?></td>
-    <td><?=_Last successful verification?></td>
+    <td><?=_Last successful verification?>*</td>
     <td><?=_Address?></td>
     <td><?=_Delete?></td>
     <td><?=_Request reping?></td>
@@ -23,5 +23,8 @@
  		<td><button class="btn btn-primary" type="submit" name="reping" value="<?=$id?>"><?=_Request reping?></button></td>
  	</tr>
  <? } ?>
+  <tr>
+    <td colspan=6>* <?=_To issue certificates for an email address listed above, the last successful verification of the email address must not be older than ${maxMonth} months. Use "Request Reping" to start a new email verification.?></td>
+  </tr>
   </tbody>
 </table>

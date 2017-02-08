@@ -501,6 +501,7 @@ public class Manager extends Page {
         vars.put("reverificationDays", TimeConditions.getInstance().getVerificationLimitDays());
         vars.put("verificationFreshMonths", TimeConditions.getInstance().getVerificationMonths());
         vars.put("verificationMaxAgeMonths", TimeConditions.getInstance().getVerificationMaxAgeMonths());
+        vars.put("emailPingMonths", TimeConditions.getInstance().getEmailPingMonths());
 
         form.output(resp.getWriter(), getLanguage(req), vars);
     }
