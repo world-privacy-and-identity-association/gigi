@@ -1,6 +1,6 @@
 *.debhelper
 *.substvars
 *.log
-cacert-gigi-setuid
+wpia-gigi-setuid
 files
-cacert-gigi
+wpia-gigi

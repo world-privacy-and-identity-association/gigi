@@ -1,0 +1,4 @@
+Template: wpia-gigi-testing/fetch-locales-command
+Type: string
+Default: gigi fetch-locales
+Description: The command to fetch locales with after installation is complete

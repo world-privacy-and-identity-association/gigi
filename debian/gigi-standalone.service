@@ -5,9 +5,9 @@ After=postgresql@9.4-main.service
 Conflicts=gigi-proxy.service
 
 [Service]
-ExecStart=/usr/bin/java -cp /usr/share/java/postgresql-jdbc4.jar:/usr/share/java/gigi.jar org.cacert.gigi.Launcher /etc/cacert/gigi/conf.tar
+ExecStart=/usr/bin/java -cp /usr/share/java/postgresql-jdbc4.jar:/usr/share/java/gigi.jar club.wpia.gigi.Launcher /etc/wpia/gigi/conf.tar
 CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_SETUID CAP_SETGID
-WorkingDirectory=/var/lib/cacert-gigi
+WorkingDirectory=/var/lib/wpia-gigi
 PrivateTmp=yes
 PrivateDevices=yes
 ProtectSystem=full

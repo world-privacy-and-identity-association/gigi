@@ -1,0 +1,48 @@
+#!/bin/sh
+# postinst script for wpia-gigi
+#
+# see: dh_installdeb(1)
+
+set -e
+
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <postinst> `abort-remove'
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+
+case "$1" in
+    configure)
+        if [ -f /usr/share/debconf/confmodule ]; then
+            . /usr/share/debconf/confmodule
+            db_get wpia-gigi/fetch-locales-command
+            $RET
+        else
+            gigi fetch-locales
+        fi
+        adduser --system gigi
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+# The "hash DEBHELPER hash" special token is deliberately *not* included;
+# gigi cannot start out of the box,
+# and this package installs multiple services that cannot be used simultaneously,
+# so we really don't want dh_installdeb to add code by
+# dh_systemd_enable, dh_installinit and dh_systemd_start here.
+
+exit 0

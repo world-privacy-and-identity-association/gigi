@@ -1,6 +1,6 @@
 #!/bin/sh
 
-: ${GIGI_CONF_DIR:=/etc/cacert/gigi}
+: ${GIGI_CONF_DIR:=/etc/wpia/gigi}
 
 [ -r "$GIGI_CONF_DIR/launcher.conf" ] && . "$GIGI_CONF_DIR/launcher.conf"
 
@@ -8,7 +8,7 @@
 : \
     ${JDBC_DRIVER:=/usr/share/java/postgresql-jdbc4.jar} \
     ${GIGI_EXEC:=/usr/share/java/gigi.jar} \
-    ${GIGI_DATA_DIR:=/var/lib/cacert-gigi}
+    ${GIGI_DATA_DIR:=/var/lib/wpia-gigi}
 
 die() {
     if [ $# -ge 1 ]; then
@@ -26,7 +26,7 @@ runGigiClass() {
         java_opts="$1"
         shift
     fi
-    exec java $java_opts -cp "$JDBC_DRIVER:$GIGI_EXEC" org.cacert.gigi.$class "$@"
+    exec java $java_opts -cp "$JDBC_DRIVER:$GIGI_EXEC" club.wpia.gigi.$class "$@"
 }
 
 command="$1"
@@ -36,9 +36,9 @@ case "$command" in
     debug) runGigiClass Launcher "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000" ;;
     start-daemon)
         exec 3</etc/cacert/gigi/conf.tar || die 'open config'
-        exec 4>>/var/log/cacert-gigi.log || die 'open log'
+        exec 4>>/var/log/wpia-gigi.log || die 'open log'
         runGigiClass Launcher <&3 >&4 2>&1 &
-        echo $! > /var/run/cacert-gigi.pid
+        echo $! > /var/run/wpia-gigi.pid
         ;;
     signer) runGigiClass util.SimpleSigner ;;
     reset-database) runGigiClass util.DatabaseManager ;;

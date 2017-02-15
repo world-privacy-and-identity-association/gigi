@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project basedir="." default="develop" name="cacert-gigi" xmlns:jacoco="antlib:org.jacoco.ant">
+<project basedir="." default="develop" name="gigi" xmlns:jacoco="antlib:org.jacoco.ant">
 
 	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
 		<classpath path="/usr/share/java/jacocoant.jar" />
 	</taskdef>
 
 	<property environment="env" />
-	<property name="PACKAGE" value="cacert-gigi" />
+	<property name="PACKAGE" value="gigi" />
 	<property name="junit.output.dir" value="junit" />
 	<property name="debuglevel" value="source,lines,vars" />
 	<property name="target" value="1.8" />
@@ -17,12 +17,12 @@
 		<pathelement location="${juintexec}/junit4.jar" />
 		<pathelement location="${juintexec}/hamcrest-core.jar" />
 	</path>
-	<path id="cacert-gigi.classpath">
+	<path id="gigi.classpath">
 		<pathelement location="bin" />
 		<pathelement location="binutil" />
 		<pathelement location="${sqlconnector}" />
 	</path>
-	<path id="cacert-gigi.test.classpath">
+	<path id="gigi.test.classpath">
 		<pathelement location="bintest" />
 		<pathelement location="bin" />
 		<pathelement location="binutil" />
@@ -30,7 +30,7 @@
 		<path refid="JUnit 4.libraryclasspath" />
 		<pathelement location="${sqlconnector}" />
 	</path>
-	<path id="cacert-gigi.test.classpath.jdt">
+	<path id="gigi.test.classpath.jdt">
 		<pathelement location="${jdt}" />
 	</path>
 	<target name="init">
@@ -86,7 +86,7 @@
 			<arg line="HEAD"/>
 		</exec>
 		<manifest file="Gigi.MF">
-			<attribute name="Main-Class" value="org.cacert.gigi.Launcher" />
+			<attribute name="Main-Class" value="club.wpia.gigi.Launcher" />
 			<attribute name="Implementation-Version" value="${git-version}" />
 		</manifest>
 		<echo message="${ant.project.name}: ${ant.file}" />
@@ -99,13 +99,13 @@
 			<src path="lib/scrypt" />
 			<src path="lib/json" />
 			<src path="src" />
-			<classpath refid="cacert-gigi.classpath" />
+			<classpath refid="gigi.classpath" />
 		</javac>
 		<javac encoding="UTF-8" debug="true" debuglevel="${debuglevel}" destdir="binutil"
 			includeantruntime="false" source="${source}" target="${target}">
 			<compilerarg value="-XDignore.symbol.file"/>
 			<src path="util" />
-			<classpath refid="cacert-gigi.classpath" />
+			<classpath refid="gigi.classpath" />
 		</javac>
 	</target>
 	<target depends="init, build-project" name="build-testing">
@@ -113,8 +113,8 @@
 			includeantruntime="false" source="${source}" target="${target}">
 			<compilerarg value="-XDignore.symbol.file"/>
 			<src path="util-testing" />
-			<exclude name="org/cacert/gigi/localisation/**"/>
-			<classpath refid="cacert-gigi.classpath" />
+			<exclude name="club/wpia/gigi/localisation/**"/>
+			<classpath refid="gigi.classpath" />
 		</javac>
 	</target>
 	<target depends="init, build-project" name="build-testing-l10n">
@@ -122,16 +122,16 @@
 			includeantruntime="false" source="${source}" target="${target}">
 			<compilerarg value="-XDignore.symbol.file"/>
 			<src path="util-testing" />
-			<include name="org/cacert/gigi/localisation/**"/>
-			<classpath refid="cacert-gigi.classpath" />
-			<classpath refid="cacert-gigi.test.classpath.jdt" />
+			<include name="club/wpia/gigi/localisation/**"/>
+			<classpath refid="gigi.classpath" />
+			<classpath refid="gigi.test.classpath.jdt" />
 		</javac>
-		<java classname="org.cacert.gigi.localisation.TranslationCollector" failonerror="true">
-			<arg value="util-testing/org/cacert/gigi/localisation/conf.txt"/>
+		<java classname="club.wpia.gigi.localisation.TranslationCollector" failonerror="true">
+			<arg value="util-testing/club/wpia/gigi/localisation/conf.txt"/>
 			<arg value="."/>
 			<arg value="messages.po"/>
-			<classpath refid="cacert-gigi.test.classpath" />
-			<classpath refid="cacert-gigi.test.classpath.jdt" />
+			<classpath refid="gigi.test.classpath" />
+			<classpath refid="gigi.test.classpath.jdt" />
 		</java>
 	</target>
 
@@ -152,7 +152,7 @@
 
 	<target depends="test,native" name="bundle">
 		<zip destfile="gigi-linux_amd64.zip" basedir="."
-			includes="gigi.jar,native/*.so,src/org/cacert/gigi/database/tableStructure.sql,static/**,templates/**" />
+			includes="gigi.jar,native/*.so,src/club/wpia/gigi/database/tableStructure.sql,static/**,templates/**" />
 	</target>
 	<target name="static-bundle">
 		<mkdir dir="work"/>
@@ -163,7 +163,7 @@
 		<move file="work/static/static/images/cacert4-test.png" tofile="work/static/static/images/cacert4.png"/>
 		<delete file="work/static/static/image/cacert4-test.png"/>
 		<tar destfile="static.tar.gz" compression="gzip" basedir="work"
-			includes="../src/org/cacert/gigi/database/tableStructure.sql,**,templates/**" />
+			includes="../src/club/wpia/gigi/database/tableStructure.sql,**,templates/**" />
 	</target>
 
 	<target name="static-bundle-release">
@@ -174,7 +174,7 @@
 		</copy>
 		<delete file="work/static/static/image/cacert4-test.png"/>
 		<tar destfile="static.tar.gz" compression="gzip" basedir="work"
-			includes="../src/org/cacert/gigi/database/tableStructure.sql,**,templates/**" />
+			includes="../src/club/wpia/gigi/database/tableStructure.sql,**,templates/**" />
 	</target>
 
 	<target name="develop" depends="bundle,static-bundle" />
@@ -187,10 +187,10 @@
 			includeantruntime="false" source="${source}" target="${target}">
 			<compilerarg value="-XDignore.symbol.file"/>
 			<src path="tests" />
-			<classpath refid="cacert-gigi.test.classpath" />
+			<classpath refid="gigi.test.classpath" />
 		</javac>
-		<concat destfile="bintest/org/cacert/gigi/util/effective_tld_names.dat">
-			<path path="bin/org/cacert/gigi/util/effective_tld_names.dat"/>
+		<concat destfile="bintest/club/wpia/gigi/util/effective_tld_names.dat">
+			<path path="bin/club/wpia/gigi/util/effective_tld_names.dat"/>
 			<path path="publicSuffixFooter.dat"/>
 		</concat>
 	</target>
@@ -198,9 +198,9 @@
 		<available file="locale/de.xml" property="locale.present" />
 	</target>
 	<target name="FetchLocales" depends="check-locale" unless="locale.present">
-		<java classname="org.cacert.gigi.util.FetchLocales" failonerror="true"
+		<java classname="club.wpia.gigi.util.FetchLocales" failonerror="true"
 			fork="yes">
-			<classpath refid="cacert-gigi.classpath" />
+			<classpath refid="gigi.classpath" />
 			<arg value="${localePath}"/>
 		</java>
 	</target>
@@ -215,9 +215,9 @@
 	</target>
 	<target name="reset-db" depends="build-project">
 		<copy file="config/test.properties" tofile="config/gigi.properties"/>
-		<java classname="org.cacert.gigi.util.DatabaseManager">
+		<java classname="club.wpia.gigi.util.DatabaseManager">
 			<arg value="--test"/>
-			<classpath refid="cacert-gigi.test.classpath" />
+			<classpath refid="gigi.test.classpath" />
 		</java>
 	</target>
 	<target name="test" depends="build-project-test,FetchLocales,pack-testing,pack,reset-db">
@@ -239,7 +239,7 @@
 					<exclude name="**/com/lambdaworks/crypto/test/CryptoTestUtil.java"/>
 				</fileset>
 			</batchtest>
-			<classpath refid="cacert-gigi.test.classpath" />
+			<classpath refid="gigi.test.classpath" />
 		</junit>
 	</target>
 	<target name="junitreport">
@@ -261,28 +261,28 @@
 				<file file="merged.exec" />
 			</executiondata>
 
-			<structure name="CAcert gigi">
+			<structure name="Gigi">
 				<group name="Server">
 					<classfiles>
 						<fileset dir="bin">
-							<include name="org/cacert/gigi/**"/>
+							<include name="club/wpia/gigi/**"/>
 						</fileset>
 					</classfiles>
 					<sourcefiles encoding="UTF-8">
 						<fileset dir="src">
-							<include name="org/cacert/gigi/**"/>
+							<include name="club/wpia/gigi/**"/>
 						</fileset>
 					</sourcefiles>
 				</group>
 				<group name="Testcases">
 					<classfiles>
 						<fileset dir="bintest">
-							<include name="org/cacert/gigi/**"/>
+							<include name="club/wpia/gigi/**"/>
 						</fileset>
 					</classfiles>
 					<sourcefiles encoding="UTF-8">
 						<fileset dir="tests">
-							<include name="org/cacert/gigi/**"/>
+							<include name="club/wpia/gigi/**"/>
 						</fileset>
 					</sourcefiles>
 				</group>
@@ -297,20 +297,20 @@
 		<copy file="natives/libsetuid.so" todir="${env.DESTDIR}/usr/lib/jni"/>
 	</target>
 	<target name="install" depends="install-common">
-		<mkdir dir="${env.DESTDIR}/usr/share/cacert-gigi/static" />
-		<copy todir="${env.DESTDIR}/usr/share/cacert-gigi/static">
+		<mkdir dir="${env.DESTDIR}/usr/share/wpia-gigi/static" />
+		<copy todir="${env.DESTDIR}/usr/share/wpia-gigi/static">
 			<fileset dir="static" />
 		</copy>
-		<delete file="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4-test.png" />
+		<delete file="${env.DESTDIR}/usr/share/wpia-gigi/static/static/images/cacert4-test.png" />
 		<copy file="gigi.jar" tofile="${env.DESTDIR}/usr/share/java/gigi.jar"/>
 	</target>
 	<target name="install-testing" depends="install-common">
-		<mkdir dir="${env.DESTDIR}/usr/share/cacert-gigi/static" />
-		<copy todir="${env.DESTDIR}/usr/share/cacert-gigi/static">
+		<mkdir dir="${env.DESTDIR}/usr/share/wpia-gigi/static" />
+		<copy todir="${env.DESTDIR}/usr/share/wpia-gigi/static">
 			<fileset dir="static" />
 		</copy>
-		<move file="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4-test.png" tofile="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4.png" />
-		<delete file="${env.DESTDIR}/usr/share/cacert-gigi/static/static/images/cacert4-test.png" />
+		<move file="${env.DESTDIR}/usr/share/wpia-gigi/static/static/images/cacert4-test.png" tofile="${env.DESTDIR}/usr/share/wpia-gigi/static/static/images/cacert4.png" />
+		<delete file="${env.DESTDIR}/usr/share/wpia-gigi/static/static/images/cacert4-test.png" />
 		<copy file="gigi-testing.jar" tofile="${env.DESTDIR}/usr/share/java/gigi.jar"/>
 	</target>
 
@@ -322,36 +322,36 @@
 
 		<chmod file="${env.DESTDIR}/usr/bin/gigi" perm="+x"/>
 		<mkdir dir="${env.DESTDIR}/usr/share/dbconfig-common/data/${PACKAGE}/install/"/>
-		<copy file="src/org/cacert/gigi/database/tableStructure.sql" tofile="${env.DESTDIR}/usr/share/dbconfig-common/data/${PACKAGE}/install/mysql.sql"/>
+		<copy file="src/club/wpia/gigi/database/tableStructure.sql" tofile="${env.DESTDIR}/usr/share/dbconfig-common/data/${PACKAGE}/install/mysql.sql"/>
 
-		<mkdir dir="${env.DESTDIR}/var/lib/cacert-gigi/doc"/>
+		<mkdir dir="${env.DESTDIR}/var/lib/wpia-gigi/doc"/>
 		<exec executable="ln">
 			<arg value="-s"/>
 			<arg value="/usr/share/dbconfig-common/data/${PACKAGE}/install/mysql.sql"/>
-			<arg value="${env.DESTDIR}/var/lib/cacert-gigi/doc/tableStructure.sql"/>
+			<arg value="${env.DESTDIR}/var/lib/wpia-gigi/doc/tableStructure.sql"/>
 		</exec>
-		<mkdir dir="${env.DESTDIR}/var/lib/cacert-gigi/natives"/>
-		<delete failonerror="false" file="${env.DESTDIR}/var/lib/cacert-gigi/static"/>
+		<mkdir dir="${env.DESTDIR}/var/lib/wpia-gigi/natives"/>
+		<delete failonerror="false" file="${env.DESTDIR}/var/gigigigi/static"/>
 		<exec executable="ln">
 			<arg value="-s"/>
-			<arg value="/usr/share/cacert-gigi/static"/>
-			<arg value="${env.DESTDIR}/var/lib/cacert-gigi/static"/>
+			<arg value="/usr/share/wpia-gigi/static"/>
+			<arg value="${env.DESTDIR}/var/lib/wpia-gigi/static"/>
 		</exec>
 		<exec executable="ln">
 			<arg value="-s"/>
 			<arg value="/usr/lib/jni/libsetuid.so"/>
-			<arg value="${env.DESTDIR}/var/lib/cacert-gigi/natives/libsetuid.so"/>
+			<arg value="${env.DESTDIR}/var/lib/wpia-gigi/natives/libsetuid.so"/>
 		</exec>
 
-		<mkdir dir="${env.DESTDIR}/etc/cacert/gigi"/>
+		<mkdir dir="${env.DESTDIR}/etc/wpia/gigi"/>
 		<!--<copy todir="${env.DESTDIR}/DEBIAN">
 			<fileset dir="debian">
 			</fileset>
 		</copy>-->
 	</target>
 	<target name="update-effective-tlds">
-		<mkdir dir="bin/org/cacert/gigi/util"/>
-		<exec executable="wget" dir="bin/org/cacert/gigi/util">
+		<mkdir dir="bin/club/wpia/gigi/util"/>
+		<exec executable="wget" dir="bin/club/wpia/gigi/util">
 			<arg value="-N"/>
 			<arg value="-q"/>
 			<arg value="https://publicsuffix.org/list/effective_tld_names.dat"/>

@@ -1,11 +1,11 @@
 Before you start using you might want to:
 
-- use cacert-nre to generate a roots structure
+- use wpia-nre to generate a roots structure
 - extract the gigi-*.tar.gz file into "config"
 - execute "generateTruststore.sh" there
 - extract the signer-server-*.tar.gz into "signer"
 
-- download locales (util/ org.cacert.gigi.util.FetchLocales)
+- download locales (util/ club.wpia.gigi.util.FetchLocales)
 - write your sql connection properties: config/gigi.properties.template -> config/gigi.properties
 - install "hosts" entries for the hosts you entered in "gigi.properties"
    (be aware if you change the default ones you need to change the CN given in the certificates)

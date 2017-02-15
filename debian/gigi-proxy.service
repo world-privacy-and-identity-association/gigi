@@ -6,11 +6,11 @@ Conflicts=gigi-standalone.service
 PartOf=gigi-proxy.socket
 
 [Service]
-ExecStart=/usr/bin/java -cp /usr/share/java/postgresql-jdbc4.jar:/usr/share/java/gigi.jar org.cacert.gigi.Launcher /etc/cacert/gigi/conf.tar
+ExecStart=/usr/bin/java -cp /usr/share/java/postgresql-jdbc4.jar:/usr/share/java/gigi.jar club.wpia.gigi.Launcher /etc/wpia/gigi/conf.tar
 StandardInput=socket
 StandardOutput=journal
 StandardError=journal
-WorkingDirectory=/var/lib/cacert-gigi
+WorkingDirectory=/var/lib/wpia-gigi
 User=gigi
 PrivateTmp=yes
 PrivateDevices=yes

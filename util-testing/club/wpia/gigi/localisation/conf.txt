@@ -1,0 +1,21 @@
+club.wpia.gigi.localisation Language.getTranslation(String),0
+club.wpia.gigi.pages Page.translate(ServletRequest, String),1
+club.wpia.gigi.output.template Form.outputError(PrintWriter, ServletRequest, String, Object[]),2
+club.wpia.gigi Gigi.MenuBuilder.putPage(String, Page, String),2
+club.wpia.gigi Gigi.MenuBuilder.getMenu(String),0
+club.wpia.gigi GigiApiException.GigiApiException(String),0=>club.wpia.gigi GigiApiException.formatPlain(PrintWriter),0
+club.wpia.gigi.output Menu.Menu(String),0=>club.wpia.gigi.output Menu.output(PrintWriter, Language, Map),0
+club.wpia.gigi.output SimpleMenuItem.SimpleMenuItem(String, String),1=>club.wpia.gigi.output SimpleMenuItem.printContent(PrintWriter, Language),0
+club.wpia.gigi.dbObjects Digest.Digest(String),0
+club.wpia.gigi.dbObjects Certificate.CertificateStatus.CertificateStatus(String),0
+club.wpia.gigi.pages Page.Page(String),0
+club.wpia.gigi.pages OneFormPage.OneFormPage(String, Class),0
+club.wpia.gigi.pages StaticPage.StaticPage(String, InputStream),0
+club.wpia.gigi.output.template SprintfCommand.SprintfCommand(String, List),0=>club.wpia.gigi.output.template SprintfCommand.output(PrintWriter, Language, Map),0
+club.wpia.gigi.output.template SprintfCom---invalid---mand.SprintfCommand(String),0=>club.wpia.gigi.output.template Template.parseCommand(String, ParseContext),0
+club.wpia.gigi.output.template TranslateCommand.TranslateCommand(String),0=>club.wpia.gigi.output.template TranslateCommand.output(PrintWriter, Language, Map),0
+club.wpia.gigi.pages.account.domain DomainOverview.DomainOverview(String),0
+club.wpia.gigi.dbObjects Group.Group(String, String, boolean, boolean, boolean),1
+club.wpia.gigi.output.template SprintfCommand.createSimple(String, Object[]),0
+club.wpia.gigi.pages ManagedFormPage.ManagedFormPage(String, Class),0
+club.wpia.gigi.pages ManagedMultiFormPage.ManagedMultiFormPage(String),0

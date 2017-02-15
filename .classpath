@@ -8,7 +8,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="util"/>
 	<classpathentry kind="src" path="tests"/>
-	<classpathentry excluding="org/cacert/gigi/locatisation/|org/cacert/gigi/localisation/" kind="src" path="util-testing"/>
+	<classpathentry excluding="club/wpia/gigi/locatisation/|club/wpia/gigi/localisation/" kind="src" path="util-testing"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/MySQL"/>

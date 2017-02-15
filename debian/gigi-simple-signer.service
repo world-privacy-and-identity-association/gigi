@@ -2,8 +2,8 @@
 Description=Gigi simple signer for ET
 
 [Service]
-ExecStart=/usr/bin/java -cp /usr/share/java/postgresql-jdbc4.jar:/usr/share/java/gigi.jar org.cacert.gigi.util.SimpleSigner
-WorkingDirectory=/var/lib/cacert-gigi
+ExecStart=/usr/bin/java -cp /usr/share/java/postgresql-jdbc4.jar:/usr/share/java/gigi.jar club.wpia.gigi.util.SimpleSigner
+WorkingDirectory=/var/lib/wpia-gigi
 User=gigi
 PrivateTmp=yes
 PrivateDevices=yes

@@ -14,13 +14,13 @@ override_dh_auto_clean:
 	echo i dont clean
 
 override_dh_installinit:
-	dh_installinit --name=cacert-gigi
-	dh_installinit --name=cacert-gigi-signer
+	dh_installinit --name=wpia-gigi
+	dh_installinit --name=wpia-gigi-signer
 
 override_dh_auto_build: build
 
 override_dh_auto_install:
-	DESTDIR=debian/cacert-gigi ant install
-	DESTDIR=debian/cacert-gigi-testing ant install-testing
-	DESTDIR=debian/cacert-gigi-setuid ant install-native
+	DESTDIR=debian/wpia-gigi ant install
+	DESTDIR=debian/wpia-gigi-testing ant install-testing
+	DESTDIR=debian/wpia-gigi-setuid ant install-native
 

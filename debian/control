@@ -1,29 +1,29 @@
-Source: cacert-gigi
+Source: wpia-gigi
 Section: java
 Priority: optional
-Maintainer: unknown <software@cacert.org>
+Maintainer: unknown <software@wpia.club>
 Build-Depends: debhelper (>= 8.0.0), dh-systemd, java7-sdk-headless
 Standards-Version: 3.9.4
-Homepage: http://cacert.org
-#Vcs-Git: git://git.debian.org/collab-maint/cacert-gigi.git
-#Vcs-Browser: http://git.debian.org/?p=collab-maint/cacert-gigi.git;a=summary
+Homepage: https://wpia.club
+#Vcs-Git: git://git.debian.org/collab-maint/gigi.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/gigi.git;a=summary
 
-Package: cacert-gigi
+Package: wpia-gigi
 Architecture: all
-Depends: java7-runtime-headless, cacert-gigi-setuid, libpostgresql-jdbc-java, ${shlibs:Depends}, ${misc:Depends}
-Conflicts: cacert-gigi-testing
-Description: CAcert Web-DB software.
+Depends: java7-runtime-headless, wpia-gigi-setuid, libpostgresql-jdbc-java, ${shlibs:Depends}, ${misc:Depends}
+Conflicts: wpia-gigi-testing
+Description: WPIA Web-DB software.
  This program is used to manage accounts and certificates.
 
-Package: cacert-gigi-testing
+Package: wpia-gigi-testing
 Architecture: all
-Depends:  java7-runtime-headless, cacert-gigi-setuid, libpostgresql-jdbc-java, ${shlibs:Depends}, ${misc:Depends}
-Conflicts: cacert-gigi
-Description: CAcert Web-DB software testing version.
+Depends:  java7-runtime-headless, wpia-gigi-setuid, libpostgresql-jdbc-java, ${shlibs:Depends}, ${misc:Depends}
+Conflicts: wpia-gigi
+Description: WPIA Web-DB software testing version.
  This program is the release to the testing server.
 
-Package: cacert-gigi-setuid
+Package: wpia-gigi-setuid
 Architecture: any
 Depends: java7-runtime-headless, ${shlibs:Depends}, ${misc:Depends}
-Description: CAcert Web-DB software's setuid native library.
+Description: WPIA Web-DB software's setuid native library.
  It is used to drop privilleges after allocating ports.
