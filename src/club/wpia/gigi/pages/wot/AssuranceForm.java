@@ -12,9 +12,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.Assurance.AssuranceType;
 import club.wpia.gigi.dbObjects.Name;
 import club.wpia.gigi.dbObjects.User;
-import club.wpia.gigi.dbObjects.Assurance.AssuranceType;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.ArrayIterable;
 import club.wpia.gigi.output.CountrySelector;
@@ -106,7 +106,7 @@ public class AssuranceForm extends Form {
 
     @Override
     public void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
-        HashMap<String, Object> res = new HashMap<String, Object>();
+        HashMap<String, Object> res = new HashMap<String, Object>(vars);
         res.putAll(vars);
         res.put("names", new ArrayIterable<Name>(assureeNames) {
 

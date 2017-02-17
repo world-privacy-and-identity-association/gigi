@@ -12,15 +12,15 @@
 
 <p><?=_In the meanwhile you would need to close this gap with face to face verifications with SomeCA RA Agents. Think not only travelling to populated countries, but also remember that RA Agents may occasionally visit your country or area.?></p>
 
-<p><?=_If you are interested in the TTP programme, read the pages !'<a href="//wiki.cacert.org/TTP/TTPuser">https://wiki.cacert.org/TTP/TTPuser</a>' for the basic way how the TTP programme works for you, and !'<a href="//wiki.cacert.org/TTP/TTPAL">https://wiki.cacert.org/TTP/TTPAL</a>' whether the TTP programme affects the country where you are located.?> </p>
+<p><?=_If you are interested in the TTP programme, read !(/ttp/user)the pages!'</a>' for the basic way how the TTP programme works for you, and !(/ttp/country)here!'</a>' whether the TTP programme affects the country where you are located.?> </p>
 
 <? if($ttp) { ?>
-<p><?=_If you want to ask for TTP verifications fill out the missing data and send the request to support@cacert.org to start the process. SomeCA will then inform you about the next steps.?></p>
+<p><?=_If you want to ask for TTP verifications fill out the missing data to start the process. SomeCA will then inform you about the next steps.?></p>
 <?=$form?>
 <? } ?>
 
 <? if($topup) { ?>
-<p><?=_As you have already got 2 TTP verifications you can only take part in the TTP TOPUP programme. If you want to ask for the TTP TOPUP programme use the submit button to send the request to support@cacert.org to start the process. SomeCA will then inform you about the next steps.?></p>
+<p><?=_As you have already got 2 TTP verifications you can only take part in the TTP TOPUP programme. If you want to ask for the TTP TOPUP programme use the submit button to start the process. SomeCA will then inform you about the next steps.?></p>
 <form method="post" action="ttp">
 	<input type="submit" name="ttptopup" value="<?=_I need a TTP TOPUP?>">
 </form>

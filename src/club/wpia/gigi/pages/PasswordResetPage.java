@@ -94,14 +94,14 @@ public class PasswordResetPage extends Page {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (Form.printFormErrors(req, resp.getWriter())) {
             PasswordResetForm form = Form.getForm(req, PasswordResetForm.class);
-            form.output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+            form.output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         }
     }
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            new PasswordResetForm(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+            new PasswordResetForm(req).output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         } catch (GigiApiException e) {
             e.format(resp.getWriter(), getLanguage(req));
         }

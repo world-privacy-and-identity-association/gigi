@@ -2,7 +2,7 @@ package club.wpia.gigi.pages.wot;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,7 +34,7 @@ public class AssurePage extends Page {
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         PrintWriter out = resp.getWriter();
-        HashMap<String, Object> vars = new HashMap<String, Object>();
+        Map<String, Object> vars = getDefaultVars(req);
         vars.put("DoB", ds);
         t.output(out, getLanguage(req), vars);
     }
@@ -59,7 +59,7 @@ public class AssurePage extends Page {
         if (req.getParameter("search") == null) {
             if (Form.printFormErrors(req, out)) {
                 AssuranceForm form = Form.getForm(req, AssuranceForm.class);
-                form.output(out, getLanguage(req), new HashMap<String, Object>());
+                form.output(out, getLanguage(req), getDefaultVars(req));
             }
             return;
         }
@@ -84,7 +84,7 @@ public class AssurePage extends Page {
                     } else {
                         User assuree = User.getById(id);
                         try {
-                            new AssuranceForm(req, assuree).output(out, getLanguage(req), new HashMap<String, Object>());
+                            new AssuranceForm(req, assuree).output(out, getLanguage(req), getDefaultVars(req));
                         } catch (GigiApiException e) {
                             e.format(out, Page.getLanguage(req));
                         }

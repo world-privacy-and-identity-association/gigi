@@ -1,7 +1,7 @@
 package club.wpia.gigi.pages.main;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,8 +29,9 @@ public class RegisterPage extends Page {
     }
 
     private void outputGet(HttpServletRequest req, HttpServletResponse resp, Signup s) throws IOException {
-        getDefaultTemplate().output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
-        s.output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+        Map<String, Object> vars = getDefaultVars(req);
+        getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
+        s.output(resp.getWriter(), getLanguage(req), vars);
     }
 
     @Override

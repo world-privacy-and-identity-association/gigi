@@ -2,6 +2,7 @@ package club.wpia.gigi.pages.main;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public class Signup extends Form {
 
     @Override
     public void outputContent(PrintWriter out, Language l, Map<String, Object> outerVars) {
-        HashMap<String, Object> vars = new HashMap<String, Object>();
+        HashMap<String, Object> vars = new HashMap<String, Object>(outerVars);
         vars.put("name", ni);
         vars.put("dob", myDoB);
         vars.put("email", HTMLEncoder.encodeHTML(email));
@@ -58,7 +59,7 @@ public class Signup extends Form {
         vars.put("country", country ? " checked=\"checked\"" : "");
         vars.put("regional", regional ? " checked=\"checked\"" : "");
         vars.put("radius", radius ? " checked=\"checked\"" : "");
-        vars.put("helpOnNames", String.format(l.getTranslation("Help on Names %sin the wiki%s"), "<a href=\"#\" target=\"_blank\">", "</a>"));
+        vars.put("helpOnNames", new SprintfCommand("Help on Names {0}in the wiki{1}", Arrays.asList("!(/wiki/names", "!'</a>")));
         vars.put("csrf", getCSRFToken());
         vars.put("dobmin", User.MINIMUM_AGE + "");
         vars.put("countryCode", cs);

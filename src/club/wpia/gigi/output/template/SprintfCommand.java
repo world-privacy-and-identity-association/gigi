@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import club.wpia.gigi.Gigi;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.util.HTMLEncoder;
 
@@ -29,7 +30,7 @@ public final class SprintfCommand implements Translatable {
      *            a string with <code>{0},{1},..</code> as placeholders.
      * @param store
      *            the data to put into the placeholders: ${var}, $!{var},
-     *            !'plain'.
+     *            !'plain', !(/link).
      */
     public SprintfCommand(String text, List<String> store) {
         this.text = text;
@@ -38,7 +39,7 @@ public final class SprintfCommand implements Translatable {
 
     private static final String VARIABLE = "\\$!?\\{[a-zA-Z0-9_-]+\\}";
 
-    private static final Pattern processingInstruction = Pattern.compile("(" + VARIABLE + ")|(!'[^{}'\\$]*)'");
+    private static final Pattern processingInstruction = Pattern.compile("(" + VARIABLE + ")|(?:(!'[^{}'\\$]*)')|(?:(!\\([^{})\\$]*)\\))");
 
     /**
      * Creates a new SprintfCommand that is parsed as from template source.
@@ -58,6 +59,8 @@ public final class SprintfCommand implements Translatable {
             if ((group = m.group(1)) != null) {
                 var.add(group);
             } else if ((group = m.group(2)) != null) {
+                var.add(group);
+            } else if ((group = m.group(3)) != null) {
                 var.add(group);
             } else {
                 throw new Error("Regex is broken??");
@@ -84,6 +87,16 @@ public final class SprintfCommand implements Translatable {
                 Template.outputVar(out, l, vars, var.substring(3, var.length() - 1), true);
             } else if (var.startsWith("!'")) {
                 out.print(var.substring(2));
+            } else if (var.startsWith("!(")) {
+                String host = (String) vars.get(Gigi.LINK_HOST);
+                if (host == null) {
+                    throw new Error("Unconfigured link-host while interpreting link-syntax.");
+                }
+                if (var.charAt(2) != '/') {
+                    throw new Error("Need an absolute link for the link service.");
+                }
+                String link = "//" + host + var.substring(2);
+                out.print("<a href='" + HTMLEncoder.encodeHTML(link) + "'>");
             } else if (var.startsWith("$")) {
                 Template.outputVar(out, l, vars, var.substring(2, var.length() - 1), false);
             } else {

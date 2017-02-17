@@ -1,7 +1,6 @@
 package club.wpia.gigi.pages;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,14 +26,14 @@ public class OneFormPage extends Page {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Form form = Form.getForm(req, c);
         if (Form.printFormErrors(req, resp.getWriter())) {
-            form.output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+            form.output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         }
     }
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            c.getConstructor(HttpServletRequest.class).newInstance(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+            c.getConstructor(HttpServletRequest.class).newInstance(req).output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         } catch (ReflectiveOperationException e) {
             new GigiApiException().format(resp.getWriter(), getLanguage(req));
         }

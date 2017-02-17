@@ -1,7 +1,7 @@
 package club.wpia.gigi.pages.wot;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,14 +29,14 @@ public class RequestTTPPage extends Page {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (Form.printFormErrors(req, resp.getWriter())) {
-            Form.getForm(req, RequestTTPForm.class).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+            Form.getForm(req, RequestTTPForm.class).output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         }
     }
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         User u = LoginPage.getUser(req);
-        HashMap<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = getDefaultVars(req);
         if (u.isInGroup(RequestTTPForm.TTP_APPLICANT)) {
             map.put("inProgress", true);
         } else {

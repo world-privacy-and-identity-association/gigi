@@ -1,7 +1,7 @@
 package club.wpia.gigi.pages;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,10 +18,11 @@ public class MainPage extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        Map<String, Object> vars = getDefaultVars(req);
         if (LoginPage.getUser(req) != null) {
-            getDefaultTemplate().output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+            getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
         } else {
-            notLog.output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+            notLog.output(resp.getWriter(), getLanguage(req), vars);
         }
     }
 

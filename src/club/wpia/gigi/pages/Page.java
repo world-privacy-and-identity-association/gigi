@@ -3,13 +3,16 @@ package club.wpia.gigi.pages;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import club.wpia.gigi.Gigi;
 import club.wpia.gigi.PermissionCheckable;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.localisation.Language;
@@ -163,6 +166,19 @@ public abstract class Page implements PermissionCheckable {
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
         return !needsLogin() || ac != null;
+    }
+
+    /**
+     * Derive a default variable map for template processing.
+     * 
+     * @param req
+     *            the HTTP-request to derive the map from
+     * @return the map
+     */
+    protected Map<String, Object> getDefaultVars(HttpServletRequest req) {
+        HashMap<String, Object> vars = new HashMap<String, Object>();
+        vars.put(Gigi.LINK_HOST, req.getAttribute(Gigi.LINK_HOST));
+        return vars;
     }
 
 }

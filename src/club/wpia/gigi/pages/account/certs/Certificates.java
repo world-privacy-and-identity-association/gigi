@@ -14,12 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
+import club.wpia.gigi.dbObjects.Certificate.SubjectAlternateName;
 import club.wpia.gigi.dbObjects.CertificateOwner;
 import club.wpia.gigi.dbObjects.Organisation;
 import club.wpia.gigi.dbObjects.SupportedUser;
 import club.wpia.gigi.dbObjects.User;
-import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
-import club.wpia.gigi.dbObjects.Certificate.SubjectAlternateName;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.TrustchainIterable;
 import club.wpia.gigi.output.template.Form;
@@ -147,7 +147,7 @@ public class Certificates extends Page implements HandlesMixedRequest {
                 resp.sendError(404);
                 return;
             }
-            HashMap<String, Object> vars = new HashMap<>();
+            Map<String, Object> vars = getDefaultVars(req);
             vars.put("serial", URLEncoder.encode(serial, "UTF-8"));
 
             CertificateStatus st = c.getStatus();

@@ -81,6 +81,8 @@ import club.wpia.gigi.util.TimeConditions;
 
 public final class Gigi extends HttpServlet {
 
+    public static final String LINK_HOST = "linkHost";
+
     private class MenuBuilder {
 
         private LinkedList<Menu> categories = new LinkedList<Menu>();
@@ -424,6 +426,11 @@ public final class Gigi extends HttpServlet {
             vars.put("static", isSecure ? staticTemplateVarSecure : staticTemplateVar);
             vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
             vars.put("content", content);
+            if (isSecure) {
+                req.setAttribute(LINK_HOST, ServerConstants.getLinkHostNamePortSecure());
+            } else {
+                req.setAttribute(LINK_HOST, ServerConstants.getLinkHostNamePort());
+            }
             if (currentAuthContext != null) {
                 // TODO maybe move this information into the AuthContext object
                 vars.put("loginMethod", req.getSession().getAttribute(LOGIN_METHOD));

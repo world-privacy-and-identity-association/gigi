@@ -5,7 +5,6 @@ import static club.wpia.gigi.Gigi.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,8 +24,8 @@ import club.wpia.gigi.pages.main.RegisterPage;
 import club.wpia.gigi.util.AuthorizationContext;
 import club.wpia.gigi.util.PasswordHash;
 import club.wpia.gigi.util.RateLimit;
-import club.wpia.gigi.util.ServerConstants;
 import club.wpia.gigi.util.RateLimit.RateLimitException;
+import club.wpia.gigi.util.ServerConstants;
 
 public class LoginPage extends Page {
 
@@ -65,14 +64,14 @@ public class LoginPage extends Page {
         if (req.getHeader("Host").equals(ServerConstants.getSecureHostNamePortSecure())) {
             resp.getWriter().println(getLanguage(req).getTranslation("Authentication with certificate failed. Try another certificate or use a password."));
         } else {
-            new LoginForm(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+            new LoginForm(req).output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         }
     }
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (Form.printFormErrors(req, resp.getWriter())) {
-            Form.getForm(req, LoginForm.class).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+            Form.getForm(req, LoginForm.class).output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         }
     }
 

@@ -74,6 +74,14 @@ public class ServerConstants {
         return apiHostName + securePort;
     }
 
+    public static String getLinkHostNamePort() {
+        return "link." + getSuffix() + port;
+    }
+
+    public static String getLinkHostNamePortSecure() {
+        return "link." + getSuffix() + securePort;
+    }
+
     public static int getSecurePort() {
         if (secureBindPort != null && !secureBindPort.isEmpty()) {
             if (secureBindPort.equals("stdin")) {
@@ -107,19 +115,19 @@ public class ServerConstants {
     }
 
     public static String getSupportMailAddress() {
-        return "support@" + ServerConstants.getWwwHostName().replaceFirst("^www\\.", "");
+        return "support@" + getSuffix();
     }
 
     public static String getBoardMailAddress() {
-        return "board@" + ServerConstants.getWwwHostName().replaceFirst("^www\\.", "");
+        return "board@" + getSuffix();
     }
 
     public static String getQuizMailAddress() {
-        return "quiz@" + ServerConstants.getWwwHostName().replaceFirst("^www\\.", "");
+        return "quiz@" + getSuffix();
     }
 
     public static String getQuizAdminMailAddress() {
-        return "quiz-admin@" + ServerConstants.getWwwHostName().replaceFirst("^www\\.", "");
+        return "quiz-admin@" + getSuffix();
     }
 
 }

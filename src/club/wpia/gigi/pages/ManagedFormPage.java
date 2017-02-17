@@ -1,7 +1,6 @@
 package club.wpia.gigi.pages;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,7 +20,7 @@ public abstract class ManagedFormPage extends Page {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (Form.printFormErrors(req, resp.getWriter())) {
             Form form = Form.getForm(req, c);
-            form.output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+            form.output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         }
     }
 

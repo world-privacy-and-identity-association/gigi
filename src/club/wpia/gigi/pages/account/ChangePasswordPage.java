@@ -1,7 +1,6 @@
 package club.wpia.gigi.pages.account;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,7 +19,7 @@ public class ChangePasswordPage extends ManagedFormPage {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        new ChangeForm(req, getUser(req)).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+        new ChangeForm(req, getUser(req)).output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
     }
 
     @Override

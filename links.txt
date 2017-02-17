@@ -1,0 +1,13 @@
+/policy
+/policy/ToS
+/policy/CPS
+/policy/verification
+/wiki/agentQualifyingChallenge
+/wiki/gigi
+/wiki/CSR
+/wiki/names
+/wiki/lostPassword
+/wiki/goodPassword
+/wiki/verificationHandbook
+/ttp/user
+/ttp/country

@@ -13,6 +13,8 @@ Syntax:
 	Text may not contain "?>".
 	If the text contains "$" or "!'" it is interpreted as "advanced replacement".
 	   - ${variablename} is interpreted as "output this variable at this point"
+	   - $!{variablename} is interpreted as "output this variable unescaped at this point"
+	   - !(/link) is interpreted as "output an opening <a>-tag to '/link' at this point" (which must be closed, e.g. using !'</a>', see below)
 	   - !'literal content' output "literal content" here and do not translate or escape. (literal content may not contain any of: {}'$   )
 	Then the whole text than also may not contain "{" and "}".
 
