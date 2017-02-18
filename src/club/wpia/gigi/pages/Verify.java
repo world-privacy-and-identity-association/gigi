@@ -20,9 +20,9 @@ import club.wpia.gigi.output.template.SprintfCommand;
 
 public class Verify extends Page {
 
-    private static final SprintfCommand emailAddressVerified = new SprintfCommand("Email address {0} verified", Arrays.asList("${subject}"));
+    private static final SprintfCommand emailAddressVerified = new SprintfCommand("Email address {0} verified", Arrays.asList("${subject"));
 
-    private static final SprintfCommand domainVerified = new SprintfCommand("Domain {0} verified", Arrays.asList("${subject}"));
+    private static final SprintfCommand domainVerified = new SprintfCommand("Domain {0} verified", Arrays.asList("${subject"));
 
     private class VerificationForm extends Form {
 

@@ -65,9 +65,9 @@ public class AuthorizationContext implements Outputable, Serializable {
         return getSupporterTicketId() != null && isInGroup(Group.SUPPORTER);
     }
 
-    private static final SprintfCommand sp = new SprintfCommand("Logged in as {0} via {1}.", Arrays.asList("${username}", "${loginMethod}"));
+    private static final SprintfCommand sp = new SprintfCommand("Logged in as {0} via {1}.", Arrays.asList("${username", "${loginMethod"));
 
-    private static final SprintfCommand inner = new SprintfCommand("{0} (on behalf of {1})", Arrays.asList("${user}", "${target}"));
+    private static final SprintfCommand inner = new SprintfCommand("{0} (on behalf of {1})", Arrays.asList("${user", "${target"));
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
