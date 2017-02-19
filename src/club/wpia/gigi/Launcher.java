@@ -61,6 +61,7 @@ import club.wpia.gigi.natives.SetUID;
 import club.wpia.gigi.util.CipherInfo;
 import club.wpia.gigi.util.PEM;
 import club.wpia.gigi.util.ServerConstants;
+import club.wpia.gigi.util.ServerConstants.Host;
 
 public class Launcher {
 
@@ -246,13 +247,13 @@ public class Launcher {
                             if (sniServerName instanceof SNIHostName) {
                                 SNIHostName host = (SNIHostName) sniServerName;
                                 String hostname = host.getAsciiName();
-                                if (hostname.equals(ServerConstants.getWwwHostName())) {
+                                if (hostname.equals(ServerConstants.getHostName(Host.WWW))) {
                                     e2 = sslContextFactory.newSSLEngine();
-                                } else if (hostname.equals(ServerConstants.getStaticHostName())) {
+                                } else if (hostname.equals(ServerConstants.getHostName(Host.STATIC))) {
                                     e2 = staticContextFactory.newSSLEngine();
-                                } else if (hostname.equals(ServerConstants.getSecureHostName())) {
+                                } else if (hostname.equals(ServerConstants.getHostName(Host.SECURE))) {
                                     e2 = secureContextFactory.newSSLEngine();
-                                } else if (hostname.equals(ServerConstants.getApiHostName())) {
+                                } else if (hostname.equals(ServerConstants.getHostName(Host.API))) {
                                     e2 = apiContextFactory.newSSLEngine();
                                 }
                                 break;
@@ -319,11 +320,11 @@ public class Launcher {
 
             ContextHandler ch = generateGigiServletContext(webAppServlet);
             ch.setVirtualHosts(new String[] {
-                    ServerConstants.getWwwHostName()
+                    ServerConstants.getHostName(Host.WWW)
             });
             ContextHandler chSecure = generateGigiServletContext(webAppServlet);
             chSecure.setVirtualHosts(new String[] {
-                    ServerConstants.getSecureHostName()
+                    ServerConstants.getHostName(Host.SECURE)
             });
 
             HandlerList hl = new HandlerList();
@@ -365,7 +366,7 @@ public class Launcher {
             ContextHandler ch = new ContextHandler();
             ch.setHandler(rh);
             ch.setVirtualHosts(new String[] {
-                    ServerConstants.getStaticHostName()
+                    ServerConstants.getHostName(Host.STATIC)
             });
 
             return ch;
@@ -388,7 +389,7 @@ public class Launcher {
             ServletContextHandler sch = new ServletContextHandler();
 
             sch.addVirtualHosts(new String[] {
-                    ServerConstants.getApiHostName()
+                    ServerConstants.getHostName(Host.API)
             });
             sch.addServlet(new ServletHolder(new GigiAPI()), "/*");
             return sch;

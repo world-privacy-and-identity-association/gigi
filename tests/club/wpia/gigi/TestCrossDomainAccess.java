@@ -21,26 +21,27 @@ import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.testUtils.IOUtils;
 import club.wpia.gigi.testUtils.ManagedTest;
 import club.wpia.gigi.util.ServerConstants;
+import club.wpia.gigi.util.ServerConstants.Host;
 
 public class TestCrossDomainAccess extends ManagedTest {
 
     @Test
     public void testNoOriginHeader() throws MalformedURLException, IOException {
-        URLConnection con = new URL("https://" + ServerConstants.getWwwHostNamePortSecure() + "/login").openConnection();
+        URLConnection con = new URL("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + "/login").openConnection();
         assertTrue( !IOUtils.readURL(con).contains("No cross domain access allowed."));
     }
 
     @Test
     public void testCorrectOriginHeaderFromHttpsToHttps() throws MalformedURLException, IOException {
-        URLConnection con = new URL("https://" + ServerConstants.getWwwHostNamePortSecure() + "/login").openConnection();
-        con.setRequestProperty("Origin", "https://" + ServerConstants.getWwwHostNamePortSecure());
+        URLConnection con = new URL("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + "/login").openConnection();
+        con.setRequestProperty("Origin", "https://" + ServerConstants.getHostNamePortSecure(Host.WWW));
         assertTrue( !IOUtils.readURL(con).contains("No cross domain access allowed."));
     }
 
     @Test
     public void testCorrectOriginHeaderFromHttpToHttps() throws MalformedURLException, IOException {
-        URLConnection con = new URL("https://" + ServerConstants.getWwwHostNamePortSecure() + "/login").openConnection();
-        con.setRequestProperty("Origin", "http://" + ServerConstants.getWwwHostNamePort());
+        URLConnection con = new URL("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + "/login").openConnection();
+        con.setRequestProperty("Origin", "http://" + ServerConstants.getHostNamePort(Host.WWW));
         assertTrue( !IOUtils.readURL(con).contains("No cross domain access allowed."));
     }
 
@@ -54,23 +55,23 @@ public class TestCrossDomainAccess extends ManagedTest {
         c.setLoginEnabled(true);
         await(c.issue(null, "2y", u));
 
-        URLConnection con = new URL("https://" + ServerConstants.getSecureHostNamePortSecure()).openConnection();
+        URLConnection con = new URL("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE)).openConnection();
         authenticateClientCert(pk, c.cert(), (HttpURLConnection) con);
-        con.setRequestProperty("Origin", "https://" + ServerConstants.getWwwHostNamePortSecure());
+        con.setRequestProperty("Origin", "https://" + ServerConstants.getHostNamePortSecure(Host.WWW));
         String contains = IOUtils.readURL(con);
         assertTrue( !contains.contains("No cross domain access allowed."));
     }
 
     @Test
     public void testCorrectOriginHeaderFromHttpsToHttp() throws MalformedURLException, IOException {
-        URLConnection con = new URL("http://" + ServerConstants.getWwwHostNamePort()).openConnection();
-        con.setRequestProperty("Origin", "https://" + ServerConstants.getWwwHostNamePortSecure());
+        URLConnection con = new URL("http://" + ServerConstants.getHostNamePort(Host.WWW)).openConnection();
+        con.setRequestProperty("Origin", "https://" + ServerConstants.getHostNamePortSecure(Host.WWW));
         assertTrue( !IOUtils.readURL(con).contains("No cross domain access allowed."));
     }
 
     @Test
     public void testIncorrectOriginHeader() throws MalformedURLException, IOException {
-        HttpURLConnection con = (HttpURLConnection) new URL("https://" + ServerConstants.getWwwHostNamePortSecure() + "/login").openConnection();
+        HttpURLConnection con = (HttpURLConnection) new URL("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + "/login").openConnection();
         con.setRequestProperty("Origin", "https://evilpageandatleastnotcacert.com");
         assertTrue(IOUtils.readURL(con).contains("No cross domain access allowed."));
     }

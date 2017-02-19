@@ -1,16 +1,58 @@
 package club.wpia.gigi.util;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class ServerConstants {
 
-    private static String wwwHostName = "www.wpia.local";
+    public enum Host {
+        /**
+         * Serves the main application. Both via HTTP and HTTPS.
+         */
+        WWW("www"),
+        /**
+         * Serves static resource like css, js, for modal dialogs on
+         * delete-operations and similar things.
+         */
+        STATIC("static"),
+        /**
+         * Serves the same content as {@link #WWW}, but requires
+         * authentification via client certificate.
+         */
+        SECURE("secure"),
+        /**
+         * Serves the API for issuing certificates, receiving Quiz results.
+         */
+        API("api"),
+        /**
+         * Hosts a link-redirector (not served by Gigi) for external links from
+         * Gigi.
+         */
+        LINK("link"),
+        /**
+         * Hosts the certificate repository for the certificates generated
+         * during NRE. Also not served by Gigi.
+         */
+        CRT_REPO("g2.crt");
 
-    private static String secureHostName = "secure.wpia.local";
+        private final String value;
 
-    private static String staticHostName = "static.wpia.local";
+        private Host(String value) {
+            this.value = value;
+        }
 
-    private static String apiHostName = "api.wpia.local";
+        public String getConfigName() {
+            return value;
+        }
+
+        public String getHostDefaultPrefix() {
+            return value;
+        }
+    }
+
+    private static Map<Host, String> hostnames;
 
     private static String securePort, port, secureBindPort, bindPort;
 
@@ -26,60 +68,25 @@ public class ServerConstants {
         }
         secureBindPort = conf.getProperty("https.bindPort", conf.getProperty("https.port"));
         bindPort = conf.getProperty("http.bindPort", conf.getProperty("http.port"));
-        wwwHostName = conf.getProperty("name.www");
-        secureHostName = conf.getProperty("name.secure");
-        staticHostName = conf.getProperty("name.static");
-        apiHostName = conf.getProperty("name.api");
-        suffix = conf.getProperty("name.suffix", conf.getProperty("name.www").substring(4));
 
+        suffix = conf.getProperty("name.suffix", conf.getProperty("name.www", "www.wpia.local").substring(4));
+        HashMap<Host, String> hostnames = new HashMap<>();
+        for (Host h : Host.values()) {
+            hostnames.put(h, conf.getProperty("name." + h.getConfigName(), h.getHostDefaultPrefix() + "." + suffix));
+        }
+        ServerConstants.hostnames = Collections.unmodifiableMap(hostnames);
     }
 
-    public static String getSecureHostName() {
-        return secureHostName;
+    public static String getHostName(Host h) {
+        return hostnames.get(h);
     }
 
-    public static String getStaticHostName() {
-        return staticHostName;
+    public static String getHostNamePortSecure(Host h) {
+        return hostnames.get(h) + securePort;
     }
 
-    public static String getWwwHostName() {
-        return wwwHostName;
-    }
-
-    public static String getApiHostName() {
-        return apiHostName;
-    }
-
-    public static String getSecureHostNamePortSecure() {
-        return secureHostName + securePort;
-    }
-
-    public static String getStaticHostNamePortSecure() {
-        return staticHostName + securePort;
-    }
-
-    public static String getWwwHostNamePortSecure() {
-        return wwwHostName + securePort;
-    }
-
-    public static String getStaticHostNamePort() {
-        return staticHostName + port;
-    }
-
-    public static String getWwwHostNamePort() {
-        return wwwHostName + port;
-    }
-
-    public static String getApiHostNamePort() {
-        return apiHostName + securePort;
-    }
-
-    public static String getLinkHostNamePort() {
-        return "link." + getSuffix() + port;
-    }
-
-    public static String getLinkHostNamePortSecure() {
-        return "link." + getSuffix() + securePort;
+    public static String getHostNamePort(Host h) {
+        return hostnames.get(h) + port;
     }
 
     public static int getSecurePort() {

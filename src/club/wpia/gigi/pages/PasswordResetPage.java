@@ -20,6 +20,7 @@ import club.wpia.gigi.output.template.TranslateCommand;
 import club.wpia.gigi.util.AuthorizationContext;
 import club.wpia.gigi.util.RandomToken;
 import club.wpia.gigi.util.ServerConstants;
+import club.wpia.gigi.util.ServerConstants.Host;
 
 public class PasswordResetPage extends Page {
 
@@ -121,7 +122,7 @@ public class PasswordResetPage extends Page {
             HashMap<String, Object> vars = new HashMap<>();
             vars.put("subject", subject);
             vars.put("method", method);
-            vars.put("link", "https://" + ServerConstants.getWwwHostNamePortSecure() + PasswordResetPage.PATH //
+            vars.put("link", "https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + PasswordResetPage.PATH //
                     + "?id=" + id + "&token=" + URLEncoder.encode(ptok, "UTF-8"));
             vars.put("hour_max", HOUR_MAX);
 

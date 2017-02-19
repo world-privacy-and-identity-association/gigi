@@ -77,6 +77,7 @@ import club.wpia.gigi.util.AuthorizationContext;
 import club.wpia.gigi.util.DomainAssessment;
 import club.wpia.gigi.util.PasswordHash;
 import club.wpia.gigi.util.ServerConstants;
+import club.wpia.gigi.util.ServerConstants.Host;
 import club.wpia.gigi.util.TimeConditions;
 
 public final class Gigi extends HttpServlet {
@@ -122,14 +123,14 @@ public final class Gigi extends HttpServlet {
             putPage("/denied", new AccessDenied(), null);
             putPage("/error", new PageNotFound(), null);
             putPage("/login", new LoginPage(), null);
-            getMenu("SomeCA.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getWwwHostNamePort() + "/login", "Password Login") {
+            getMenu("SomeCA.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getHostNamePort(Host.WWW) + "/login", "Password Login") {
 
                 @Override
                 public boolean isPermitted(AuthorizationContext ac) {
                     return ac == null;
                 }
             });
-            getMenu("SomeCA.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getSecureHostNamePortSecure() + "/login", "Certificate Login") {
+            getMenu("SomeCA.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + "/login", "Certificate Login") {
 
                 @Override
                 public boolean isPermitted(AuthorizationContext ac) {
@@ -317,9 +318,9 @@ public final class Gigi extends HttpServlet {
 
     }
 
-    private static String staticTemplateVar = "//" + ServerConstants.getStaticHostNamePort();
+    private static String staticTemplateVar = "//" + ServerConstants.getHostNamePort(Host.STATIC);
 
-    private static String staticTemplateVarSecure = "//" + ServerConstants.getStaticHostNamePortSecure();
+    private static String staticTemplateVarSecure = "//" + ServerConstants.getHostNamePortSecure(Host.STATIC);
 
     @Override
     protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
@@ -343,9 +344,9 @@ public final class Gigi extends HttpServlet {
         // it always
         String originHeader = req.getHeader("Origin");
         if (originHeader != null //
-                && !(originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getWwwHostNamePortSecure()) + "(/.*|)") || //
-                        originHeader.matches("^" + Pattern.quote("http://" + ServerConstants.getWwwHostNamePort()) + "(/.*|)") || //
-                        originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getSecureHostNamePortSecure()) + "(/.*|)"))) {
+                && !(originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getHostNamePortSecure(Host.WWW)) + "(/.*|)") || //
+                        originHeader.matches("^" + Pattern.quote("http://" + ServerConstants.getHostNamePort(Host.WWW)) + "(/.*|)") || //
+                        originHeader.matches("^" + Pattern.quote("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE)) + "(/.*|)"))) {
             resp.setContentType("text/html; charset=utf-8");
             resp.getWriter().println("<html><head><title>Alert</title></head><body>No cross domain access allowed.<br/><b>If you don't know why you're seeing this you may have been fished! Please change your password immediately!</b></body></html>");
             return;
@@ -372,7 +373,7 @@ public final class Gigi extends HttpServlet {
 
         if (p != null) {
             if ( !isSecure && (p.needsLogin() || p instanceof LoginPage || p instanceof RegisterPage)) {
-                resp.sendRedirect("https://" + ServerConstants.getWwwHostNamePortSecure() + req.getPathInfo());
+                resp.sendRedirect("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + req.getPathInfo());
                 return;
             }
             AuthorizationContext currentAuthContext = LoginPage.getAuthorizationContext(req);
@@ -427,9 +428,9 @@ public final class Gigi extends HttpServlet {
             vars.put("year", Calendar.getInstance().get(Calendar.YEAR));
             vars.put("content", content);
             if (isSecure) {
-                req.setAttribute(LINK_HOST, ServerConstants.getLinkHostNamePortSecure());
+                req.setAttribute(LINK_HOST, ServerConstants.getHostNamePortSecure(Host.LINK));
             } else {
-                req.setAttribute(LINK_HOST, ServerConstants.getLinkHostNamePort());
+                req.setAttribute(LINK_HOST, ServerConstants.getHostNamePort(Host.LINK));
             }
             if (currentAuthContext != null) {
                 // TODO maybe move this information into the AuthContext object
@@ -446,7 +447,7 @@ public final class Gigi extends HttpServlet {
     }
 
     public static void addXSSHeaders(HttpServletResponse hsr, boolean doHttps) {
-        hsr.addHeader("Access-Control-Allow-Origin", "https://" + ServerConstants.getWwwHostNamePortSecure() + " https://" + ServerConstants.getSecureHostNamePortSecure());
+        hsr.addHeader("Access-Control-Allow-Origin", "https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + " https://" + ServerConstants.getHostNamePortSecure(Host.SECURE));
         hsr.addHeader("Access-Control-Max-Age", "60");
         if (doHttps) {
             hsr.addHeader("Content-Security-Policy", httpsCSP);
@@ -464,12 +465,12 @@ public final class Gigi extends HttpServlet {
     private static String genHttpsCSP() {
         StringBuffer csp = new StringBuffer();
         csp.append("default-src 'none'");
-        csp.append(";font-src https://" + ServerConstants.getStaticHostNamePortSecure());
-        csp.append(";img-src https://" + ServerConstants.getStaticHostNamePortSecure());
+        csp.append(";font-src https://" + ServerConstants.getHostNamePortSecure(Host.STATIC));
+        csp.append(";img-src https://" + ServerConstants.getHostNamePortSecure(Host.STATIC));
         csp.append(";media-src 'none'; object-src 'none'");
-        csp.append(";script-src https://" + ServerConstants.getStaticHostNamePortSecure());
-        csp.append(";style-src https://" + ServerConstants.getStaticHostNamePortSecure());
-        csp.append(";form-action https://" + ServerConstants.getSecureHostNamePortSecure() + " https://" + ServerConstants.getWwwHostNamePortSecure());
+        csp.append(";script-src https://" + ServerConstants.getHostNamePortSecure(Host.STATIC));
+        csp.append(";style-src https://" + ServerConstants.getHostNamePortSecure(Host.STATIC));
+        csp.append(";form-action https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + " https://" + ServerConstants.getHostNamePortSecure(Host.WWW));
         // csp.append(";report-url https://api.wpia.club/security/csp/report");
         return csp.toString();
     }
@@ -477,12 +478,12 @@ public final class Gigi extends HttpServlet {
     private static String genHttpCSP() {
         StringBuffer csp = new StringBuffer();
         csp.append("default-src 'none'");
-        csp.append(";font-src http://" + ServerConstants.getStaticHostNamePort());
-        csp.append(";img-src http://" + ServerConstants.getStaticHostNamePort());
+        csp.append(";font-src http://" + ServerConstants.getHostNamePort(Host.STATIC));
+        csp.append(";img-src http://" + ServerConstants.getHostNamePort(Host.STATIC));
         csp.append(";media-src 'none'; object-src 'none'");
-        csp.append(";script-src http://" + ServerConstants.getStaticHostNamePort());
-        csp.append(";style-src http://" + ServerConstants.getStaticHostNamePort());
-        csp.append(";form-action https://" + ServerConstants.getSecureHostNamePortSecure() + " https://" + ServerConstants.getWwwHostNamePort());
+        csp.append(";script-src http://" + ServerConstants.getHostNamePort(Host.STATIC));
+        csp.append(";style-src http://" + ServerConstants.getHostNamePort(Host.STATIC));
+        csp.append(";form-action http://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + " http://" + ServerConstants.getHostNamePort(Host.WWW));
         // csp.append(";report-url http://api.wpia.club/security/csp/report");
         return csp.toString();
     }

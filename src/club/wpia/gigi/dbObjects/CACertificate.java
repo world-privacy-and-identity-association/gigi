@@ -16,6 +16,7 @@ import javax.security.auth.x500.X500Principal;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.GigiResultSet;
 import club.wpia.gigi.util.ServerConstants;
+import club.wpia.gigi.util.ServerConstants.Host;
 
 public class CACertificate implements IdCachable {
 
@@ -128,10 +129,10 @@ public class CACertificate implements IdCachable {
                         String link;
                         String keyname = names.get(subj);
                         if ( !keyname.contains("_")) {
-                            link = "https://g2.crt." + ServerConstants.getSuffix() + "/g2/" + keyname + ".crt";
+                            link = "https://" + ServerConstants.getHostNamePortSecure(Host.CRT_REPO) + "/g2/" + keyname + ".crt";
                         } else {
                             String[] parts = keyname.split("_");
-                            link = "https://g2.crt." + ServerConstants.getSuffix() + "/g2/" + parts[1] + "/" + parts[0] + "-" + parts[2] + ".crt";
+                            link = "https://" + ServerConstants.getHostNamePortSecure(Host.CRT_REPO) + "/g2/" + parts[1] + "/" + parts[0] + "-" + parts[2] + ".crt";
 
                         }
                         try (GigiPreparedStatement q2 = new GigiPreparedStatement("INSERT INTO `cacerts` SET `parentRoot`=?, `keyname`=?, `link`=?")) {

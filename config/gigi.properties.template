@@ -1,8 +1,5 @@
 host=127.0.0.1
-name.static=static.wpia.local
-name.secure=secure.wpia.local
-name.www=www.wpia.local
-name.api=api.wpia.local
+name.suffix=wpia.local
 
 https.port=443
 http.port=80

@@ -26,6 +26,7 @@ import club.wpia.gigi.util.PasswordHash;
 import club.wpia.gigi.util.RateLimit;
 import club.wpia.gigi.util.RateLimit.RateLimitException;
 import club.wpia.gigi.util.ServerConstants;
+import club.wpia.gigi.util.ServerConstants.Host;
 
 public class LoginPage extends Page {
 
@@ -61,7 +62,7 @@ public class LoginPage extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        if (req.getHeader("Host").equals(ServerConstants.getSecureHostNamePortSecure())) {
+        if (req.getHeader("Host").equals(ServerConstants.getHostNamePortSecure(Host.SECURE))) {
             resp.getWriter().println(getLanguage(req).getTranslation("Authentication with certificate failed. Try another certificate or use a password."));
         } else {
             new LoginForm(req).output(resp.getWriter(), getLanguage(req), getDefaultVars(req));

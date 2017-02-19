@@ -41,6 +41,7 @@ import club.wpia.gigi.pages.account.certs.CertificateRequest;
 import club.wpia.gigi.pages.main.RegisterPage;
 import club.wpia.gigi.util.AuthorizationContext;
 import club.wpia.gigi.util.ServerConstants;
+import club.wpia.gigi.util.ServerConstants.Host;
 
 public class DevelLauncher {
 
@@ -83,7 +84,7 @@ public class DevelLauncher {
                 }
                 try {
                     if ( !ticketUsed) {
-                        Desktop.getDesktop().browse(new URL("http://" + ServerConstants.getWwwHostNamePort() + "/ticketWait").toURI());
+                        Desktop.getDesktop().browse(new URL("http://" + ServerConstants.getHostNamePort(Host.WWW) + "/ticketWait").toURI());
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

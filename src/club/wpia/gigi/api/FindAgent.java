@@ -17,6 +17,7 @@ import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.email.EmailProvider;
 import club.wpia.gigi.pages.account.FindAgentAccess;
 import club.wpia.gigi.util.ServerConstants;
+import club.wpia.gigi.util.ServerConstants.Host;
 
 public class FindAgent extends APIPoint {
 
@@ -66,7 +67,7 @@ public class FindAgent extends APIPoint {
             if ( !us.isInGroup(Group.LOCATE_AGENT)) {
                 resp.setStatus(501);
                 resp.setContentType("text/plain; charset=UTF-8");
-                resp.getWriter().println("https://" + ServerConstants.getSecureHostNamePortSecure() + FindAgentAccess.PATH);
+                resp.getWriter().println("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + FindAgentAccess.PATH);
                 return;
             }
             resp.setContentType("text/plain; charset=UTF-8");

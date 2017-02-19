@@ -21,6 +21,7 @@ import club.wpia.gigi.pages.admin.support.SupportUserDetailsPage;
 import club.wpia.gigi.testUtils.ClientTest;
 import club.wpia.gigi.testUtils.IOUtils;
 import club.wpia.gigi.util.ServerConstants;
+import club.wpia.gigi.util.ServerConstants.Host;
 
 public class TestSEAdminPageUserDomainSearch extends ClientTest {
 
@@ -49,13 +50,13 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
     public void testDomainSearch() throws MalformedURLException, UnsupportedEncodingException, IOException, GigiApiException {
         URLConnection uc = post(FindUserByDomainPage.PATH, "process&domain=" + URLEncoder.encode(domainName, "UTF-8"));
 
-        assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + tid + "/", uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + SupportUserDetailsPage.PATH + tid + "/", uc.getHeaderField("Location"));
     }
 
     @Test
     public void testDomainSearchById() throws MalformedURLException, UnsupportedEncodingException, IOException, GigiApiException {
         URLConnection uc = post(FindUserByDomainPage.PATH, "process&domain=#" + d.getId());
-        assertEquals("https://" + ServerConstants.getWwwHostNamePortSecure() + SupportUserDetailsPage.PATH + tid + "/", uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + SupportUserDetailsPage.PATH + tid + "/", uc.getHeaderField("Location"));
     }
 
     @Test

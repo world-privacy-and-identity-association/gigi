@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
+import club.wpia.gigi.dbObjects.Certificate.SubjectAlternateName;
 import club.wpia.gigi.dbObjects.CertificateProfile;
 import club.wpia.gigi.dbObjects.Domain;
 import club.wpia.gigi.dbObjects.Organisation;
 import club.wpia.gigi.dbObjects.User;
-import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
-import club.wpia.gigi.dbObjects.Certificate.SubjectAlternateName;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.CertificateValiditySelector;
 import club.wpia.gigi.output.HashAlgorithms;
@@ -28,6 +28,7 @@ import club.wpia.gigi.util.AuthorizationContext;
 import club.wpia.gigi.util.HTMLEncoder;
 import club.wpia.gigi.util.RandomToken;
 import club.wpia.gigi.util.ServerConstants;
+import club.wpia.gigi.util.ServerConstants.Host;
 
 /**
  * This class represents a form that is used for issuing certificates. This
@@ -169,7 +170,7 @@ public class CertificateIssueForm extends Form {
             @Override
             public void output(PrintWriter out, Language l, Map<String, Object> vars) {
                 out.print("<code>");
-                out.print(HTMLEncoder.encodeHTML("https://" + ServerConstants.getSecureHostNamePortSecure()));
+                out.print(HTMLEncoder.encodeHTML("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE)));
                 out.print("</code>");
             }
         });
