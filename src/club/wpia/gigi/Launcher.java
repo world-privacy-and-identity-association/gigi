@@ -338,7 +338,7 @@ public class Launcher {
             final ResourceHandler rh = generateResourceHandler();
             rh.setResourceBase("static/www");
 
-            HandlerWrapper hw = new PolicyRedirector();
+            HandlerWrapper hw = new HandlerWrapper();
             hw.setHandler(rh);
 
             ServletContextHandler servlet = new ServletContextHandler(ServletContextHandler.SESSIONS);
