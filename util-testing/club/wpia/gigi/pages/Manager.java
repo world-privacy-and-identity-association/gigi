@@ -27,12 +27,16 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import sun.security.x509.X509Key;
 import club.wpia.gigi.Gigi;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.crypto.SPKAC;
 import club.wpia.gigi.database.GigiPreparedStatement;
+import club.wpia.gigi.dbObjects.Assurance.AssuranceType;
 import club.wpia.gigi.dbObjects.CATS;
+import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.dbObjects.CertificateOwner;
 import club.wpia.gigi.dbObjects.Country;
 import club.wpia.gigi.dbObjects.Digest;
@@ -41,24 +45,20 @@ import club.wpia.gigi.dbObjects.DomainPingType;
 import club.wpia.gigi.dbObjects.EmailAddress;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.NamePart;
-import club.wpia.gigi.dbObjects.User;
-import club.wpia.gigi.dbObjects.Assurance.AssuranceType;
-import club.wpia.gigi.dbObjects.CATS.CATSType;
-import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.dbObjects.NamePart.NamePartType;
+import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.email.DelegateMailProvider;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.IterableDataset;
 import club.wpia.gigi.output.template.Template;
-import club.wpia.gigi.pages.Page;
 import club.wpia.gigi.pages.account.certs.CertificateRequest;
 import club.wpia.gigi.ping.DomainPinger;
 import club.wpia.gigi.ping.PingerDaemon;
 import club.wpia.gigi.util.AuthorizationContext;
 import club.wpia.gigi.util.DayDate;
+import club.wpia.gigi.util.HTMLEncoder;
 import club.wpia.gigi.util.Notary;
 import club.wpia.gigi.util.TimeConditions;
-import sun.security.x509.X509Key;
 
 public class Manager extends Page {
 
@@ -428,12 +428,12 @@ public class Manager extends Page {
             String dom = req.getParameter("exemptDom");
             pingExempt.add(dom);
             resp.getWriter().println("Updated domains exempt from pings. Current set: <br/>");
-            resp.getWriter().println(pingExempt);
+            resp.getWriter().println(HTMLEncoder.encodeHTML(pingExempt.toString()));
         } else if (req.getParameter("delExDom") != null) {
             String dom = req.getParameter("exemptDom");
             pingExempt.remove(dom);
             resp.getWriter().println("Updated domains exempt from pings. Current set: <br/>");
-            resp.getWriter().println(pingExempt);
+            resp.getWriter().println(HTMLEncoder.encodeHTML(pingExempt.toString()));
         }
     }
 
