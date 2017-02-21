@@ -437,6 +437,7 @@ public final class Gigi extends HttpServlet {
             } else {
                 req.setAttribute(LINK_HOST, ServerConstants.getHostNamePort(Host.LINK));
             }
+            vars.put(Gigi.LINK_HOST, req.getAttribute(Gigi.LINK_HOST));
             if (currentAuthContext != null) {
                 // TODO maybe move this information into the AuthContext object
                 vars.put("loginMethod", req.getSession().getAttribute(LOGIN_METHOD));

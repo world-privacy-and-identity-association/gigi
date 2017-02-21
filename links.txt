@@ -13,3 +13,5 @@
 /ttp/country
 /acceptableDocuments
 /blog
+/imprint
+/dataPrivacy
