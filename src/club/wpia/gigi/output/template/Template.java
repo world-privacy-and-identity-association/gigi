@@ -322,7 +322,7 @@ public class Template implements Outputable {
         public void merge(ParseContext other) {
             line = other.line;
             column = other.column;
-            parseException.append(other.parseException);
+            append(other);
         }
 
         public void append(ParseContext other) {
