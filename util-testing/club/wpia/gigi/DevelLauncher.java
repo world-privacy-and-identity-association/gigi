@@ -94,7 +94,7 @@ public class DevelLauncher {
             }
         }.start();
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
-        System.out.println("Cacert-gigi system sucessfully started.");
+        System.out.println("Gigi system sucessfully started.");
         System.out.println("Press enter to shutdown.");
         br.readLine();
         System.exit(0);

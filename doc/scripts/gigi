@@ -35,7 +35,7 @@ case "$command" in
     start) runGigiClass Launcher ;;
     debug) runGigiClass Launcher "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000" ;;
     start-daemon)
-        exec 3</etc/cacert/gigi/conf.tar || die 'open config'
+        exec 3</etc/gigi/conf.tar || die 'open config'
         exec 4>>/var/log/wpia-gigi.log || die 'open log'
         runGigiClass Launcher <&3 >&4 2>&1 &
         echo $! > /var/run/wpia-gigi.pid
@@ -56,7 +56,7 @@ Usage: gigi COMMAND [ARGUMENT...]
 Commands:
     start - start gigi
     debug - start gigi in debug mode (on port 8000, with config from stdin)
-    start-daemon - start gigi in background (using config from /etc/cacert/gig/config.tar)
+    start-daemon - start gigi in background (using config from /etc/gig/config.tar)
     signer - start the simple signer
     signer-conf - extract config for simple signer (and reset-database) from the tar from stdin
     reset-database - reset the database

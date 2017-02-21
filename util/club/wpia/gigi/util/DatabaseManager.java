@@ -36,7 +36,7 @@ public class DatabaseManager {
             };
         }
         if (args.length < 4) {
-            System.err.println("Usage: com.mysql.jdbc.Driver jdbc:mysql://localhost/cacert user password");
+            System.err.println("Usage: org.postgresql.Driver jdbc:postgresql://localhost/gigi user password");
             return;
         }
         run(args, test ? ImportType.TEST : ImportType.PRODUCTION);
