@@ -425,12 +425,12 @@ public class Manager extends Page {
             }
 
         } else if (req.getParameter("addExDom") != null) {
-            String dom = req.getParameter("exemtDom");
+            String dom = req.getParameter("exemptDom");
             pingExempt.add(dom);
             resp.getWriter().println("Updated domains exempt from pings. Current set: <br/>");
             resp.getWriter().println(pingExempt);
         } else if (req.getParameter("delExDom") != null) {
-            String dom = req.getParameter("exemtDom");
+            String dom = req.getParameter("exemptDom");
             pingExempt.remove(dom);
             resp.getWriter().println("Updated domains exempt from pings. Current set: <br/>");
             resp.getWriter().println(pingExempt);
