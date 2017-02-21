@@ -11,3 +11,4 @@
 /wiki/verificationHandbook
 /ttp/user
 /ttp/country
+/acceptableDocuments

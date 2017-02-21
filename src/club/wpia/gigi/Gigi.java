@@ -69,9 +69,9 @@ import club.wpia.gigi.pages.main.RegisterPage;
 import club.wpia.gigi.pages.orga.CreateOrgPage;
 import club.wpia.gigi.pages.orga.ViewOrgPage;
 import club.wpia.gigi.pages.statistics.StatisticsRoles;
-import club.wpia.gigi.pages.wot.VerifyPage;
 import club.wpia.gigi.pages.wot.Points;
 import club.wpia.gigi.pages.wot.RequestTTPPage;
+import club.wpia.gigi.pages.wot.VerifyPage;
 import club.wpia.gigi.ping.PingerDaemon;
 import club.wpia.gigi.util.AuthorizationContext;
 import club.wpia.gigi.util.DomainAssessment;
@@ -151,9 +151,9 @@ public final class Gigi extends HttpServlet {
             putPage(DomainOverview.PATH, new DomainOverview(), "Certificates");
             putPage(EditDomain.PATH + "*", new EditDomain(), null);
 
-            putPage(VerifyPage.PATH + "/*", new VerifyPage(), "Web of Trust");
-            putPage(Points.PATH, new Points(false), "Web of Trust");
-            putPage(RequestTTPPage.PATH, new RequestTTPPage(), "Web of Trust");
+            putPage(VerifyPage.PATH + "/*", new VerifyPage(), "Verification");
+            putPage(Points.PATH, new Points(false), "Verification");
+            putPage(RequestTTPPage.PATH, new RequestTTPPage(), "Verification");
 
             putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
             putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Organisation Admin");
@@ -190,7 +190,7 @@ public final class Gigi extends HttpServlet {
             }
 
             try {
-                putPage("/wot/rules", new StaticPage("Web of Trust Rules", VerifyPage.class.getResourceAsStream("Rules.templ")), "Web of Trust");
+                putPage("/wot/rules", new StaticPage("Verification Rules", VerifyPage.class.getResourceAsStream("Rules.templ")), "Verification");
             } catch (UnsupportedEncodingException e) {
                 throw new ServletException(e);
             }
