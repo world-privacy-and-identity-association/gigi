@@ -60,7 +60,7 @@ public class TestSPKAC {
         pkg.initialize(1024);
         KeyPair kp = pkg.generateKeyPair();
 
-        SPKAC s = new SPKAC((X509Key) kp.getPublic(), "this is a even bigger challange");
+        SPKAC s = new SPKAC((X509Key) kp.getPublic(), "this is a even bigger challenge");
         Signature sign = Signature.getInstance("SHA512withRSA");
         sign.initSign(kp.getPrivate());
 

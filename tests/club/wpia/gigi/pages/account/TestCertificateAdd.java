@@ -289,7 +289,7 @@ public class TestCertificateAdd extends ClientTest {
         return uc;
     }
 
-    protected String testSPKAC(boolean correctChallange) throws GeneralSecurityException, IOException {
+    protected String testSPKAC(boolean correctChallenge) throws GeneralSecurityException, IOException {
         HttpURLConnection uc = (HttpURLConnection) ncert.openConnection();
         uc.setRequestProperty("Cookie", cookie);
         String s = IOUtils.readURL(uc);
@@ -297,13 +297,13 @@ public class TestCertificateAdd extends ClientTest {
         csrf = extractPattern(s, Pattern.compile("<input [^>]*name='csrf' [^>]*value='([^']*)'>"));
         String challenge = extractPattern(s, Pattern.compile("<keygen [^>]*name=\"SPKAC\" [^>]*challenge=\"([^\"]*)\"/>"));
 
-        SPKAC spk = new SPKAC((X509Key) kp.getPublic(), challenge + (correctChallange ? "" : "b"));
+        SPKAC spk = new SPKAC((X509Key) kp.getPublic(), challenge + (correctChallenge ? "" : "b"));
         Signature sign = Signature.getInstance("SHA512WithRSA");
         sign.initSign(kp.getPrivate());
         try {
             String[] res = fillOutFormDirect("SPKAC=" + URLEncoder.encode(Base64.getEncoder().encodeToString(spk.getEncoded(sign)), "UTF-8"));
-            if ( !correctChallange) {
-                fail("Should not succeed with wrong challange.");
+            if ( !correctChallenge) {
+                fail("Should not succeed with wrong challenge.");
             }
             assertArrayEquals(new String[] {
                     "client", CertificateRequest.DEFAULT_CN, "", Digest.SHA512.toString()

@@ -73,9 +73,9 @@ public class SPKAC {
         return pubkey;
     }
 
-    public SPKAC(X509Key pubkey, String challange) {
+    public SPKAC(X509Key pubkey, String challenge) {
         this.pubkey = pubkey;
-        challenge = challange;
+        this.challenge = challenge;
     }
 
     public byte[] getEncoded(Signature sign) throws GeneralSecurityException, IOException {
