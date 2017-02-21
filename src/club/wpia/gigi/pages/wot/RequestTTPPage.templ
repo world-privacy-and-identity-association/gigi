@@ -1,30 +1,30 @@
 <h3><?=_Trusted Third Parties?></h3>
 
-<p><?=_The Trusted Third Party (TTP) programme is intended to be used in areas without many SomeCA RA Agents.?></p>
+<p><?=_The Trusted Third Party (TTP) programme is intended to be used in areas without many ${appName} RA Agents.?></p>
 
 <p><?=_A Trusted Third Party (TTP) is simply someone in your country that is responsible for witnessing signatures and ID documents. This role is covered by many different titles such as public notary, justice of the peace and so on.?></p>
 
 <p><?=_With the TTP programme you can potentially gain verification up to a maximum of 100 verification points.?></p>
 
-<p><?=_Currently SomeCA has only developed the TTP programme to the level that you can gain 70 verification points by TTP verification.?></p>
+<p><?=_Currently ${appName} has only developed the TTP programme to the level that you can gain 70 verification points by TTP verification.?></p>
 
 <p><?=_We are working to develop a process that will fill the gap of the missing 30 verification points to allow you to get the maximum 100 verification points.?> </p>
 
-<p><?=_In the meanwhile you would need to close this gap with face to face verifications with SomeCA RA Agents. Think not only travelling to populated countries, but also remember that RA Agents may occasionally visit your country or area.?></p>
+<p><?=_In the meanwhile you would need to close this gap with face to face verifications with ${appName} RA Agents. Think not only travelling to populated countries, but also remember that RA Agents may occasionally visit your country or area.?></p>
 
 <p><?=_If you are interested in the TTP programme, read !(/ttp/user)the pages!'</a>' for the basic way how the TTP programme works for you, and !(/ttp/country)here!'</a>' whether the TTP programme affects the country where you are located.?> </p>
 
 <? if($ttp) { ?>
-<p><?=_If you want to ask for TTP verifications fill out the missing data to start the process. SomeCA will then inform you about the next steps.?></p>
+<p><?=_If you want to ask for TTP verifications fill out the missing data to start the process. ${appName} will then inform you about the next steps.?></p>
 <?=$form?>
 <? } ?>
 
 <? if($topup) { ?>
-<p><?=_As you have already got 2 TTP verifications you can only take part in the TTP TOPUP programme. If you want to ask for the TTP TOPUP programme use the submit button to start the process. SomeCA will then inform you about the next steps.?></p>
+<p><?=_As you have already got 2 TTP verifications you can only take part in the TTP TOPUP programme. If you want to ask for the TTP TOPUP programme use the submit button to start the process. ${appName} will then inform you about the next steps.?></p>
 <form method="post" action="ttp">
 	<input type="submit" name="ttptopup" value="<?=_I need a TTP TOPUP?>">
 </form>
-<p><?=_We are working to develop the TTP TOPUP process to be able to fill the gap of the missing 30 verification points to 100 verification points. Meanwhile you have to close this gap with face to face verification from SomeCA RA Agent. Think not only traveling to populated countries, but as well to RA Agent visiting your country or area.?></p>  
+<p><?=_We are working to develop the TTP TOPUP process to be able to fill the gap of the missing 30 verification points to 100 verification points. Meanwhile you have to close this gap with face to face verification from ${appName} RA Agent. Think not only traveling to populated countries, but as well to RA Agent visiting your country or area.?></p>  
 <? } ?>
 
 <? if($nothing) { ?>

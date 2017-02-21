@@ -15,6 +15,7 @@ public class MailProbe {
     public static void sendMailProbe(Language l, String type, int id, String hash, String address) throws IOException {
         HashMap<String, Object> vars = new HashMap<>();
         vars.put("link", "https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + "/verify?type=" + type + "&id=" + id + "&hash=" + hash);
+        vars.put("appName", ServerConstants.getAppName());
         mailProbe.sendMail(l, vars, address);
     }
 

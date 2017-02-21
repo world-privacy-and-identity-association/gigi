@@ -6,8 +6,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import club.wpia.gigi.dbObjects.Verification;
 import club.wpia.gigi.dbObjects.User;
+import club.wpia.gigi.dbObjects.Verification;
 import club.wpia.gigi.output.template.Form;
 import club.wpia.gigi.pages.LoginPage;
 import club.wpia.gigi.pages.Page;

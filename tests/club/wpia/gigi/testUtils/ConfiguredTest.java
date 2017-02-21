@@ -117,6 +117,8 @@ public abstract class ConfiguredTest {
         mainProps.setProperty("name.static", testProps.getProperty("name.static"));
         mainProps.setProperty("name.api", testProps.getProperty("name.api"));
 
+        mainProps.setProperty("appName", "SomeCA");
+
         mainProps.setProperty("https.port", testProps.getProperty("serverPort.https"));
         mainProps.setProperty("http.port", testProps.getProperty("serverPort.http"));
 

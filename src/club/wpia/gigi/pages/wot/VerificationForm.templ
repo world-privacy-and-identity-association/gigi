@@ -3,7 +3,7 @@
 <tr><th colspan="2"><?=_Verification Confirmation?></th></tr>
 </thead>
 <tbody>
-<tr><td colspan="2"><?=_Please check the following details match against what you witnessed when you met ${name} in person. You MUST NOT proceed unless you are sure the details are correct. You may be held responsible by the SomeCA Arbitrator for any issues with this Verification.?>
+<tr><td colspan="2"><?=_Please check the following details match against what you witnessed when you met ${name} in person. You MUST NOT proceed unless you are sure the details are correct. You may be held responsible by the ${appName} Arbitrator for any issues with this Verification.?>
 </td></tr>
 <? foreach($names) { ?>
 	<tr>
@@ -35,7 +35,7 @@
 	</tr>
 	<tr>
 		<td><input type="checkbox" name="assertion" value="1" required></td>
-		<td><?=_I believe that the assertion of identity I am making is correct, complete and verifiable. I have seen original documentation attesting to this identity. I accept that the SomeCA Arbitrator may call upon me to provide evidence in any dispute, and I may be held responsible.?></td>
+		<td><?=_I believe that the assertion of identity I am making is correct, complete and verifiable. I have seen original documentation attesting to this identity. I accept that the ${appName} Arbitrator may call upon me to provide evidence in any dispute, and I may be held responsible.?></td>
 	</tr>
 	<tr>
 		<td><input type="checkbox" name="rules" value="1" required></td>

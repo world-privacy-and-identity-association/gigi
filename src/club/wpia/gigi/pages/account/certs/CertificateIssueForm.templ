@@ -1,9 +1,9 @@
-<h3><?=_SomeCA Acceptable Use Policy?></h3>
-<p><?=_I hereby represent that I am fully authorized by the owner of the information contained in the CSR sent to SomeCA to apply for an Digital Certificate for secure and authenticated electronic transactions. I understand that a digital certificate serves to identify the Subscriber for the purposes of electronic communication and that the management of the private keys associated with such certificates is the responsibility of the subscriber's technical staff and/or contractors.?></p>
+<h3><?=_${appName} Acceptable Use Policy?></h3>
+<p><?=_I hereby represent that I am fully authorized by the owner of the information contained in the CSR sent to ${appName} to apply for an Digital Certificate for secure and authenticated electronic transactions. I understand that a digital certificate serves to identify the Subscriber for the purposes of electronic communication and that the management of the private keys associated with such certificates is the responsibility of the subscriber's technical staff and/or contractors.?></p>
 
-<p><?=_SomeCA's public certification services are governed by a CPS as amended from time to time which is incorporated into this Agreement by reference. The Subscriber will use the SSL Server Certificate in accordance with SomeCA Inc.'s CPS and supporting documentation published !(/policy/CPS)here!'</a>'.?></p>
+<p><?=_${appName}'s public certification services are governed by a CPS as amended from time to time which is incorporated into this Agreement by reference. The Subscriber will use the SSL Server Certificate in accordance with SomeCA Inc.'s CPS and supporting documentation published !(/policy/CPS)here!'</a>'.?></p>
 
-<p><?=_If the Subscriber's name and/or domain name registration change the subscriber will immediately inform SomeCA Inc. who shall revoke the digital certificate. When the Digital Certificate expires or is revoked the company will permanently remove the certificate from the server on which it is installed and will not use it for any purpose thereafter. The person responsible for key management and security is fully authorized to install and utilize the certificate to represent this organization's electronic presence.?></p>
+<p><?=_If the Subscriber's name and/or domain name registration change the subscriber will immediately inform ${appName} Inc. who shall revoke the digital certificate. When the Digital Certificate expires or is revoked the company will permanently remove the certificate from the server on which it is installed and will not use it for any purpose thereafter. The person responsible for key management and security is fully authorized to install and utilize the certificate to represent this organization's electronic presence.?></p>
 <span id="placeholderName" class="js-hint"><?=$placeholderName?></span>
 <? if($defaultName) { ?>
 <span id="defaultName" class="js-hint"><?=$defaultName?></span>
@@ -39,7 +39,7 @@
     </td>
     <td>
       <input class="form-control" type='text' id='CN' name='CN' value='<?=$CN?>'/>
-      <?=_For a client certificate you need to enter a name with at least 50 VP or 'SomeCA user' will be used.?><br />
+      <?=_For a client certificate you need to enter a name with at least 50 VP or '${appName} User' will be used.?><br />
       <?=_For a server certificate leave this field blank.?>
     </td>
   </tr>

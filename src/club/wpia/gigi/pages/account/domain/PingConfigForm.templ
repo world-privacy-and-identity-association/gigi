@@ -27,7 +27,7 @@
 <div class="panel panel-info panel-activatable">
   <div class="panel-heading"><input type="checkbox" name="SSLType" value="y"<?=$!ssl?>> <?=_Verify by searching for installed certificate.?></div>
   <div class="panel-body">
-    <?=_Please list up to four services using your certificate. You need to have one of them up and using a valid SomeCA certificate or a specific self-signed certificate in order to pass this test?>:
+    <?=_Please list up to four services using your certificate. You need to have one of them up and using a valid ${appName} certificate or a specific self-signed certificate in order to pass this test?>:
     <?=_The self-signed certificate needs to contain your domain as CN and ${tokenValue} as organization unit.?> <?=_You can use these commands to create such a certificate:?>
     <code>
 openssl req -newkey rsa:4096 -subj "/CN=<span class='exampleDomain'>example.org</span>/OU=<?=$tokenValue?>" -nodes -out myCSR -keyout myKey<br>

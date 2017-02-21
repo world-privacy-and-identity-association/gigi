@@ -1,7 +1,6 @@
 package club.wpia.gigi.pages.account.domain;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,9 +41,9 @@ public class EditDomain extends ManagedMultiFormPage {
             resp.getWriter().println(getLanguage(req).getTranslation("Access denied"));
             return;
         }
-        new DomainPinglogForm(req, d).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+        new DomainPinglogForm(req, d).output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         try {
-            new PingConfigForm(req, d).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+            new PingConfigForm(req, d).output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         } catch (GigiApiException e) {
             e.format(resp.getWriter(), getLanguage(req));
         }

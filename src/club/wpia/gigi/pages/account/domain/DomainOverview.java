@@ -1,7 +1,7 @@
 package club.wpia.gigi.pages.account.domain;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +27,7 @@ public class DomainOverview extends ManagedMultiFormPage {
         CertificateOwner u = LoginPage.getAuthorizationContext(req).getTarget();
         try {
             DomainManagementForm domMan = new DomainManagementForm(req, u, false);
-            HashMap<String, Object> vars = new HashMap<>();
+            Map<String, Object> vars = getDefaultVars(req);
             vars.put("domainman", domMan);
             if (u instanceof User) {
                 DomainAddForm domAdd = new DomainAddForm(req, (User) u);

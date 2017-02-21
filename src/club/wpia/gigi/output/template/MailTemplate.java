@@ -11,12 +11,13 @@ import java.util.Map;
 
 import club.wpia.gigi.email.SendMail;
 import club.wpia.gigi.localisation.Language;
+import club.wpia.gigi.util.ServerConstants;
 
 public class MailTemplate extends Template {
 
     private static final Template FOOTER = new Template(MailTemplate.class.getResource("MailFooter.templ"));
 
-    public static final String SUBJECT_TAG = "[SomeCA] ";
+    public static final String SUBJECT_TAG = "[" + ServerConstants.getAppName() + "] ";
 
     private TemplateBlock subjectBlock;
 
@@ -63,6 +64,7 @@ public class MailTemplate extends Template {
     public void sendMail(Language l, Map<String, Object> vars, String to) throws IOException {
         tryReload();
         vars.put(Outputable.OUT_KEY_PLAIN, true);
+        vars.put("appName", ServerConstants.getAppName());
 
         String body = runTemplate(this, l, vars);
         body += runTemplate(FOOTER, l, vars);

@@ -28,6 +28,7 @@ import club.wpia.gigi.pages.Page;
 import club.wpia.gigi.pages.PasswordResetPage;
 import club.wpia.gigi.util.DayDate;
 import club.wpia.gigi.util.Notary;
+import club.wpia.gigi.util.ServerConstants;
 
 public class VerificationForm extends Form {
 
@@ -165,7 +166,7 @@ public class VerificationForm extends Form {
         }
 
         if ( !"1".equals(req.getParameter("certify")) || !"1".equals(req.getParameter("rules")) || !"1".equals(req.getParameter("assertion"))) {
-            gae.mergeInto(new GigiApiException("You failed to check all boxes to validate" + " your adherence to the rules and policies of SomeCA"));
+            gae.mergeInto(new GigiApiException(SprintfCommand.createSimple("You failed to check all boxes to validate your adherence to the rules and policies of {0}.", ServerConstants.getAppName())));
         }
         if ("1".equals(req.getParameter("passwordReset"))) {
             aword = req.getParameter("passwordResetValue");

@@ -17,22 +17,23 @@ import java.util.TreeSet;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.crypto.SPKAC;
 import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.CSRType;
+import club.wpia.gigi.dbObjects.Certificate.SANType;
+import club.wpia.gigi.dbObjects.Certificate.SubjectAlternateName;
 import club.wpia.gigi.dbObjects.CertificateOwner;
 import club.wpia.gigi.dbObjects.CertificateProfile;
+import club.wpia.gigi.dbObjects.CertificateProfile.PropertyTemplate;
 import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.Organisation;
 import club.wpia.gigi.dbObjects.User;
-import club.wpia.gigi.dbObjects.Certificate.CSRType;
-import club.wpia.gigi.dbObjects.Certificate.SANType;
-import club.wpia.gigi.dbObjects.Certificate.SubjectAlternateName;
-import club.wpia.gigi.dbObjects.CertificateProfile.PropertyTemplate;
 import club.wpia.gigi.output.template.SprintfCommand;
 import club.wpia.gigi.util.AuthorizationContext;
 import club.wpia.gigi.util.CAA;
 import club.wpia.gigi.util.DomainAssessment;
 import club.wpia.gigi.util.PEM;
 import club.wpia.gigi.util.RateLimit;
+import club.wpia.gigi.util.ServerConstants;
 import sun.security.pkcs.PKCS9Attribute;
 import sun.security.pkcs10.PKCS10;
 import sun.security.pkcs10.PKCS10Attribute;
@@ -57,7 +58,7 @@ import sun.security.x509.X500Name;
 
 public class CertificateRequest {
 
-    public static final String DEFAULT_CN = "SomeCA User";
+    public static final String DEFAULT_CN = ServerConstants.getAppName() + " User";
 
     public static final ObjectIdentifier OID_KEY_USAGE_SSL_SERVER = ObjectIdentifier.newInternal(new int[] {
             1, 3, 6, 1, 5, 5, 7, 3, 1

@@ -58,6 +58,8 @@ public class ServerConstants {
 
     private static String suffix = "wpia.local";
 
+    private static String appName = null;
+
     public static void init(Properties conf) {
         securePort = port = "";
         if ( !conf.getProperty("https.port").equals("443")) {
@@ -75,6 +77,10 @@ public class ServerConstants {
             hostnames.put(h, conf.getProperty("name." + h.getConfigName(), h.getHostDefaultPrefix() + "." + suffix));
         }
         ServerConstants.hostnames = Collections.unmodifiableMap(hostnames);
+        appName = conf.getProperty("appName");
+        if (appName == null) {
+            throw new Error("App name missing");
+        }
     }
 
     public static String getHostName(Host h) {
@@ -135,6 +141,13 @@ public class ServerConstants {
 
     public static String getQuizAdminMailAddress() {
         return "quiz-admin@" + getSuffix();
+    }
+
+    public static String getAppName() {
+        if (appName == null) {
+            throw new Error("AppName not initialized.");
+        }
+        return appName;
     }
 
 }

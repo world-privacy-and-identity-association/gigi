@@ -34,6 +34,7 @@ import club.wpia.gigi.output.SimpleMenuItem;
 import club.wpia.gigi.output.SimpleUntranslatedMenuItem;
 import club.wpia.gigi.output.template.Form.CSRFException;
 import club.wpia.gigi.output.template.Outputable;
+import club.wpia.gigi.output.template.PlainOutputable;
 import club.wpia.gigi.output.template.Template;
 import club.wpia.gigi.output.template.TranslateCommand;
 import club.wpia.gigi.pages.AboutPage;
@@ -110,11 +111,17 @@ public final class Gigi extends HttpServlet {
             return m;
         }
 
+        private Menu createMenu(Outputable name) {
+            Menu m = new Menu(name);
+            categories.add(m);
+            return m;
+        }
+
         public MenuCollector generateMenu() throws ServletException {
             putPage("/denied", new AccessDenied(), null);
             putPage("/error", new PageNotFound(), null);
             putPage("/login", new LoginPage(), null);
-            Menu mainMenu = createMenu("SomeCA.org");
+            Menu mainMenu = createMenu(new PlainOutputable(ServerConstants.getAppName()));
             mainMenu.addItem(new SimpleMenuItem("https://" + ServerConstants.getHostNamePort(Host.WWW) + "/login", "Password Login") {
 
                 @Override
@@ -436,6 +443,7 @@ public final class Gigi extends HttpServlet {
                 vars.put("authContext", currentAuthContext);
 
             }
+            vars.put("appName", ServerConstants.getAppName());
             resp.setContentType("text/html; charset=utf-8");
             baseTemplate.output(resp.getWriter(), lang, vars);
         } else {

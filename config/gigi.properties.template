@@ -18,3 +18,5 @@ time.testValidMonths=12
 time.reverificationDays=90
 time.verificationFreshMonths=39
 time.verificationMaxAgeMonths=24
+
+appName=SomeCA

@@ -12,3 +12,4 @@
 /ttp/user
 /ttp/country
 /acceptableDocuments
+/blog

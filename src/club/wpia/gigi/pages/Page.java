@@ -18,6 +18,7 @@ import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.Template;
 import club.wpia.gigi.util.AuthorizationContext;
+import club.wpia.gigi.util.ServerConstants;
 
 /**
  * This class encapsulates a sub page of Gigi. A template residing nearby this
@@ -178,6 +179,7 @@ public abstract class Page implements PermissionCheckable {
     protected Map<String, Object> getDefaultVars(HttpServletRequest req) {
         HashMap<String, Object> vars = new HashMap<String, Object>();
         vars.put(Gigi.LINK_HOST, req.getAttribute(Gigi.LINK_HOST));
+        vars.put("appName", ServerConstants.getAppName());
         return vars;
     }
 

@@ -142,7 +142,6 @@ public class CertificateIssueForm extends Form {
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
         HashMap<String, Object> vars2 = new HashMap<String, Object>(vars);
-
         StringBuffer content = new StringBuffer();
         for (SubjectAlternateName SAN : cr.getSANs()) {
             content.append(SAN.getType().toString().toLowerCase());
