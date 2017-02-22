@@ -38,7 +38,7 @@ public class AffiliationForm extends Form {
             }
         } else if (req.getParameter("do_affiliate") != null) {
             User byEmail = User.getByEmail(req.getParameter("email"));
-            if (byEmail != null && byEmail.canAssure()) {
+            if (byEmail != null && byEmail.canVerify()) {
                 o.addAdmin(byEmail, LoginPage.getUser(req), req.getParameter("master") != null);
                 return new RedirectResult(ViewOrgPage.DEFAULT_PATH + "/" + o.getId());
             } else {

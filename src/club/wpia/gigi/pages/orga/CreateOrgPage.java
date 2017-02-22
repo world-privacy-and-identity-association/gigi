@@ -12,7 +12,7 @@ import club.wpia.gigi.util.AuthorizationContext;
 
 public class CreateOrgPage extends ManagedFormPage {
 
-    public static final Group ORG_ASSURER = Group.ORGASSURER;
+    public static final Group ORG_AGENT = Group.ORGASSURER;
 
     public static final String DEFAULT_PATH = "/orga/new";
 
@@ -22,7 +22,7 @@ public class CreateOrgPage extends ManagedFormPage {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && ac.isInGroup(ORG_ASSURER);
+        return ac != null && ac.isInGroup(ORG_AGENT);
     }
 
     @Override

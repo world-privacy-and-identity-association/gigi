@@ -8,7 +8,7 @@
 <? foreach($names) { ?>
 	<tr>
 		<td><?=_Name?>: </td>
-		<td><input type="checkbox" name="assuredName" value="<?=$nameId?>"<?=$checked?>><span class="accountdetail"><?=$nameExplicit?></span></td>
+		<td><input type="checkbox" name="verifiedName" value="<?=$nameId?>"<?=$checked?>><span class="accountdetail"><?=$nameExplicit?></span></td>
 	</tr>
 <? } ?>
 	<tr>
@@ -55,7 +55,7 @@
 	</tr>
 	<tr>
 		<td><?=_Type?></td>
-		<td><select name="assuranceType"><? foreach($ats) { ?><option value="<?=$id?>"<?=$sel?>><?=$type?></option><? } ?></select></td>
+		<td><select name="verificationType"><? foreach($ats) { ?><option value="<?=$id?>"<?=$sel?>><?=$type?></option><? } ?></select></td>
 	</tr>
 	<tr>
 		<td><input type="checkbox" name="passwordReset" value="1" <? if($aword) { ?>checked<? } ?>></td>

@@ -22,7 +22,7 @@ import club.wpia.gigi.output.template.Template;
 
 public class MyDetailsForm extends Form {
 
-    private static final Template assured = new Template(MyDetails.class.getResource("MyDetailsFormAssured.templ"));
+    private static final Template verified = new Template(MyDetails.class.getResource("MyDetailsFormVerified.templ"));
 
     private static final Template templ = new Template(MyDetailsForm.class.getResource("MyDetailsForm.templ"));
 
@@ -140,7 +140,7 @@ public class MyDetailsForm extends Form {
                 }
                 vars.put("name", t);
                 vars.put("id", t.getId());
-                vars.put("npoints", Integer.toString(t.getAssurancePoints()));
+                vars.put("npoints", Integer.toString(t.getVerificationPoints()));
             }
 
         });
@@ -148,12 +148,12 @@ public class MyDetailsForm extends Form {
         names.output(out, l, vars);
 
         vars.put("residenceCountry", cs);
-        if (target.getReceivedAssurances().length == 0) {
+        if (target.getReceivedVerifications().length == 0) {
             vars.put("DoB", ds);
             templ.output(out, l, vars);
         } else {
             vars.put("DoB", target.getDoB());
-            assured.output(out, l, vars);
+            verified.output(out, l, vars);
         }
 
         final Set<Group> gr = target.getGroups();

@@ -27,7 +27,7 @@ public class TestSeparateSessionScope extends ManagedTest {
     @Test
     public void testSeparateScope() throws IOException, GeneralSecurityException, SQLException, InterruptedException, GigiApiException {
         String mail = "thisgo" + createUniqueName() + "@example.com";
-        int user = createAssuranceUser("test", "tugo", mail, TEST_PASSWORD);
+        int user = createVerificationUser("test", "tugo", mail, TEST_PASSWORD);
         String cookie = login(mail, TEST_PASSWORD);
         KeyPair kp = generateKeypair();
         String csr = generatePEMCSR(kp, "CN=hans");
@@ -49,7 +49,7 @@ public class TestSeparateSessionScope extends ManagedTest {
     @Test
     public void testSerialSteal() throws IOException, GeneralSecurityException, SQLException, InterruptedException, GigiApiException {
         String mail = "thisgo" + createUniqueName() + "@example.com";
-        int user = createAssuranceUser("test", "tugo", mail, TEST_PASSWORD);
+        int user = createVerificationUser("test", "tugo", mail, TEST_PASSWORD);
         KeyPair kp = generateKeypair();
         String csr = generatePEMCSR(kp, "CN=hans");
         User u = User.getById(user);

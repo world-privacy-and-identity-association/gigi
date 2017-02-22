@@ -95,7 +95,7 @@ public class AuthorizationContext implements Outputable, Serializable {
         }
     }
 
-    public boolean canAssure() {
-        return target instanceof User && ((User) target).canAssure();
+    public boolean canVerify() {
+        return target instanceof User && ((User) target).canVerify();
     }
 }

@@ -15,7 +15,7 @@ import club.wpia.gigi.dbObjects.Country;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.Name;
 import club.wpia.gigi.dbObjects.User;
-import club.wpia.gigi.dbObjects.Assurance.AssuranceType;
+import club.wpia.gigi.dbObjects.Verification.VerificationType;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.ArrayIterable;
 import club.wpia.gigi.output.DateSelector;
@@ -44,47 +44,47 @@ public class Notary {
         }
     }
 
-    public static boolean checkAssuranceIsPossible(User assurer, Name target) {
+    public static boolean checkVerificationIsPossible(User agent, Name target) {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `notary` where `to`=? and `from`=? and `method` = ? ::`notaryType` AND `deleted` IS NULL AND `when` > (now() - interval '1 days' * ?)")) {
             ps.setInt(1, target.getId());
-            ps.setInt(2, assurer.getId());
-            ps.setEnum(3, AssuranceType.FACE_TO_FACE);
+            ps.setInt(2, agent.getId());
+            ps.setEnum(3, VerificationType.FACE_TO_FACE);
             ps.setInt(4, LIMIT_DAYS_VERIFICATION);
             GigiResultSet rs = ps.executeQuery();
             return !rs.next();
         }
     }
 
-    public static final Group ASSURER_BLOCKED = Group.BLOCKEDASSURER;
+    public static final Group AGENT_BLOCKED = Group.BLOCKEDASSURER;
 
-    public static final Group ASSUREE_BLOCKED = Group.BLOCKEDASSUREE;
+    public static final Group APPLICANT_BLOCKED = Group.BLOCKEDASSUREE;
 
     public static final Group VERIFY_NOTIFICATION = Group.VERIFY_NOTIFICATION;
 
     /**
-     * This method assures another user.
+     * This method verifies another user.
      * 
-     * @see User#canAssure() (for assurer)
-     * @see #checkAssuranceIsPossible(User, User) (for assurer or assuree)
-     * @param assurer
-     *            the person that wants to assure
-     * @param assuree
-     *            the person that should be assured
-     * @param assureeName
+     * @see User#canVerify() (for agent)
+     * @see #checkVerificationIsPossible(User, User) (for agent or applicant)
+     * @param agent
+     *            the person that wants to verify
+     * @param applicant
+     *            the person that should be verified
+     * @param applicantName
      *            the Name that was personally verified
      * @param dob
-     *            the Date of birth that the assurer verified
+     *            the Date of birth that the agent verified
      * @param awarded
      *            the points that should be awarded in total
      * @param location
-     *            the location where the assurance took place
+     *            the location where the verification took place
      * @param date
-     *            the date when the assurance took place
+     *            the date when the verification took place
      * @throws GigiApiException
-     *             if the assurance fails (for various reasons)
+     *             if the verification fails (for various reasons)
      */
-    public synchronized static void assure(User assurer, User assuree, Name assureeName, DayDate dob, int awarded, String location, String date, AssuranceType type, Country country) throws GigiApiException {
-        may(assurer, assuree, AssuranceType.FACE_TO_FACE);
+    public synchronized static void verify(User agent, User applicant, Name applicantName, DayDate dob, int awarded, String location, String date, VerificationType type, Country country) throws GigiApiException {
+        may(agent, applicant, VerificationType.FACE_TO_FACE);
         GigiApiException gae = new GigiApiException();
         if ( !gae.isEmpty()) {
             throw gae;
@@ -120,34 +120,34 @@ public class Notary {
             gae.mergeInto(new GigiApiException("You failed to enter the country of your meeting."));
         }
 
-        synchronized (assuree) {
-            if (assurer.getId() == assuree.getId()) {
+        synchronized (applicant) {
+            if (agent.getId() == applicant.getId()) {
                 throw new GigiApiException("You cannot verify yourself.");
             }
-            if (assureeName.getOwner() != assuree) {
+            if (applicantName.getOwner() != applicant) {
                 throw new GigiApiException("Internal error, name does not belong to applicant.");
             }
-            if ( !assurer.canAssure()) {
+            if ( !agent.canVerify()) {
                 throw new GigiApiException("You are not an RA-Agent.");
             }
 
-            if ( !checkAssuranceIsPossible(assurer, assureeName)) {
+            if ( !checkVerificationIsPossible(agent, applicantName)) {
                 gae.mergeInto(new GigiApiException(SprintfCommand.createSimple("You have already verified this applicant within the last {0} days.", LIMIT_DAYS_VERIFICATION)));
             }
 
-            if ( !assuree.getDoB().equals(dob)) {
+            if ( !applicant.getDoB().equals(dob)) {
                 gae.mergeInto(new GigiApiException("The person you are verifying changed his personal details."));
             }
 
             if (awarded < 0) {
                 gae.mergeInto(new GigiApiException("The points you are trying to award are out of range."));
             } else {
-                if (type == AssuranceType.NUCLEUS) {
+                if (type == VerificationType.NUCLEUS) {
                     if (awarded > 50) {
                         gae.mergeInto(new GigiApiException("The points you are trying to award are out of range."));
                     }
                 } else {
-                    if (awarded > assurer.getMaxAssurePoints()) {
+                    if (awarded > agent.getMaxVerifyPoints()) {
                         gae.mergeInto(new GigiApiException("The points you are trying to award are out of range."));
                     }
                 }
@@ -157,24 +157,24 @@ public class Notary {
                 throw gae;
             }
 
-            if (type == AssuranceType.FACE_TO_FACE) {
-                assureF2F(assurer, assuree, assureeName, awarded, location, date, country);
-            } else if (type == AssuranceType.NUCLEUS) {
-                assureNucleus(assurer, assuree, assureeName, awarded, location, date, country);
-            } else if (type == AssuranceType.TTP_ASSISTED) {
-                assureTTP(assurer, assuree, assureeName, awarded, location, date, country);
+            if (type == VerificationType.FACE_TO_FACE) {
+                verifyF2F(agent, applicant, applicantName, awarded, location, date, country);
+            } else if (type == VerificationType.NUCLEUS) {
+                verifyNucleus(agent, applicant, applicantName, awarded, location, date, country);
+            } else if (type == VerificationType.TTP_ASSISTED) {
+                verifyTTP(agent, applicant, applicantName, awarded, location, date, country);
             } else {
                 throw new GigiApiException(SprintfCommand.createSimple("Unknown Verification type: {0}", type.toString()));
             }
-            assurer.invalidateMadeAssurances();
-            assuree.invalidateReceivedAssurances();
+            agent.invalidateMadeVerifications();
+            applicant.invalidateReceivedVerifications();
         }
     }
 
-    private static void assureF2F(User assurer, User assuree, Name name, int awarded, String location, String date, Country country) throws GigiApiException {
-        may(assurer, assuree, AssuranceType.FACE_TO_FACE);
+    private static void verifyF2F(User agent, User applicant, Name name, int awarded, String location, String date, Country country) throws GigiApiException {
+        may(agent, applicant, VerificationType.FACE_TO_FACE);
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `country`=?")) {
-            ps.setInt(1, assurer.getId());
+            ps.setInt(1, agent.getId());
             ps.setInt(2, name.getId());
             ps.setInt(3, awarded);
             ps.setString(4, location);
@@ -184,62 +184,62 @@ public class Notary {
         }
     }
 
-    private static void assureTTP(User assurer, User assuree, Name name, int awarded, String location, String date, Country country) throws GigiApiException {
-        may(assurer, assuree, AssuranceType.TTP_ASSISTED);
+    private static void verifyTTP(User agent, User applicant, Name name, int awarded, String location, String date, Country country) throws GigiApiException {
+        may(agent, applicant, VerificationType.TTP_ASSISTED);
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `country`=?, `method`='TTP-Assisted'")) {
-            ps.setInt(1, assurer.getId());
+            ps.setInt(1, agent.getId());
             ps.setInt(2, name.getId());
             ps.setInt(3, awarded);
             ps.setString(4, location);
             ps.setString(5, date);
             ps.setString(6, country.getCode());
             ps.execute();
-            assuree.revokeGroup(assurer, Group.TTP_APPLICANT);
+            applicant.revokeGroup(agent, Group.TTP_APPLICANT);
         }
     }
 
-    public static void may(User assurer, User assuree, AssuranceType t) throws GigiApiException {
-        if (assuree.isInGroup(ASSUREE_BLOCKED)) {
+    public static void may(User agent, User applicant, VerificationType t) throws GigiApiException {
+        if (applicant.isInGroup(APPLICANT_BLOCKED)) {
             throw new GigiApiException("The applicant is blocked.");
         }
-        if (assurer.isInGroup(ASSURER_BLOCKED)) {
+        if (agent.isInGroup(AGENT_BLOCKED)) {
             throw new GigiApiException("The RA Agent is blocked.");
         }
 
-        if (t == AssuranceType.NUCLEUS) {
-            if ( !assurer.isInGroup(Group.NUCLEUS_ASSURER)) {
+        if (t == VerificationType.NUCLEUS) {
+            if ( !agent.isInGroup(Group.NUCLEUS_ASSURER)) {
                 throw new GigiApiException("RA Agent needs to be Nucleus RA Agent.");
             }
             return;
-        } else if (t == AssuranceType.TTP_ASSISTED) {
-            if ( !assurer.isInGroup(Group.TTP_ASSURER)) {
+        } else if (t == VerificationType.TTP_ASSISTED) {
+            if ( !agent.isInGroup(Group.TTP_ASSURER)) {
                 throw new GigiApiException("RA Agent needs to be TTP RA Agent.");
             }
-            if ( !assuree.isInGroup(Group.TTP_APPLICANT)) {
+            if ( !applicant.isInGroup(Group.TTP_APPLICANT)) {
                 throw new GigiApiException("Applicant needs to be TTP Applicant.");
             }
             return;
-        } else if (t == AssuranceType.FACE_TO_FACE) {
+        } else if (t == VerificationType.FACE_TO_FACE) {
             return;
         }
         throw new GigiApiException("Verification type not possible.");
     }
 
-    private static void assureNucleus(User assurer, User assuree, Name name, int awarded, String location, String date, Country country) throws GigiApiException {
-        may(assurer, assuree, AssuranceType.NUCLEUS);
+    private static void verifyNucleus(User agent, User applicant, Name name, int awarded, String location, String date, Country country) throws GigiApiException {
+        may(agent, applicant, VerificationType.NUCLEUS);
         // Do up to 35 points as f2f
-        int f2fPoints = Math.min(assurer.getMaxAssurePoints(), awarded);
-        assureF2F(assurer, assuree, name, f2fPoints, location, date, country);
+        int f2fPoints = Math.min(agent.getMaxVerifyPoints(), awarded);
+        verifyF2F(agent, applicant, name, f2fPoints, location, date, country);
 
         awarded -= f2fPoints;
         if (awarded <= 0) {
             return;
         }
 
-        // Assure remaining points as "Nucleus Bonus"
+        // Verify remaining points as "Nucleus Bonus"
         // Valid for 4 Weeks = 28 days
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `country`=?, `method`='Nucleus Bonus', `expire` = CURRENT_TIMESTAMP + interval '28 days'")) {
-            ps.setInt(1, assurer.getId());
+            ps.setInt(1, agent.getId());
             ps.setInt(2, name.getId());
             ps.setInt(3, awarded);
             ps.setString(4, location);
@@ -249,20 +249,20 @@ public class Notary {
         }
     }
 
-    public synchronized static void assureAll(User assurer, User assuree, DayDate dob, int awarded, String location, String date, AssuranceType type, Name[] toAssure, Country country) throws GigiApiException {
-        if (toAssure.length == 0) {
+    public synchronized static void verifyAll(User agent, User applicant, DayDate dob, int awarded, String location, String date, VerificationType type, Name[] toVerify, Country country) throws GigiApiException {
+        if (toVerify.length == 0) {
             throw new GigiApiException("You must confirm at least one name to verify an account.");
         }
-        boolean[] hadLessThan50Points = new boolean[toAssure.length];
-        boolean hadTotalLessThan100 = assuree.getAssurancePoints() < 100;
-        for (int i = 0; i < toAssure.length; i++) {
-            hadLessThan50Points[i] = toAssure[i].getAssurancePoints() < 50;
+        boolean[] hadLessThan50Points = new boolean[toVerify.length];
+        boolean hadTotalLessThan100 = applicant.getVerificationPoints() < 100;
+        for (int i = 0; i < toVerify.length; i++) {
+            hadLessThan50Points[i] = toVerify[i].getVerificationPoints() < 50;
 
-            assure(assurer, assuree, toAssure[i], dob, awarded, location, date, type, country);
+            verify(agent, applicant, toVerify[i], dob, awarded, location, date, type, country);
         }
-        sendVerificationNotificationApplicant(assurer, assuree, toAssure, awarded, hadLessThan50Points, hadTotalLessThan100);
-        if (assurer.isInGroup(VERIFY_NOTIFICATION)) {
-            sendVerificationNotificationAgent(assurer, assuree, toAssure, awarded, location, date, country);
+        sendVerificationNotificationApplicant(agent, applicant, toVerify, awarded, hadLessThan50Points, hadTotalLessThan100);
+        if (agent.isInGroup(VERIFY_NOTIFICATION)) {
+            sendVerificationNotificationAgent(agent, applicant, toVerify, awarded, location, date, country);
         }
     }
 
@@ -270,14 +270,14 @@ public class Notary {
 
     private static final MailTemplate verificationAgentEntered = new MailTemplate(Notary.class.getResource("VerificationAgentEntered.templ"));
 
-    private static void sendVerificationNotificationApplicant(User assurer, User assuree, Name[] toAssure, final int awarded, final boolean[] hadLessThan50Points, boolean hadTotalLessThan100) {
+    private static void sendVerificationNotificationApplicant(User agent, User applicant, Name[] toVerify, final int awarded, final boolean[] hadLessThan50Points, boolean hadTotalLessThan100) {
         HashMap<String, Object> mailVars = new HashMap<>();
-        mailVars.put("agent", assurer.getPreferredName().toString());
-        mailVars.put("names", new ArrayIterable<Name>(toAssure) {
+        mailVars.put("agent", agent.getPreferredName().toString());
+        mailVars.put("names", new ArrayIterable<Name>(toVerify) {
 
             @Override
             public void apply(Name t, Language l, Map<String, Object> vars) {
-                int totalVP = t.getAssurancePoints();
+                int totalVP = t.getVerificationPoints();
                 vars.put("name", t.toString());
                 vars.put("points", Integer.toString(awarded));
                 vars.put("total", totalVP);
@@ -292,7 +292,7 @@ public class Notary {
 
         });
 
-        int grandTotalVP = assuree.getAssurancePoints();
+        int grandTotalVP = applicant.getVerificationPoints();
         if (grandTotalVP >= 50 && grandTotalVP < 100) {
             mailVars.put("remAll", (100 - grandTotalVP));
             mailVars.remove("gotGreaterAll");
@@ -301,7 +301,7 @@ public class Notary {
             mailVars.remove("remAll");
         }
         try {
-            verificationEntered.sendMail(Language.getInstance(assuree.getPreferredLocale()), mailVars, assuree.getEmail());
+            verificationEntered.sendMail(Language.getInstance(applicant.getPreferredLocale()), mailVars, applicant.getEmail());
         } catch (IOException e) {
             e.printStackTrace();
         }

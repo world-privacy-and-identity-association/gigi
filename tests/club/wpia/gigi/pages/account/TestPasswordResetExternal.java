@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.pages.PasswordResetPage;
-import club.wpia.gigi.pages.wot.TestAssurance;
+import club.wpia.gigi.pages.wot.TestVerification;
 import club.wpia.gigi.testUtils.ClientTest;
 import club.wpia.gigi.testUtils.IOUtils;
 import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
@@ -25,12 +25,12 @@ import club.wpia.gigi.util.RandomToken;
 public class TestPasswordResetExternal extends ClientTest {
 
     @Test
-    public void testByAssurance() throws IOException {
-        User u = User.getById(createAssuranceUser("fn", "ln", createUniqueName() + "@example.com", TEST_PASSWORD));
+    public void testByVerification() throws IOException {
+        User u = User.getById(createVerificationUser("fn", "ln", createUniqueName() + "@example.com", TEST_PASSWORD));
         String cookie2 = login(u.getEmail(), TEST_PASSWORD);
-        URLConnection uc = TestAssurance.buildupAssureFormConnection(cookie2, email, true);
+        URLConnection uc = TestVerification.buildupVerifyFormConnection(cookie2, email, true);
         String avalue = RandomToken.generateToken(32);
-        uc.getOutputStream().write(("assuredName=" + this.u.getPreferredName().getId() + "&date=" + TestAssurance.validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10&passwordReset=1&passwordResetValue=" + URLEncoder.encode(avalue, "UTF-8")).getBytes("UTF-8"));
+        uc.getOutputStream().write(("verifiedName=" + this.u.getPreferredName().getId() + "&date=" + TestVerification.validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10&passwordReset=1&passwordResetValue=" + URLEncoder.encode(avalue, "UTF-8")).getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
         assertNull(error);

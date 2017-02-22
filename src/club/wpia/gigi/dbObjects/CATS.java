@@ -11,7 +11,7 @@ import club.wpia.gigi.util.TimeConditions;
 public class CATS {
 
     public enum CATSType {
-        ASSURER_CHALLENGE("Agent Qualifying Challenge"),
+        AGENT_CHALLENGE("Agent Qualifying Challenge"),
 
         ORG_AGENT_CHALLENGE("Organisation Agent Qualifying Challenge"),
 

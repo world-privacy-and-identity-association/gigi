@@ -35,7 +35,7 @@ public class ViewOrgPage extends ManagedMultiFormPage {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && (ac.isInGroup(CreateOrgPage.ORG_ASSURER) || ac.getActor().getOrganisations(true).size() != 0);
+        return ac != null && (ac.isInGroup(CreateOrgPage.ORG_AGENT) || ac.getActor().getOrganisations(true).size() != 0);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class ViewOrgPage extends ManagedMultiFormPage {
         if (req.getParameter("do_affiliate") != null || req.getParameter("del") != null) {
             return Form.getForm(req, AffiliationForm.class);
         } else {
-            if ( !getUser(req).isInGroup(CreateOrgPage.ORG_ASSURER)) {
+            if ( !getUser(req).isInGroup(CreateOrgPage.ORG_AGENT)) {
                 return null;
             }
 
@@ -67,7 +67,7 @@ public class ViewOrgPage extends ManagedMultiFormPage {
             final Organisation[] orgList = Organisation.getOrganisations(0, 30);
             HashMap<String, Object> map = new HashMap<>();
             final List<Organisation> myOrgs = u.getOrganisations(true);
-            final boolean orgAss = u.isInGroup(CreateOrgPage.ORG_ASSURER);
+            final boolean orgAss = u.isInGroup(CreateOrgPage.ORG_AGENT);
             if (orgAss) {
                 map.put("orgas", makeOrgDataset(orgList));
             } else {
@@ -86,7 +86,7 @@ public class ViewOrgPage extends ManagedMultiFormPage {
             return;
         }
         final List<Organisation> myOrgs = u.getOrganisations();
-        final boolean orgAss = u.isInGroup(CreateOrgPage.ORG_ASSURER);
+        final boolean orgAss = u.isInGroup(CreateOrgPage.ORG_AGENT);
         if ( !orgAss && !myOrgs.contains(o)) {
             resp.sendError(404);
             return;

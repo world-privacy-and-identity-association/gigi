@@ -15,7 +15,7 @@ import club.wpia.gigi.testUtils.BusinessTest;
 import club.wpia.gigi.util.DayDate;
 import club.wpia.gigi.util.Notary;
 
-public class TestAssurance extends BusinessTest {
+public class TestVerification extends BusinessTest {
 
     private final Timestamp yesterday = new Timestamp(System.currentTimeMillis() - DayDate.MILLI_DAY);
 
@@ -45,12 +45,12 @@ public class TestAssurance extends BusinessTest {
 
     private int applicantMultID;
 
-    public TestAssurance() throws GigiApiException {
+    public TestVerification() throws GigiApiException {
 
     }
 
     // test for verification in 39 month period
-    private void enterAssurance(int agentID, int applicantID) {
+    private void enterVerification(int agentID, int applicantID) {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?")) {
             ps.setInt(1, agentID);
             ps.setInt(2, applicantID);
@@ -62,7 +62,7 @@ public class TestAssurance extends BusinessTest {
         }
     }
 
-    private void enterAssuranceExpired(int agentID, int applicantID, Timestamp expired) {
+    private void enterVerificationExpired(int agentID, int applicantID, Timestamp expired) {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `expire`=? ")) {
             ps.setInt(1, agentID);
             ps.setInt(2, applicantID);
@@ -74,7 +74,7 @@ public class TestAssurance extends BusinessTest {
         }
     }
 
-    private void enterAssuranceWhen(int agentID, int applicantID, Timestamp when) {
+    private void enterVerificationWhen(int agentID, int applicantID, Timestamp when) {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `when`=? ")) {
             ps.setInt(1, agentID);
             ps.setInt(2, applicantID);
@@ -86,7 +86,7 @@ public class TestAssurance extends BusinessTest {
         }
     }
 
-    private void enterAssuranceWhen(int agentID, int applicantID, Timestamp when, int points) {
+    private void enterVericationWhen(int agentID, int applicantID, Timestamp when, int points) {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `when`=? ")) {
             ps.setInt(1, agentID);
             ps.setInt(2, applicantID);
@@ -98,7 +98,7 @@ public class TestAssurance extends BusinessTest {
         }
     }
 
-    private void enterAssuranceDeleted(int agentID, int applicantID, Timestamp deleted) {
+    private void enterVerificationDeleted(int agentID, int applicantID, Timestamp deleted) {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `deleted`=? ")) {
             ps.setInt(1, agentID);
             ps.setInt(2, applicantID);
@@ -112,8 +112,8 @@ public class TestAssurance extends BusinessTest {
 
     @Before
     public void initTest() throws GigiApiException {
-        agentID = createAssuranceUser("a", "b", createUniqueName() + "@example.com", TEST_PASSWORD);
-        agent2ID = createAssuranceUser("a", "d", createUniqueName() + "@example.com", TEST_PASSWORD);
+        agentID = createVerificationUser("a", "b", createUniqueName() + "@example.com", TEST_PASSWORD);
+        agent2ID = createVerificationUser("a", "d", createUniqueName() + "@example.com", TEST_PASSWORD);
         applicantID = createVerifiedUser("a", "c", createUniqueName() + "@example.com", TEST_PASSWORD);
         applicant = User.getById(applicantID);
         applicantNameID = User.getById(applicantID).getPreferredName().getId();
@@ -122,112 +122,112 @@ public class TestAssurance extends BusinessTest {
 
     @Test
     public void testVerificationYesterday() throws IOException {
-        enterAssuranceWhen(agentID, applicantNameID, yesterday);
+        enterVerificationWhen(agentID, applicantNameID, yesterday);
         assertTrue(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testApprox24MonthAgo() throws IOException {
-        enterAssuranceWhen(agentID, applicantNameID, min24month);
+        enterVerificationWhen(agentID, applicantNameID, min24month);
         assertTrue(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testApprox39MonthAgo() throws IOException {
-        enterAssuranceWhen(agentID, applicantNameID, min39month);
+        enterVerificationWhen(agentID, applicantNameID, min39month);
         assertFalse(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testTomorrowExpired() throws IOException {
-        enterAssuranceExpired(agentID, applicantNameID, tomorrow);
+        enterVerificationExpired(agentID, applicantNameID, tomorrow);
         assertTrue(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testYesterdayExpired() throws IOException {
-        enterAssuranceExpired(agentID, applicantNameID, yesterday);
+        enterVerificationExpired(agentID, applicantNameID, yesterday);
         assertFalse(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testNormal() throws IOException {
-        enterAssurance(agentID, applicantNameID);
+        enterVerification(agentID, applicantNameID);
         assertTrue(applicant.isInVerificationLimit());
     }
 
     @Test
     public void testDeletedYesterday() throws IOException {
-        enterAssuranceDeleted(agentID, applicantNameID, yesterday);
+        enterVerificationDeleted(agentID, applicantNameID, yesterday);
         assertFalse(applicant.isInVerificationLimit());
     }
 
     @Test
-    public void testMultipleAssurancePossible() throws IOException {
+    public void testMultipleVerificationPossible() throws IOException {
         User agent = User.getById(agentID);
         User applicantMult = User.getById(applicantMultID);
 
-        enterAssuranceWhen(agentID, applicantMult.getPreferredName().getId(), min39month);
+        enterVerificationWhen(agentID, applicantMult.getPreferredName().getId(), min39month);
 
         // test that new entry would be possible
-        assertTrue(Notary.checkAssuranceIsPossible(agent, applicantMult.getPreferredName()));
+        assertTrue(Notary.checkVerificationIsPossible(agent, applicantMult.getPreferredName()));
 
         // enter new entry
-        enterAssuranceWhen(agentID, applicantMult.getPreferredName().getId(), yesterday);
+        enterVerificationWhen(agentID, applicantMult.getPreferredName().getId(), yesterday);
 
         // test that new entry is not possible
-        assertFalse(Notary.checkAssuranceIsPossible(agent, applicantMult.getPreferredName()));
+        assertFalse(Notary.checkVerificationIsPossible(agent, applicantMult.getPreferredName()));
 
     }
 
     @Test
-    public void testMultipleAssurancePointsCalculation() throws IOException {
+    public void testMultipleVerificationPointsCalculation() throws IOException {
 
         User agent = User.getById(agentID);
         User applicantMult = User.getById(applicantMultID);
 
-        enterAssuranceWhen(agentID, applicantMult.getPreferredName().getId(), min39month);
+        enterVerificationWhen(agentID, applicantMult.getPreferredName().getId(), min39month);
         int xPoints = agent.getExperiencePoints();
 
         // test that VP after first entry
 
-        assertEquals(applicantMult.getAssurancePoints(), 10);
+        assertEquals(applicantMult.getVerificationPoints(), 10);
 
         // enter second entry to check correct calculation with larger points
-        enterAssuranceWhen(agentID, applicantMult.getPreferredName().getId(), min24month, 20);
-        assertEquals(applicantMult.getAssurancePoints(), 20);
+        enterVericationWhen(agentID, applicantMult.getPreferredName().getId(), min24month, 20);
+        assertEquals(applicantMult.getVerificationPoints(), 20);
 
         // test correct XP calculation
         assertEquals(agent.getExperiencePoints(), xPoints);
 
         // enter third entry to check correct calculation with less points
-        enterAssuranceWhen(agentID, applicantMult.getPreferredName().getId(), yesterday, 15);
-        assertEquals(applicantMult.getAssurancePoints(), 15);
+        enterVericationWhen(agentID, applicantMult.getPreferredName().getId(), yesterday, 15);
+        assertEquals(applicantMult.getVerificationPoints(), 15);
 
         // test correct XP calculation
         assertEquals(agent.getExperiencePoints(), xPoints);
 
         // enter expired entry
-        enterAssuranceExpired(agentID, applicantMult.getPreferredName().getId(), yesterday);
-        assertEquals(applicantMult.getAssurancePoints(), 15);
+        enterVerificationExpired(agentID, applicantMult.getPreferredName().getId(), yesterday);
+        assertEquals(applicantMult.getVerificationPoints(), 15);
 
         // enter deleted entry same agent
-        enterAssuranceDeleted(agentID, applicantMult.getPreferredName().getId(), yesterday);
-        assertEquals(applicantMult.getAssurancePoints(), 15);
+        enterVerificationDeleted(agentID, applicantMult.getPreferredName().getId(), yesterday);
+        assertEquals(applicantMult.getVerificationPoints(), 15);
 
         // enter expired entry future
-        enterAssuranceExpired(agentID, applicantMult.getPreferredName().getId(), tomorrow);
-        assertEquals(applicantMult.getAssurancePoints(), 10);
+        enterVerificationExpired(agentID, applicantMult.getPreferredName().getId(), tomorrow);
+        assertEquals(applicantMult.getVerificationPoints(), 10);
 
         // test correct XP calculation
         assertEquals(agent.getExperiencePoints(), xPoints);
 
         // enter entry from different agent
-        enterAssuranceWhen(agent2ID, applicantMult.getPreferredName().getId(), yesterday);
-        assertEquals(applicantMult.getAssurancePoints(), 20);
+        enterVerificationWhen(agent2ID, applicantMult.getPreferredName().getId(), yesterday);
+        assertEquals(applicantMult.getVerificationPoints(), 20);
 
         // enter entry for second applicant
-        enterAssuranceWhen(agentID, applicant.getPreferredName().getId(), yesterday);
+        enterVerificationWhen(agentID, applicant.getPreferredName().getId(), yesterday);
 
         assertEquals(agent.getExperiencePoints(), xPoints + User.EXPERIENCE_POINTS);
     }

@@ -10,8 +10,8 @@ import java.util.Locale;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
-import club.wpia.gigi.dbObjects.Assurance;
-import club.wpia.gigi.dbObjects.Assurance.AssuranceType;
+import club.wpia.gigi.dbObjects.Verification;
+import club.wpia.gigi.dbObjects.Verification.VerificationType;
 import club.wpia.gigi.dbObjects.Country;
 import club.wpia.gigi.dbObjects.Country.CountryCodeType;
 import club.wpia.gigi.dbObjects.Domain;
@@ -50,17 +50,17 @@ public class TestUser extends BusinessTest {
     }
 
     @Test
-    public void testAssurerUtilMethods() throws SQLException, GigiApiException {
-        int id = createAssuranceUser("aä", "b", createUniqueName() + "a@email.org", TEST_PASSWORD);
+    public void testAgentUtilMethods() throws SQLException, GigiApiException {
+        int id = createVerificationUser("aä", "b", createUniqueName() + "a@email.org", TEST_PASSWORD);
 
         User u = User.getById(id);
-        assertTrue(u.canAssure());
-        int assurancePoints = u.getAssurancePoints();
+        assertTrue(u.canVerify());
+        int verificationPoints = u.getVerificationPoints();
         int expPoints = u.getExperiencePoints();
-        assertEquals(100, assurancePoints);
+        assertEquals(100, verificationPoints);
         assertEquals(User.EXPERIENCE_POINTS, expPoints);
         assertTrue(u.hasPassedCATS());
-        assertEquals(10, u.getMaxAssurePoints());
+        assertEquals(10, u.getMaxVerifyPoints());
     }
 
     @Test
@@ -111,8 +111,8 @@ public class TestUser extends BusinessTest {
 
         User[] us = new User[5];
         for (int i = 0; i < us.length; i++) {
-            us[i] = User.getById(createAssuranceUser("f", "l", createUniqueName() + "@email.com", TEST_PASSWORD));
-            Notary.assure(us[i], u, u.getPreferredName(), u.getDoB(), 10, "here", validVerificationDateString(), AssuranceType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
+            us[i] = User.getById(createVerificationUser("f", "l", createUniqueName() + "@email.com", TEST_PASSWORD));
+            Notary.verify(us[i], u, u.getPreferredName(), u.getDoB(), 10, "here", validVerificationDateString(), VerificationType.FACE_TO_FACE, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS));
         }
 
         assertTrue(u.isValidName("aä b"));
@@ -126,10 +126,10 @@ public class TestUser extends BusinessTest {
         long d = System.currentTimeMillis();
         d -= d % DayDate.MILLI_DAY;
         User u = createUser("f", "l", createUniqueName() + "@example.org", TEST_PASSWORD);
-        Assurance[] ma = u.getMadeAssurances();
-        Assurance[] ma2 = u.getMadeAssurances();
-        Assurance[] ra = u.getReceivedAssurances();
-        Assurance[] ra2 = u.getReceivedAssurances();
+        Verification[] ma = u.getMadeVerifications();
+        Verification[] ma2 = u.getMadeVerifications();
+        Verification[] ra = u.getReceivedVerifications();
+        Verification[] ra2 = u.getReceivedVerifications();
         assertEquals(0, u.getCertificates(false).length);
         assertEquals(0, ma.length);
         assertEquals(0, ma2.length);

@@ -148,9 +148,9 @@ public abstract class BusinessTest extends ConfiguredTest {
         return u;
     }
 
-    public static int createAssuranceUser(String f, String l, String mail, String pw) throws GigiApiException {
+    public static int createVerificationUser(String f, String l, String mail, String pw) throws GigiApiException {
         int u = createVerifiedUser(f, l, mail, pw);
-        makeAssurer(u);
+        makeAgent(u);
         return u;
     }
 

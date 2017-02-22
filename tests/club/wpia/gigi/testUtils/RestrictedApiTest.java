@@ -35,14 +35,14 @@ public class RestrictedApiTest extends ClientTest {
     protected static Organisation selfOrg;
 
     public RestrictedApiTest() {
-        makeAssurer(id);
+        makeAgent(id);
     }
 
     @BeforeClass
     public static void initCert() {
         initEnvironment();
         try {
-            User u = User.getById(createAssuranceUser("f", "l", createUniqueName() + "@email.com", TEST_PASSWORD));
+            User u = User.getById(createVerificationUser("f", "l", createUniqueName() + "@email.com", TEST_PASSWORD));
             grant(u, Group.ORGASSURER);
             clearCaches();
             u = User.getById(u.getId());

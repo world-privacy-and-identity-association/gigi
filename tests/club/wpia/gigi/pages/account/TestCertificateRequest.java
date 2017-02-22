@@ -23,7 +23,7 @@ public class TestCertificateRequest extends ClientTest {
 
     public TestCertificateRequest() throws GeneralSecurityException, IOException, GigiApiException {
         ac = new AuthorizationContext(u, u);
-        makeAssurer(u.getId());
+        makeAgent(u.getId());
     }
 
     @Test

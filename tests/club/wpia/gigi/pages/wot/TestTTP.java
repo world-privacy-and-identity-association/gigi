@@ -34,7 +34,7 @@ public class TestTTP extends ClientTest {
 
     @Test
     public void testTTPEnoughPoints() throws IOException, GigiApiException {
-        User u = User.getById(createAssuranceUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
+        User u = User.getById(createVerificationUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
         cookie = login(u.getEmail(), TEST_PASSWORD);
 
         String ttp = IOUtils.readURL(get(RequestTTPPage.PATH));

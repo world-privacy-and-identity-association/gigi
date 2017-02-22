@@ -84,13 +84,13 @@ public class SupportUserDetailsForm extends Form {
             @Override
             public void apply(Name t, Language l, Map<String, Object> vars) {
                 vars.put("name", t);
-                vars.put("points", Integer.toString(t.getAssurancePoints()));
+                vars.put("points", Integer.toString(t.getVerificationPoints()));
             }
 
         });
-        vars.put("assurer", user.canAssure());
+        vars.put("agent", user.canVerify());
         vars.put("dob", dobSelector);
-        vars.put("assurancepoints", user.getAssurancePoints());
+        vars.put("verificationPoints", user.getVerificationPoints());
         vars.put("exppoints", user.getExperiencePoints());
         final Set<Group> gr = user.getGroups();
         vars.put("support-groups", new GroupIterator(gr.iterator(), true));

@@ -6,14 +6,14 @@ import club.wpia.gigi.database.DBEnum;
 import club.wpia.gigi.dbObjects.wrappers.DataContainer;
 
 @DataContainer
-public class Assurance {
+public class Verification {
 
-    public enum AssuranceType implements DBEnum {
+    public enum VerificationType implements DBEnum {
         FACE_TO_FACE("Face to Face Meeting"), TOPUP("TOPUP"), TTP_ASSISTED("TTP-Assisted"), NUCLEUS("Nucleus Bonus");
 
         private final String description;
 
-        private AssuranceType(String description) {
+        private VerificationType(String description) {
             this.description = description;
         }
 
@@ -45,7 +45,7 @@ public class Assurance {
 
     private Date expireDate;
 
-    public Assurance(int id, User from, Name to, String location, String method, int points, String date, Country country, Date expireDate) {
+    public Verification(int id, User from, Name to, String location, String method, int points, String date, Country country, Date expireDate) {
         this.id = id;
         this.from = from;
         this.to = to;

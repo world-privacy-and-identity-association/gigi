@@ -69,7 +69,7 @@ import club.wpia.gigi.pages.main.RegisterPage;
 import club.wpia.gigi.pages.orga.CreateOrgPage;
 import club.wpia.gigi.pages.orga.ViewOrgPage;
 import club.wpia.gigi.pages.statistics.StatisticsRoles;
-import club.wpia.gigi.pages.wot.AssurePage;
+import club.wpia.gigi.pages.wot.VerifyPage;
 import club.wpia.gigi.pages.wot.Points;
 import club.wpia.gigi.pages.wot.RequestTTPPage;
 import club.wpia.gigi.ping.PingerDaemon;
@@ -151,7 +151,7 @@ public final class Gigi extends HttpServlet {
             putPage(DomainOverview.PATH, new DomainOverview(), "Certificates");
             putPage(EditDomain.PATH + "*", new EditDomain(), null);
 
-            putPage(AssurePage.PATH + "/*", new AssurePage(), "Web of Trust");
+            putPage(VerifyPage.PATH + "/*", new VerifyPage(), "Web of Trust");
             putPage(Points.PATH, new Points(false), "Web of Trust");
             putPage(RequestTTPPage.PATH, new RequestTTPPage(), "Web of Trust");
 
@@ -190,7 +190,7 @@ public final class Gigi extends HttpServlet {
             }
 
             try {
-                putPage("/wot/rules", new StaticPage("Web of Trust Rules", AssurePage.class.getResourceAsStream("Rules.templ")), "Web of Trust");
+                putPage("/wot/rules", new StaticPage("Web of Trust Rules", VerifyPage.class.getResourceAsStream("Rules.templ")), "Web of Trust");
             } catch (UnsupportedEncodingException e) {
                 throw new ServletException(e);
             }
@@ -274,7 +274,7 @@ public final class Gigi extends HttpServlet {
         try (Link l = DatabaseConnection.newLink(false)) {
             CACertificate.getById(1);
             CertificateProfile.getById(1);
-            CATSType.ASSURER_CHALLENGE.getDisplayName();
+            CATSType.AGENT_CHALLENGE.getDisplayName();
         } catch (InterruptedException e) {
             throw new Error(e);
         }

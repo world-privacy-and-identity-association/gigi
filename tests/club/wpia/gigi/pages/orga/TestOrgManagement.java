@@ -53,7 +53,7 @@ public class TestOrgManagement extends OrgTest {
         assertEquals("opname", orgs[0].getOptionalName());
         assertEquals("postaladdress", orgs[0].getPostalAddress());
 
-        User u2 = User.getById(createAssuranceUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
+        User u2 = User.getById(createVerificationUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
         assertNull(executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "email=" + URLEncoder.encode(u2.getEmail(), "UTF-8") + "&do_affiliate=y&master=y", 1));
         List<Affiliation> allAdmins = orgs[0].getAllAdmins();
         assertEquals(1, allAdmins.size());
@@ -84,8 +84,8 @@ public class TestOrgManagement extends OrgTest {
     }
 
     @Test
-    public void testNonAssurerSeeOnlyOwn() throws IOException, GigiApiException {
-        User u2 = User.getById(createAssuranceUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
+    public void testNonAgentSeeOnlyOwn() throws IOException, GigiApiException {
+        User u2 = User.getById(createVerificationUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
         Organisation o1 = createUniqueOrg();
         Organisation o2 = createUniqueOrg();
         o1.addAdmin(u2, u, false);
@@ -117,8 +117,8 @@ public class TestOrgManagement extends OrgTest {
 
     @Test
     public void testAffiliationRights() throws IOException, GigiApiException {
-        User u2 = User.getById(createAssuranceUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
-        User u3 = User.getById(createAssuranceUser("testmaster", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
+        User u2 = User.getById(createVerificationUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
+        User u3 = User.getById(createVerificationUser("testmaster", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
         User u4_dummy = User.getById(createVerifiedUser("testmaster", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
         Organisation o1 = createUniqueOrg();
         o1.addAdmin(u3, u, true);

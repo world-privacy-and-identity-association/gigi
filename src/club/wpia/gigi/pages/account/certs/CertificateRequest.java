@@ -111,7 +111,7 @@ public class CertificateRequest {
         this.ctx = ctx;
         if (cp != null) {
             profile = cp;
-        } else if (ctx.getActor().getAssurancePoints() > 50) {
+        } else if (ctx.getActor().getVerificationPoints() > 50) {
             profile = CertificateProfile.getByName("client-a");
         }
         byte[] data = PEM.decode("(NEW )?CERTIFICATE REQUEST", csr);
@@ -160,7 +160,7 @@ public class CertificateRequest {
                 } else if (c instanceof ExtendedKeyUsageExtension) {
                     ExtendedKeyUsageExtension ekue = (ExtendedKeyUsageExtension) c;
                     String appendix = "";
-                    if (ctx.getActor().getAssurancePoints() >= 50) {
+                    if (ctx.getActor().getVerificationPoints() >= 50) {
                         appendix = "-a";
                     }
                     for (String s : ekue.getExtendedKeyUsage()) {

@@ -11,7 +11,7 @@ import club.wpia.gigi.dbObjects.Country.CountryCodeType;
 public class OrgTest extends ClientTest {
 
     public OrgTest() throws IOException, GigiApiException {
-        makeAssurer(u.getId());
+        makeAgent(u.getId());
         u.grantGroup(getSupporter(), Group.ORGASSURER);
         clearCaches();
         cookie = login(email, TEST_PASSWORD);

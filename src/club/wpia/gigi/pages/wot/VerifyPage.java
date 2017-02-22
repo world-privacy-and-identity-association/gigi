@@ -17,15 +17,15 @@ import club.wpia.gigi.output.template.Template;
 import club.wpia.gigi.pages.Page;
 import club.wpia.gigi.util.AuthorizationContext;
 
-public class AssurePage extends Page {
+public class VerifyPage extends Page {
 
-    public static final String PATH = "/wot/assure";
+    public static final String PATH = "/wot/verify";
 
     DateSelector ds = new DateSelector("day", "month", "year");
 
-    private static final Template t = new Template(AssuranceForm.class.getResource("AssureeSearch.templ"));
+    private static final Template t = new Template(VerificationForm.class.getResource("ApplicantSearch.templ"));
 
-    public AssurePage() {
+    public VerifyPage() {
         super("Verify someone");
 
     }
@@ -41,13 +41,13 @@ public class AssurePage extends Page {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && ac.canAssure();
+        return ac != null && ac.canVerify();
     }
 
     @Override
     public boolean beforePost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (req.getParameter("search") == null) {
-            AssuranceForm form = Form.getForm(req, AssuranceForm.class);
+            VerificationForm form = Form.getForm(req, VerificationForm.class);
             return form.submitExceptionProtected(req, resp);
         }
         return super.beforePost(req, resp);
@@ -58,7 +58,7 @@ public class AssurePage extends Page {
         PrintWriter out = resp.getWriter();
         if (req.getParameter("search") == null) {
             if (Form.printFormErrors(req, out)) {
-                AssuranceForm form = Form.getForm(req, AssuranceForm.class);
+                VerificationForm form = Form.getForm(req, VerificationForm.class);
                 form.output(out, getLanguage(req), getDefaultVars(req));
             }
             return;
@@ -82,9 +82,9 @@ public class AssurePage extends Page {
                     } else if (getUser(req).getId() == id) {
 
                     } else {
-                        User assuree = User.getById(id);
+                        User applicant = User.getById(id);
                         try {
-                            new AssuranceForm(req, assuree).output(out, getLanguage(req), getDefaultVars(req));
+                            new VerificationForm(req, applicant).output(out, getLanguage(req), getDefaultVars(req));
                         } catch (GigiApiException e) {
                             e.format(out, Page.getLanguage(req));
                         }

@@ -57,7 +57,7 @@ public class ImportCATSResult extends RestrictedApiTest {
         apiImport(u2, "Test Training");
         assertEquals(1, u2.getTrainings().length);
         assertFalse(u2.hasPassedCATS());
-        apiImport(u2, CATSType.ASSURER_CHALLENGE.getDisplayName());
+        apiImport(u2, CATSType.AGENT_CHALLENGE.getDisplayName());
         assertEquals(2, u2.getTrainings().length);
         assertTrue(u2.hasPassedCATS());
 

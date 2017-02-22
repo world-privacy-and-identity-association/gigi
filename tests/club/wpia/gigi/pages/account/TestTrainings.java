@@ -22,11 +22,11 @@ public class TestTrainings extends ClientTest {
 
     @Test
     public void testShow() throws IOException, GeneralSecurityException {
-        CATS.enterResult(u, CATSType.ASSURER_CHALLENGE, new Date(System.currentTimeMillis()), "en_US", "1");
+        CATS.enterResult(u, CATSType.AGENT_CHALLENGE, new Date(System.currentTimeMillis()), "en_US", "1");
         CATS.enterResult(u, "Special Case Test", new Date(System.currentTimeMillis()), "spLan", "v23");
         String res = IOUtils.readURL(get(UserTrainings.PATH));
         assertThat(res, containsString("Special Case Test"));
-        assertThat(res, containsString(HTMLEncoder.encodeHTML(CATSType.ASSURER_CHALLENGE.getDisplayName())));
+        assertThat(res, containsString(HTMLEncoder.encodeHTML(CATSType.AGENT_CHALLENGE.getDisplayName())));
         assertThat(res, containsString("en_US, 1"));
         assertThat(res, containsString("v23"));
         assertThat(res, containsString("spLan"));

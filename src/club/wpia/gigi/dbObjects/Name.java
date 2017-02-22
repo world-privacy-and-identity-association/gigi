@@ -384,7 +384,7 @@ public class Name implements Outputable, IdCachable {
         return scheme.toAbbreviatedString();
     }
 
-    public int getAssurancePoints() {
+    public int getVerificationPoints() {
         try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT SUM(`points`) FROM (SELECT DISTINCT ON (`from`, `method`) `points` FROM `notary` WHERE `to`=? AND `deleted` IS NULL AND (`expire` IS NULL OR `expire` > CURRENT_TIMESTAMP) ORDER BY `from`, `method`, `when` DESC) AS p")) {
             query.setInt(1, getId());
 

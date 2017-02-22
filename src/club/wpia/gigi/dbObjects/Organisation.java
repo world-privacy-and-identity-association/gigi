@@ -145,7 +145,7 @@ public class Organisation extends CertificateOwner {
     }
 
     public synchronized void addAdmin(User admin, User actor, boolean master) throws GigiApiException {
-        if ( !admin.canAssure()) {
+        if ( !admin.canVerify()) {
             throw new GigiApiException("Cannot add person who is not RA Agent.");
         }
         if ( !actor.isInGroup(Group.ORGASSURER) && !isMaster(actor)) {

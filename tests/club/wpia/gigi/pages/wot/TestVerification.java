@@ -26,71 +26,69 @@ import club.wpia.gigi.dbObjects.Country;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.pages.account.MyDetails;
-import club.wpia.gigi.pages.wot.AssurePage;
-import club.wpia.gigi.pages.wot.Points;
 import club.wpia.gigi.testUtils.IOUtils;
 import club.wpia.gigi.testUtils.ManagedTest;
 import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
 import club.wpia.gigi.util.DayDate;
 import club.wpia.gigi.util.Notary;
 
-public class TestAssurance extends ManagedTest {
+public class TestVerification extends ManagedTest {
 
-    private String assurerM;
+    private String agentM;
 
-    private String assureeM;
+    private String applicantM;
 
-    private int assureeName;
+    private int applicantName;
 
     private String cookie;
 
     @Before
     public void setup() throws IOException {
         clearCaches();
-        assurerM = createUniqueName() + "@example.org";
-        assureeM = createUniqueName() + "@example.org";
+        agentM = createUniqueName() + "@example.org";
+        applicantM = createUniqueName() + "@example.org";
 
-        createAssuranceUser("a", "b", assurerM, TEST_PASSWORD);
-        int assureeId = createVerifiedUser("a", "c", assureeM, TEST_PASSWORD);
-        assureeName = User.getById(assureeId).getPreferredName().getId();
+        createVerificationUser("a", "b", agentM, TEST_PASSWORD);
+        int applicantId = createVerifiedUser("a", "c", applicantM, TEST_PASSWORD);
+        applicantName = User.getById(applicantId).getPreferredName().getId();
 
-        cookie = login(assurerM, TEST_PASSWORD);
+        cookie = login(agentM, TEST_PASSWORD);
     }
 
-    private Matcher<String> isAssuranceForm() {
-        return containsString("<select name=\"assuranceType\">");
-    }
-
-    @Test
-    public void testAssureSearch() throws IOException {
-        String loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1910");
-        assertThat(loc, isAssuranceForm());
+    private Matcher<String> isVerificationForm() {
+        return containsString("<select name=\"verificationType\">");
     }
 
     @Test
-    public void testAssureSearchEmail() throws IOException {
-        String loc = search("email=1" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1910");
-        assertThat(loc, not(isAssuranceForm()));
+    public void testVerifySearch() throws IOException {
+        String loc = search("email=" + URLEncoder.encode(applicantM, "UTF-8") + "&day=1&month=1&year=1910");
+        assertThat(loc, isVerificationForm());
     }
 
     @Test
-    public void testAssureSearchDobInvalid() throws IOException {
-        String loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=mal");
-        assertThat(loc, not(isAssuranceForm()));
+    public void testVerifySearchEmail() throws IOException {
+        String loc = search("email=1" + URLEncoder.encode(applicantM, "UTF-8") + "&day=1&month=1&year=1910");
+        assertThat(loc, not(isVerificationForm()));
     }
 
     @Test
-    public void testAssureSearchDob() throws IOException {
-        String loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=2&month=1&year=1910");
-        assertThat(loc, not(isAssuranceForm()));
-        loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=2&year=1910");
-        assertThat(loc, not(isAssuranceForm()));
-        loc = search("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1911");
-        assertThat(loc, not(isAssuranceForm()));
+    public void testVerifySearchDobInvalid() throws IOException {
+        String loc = search("email=" + URLEncoder.encode(applicantM, "UTF-8") + "&day=1&month=1&year=mal");
+        assertThat(loc, not(isVerificationForm()));
+    }
+
+    @Test
+    public void testVerifySearchDob() throws IOException {
+        String loc = search("email=" + URLEncoder.encode(applicantM, "UTF-8") + "&day=2&month=1&year=1910");
+        assertThat(loc, not(isVerificationForm()));
+        loc = search("email=" + URLEncoder.encode(applicantM, "UTF-8") + "&day=1&month=2&year=1910");
+        assertThat(loc, not(isVerificationForm()));
+        loc = search("email=" + URLEncoder.encode(applicantM, "UTF-8") + "&day=1&month=1&year=1911");
+        assertThat(loc, not(isVerificationForm()));
     }
 
     private String search(String query) throws MalformedURLException, IOException, UnsupportedEncodingException {
-        URLConnection uc = get(cookie, AssurePage.PATH);
+        URLConnection uc = get(cookie, VerifyPage.PATH);
         uc.setDoOutput(true);
         uc.getOutputStream().write(("search&" + query).getBytes("UTF-8"));
         uc.getOutputStream().flush();
@@ -99,13 +97,13 @@ public class TestAssurance extends ManagedTest {
     }
 
     @Test
-    public void testAssureForm() throws IOException {
+    public void testVerifyForm() throws IOException {
         executeSuccess("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
     }
 
     @Test
-    public void testAssureFormEmpty() throws IOException {
-        URLConnection uc = buildupAssureFormConnection(true);
+    public void testVerifyFormEmpty() throws IOException {
+        URLConnection uc = buildupVerifyFormConnection(true);
         uc.getOutputStream().write(("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&rules=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String data = IOUtils.readURL(uc);
@@ -113,9 +111,9 @@ public class TestAssurance extends ManagedTest {
     }
 
     @Test
-    public void testAssureFormContanisData() throws IOException {
-        URLConnection uc = buildupAssureFormConnection(true);
-        uc.getOutputStream().write(("assuredName=" + assureeName + "&date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&rules=1&assertion=1&points=10").getBytes("UTF-8"));
+    public void testVerifyFormContainsData() throws IOException {
+        URLConnection uc = buildupVerifyFormConnection(true);
+        uc.getOutputStream().write(("verifiedName=" + applicantName + "&date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&rules=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String data = IOUtils.readURL(uc);
         assertThat(data, containsString(validVerificationDateString()));
@@ -123,42 +121,42 @@ public class TestAssurance extends ManagedTest {
     }
 
     @Test
-    public void testAssureFormNoCSRF() throws IOException {
+    public void testVerifyFormNoCSRF() throws IOException {
         // override csrf
-        HttpURLConnection uc = (HttpURLConnection) buildupAssureFormConnection(false);
+        HttpURLConnection uc = (HttpURLConnection) buildupVerifyFormConnection(false);
         uc.getOutputStream().write(("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         assertEquals(500, uc.getResponseCode());
     }
 
     @Test
-    public void testAssureFormWrongCSRF() throws IOException {
+    public void testVerifyFormWrongCSRF() throws IOException {
         // override csrf
-        HttpURLConnection uc = (HttpURLConnection) buildupAssureFormConnection(false);
+        HttpURLConnection uc = (HttpURLConnection) buildupVerifyFormConnection(false);
         uc.getOutputStream().write(("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10&csrf=aragc").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         assertEquals(500, uc.getResponseCode());
     }
 
     @Test
-    public void testAssureFormRaceDoB() throws IOException, SQLException {
-        testAssureFormRace(false);
+    public void testVerifyFormRaceDoB() throws IOException, SQLException {
+        testVerifyFormRace(false);
     }
 
     @Test
-    public void testAssureFormRaceDoBBlind() throws IOException, SQLException {
-        testAssureFormRace(true);
+    public void testVerifyFormRaceDoBBlind() throws IOException, SQLException {
+        testVerifyFormRace(true);
     }
 
-    public void testAssureFormRace(boolean succeed) throws IOException, SQLException {
-        URLConnection uc = buildupAssureFormConnection(true);
+    public void testVerifyFormRace(boolean succeed) throws IOException, SQLException {
+        URLConnection uc = buildupVerifyFormConnection(true);
 
-        String assureeCookie = login(assureeM, TEST_PASSWORD);
+        String applicantCookie = login(applicantM, TEST_PASSWORD);
         String newDob = "day=1&month=1&year=" + ( !succeed ? 1911 : 1910);
 
-        assertNull(executeBasicWebInteraction(assureeCookie, MyDetails.PATH, newDob + "&action=updateDoB", 0));
+        assertNull(executeBasicWebInteraction(applicantCookie, MyDetails.PATH, newDob + "&action=updateDoB", 0));
 
-        uc.getOutputStream().write(("assuredName=" + assureeName + "&date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10").getBytes("UTF-8"));
+        uc.getOutputStream().write(("verifiedName=" + applicantName + "&date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
         if (succeed) {
@@ -170,14 +168,14 @@ public class TestAssurance extends ManagedTest {
     }
 
     @Test
-    public void testAssureFormFuture() throws IOException {
+    public void testVerifyFormFuture() throws IOException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
         int year = Integer.parseInt(sdf.format(new Date(System.currentTimeMillis()))) + 2;
         executeFails("date=" + year + "-01-01&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
     }
 
     @Test
-    public void testAssureFormFutureOK() throws IOException {
+    public void testVerifyFormFutureOK() throws IOException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(System.currentTimeMillis());
@@ -187,12 +185,12 @@ public class TestAssurance extends ManagedTest {
     }
 
     @Test
-    public void testAssureFormPastInRange() throws IOException {
+    public void testVerifyFormPastInRange() throws IOException {
         executeSuccess("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
     }
 
     @Test
-    public void testAssureFormPastOnLimit() throws IOException {
+    public void testVerifyFormPastOnLimit() throws IOException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(System.currentTimeMillis());
@@ -203,7 +201,7 @@ public class TestAssurance extends ManagedTest {
     }
 
     @Test
-    public void testAssureFormPastOutOfRange() throws IOException {
+    public void testVerifyFormPastOutOfRange() throws IOException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(System.currentTimeMillis());
@@ -213,30 +211,30 @@ public class TestAssurance extends ManagedTest {
     }
 
     @Test
-    public void testAssureFormNoLoc() throws IOException {
+    public void testVerifyFormNoLoc() throws IOException {
         executeFails("date=" + validVerificationDateString() + "&location=a&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
         executeFails("date=" + validVerificationDateString() + "&location=&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
     }
 
     @Test
-    public void testAssureFormInvalDate() throws IOException {
+    public void testVerifyFormInvalDate() throws IOException {
         executeFails("date=20000101&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
         executeFails("date=&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
     }
 
     @Test
-    public void testAssureFormBoxes() throws IOException {
+    public void testVerifyFormBoxes() throws IOException {
         executeFails("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=0&rules=1&assertion=1&points=10");
         executeFails("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=&assertion=1&points=10");
         executeFails("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=z&points=10");
     }
 
     @Test
-    public void testAssureListingValid() throws IOException, GigiApiException {
+    public void testVerifyListingValid() throws IOException, GigiApiException {
         String uniqueLoc = createUniqueName();
         execute("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
 
-        String cookie = login(assureeM, TEST_PASSWORD);
+        String cookie = login(applicantM, TEST_PASSWORD);
         URLConnection url = get(cookie, Points.PATH);
         String resp = IOUtils.readURL(url);
         resp = resp.split(Pattern.quote("</table>"))[1];
@@ -245,10 +243,10 @@ public class TestAssurance extends ManagedTest {
     }
 
     @Test
-    public void testAssurerListingValid() throws IOException, GigiApiException {
+    public void testAgentListingValid() throws IOException, GigiApiException {
         String uniqueLoc = createUniqueName();
         executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
-        String cookie = login(assurerM, TEST_PASSWORD);
+        String cookie = login(agentM, TEST_PASSWORD);
         URLConnection url = get(cookie, Points.PATH);
         String resp = IOUtils.readURL(url);
         resp = resp.split(Pattern.quote("</table>"))[2];
@@ -267,23 +265,23 @@ public class TestAssurance extends ManagedTest {
     }
 
     private String execute(String query) throws MalformedURLException, IOException {
-        URLConnection uc = buildupAssureFormConnection(true);
-        uc.getOutputStream().write(("assuredName=" + assureeName + "&" + query).getBytes("UTF-8"));
+        URLConnection uc = buildupVerifyFormConnection(true);
+        uc.getOutputStream().write(("verifiedName=" + applicantName + "&" + query).getBytes("UTF-8"));
         uc.getOutputStream().flush();
         return IOUtils.readURL(uc);
     }
 
-    private URLConnection buildupAssureFormConnection(boolean doCSRF) throws MalformedURLException, IOException {
-        return buildupAssureFormConnection(cookie, assureeM, doCSRF);
+    private URLConnection buildupVerifyFormConnection(boolean doCSRF) throws MalformedURLException, IOException {
+        return buildupVerifyFormConnection(cookie, applicantM, doCSRF);
     }
 
-    public static URLConnection buildupAssureFormConnection(String cookie, String email, boolean doCSRF) throws MalformedURLException, IOException {
-        URLConnection uc = get(cookie, AssurePage.PATH);
+    public static URLConnection buildupVerifyFormConnection(String cookie, String email, boolean doCSRF) throws MalformedURLException, IOException {
+        URLConnection uc = get(cookie, VerifyPage.PATH);
         uc.setDoOutput(true);
         uc.getOutputStream().write(("email=" + URLEncoder.encode(email, "UTF-8") + "&day=1&month=1&year=1910&search").getBytes("UTF-8"));
 
         String csrf = getCSRF(uc);
-        uc = get(cookie, AssurePage.PATH);
+        uc = get(cookie, VerifyPage.PATH);
         uc.setDoOutput(true);
         if (doCSRF) {
             uc.getOutputStream().write(("csrf=" + csrf + "&").getBytes("UTF-8"));
@@ -292,12 +290,12 @@ public class TestAssurance extends ManagedTest {
     }
 
     @Test
-    public void testMultipleAssurance() throws IOException {
+    public void testMultipleVerification() throws IOException {
 
-        User users[] = User.findByEmail(assurerM);
+        User users[] = User.findByEmail(agentM);
         int agentID = users[0].getId();
 
-        users = User.findByEmail(assureeM);
+        users = User.findByEmail(applicantM);
         int applicantID = users[0].getId();
 
         // enter first entry 200 days in the past
@@ -316,15 +314,15 @@ public class TestAssurance extends ManagedTest {
         executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
 
         // enter third entry on the same day
-        URLConnection uc = get(cookie, AssurePage.PATH);
+        URLConnection uc = get(cookie, VerifyPage.PATH);
         uc.setDoOutput(true);
-        uc.getOutputStream().write(("email=" + URLEncoder.encode(assureeM, "UTF-8") + "&day=1&month=1&year=1910&search").getBytes("UTF-8"));
+        uc.getOutputStream().write(("email=" + URLEncoder.encode(applicantM, "UTF-8") + "&day=1&month=1&year=1910&search").getBytes("UTF-8"));
         assertThat(IOUtils.readURL(uc), hasError());
 
     }
 
     @Test
-    public void testAssureFormNoCountry() throws IOException {
+    public void testVerifyFormNoCountry() throws IOException {
         executeFails("date=" + validVerificationDateString() + "&location=testcase&countryCode=&certify=1&rules=1&assertion=1&points=10");
     }
 
@@ -332,13 +330,13 @@ public class TestAssurance extends ManagedTest {
     public void testRANotificationSet() throws IOException, GigiApiException {
         getMailReceiver().clearMails();
 
-        User users[] = User.findByEmail(assurerM);
+        User users[] = User.findByEmail(agentM);
         assertTrue("user RA Agent not found", users != null && users.length > 0);
 
         User u = users[0];
         u.grantGroup(u, Group.VERIFY_NOTIFICATION);
         clearCaches();
-        cookie = login(assurerM, TEST_PASSWORD);
+        cookie = login(agentM, TEST_PASSWORD);
 
         String targetMail = u.getEmail();
 
@@ -350,7 +348,7 @@ public class TestAssurance extends ManagedTest {
         do {
             tm = getMailReceiver().receive();
         } while ( !tm.getTo().equals(targetMail));
-        assertThat(tm.getMessage(), containsString("You entered a verification for the account with email address " + assureeM));
+        assertThat(tm.getMessage(), containsString("You entered a verification for the account with email address " + applicantM));
 
     }
 
@@ -358,13 +356,13 @@ public class TestAssurance extends ManagedTest {
     public void testRANotificationNotSet() throws IOException, GigiApiException {
         getMailReceiver().clearMails();
 
-        User users[] = User.findByEmail(assurerM);
+        User users[] = User.findByEmail(agentM);
         assertTrue("user RA Agent not found", users != null && users.length > 0);
 
         User u = users[0];
         u.revokeGroup(u, Group.VERIFY_NOTIFICATION);
         clearCaches();
-        cookie = login(assurerM, TEST_PASSWORD);
+        cookie = login(agentM, TEST_PASSWORD);
 
         // enter verification
         String uniqueLoc = createUniqueName();
@@ -373,7 +371,7 @@ public class TestAssurance extends ManagedTest {
         TestMail tm;
 
         tm = getMailReceiver().receive();
-        assertThat(tm.getMessage(), not(containsString("You entered a verification for the account with email address " + assureeM)));
+        assertThat(tm.getMessage(), not(containsString("You entered a verification for the account with email address " + applicantM)));
 
     }
 }

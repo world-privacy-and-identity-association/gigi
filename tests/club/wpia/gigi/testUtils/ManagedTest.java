@@ -315,10 +315,10 @@ public class ManagedTest extends ConfiguredTest {
      *            the password
      * @return a new userid.
      */
-    public static int createAssuranceUser(String firstName, String lastName, String email, String password) {
+    public static int createVerificationUser(String firstName, String lastName, String email, String password) {
         int uid = createVerifiedUser(firstName, lastName, email, password);
 
-        makeAssurer(uid);
+        makeAgent(uid);
 
         return uid;
     }

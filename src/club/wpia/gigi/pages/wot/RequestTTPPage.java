@@ -6,7 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import club.wpia.gigi.dbObjects.Assurance;
+import club.wpia.gigi.dbObjects.Verification;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.output.template.Form;
 import club.wpia.gigi.pages.LoginPage;
@@ -40,10 +40,10 @@ public class RequestTTPPage extends Page {
         if (u.isInGroup(RequestTTPForm.TTP_APPLICANT)) {
             map.put("inProgress", true);
         } else {
-            if (u.getAssurancePoints() < 100) {
+            if (u.getVerificationPoints() < 100) {
                 int ttpCount = 0;
-                for (Assurance a : u.getReceivedAssurances()) {
-                    if (a.getMethod().equals(Assurance.AssuranceType.TTP_ASSISTED.getDescription())) {
+                for (Verification a : u.getReceivedVerifications()) {
+                    if (a.getMethod().equals(Verification.VerificationType.TTP_ASSISTED.getDescription())) {
                         ttpCount++;
                     }
                 }

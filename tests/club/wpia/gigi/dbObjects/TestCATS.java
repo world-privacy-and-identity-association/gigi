@@ -30,10 +30,10 @@ public class TestCATS extends ClientBusinessTest {
 
     @Test
     public void testRAChallenge() throws IOException, GeneralSecurityException {
-        CATS.enterResult(u, CATSType.ASSURER_CHALLENGE, min12month, "en_US", "1");
-        assertFalse(CATS.isInCatsLimit(id, CATSType.ASSURER_CHALLENGE.getId()));
-        CATS.enterResult(u, CATSType.ASSURER_CHALLENGE, min11month, "en_US", "1");
-        assertTrue(CATS.isInCatsLimit(id, CATSType.ASSURER_CHALLENGE.getId()));
+        CATS.enterResult(u, CATSType.AGENT_CHALLENGE, min12month, "en_US", "1");
+        assertFalse(CATS.isInCatsLimit(id, CATSType.AGENT_CHALLENGE.getId()));
+        CATS.enterResult(u, CATSType.AGENT_CHALLENGE, min11month, "en_US", "1");
+        assertTrue(CATS.isInCatsLimit(id, CATSType.AGENT_CHALLENGE.getId()));
     }
 
     @Test

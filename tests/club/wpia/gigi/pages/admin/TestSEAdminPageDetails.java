@@ -125,7 +125,7 @@ public class TestSEAdminPageDetails extends ClientTest {
 
         // enter verification and open mypoints as supporter
 
-        makeAssurer(this.id);
+        makeAgent(this.id);
         String location = createUniqueName();
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `when`=? ")) {
             ps.setInt(1, this.id);

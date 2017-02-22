@@ -17,13 +17,13 @@ public class TestOrga extends BusinessTest {
 
     @Test
     public void testAddRm() throws GigiApiException, IOException {
-        User u1 = User.getById(createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
+        User u1 = User.getById(createVerificationUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
         u1.grantGroup(getSupporter(), Group.ORGASSURER);
-        User u2 = User.getById(createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
+        User u2 = User.getById(createVerificationUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
         u2.grantGroup(getSupporter(), Group.ORGASSURER);
-        User u3 = User.getById(createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
+        User u3 = User.getById(createVerificationUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
         u3.grantGroup(getSupporter(), Group.ORGASSURER);
-        User u4 = User.getById(createAssuranceUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
+        User u4 = User.getById(createVerificationUser("fn", "ln", createUniqueName() + "@email.org", TEST_PASSWORD));
         u4.grantGroup(getSupporter(), Group.ORGASSURER);
         Organisation o1 = new Organisation("name", Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS), "prov", "city", "email", "optional name", "postal address", u1);
         assertEquals(0, o1.getAllAdmins().size());

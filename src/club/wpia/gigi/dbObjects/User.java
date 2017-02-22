@@ -14,9 +14,9 @@ import java.util.Set;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.GigiResultSet;
-import club.wpia.gigi.dbObjects.Assurance.AssuranceType;
 import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Country.CountryCodeType;
+import club.wpia.gigi.dbObjects.Verification.VerificationType;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.DateSelector;
 import club.wpia.gigi.pages.PasswordResetPage;
@@ -28,8 +28,8 @@ import club.wpia.gigi.util.PasswordStrengthChecker;
 import club.wpia.gigi.util.TimeConditions;
 
 /**
- * Represents an acting, assurable, user. Synchronizing on user means: no
- * name-change and no assurance.
+ * Represents an acting, verifiable user. Synchronizing on user means: no
+ * name-change and no verification.
  */
 public class User extends CertificateOwner {
 
@@ -39,9 +39,9 @@ public class User extends CertificateOwner {
 
     private String email;
 
-    private Assurance[] receivedAssurances;
+    private Verification[] receivedVerifications;
 
-    private Assurance[] madeAssurances;
+    private Verification[] madeVerifications;
 
     private Locale locale;
 
@@ -152,7 +152,7 @@ public class User extends CertificateOwner {
 
     public void setDoB(DayDate dob) throws GigiApiException {
         synchronized (Notary.class) {
-            if (getReceivedAssurances().length != 0) {
+            if (getReceivedVerifications().length != 0) {
                 throw new GigiApiException("No change after verification allowed.");
             }
 
@@ -205,7 +205,7 @@ public class User extends CertificateOwner {
         }
     }
 
-    public boolean canAssure() {
+    public boolean canVerify() {
         if (POJAM_ENABLED) {
             if ( !CalendarUtil.isOfAge(dob, POJAM_AGE)) { // PoJAM
                 return false;
@@ -215,7 +215,7 @@ public class User extends CertificateOwner {
                 return false;
             }
         }
-        if (getAssurancePoints() < 100) {
+        if (getVerificationPoints() < 100) {
             return false;
         }
 
@@ -226,7 +226,7 @@ public class User extends CertificateOwner {
     public boolean hasPassedCATS() {
         try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT 1 FROM `cats_passed` where `user_id`=? AND `variant_id`=?")) {
             query.setInt(1, getId());
-            query.setInt(2, CATSType.ASSURER_CHALLENGE.getId());
+            query.setInt(2, CATSType.AGENT_CHALLENGE.getId());
             try (GigiResultSet rs = query.executeQuery()) {
                 if (rs.next()) {
                     return true;
@@ -237,7 +237,7 @@ public class User extends CertificateOwner {
         }
     }
 
-    public int getAssurancePoints() {
+    public int getVerificationPoints() {
         try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT SUM(lastpoints) FROM ( SELECT DISTINCT ON (`from`, `method`) `from`, `points` as lastpoints FROM `notary` INNER JOIN `names` ON `names`.`id`=`to` WHERE `notary`.`deleted` is NULL AND (`expire` IS NULL OR `expire` > CURRENT_TIMESTAMP) AND `names`.`uid` = ? ORDER BY `from`, `method`, `when` DESC) as p")) {
             query.setInt(1, getId());
 
@@ -255,7 +255,7 @@ public class User extends CertificateOwner {
     public int getExperiencePoints() {
         try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT count(*) FROM ( SELECT `names`.`uid` FROM `notary` INNER JOIN `names` ON `names`.`id` = `to` WHERE `from`=? AND `notary`.`deleted` IS NULL AND `method` = ? ::`notaryType` GROUP BY `names`.`uid`) as p")) {
             query.setInt(1, getId());
-            query.setEnum(2, AssuranceType.FACE_TO_FACE);
+            query.setEnum(2, VerificationType.FACE_TO_FACE);
 
             GigiResultSet rs = query.executeQuery();
             int points = 0;
@@ -269,13 +269,13 @@ public class User extends CertificateOwner {
     }
 
     /**
-     * Gets the maximum allowed points NOW. Note that an assurance needs to
+     * Gets the maximum allowed points NOW. Note that a verification needs to
      * re-check PoJam as it has taken place in the past.
      * 
      * @return the maximal points @
      */
     @SuppressWarnings("unused")
-    public int getMaxAssurePoints() {
+    public int getMaxVerifyPoints() {
         if ( !CalendarUtil.isOfAge(dob, ADULT_AGE) && POJAM_ENABLED) {
             return 10; // PoJAM
         }
@@ -304,7 +304,7 @@ public class User extends CertificateOwner {
 
     public boolean isValidName(String name) {
         for (Name n : getNames()) {
-            if (n.matches(name) && n.getAssurancePoints() >= 50) {
+            if (n.matches(name) && n.getVerificationPoints() >= 50) {
                 return true;
             }
         }
@@ -349,51 +349,51 @@ public class User extends CertificateOwner {
         throw new GigiApiException("Email not one of user's email addresses.");
     }
 
-    public synchronized Assurance[] getReceivedAssurances() {
-        if (receivedAssurances == null) {
+    public synchronized Verification[] getReceivedVerifications() {
+        if (receivedVerifications == null) {
             try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT * FROM `notary` INNER JOIN `names` ON `names`.`id` = `notary`.`to` WHERE `names`.`uid`=? AND `notary`.`deleted` IS NULL ORDER BY `when` DESC")) {
                 query.setInt(1, getId());
 
                 GigiResultSet res = query.executeQuery();
-                List<Assurance> assurances = new LinkedList<Assurance>();
+                List<Verification> verifications = new LinkedList<Verification>();
 
                 while (res.next()) {
-                    assurances.add(assuranceByRes(res));
+                    verifications.add(verificationByRes(res));
                 }
 
-                this.receivedAssurances = assurances.toArray(new Assurance[0]);
+                this.receivedVerifications = verifications.toArray(new Verification[0]);
             }
         }
 
-        return receivedAssurances;
+        return receivedVerifications;
     }
 
-    public synchronized Assurance[] getMadeAssurances() {
-        if (madeAssurances == null) {
+    public synchronized Verification[] getMadeVerifications() {
+        if (madeVerifications == null) {
             try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT * FROM notary WHERE `from`=? AND deleted is NULL ORDER BY `when` DESC")) {
                 query.setInt(1, getId());
 
                 try (GigiResultSet res = query.executeQuery()) {
-                    List<Assurance> assurances = new LinkedList<Assurance>();
+                    List<Verification> verifications = new LinkedList<Verification>();
 
                     while (res.next()) {
-                        assurances.add(assuranceByRes(res));
+                        verifications.add(verificationByRes(res));
                     }
 
-                    this.madeAssurances = assurances.toArray(new Assurance[0]);
+                    this.madeVerifications = verifications.toArray(new Verification[0]);
                 }
             }
         }
 
-        return madeAssurances;
+        return madeVerifications;
     }
 
-    public synchronized void invalidateMadeAssurances() {
-        madeAssurances = null;
+    public synchronized void invalidateMadeVerifications() {
+        madeVerifications = null;
     }
 
-    public synchronized void invalidateReceivedAssurances() {
-        receivedAssurances = null;
+    public synchronized void invalidateReceivedVerifications() {
+        receivedVerifications = null;
     }
 
     private void rawUpdateUserData() {
@@ -615,9 +615,9 @@ public class User extends CertificateOwner {
         }
     }
 
-    private Assurance assuranceByRes(GigiResultSet res) {
+    private Verification verificationByRes(GigiResultSet res) {
         try {
-            return new Assurance(res.getInt("id"), User.getById(res.getInt("from")), Name.getById(res.getInt("to")), res.getString("location"), res.getString("method"), res.getInt("points"), res.getString("date"), res.getString("country") == null ? null : Country.getCountryByCode(res.getString("country"), CountryCodeType.CODE_2_CHARS), res.getTimestamp("expire"));
+            return new Verification(res.getInt("id"), User.getById(res.getInt("from")), Name.getById(res.getInt("to")), res.getString("location"), res.getString("method"), res.getInt("points"), res.getString("date"), res.getString("country") == null ? null : Country.getCountryByCode(res.getString("country"), CountryCodeType.CODE_2_CHARS), res.getTimestamp("expire"));
         } catch (GigiApiException e) {
             throw new Error(e);
         }

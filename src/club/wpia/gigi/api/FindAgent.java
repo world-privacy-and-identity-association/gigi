@@ -89,7 +89,7 @@ public class FindAgent extends APIPoint {
                 jw.value(u1.getId());
 
                 jw.key("canAssure");
-                jw.value(u1.canAssure());
+                jw.value(u1.canVerify());
 
                 jw.key("name");
                 jw.value(u1.getPreferredName().toAbbreviatedString());

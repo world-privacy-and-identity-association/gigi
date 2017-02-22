@@ -12,9 +12,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import club.wpia.gigi.GigiApiException;
-import club.wpia.gigi.dbObjects.Assurance.AssuranceType;
 import club.wpia.gigi.dbObjects.Name;
 import club.wpia.gigi.dbObjects.User;
+import club.wpia.gigi.dbObjects.Verification.VerificationType;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.ArrayIterable;
 import club.wpia.gigi.output.CountrySelector;
@@ -29,7 +29,7 @@ import club.wpia.gigi.pages.PasswordResetPage;
 import club.wpia.gigi.util.DayDate;
 import club.wpia.gigi.util.Notary;
 
-public class AssuranceForm extends Form {
+public class VerificationForm extends Form {
 
     public static class ConcatOutputable implements Outputable {
 
@@ -50,9 +50,9 @@ public class AssuranceForm extends Form {
         }
     }
 
-    private User assuree;
+    private User applicant;
 
-    private Name[] assureeNames;
+    private Name[] applicantNames;
 
     private boolean[] selected;
 
@@ -64,39 +64,39 @@ public class AssuranceForm extends Form {
 
     private String aword;
 
-    private User assurer;
+    private User agent;
 
-    private AssuranceType type = AssuranceType.FACE_TO_FACE;
+    private VerificationType type = VerificationType.FACE_TO_FACE;
 
-    private static final Template templ = new Template(AssuranceForm.class.getResource("AssuranceForm.templ"));
+    private static final Template templ = new Template(VerificationForm.class.getResource("VerificationForm.templ"));
 
     private CountrySelector cs;
 
-    public AssuranceForm(HttpServletRequest hsr, User assuree) throws GigiApiException {
+    public VerificationForm(HttpServletRequest hsr, User applicant) throws GigiApiException {
         super(hsr);
-        assurer = Page.getUser(hsr);
-        this.assuree = assuree;
+        agent = Page.getUser(hsr);
+        this.applicant = applicant;
 
-        if (assurer.getId() == assuree.getId()) {
+        if (agent.getId() == applicant.getId()) {
             throw new GigiApiException("You cannot verify yourself.");
         }
-        if ( !assurer.canAssure()) {
+        if ( !agent.canVerify()) {
             throw new GigiApiException("You are not a RA-Agent.");
         }
 
-        Name[] initialNames = this.assuree.getNonDeprecatedNames();
+        Name[] initialNames = this.applicant.getNonDeprecatedNames();
         LinkedList<Name> names = new LinkedList<>();
         for (Name name : initialNames) {
-            if (Notary.checkAssuranceIsPossible(assurer, name)) {
+            if (Notary.checkVerificationIsPossible(agent, name)) {
                 names.add(name);
             }
         }
         if (names.size() == 0) {
             throw new GigiApiException(SprintfCommand.createSimple("You have already verified all names of this applicant within the last {0} days.", Notary.LIMIT_DAYS_VERIFICATION));
         }
-        assureeNames = names.toArray(new Name[names.size()]);
-        dob = this.assuree.getDoB();
-        selected = new boolean[assureeNames.length];
+        applicantNames = names.toArray(new Name[names.size()]);
+        dob = this.applicant.getDoB();
+        selected = new boolean[applicantNames.length];
         cs = new CountrySelector("countryCode", false);
     }
 
@@ -108,7 +108,7 @@ public class AssuranceForm extends Form {
     public void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
         HashMap<String, Object> res = new HashMap<String, Object>(vars);
         res.putAll(vars);
-        res.put("names", new ArrayIterable<Name>(assureeNames) {
+        res.put("names", new ArrayIterable<Name>(applicantNames) {
 
             @Override
             public void apply(Name t, Language l, Map<String, Object> vars) {
@@ -118,33 +118,33 @@ public class AssuranceForm extends Form {
             }
 
         });
-        res.put("name", assuree.getPreferredName().toString());
-        res.put("maxpoints", assurer.getMaxAssurePoints());
-        res.put("dob", sdf.format(assuree.getDoB().toDate()));
-        res.put("dobFmt2", sdf2.format(assuree.getDoB().toDate()));
+        res.put("name", applicant.getPreferredName().toString());
+        res.put("maxpoints", agent.getMaxVerifyPoints());
+        res.put("dob", sdf.format(applicant.getDoB().toDate()));
+        res.put("dobFmt2", sdf2.format(applicant.getDoB().toDate()));
         res.put("location", location);
         res.put("date", date);
         res.put("aword", aword);
         res.put("countryCode", cs);
 
-        final LinkedList<AssuranceType> ats = new LinkedList<>();
-        for (AssuranceType at : AssuranceType.values()) {
+        final LinkedList<VerificationType> ats = new LinkedList<>();
+        for (VerificationType at : VerificationType.values()) {
             try {
-                Notary.may(assurer, assuree, at);
+                Notary.may(agent, applicant, at);
                 ats.add(at);
             } catch (GigiApiException e) {
             }
         }
         res.put("ats", new IterableDataset() {
 
-            Iterator<AssuranceType> t = ats.iterator();
+            Iterator<VerificationType> t = ats.iterator();
 
             @Override
             public boolean next(Language l, Map<String, Object> vars) {
                 if ( !t.hasNext()) {
                     return false;
                 }
-                AssuranceType t1 = t.next();
+                VerificationType t1 = t.next();
                 vars.put("type", t1.getDescription());
                 vars.put("id", t1.toString());
                 vars.put("sel", t1 == type ? " selected" : "");
@@ -175,10 +175,10 @@ public class AssuranceForm extends Form {
         } else {
             aword = null;
         }
-        String val = req.getParameter("assuranceType");
+        String val = req.getParameter("verificationType");
         if (val != null) {
             try {
-                type = AssuranceType.valueOf(val);
+                type = VerificationType.valueOf(val);
             } catch (IllegalArgumentException e) {
                 gae.mergeInto(new GigiApiException("Verification Type wrong."));
             }
@@ -195,10 +195,10 @@ public class AssuranceForm extends Form {
                 gae.mergeInto(new GigiApiException("The points entered were not a number."));
             }
         }
-        String[] parameterValues = req.getParameterValues("assuredName");
+        String[] parameterValues = req.getParameterValues("verifiedName");
         HashSet<String> data = new HashSet<>(Arrays.asList(parameterValues == null ? new String[0] : parameterValues));
-        for (int i = 0; i < assureeNames.length; i++) {
-            selected[i] = data.contains(Integer.toString(assureeNames[i].getId()));
+        for (int i = 0; i < applicantNames.length; i++) {
+            selected[i] = data.contains(Integer.toString(applicantNames[i].getId()));
         }
 
         if ( !gae.isEmpty()) {
@@ -208,20 +208,20 @@ public class AssuranceForm extends Form {
         LinkedList<Name> toAssure = new LinkedList<Name>();
         for (int i = 0; i < selected.length; i++) {
             if (selected[i]) {
-                toAssure.add(assureeNames[i]);
+                toAssure.add(applicantNames[i]);
             }
         }
         if (toAssure.size() == 0) {
             throw new GigiApiException("You must confirm at least one name to verify an account.");
         }
 
-        Notary.assureAll(assurer, assuree, dob, pointsI, location, req.getParameter("date"), type, toAssure.toArray(new Name[toAssure.size()]), cs.getCountry());
+        Notary.verifyAll(agent, applicant, dob, pointsI, location, req.getParameter("date"), type, toAssure.toArray(new Name[toAssure.size()]), cs.getCountry());
         Outputable result = new TranslateCommand("Verification complete.");
         if (isWithPasswordReset()) {
-            Language langApplicant = Language.getInstance(assuree.getPreferredLocale());
+            Language langApplicant = Language.getInstance(applicant.getPreferredLocale());
             String method = langApplicant.getTranslation("A password reset was triggered. If you did a password reset by verification, please enter your secret password using this form:");
             String subject = langApplicant.getTranslation("Password reset by verification");
-            PasswordResetPage.initPasswordResetProcess(assuree, req, aword, langApplicant, method, subject);
+            PasswordResetPage.initPasswordResetProcess(applicant, req, aword, langApplicant, method, subject);
             result = new ConcatOutputable(result, new TranslateCommand("Password reset successful."));
         }
         return new SuccessMessageResult(result);
@@ -231,8 +231,8 @@ public class AssuranceForm extends Form {
         return aword != null && !aword.equals("");
     }
 
-    public User getAssuree() {
-        return assuree;
+    public User getApplicant() {
+        return applicant;
     }
 
 }

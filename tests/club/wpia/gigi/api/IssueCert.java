@@ -73,8 +73,8 @@ public class IssueCert extends ClientTest {
     }
 
     @Test
-    public void testIssueCertAssured() throws Exception {
-        makeAssurer(id);
+    public void testIssueCertVerified() throws Exception {
+        makeAgent(id);
 
         String intendedName = "a b";
         String cert = issueCert(generatePEMCSR(kp, "EMAIL=" + email + ",CN=" + intendedName), "profile=client-a");
@@ -87,7 +87,7 @@ public class IssueCert extends ClientTest {
 
     @Test
     public void testIssueOrgCert() throws Exception {
-        makeAssurer(id);
+        makeAgent(id);
         u.grantGroup(getSupporter(), Group.ORGASSURER);
 
         Organisation o1 = new Organisation("name", Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS), "pr", "st", "test@mail", "", "", u);

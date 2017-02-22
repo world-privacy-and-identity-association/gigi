@@ -27,12 +27,10 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import sun.security.x509.X509Key;
 import club.wpia.gigi.Gigi;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.crypto.SPKAC;
 import club.wpia.gigi.database.GigiPreparedStatement;
-import club.wpia.gigi.dbObjects.Assurance.AssuranceType;
 import club.wpia.gigi.dbObjects.CATS;
 import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Certificate;
@@ -47,6 +45,7 @@ import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.NamePart;
 import club.wpia.gigi.dbObjects.NamePart.NamePartType;
 import club.wpia.gigi.dbObjects.User;
+import club.wpia.gigi.dbObjects.Verification.VerificationType;
 import club.wpia.gigi.email.DelegateMailProvider;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.IterableDataset;
@@ -59,6 +58,7 @@ import club.wpia.gigi.util.DayDate;
 import club.wpia.gigi.util.HTMLEncoder;
 import club.wpia.gigi.util.Notary;
 import club.wpia.gigi.util.TimeConditions;
+import sun.security.x509.X509Key;
 
 public class Manager extends Page {
 
@@ -110,7 +110,7 @@ public class Manager extends Page {
             return supporter;
         }
         try {
-            User u = createAssurer( -1);
+            User u = createAgent( -1);
             if ( !u.isInGroup(Group.SUPPORTER)) {
                 try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `user_groups` SET `user`=?, `permission`=?::`userGroup`, `grantedby`=?")) {
                     ps.setInt(1, u.getId());
@@ -127,29 +127,29 @@ public class Manager extends Page {
         return supporter;
     }
 
-    public User getAssurer(int i) {
-        if (assurers[i] != null) {
-            return assurers[i];
+    public User getAgent(int i) {
+        if (agents[i] != null) {
+            return agents[i];
         }
         try {
-            User u = createAssurer(i);
-            assurers[i] = u;
+            User u = createAgent(i);
+            agents[i] = u;
 
         } catch (ReflectiveOperationException | GigiApiException e) {
             e.printStackTrace();
         }
-        return assurers[i];
+        return agents[i];
     }
 
-    private User createAssurer(int i) throws GigiApiException, IllegalAccessException {
+    private User createAgent(int i) throws GigiApiException, IllegalAccessException {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `country`=?")) {
-            String mail = "test-assurer" + i + "@example.com";
+            String mail = "test-agent" + i + "@example.com";
             User u = User.getByEmail(mail);
             if (u == null) {
                 System.out.println("Creating RA-Agent");
                 createUser(mail);
                 u = User.getByEmail(mail);
-                passCATS(u, CATSType.ASSURER_CHALLENGE);
+                passCATS(u, CATSType.AGENT_CHALLENGE);
                 ps.setInt(1, u.getId());
                 ps.setInt(2, u.getPreferredName().getId());
                 ps.setInt(3, 100);
@@ -290,7 +290,7 @@ public class Manager extends Page {
         // ea.verify(hash);
     }
 
-    User[] assurers = new User[25];
+    User[] agents = new User[25];
 
     User supporter;
 
@@ -334,8 +334,8 @@ public class Manager extends Page {
             CATSType test = CATSType.values()[Integer.parseInt(testId)];
             passCATS(byEmail, test);
             resp.getWriter().println("Test '" + test.getDisplayName() + "' was added to user account.");
-        } else if (req.getParameter("assure") != null) {
-            String mail = req.getParameter("assureEmail");
+        } else if (req.getParameter("verify") != null) {
+            String mail = req.getParameter("verifyEmail");
             String verificationPoints = req.getParameter("verificationPoints");
             User byEmail = User.getByEmail(mail);
 
@@ -363,7 +363,7 @@ public class Manager extends Page {
                     if (vp < 10) {
                         currentVP = vp;
                     }
-                    Notary.assure(getAssurer(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", validVerificationDateString(), AssuranceType.FACE_TO_FACE, getRandomCountry());
+                    Notary.verify(getAgent(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", validVerificationDateString(), VerificationType.FACE_TO_FACE, getRandomCountry());
                     agentNumber += 1;
                     vp -= currentVP;
                 }
@@ -372,15 +372,15 @@ public class Manager extends Page {
                 throw new Error(e);
             }
 
-            resp.getWriter().println("User has been assured " + agentNumber + " times.");
+            resp.getWriter().println("User has been verified " + agentNumber + " times.");
 
-        } else if (req.getParameter("letassure") != null) {
-            String mail = req.getParameter("letassureEmail");
+        } else if (req.getParameter("letverify") != null) {
+            String mail = req.getParameter("letverifyEmail");
             User byEmail = User.getByEmail(mail);
             try {
                 for (int i = 0; i < 25; i++) {
-                    User a = getAssurer(i);
-                    Notary.assure(byEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", validVerificationDateString(), AssuranceType.FACE_TO_FACE, getRandomCountry());
+                    User a = getAgent(i);
+                    Notary.verify(byEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", validVerificationDateString(), VerificationType.FACE_TO_FACE, getRandomCountry());
                 }
             } catch (GigiApiException e) {
                 throw new Error(e);

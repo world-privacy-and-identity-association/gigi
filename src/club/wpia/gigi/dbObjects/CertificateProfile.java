@@ -258,11 +258,11 @@ public class CertificateProfile implements IdCachable {
         }
         for (String s : req) {
             if (s.equals("points>=50")) {
-                if (actor.getAssurancePoints() < 50) {
+                if (actor.getVerificationPoints() < 50) {
                     return false;
                 }
             } else if (s.equals("points>=100")) {
-                if (actor.getAssurancePoints() < 100) {
+                if (actor.getVerificationPoints() < 100) {
                     return false;
                 }
             } else if (s.equals("codesign")) {

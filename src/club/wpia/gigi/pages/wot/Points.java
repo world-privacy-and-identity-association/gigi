@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import club.wpia.gigi.dbObjects.User;
-import club.wpia.gigi.output.AssurancesDisplay;
+import club.wpia.gigi.output.VerificationsDisplay;
 import club.wpia.gigi.pages.Page;
 import club.wpia.gigi.util.AuthorizationContext;
 
@@ -21,15 +21,15 @@ public class Points extends Page {
 
     private boolean support;
 
-    private AssurancesDisplay myDisplay;
+    private VerificationsDisplay myDisplay;
 
-    private AssurancesDisplay toOtherDisplay;
+    private VerificationsDisplay toOtherDisplay;
 
     public Points(boolean support) {
         super(support ? "Support User Points" : "Points");
         this.support = support;
-        myDisplay = new AssurancesDisplay("asArr", false, support);
-        toOtherDisplay = new AssurancesDisplay("otherAsArr", true, support);
+        myDisplay = new VerificationsDisplay("asArr", false, support);
+        toOtherDisplay = new VerificationsDisplay("otherAsArr", true, support);
     }
 
     @Override
@@ -52,12 +52,12 @@ public class Points extends Page {
         vars.put("username", user.getPreferredName().toString());
         vars.put("pointlist", myDisplay);
         vars.put("madelist", toOtherDisplay);
-        vars.put("asArr", user.getReceivedAssurances());
-        vars.put("otherAsArr", user.getMadeAssurances());
-        vars.put("assP", user.getAssurancePoints());
-        if (user.canAssure()) {
+        vars.put("asArr", user.getReceivedVerifications());
+        vars.put("otherAsArr", user.getMadeVerifications());
+        vars.put("assP", user.getVerificationPoints());
+        if (user.canVerify()) {
             vars.put("expP", user.getExperiencePoints());
-            vars.put("maxP", user.getMaxAssurePoints());
+            vars.put("maxP", user.getMaxVerifyPoints());
         }
         getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
     }
