@@ -5,19 +5,20 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import club.wpia.gigi.localisation.Language;
+import club.wpia.gigi.output.template.Outputable;
 import club.wpia.gigi.util.AuthorizationContext;
 
 public class Menu implements IMenuItem {
 
     public static final String AUTH_VALUE = "ac";
 
-    private String menuName;
+    private Outputable menuName;
 
     private IMenuItem[] content;
 
     private LinkedList<IMenuItem> prepare = new LinkedList<IMenuItem>();
 
-    public Menu(String menuName) {
+    public Menu(Outputable menuName) {
         this.menuName = menuName;
     }
 
@@ -30,7 +31,7 @@ public class Menu implements IMenuItem {
                 if ( !visible) {
                     visible = true;
                     out.print("<li class=\"dropdown\"><a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\">");
-                    out.print(l.getTranslation(menuName));
+                    menuName.output(out, l, vars);
                     out.print("<span class=\"caret\"></span></a><ul class=\"dropdown-menu\">");
                 }
                 mi.output(out, l, vars);
@@ -51,20 +52,7 @@ public class Menu implements IMenuItem {
         prepare = null;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Menu) {
-            return menuName.equals(((Menu) obj).getMenuName());
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return menuName.hashCode();
-    }
-
-    public String getMenuName() {
+    public Outputable getMenuName() {
         return menuName;
     }
 

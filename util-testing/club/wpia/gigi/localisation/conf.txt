@@ -1,10 +1,8 @@
 club.wpia.gigi.localisation Language.getTranslation(String),0
 club.wpia.gigi.pages Page.translate(ServletRequest, String),1
 club.wpia.gigi.output.template Form.outputError(PrintWriter, ServletRequest, String, Object[]),2
-club.wpia.gigi Gigi.MenuBuilder.putPage(String, Page, String),2
-club.wpia.gigi Gigi.MenuBuilder.getMenu(String),0
+club.wpia.gigi Gigi.MenuBuilder.createMenu(String),0
 club.wpia.gigi GigiApiException.GigiApiException(String),0=>club.wpia.gigi GigiApiException.formatPlain(PrintWriter),0
-club.wpia.gigi.output Menu.Menu(String),0=>club.wpia.gigi.output Menu.output(PrintWriter, Language, Map),0
 club.wpia.gigi.output SimpleMenuItem.SimpleMenuItem(String, String),1=>club.wpia.gigi.output SimpleMenuItem.printContent(PrintWriter, Language),0
 club.wpia.gigi.dbObjects Digest.Digest(String),0
 club.wpia.gigi.dbObjects Certificate.CertificateStatus.CertificateStatus(String),0

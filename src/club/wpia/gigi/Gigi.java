@@ -35,6 +35,7 @@ import club.wpia.gigi.output.SimpleUntranslatedMenuItem;
 import club.wpia.gigi.output.template.Form.CSRFException;
 import club.wpia.gigi.output.template.Outputable;
 import club.wpia.gigi.output.template.Template;
+import club.wpia.gigi.output.template.TranslateCommand;
 import club.wpia.gigi.pages.AboutPage;
 import club.wpia.gigi.pages.HandlesMixedRequest;
 import club.wpia.gigi.pages.LoginPage;
@@ -94,28 +95,18 @@ public final class Gigi extends HttpServlet {
 
         public MenuBuilder() {}
 
-        private void putPage(String path, Page p, String category) {
+        private void putPage(String path, Page p, Menu m) {
             pages.put(path, p);
-            if (category == null) {
+            if (m == null) {
                 return;
             }
-            Menu m = getMenu(category);
             m.addItem(new PageMenuItem(p, path.replaceFirst("/?\\*$", "")));
 
         }
 
-        private Menu getMenu(String category) {
-            Menu m = null;
-            for (Menu menu : categories) {
-                if (menu.getMenuName().equals(category)) {
-                    m = menu;
-                    break;
-                }
-            }
-            if (m == null) {
-                m = new Menu(category);
-                categories.add(m);
-            }
+        private Menu createMenu(String name) {
+            Menu m = new Menu(new TranslateCommand(name));
+            categories.add(m);
             return m;
         }
 
@@ -123,14 +114,15 @@ public final class Gigi extends HttpServlet {
             putPage("/denied", new AccessDenied(), null);
             putPage("/error", new PageNotFound(), null);
             putPage("/login", new LoginPage(), null);
-            getMenu("SomeCA.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getHostNamePort(Host.WWW) + "/login", "Password Login") {
+            Menu mainMenu = createMenu("SomeCA.org");
+            mainMenu.addItem(new SimpleMenuItem("https://" + ServerConstants.getHostNamePort(Host.WWW) + "/login", "Password Login") {
 
                 @Override
                 public boolean isPermitted(AuthorizationContext ac) {
                     return ac == null;
                 }
             });
-            getMenu("SomeCA.org").addItem(new SimpleMenuItem("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + "/login", "Certificate Login") {
+            mainMenu.addItem(new SimpleMenuItem("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + "/login", "Certificate Login") {
 
                 @Override
                 public boolean isPermitted(AuthorizationContext ac) {
@@ -138,39 +130,45 @@ public final class Gigi extends HttpServlet {
                 }
             });
             putPage("/", new MainPage(), null);
-            putPage("/roots", new RootCertPage(truststore), "SomeCA.org");
-            putPage(StatisticsRoles.PATH, new StatisticsRoles(), "SomeCA.org");
-            putPage("/about", new AboutPage(), "SomeCA.org");
+            putPage("/roots", new RootCertPage(truststore), mainMenu);
+            putPage(StatisticsRoles.PATH, new StatisticsRoles(), mainMenu);
+            putPage("/about", new AboutPage(), mainMenu);
+            putPage(RegisterPage.PATH, new RegisterPage(), mainMenu);
 
             putPage("/secure", new TestSecure(), null);
             putPage(Verify.PATH, new Verify(), null);
-            putPage(Certificates.PATH + "/*", new Certificates(false), "Certificates");
-            putPage(RegisterPage.PATH, new RegisterPage(), "SomeCA.org");
-            putPage(CertificateAdd.PATH, new CertificateAdd(), "Certificates");
-            putPage(MailOverview.DEFAULT_PATH, new MailOverview(), "Certificates");
-            putPage(DomainOverview.PATH, new DomainOverview(), "Certificates");
+            Menu certificates = createMenu("Certificates");
+            putPage(Certificates.PATH + "/*", new Certificates(false), certificates);
+            putPage(CertificateAdd.PATH, new CertificateAdd(), certificates);
+            putPage(MailOverview.DEFAULT_PATH, new MailOverview(), certificates);
+            putPage(DomainOverview.PATH, new DomainOverview(), certificates);
             putPage(EditDomain.PATH + "*", new EditDomain(), null);
 
-            putPage(VerifyPage.PATH + "/*", new VerifyPage(), "Verification");
-            putPage(Points.PATH, new Points(false), "Verification");
-            putPage(RequestTTPPage.PATH, new RequestTTPPage(), "Verification");
+            Menu wot = createMenu("Verification");
+            putPage(VerifyPage.PATH + "/*", new VerifyPage(), wot);
+            putPage(Points.PATH, new Points(false), wot);
+            putPage(RequestTTPPage.PATH, new RequestTTPPage(), wot);
 
-            putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), "Admin");
-            putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), "Organisation Admin");
-            putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), "Organisation Admin");
+            Menu admMenu = createMenu("Admin");
+            Menu orgAdm = createMenu("Organisation Admin");
+            putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), admMenu);
+            putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), orgAdm);
+            putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), orgAdm);
 
-            putPage(SupportEnterTicketPage.PATH, new SupportEnterTicketPage(), "Support Console");
-            putPage(FindUserByEmailPage.PATH, new FindUserByEmailPage(), "Support Console");
-            putPage(FindUserByDomainPage.PATH, new FindUserByDomainPage(), "Support Console");
-            putPage(FindCertPage.PATH, new FindCertPage(), "Support Console");
+            Menu support = createMenu("Support Console");
+            putPage(SupportEnterTicketPage.PATH, new SupportEnterTicketPage(), support);
+            putPage(FindUserByEmailPage.PATH, new FindUserByEmailPage(), support);
+            putPage(FindUserByDomainPage.PATH, new FindUserByDomainPage(), support);
+            putPage(FindCertPage.PATH, new FindCertPage(), support);
 
+            Menu account = createMenu("My Account");
             putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage(), null);
-            putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), "My Account");
-            putPage(History.PATH, new History(false), "My Account");
-            putPage(FindAgentAccess.PATH, new OneFormPage("Access to Find Agent", FindAgentAccess.class), "My Account");
+            putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), account);
+            putPage(History.PATH, new History(false), account);
+            putPage(FindAgentAccess.PATH, new OneFormPage("Access to Find Agent", FindAgentAccess.class), account);
             putPage(History.SUPPORT_PATH, new History(true), null);
-            putPage(UserTrainings.PATH, new UserTrainings(false), "My Account");
-            putPage(MyDetails.PATH, new MyDetails(), "My Account");
+            putPage(UserTrainings.PATH, new UserTrainings(false), account);
+            putPage(MyDetails.PATH, new MyDetails(), account);
             putPage(UserTrainings.SUPPORT_PATH, new UserTrainings(true), null);
             putPage(Points.SUPPORT_PATH, new Points(true), null);
             putPage(Certificates.SUPPORT_PATH + "/*", new Certificates(true), null);
@@ -183,22 +181,22 @@ public final class Gigi extends HttpServlet {
                     Class<?> manager = Class.forName("club.wpia.gigi.pages.Manager");
                     Page p = (Page) manager.getMethod("getInstance").invoke(null);
                     String pa = (String) manager.getField("PATH").get(null);
-                    putPage(pa + "/*", p, "Gigi test server");
+                    Menu testServer = createMenu("Gigi test server");
+                    putPage(pa + "/*", p, testServer);
                 } catch (ReflectiveOperationException e) {
                     e.printStackTrace();
                 }
             }
 
             try {
-                putPage("/wot/rules", new StaticPage("Verification Rules", VerifyPage.class.getResourceAsStream("Rules.templ")), "Verification");
+                putPage("/wot/rules", new StaticPage("Verification Rules", VerifyPage.class.getResourceAsStream("Rules.templ")), wot);
             } catch (UnsupportedEncodingException e) {
                 throw new ServletException(e);
             }
             rootMenu = new MenuCollector();
 
-            Menu languages = new Menu("Language");
+            Menu languages = createMenu("Language");
             addLanguages(languages);
-            categories.add(languages);
             for (Menu menu : categories) {
                 menu.prepare();
                 rootMenu.put(menu);
