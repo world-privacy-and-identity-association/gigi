@@ -12,7 +12,7 @@ import club.wpia.gigi.util.AuthorizationContext;
 
 public class CreateOrgPage extends ManagedFormPage {
 
-    public static final Group ORG_AGENT = Group.ORGASSURER;
+    public static final Group ORG_AGENT = Group.ORG_AGENT;
 
     public static final String DEFAULT_PATH = "/orga/new";
 

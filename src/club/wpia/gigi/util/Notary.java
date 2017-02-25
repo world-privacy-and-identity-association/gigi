@@ -55,9 +55,9 @@ public class Notary {
         }
     }
 
-    public static final Group AGENT_BLOCKED = Group.BLOCKEDASSURER;
+    public static final Group AGENT_BLOCKED = Group.BLOCKED_AGENT;
 
-    public static final Group APPLICANT_BLOCKED = Group.BLOCKEDASSUREE;
+    public static final Group APPLICANT_BLOCKED = Group.BLOCKED_APPLICANT;
 
     public static final Group VERIFY_NOTIFICATION = Group.VERIFY_NOTIFICATION;
 
@@ -207,12 +207,12 @@ public class Notary {
         }
 
         if (t == VerificationType.NUCLEUS) {
-            if ( !agent.isInGroup(Group.NUCLEUS_ASSURER)) {
+            if ( !agent.isInGroup(Group.NUCLEUS_AGENT)) {
                 throw new GigiApiException("RA Agent needs to be Nucleus RA Agent.");
             }
             return;
         } else if (t == VerificationType.TTP_ASSISTED) {
-            if ( !agent.isInGroup(Group.TTP_ASSURER)) {
+            if ( !agent.isInGroup(Group.TTP_AGENT)) {
                 throw new GigiApiException("RA Agent needs to be TTP RA Agent.");
             }
             if ( !applicant.isInGroup(Group.TTP_APPLICANT)) {

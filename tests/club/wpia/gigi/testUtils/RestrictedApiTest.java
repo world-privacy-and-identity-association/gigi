@@ -43,7 +43,7 @@ public class RestrictedApiTest extends ClientTest {
         initEnvironment();
         try {
             User u = User.getById(createVerificationUser("f", "l", createUniqueName() + "@email.com", TEST_PASSWORD));
-            grant(u, Group.ORGASSURER);
+            grant(u, Group.ORG_AGENT);
             clearCaches();
             u = User.getById(u.getId());
             selfOrg = new Organisation(Organisation.SELF_ORG_NAME, Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS), "NA", "NA", "contact@example.org", "", "", u);

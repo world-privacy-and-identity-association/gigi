@@ -88,7 +88,7 @@ public class IssueCert extends ClientTest {
     @Test
     public void testIssueOrgCert() throws Exception {
         makeAgent(id);
-        u.grantGroup(getSupporter(), Group.ORGASSURER);
+        u.grantGroup(getSupporter(), Group.ORG_AGENT);
 
         Organisation o1 = new Organisation("name", Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS), "pr", "st", "test@mail", "", "", u);
         o1.addAdmin(u, u, false);

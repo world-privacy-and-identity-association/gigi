@@ -8,16 +8,15 @@ import club.wpia.gigi.output.template.TranslateCommand;
 
 public enum Group implements DBEnum {
     SUPPORTER("supporter", "supporter", true, false, true), //
-    ARBITRATOR("arbitrator", "arbitrator", true, false, true), //
-    BLOCKEDASSURER("blockedassurer", "may not verify", true, false, false), //
-    BLOCKEDASSUREE("blockedassuree", "may not be verified", true, false, false), //
-    BLOCKEDLOGIN("blockedlogin", "may not login", true, false, false), //
-    BLOCKEDCERT("blockedcert", "may not issue certificates", true, false, false), //
-    TTP_ASSURER("ttp-assurer", "may verify via TTP", true, false, true), //
+    BLOCKED_AGENT("blocked-agent", "may not verify", true, false, false), //
+    BLOCKED_APPLICANT("blocked-applicant", "may not be verified", true, false, false), //
+    BLOCKED_LOGIN("blocked-login", "may not login", true, false, false), //
+    BLOCKED_CERT("blocked-cert", "may not issue certificates", true, false, false), //
+    TTP_AGENT("ttp-agent", "may verify via TTP", true, false, true), //
     TTP_APPLICANT("ttp-applicant", "requests to be verified via ttp", false, true, false), //
     CODESIGNING("codesigning", "may issue codesigning certificates", true, false, false), //
-    ORGASSURER("orgassurer", "may verify organisations", true, false, true), //
-    NUCLEUS_ASSURER("nucleus-assurer", "may enter nucleus verifications", true, false, true), //
+    ORG_AGENT("org-agent", "may verify organisations", true, false, true), //
+    NUCLEUS_AGENT("nucleus-agent", "may enter nucleus verifications", true, false, true), //
     LOCATE_AGENT("locate-agent", "wants access to the locate agent system", false, true, false), //
     VERIFY_NOTIFICATION("verify-notification", "wants to receive an email notification for any Verification they enter", false, true, false);
 

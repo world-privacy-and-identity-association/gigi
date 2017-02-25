@@ -12,7 +12,7 @@ public class OrgTest extends ClientTest {
 
     public OrgTest() throws IOException, GigiApiException {
         makeAgent(u.getId());
-        u.grantGroup(getSupporter(), Group.ORGASSURER);
+        u.grantGroup(getSupporter(), Group.ORG_AGENT);
         clearCaches();
         cookie = login(email, TEST_PASSWORD);
     }

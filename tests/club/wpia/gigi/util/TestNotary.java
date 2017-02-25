@@ -135,7 +135,7 @@ public class TestNotary extends BusinessTest {
     @Test
     public void testNucleus() throws SQLException, GigiApiException, IOException {
         User agent = User.getById(createVerificationUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
-        agent.grantGroup(getSupporter(), Group.NUCLEUS_ASSURER);
+        agent.grantGroup(getSupporter(), Group.NUCLEUS_AGENT);
         User applicant = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
         Name n1 = applicant.getPreferredName();
         Name n2 = new Name(applicant, new NamePart(NamePartType.FIRST_NAME, "F2"), new NamePart(NamePartType.LAST_NAME, "L2"));
@@ -157,9 +157,9 @@ public class TestNotary extends BusinessTest {
     @Test
     public void testNucleusProcess() throws SQLException, GigiApiException, IOException {
         User agent1 = User.getById(createVerificationUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
-        agent1.grantGroup(getSupporter(), Group.NUCLEUS_ASSURER);
+        agent1.grantGroup(getSupporter(), Group.NUCLEUS_AGENT);
         User agent2 = User.getById(createVerificationUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
-        agent2.grantGroup(getSupporter(), Group.NUCLEUS_ASSURER);
+        agent2.grantGroup(getSupporter(), Group.NUCLEUS_AGENT);
         User applicant = User.getById(createVerifiedUser("fn", "ln", createUniqueName() + "@example.org", TEST_PASSWORD));
         Notary.verify(agent1, applicant, applicant.getPreferredName(), applicant.getDoB(), 50, "test", validVerificationDateString(), VerificationType.NUCLEUS, DE);
         Notary.verify(agent2, applicant, applicant.getPreferredName(), applicant.getDoB(), 50, "test", validVerificationDateString(), VerificationType.NUCLEUS, DE);

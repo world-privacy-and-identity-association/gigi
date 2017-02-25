@@ -67,7 +67,7 @@ public class Organisation extends CertificateOwner {
     private String postalAddress;
 
     public Organisation(String name, Country country, String province, String city, String email, String optionalName, String postalAddress, User creator) throws GigiApiException {
-        if ( !creator.isInGroup(Group.ORGASSURER)) {
+        if ( !creator.isInGroup(Group.ORG_AGENT)) {
             throw new GigiApiException("Only Organisation RA Agents may create organisations.");
         }
         if (country == null) {
@@ -148,7 +148,7 @@ public class Organisation extends CertificateOwner {
         if ( !admin.canVerify()) {
             throw new GigiApiException("Cannot add person who is not RA Agent.");
         }
-        if ( !actor.isInGroup(Group.ORGASSURER) && !isMaster(actor)) {
+        if ( !actor.isInGroup(Group.ORG_AGENT) && !isMaster(actor)) {
             throw new GigiApiException("Only Organisation RA Agents or Organisation Administrators may add admins to an organisation.");
         }
         try (GigiPreparedStatement ps1 = new GigiPreparedStatement("SELECT 1 FROM `org_admin` WHERE `orgid`=? AND `memid`=? AND `deleted` IS NULL")) {
@@ -169,7 +169,7 @@ public class Organisation extends CertificateOwner {
     }
 
     public void removeAdmin(User admin, User actor) throws GigiApiException {
-        if ( !actor.isInGroup(Group.ORGASSURER) && !isMaster(actor)) {
+        if ( !actor.isInGroup(Group.ORG_AGENT) && !isMaster(actor)) {
             throw new GigiApiException("Only Organisation RA Agents or Organisation Administrators may delete admins from an organisation.");
         }
         try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE org_admin SET deleter=?, deleted=NOW() WHERE orgid=? AND memid=?")) {

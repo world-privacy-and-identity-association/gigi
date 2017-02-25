@@ -33,7 +33,7 @@ public class TestTTPAdmin extends ClientTest {
 
     public void testTTPAdmin(boolean hasRight) throws IOException, GigiApiException {
         if (hasRight) {
-            grant(u, Group.TTP_ASSURER);
+            grant(u, Group.TTP_AGENT);
         }
         grant(u, TTPAdminPage.TTP_APPLICANT);
         cookie = login(u.getEmail(), TEST_PASSWORD);

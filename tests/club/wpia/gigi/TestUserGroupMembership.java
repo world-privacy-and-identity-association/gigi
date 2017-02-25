@@ -20,7 +20,7 @@ import club.wpia.gigi.testUtils.BusinessTest;
 
 public class TestUserGroupMembership extends BusinessTest {
 
-    private final Group ttpGroup = Group.TTP_ASSURER;
+    private final Group ttpGroup = Group.TTP_AGENT;
 
     private final Group supporter = Group.SUPPORTER;
 

@@ -24,6 +24,6 @@ public class CertificateAdd extends ManagedFormPage {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return super.isPermitted(ac) && !ac.isInGroup(Group.BLOCKEDCERT);
+        return super.isPermitted(ac) && !ac.isInGroup(Group.BLOCKED_CERT);
     }
 }
