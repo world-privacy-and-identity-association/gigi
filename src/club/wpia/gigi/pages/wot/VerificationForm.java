@@ -206,17 +206,17 @@ public class VerificationForm extends Form {
             throw gae;
         }
 
-        LinkedList<Name> toAssure = new LinkedList<Name>();
+        LinkedList<Name> toVerify = new LinkedList<Name>();
         for (int i = 0; i < selected.length; i++) {
             if (selected[i]) {
-                toAssure.add(applicantNames[i]);
+                toVerify.add(applicantNames[i]);
             }
         }
-        if (toAssure.size() == 0) {
+        if (toVerify.size() == 0) {
             throw new GigiApiException("You must confirm at least one name to verify an account.");
         }
 
-        Notary.verifyAll(agent, applicant, dob, pointsI, location, req.getParameter("date"), type, toAssure.toArray(new Name[toAssure.size()]), cs.getCountry());
+        Notary.verifyAll(agent, applicant, dob, pointsI, location, req.getParameter("date"), type, toVerify.toArray(new Name[toVerify.size()]), cs.getCountry());
         Outputable result = new TranslateCommand("Verification complete.");
         if (isWithPasswordReset()) {
             Language langApplicant = Language.getInstance(applicant.getPreferredLocale());
