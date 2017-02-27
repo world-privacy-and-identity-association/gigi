@@ -92,11 +92,11 @@ public class TestFindAgent extends RestrictedApiTest {
         JSONTokener jt = new JSONTokener(res);
         JSONObject j1 = new JSONObject();
         j1.put("id", id);
-        j1.put("canAssure", true);
+        j1.put("canVerify", true);
         j1.put("name", u.getPreferredName().toAbbreviatedString());
         JSONObject j2 = new JSONObject();
         j2.put("id", u2);
-        j2.put("canAssure", false);
+        j2.put("canVerify", false);
         j2.put("name", User.getById(u2).getPreferredName().toAbbreviatedString());
         JSONArray ja = new JSONArray(Arrays.asList(j1, j2));
         assertEquals(ja.toString(), new JSONArray(jt).toString());
