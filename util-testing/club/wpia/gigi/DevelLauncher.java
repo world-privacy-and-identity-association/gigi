@@ -103,7 +103,7 @@ public class DevelLauncher {
     private static void killPreviousInstance(Properties mainProps) {
         try {
             String targetPort = mainProps.getProperty("http.port");
-            String targetHost = mainProps.getProperty("name.www");
+            String targetHost = mainProps.getProperty("name.www", "www." + mainProps.getProperty("name.suffix"));
             URL u = new URL("http://" + targetHost + ":" + targetPort + "/kill");
             u.openStream();
         } catch (IOException e) {
