@@ -20,3 +20,4 @@ time.verificationFreshMonths=39
 time.verificationMaxAgeMonths=24
 
 appName=SomeCA
+appIdentifier=someca

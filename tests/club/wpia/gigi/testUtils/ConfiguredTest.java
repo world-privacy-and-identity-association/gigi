@@ -27,14 +27,14 @@ import org.junit.BeforeClass;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.DatabaseConnection;
-import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.DatabaseConnection.Link;
+import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.SQLFileManager.ImportType;
+import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.CertificateProfile;
 import club.wpia.gigi.dbObjects.Domain;
 import club.wpia.gigi.dbObjects.DomainPingType;
 import club.wpia.gigi.dbObjects.User;
-import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
 import club.wpia.gigi.util.DatabaseManager;
 import club.wpia.gigi.util.DomainAssessment;
@@ -118,6 +118,7 @@ public abstract class ConfiguredTest {
         mainProps.setProperty("name.api", testProps.getProperty("name.api"));
 
         mainProps.setProperty("appName", "SomeCA");
+        mainProps.setProperty("appIdentifier", "someca");
 
         mainProps.setProperty("https.port", testProps.getProperty("serverPort.https"));
         mainProps.setProperty("http.port", testProps.getProperty("serverPort.http"));

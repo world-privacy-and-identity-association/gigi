@@ -60,6 +60,8 @@ public class ServerConstants {
 
     private static String appName = null;
 
+    private static String appIdentifier = null;
+
     public static void init(Properties conf) {
         securePort = port = "";
         if ( !conf.getProperty("https.port").equals("443")) {
@@ -80,6 +82,10 @@ public class ServerConstants {
         appName = conf.getProperty("appName");
         if (appName == null) {
             throw new Error("App name missing");
+        }
+        appIdentifier = conf.getProperty("appIdentifier");
+        if (appIdentifier == null) {
+            throw new Error("App identifier missing");
         }
     }
 
@@ -148,6 +154,13 @@ public class ServerConstants {
             throw new Error("AppName not initialized.");
         }
         return appName;
+    }
+
+    public static String getAppIdentifier() {
+        if (appIdentifier == null) {
+            throw new Error("AppIdentifier not initialized.");
+        }
+        return appIdentifier;
     }
 
 }

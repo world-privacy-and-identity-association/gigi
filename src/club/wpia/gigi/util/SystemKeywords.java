@@ -1,14 +1,16 @@
 package club.wpia.gigi.util;
 
+import club.wpia.gigi.util.ServerConstants.Host;
+
 public class SystemKeywords {
 
-    public static final String CAA_NAME = "someca.org";
+    public static final String CAA_NAME = ServerConstants.getSuffix();
 
-    public static final String SMTP_NAME = "www.someca.org";
+    public static final String SMTP_NAME = ServerConstants.getHostName(Host.WWW);
 
-    public static final String SMTP_PSEUDO_FROM = "returns@someca.org";
+    public static final String SMTP_PSEUDO_FROM = "returns@" + ServerConstants.getSuffix();
 
-    public static final String HTTP_CHALLENGE_PREFIX = "cacert-";
+    public static final String HTTP_CHALLENGE_PREFIX = ".well-known/" + ServerConstants.getAppIdentifier() + "-challenge/";
 
-    public static final String DNS_PREFIX = "_cacert";
+    public static final String DNS_PREFIX = "_" + ServerConstants.getAppIdentifier();
 }
