@@ -3,27 +3,27 @@ Upstream-Name: gigi
 Source: <https://code.wpia.club>
 
 Files: *
-Copyright: 2014 WPIA Software Team <software@wpia.club>
-License: GPL-2.0
+Copyright: 2014-2017 WPIA Software Team <software@wpia.club>
+License: AGPL-3.0
 
 Files: debian/*
-Copyright: 2014 WPIA Software Team <software@wpia.club>
-License: GPL-2.0
+Copyright: 2014-2017 WPIA Software Team <software@wpia.club>
+License: AGPL-3.0
 
 Files: src/club/wpia/gigi/output/template
-Copyright: 2015 WPIA Software Team <software@wpia.club>
-License: GPL-2.0 or BSD
+Copyright: 2014-2017 WPIA Software Team <software@wpia.club>
+License: AGPL-3.0 or BSD
 
 Files: src/club/wpia/gigi/localisation
-Copyright: 2015 WPIA Software Team <software@wpia.club>
-License: GPL-2.0 or BSD
+Copyright: 2014-2017 WPIA Software Team <software@wpia.club>
+License: AGPL-3.0 or BSD
 
 Files: src/club/wpia/gigi/database
-Copyright: 2015 WPIA Software Team <software@wpia.club>
-License: GPL-2.0 or BSD
+Copyright: 2014-2017 WPIA Software Team <software@wpia.club>
+License: AGPL-3.0 or BSD
 
 License: BSD
- Copyright (c) 2015, WPIA
+ Copyright (c) 2014, WPIA
  All rights reserved.
  .
  Redistribution and use in source and binary forms, with or without 
@@ -48,18 +48,16 @@ License: BSD
  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF 
  THE POSSIBILITY OF SUCH DAMAGE.
 
-License: GPL-2.0
- This package is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; only version 2 of the License.
+License: AGPL-3.0
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
  .
- This package is distributed in the hope that it will be useful,
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ GNU Affero General Public License for more details.
  .
- You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>
- .
- On Debian systems, the complete text of the GNU General
- Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
