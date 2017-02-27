@@ -2,26 +2,18 @@
 <project>
   <actions/>
   <description></description>
-  <logRotator class="hudson.tasks.LogRotator">
-    <daysToKeep>-1</daysToKeep>
-    <numToKeep>100</numToKeep>
-    <artifactDaysToKeep>-1</artifactDaysToKeep>
-    <artifactNumToKeep>-1</artifactNumToKeep>
-  </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>50</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>20</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
-        <hudson.model.TextParameterDefinition>
-          <name>JAVA_HOME</name>
-          <description></description>
-          <defaultValue>/usr/lib/jvm/openjdk-8-jdk-gigi</defaultValue>
-        </hudson.model.TextParameterDefinition>
-        <hudson.model.TextParameterDefinition>
-          <name>BRANCH</name>
-          <description>The branch to build from.</description>
-          <defaultValue>master</defaultValue>
-        </hudson.model.TextParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>TARGET</name>
           <description>The target.</description>
@@ -29,60 +21,166 @@
             <a class="string-array">
               <string>develop</string>
               <string>release</string>
+              <string>pack-testing</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BRANCH</name>
+          <description>The branch to build from.</description>
+          <defaultValue>$GERRIT_PATCHSET_REVISION</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>JAVA_HOME</name>
+          <description></description>
+          <defaultValue>/usr/lib/jvm/openjdk-8-jdk-gigi</defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.2.5">
-    <configVersion>2</configVersion>
-    <userRemoteConfigs>
-      <hudson.plugins.git.UserRemoteConfig>
-        <url>$$$$YOUR_REFERENCE_GIT_REPO$$$$</url>
-      </hudson.plugins.git.UserRemoteConfig>
-    </userRemoteConfigs>
-    <branches>
-      <hudson.plugins.git.BranchSpec>
-        <name>$BRANCH</name>
-      </hudson.plugins.git.BranchSpec>
-    </branches>
-    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-    <submoduleCfg class="list"/>
-    <extensions>
-      <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-        <relativeTargetDir>cacert-gigi</relativeTargetDir>
-      </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-    </extensions>
+  <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM" plugin="multiple-scms@0.6">
+    <scms>
+      <hudson.plugins.git.GitSCM plugin="git@2.4.4">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+          <hudson.plugins.git.UserRemoteConfig>
+            <url>gerrit:nre</url>
+            <credentialsId>gerrit-key</credentialsId>
+          </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches>
+          <hudson.plugins.git.BranchSpec>
+            <name>15a2e696752bba33decf70e4ac7eed5e36d8d93e</name>
+          </hudson.plugins.git.BranchSpec>
+        </branches>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <submoduleCfg class="list"/>
+        <extensions>
+          <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+            <relativeTargetDir>cacert-nre</relativeTargetDir>
+          </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+        </extensions>
+      </hudson.plugins.git.GitSCM>
+      <hudson.plugins.git.GitSCM plugin="git@2.4.4">
+        <configVersion>2</configVersion>
+        <userRemoteConfigs>
+          <hudson.plugins.git.UserRemoteConfig>
+            <refspec>+refs/heads/*:refs/remotes/origin/* +refs/changes/*:refs/changes/*</refspec>
+            <url>gerrit:gigi</url>
+            <credentialsId>gerrit-key</credentialsId>
+          </hudson.plugins.git.UserRemoteConfig>
+        </userRemoteConfigs>
+        <branches>
+          <hudson.plugins.git.BranchSpec>
+            <name>$BRANCH</name>
+          </hudson.plugins.git.BranchSpec>
+        </branches>
+        <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+        <submoduleCfg class="list"/>
+        <extensions>
+          <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+            <relativeTargetDir>cacert-gigi</relativeTargetDir>
+          </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
+          <hudson.plugins.git.extensions.impl.CleanBeforeCheckout/>
+        </extensions>
+      </hudson.plugins.git.GitSCM>
+    </scms>
   </scm>
-  <canRoam>true</canRoam>
+  <assignedNode>gigi-builder</assignedNode>
+  <canRoam>false</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <jdk>Java 8 OpenJDK</jdk>
   <triggers>
-    <hudson.triggers.SCMTrigger>
-      <spec>@midnight</spec>
-      <ignorePostCommitHooks>false</ignorePostCommitHooks>
-    </hudson.triggers.SCMTrigger>
+    <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger plugin="gerrit-trigger@2.21.1">
+      <spec></spec>
+      <gerritProjects>
+        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
+          <compareType>PLAIN</compareType>
+          <pattern>gigi</pattern>
+          <branches>
+            <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.Branch>
+              <compareType>ANT</compareType>
+              <pattern>**</pattern>
+            </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.Branch>
+          </branches>
+          <disableStrictForbiddenFileVerification>false</disableStrictForbiddenFileVerification>
+        </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.data.GerritProject>
+      </gerritProjects>
+      <skipVote>
+        <onSuccessful>false</onSuccessful>
+        <onFailed>false</onFailed>
+        <onUnstable>false</onUnstable>
+        <onNotBuilt>false</onNotBuilt>
+      </skipVote>
+      <silentMode>false</silentMode>
+      <notificationLevel></notificationLevel>
+      <silentStartMode>false</silentStartMode>
+      <escapeQuotes>true</escapeQuotes>
+      <nameAndEmailParameterMode>PLAIN</nameAndEmailParameterMode>
+      <dependencyJobsNames></dependencyJobsNames>
+      <commitMessageParameterMode>BASE64</commitMessageParameterMode>
+      <changeSubjectParameterMode>PLAIN</changeSubjectParameterMode>
+      <buildStartMessage></buildStartMessage>
+      <buildFailureMessage></buildFailureMessage>
+      <buildSuccessfulMessage></buildSuccessfulMessage>
+      <buildUnstableMessage></buildUnstableMessage>
+      <buildNotBuiltMessage></buildNotBuiltMessage>
+      <buildUnsuccessfulFilepath></buildUnsuccessfulFilepath>
+      <customUrl></customUrl>
+      <serverName>gerrit</serverName>
+      <triggerOnEvents>
+        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginPatchsetCreatedEvent>
+          <excludeDrafts>false</excludeDrafts>
+          <excludeTrivialRebase>false</excludeTrivialRebase>
+          <excludeNoCodeChange>false</excludeNoCodeChange>
+        </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginPatchsetCreatedEvent>
+        <com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedContainsEvent>
+          <commentAddedCommentContains>jenkins, please rebuild</commentAddedCommentContains>
+        </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.events.PluginCommentAddedContainsEvent>
+      </triggerOnEvents>
+      <dynamicTriggerConfiguration>false</dynamicTriggerConfiguration>
+      <triggerConfigURL></triggerConfigURL>
+      <triggerInformationAction/>
+    </com.sonyericsson.hudson.plugins.gerrit.trigger.hudsontrigger.GerritTrigger>
   </triggers>
-  <concurrentBuild>false</concurrentBuild>
+  <concurrentBuild>true</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>rm -f *.deb
-cd cacert-gigi
-cat &lt;&lt;EOT &gt;keys/config
+      <command># --- generating and installing keys
+cd cacert-nre
+cat &lt;&lt;EOT &gt;config
 DOMAIN=$$$$YOUR_LOOKUP_DOMAIN$$$$
-KEYSIZE=4096
+KEYSIZE=1024
 EOT
+./all root 2015 $(date +%Y)
+
+cd ../cacert-gigi
+for i in ../cacert-nre/generated/gigi-*.tar.gz; do
+  tar xf &quot;$i&quot;
+done
+
+cd config
+./generateTruststoreNRE.sh
+cd ..
+
+mkdir -p signer
+cd signer
+for i in ../../cacert-nre/generated/signer-server-*.tar.gz; do
+  tar xf &quot;$i&quot;
+done
+cd ..
+
+# --- config gigi
 cat &lt;&lt;EOT &gt;config/test.properties
 type=autonomous
-java=/usr/lib/jvm/openjdk-8-jdk-gigi/bin/java -cp bintest:gigi-testing.jar:/usr/share/java/mysql-connector-java.jar -javaagent:/usr/share/java/jacocoagent.jar org.cacert.gigi.Launcher
+java=/usr/lib/jvm/openjdk-8-jdk-gigi/bin/java -cp bintest:gigi-testing.jar:/usr/share/java/postgresql-jdbc4.jar -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:50002 -javaagent:/usr/share/java/jacocoagent.jar club.wpia.gigi.TestLauncher
 serverPort.https=4448
 serverPort.http=8098
 mailPort=8473
-sql.driver=com.mysql.jdbc.Driver
-sql.url=jdbc:mysql://localhost:3306/cacert
+sql.driver=org.postgresql.Driver
+sql.url=$$$$sql url$$$$
 sql.user=cacert
 sql.password=$$$$sql password$$$$
 name.static=static.$$$$YOUR_LOOKUP_DOMAIN$$$$
@@ -95,23 +193,30 @@ domain.http=$$$$YOUR_TESTSERVICE_HTTP$$$$
 domain.dnstest=$$$$YOUR_TESTSERVICE_ZONE$$$$
 domain.testns=$$$$YOUR_TESTSERVICE_AUTH_NAMESERVER$$$$
 domain.local=test.$$$$YOUR_LOOKUP_DOMAIN$$$$
+domain.localHTTP=8081
+domain.CAAtest=$$$$+positive.domain -negative.domain$$$$
 
 email.address=$$$$YOUR_IMAP_EMAIL$$$$
 email.password=$$$$YOUR_IMAP_PASSWORD$$$$
 email.imap=$$$$YOUR_IMAP_SERVER$$$$
 email.imap.user=$$$$YOUR_IMAP_USERNAME$$$$
 email.non-address=$$$$IMAP_NON_EXISTENT_ADDRESS$$$$
+emailProvider.smtpHost=$$$$YOUR_OUTBOUND_SMTP_HOST$$$$
+emailProvider.smtpPort=25
 
 EOT
+cat &lt;&lt; EOT &gt; publicSuffixFooter.dat
 
+$$$$YOUR_LOOKUP_DOMAIN$$$$
+EOT
 </command>
     </hudson.tasks.Shell>
-    <hudson.tasks.Ant plugin="ant@1.2">
-      <targets>$TARGET generatecoco</targets>
+    <hudson.tasks.Ant plugin="ant@1.3">
+      <targets>build-testing-l10n $TARGET generatecoco</targets>
       <antOpts>-Dfile.encoding=UTF-8</antOpts>
       <buildFile>cacert-gigi/build.xml</buildFile>
-      <properties>juintexec=$$$$JUNIT_PATH$$$$
-test_nic=$$$$YOUR_TESTSERVICE_NIC$$$$\n$$$$YOUR_LOOKUP_DOMAIN$$$$</properties>
+      <properties>jdt=$$$$JDT_PATH$$$$
+localePath=$$$$LOCALE_FETCH_PATH$$$$</properties>
     </hudson.tasks.Ant>
     <hudson.tasks.Shell>
       <command>cd cacert-gigi
@@ -119,20 +224,20 @@ dpkg-buildpackage -b -us -uc</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.tasks.junit.JUnitResultArchiver>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>cacert-gigi/natives/*.so,cacert-gigi/gigi*.jar,*.deb,cacert-gigi/cocoReport/**,cacert-gigi/merged.exec,cacert-gigi/messages.po</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>true</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+    <hudson.tasks.junit.JUnitResultArchiver plugin="junit@1.15">
       <testResults>cacert-gigi/junit/*.xml</testResults>
       <keepLongStdio>false</keepLongStdio>
-      <testDataPublishers/>
+      <healthScaleFactor>1.0</healthScaleFactor>
+      <allowEmptyResults>false</allowEmptyResults>
     </hudson.tasks.junit.JUnitResultArchiver>
-    <hudson.tasks.ArtifactArchiver>
-      <artifacts>cacert-gigi/natives/*.so,cacert-gigi/gigi*.jar,cacert-gigi/gigi-linux_amd64.zip,*.deb</artifacts>
-      <latestOnly>false</latestOnly>
-      <allowEmptyArchive>false</allowEmptyArchive>
-    </hudson.tasks.ArtifactArchiver>
-    <hudson.tasks.Fingerprinter>
-      <targets></targets>
-      <recordBuildArtifacts>true</recordBuildArtifacts>
-    </hudson.tasks.Fingerprinter>
   </publishers>
   <buildWrappers/>
 </project>
