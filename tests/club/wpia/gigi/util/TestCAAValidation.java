@@ -16,15 +16,13 @@ import org.junit.runners.Parameterized.Parameters;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.dbObjects.CertificateProfile;
 import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.dbObjects.Domain;
 import club.wpia.gigi.dbObjects.Job;
-import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.pages.account.certs.CertificateRequest;
 import club.wpia.gigi.testUtils.ClientTest;
-import club.wpia.gigi.util.AuthorizationContext;
-import club.wpia.gigi.util.CAA;
 
 @RunWith(Parameterized.class)
 public class TestCAAValidation extends ClientTest {
@@ -62,7 +60,7 @@ public class TestCAAValidation extends ClientTest {
 
     @Test
     public void testCAACert() throws GeneralSecurityException, IOException, GigiApiException, InterruptedException {
-        Domain d = new Domain(u, u, domain);
+        Domain d = new Domain(u, u, PublicSuffixes.getInstance().getRegistrablePart(domain));
         verify(d);
         String csr = generatePEMCSR(generateKeypair(), "CN=test");
         CertificateRequest cr = new CertificateRequest(new AuthorizationContext(u, u), csr);

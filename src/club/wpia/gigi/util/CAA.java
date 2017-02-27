@@ -87,6 +87,9 @@ public class CAA {
     private static CAARecord[] getEffectiveCAARecords(String name) throws NamingException {
         CAARecord[] caa = DNSUtil.getCAAEntries(name);
         String publicSuffix = PublicSuffixes.getInstance().getRegistrablePart(name);
+        if (name.equals(publicSuffix)) {
+            return caa;
+        }
         // TODO missing alias processing
         while (caa.length == 0 && name.contains(".")) {
             name = name.split("\\.", 2)[1];

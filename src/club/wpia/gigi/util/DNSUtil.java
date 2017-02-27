@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Hashtable;
 
 import javax.naming.Context;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -72,10 +73,15 @@ public class DNSUtil {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
         InitialDirContext context = new InitialDirContext(env);
-
-        Attributes dnsLookup = context.getAttributes(domain, new String[] {
-                "257"
-        });
+        Attributes dnsLookup;
+        try {
+            dnsLookup = context.getAttributes(domain, new String[] {
+                    "257"
+            });
+        } catch (NameNotFoundException e) {
+            // We treat non-existing names as names without CAA-records
+            return new CAARecord[0];
+        }
         Attribute nsRecords = dnsLookup.get("257");
         if (nsRecords == null) {
             return new CAARecord[] {};
