@@ -1,5 +1,5 @@
 [Unit]
-Description=Gigi simple signer for ET
+Description=Gigi simple signer
 
 [Service]
 ExecStart=/usr/bin/java -cp /usr/share/java/postgresql-jdbc4.jar:/usr/share/java/gigi.jar club.wpia.gigi.util.SimpleSigner

@@ -1,5 +1,5 @@
 [Unit]
-Description=Gigi Webserver module for ET
+Description=Gigi Webserver module
 Wants=postgresql@9.4-main.service
 After=postgresql@9.4-main.service
 Conflicts=gigi-standalone.service
