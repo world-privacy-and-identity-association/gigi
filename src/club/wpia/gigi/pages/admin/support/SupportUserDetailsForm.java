@@ -14,7 +14,7 @@ import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.ArrayIterable;
 import club.wpia.gigi.output.DateSelector;
-import club.wpia.gigi.output.GroupIterator;
+import club.wpia.gigi.output.GroupList;
 import club.wpia.gigi.output.GroupSelector;
 import club.wpia.gigi.output.template.Form;
 import club.wpia.gigi.output.template.Template;
@@ -93,8 +93,8 @@ public class SupportUserDetailsForm extends Form {
         vars.put("verificationPoints", user.getVerificationPoints());
         vars.put("exppoints", user.getExperiencePoints());
         final Set<Group> gr = user.getGroups();
-        vars.put("support-groups", new GroupIterator(gr.iterator(), true));
-        vars.put("groups", new GroupIterator(gr.iterator(), false));
+        vars.put("support-groups", new GroupList(gr, true));
+        vars.put("groups", new GroupList(gr, false));
         vars.put("groupSelector", value);
         t.output(out, l, vars);
     }

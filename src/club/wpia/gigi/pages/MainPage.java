@@ -16,7 +16,7 @@ import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.Organisation;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.localisation.Language;
-import club.wpia.gigi.output.GroupIterator;
+import club.wpia.gigi.output.GroupList;
 import club.wpia.gigi.output.template.IterableDataset;
 import club.wpia.gigi.output.template.Template;
 
@@ -35,8 +35,8 @@ public class MainPage extends Page {
             User u = LoginPage.getUser(req);
             vars.put("username", u.getPreferredName());
             final Set<Group> gr = u.getGroups();
-            vars.put("support-groups", new GroupIterator(gr.iterator(), true));
-            vars.put("groups", new GroupIterator(gr.iterator(), false));
+            vars.put("support-groups", new GroupList(gr, true));
+            vars.put("groups", new GroupList(gr, false));
             vars.put("ra-agent", u.canVerify());
             vars.put("vp", u.getVerificationPoints());
             vars.put("xp", u.getExperiencePoints());

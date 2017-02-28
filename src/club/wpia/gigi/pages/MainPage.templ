@@ -2,8 +2,8 @@
 <h4><?=_Subscriber information?></h4>
 <div class="well">
 <? if($ra-agent) { ?><p><?=_You are an RA Agent.?></p><? } ?>
-<p><?=_Assigned support permissions?>: <? foreach($support-groups) { ?><?=$group_concat?><?=$group?><? } ?></p>
-<p><?=_Assigned user-managed permissions?>: <? foreach($groups) { ?><?=$group_concat?><?=$group?><? } ?> (<?=_!'<a href="/account/details">'more!'</a>'?>)</p>
+<p><?=_Assigned support permissions?>: <?=$support-groups?></p>
+<p><?=_Assigned user-managed permissions?>: <?=$groups?> (<?=_!'<a href="/account/details">'more!'</a>'?>)</p>
 <p><?=_${vp} Verification Points and ${xp} Experience Points.?> (<?=_!'<a href="/wot/points">'more!'</a>'?>)</p>
 </div>
 

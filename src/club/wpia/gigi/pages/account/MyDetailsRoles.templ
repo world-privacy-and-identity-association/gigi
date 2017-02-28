@@ -2,9 +2,9 @@
   <div class="panel-heading"><?=_Permissions / Group Assignments?></div>
   <div class="panel-body">
   <h4><?=_Support Managed Permissions?>:</h4>
-  <? foreach($support-groups) { ?><?=$group_concat?><?=$group?><? } ?>
+  <?=$support-groups?>
   <h4><?=_User Managed Permissions?>:</h4>
-  <? foreach($groups) { ?><?=$group_concat?><?=$group?><? } ?>
+  <?=$groups?>
   <h4><?=_Set User Managed Permissions?>:</h4>
   <?=$groupSelector?> <button class="btn btn-info" name="action" value="addGroup"><?=_Add Group?></button> <button class="btn btn-info" name="action" value="removeGroup"><?=_Remove Group?></button>
   </div>
