@@ -14,7 +14,7 @@ import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.ArrayIterable;
 import club.wpia.gigi.output.CountrySelector;
 import club.wpia.gigi.output.DateSelector;
-import club.wpia.gigi.output.GroupIterator;
+import club.wpia.gigi.output.GroupList;
 import club.wpia.gigi.output.GroupSelector;
 import club.wpia.gigi.output.NameInput;
 import club.wpia.gigi.output.template.Form;
@@ -157,8 +157,8 @@ public class MyDetailsForm extends Form {
         }
 
         final Set<Group> gr = target.getGroups();
-        vars.put("support-groups", new GroupIterator(gr.iterator(), true));
-        vars.put("groups", new GroupIterator(gr.iterator(), false));
+        vars.put("support-groups", new GroupList(gr, true));
+        vars.put("groups", new GroupList(gr, false));
         vars.put("groupSelector", selectedGroup);
         roles.output(out, l, vars);
     }
