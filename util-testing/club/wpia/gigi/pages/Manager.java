@@ -377,13 +377,18 @@ public class Manager extends Page {
         } else if (req.getParameter("letverify") != null) {
             String mail = req.getParameter("letverifyEmail");
             User byEmail = User.getByEmail(mail);
-            try {
-                for (int i = 0; i < 25; i++) {
-                    User a = getAgent(i);
-                    Notary.verify(byEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", validVerificationDateString(), VerificationType.FACE_TO_FACE, getRandomCountry());
+            if (byEmail == null || !byEmail.canVerify()) {
+                resp.getWriter().println("User not found, or found user is not allowed to verify.");
+            } else {
+                try {
+                    for (int i = 0; i < 25; i++) {
+                        User a = getAgent(i);
+                        Notary.verify(byEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", validVerificationDateString(), VerificationType.FACE_TO_FACE, getRandomCountry());
+                    }
+                    resp.getWriter().println("Successfully added experience points.");
+                } catch (GigiApiException e) {
+                    throw new Error(e);
                 }
-            } catch (GigiApiException e) {
-                throw new Error(e);
             }
         } else if (req.getParameter("addEmail") != null) {
             User u = User.getByEmail(req.getParameter("addEmailEmail"));
@@ -435,6 +440,7 @@ public class Manager extends Page {
             resp.getWriter().println("Updated domains exempt from pings. Current set: <br/>");
             resp.getWriter().println(HTMLEncoder.encodeHTML(pingExempt.toString()));
         }
+        resp.getWriter().println("<br/><a href='" + PATH + "'>Go back</a>");
     }
 
     private void fetchMails(HttpServletRequest req, HttpServletResponse resp, String mail) throws IOException {
