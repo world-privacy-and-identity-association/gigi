@@ -17,13 +17,11 @@ import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Country;
-import club.wpia.gigi.dbObjects.Organisation;
-import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.dbObjects.Country.CountryCodeType;
+import club.wpia.gigi.dbObjects.Organisation;
 import club.wpia.gigi.dbObjects.Organisation.Affiliation;
+import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.pages.account.MyDetails;
-import club.wpia.gigi.pages.orga.CreateOrgPage;
-import club.wpia.gigi.pages.orga.ViewOrgPage;
 import club.wpia.gigi.testUtils.IOUtils;
 import club.wpia.gigi.testUtils.OrgTest;
 
@@ -61,17 +59,18 @@ public class TestOrgManagement extends OrgTest {
         assertSame(u2, affiliation.getTarget());
         assertTrue(affiliation.isMaster());
 
-        assertNull(executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "email=" + URLEncoder.encode(u.getEmail(), "UTF-8") + "&do_affiliate=y", 1));
+        User u3 = User.getById(createVerificationUser("testworker2", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
+        assertNull(executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "email=" + URLEncoder.encode(u3.getEmail(), "UTF-8") + "&do_affiliate=y", 1));
         allAdmins = orgs[0].getAllAdmins();
         assertEquals(2, allAdmins.size());
         Affiliation affiliation2 = allAdmins.get(0);
         if (affiliation2.getTarget().getId() == u2.getId()) {
             affiliation2 = allAdmins.get(1);
         }
-        assertEquals(u.getId(), affiliation2.getTarget().getId());
+        assertEquals(u3.getId(), affiliation2.getTarget().getId());
         assertFalse(affiliation2.isMaster());
 
-        assertNull(executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "del=" + URLEncoder.encode(u.getEmail(), "UTF-8") + "&email=&do_affiliate=y", 1));
+        assertNull(executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "del=" + URLEncoder.encode(u3.getEmail(), "UTF-8") + "&email=&do_affiliate=y", 1));
         assertEquals(1, orgs[0].getAllAdmins().size());
 
         assertNull(executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + orgs[0].getId(), "del=" + URLEncoder.encode(u2.getEmail(), "UTF-8") + "&email=&do_affiliate=y", 1));
@@ -143,6 +142,20 @@ public class TestOrgManagement extends OrgTest {
         }
         o1.removeAdmin(u2, u3);
         o1.removeAdmin(u3, u3);
+        assertEquals(0, o1.getAllAdmins().size());
+        try {
+            // must fail because one may not add oneself
+            o1.addAdmin(u3, u3, false);
+            fail("No exception!");
+        } catch (GigiApiException e) {
+        }
+        assertEquals(0, o1.getAllAdmins().size());
+        try {
+            // must fail because one may not add oneself
+            o1.addAdmin(u3, u3, true);
+            fail("No exception!");
+        } catch (GigiApiException e) {
+        }
         assertEquals(0, o1.getAllAdmins().size());
         o1.delete();
     }

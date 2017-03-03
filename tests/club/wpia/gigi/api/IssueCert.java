@@ -17,16 +17,16 @@ import java.security.cert.X509Certificate;
 
 import org.junit.Test;
 
-import club.wpia.gigi.api.CreateCertificate;
 import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.CSRType;
+import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.dbObjects.Country;
+import club.wpia.gigi.dbObjects.Country.CountryCodeType;
 import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.dbObjects.Domain;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.Organisation;
-import club.wpia.gigi.dbObjects.Certificate.CSRType;
-import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
-import club.wpia.gigi.dbObjects.Country.CountryCodeType;
+import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.pages.account.certs.CertificateRequest;
 import club.wpia.gigi.testUtils.ClientTest;
 import club.wpia.gigi.testUtils.IOUtils;
@@ -88,10 +88,11 @@ public class IssueCert extends ClientTest {
     @Test
     public void testIssueOrgCert() throws Exception {
         makeAgent(id);
-        u.grantGroup(getSupporter(), Group.ORG_AGENT);
+        User u2 = User.getById(createVerificationUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
+        u2.grantGroup(getSupporter(), Group.ORG_AGENT);
 
-        Organisation o1 = new Organisation("name", Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS), "pr", "st", "test@mail", "", "", u);
-        o1.addAdmin(u, u, false);
+        Organisation o1 = new Organisation("name", Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS), "pr", "st", "test@mail", "", "", u2);
+        o1.addAdmin(u, u2, false);
         String testdom = createUniqueName() + "-example.com";
         Domain d2 = new Domain(u, o1, testdom);
         verify(d2);
