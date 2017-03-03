@@ -33,7 +33,7 @@ public class GroupList implements Outputable {
             g.getName().output(out, l, vars);
         }
         if (fst) {
-            out.println(l.getTranslation("none"));
+            out.println(l.getTranslation("no entries"));
         }
     }
 
