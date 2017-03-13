@@ -28,7 +28,7 @@ import org.w3c.dom.Node;
 
 public class FetchLocales {
 
-    public static final String DOWNLOAD_SERVER = "pootle.cacert1.dogcraft.de";
+    public static final String DOWNLOAD_SERVER = "pootle.wpia.club";
 
     public static String PO_URL_TEMPLATE = "https://" + DOWNLOAD_SERVER + "/%/gigi/messages.po";
 
