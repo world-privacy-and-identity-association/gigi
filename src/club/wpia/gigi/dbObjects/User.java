@@ -17,6 +17,7 @@ import club.wpia.gigi.database.GigiResultSet;
 import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Country.CountryCodeType;
 import club.wpia.gigi.dbObjects.Verification.VerificationType;
+import club.wpia.gigi.email.EmailProvider;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.DateSelector;
 import club.wpia.gigi.pages.PasswordResetPage;
@@ -104,6 +105,11 @@ public class User extends CertificateOwner {
     }
 
     public User(String email, String password, DayDate dob, Locale locale, Country residenceCountry, NamePart... preferred) throws GigiApiException {
+        // Avoid storing information that obviously won't get through
+        if ( !EmailProvider.isValidMailAddress(email)) {
+            throw new IllegalArgumentException("Invalid email.");
+        }
+
         this.email = email;
         this.dob = dob;
         this.locale = locale;
@@ -118,6 +124,7 @@ public class User extends CertificateOwner {
             query.setString(7, residenceCountry == null ? null : residenceCountry.getCode());
             query.execute();
         }
+
         new EmailAddress(this, email, locale);
     }
 
