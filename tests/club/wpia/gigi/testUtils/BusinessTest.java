@@ -22,8 +22,8 @@ import club.wpia.gigi.dbObjects.Domain;
 import club.wpia.gigi.dbObjects.EmailAddress;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.NamePart;
-import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.dbObjects.NamePart.NamePartType;
+import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.email.EmailProvider;
 import club.wpia.gigi.ping.PingerDaemon;
 import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
@@ -76,11 +76,16 @@ public abstract class BusinessTest extends ConfiguredTest {
 
         @Override
         public TestMail receive() {
+            TestMail poll;
             try {
-                return mails.poll(30, TimeUnit.SECONDS);
+                poll = mails.poll(30, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 throw new Error(e);
             }
+            if (poll == null) {
+                throw new AssertionError("Mail receiving timed out");
+            }
+            return poll;
         }
 
         @Override
