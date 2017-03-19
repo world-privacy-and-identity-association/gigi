@@ -46,6 +46,6 @@ public class DomainOverview extends ManagedMultiFormPage {
         } else if (req.getParameter("delete") != null) {
             return Form.getForm(req, DomainManagementForm.class);
         }
-        return null;
+        throw new CSRFException();
     }
 }
