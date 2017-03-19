@@ -93,7 +93,9 @@ public abstract class ConfiguredTest {
         if ( !DatabaseConnection.isInited()) {
             DatabaseConnection.init(testProps);
             try {
-                l = DatabaseConnection.newLink(false);
+                synchronized (ConfiguredTest.class) {
+                    l = DatabaseConnection.newLink(false);
+                }
             } catch (InterruptedException e) {
                 throw new Error(e);
             }
@@ -104,9 +106,11 @@ public abstract class ConfiguredTest {
 
     @AfterClass
     public static void closeDBLink() {
-        if (l != null) {
-            l.close();
-            l = null;
+        synchronized (ConfiguredTest.class) {
+            if (l != null) {
+                l.close();
+                l = null;
+            }
         }
     }
 
