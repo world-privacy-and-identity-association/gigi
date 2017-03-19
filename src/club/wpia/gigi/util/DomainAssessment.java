@@ -148,11 +148,14 @@ public class DomainAssessment {
 
     public static void init(Properties conf) {
         String financialName = conf.getProperty("highFinancialValue");
+
         if (financialName == null) {
             throw new Error("No property highFinancialValue was configured");
         }
-        try {
-            financial = new DomainSet(new InputStreamReader(new FileInputStream(new File(financialName)), "UTF-8"));
+
+        try (FileInputStream fis = new FileInputStream(new File(financialName)); //
+                InputStreamReader isr = new InputStreamReader(fis, "UTF-8")) {
+            financial = new DomainSet(isr);
         } catch (IOException e) {
             throw new Error(e);
         }
