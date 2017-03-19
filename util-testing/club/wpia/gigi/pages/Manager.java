@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import sun.security.x509.X509Key;
 import club.wpia.gigi.Gigi;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.crypto.SPKAC;
@@ -47,6 +48,7 @@ import club.wpia.gigi.dbObjects.NamePart.NamePartType;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.dbObjects.Verification.VerificationType;
 import club.wpia.gigi.email.DelegateMailProvider;
+import club.wpia.gigi.email.EmailProvider;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.IterableDataset;
 import club.wpia.gigi.output.template.Template;
@@ -55,10 +57,10 @@ import club.wpia.gigi.ping.DomainPinger;
 import club.wpia.gigi.ping.PingerDaemon;
 import club.wpia.gigi.util.AuthorizationContext;
 import club.wpia.gigi.util.DayDate;
+import club.wpia.gigi.util.DomainAssessment;
 import club.wpia.gigi.util.HTMLEncoder;
 import club.wpia.gigi.util.Notary;
 import club.wpia.gigi.util.TimeConditions;
-import sun.security.x509.X509Key;
 
 public class Manager extends Page {
 
@@ -297,8 +299,27 @@ public class Manager extends Page {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (req.getParameter("create") != null) {
-            batchCreateUsers(req.getParameter("prefix"), req.getParameter("suffix"), Integer.parseInt(req.getParameter("amount")), resp.getWriter());
-            resp.getWriter().println("User batch created.");
+            String prefix = req.getParameter("prefix");
+            String domain = req.getParameter("suffix");
+            try {
+                if (null == prefix) {
+                    throw new GigiApiException("No prefix given.");
+                }
+                if (null == domain) {
+                    throw new GigiApiException("No domain given.");
+                }
+
+                DomainAssessment.checkCertifiableDomain(domain, false, true);
+
+                if ( !EmailProvider.isValidMailAddress(prefix + "@" + domain)) {
+                    throw new GigiApiException("Invalid email address template.");
+                }
+
+                batchCreateUsers(prefix, domain, Integer.parseInt(req.getParameter("amount")), resp.getWriter());
+                resp.getWriter().println("User batch created.");
+            } catch (GigiApiException e) {
+                throw new Error(e);
+            }
         } else if (req.getParameter("addpriv") != null || req.getParameter("delpriv") != null) {
             User u = User.getByEmail(req.getParameter("email"));
             if (u == null) {
