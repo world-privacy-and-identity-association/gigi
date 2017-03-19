@@ -15,8 +15,16 @@ public class HighFinancialValueFetcherUmbrella extends HighFinancialValueFetcher
     @Override
     public void handle(String line, PrintWriter fos) {
         String[] parts = line.split(",");
+
         // Assert that the value before the "," is an integer
-        Integer.parseInt(parts[0]);
+        try {
+            if (Integer.parseInt(parts[0]) < 1) {
+                throw new NumberFormatException("We expect a number greater then zero for the first column.");
+            }
+        } catch (NumberFormatException nfe) {
+            // Bail on lines with invalid first field
+            throw new Error("Invalid format of first column.", nfe);
+        }
 
         String registrablePart = PublicSuffixes.getInstance().getRegistrablePart(parts[1]);
         if (registrablePart != null && printed.add(registrablePart)) {
