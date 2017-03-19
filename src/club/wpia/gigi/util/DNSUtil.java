@@ -38,17 +38,17 @@ public class DNSUtil {
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
         env.put(Context.AUTHORITATIVE, "true");
         env.put(Context.PROVIDER_URL, "dns://" + server);
+
         InitialDirContext context = new InitialDirContext(env);
         try {
-
             Attributes dnsLookup = context.getAttributes(name, new String[] {
                     "TXT"
             });
+
             return extractTextEntries(dnsLookup.get("TXT"));
         } finally {
             context.close();
         }
-
     }
 
     private static String[] extractTextEntries(Attribute nsRecords) throws NamingException {
@@ -72,27 +72,35 @@ public class DNSUtil {
     public static CAARecord[] getCAAEntries(String domain) throws NamingException {
         Hashtable<String, String> env = new Hashtable<String, String>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
-        InitialDirContext context = new InitialDirContext(env);
-        Attributes dnsLookup;
-        try {
-            dnsLookup = context.getAttributes(domain, new String[] {
-                    "257"
-            });
-        } catch (NameNotFoundException e) {
-            // We treat non-existing names as names without CAA-records
-            return new CAARecord[0];
-        }
-        Attribute nsRecords = dnsLookup.get("257");
-        if (nsRecords == null) {
-            return new CAARecord[] {};
-        }
-        CAA.CAARecord[] result = new CAA.CAARecord[nsRecords.size()];
-        for (int i = 0; i < result.length; i++) {
-            byte[] rec = (byte[]) nsRecords.get(i);
 
-            result[i] = new CAA.CAARecord(rec);
+        InitialDirContext context = new InitialDirContext(env);
+        try {
+            Attributes dnsLookup;
+            try {
+                dnsLookup = context.getAttributes(domain, new String[] {
+                    "257"
+                });
+            } catch (NameNotFoundException e) {
+                // We treat non-existing names as names without CAA-records
+                return new CAARecord[0];
+            }
+
+            Attribute nsRecords = dnsLookup.get("257");
+            if (nsRecords == null) {
+                return new CAARecord[] {};
+            }
+
+            CAA.CAARecord[] result = new CAA.CAARecord[nsRecords.size()];
+            for (int i = 0; i < result.length; i++) {
+                byte[] rec = (byte[]) nsRecords.get(i);
+
+                result[i] = new CAA.CAARecord(rec);
+            }
+
+            return result;
+        } finally {
+            context.close();
         }
-        return result;
     }
 
     public static void main(String[] args) throws NamingException {
