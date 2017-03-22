@@ -83,106 +83,152 @@ public abstract class EmailProvider {
 
     private static final Pattern MAIL_ADDRESS = Pattern.compile("^" + MAIL_P_RFC_ADDRESS + "$");
 
-    public String checkEmailServer(int forUid, String address) throws IOException {
-        if (isValidMailAddress(address)) {
-            String[] parts = address.split("@", 2);
-            String domain = parts[1];
-
-            String[] mxhosts;
-            try {
-                mxhosts = DNSUtil.getMXEntries(domain);
-            } catch (NamingException e1) {
-                return "MX lookup for your hostname failed.";
+    public String checkEmailServer(int forUid, final String address) throws IOException {
+        if ( !isValidMailAddress(address)) {
+            try (GigiPreparedStatement statmt = new GigiPreparedStatement("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`=?, `uid`=?, `type`='fast'::`emailPingType`, `status`='failed'::`pingState`")) {
+                statmt.setString(1, address);
+                statmt.setString(2, "Invalid email address provided");
+                statmt.setInt(3, forUid);
+                statmt.execute();
             }
-            sortMX(mxhosts);
+            return FAIL;
+        }
 
-            for (String host : mxhosts) {
-                host = host.split(" ", 2)[1];
-                if (host.endsWith(".")) {
-                    host = host.substring(0, host.length() - 1);
-                } else {
-                    return "Strange MX records.";
-                }
-                try (Socket s = new Socket(host, 25);
-                        BufferedReader br0 = new BufferedReader(new InputStreamReader(s.getInputStream(), "UTF-8"));//
-                        PrintWriter pw0 = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"))) {
-                    BufferedReader br = br0;
-                    PrintWriter pw = pw0;
+        String[] parts = address.split("@", 2);
+        String domain = parts[1];
+
+        String[] mxhosts;
+        try {
+            mxhosts = DNSUtil.getMXEntries(domain);
+        } catch (NamingException e1) {
+            return "MX lookup for your hostname failed.";
+        }
+        sortMX(mxhosts);
+
+        for (String host : mxhosts) {
+            host = host.split(" ", 2)[1];
+            if (host.endsWith(".")) {
+                host = host.substring(0, host.length() - 1);
+            } else {
+                return "Strange MX records.";
+            }
+
+            class SMTPSessionHandler {
+
+                public boolean detectedSTARTTLS = false;
+
+                public boolean initiateSMTPSession(BufferedReader r, PrintWriter w) throws IOException {
                     String line;
-                    if ( !SendMail.readSMTPResponse(br, 220)) {
-                        continue;
+
+                    if ( !SendMail.readSMTPResponse(r, 220)) {
+                        return false;
                     }
 
-                    pw.print("EHLO " + SystemKeywords.SMTP_NAME + "\r\n");
-                    pw.flush();
-                    boolean starttls = false;
+                    w.print("EHLO " + SystemKeywords.SMTP_NAME + "\r\n");
+                    w.flush();
+
+                    detectedSTARTTLS = false;
                     do {
-                        line = br.readLine();
+                        line = r.readLine();
                         if (line == null) {
                             break;
                         }
-                        starttls |= line.substring(4).equals("STARTTLS");
+                        detectedSTARTTLS |= line.substring(4).equals("STARTTLS");
                     } while (line.startsWith("250-"));
+
                     if (line == null || !line.startsWith("250 ")) {
-                        continue;
+                        return false;
                     }
 
-                    if (starttls) {
-                        pw.print("STARTTLS\r\n");
-                        pw.flush();
-                        if ( !SendMail.readSMTPResponse(br, 220)) {
-                            continue;
-                        }
-                        Socket s1 = ((SSLSocketFactory) SSLSocketFactory.getDefault()).createSocket(s, host, 25, true);
-                        br = new BufferedReader(new InputStreamReader(s1.getInputStream(), "UTF-8"));
-                        pw = new PrintWriter(new OutputStreamWriter(s1.getOutputStream(), "UTF-8"));
-                        pw.print("EHLO " + SystemKeywords.SMTP_NAME + "\r\n");
-                        pw.flush();
-                        if ( !SendMail.readSMTPResponse(br, 250)) {
-                            continue;
-                        }
+                    return true;
+                }
+
+                public boolean trySendEmail(BufferedReader r, PrintWriter w) throws IOException {
+                    w.print("MAIL FROM: <" + SystemKeywords.SMTP_PSEUDO_FROM + ">\r\n");
+                    w.flush();
+
+                    if ( !SendMail.readSMTPResponse(r, 250)) {
+                        return false;
                     }
 
-                    pw.print("MAIL FROM: <" + SystemKeywords.SMTP_PSEUDO_FROM + ">\r\n");
-                    pw.flush();
+                    w.print("RCPT TO: <" + address + ">\r\n");
+                    w.flush();
 
-                    if ( !SendMail.readSMTPResponse(br, 250)) {
-                        continue;
-                    }
-                    pw.print("RCPT TO: <" + address + ">\r\n");
-                    pw.flush();
-
-                    if ( !SendMail.readSMTPResponse(br, 250)) {
-                        continue;
-                    }
-                    pw.print("QUIT\r\n");
-                    pw.flush();
-                    if ( !SendMail.readSMTPResponse(br, 221)) {
-                        continue;
+                    if ( !SendMail.readSMTPResponse(r, 250)) {
+                        return false;
                     }
 
-                    try (GigiPreparedStatement statmt = new GigiPreparedStatement("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`=?, `uid`=?, `type`='fast', `status`='success'::`pingState`")) {
-                        statmt.setString(1, address);
-                        statmt.setString(2, line);
-                        statmt.setInt(3, forUid);
-                        statmt.execute();
+                    w.print("QUIT\r\n");
+                    w.flush();
+
+                    if ( !SendMail.readSMTPResponse(r, 221)) {
+                        return false;
                     }
 
-                    if (line == null || !line.startsWith("250")) {
-                        return line;
-                    } else {
-                        return OK;
-                    }
+                    return true;
                 }
 
             }
+
+            SMTPSessionHandler sh = new SMTPSessionHandler();
+
+            try (Socket plainSocket = new Socket(host, 25); //
+                    BufferedReader plainReader = new BufferedReader(new InputStreamReader(plainSocket.getInputStream(), "UTF-8")); //
+                    PrintWriter plainWriter = new PrintWriter(new OutputStreamWriter(plainSocket.getOutputStream(), "UTF-8"))) {
+
+                if ( !sh.initiateSMTPSession(plainReader, plainWriter)) {
+                    continue;
+                }
+
+                boolean canSend = false;
+
+                if (sh.detectedSTARTTLS) {
+                    plainWriter.print("STARTTLS\r\n");
+                    plainWriter.flush();
+
+                    if ( !SendMail.readSMTPResponse(plainReader, 220)) {
+                        continue;
+                    }
+
+                    try (Socket tlsSocket = ((SSLSocketFactory) SSLSocketFactory.getDefault()).createSocket(plainSocket, host, 25, true); //
+                            BufferedReader tlsReader = new BufferedReader(new InputStreamReader(tlsSocket.getInputStream(), "UTF-8")); //
+                            PrintWriter tlsWriter = new PrintWriter(new OutputStreamWriter(tlsSocket.getOutputStream(), "UTF-8"))) {
+
+                        tlsWriter.print("EHLO " + SystemKeywords.SMTP_NAME + "\r\n");
+                        tlsWriter.flush();
+
+                        if ( !SendMail.readSMTPResponse(tlsReader, 250)) {
+                            continue;
+                        }
+
+                        canSend = sh.trySendEmail(tlsReader, tlsWriter);
+                    }
+                } else {
+                    canSend = sh.trySendEmail(plainReader, plainWriter);
+                }
+
+                if ( !canSend) {
+                    continue;
+                }
+
+                try (GigiPreparedStatement statmt = new GigiPreparedStatement("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`=?, `uid`=?, `type`='fast', `status`='success'::`pingState`")) {
+                    statmt.setString(1, address);
+                    statmt.setString(2, OK);
+                    statmt.setInt(3, forUid);
+                    statmt.execute();
+                }
+
+                return OK;
+            }
         }
+
         try (GigiPreparedStatement statmt = new GigiPreparedStatement("INSERT INTO `emailPinglog` SET `when`=NOW(), `email`=?, `result`=?, `uid`=?, `type`='fast'::`emailPingType`, `status`='failed'::`pingState`")) {
             statmt.setString(1, address);
             statmt.setString(2, "Failed to make a connection to the mail server");
             statmt.setInt(3, forUid);
             statmt.execute();
         }
+
         return FAIL;
     }
 
