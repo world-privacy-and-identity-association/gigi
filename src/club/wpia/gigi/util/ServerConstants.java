@@ -73,7 +73,7 @@ public class ServerConstants {
         secureBindPort = conf.getProperty("https.bindPort", conf.getProperty("https.port"));
         bindPort = conf.getProperty("http.bindPort", conf.getProperty("http.port"));
 
-        suffix = conf.getProperty("name.suffix", conf.getProperty("name.www", "www.wpia.local").substring(4));
+        suffix = conf.getProperty("name.suffix", "wpia.local");
         HashMap<Host, String> hostnames = new HashMap<>();
         for (Host h : Host.values()) {
             hostnames.put(h, conf.getProperty("name." + h.getConfigName(), h.getHostDefaultPrefix() + "." + suffix));
