@@ -79,7 +79,7 @@ public class Name implements Outputable, IdCachable {
         public void output(PrintWriter out) {
             out.print("<span class='sname'>");
             out.print(HTMLEncoder.encodeHTML(singlePart.getValue()));
-            out.println("</span>");
+            out.print("</span>");
         }
     }
 
@@ -200,7 +200,7 @@ public class Name implements Outputable, IdCachable {
                 res.deleteCharAt(res.length() - 1);
                 out.print("<span class='" + type + "'>");
                 out.print(HTMLEncoder.encodeHTML(res.toString()));
-                out.println("</span>");
+                out.print("</span>");
             }
         }
 
@@ -351,7 +351,7 @@ public class Name implements Outputable, IdCachable {
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
         out.print("<span class=\"names\">");
         scheme.output(out);
-        out.print("</span> ");
+        out.print("</span>");
     }
 
     /**
