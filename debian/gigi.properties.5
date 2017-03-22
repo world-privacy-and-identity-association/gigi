@@ -1,0 +1,212 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2014-2017 WPIA Software Team <software@wpia.club>,
+.\"
+.TH GIGI.PROPERTIES 5 "March 21, 2017" WPIA
+.\" Please adjust this date whenever revising the manpage.
+.SH NAME
+gigi.properties \- Gigi configuration file
+.SH SYNOPSIS
+.I /etc/gigi.properties
+.SH DESCRIPTION
+The file
+.I gigi.properties
+contains the configuration for the WPIA
+.BR gigi (1)
+system.
+It is a Java properties file with \fIname=value\fR assignments and \fI# comment lines\fR.
+
+The following options can be set:
+.TP
+.B appName
+The name of the main application, for example \fISomeCA\fR.
+.TP
+.B appIdentifier
+The
+.B \%appName
+in a format suitable for inclusion in Internet domain names and HTTP URLs,
+used in challenges to verify Internet domain name ownership via DNS or HTTP.
+This identifier should be limited to lowercase ASCII letters, numbers and perhaps hyphens.
+.TP
+.B name.suffix
+The main Internet domain name suffix of the application.
+Used for administrative email addresses (e.g., \fIsupport@\fBname.suffix\fR)
+and for all other domain names that are not explicitly specified (see \fBname.*\fR below).
+Defaults to \fIwpia.local\fR.
+.TP
+.B host
+The IP address that Gigi listens on, for example 127.0.0.1.
+.TP
+.B http.port
+The port on which Gigi is reachable from outside via HTTP
+(that is, the port it uses to refer to itself in hyperlinks),
+and also the port on which Gigi listens unless
+.B \%http.bindPort
+is specified.
+Usually 80.
+.TP
+.B https.port
+The port on which Gigi is reachable from outside via HTTPS
+(that is, the port it uses to refer to itself in hyperlinks),
+and also the port on which Gigi listens unless
+.B \%https.bindPort
+is specified.
+Usually 443.
+.TP
+.B http.bindPort
+The port on which Gigi listens for HTTP requests, or
+.IR stdin
+to specify that Gigi has received a socket on file descriptor 0 (standard input)
+which it should use for HTTP
+(for example, via
+.BR \%systemd.socket (5)
+or
+.BR inetd (1)).
+.TP
+.B https.bindPort
+The port on which Gigi listens for HTTPS requests, or
+.IR stdin
+to specify that Gigi has received a socket on file descriptor 0 (standard input)
+which it should use for HTTPS
+(for example, via
+.BR \%systemd.socket (5)
+or
+.BR inetd (1)).
+Not used if
+.B \%proxy
+is
+.IR true .
+.TP
+.B proxy
+If
+.IR true ,
+Gigi expects to sit behind a proxy server that handles HTTPS,
+for example
+.BR \%apache2 (8)
+or
+.BR \%nginx (1).
+The real client IP, real protocol and (if present) real client certificate
+are expected to be transferred in the \fI\%X-Real-IP\fR, \fI\%X-Real-Proto\fR and \fI\%X-Client-Cert\fR HTTP headers.
+.B \%https.bindPort
+is not used.
+.TP
+.B sql.driver
+The JDBC driver used for connecting to the database.
+As PostgreSQL is currently the only supported database,
+the only value that really makes sense is \fI\%org.postgresql.Driver\fR.
+.TP
+.B sql.url
+The database URL that Gigi connects to,
+for example \fI\%jdbc:postgresql://localhost/gigi\fR.
+.TP
+.B sql.user
+The user name that Gigi uses to connect to the database.
+.TP
+.B sql.password
+The password that Gigi uses to connect to the database.
+.TP
+.B emailProvider
+The fully-qualified name of a Java class that Gigi uses to send emails.
+The only value available in production is \fIclub.wpia.gigi.email.Sendmail\fR.
+.TP
+.B emailProvider.smtpHost
+The host to which the
+.B \%emailProvider
+should try to connect.
+Defaults to \fI\%localhost\fR.
+.TP
+.B emailProvider.smtpPort
+The port to which the
+.B \%emailProvider
+should try to connect.
+Defaults to \fI25\fR.
+.TP
+.B highFinancialValue
+A path to a plain text file of Internet domain names, one per names,
+which Gigi should refuse to issue certificates to.
+.TP
+.B time.testValidMonths
+The maximum time, in months, for which a passed agent quiz is considered recent.
+Defaults to \fI12\fR.
+.TP
+.B time.reverificationDays
+The minimum time, in days, that needs to pass before a name can be verified by the same agent again.
+Defaults to \fI90\fR.
+.TP
+.B time.verificationMaxAgeMonths
+The maximum time, in months, for which a verification is considered recent.
+Defaults to \fI24\fR.
+.TP
+.B time.verificationFreshMonths
+The maximum time period, in months, in which a verification can be entered into the system after it took place.
+Defaults to \fI39\fR.
+.TP
+.B time.emailPingMonths
+The maximum time period, in months, in which an email address can be used to create client certificates
+before it must be verified again.
+Defaults to \fI6\fR.
+.TP
+.B gigi.uid
+Gigi will try to change to this user ID (see
+.BR \%setuid (2))
+after opening its communication sockets.
+This allows Gigi to bind to privileged ports as the superuser
+and then drop privileges and run as a normal user.
+This should rarely be necessary: it is much safer to not start Gigi as superuser in the first place
+and instead only run it with the \fBCAP_NET_BIND_SERVICE\fR capability (see
+.BR \%capabilities (7)),
+or to have a privileged parent process (for example
+.BR \%systemd (1))
+create the socket and pass it to Gigi (see
+.BR \%http.bindPort ).
+If
+.B \%gigi.uid
+and
+.B \%gigi.gid
+are both \fI-1\fR, this mechanism is disabled.
+Defaults to \fI65534\fR, the user ID of the \fInobody\fR user on Debian GNU/Linux systems.
+.TP
+.B gigi.gid
+Analogous to
+.BR \%gigi.uid :
+Gigi will try to change to this group ID (see
+.BR \%setgid (2))
+after opening its communication sockets.
+Defaults to \fI65534\fR.
+.TP
+.B scrypt.params
+The parameters to the scrypt password hashing function.
+Defaults to \fI14;8;1\fR.
+.TP
+.B name.www
+The Internet domain name for the main application, served both via HTTP and HTTPS.
+Defaults to \fI\%www.\fBname.suffix\fR.
+.TP
+.B name.secure
+The Internet domain name for the forced-secure version of the application.
+Gigi only serves this domain via HTTPS,
+and requires authentication via a client certificate.
+Defaults to \fI\%secure.\fBname.suffix\fR.
+.TP
+.B name.static
+The Internet domain name for static resources,
+like CSS style sheets and JS resources.
+Defaults to \fI\%static.\fBname.suffix\fR.
+.TP
+.B name.api
+The Internet domain name for the Gigi API,
+which is used to issue certificates and receive quiz results.
+Defaults to \fI\%api.\fBname.suffix\fR.
+.TP
+.B name.link
+The Internet domain name of a link redirector service.
+Gigi does not provide this service itself,
+but links to it as a place for external documentation.
+Defaults to \fI\%link.\fBname.suffix\fR.
+.TP
+.B name.g2.crt
+The Internet domain name of a server that hosts a certificate repository
+containing the certificates generated during the NRE procedure.
+This service is also not provided by Gigi.
+Defaults to \fI\%g2.crt.\fBname.suffix\fR.
+.SH SEE ALSO
+.BR gigi (1)
