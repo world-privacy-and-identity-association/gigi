@@ -187,17 +187,20 @@ public class Name implements Outputable, IdCachable {
 
         @Override
         public void output(PrintWriter out) {
-            outputNameParts(out, "fname", firstNames);
-            outputNameParts(out, "lname", lastNames);
-            outputNameParts(out, "suffix", suffixes);
+            outputNameParts(out, "fname", firstNames, false);
+            outputNameParts(out, "lname", lastNames, true);
+            outputNameParts(out, "suffix", suffixes, true);
         }
 
-        private void outputNameParts(PrintWriter out, String type, NamePart[] input) {
+        private void outputNameParts(PrintWriter out, String type, NamePart[] input, boolean leadingSpace) {
             StringBuilder res;
             res = new StringBuilder();
             appendArray(res, input);
             if (res.length() > 0) {
                 res.deleteCharAt(res.length() - 1);
+                if (leadingSpace) {
+                    out.print(" ");
+                }
                 out.print("<span class='" + type + "'>");
                 out.print(HTMLEncoder.encodeHTML(res.toString()));
                 out.print("</span>");
