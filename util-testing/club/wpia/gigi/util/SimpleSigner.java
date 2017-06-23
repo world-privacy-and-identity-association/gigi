@@ -134,7 +134,7 @@ public class SimpleSigner {
                     getSANSs = new GigiPreparedStatement("SELECT contents, type FROM `subjectAlternativeNames` " + //
                             "WHERE `certId`=?");
 
-                    updateMail = new GigiPreparedStatement("UPDATE certs SET crt_name=?," + " created=NOW(), serial=?, caid=? WHERE id=?");
+                    updateMail = new GigiPreparedStatement("UPDATE certs SET crt_name=?," + " created=NOW(), serial=?, caid=?, expire=? WHERE id=?");
                     warnMail = new GigiPreparedStatement("UPDATE jobs SET warning=warning+1, state=CASE WHEN warning<3 THEN 'open'::`jobState` ELSE 'error'::`jobState` END WHERE id=?");
 
                     revoke = new GigiPreparedStatement("SELECT certs.id, certs.csr_name,jobs.id FROM jobs INNER JOIN certs ON jobs.`targetId`=certs.id" + " WHERE jobs.state='open' AND task='revoke'");
@@ -369,7 +369,8 @@ public class SimpleSigner {
                     updateMail.setString(1, crt.getPath());
                     updateMail.setString(2, serial.toString(16));
                     updateMail.setInt(3, caRs.getInt("id"));
-                    updateMail.setInt(4, id);
+                    updateMail.setTimestamp(4, new Timestamp(toDate.getTime()));
+                    updateMail.setInt(5, id);
                     updateMail.execute();
 
                     finishJob.setInt(1, rs.getInt("jobid"));
