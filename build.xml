@@ -160,8 +160,6 @@
 		<copy todir="work/static">
 			<fileset dir="static"/>
 		</copy>
-		<move file="work/static/static/images/cacert4-test.png" tofile="work/static/static/images/cacert4.png"/>
-		<delete file="work/static/static/image/cacert4-test.png"/>
 		<tar destfile="static.tar.gz" compression="gzip" basedir="work"
 			includes="../src/club/wpia/gigi/database/tableStructure.sql,**,templates/**" />
 	</target>
@@ -172,7 +170,6 @@
 		<copy todir="work/static">
 			<fileset dir="static"/>
 		</copy>
-		<delete file="work/static/static/image/cacert4-test.png"/>
 		<tar destfile="static.tar.gz" compression="gzip" basedir="work"
 			includes="../src/club/wpia/gigi/database/tableStructure.sql,**,templates/**" />
 	</target>
@@ -301,7 +298,6 @@
 		<copy todir="${env.DESTDIR}/usr/share/wpia-gigi/static">
 			<fileset dir="static" />
 		</copy>
-		<delete file="${env.DESTDIR}/usr/share/wpia-gigi/static/static/images/cacert4-test.png" />
 		<copy file="gigi.jar" tofile="${env.DESTDIR}/usr/share/java/gigi.jar"/>
 	</target>
 	<target name="install-testing" depends="install-common">
@@ -309,8 +305,6 @@
 		<copy todir="${env.DESTDIR}/usr/share/wpia-gigi/static">
 			<fileset dir="static" />
 		</copy>
-		<move file="${env.DESTDIR}/usr/share/wpia-gigi/static/static/images/cacert4-test.png" tofile="${env.DESTDIR}/usr/share/wpia-gigi/static/static/images/cacert4.png" />
-		<delete file="${env.DESTDIR}/usr/share/wpia-gigi/static/static/images/cacert4-test.png" />
 		<copy file="gigi-testing.jar" tofile="${env.DESTDIR}/usr/share/java/gigi.jar"/>
 	</target>
 
