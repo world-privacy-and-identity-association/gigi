@@ -1,4 +1,4 @@
-you need the debian mysql-connector package (jar under /usr/share/java/mysql-connector.jar)
+you need the debian postgres-connector package (jar under /usr/share/java/postgresql-jdbc4.jar)
 
 <yourSqlPassword>
 a Password to the sql database to test in.

@@ -40,7 +40,7 @@
   </properties>
   <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM" plugin="multiple-scms@0.6">
     <scms>
-      <hudson.plugins.git.GitSCM plugin="git@2.4.4">
+      <hudson.plugins.git.GitSCM plugin="git@3.1.0">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
@@ -57,11 +57,11 @@
         <submoduleCfg class="list"/>
         <extensions>
           <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-            <relativeTargetDir>cacert-nre</relativeTargetDir>
+            <relativeTargetDir>nre</relativeTargetDir>
           </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
         </extensions>
       </hudson.plugins.git.GitSCM>
-      <hudson.plugins.git.GitSCM plugin="git@2.4.4">
+      <hudson.plugins.git.GitSCM plugin="git@3.1.0">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
@@ -79,7 +79,7 @@
         <submoduleCfg class="list"/>
         <extensions>
           <hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
-            <relativeTargetDir>cacert-gigi</relativeTargetDir>
+            <relativeTargetDir>gigi</relativeTargetDir>
           </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
           <hudson.plugins.git.extensions.impl.CleanBeforeCheckout/>
         </extensions>
@@ -149,15 +149,15 @@
   <builders>
     <hudson.tasks.Shell>
       <command># --- generating and installing keys
-cd cacert-nre
+cd nre
 cat &lt;&lt;EOT &gt;config
 DOMAIN=$$$$YOUR_LOOKUP_DOMAIN$$$$
 KEYSIZE=1024
 EOT
 ./all root 2015 $(date +%Y)
 
-cd ../cacert-gigi
-for i in ../cacert-nre/generated/gigi-*.tar.gz; do
+cd ../gigi
+for i in ../nre/generated/gigi-*.tar.gz; do
   tar xf &quot;$i&quot;
 done
 
@@ -167,7 +167,7 @@ cd ..
 
 mkdir -p signer
 cd signer
-for i in ../../cacert-nre/generated/signer-server-*.tar.gz; do
+for i in ../../nre/generated/signer-server-*.tar.gz; do
   tar xf &quot;$i&quot;
 done
 cd ..
@@ -214,26 +214,26 @@ EOT
     <hudson.tasks.Ant plugin="ant@1.3">
       <targets>build-testing-l10n $TARGET generatecoco</targets>
       <antOpts>-Dfile.encoding=UTF-8</antOpts>
-      <buildFile>cacert-gigi/build.xml</buildFile>
+      <buildFile>gigi/build.xml</buildFile>
       <properties>jdt=$$$$JDT_PATH$$$$
 localePath=$$$$LOCALE_FETCH_PATH$$$$</properties>
     </hudson.tasks.Ant>
     <hudson.tasks.Shell>
-      <command>cd cacert-gigi
+      <command>cd gigi
 dpkg-buildpackage -b -us -uc</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>cacert-gigi/natives/*.so,cacert-gigi/gigi*.jar,*.deb,cacert-gigi/cocoReport/**,cacert-gigi/merged.exec,cacert-gigi/messages.po</artifacts>
+      <artifacts>gigi/natives/*.so,gigi/gigi*.jar,*.deb,gigi/cocoReport/**,gigi/merged.exec,gigi/messages.po</artifacts>
       <allowEmptyArchive>false</allowEmptyArchive>
       <onlyIfSuccessful>false</onlyIfSuccessful>
       <fingerprint>true</fingerprint>
       <defaultExcludes>true</defaultExcludes>
       <caseSensitive>true</caseSensitive>
     </hudson.tasks.ArtifactArchiver>
-    <hudson.tasks.junit.JUnitResultArchiver plugin="junit@1.15">
-      <testResults>cacert-gigi/junit/*.xml</testResults>
+    <hudson.tasks.junit.JUnitResultArchiver plugin="junit@1.20">
+      <testResults>gigi/junit/*.xml</testResults>
       <keepLongStdio>false</keepLongStdio>
       <healthScaleFactor>1.0</healthScaleFactor>
       <allowEmptyResults>false</allowEmptyResults>
