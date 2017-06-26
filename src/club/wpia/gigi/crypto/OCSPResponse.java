@@ -60,6 +60,24 @@ public class OCSPResponse {
             this.unknown = unkown;
         }
 
+        // @formatter:off
+        // from: https://tools.ietf.org/html/rfc6960#appendix-B.1
+        // SingleResponse ::= SEQUENCE {
+        //     certID                  CertID,
+        //     certStatus              CertStatus,
+        //     thisUpdate              GeneralizedTime,
+        //     nextUpdate          [0] EXPLICIT GeneralizedTime OPTIONAL,
+        //     singleExtensions    [1] EXPLICIT Extensions OPTIONAL }
+        // 
+        //  CertStatus ::= CHOICE {
+        //     good                [0] IMPLICIT NULL,
+        //     revoked             [1] IMPLICIT RevokedInfo,
+        //     unknown             [2] IMPLICIT UnknownInfo }
+        // 
+        //  RevokedInfo ::= SEQUENCE {
+        //     revocationTime          GeneralizedTime,
+        //     revocationReason    [0] EXPLICIT CRLReason OPTIONAL }
+        // @formatter:on
         private DerValue produceSingleResponse() throws IOException {
             try (DerOutputStream r = new DerOutputStream()) {
                 try (DerOutputStream target = new DerOutputStream()) {
@@ -140,6 +158,26 @@ public class OCSPResponse {
      * @throws GeneralSecurityException
      *             if signing fails.
      */
+    // @formatter:off
+    // from: https://tools.ietf.org/html/rfc6960#appendix-B.1
+    // OCSPResponse ::= SEQUENCE {
+    //    responseStatus          OCSPResponseStatus,
+    //    responseBytes       [0] EXPLICIT ResponseBytes OPTIONAL }
+    // 
+    // OCSPResponseStatus ::= ENUMERATED {
+    //    successful          (0),  -- Response has valid confirmations
+    //    malformedRequest    (1),  -- Illegal confirmation request
+    //    internalError       (2),  -- Internal error in issuer
+    //    tryLater            (3),  -- Try again later
+    //                              -- (4) is not used
+    //    sigRequired         (5),  -- Must sign the request
+    //    unauthorized        (6)   -- Request unauthorized
+    // }
+    // 
+    // ResponseBytes ::= SEQUENCE {
+    //    responseType            OBJECT IDENTIFIER,
+    //    response                OCTET STRING }
+    // @formatter:on
     public byte[] produceResponce(Signature s) throws IOException, GeneralSecurityException {
         try (DerOutputStream dos2 = new DerOutputStream()) {
             try (DerOutputStream dos = new DerOutputStream()) {
@@ -167,6 +205,14 @@ public class OCSPResponse {
 
     }
 
+    // @formatter:off
+    // from: https://tools.ietf.org/html/rfc6960#appendix-B.1
+    // BasicOCSPResponse ::= SEQUENCE {
+    //     tbsResponseData          ResponseData,
+    //     signatureAlgorithm       AlgorithmIdentifier,
+    //     signature                BIT STRING,
+    //     certs                [0] EXPLICIT SEQUENCE OF Certificate OPTIONAL }
+    // @formatter:on
     private byte[] produceBasicOCSPResponse(Signature s) throws IOException, GeneralSecurityException {
 
         try (DerOutputStream o = new DerOutputStream()) {
@@ -197,6 +243,25 @@ public class OCSPResponse {
 
     }
 
+    // @formatter:off
+    // from: https://tools.ietf.org/html/rfc6960#appendix-B.1
+    // ResponseData ::= SEQUENCE {
+    //     version             [0] EXPLICIT Version DEFAULT v1,
+    //     responderID             ResponderID,
+    //     producedAt              GeneralizedTime,
+    //     responses               SEQUENCE OF SingleResponse,
+    //     responseExtensions  [1] EXPLICIT Extensions OPTIONAL }
+    //  
+    //  ResponderID ::= CHOICE {
+    //     byName              [1] Name,
+    //     byKey               [2] KeyHash }
+    //
+    //  KeyHash ::= OCTET STRING -- SHA-1 hash of responder's public key
+    //          -- (i.e., the SHA-1 hash of the value of the
+    //          -- BIT STRING subjectPublicKey [excluding
+    //          -- the tag, length, and number of unused
+    //          -- bits] in the responder's certificate)
+    // @formatter:on
     private void produceResponseData(DerOutputStream basicReponse) throws IOException {
         try (DerOutputStream tbsResp = new DerOutputStream()) {
             produceResponderId(tbsResp);
