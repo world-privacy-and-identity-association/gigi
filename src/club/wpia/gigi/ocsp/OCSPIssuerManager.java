@@ -75,7 +75,7 @@ public class OCSPIssuerManager implements Runnable {
     }
 
     private void index(AlgorithmId aid, MessageDigest md, Map<String, OCSPIssuer> toServe, Map<AlgorithmId, Map<OCSPIssuerId, OCSPIssuer>> map) {
-        OCSPResponder.log.info("Indexing OCSP issuers for " + md);
+        OCSPResponder.log.fine("Indexing OCSP issuers for " + md);
         HashMap<OCSPIssuerId, OCSPIssuer> issuers = new HashMap<>();
         for (OCSPIssuer i : toServe.values()) {
             issuers.put(new OCSPIssuerId(aid, md, i.getTarget()), i);
@@ -107,7 +107,6 @@ public class OCSPIssuerManager implements Runnable {
         }
         try {
             String keyName = f.getParentFile().getName();
-            OCSPResponder.log.info("CA: " + keyName);
             updateCA(f, keyName, keys, toServe);
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
@@ -169,7 +168,7 @@ public class OCSPIssuerManager implements Runnable {
                 long deltas = expiery.getTime() - now.getTime();
                 deltas /= 1000;
                 deltas /= 60 * 60 * 24;
-                OCSPResponder.log.info("Remaining days for OCSP certificate: " + deltas);
+                OCSPResponder.log.fine("Remaining days for OCSP certificate: " + deltas);
                 if (deltas > 30 * 3) {
                     return;
                 }
