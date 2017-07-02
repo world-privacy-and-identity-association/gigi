@@ -78,6 +78,15 @@ public abstract class ConfiguredTest {
     public static Properties initEnvironment() throws IOException {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         if (envInited) {
+            try {
+                synchronized (ConfiguredTest.class) {
+                    if (l == null) {
+                        l = DatabaseConnection.newLink(false);
+                    }
+                }
+            } catch (InterruptedException e) {
+                throw new Error(e);
+            }
             return generateProps();
         }
         envInited = true;
@@ -94,7 +103,9 @@ public abstract class ConfiguredTest {
             DatabaseConnection.init(testProps);
             try {
                 synchronized (ConfiguredTest.class) {
-                    l = DatabaseConnection.newLink(false);
+                    if (l == null) {
+                        l = DatabaseConnection.newLink(false);
+                    }
                 }
             } catch (InterruptedException e) {
                 throw new Error(e);

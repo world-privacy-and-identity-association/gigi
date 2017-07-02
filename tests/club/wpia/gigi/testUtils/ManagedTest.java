@@ -196,6 +196,14 @@ public class ManagedTest extends ConfiguredTest {
         String type = testProps.getProperty("type");
         ter.destroy();
         if (type.equals("local")) {
+            if (testProps.getProperty("withSigner", "false").equals("true")) {
+                try {
+                    SimpleSigner.stopSigner();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            inited = false;
             return;
         }
         gigi.destroy();
@@ -204,6 +212,7 @@ public class ManagedTest extends ConfiguredTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        inited = false;
     }
 
     public final String uniq = createUniqueName();
