@@ -101,11 +101,11 @@ public class ManagedTest extends ConfiguredTest {
                 return mainProps;
             }
             inited = true;
+            url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort.https");
             purgeDatabase();
             String type = testProps.getProperty("type");
             generateMainProps(mainProps);
             if (type.equals("local")) {
-                url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort.https");
                 String[] parts = testProps.getProperty("mail").split(":", 2);
                 ter = new TestEmailReceiver(new InetSocketAddress(parts[0], Integer.parseInt(parts[1])));
                 ter.start();
@@ -114,7 +114,6 @@ public class ManagedTest extends ConfiguredTest {
                 }
                 return mainProps;
             }
-            url = testProps.getProperty("name.www") + ":" + testProps.getProperty("serverPort.https");
             gigi = Runtime.getRuntime().exec(testProps.getProperty("java"));
             DataOutputStream toGigi = new DataOutputStream(gigi.getOutputStream());
             System.out.println("... starting server");
@@ -168,14 +167,18 @@ public class ManagedTest extends ConfiguredTest {
 
     public static void purgeDatabase() throws SQLException, IOException {
         purgeOnlyDB();
-        clearCaches();
+        if (gigi != null) {
+            clearCaches();
+        }
     }
 
     public static void clearCaches() throws IOException {
         ObjectCache.clearAllCaches();
         // String type = testProps.getProperty("type");
         URL u = new URL("https://" + getServerName() + "/manage");
-        u.openConnection().getHeaderField("Location");
+        URLConnection connection = u.openConnection();
+        connection.getHeaderField("Location");
+        connection.getInputStream().close();
     }
 
     private static void generateMainProps(Properties mainProps) {
