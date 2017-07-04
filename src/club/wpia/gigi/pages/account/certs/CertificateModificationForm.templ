@@ -1,3 +1,3 @@
-<a href="?" class="btn <?=$current?>"><?=_Show Current Certificates?></a> <a href="?withRevoked" class="btn <?=$all?>"><?=_Show All Certificates?></a>
+<a href="?" class="btn <?=$current?>"><?=_Show Non-Revoked Certificates?></a> <a href="?withRevoked" class="btn <?=$all?>"><?=_Show All Certificates?></a>
 <?=$certTable?>
 <button class="btn btn-danger btn-confirm" data-confirm="<?=_Do you really want to revoke ALL selected certificates??>" data-reply="<?=_Cancel?>,<?=_Confirm?>" name="action" value="revoke"><?=_Revoke Selected Certificates?></button>
