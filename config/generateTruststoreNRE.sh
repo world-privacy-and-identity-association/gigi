@@ -1,5 +1,5 @@
 #!/bin/bash
-# this script imports the cacert root certs
+# this script imports the root certs into a Java key store
 
 rm -f cacerts.jks
 
