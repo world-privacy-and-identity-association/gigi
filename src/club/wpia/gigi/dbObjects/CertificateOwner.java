@@ -83,7 +83,7 @@ public abstract class CertificateOwner implements IdCachable, Serializable {
     }
 
     public Certificate[] getCertificates(boolean includeRevoked) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement(includeRevoked ? "SELECT id FROM certs WHERE memid=?" : "SELECT id FROM certs WHERE memid=? AND revoked IS NULL")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement(includeRevoked ? "SELECT id FROM certs WHERE memid=? ORDER BY id DESC" : "SELECT id FROM certs WHERE memid=? AND revoked IS NULL ORDER BY id DESC")) {
             ps.setInt(1, getId());
 
             GigiResultSet rs = ps.executeQuery();
