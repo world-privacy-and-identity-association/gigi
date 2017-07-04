@@ -35,11 +35,17 @@ public class CertificateIterable implements IterableDataset {
         vars.put("serial", c.getSerial());
         vars.put("digest", c.getMessageDigest());
         vars.put("profile", c.getProfile().getVisibleName());
+        CertificateStatus st = c.getStatus();
+        vars.put("revokable", st != CertificateStatus.REVOKED && st == CertificateStatus.ISSUED);
+        String issuedWarning = "";
+        String expiredWarning = "";
+        vars.put("issued", l.getTranslation("N/A"));
+        vars.put("expire", l.getTranslation("N/A"));
+        vars.put("classIssued", "");
+        vars.put("classExpired", "");
+        vars.put("revoked", l.getTranslation("N/A"));
+
         try {
-            CertificateStatus st = c.getStatus();
-            vars.put("revokable", st != CertificateStatus.REVOKED && st == CertificateStatus.ISSUED);
-            String issuedWarning = "";
-            String expiredWarning = "";
             if (st == CertificateStatus.ISSUED || st == CertificateStatus.REVOKED) {
                 X509Certificate cert = c.cert();
                 vars.put("issued", cert.getNotBefore());
@@ -57,15 +63,10 @@ public class CertificateIterable implements IterableDataset {
                     expiredWarning = "bg-danger";
                 }
                 vars.put("classExpired", expiredWarning);
-            } else {
-                vars.put("issued", l.getTranslation("N/A"));
-                vars.put("expire", l.getTranslation("N/A"));
             }
 
             if (st == CertificateStatus.REVOKED) {
                 vars.put("revoked", c.getRevocationDate());
-            } else {
-                vars.put("revoked", l.getTranslation("N/A"));
             }
         } catch (IOException e) {
             e.printStackTrace();
