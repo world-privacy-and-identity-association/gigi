@@ -8,7 +8,9 @@ import java.sql.Date;
  */
 public class DayDate {
 
-    public static final long MILLI_DAY = 24 * 60 * 60 * 1000;
+    private static final int MILLI_HOUR = 60 * 60 * 1000;
+
+    public static final long MILLI_DAY = 24 * MILLI_HOUR;
 
     private long time;
 
@@ -74,5 +76,25 @@ public class DayDate {
 
     public java.util.Date toDate() {
         return new java.util.Date(time);
+    }
+
+    // Timezones currently reach from UTC-12 to UTC+14 that allows us to define
+    // the "earliest start" and "latest end" of a Date.
+    /**
+     * Gets this date's starting point.
+     * 
+     * @return The earliest point in time where this date was in any timezone
+     */
+    public java.util.Date start() {
+        return new java.util.Date(time - 12 * MILLI_HOUR);
+    }
+
+    /**
+     * Gets this date's ending point.
+     * 
+     * @return The latest point in time where this Date was any timezone
+     */
+    public java.util.Date end() {
+        return new java.util.Date(time + 14 * MILLI_HOUR + 24 * MILLI_HOUR);
     }
 }

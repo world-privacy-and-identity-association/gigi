@@ -17,9 +17,8 @@ import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.Name;
 import club.wpia.gigi.dbObjects.NamePart;
-import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.dbObjects.NamePart.NamePartType;
-import club.wpia.gigi.pages.account.MyDetails;
+import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.testUtils.ManagedTest;
 
 public class TestMyDetailsEdit extends ManagedTest {
@@ -83,11 +82,19 @@ public class TestMyDetailsEdit extends ManagedTest {
         assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "day=1&month=1&year=test&action=updateDoB", 0));
     }
 
+    /**
+     * Tests that changing the date of birth to a too recent one results in an
+     * error.
+     * 
+     * @throws IOException
+     *             when web interactions fail.
+     * @see club.wpia.gigi.TestCalendarUtil#testIsOfAge()
+     */
     @Test
     public void testChangeTooYoung() throws IOException {
         Calendar c = GregorianCalendar.getInstance();
         c.add(Calendar.YEAR, -User.MINIMUM_AGE);
-        c.add(Calendar.DAY_OF_MONTH, +1);
+        c.add(Calendar.DAY_OF_MONTH, +2);
         assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "day=" + c.get(Calendar.DAY_OF_MONTH) + "&month=" + (c.get(Calendar.MONTH) + 1) + "&year=" + c.get(Calendar.YEAR) + "&action=updateDoB", 0));
     }
 
@@ -95,7 +102,7 @@ public class TestMyDetailsEdit extends ManagedTest {
     public void testChangeTooOld() throws IOException {
         Calendar c = GregorianCalendar.getInstance();
         c.add(Calendar.YEAR, -User.MAXIMUM_PLAUSIBLE_AGE);
-        c.add(Calendar.DAY_OF_MONTH, -1);
+        c.add(Calendar.DAY_OF_MONTH, -2);
         assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "day=" + c.get(Calendar.DAY_OF_MONTH) + "&month=" + (c.get(Calendar.MONTH) + 1) + "&year=" + c.get(Calendar.YEAR) + "&action=updateDoB", 0));
     }
 

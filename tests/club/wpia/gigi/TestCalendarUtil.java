@@ -47,8 +47,11 @@ public class TestCalendarUtil {
         assertTrue(CalendarUtil.isOfAge(dob, 13));
 
         assertTrue(CalendarUtil.isOfAge(dob, 14));
-
-        dob = CalendarUtil.getDateFromComponents(year - 14, month, days + 1);
+        // We need one day as safety margin. Between 10:00 and 23:59 UTC there
+        // is a place on earth (UTC+1 to UTC+14) where a person having
+        // birthday "tomorrow" is already of that age. So we need the day after
+        // tomorrow for doing this check the easy way.
+        dob = CalendarUtil.getDateFromComponents(year - 14, month, days + 2);
         assertFalse(CalendarUtil.isOfAge(dob, 14));
 
     }

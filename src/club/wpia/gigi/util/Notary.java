@@ -3,7 +3,6 @@ package club.wpia.gigi.util;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -93,13 +92,11 @@ public class Notary {
             gae.mergeInto(new GigiApiException("You must enter the date when you met the applicant."));
         } else {
             try {
-                Date d = DateSelector.getDateFormat().parse(date);
-                Calendar gc = GregorianCalendar.getInstance();
-                gc.setTimeInMillis(System.currentTimeMillis());
-                gc.add(Calendar.HOUR_OF_DAY, 12);
-                if (d.getTime() > gc.getTimeInMillis()) {
+                DayDate d = new DayDate(DateSelector.getDateFormat().parse(date).getTime());
+                if (d.start().getTime() > System.currentTimeMillis()) {
                     gae.mergeInto(new GigiApiException("You must not enter a date in the future."));
                 }
+                Calendar gc = GregorianCalendar.getInstance();
                 gc.setTimeInMillis(System.currentTimeMillis());
                 gc.add(Calendar.MONTH, -LIMIT_MAX_MONTHS_VERIFICATION);
                 if (d.getTime() < gc.getTimeInMillis()) {

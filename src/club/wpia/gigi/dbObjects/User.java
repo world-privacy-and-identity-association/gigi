@@ -167,7 +167,7 @@ public class User extends CertificateOwner {
                 throw new GigiApiException("Entered date of birth is below the restricted age requirements.");
             }
 
-            if (CalendarUtil.isOfAge(dob, User.MAXIMUM_PLAUSIBLE_AGE)) {
+            if (CalendarUtil.isYearsInFuture(dob.end(), User.MAXIMUM_PLAUSIBLE_AGE)) {
                 throw new GigiApiException("Entered date of birth exceeds the maximum age set in our policies. Please check your DoB is correct and contact support if the issue persists.");
             }
             this.dob = dob;

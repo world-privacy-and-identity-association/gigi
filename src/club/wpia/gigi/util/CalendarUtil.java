@@ -16,12 +16,12 @@ public class CalendarUtil {
     }
 
     public static boolean isOfAge(DayDate dob, int age) {
+        return isYearsInFuture(dob.start(), age);
+    }
+
+    public static boolean isYearsInFuture(Date dt, int age) {
         Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(dob.getTime());
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        c.set(year, month, day);
+        c.setTime(dt);
         c.add(Calendar.YEAR, age);
 
         return System.currentTimeMillis() >= c.getTime().getTime();
