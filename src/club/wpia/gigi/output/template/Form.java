@@ -136,17 +136,18 @@ public abstract class Form implements Outputable {
         try {
             SubmissionResult res = submit(req);
             req.setAttribute(SUBMIT_RESULT, res);
-            if (res instanceof RedirectResult) {
-                resp.sendRedirect(((RedirectResult) res).target);
-                return true;
-            }
             if (res.endsForm()) {
                 HttpSession hs = req.getSession();
                 hs.removeAttribute("form/" + getClass().getName() + "/" + csrf);
             }
+            if (res instanceof RedirectResult) {
+                resp.sendRedirect(((RedirectResult) res).target);
+                return true;
+            }
             return false;
         } catch (PermamentFormException e) {
             req.setAttribute(SUBMIT_RESULT, e);
+            req.getSession().removeAttribute("form/" + getClass().getName() + "/" + csrf);
             return false;
         } catch (GigiApiException e) {
             req.setAttribute(SUBMIT_RESULT, e);
