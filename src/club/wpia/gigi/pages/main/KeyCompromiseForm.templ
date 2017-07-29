@@ -1,0 +1,45 @@
+<p>
+<?=_This form allows you to report a certificate whose private key has been compromised.?>
+<?=_You require to identify the certificate you need to report.?>
+<?=_You may upload the certificate (as PEM or DER) or may identify the certificate by serial.?>
+</p>
+
+<p>
+<?=_Additionally you need to prove that you have access to the private key.?>
+<?=_There are also two possibilities available here:?>
+<?=_Either you may upload the plain private key (as PEM or DER) or you may only sign a given message with the according private key.?>
+<?=_You may create a fitting signature with this command:?>
+</p>
+<p>
+<code data-challenge="<?=$challenge?>">
+printf '%s' '<?=$challengePrefix?><?=$challenge?>' | openssl dgst -sha256 -sign priv.key | base64
+</code>
+</p>
+
+<table class="table">
+  <tbody>
+  <tr>
+    <td><?=_Certificate?>: </td>
+    <td>
+      <textarea class="form-control" name="cert" rows="3" cols="40" placeholder="<?=_Certificate?>"></textarea>
+    </td>
+    <td><?=_or?></td>
+    <td>
+      <input type="text" class="form-control" name="serial" placeholder="<?=_Certificate Serial Number (hexadecimal)?>">
+    </td>
+  </tr>
+  <tr>
+    <td><?=_Private Key?>: </td>
+    <td>
+      <textarea class="form-control" name="priv" rows="3" cols="40" placeholder="<?=_Private Key?>"></textarea>
+    </td>
+    <td><?=_or?></td>
+    <td>
+      <input type="text" class="form-control" name="signature" placeholder="<?=_Signature?>">
+    </td>
+  </tr>
+  <tr>
+    <td colspan="4"><input class="btn btn-primary" type="submit" name="process" value="<?=_Next?>"></td>
+  </tr>
+  </tbody>
+</table>
