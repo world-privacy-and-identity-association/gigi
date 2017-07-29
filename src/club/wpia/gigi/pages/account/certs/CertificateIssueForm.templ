@@ -70,7 +70,7 @@
 
   <tr class="expert">
 	<td><?=_Hash algorithm for signing?></td>
-    <td class='radio'>
+    <td class='gigi-radio'>
       <? foreach($hashs) { ?>
         <input type="radio" id="hash_alg_<?=$algorithm?>" name="hash_alg" value="<?=$algorithm?>"<?=$!checked?>/>
         <label for="hash_alg_<?=$algorithm?>"><span class='name'><?=$name?></span><? if($info) { ?> <span class='addinfo'> <?=$info?></span><? } ?></label><div class='elements'></div>
