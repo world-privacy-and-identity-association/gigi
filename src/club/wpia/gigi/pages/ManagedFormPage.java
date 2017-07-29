@@ -9,7 +9,7 @@ import club.wpia.gigi.output.template.Form;
 
 public abstract class ManagedFormPage extends Page {
 
-    Class<? extends Form> c;
+    private final Class<? extends Form> c;
 
     public ManagedFormPage(String title, Class<? extends Form> t) {
         super(title);
