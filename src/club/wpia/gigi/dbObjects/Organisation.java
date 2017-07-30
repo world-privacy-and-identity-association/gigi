@@ -198,7 +198,7 @@ public class Organisation extends CertificateOwner {
     }
 
     public static Organisation[] getOrganisations(int offset, int count) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `certOwners`.`id` FROM `organisations` INNER JOIN `certOwners` ON `certOwners`.`id`=`organisations`.`id` WHERE `certOwners`.`deleted` IS NULL OFFSET ? LIMIT ?", true)) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `certOwners`.`id` FROM `organisations` INNER JOIN `certOwners` ON `certOwners`.`id`=`organisations`.`id` WHERE `certOwners`.`deleted` IS NULL OFFSET ?::INTEGER LIMIT ?::INTEGER", true)) {
             ps.setInt(1, offset);
             ps.setInt(2, count);
             GigiResultSet res = ps.executeQuery();

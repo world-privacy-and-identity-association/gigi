@@ -45,7 +45,7 @@ public class Notary {
     }
 
     public static boolean checkVerificationIsPossible(User agent, Name target) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `notary` where `to`=? and `from`=? and `method` = ? ::`notaryType` AND `deleted` IS NULL AND `when` > (now() - interval '1 days' * ?)")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `notary` where `to`=? and `from`=? and `method` = ? ::`notaryType` AND `deleted` IS NULL AND `when` > (now() - interval '1 days' * ?::INTEGER)")) {
             ps.setInt(1, target.getId());
             ps.setInt(2, agent.getId());
             ps.setEnum(3, VerificationType.FACE_TO_FACE);

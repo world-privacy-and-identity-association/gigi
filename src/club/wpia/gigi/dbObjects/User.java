@@ -591,7 +591,7 @@ public class User extends CertificateOwner {
     }
 
     public static User getResetWithToken(int id, String token) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `memid` FROM `passwordResetTickets` WHERE `id`=? AND `token`=? AND `used` IS NULL AND `created` > CURRENT_TIMESTAMP - interval '1 hours' * ?")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `memid` FROM `passwordResetTickets` WHERE `id`=? AND `token`=? AND `used` IS NULL AND `created` > CURRENT_TIMESTAMP - interval '1 hours' * ?::INTEGER")) {
             ps.setInt(1, id);
             ps.setString(2, token);
             ps.setInt(3, PasswordResetPage.HOUR_MAX);
@@ -631,7 +631,7 @@ public class User extends CertificateOwner {
     }
 
     public boolean isInVerificationLimit() {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `notary` INNER JOIN `names` ON `names`.`id`=`to` WHERE `names`.`uid` = ? AND `when` > (now() - (interval '1 month' * ?)) AND (`expire` IS NULL OR `expire` > now()) AND `notary`.`deleted` IS NULL;")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `notary` INNER JOIN `names` ON `names`.`id`=`to` WHERE `names`.`uid` = ? AND `when` > (now() - (interval '1 month' * ?::INTEGER)) AND (`expire` IS NULL OR `expire` > now()) AND `notary`.`deleted` IS NULL;")) {
             ps.setInt(1, getId());
             ps.setInt(2, VERIFICATION_MONTHS);
 

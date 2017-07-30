@@ -74,7 +74,7 @@ public enum Group implements DBEnum {
     }
 
     public User[] getMembers(int offset, int count) {
-        try (GigiPreparedStatement gps = new GigiPreparedStatement("SELECT `user` FROM `user_groups` WHERE `permission`=?::`userGroup` AND `deleted` IS NULL OFFSET ? LIMIT ?", true)) {
+        try (GigiPreparedStatement gps = new GigiPreparedStatement("SELECT `user` FROM `user_groups` WHERE `permission`=?::`userGroup` AND `deleted` IS NULL OFFSET ?::INTEGER LIMIT ?::INTEGER", true)) {
             gps.setEnum(1, this);
             gps.setInt(2, offset);
             gps.setInt(3, count);

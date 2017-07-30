@@ -97,7 +97,7 @@ public class CATS {
     }
 
     public static boolean isInCatsLimit(int uID, int testID) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `cats_passed` WHERE `user_id` = ? AND `variant_id` = ? AND`pass_date` > (now() - interval '1 months' * ?)")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `cats_passed` WHERE `user_id` = ? AND `variant_id` = ? AND`pass_date` > (now() - interval '1 months' * ?::INTEGER)")) {
             ps.setInt(1, uID);
             ps.setInt(2, testID);
             ps.setInt(3, TEST_MONTHS);

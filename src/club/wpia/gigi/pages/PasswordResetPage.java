@@ -61,7 +61,7 @@ public class PasswordResetPage extends Page {
 
         @Override
         public SuccessMessageResult submit(HttpServletRequest req) throws GigiApiException {
-            try (GigiPreparedStatement passwordReset = new GigiPreparedStatement("UPDATE `passwordResetTickets` SET `used` = CURRENT_TIMESTAMP WHERE `used` IS NULL AND `created` < CURRENT_TIMESTAMP - interval '1 hours' * ?;")) {
+            try (GigiPreparedStatement passwordReset = new GigiPreparedStatement("UPDATE `passwordResetTickets` SET `used` = CURRENT_TIMESTAMP WHERE `used` IS NULL AND `created` < CURRENT_TIMESTAMP - interval '1 hours' * ?::INTEGER;")) {
                 passwordReset.setInt(1, HOUR_MAX);
                 passwordReset.execute();
             }

@@ -34,7 +34,7 @@ public class Domain implements IdCachable, Verifyable {
     }
 
     private static void checkInsert(String suffix) throws GigiApiException {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `domains` WHERE (`domain`=? OR (CONCAT('.', `domain`)=RIGHT(?,LENGTH(`domain`)+1)  OR RIGHT(`domain`,LENGTH(?)+1)=CONCAT('.',?))) AND `deleted` IS NULL")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `domains` WHERE (`domain`=? OR (CONCAT('.', `domain`)=RIGHT(?,LENGTH(`domain`)+1)  OR RIGHT(`domain`,LENGTH(?)+1)=CONCAT('.',?::VARCHAR))) AND `deleted` IS NULL")) {
             ps.setString(1, suffix);
             ps.setString(2, suffix);
             ps.setString(3, suffix);
