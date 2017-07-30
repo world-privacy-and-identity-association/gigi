@@ -1,7 +1,6 @@
 package club.wpia.gigi.pages.admin;
 
 import static org.junit.Assert.*;
-import static org.junit.Assume.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -9,6 +8,8 @@ import java.net.MalformedURLException;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
+import org.hamcrest.CoreMatchers;
+import org.junit.Assume;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
@@ -69,16 +70,11 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
     public void testDomainSearchByIdNonExist() throws MalformedURLException, UnsupportedEncodingException, IOException, GigiApiException {
         int id = (int) (Math.random() * 10000);
         int count = 0;
-        boolean found = false;
-        try {
-            while (Domain.getById(id) != null && count < 20) {
-                count++;
-                id = (int) (Math.random() * 10000);
-            }
-        } catch (Exception e) {
-            found = true;
+        while (Domain.getById(id) != null && count < 20) {
+            count++;
+            id = (int) (Math.random() * 10000);
         }
-        assumeTrue(found);
+        Assume.assumeThat(Domain.getById(id), CoreMatchers.nullValue());
         URLConnection uc = post(FindUserByDomainPage.PATH, "process&domain=#" + id);
         assertNotNull(fetchStartErrorMessage(IOUtils.readURL(uc)));
     }
