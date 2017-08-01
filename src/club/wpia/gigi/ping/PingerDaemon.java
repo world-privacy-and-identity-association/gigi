@@ -6,9 +6,9 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import club.wpia.gigi.database.DatabaseConnection;
+import club.wpia.gigi.database.DatabaseConnection.Link;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.GigiResultSet;
-import club.wpia.gigi.database.DatabaseConnection.Link;
 import club.wpia.gigi.dbObjects.Domain;
 import club.wpia.gigi.dbObjects.DomainPingConfiguration;
 import club.wpia.gigi.dbObjects.DomainPingType;
@@ -17,8 +17,6 @@ import club.wpia.gigi.util.RandomToken;
 public class PingerDaemon extends Thread {
 
     HashMap<DomainPingType, DomainPinger> pingers = new HashMap<>();
-
-    private GigiPreparedStatement searchNeededPings;
 
     private KeyStore truststore;
 
@@ -38,15 +36,7 @@ public class PingerDaemon extends Thread {
     }
 
     public void runWithConnection() {
-        searchNeededPings = new GigiPreparedStatement("SELECT `pc`.`id`" //
-                + " FROM `pingconfig` AS `pc`" //
-                + " INNER JOIN `domains` AS `d` ON `d`.`id` = `pc`.`domainid`" //
-                + " WHERE `d`.`deleted` IS NULL" //
-                + "  AND `pc`.`deleted` IS NULL" //
-                + "  AND NOT EXISTS (" //
-                + "    SELECT 1 FROM `domainPinglog` AS `dpl`" //
-                + "    WHERE `dpl`.`configId` = `pc`.`id`" //
-                + "     AND `dpl`.`when` >= CURRENT_TIMESTAMP - interval '6 mons')");
+
         pingers.put(DomainPingType.EMAIL, new EmailPinger());
         pingers.put(DomainPingType.SSL, new SSLPinger(truststore));
         pingers.put(DomainPingType.HTTP, new HTTPFetch());
@@ -64,11 +54,21 @@ public class PingerDaemon extends Thread {
                     }
                     notifyAll();
                 }
+                try (GigiPreparedStatement searchNeededPings = new GigiPreparedStatement("SELECT `pc`.`id`" //
+                        + " FROM `pingconfig` AS `pc`" //
+                        + " INNER JOIN `domains` AS `d` ON `d`.`id` = `pc`.`domainid`" //
+                        + " WHERE `d`.`deleted` IS NULL" //
+                        + "  AND `pc`.`deleted` IS NULL" //
+                        + "  AND NOT EXISTS (" //
+                        + "    SELECT 1 FROM `domainPinglog` AS `dpl`" //
+                        + "    WHERE `dpl`.`configId` = `pc`.`id`" //
+                        + "     AND `dpl`.`when` >= CURRENT_TIMESTAMP - interval '6 mons')")) {
 
-                GigiResultSet rs = searchNeededPings.executeQuery();
-                while (rs.next()) {
-                    worked = true;
-                    handle(DomainPingConfiguration.getById(rs.getInt("id")));
+                    GigiResultSet rs = searchNeededPings.executeQuery();
+                    while (rs.next()) {
+                        worked = true;
+                        handle(DomainPingConfiguration.getById(rs.getInt("id")));
+                    }
                 }
                 try {
                     if ( !worked) {

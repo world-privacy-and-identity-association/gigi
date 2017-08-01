@@ -1,6 +1,7 @@
 package club.wpia.gigi.database;
 
 import java.sql.Date;
+import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -138,10 +139,11 @@ public class GigiPreparedStatement implements AutoCloseable {
         }
     }
 
-    public int getParameterCount() {
+    public ParameterMetaData getParameterMetaData() {
         try {
-            return target.getParameterMetaData().getParameterCount();
+            return target.getParameterMetaData();
         } catch (SQLException e) {
+            handleSQL(e);
             throw new Error(e);
         }
     }

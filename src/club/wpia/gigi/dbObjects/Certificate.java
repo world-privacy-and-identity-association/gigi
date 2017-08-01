@@ -394,12 +394,13 @@ public class Certificate implements IdCachable {
         return profile;
     }
 
+    private static final String CONCAT = "string_agg(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')), '')";
+
     public synchronized static Certificate getBySerial(String serial) {
         if (serial == null || "".equals(serial)) {
             return null;
         }
-        String concat = "string_agg(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')), '')";
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + concat + " as `subject`, `md`, `csr_name`, `crt_name`,`memid`, `profile`, `certs`.`serial` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as `subject`, `md`, `csr_name`, `crt_name`,`memid`, `profile`, `certs`.`serial` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`")) {
             ps.setString(1, serial);
             GigiResultSet rs = ps.executeQuery();
             if ( !rs.next()) {
@@ -425,8 +426,7 @@ public class Certificate implements IdCachable {
         }
 
         try {
-            String concat = "string_agg(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')), '')";
-            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + concat + " as subject, md, csr_name, crt_name,memid, profile, certs.serial FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=certs.id WHERE certs.id=? GROUP BY certs.id")) {
+            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as subject, md, csr_name, crt_name,memid, profile, certs.serial FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=certs.id WHERE certs.id=? GROUP BY certs.id")) {
                 ps.setInt(1, id);
                 GigiResultSet rs = ps.executeQuery();
                 if ( !rs.next()) {
