@@ -133,6 +133,13 @@
 			<classpath refid="gigi.test.classpath" />
 			<classpath refid="gigi.test.classpath.jdt" />
 		</java>
+		<java classname="club.wpia.gigi.localisation.TranslationCollector" failonerror="true">
+			<arg value="util-testing/club/wpia/gigi/localisation/conf.txt"/>
+			<arg value="."/>
+			<arg value="SQLValidation"/>
+			<classpath refid="gigi.test.classpath" />
+			<classpath refid="gigi.test.classpath.jdt" />
+		</java>
 	</target>
 
 	<target name="native">

@@ -13,11 +13,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.TreeSet;
 
-import club.wpia.gigi.output.template.Template;
-
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -35,6 +35,9 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+
+import club.wpia.gigi.database.DatabaseConnection;
+import club.wpia.gigi.output.template.Template;
 
 public class TranslationCollector {
 
@@ -82,6 +85,8 @@ public class TranslationCollector {
 
     private boolean hadErrors = false;
 
+    private int statements = 0;
+
     public TranslationCollector(File base, File conf) {
         this.base = base;
         taint = new LinkedList<>();
@@ -90,13 +95,35 @@ public class TranslationCollector {
         }
     }
 
+    interface ASTVisitorFactory {
+
+        public ASTVisitor createVisitor(CompilationUnitDeclaration parsedUnit);
+    }
+
     public void run(File out) throws IOException {
         scanTemplates();
-        scanCode(taint);
+        scanCode(new ASTVisitorFactory() {
+
+            @Override
+            public ASTVisitor createVisitor(CompilationUnitDeclaration parsedUnit) {
+                return new TranslationCollectingVisitor(parsedUnit, taint.toArray(new TaintSource[taint.size()]), TranslationCollector.this);
+            }
+        });
 
         System.err.println("Total Translatable Strings: " + translations.size());
         TreeSet<TranslationEntry> trs = new TreeSet<>(translations.values());
         writePOFile(out, trs);
+    }
+
+    public void runSQLValidation() throws IOException {
+        scanCode(new ASTVisitorFactory() {
+
+            @Override
+            public ASTVisitor createVisitor(CompilationUnitDeclaration parsedUnit) {
+                return new SQLTestingVisitor(parsedUnit, TranslationCollector.this);
+            }
+        });
+        System.out.println("Validated: " + statements + " SQL statements.");
     }
 
     public void add(String text, String line) {
@@ -111,7 +138,7 @@ public class TranslationCollector {
         i.add(line);
     }
 
-    private void scanCode(LinkedList<TaintSource> taint) throws Error {
+    private void scanCode(ASTVisitorFactory visitor) throws Error {
         PrintWriter out = new PrintWriter(System.err);
         Main m = new Main(out, out, false, null, null);
         File[] fs = recurse(new File(new File(new File(base, "src"), "club"), "wpia"), new LinkedList<File>(), ".java").toArray(new File[0]);
@@ -197,11 +224,10 @@ public class TranslationCollector {
                 System.err.println("No types");
 
             } else {
-                TranslationCollectingVisitor v = new TranslationCollectingVisitor(parsedUnit, taint.toArray(new TaintSource[taint.size()]), this);
+                ASTVisitor v = visitor.createVisitor(parsedUnit);
                 for (TypeDeclaration td : parsedUnit.types) {
                     td.traverse(v, td.scope);
                 }
-                hadErrors |= v.hadErrors();
             }
             parsedUnits[i] = parsedUnit;
         }
@@ -226,8 +252,15 @@ public class TranslationCollector {
     private LinkedList<TaintSource> taint;
 
     public static void main(String[] args) throws IOException {
+        Properties pp = new Properties();
+        pp.load(new InputStreamReader(new FileInputStream("config/test.properties"), "UTF-8"));
+        DatabaseConnection.init(pp);
         TranslationCollector tc = new TranslationCollector(new File(args[1]), new File(args[0]));
-        tc.run(new File(args[2]));
+        if (args[2].equals("SQLValidation")) {
+            tc.runSQLValidation();
+        } else {
+            tc.run(new File(args[2]));
+        }
         if (tc.hadErrors) {
             System.exit(1);
         } else {
@@ -261,5 +294,13 @@ public class TranslationCollector {
             }
         }
         return toAdd;
+    }
+
+    public void hadError() {
+        hadErrors = true;
+    }
+
+    public void countStatement() {
+        statements++;
     }
 }
