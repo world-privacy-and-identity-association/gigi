@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
+import club.wpia.gigi.dbObjects.Certificate.RevocationType;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.MailTemplate;
 import club.wpia.gigi.output.template.Outputable;
@@ -54,7 +55,7 @@ public class SupportedUser {
         // TODO Check for open jobs!
         for (int i = 0; i < certs.length; i++) {
             if (certs[i].getStatus() == CertificateStatus.ISSUED) {
-                certs[i].revoke();
+                certs[i].revoke(RevocationType.SUPPORT);
             }
         }
         // send notification to support
@@ -69,7 +70,7 @@ public class SupportedUser {
         // TODO Check for open jobs!
         if (cert.getStatus() == CertificateStatus.ISSUED) {
             writeSELog("SE Revoke certificate");
-            cert.revoke().waitFor(60000);
+            cert.revoke(RevocationType.SUPPORT).waitFor(60000);
             // send notification to support
             String subject = "Revoke certificate";
             Outputable message = SprintfCommand.createSimple("Certificate with serial number {0} for {1} <{2}> has been revoked.", cert.getSerial(), target.getPreferredName().toString(), target.getEmail());

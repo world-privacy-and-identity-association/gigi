@@ -17,6 +17,7 @@ import org.junit.Test;
 import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.Certificate.CSRType;
 import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
+import club.wpia.gigi.dbObjects.Certificate.RevocationType;
 import club.wpia.gigi.dbObjects.Certificate.SANType;
 import club.wpia.gigi.dbObjects.Certificate.SubjectAlternateName;
 import club.wpia.gigi.dbObjects.Digest;
@@ -120,7 +121,7 @@ public class TestCertificate extends ManagedTest {
         assertNotNull(login(pk, cert));
         assertEquals(1, countRegex(IOUtils.readURL(get(cookie, Certificates.PATH)), "<td>(?:REVOKED|ISSUED)</td>"));
         assertEquals(1, countRegex(IOUtils.readURL(get(cookie, Certificates.PATH + "?withRevoked")), "<td>(?:REVOKED|ISSUED)</td>"));
-        await(c.revoke());
+        await(c.revoke(RevocationType.USER));
 
         testFails(CertificateStatus.REVOKED, c);
         assertNull(login(pk, cert));
@@ -133,7 +134,7 @@ public class TestCertificate extends ManagedTest {
         assertEquals(status, c.getStatus());
         if (status != CertificateStatus.ISSUED) {
             try {
-                c.revoke();
+                c.revoke(RevocationType.USER);
                 fail(status + " is in invalid state");
             } catch (IllegalStateException ise) {
 

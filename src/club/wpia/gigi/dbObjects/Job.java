@@ -6,6 +6,7 @@ import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.DBEnum;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.GigiResultSet;
+import club.wpia.gigi.dbObjects.Certificate.RevocationType;
 import club.wpia.gigi.output.CertificateValiditySelector;
 
 public class Job implements IdCachable {
@@ -31,7 +32,7 @@ public class Job implements IdCachable {
         }
     }
 
-    public synchronized static Job sign(Certificate targetId, Date start, String period) throws GigiApiException {
+    protected synchronized static Job sign(Certificate targetId, Date start, String period) throws GigiApiException {
         CertificateValiditySelector.checkValidityLength(period);
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `jobs` SET targetId=?, task=?::`jobType`, executeFrom=?, executeTo=?")) {
             ps.setInt(1, targetId.getId());
@@ -43,7 +44,12 @@ public class Job implements IdCachable {
         }
     }
 
-    public synchronized static Job revoke(Certificate targetId) {
+    protected synchronized static Job revoke(Certificate targetId, RevocationType type) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `certs` SET `revocationType`=?::`revocationType` WHERE id=?")) {
+            ps.setEnum(1, type);
+            ps.setInt(2, targetId.getId());
+            ps.execute();
+        }
 
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `jobs` SET targetId=?, task=?::`jobType`")) {
             ps.setInt(1, targetId.getId());

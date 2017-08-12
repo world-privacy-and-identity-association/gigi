@@ -27,6 +27,21 @@ import club.wpia.gigi.util.KeyStorage;
 
 public class Certificate implements IdCachable {
 
+    public enum RevocationType implements DBEnum {
+        USER("user"), SUPPORT("support"), PING_TIMEOUT("ping_timeout");
+
+        private final String dbName;
+
+        private RevocationType(String dbName) {
+            this.dbName = dbName;
+        }
+
+        @Override
+        public String getDBName() {
+            return dbName;
+        }
+    }
+
     public enum SANType implements DBEnum {
         EMAIL("email"), DNS("DNS");
 
@@ -325,11 +340,11 @@ public class Certificate implements IdCachable {
 
     }
 
-    public Job revoke() {
+    public Job revoke(RevocationType type) {
         if (getStatus() != CertificateStatus.ISSUED) {
             throw new IllegalStateException();
         }
-        return Job.revoke(this);
+        return Job.revoke(this, type);
 
     }
 

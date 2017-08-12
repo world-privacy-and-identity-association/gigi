@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.RevocationType;
 import club.wpia.gigi.dbObjects.CertificateOwner;
 import club.wpia.gigi.dbObjects.Job;
 import club.wpia.gigi.localisation.Language;
@@ -48,7 +49,7 @@ public class CertificateModificationForm extends Form {
             if (c == null || c.getOwner() != target) {
                 continue;
             }
-            revokes.add(c.revoke());
+            revokes.add(c.revoke(RevocationType.SUPPORT));
         }
         long start = System.currentTimeMillis();
         for (Job job : revokes) {

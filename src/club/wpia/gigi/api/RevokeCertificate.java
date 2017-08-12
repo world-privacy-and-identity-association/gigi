@@ -6,9 +6,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
+import club.wpia.gigi.dbObjects.Certificate.RevocationType;
 import club.wpia.gigi.dbObjects.Job;
 import club.wpia.gigi.dbObjects.User;
-import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 
 public class RevokeCertificate extends APIPoint {
 
@@ -39,7 +40,7 @@ public class RevokeCertificate extends APIPoint {
             return;
         }
 
-        Job job = c.revoke();
+        Job job = c.revoke(RevocationType.USER);
         job.waitFor(60000);
         if (c.getStatus() != CertificateStatus.REVOKED) {
             resp.sendError(510, "Error, issuing timed out");

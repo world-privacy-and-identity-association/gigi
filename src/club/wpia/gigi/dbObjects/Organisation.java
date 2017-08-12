@@ -10,6 +10,7 @@ import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.GigiResultSet;
 import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
+import club.wpia.gigi.dbObjects.Certificate.RevocationType;
 import club.wpia.gigi.dbObjects.Country.CountryCodeType;
 import club.wpia.gigi.dbObjects.wrappers.DataContainer;
 
@@ -219,7 +220,7 @@ public class Organisation extends CertificateOwner {
         }
         for (Certificate cert : getCertificates(false)) {
             if (cert.getStatus() == CertificateStatus.ISSUED) {
-                cert.revoke();
+                cert.revoke(RevocationType.USER);
             }
         }
         try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `organisations` SET `name`=?, `country`=?, `province`=?, `city`=? WHERE `id`=?")) {

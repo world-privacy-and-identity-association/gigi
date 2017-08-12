@@ -138,7 +138,7 @@ public class SimpleSigner {
                     warnMail = new GigiPreparedStatement("UPDATE jobs SET warning=warning+1, state=CASE WHEN warning<3 THEN 'open'::`jobState` ELSE 'error'::`jobState` END WHERE id=?");
 
                     revoke = new GigiPreparedStatement("SELECT certs.id, certs.csr_name,jobs.id FROM jobs INNER JOIN certs ON jobs.`targetId`=certs.id" + " WHERE jobs.state='open' AND task='revoke'");
-                    revokeCompleted = new GigiPreparedStatement("UPDATE certs SET revoked=NOW() WHERE id=?");
+                    revokeCompleted = new GigiPreparedStatement("UPDATE `certs` SET revoked=NOW() WHERE id=?");
 
                     finishJob = new GigiPreparedStatement("UPDATE jobs SET state='done' WHERE id=?");
 
@@ -199,9 +199,9 @@ public class SimpleSigner {
             worked = true;
             System.out.println("Revoke faked: " + id);
             revokeCompleted.setInt(1, id);
-            revokeCompleted.execute();
+            revokeCompleted.executeUpdate();
             finishJob.setInt(1, rs.getInt(3));
-            finishJob.execute();
+            finishJob.executeUpdate();
         }
         if (worked) {
             gencrl();
@@ -371,10 +371,10 @@ public class SimpleSigner {
                     updateMail.setInt(3, caRs.getInt("id"));
                     updateMail.setTimestamp(4, new Timestamp(toDate.getTime()));
                     updateMail.setInt(5, id);
-                    updateMail.execute();
+                    updateMail.executeUpdate();
 
                     finishJob.setInt(1, rs.getInt("jobid"));
-                    finishJob.execute();
+                    finishJob.executeUpdate();
                     System.out.println("signed: " + id);
                     continue;
                 }
@@ -388,7 +388,7 @@ public class SimpleSigner {
             }
             System.out.println("Error with: " + id);
             warnMail.setInt(1, rs.getInt("jobid"));
-            warnMail.execute();
+            warnMail.executeUpdate();
 
         }
         rs.close();

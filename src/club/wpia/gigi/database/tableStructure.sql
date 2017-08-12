@@ -137,6 +137,8 @@ CREATE TABLE "user_agreements" (
 );
 
 DROP TABLE IF EXISTS "certs";
+DROP TYPE IF EXISTS "revocationType";
+CREATE TYPE "revocationType" AS ENUM('user', 'support', 'ping_timeout');
 
 DROP TYPE IF EXISTS "mdType";
 CREATE TYPE "mdType" AS ENUM('md5','sha1','sha256','sha384','sha512');
@@ -159,7 +161,8 @@ CREATE TABLE "certs" (
   "crt_name" varchar(255) NOT NULL DEFAULT '',
   "created" timestamp NULL DEFAULT NULL,
   "modified" timestamp NULL DEFAULT NULL,
-  "revoked" timestamp NULL DEFAULT NULL,
+  "revoked" timestamp NULL,
+  "revocationType" "revocationType" NULL,
   "expire" timestamp NULL DEFAULT NULL,
   "renewed" boolean NOT NULL DEFAULT 'false',
   "pkhash" char(40) DEFAULT NULL,
@@ -174,7 +177,6 @@ CREATE INDEX ON "certs" ("memid");
 CREATE INDEX ON "certs" ("serial");
 CREATE INDEX ON "certs" ("expire");
 CREATE INDEX ON "certs" ("crt_name");
-
 
 
 DROP TABLE IF EXISTS "certAvas";
@@ -375,7 +377,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(28);
+INSERT INTO "schemeVersion" (version)  VALUES(29);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (
