@@ -425,15 +425,15 @@ public class SimpleSigner {
             PrintWriter pw = new PrintWriter(f);
             pw.println(ser);
             pw.close();
-            if (digest != Digest.SHA256 && digest != Digest.SHA512) {
+            if (digest != Digest.SHA256 && digest != Digest.SHA384 && digest != Digest.SHA512) {
                 System.err.println("assuming sha256 either way ;-): " + digest);
                 digest = Digest.SHA256;
             }
             ObjectIdentifier sha512withrsa = new ObjectIdentifier(new int[] {
-                    1, 2, 840, 113549, 1, 1, digest == Digest.SHA256 ? 11 : 13
+                    1, 2, 840, 113549, 1, 1, digest == Digest.SHA256 ? 11 : (digest == Digest.SHA384 ? 12 : 13)
             });
             AlgorithmId aid = new AlgorithmId(sha512withrsa);
-            Signature s = Signature.getInstance(digest == Digest.SHA256 ? "SHA256withRSA" : "SHA512withRSA");
+            Signature s = Signature.getInstance(digest == Digest.SHA256 ? "SHA256withRSA" : (digest == Digest.SHA384 ? "SHA384withRSA" : "SHA512withRSA"));
 
             DerOutputStream cert = new DerOutputStream();
             DerOutputStream content = new DerOutputStream();

@@ -139,7 +139,7 @@ CREATE TABLE "user_agreements" (
 DROP TABLE IF EXISTS "certs";
 
 DROP TYPE IF EXISTS "mdType";
-CREATE TYPE "mdType" AS ENUM('md5','sha1','sha256','sha512');
+CREATE TYPE "mdType" AS ENUM('md5','sha1','sha256','sha384','sha512');
 
 DROP TYPE IF EXISTS "csrType";
 CREATE TYPE "csrType" AS ENUM ('CSR', 'SPKAC');
@@ -375,7 +375,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(27);
+INSERT INTO "schemeVersion" (version)  VALUES(28);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (

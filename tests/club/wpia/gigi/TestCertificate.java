@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import club.wpia.gigi.dbObjects.Certificate;
@@ -91,6 +92,15 @@ public class TestCertificate extends ManagedTest {
         } catch (UnsupportedOperationException e) {
             // expected
         }
+    }
+
+    @Test
+    public void testCertCreateSHA384() throws IOException, GeneralSecurityException, SQLException, InterruptedException, GigiApiException {
+        KeyPair kp = generateKeypair();
+        String key = generatePEMCSR(kp, "CN=testmail@example.com");
+        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "testmail@example.com"), Digest.SHA384, key, CSRType.CSR, getClientProfile());
+        await(c.issue(null, "2y", u));
+        assertThat(c.cert().getSigAlgName().toLowerCase(), CoreMatchers.containsString("sha384"));
     }
 
     @Test
