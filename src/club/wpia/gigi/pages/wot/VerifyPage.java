@@ -79,8 +79,6 @@ public class VerifyPage extends Page {
                 } else {
                     if ( !verified) {
                         out.println(translate(req, "User is not yet verified. Please try again in 24 hours!"));
-                    } else if (getUser(req).getId() == id) {
-
                     } else {
                         User applicant = User.getById(id);
                         try {
