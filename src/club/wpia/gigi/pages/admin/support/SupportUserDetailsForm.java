@@ -84,6 +84,7 @@ public class SupportUserDetailsForm extends Form {
             @Override
             public void apply(Name t, Language l, Map<String, Object> vars) {
                 vars.put("name", t);
+                vars.put("preferred", t.getOwner().getPreferredName() == t);
                 vars.put("points", Integer.toString(t.getVerificationPoints()));
             }
 

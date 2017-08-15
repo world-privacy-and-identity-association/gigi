@@ -9,7 +9,7 @@
   <? foreach($exNames) { ?>
         <tr>
           <td><?=_Name?>: </td>
-          <td><?=$name?> (<?=$points?>)</td>
+          <td><?=$name?> (<?=$points?>)<? if($preferred) { ?> <?=_Preferred Name?><? } ?></td>
         </tr>
   <? } ?>
         <tr>
