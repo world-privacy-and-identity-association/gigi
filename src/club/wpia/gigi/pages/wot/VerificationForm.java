@@ -217,7 +217,8 @@ public class VerificationForm extends Form {
         }
 
         Notary.verifyAll(agent, applicant, dob, pointsI, location, req.getParameter("date"), type, toVerify.toArray(new Name[toVerify.size()]), cs.getCountry());
-        Outputable result = new TranslateCommand("Verification complete.");
+
+        Outputable result = SprintfCommand.createSimple("Verification of user with email address {0} and {1} verification points complete.", applicant.getEmail(), points);
         if (isWithPasswordReset()) {
             Language langApplicant = Language.getInstance(applicant.getPreferredLocale());
             String method = langApplicant.getTranslation("A password reset was triggered. If you did a password reset by verification, please enter your secret password using this form:");

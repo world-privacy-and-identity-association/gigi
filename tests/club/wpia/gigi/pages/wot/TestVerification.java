@@ -98,7 +98,9 @@ public class TestVerification extends ManagedTest {
 
     @Test
     public void testVerifyForm() throws IOException {
-        executeSuccess("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
+        String body = executeSuccess("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
+        assertThat(body, containsString("10"));
+        assertThat(body, containsString(applicantM));
     }
 
     @Test
@@ -259,9 +261,10 @@ public class TestVerification extends ManagedTest {
 
     }
 
-    private void executeSuccess(String query) throws MalformedURLException, IOException {
-        assertThat(execute(query), hasNoError());
-
+    private String executeSuccess(String query) throws MalformedURLException, IOException {
+        String response = execute(query);
+        assertThat(response, hasNoError());
+        return response;
     }
 
     private String execute(String query) throws MalformedURLException, IOException {
