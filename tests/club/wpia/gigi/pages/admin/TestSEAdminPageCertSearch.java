@@ -24,6 +24,7 @@ import club.wpia.gigi.pages.admin.support.FindCertPage;
 import club.wpia.gigi.pages.admin.support.SupportEnterTicketPage;
 import club.wpia.gigi.testUtils.ClientTest;
 import club.wpia.gigi.testUtils.IOUtils;
+import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
 import club.wpia.gigi.util.ServerConstants;
 import club.wpia.gigi.util.ServerConstants.Host;
 
@@ -72,6 +73,22 @@ public class TestSEAdminPageCertSearch extends ClientTest {
     public void testRevoke() throws IOException {
         URLConnection conn = post(Certificates.SUPPORT_PATH + "/" + c.getSerial(), "action=revoke");
         assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + Certificates.SUPPORT_PATH + "/" + c.getSerial(), conn.getHeaderField("Location"));
+        boolean hadSupport = false;
+        boolean hadUser = false;
+        for (int i = 0; i < 2; i++) {
+            TestMail tm = getMailReceiver().receive();
+            if (tm.getTo().equals(ServerConstants.getSupportMailAddress())) {
+                hadSupport = true;
+            } else if (tm.getTo().equals(certMail)) {
+                hadUser = true;
+            } else {
+                throw new Error("Unknown mail:" + tm.getTo());
+            }
+            assertThat(tm.getMessage(), CoreMatchers.containsString(certMail));
+            assertThat(tm.getMessage(), CoreMatchers.containsString(c.getSerial()));
+        }
+        assertTrue(hadSupport);
+        assertTrue(hadUser);
         assertEquals(CertificateStatus.REVOKED, c.getStatus());
     }
 

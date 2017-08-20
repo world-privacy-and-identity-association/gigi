@@ -131,6 +131,7 @@ public abstract class ConfiguredTest {
         mainProps.setProperty("name.www", testProps.getProperty("name.www"));
         mainProps.setProperty("name.static", testProps.getProperty("name.static"));
         mainProps.setProperty("name.api", testProps.getProperty("name.api"));
+        mainProps.setProperty("name.suffix", testProps.getProperty("name.suffix"));
 
         mainProps.setProperty("appName", "SomeCA");
         mainProps.setProperty("appIdentifier", "someca");
