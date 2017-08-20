@@ -9,8 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Organisation;
-import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.dbObjects.Organisation.Affiliation;
+import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.Form;
 import club.wpia.gigi.output.template.IterableDataset;
@@ -38,7 +38,10 @@ public class AffiliationForm extends Form {
             }
         } else if (req.getParameter("do_affiliate") != null) {
             User byEmail = User.getByEmail(req.getParameter("email"));
-            if (byEmail != null && byEmail.canVerify()) {
+            if (byEmail == null) {
+                throw new GigiApiException("To add an admin, the email address is required.");
+            }
+            if (byEmail.canVerify()) {
                 o.addAdmin(byEmail, LoginPage.getUser(req), req.getParameter("master") != null);
                 return new RedirectResult(ViewOrgPage.DEFAULT_PATH + "/" + o.getId());
             } else {
