@@ -15,6 +15,8 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,17 +24,24 @@ import javax.servlet.http.HttpServletRequest;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
+import club.wpia.gigi.dbObjects.CertificateOwner;
 import club.wpia.gigi.dbObjects.Job;
+import club.wpia.gigi.dbObjects.Organisation;
+import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.Form;
+import club.wpia.gigi.output.template.MailTemplate;
 import club.wpia.gigi.output.template.Template;
 import club.wpia.gigi.output.template.TranslateCommand;
 import club.wpia.gigi.util.PEM;
 import club.wpia.gigi.util.RandomToken;
 import club.wpia.gigi.util.RateLimit;
 import club.wpia.gigi.util.RateLimit.RateLimitException;
+import club.wpia.gigi.util.ServerConstants;
 
 public class KeyCompromiseForm extends Form {
+
+    public static final String CONFIDENTIAL_MARKER = "*CONFIDENTIAL*";
 
     private static final Template t = new Template(KeyCompromiseForm.class.getResource("KeyCompromiseForm.templ"));
 
@@ -46,6 +55,8 @@ public class KeyCompromiseForm extends Form {
     public static final TranslateCommand NOT_LOADED = new TranslateCommand("Certificate could not be loaded");
 
     public static final TranslateCommand NOT_FOUND = new TranslateCommand("Certificate to revoke not found");
+
+    private static final MailTemplate revocationNotice = new MailTemplate(KeyCompromiseForm.class.getResource("RevocationNotice.templ"));
 
     public KeyCompromiseForm(HttpServletRequest hsr) {
         super(hsr);
@@ -139,7 +150,52 @@ public class KeyCompromiseForm extends Form {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-        Job j = c.revoke(challenge, Base64.getEncoder().encodeToString(signature), "");
+        String message = req.getParameter("message");
+        if (message != null && message.isEmpty()) {
+            message = null;
+        }
+        if (message != null) {
+            if (message.startsWith(CONFIDENTIAL_MARKER)) {
+                message = " " + message;
+            }
+            String confidential = req.getParameter("confidential");
+            if (confidential != null && !confidential.isEmpty()) {
+                message = CONFIDENTIAL_MARKER + "\r\n" + message;
+            }
+            if (message.contains("---")) {
+                throw new GigiApiException("Your message may not contain '---'.");
+            }
+            // convert all line endings to CRLF
+            message = message.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "\r\n");
+            if ( !message.matches("[ -~\r\n\t]*")) {
+                throw new GigiApiException("Your message may only contain printable ASCII characters, tab, newline and space.");
+            }
+        }
+        CertificateOwner co = c.getOwner();
+        String primaryEmail;
+        Language l = Language.getInstance(Locale.ENGLISH);
+        if (co instanceof User) {
+            primaryEmail = ((User) co).getEmail();
+            l = Language.getInstance(((User) co).getPreferredLocale());
+        } else if (co instanceof Organisation) {
+            primaryEmail = ((Organisation) co).getContactEmail();
+        } else {
+            throw new IllegalArgumentException("certificate owner of unknown type");
+        }
+        HashMap<String, Object> vars = new HashMap<>();
+        vars.put("appName", ServerConstants.getAppName());
+        if (message != null && !message.startsWith(CONFIDENTIAL_MARKER)) {
+            vars.put("message", message);
+        } else {
+            vars.put("message", null);
+        }
+        vars.put("serial", c.getSerial());
+        try {
+            revocationNotice.sendMail(l, vars, primaryEmail);
+        } catch (IOException e) {
+            throw new GigiApiException("Sending the notification mail failed.");
+        }
+        Job j = c.revoke(challenge, Base64.getEncoder().encodeToString(signature), message);
         if ( !j.waitFor(60000)) {
             throw new PermamentFormException(new GigiApiException("Revocation timed out."));
         }

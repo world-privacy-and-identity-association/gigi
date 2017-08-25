@@ -36,6 +36,8 @@ import club.wpia.gigi.util.PEM;
 @RunWith(Parameterized.class)
 public class KeyCompromiseTest extends ClientTest {
 
+    private static final String NOT_FOUND = "not found";
+
     private static class TestParameters {
 
         private final String query;
@@ -48,6 +50,9 @@ public class KeyCompromiseTest extends ClientTest {
         }
 
         public String getError() {
+            if (NOT_FOUND.equals(error)) {
+                return KeyCompromiseForm.NOT_FOUND.getRaw();
+            }
             return error;
         }
 
@@ -91,13 +96,13 @@ public class KeyCompromiseTest extends ClientTest {
                 params("cert=%cert&priv=%priv", null),// cert+key
                 params("serial=%serial&signature=%signature", null),
                 // Zero serial
-                params("serial=0000&priv=%priv", KeyCompromiseForm.NOT_FOUND.getRaw()),
-                params("serial=0lkd&priv=%priv", KeyCompromiseForm.NOT_FOUND.getRaw()),
+                params("serial=0000&priv=%priv", NOT_FOUND),
+                params("serial=0lkd&priv=%priv", NOT_FOUND),
                 // tampered cert
                 params("cert=%tamperedCert&priv=%priv", "not be parsed"),
                 params("cert=%cert&priv=%tamperedPriv", "Private Key is malformed"),
-                params("serial=1&priv=%priv", KeyCompromiseForm.NOT_FOUND.getRaw()),
-                params("serial=1%serial&priv=%priv", KeyCompromiseForm.NOT_FOUND.getRaw()),
+                params("serial=1&priv=%priv", NOT_FOUND),
+                params("serial=1%serial&priv=%priv", NOT_FOUND),
                 // missing certificate identification
                 params("serial=&cert=&priv=%priv", "identification"),
                 params("cert=&priv=%priv", "identification"),

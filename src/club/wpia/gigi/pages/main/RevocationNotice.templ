@@ -1,0 +1,17 @@
+Subject: <?=_Certification Revocation Notice due to Key Compromise?>
+
+<?=_The private key for your certificate ${serial} was reported to be compromised. The certificate has therefore been revoked.?>
+
+<?=_The reporting user was able to sign a system-generated challenge and the signature verifies successfully with your public key.?>
+<?=_This means that they somehow have the ability to sign with your private key. This way your certificate could be used by someone else to impersonate the identity represented by the certificate. This might have several causes:?>
+
+- <?=_Your private key became publicly accessible.?>
+- <?=_Your key pair was so weak that it could be broken by another individual.?>
+- <?=_Someone with authorized access to your private key (e.g. you) has initiated the revocation.?>
+
+<? if($message) { ?>
+The user reporting this compromised key provided the following message to aid you to resolve this security issue and help you to prevent further security incidents.
+---
+<?=$message?>
+---
+<? } ?>

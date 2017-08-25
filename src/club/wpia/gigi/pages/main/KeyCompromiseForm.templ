@@ -39,6 +39,17 @@ printf '%s' '<?=$challengePrefix?><?=$challenge?>' | openssl dgst -sha256 -sign 
     </td>
   </tr>
   <tr>
+    <td colspan="4">
+      <?=_You may provide information on how the private key was compromised to help the certificate owner prevent further key compromises.?>
+      <?=_You can indicate that this information should not be sent to the certificate owner, but only be visible to ${appName} staff, by checking the checkbox below.?>
+      <p>
+      <label for="confidential"><?=_Don't send the message to the certificate owner?></label>
+      <input type='checkbox' name='confidential' id='confidential'>
+      </p>
+      <textarea class="form-control" name="message" rows="3" cols="40"></textarea>
+    </td>
+  </tr>
+  <tr>
     <td colspan="4"><input class="btn btn-primary" type="submit" name="process" value="<?=_Next?>"></td>
   </tr>
   </tbody>
