@@ -45,9 +45,20 @@ public class Job implements IdCachable {
     }
 
     protected synchronized static Job revoke(Certificate targetId, RevocationType type) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `certs` SET `revocationType`=?::`revocationType` WHERE id=?")) {
+        return revoke(targetId, type, null, null, null);
+    }
+
+    protected synchronized static Job revoke(Certificate targetId, String challenge, String signature, String message) {
+        return revoke(targetId, RevocationType.KEY_COMPROMISE, challenge, signature, message);
+    }
+
+    private synchronized static Job revoke(Certificate targetId, RevocationType type, String challenge, String signature, String message) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `certs` SET `revocationType`=?::`revocationType`, `revocationChallenge`=?, `revocationSignature`=?, `revocationMessage`=? WHERE id=?")) {
             ps.setEnum(1, type);
-            ps.setInt(2, targetId.getId());
+            ps.setString(2, challenge);
+            ps.setString(3, signature);
+            ps.setString(4, message);
+            ps.setInt(5, targetId.getId());
             ps.execute();
         }
 

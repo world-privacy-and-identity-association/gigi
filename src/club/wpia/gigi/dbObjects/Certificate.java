@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 
 import club.wpia.gigi.GigiApiException;
@@ -28,7 +29,7 @@ import club.wpia.gigi.util.KeyStorage;
 public class Certificate implements IdCachable {
 
     public enum RevocationType implements DBEnum {
-        USER("user"), SUPPORT("support"), PING_TIMEOUT("ping_timeout");
+        USER("user"), SUPPORT("support"), PING_TIMEOUT("ping_timeout"), KEY_COMPROMISE("key_compromise");
 
         private final String dbName;
 
@@ -39,6 +40,10 @@ public class Certificate implements IdCachable {
         @Override
         public String getDBName() {
             return dbName;
+        }
+
+        public static RevocationType fromString(String s) {
+            return valueOf(s.toUpperCase(Locale.ENGLISH));
         }
     }
 
@@ -345,7 +350,13 @@ public class Certificate implements IdCachable {
             throw new IllegalStateException();
         }
         return Job.revoke(this, type);
+    }
 
+    public Job revoke(String challenge, String signature, String message) {
+        if (getStatus() != CertificateStatus.ISSUED) {
+            throw new IllegalStateException();
+        }
+        return Job.revoke(this, challenge, signature, message);
     }
 
     public CACertificate getParent() {
