@@ -56,10 +56,13 @@ public class VerificationsDisplay implements Outputable {
                         vars.put("linkId", to == null ? "" : to.getOwner().getId());
                         vars.put("verbVal", to == null ? l.getTranslation("applicant's name removed") : to.getOwner().getId());
                         vars.put("myName", to == null ? l.getTranslation("applicant's name removed") : to);
+                        vars.put("agentUnverified", false);
                     } else {
                         vars.put("linkId", verification.getFrom().getId());
-                        vars.put("verbVal", verification.getFrom().getPreferredName());
+                        Name name = verification.getFrom().getPreferredName();
+                        vars.put("verbVal", name);
                         vars.put("myName", to == null ? l.getTranslation("own name removed") : to);
+                        vars.put("agentUnverified", name.getVerificationPoints() <= 0);
                     }
                     vars.put("date", verification.getDate());
                     vars.put("location", verification.getLocation() + " (" + (verification.getCountry() == null ? l.getTranslation("not given") : verification.getCountry().getName()) + ")");

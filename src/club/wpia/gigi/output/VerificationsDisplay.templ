@@ -19,7 +19,7 @@
 <td><?=$id?></td>
 <? } ?>
 <td><?=$date?></td>
-<td><?=$verbVal?></td>
+<td><?=$verbVal?><? if($agentUnverified) { ?> <span class="label label-warning"><?=_name currently not verified?></span><? } ?></td>
 <? if($myName) { ?>
 <td><?=$myName?></td>
 <? } ?>
