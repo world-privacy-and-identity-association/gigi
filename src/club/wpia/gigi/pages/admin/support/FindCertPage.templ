@@ -1,7 +1,7 @@
 <p><?=_Multiple certificates?>: <?=$limit?></p>
 <table class="table">
 <tr>
-<th>Id</th><th><?=_Serial number?></th><th><?=_SAN?></th></tr>
+<th>Id</th><th><?=_Serial number?></th><th><?=_SAN?></th><th><?=_Revocation Date?></th></tr>
 <? foreach($certtable) {?>
   <tr>
     <td><a href="/support/certs/<?=$serial?>"><?=$id?></a></td>
@@ -11,6 +11,7 @@
        <?=$entry?>
     <? } ?>
     </td>
+    <td><?=$revoked?></td>
   </tr>
 <? } ?>
 </table>

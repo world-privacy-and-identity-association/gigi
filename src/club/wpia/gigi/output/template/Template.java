@@ -73,6 +73,8 @@ public class Template implements Outputable {
 
     private static final String UNKOWN_CONTROL_STRUCTURE_MSG = "Unknown control structure \"%s\", did you mean \"%s\"?";
 
+    public static final String UTC_TIMESTAMP_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+
     /**
      * Creates a new template by parsing the contents from the given URL. This
      * constructor will fail on syntax error. When the URL points to a file,
@@ -267,7 +269,7 @@ public class Template implements Outputable {
             if (vars.containsKey(Outputable.OUT_KEY_PLAIN)) {
                 out.print(sdfUI.format(s));
             } else {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                SimpleDateFormat sdf = new SimpleDateFormat(UTC_TIMESTAMP_FORMAT);
                 out.print("<time datetime=\"" + sdf.format(s) + "\">");
                 out.print(sdfUI.format(s));
                 out.print(" UTC</time>");

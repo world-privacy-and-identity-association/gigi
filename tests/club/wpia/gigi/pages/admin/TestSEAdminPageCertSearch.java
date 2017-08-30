@@ -7,6 +7,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
+import java.text.SimpleDateFormat;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
@@ -15,10 +16,12 @@ import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.Certificate.CSRType;
 import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
+import club.wpia.gigi.dbObjects.Certificate.RevocationType;
 import club.wpia.gigi.dbObjects.Certificate.SANType;
 import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.User;
+import club.wpia.gigi.output.template.Template;
 import club.wpia.gigi.pages.account.certs.Certificates;
 import club.wpia.gigi.pages.admin.support.FindCertPage;
 import club.wpia.gigi.pages.admin.support.SupportEnterTicketPage;
@@ -34,18 +37,16 @@ public class TestSEAdminPageCertSearch extends ClientTest {
 
     private String certMail;
 
+    private int id;
+
     public TestSEAdminPageCertSearch() throws IOException, GigiApiException, GeneralSecurityException, InterruptedException {
         grant(u, Group.SUPPORTER);
         cookie = login(email, TEST_PASSWORD);
         assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
 
         certMail = uniq + "_certowner@example.com";
-        int id = createVerifiedUser("fn", "ln", certMail, TEST_PASSWORD);
-        User u1 = User.getById(id);
-        KeyPair kp = generateKeypair();
-        String key = generatePEMCSR(kp, "CN=" + certMail);
-        c = new Certificate(u1, u1, Certificate.buildDN("CN", certMail), Digest.SHA512, key, CSRType.CSR, getClientProfile(), new Certificate.SubjectAlternateName(SANType.EMAIL, certMail));
-        await(c.issue(null, "2y", u));
+        id = createVerifiedUser("fn", "ln", certMail, TEST_PASSWORD);
+        c = createCertificate();
     }
 
     @Test
@@ -70,7 +71,7 @@ public class TestSEAdminPageCertSearch extends ClientTest {
     }
 
     @Test
-    public void testRevoke() throws IOException {
+    public void testRevoke() throws IOException, GeneralSecurityException, GigiApiException, InterruptedException {
         URLConnection conn = post(Certificates.SUPPORT_PATH + "/" + c.getSerial(), "action=revoke");
         assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + Certificates.SUPPORT_PATH + "/" + c.getSerial(), conn.getHeaderField("Location"));
         for (int i = 0; i < 2; i++) {
@@ -79,6 +80,27 @@ public class TestSEAdminPageCertSearch extends ClientTest {
             assertThat(tm.getMessage(), CoreMatchers.containsString(c.getSerial()));
         }
         assertEquals(CertificateStatus.REVOKED, c.getStatus());
+
     }
 
+    @Test
+    public void testShowRevocation() throws GeneralSecurityException, IOException, GigiApiException, InterruptedException {
+        Certificate c1 = createCertificate();
+        await(c1.revoke(RevocationType.SUPPORT));
+        URLConnection uc = post(cookie, FindCertPage.PATH, "certType=email&process=Next&cert=" + URLEncoder.encode(certMail, "UTF-8"), 0);
+        SimpleDateFormat sdf = new SimpleDateFormat(Template.UTC_TIMESTAMP_FORMAT);
+        String revokeDate = sdf.format(c1.getRevocationDate());
+        String result = IOUtils.readURL(uc);
+        assertThat(result, CoreMatchers.containsString(revokeDate));
+        assertThat(result, CoreMatchers.containsString("N/A"));
+    }
+
+    private Certificate createCertificate() throws GeneralSecurityException, IOException, GigiApiException, InterruptedException {
+        User u1 = User.getById(id);
+        KeyPair kp = generateKeypair();
+        String key = generatePEMCSR(kp, "CN=" + certMail);
+        Certificate c1 = new Certificate(u1, u1, Certificate.buildDN("CN", certMail), Digest.SHA512, key, CSRType.CSR, getClientProfile(), new Certificate.SubjectAlternateName(SANType.EMAIL, certMail));
+        await(c1.issue(null, "2y", u));
+        return c1;
+    }
 }

@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.dbObjects.Certificate.SubjectAlternateName;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.ArrayIterable;
@@ -58,6 +59,12 @@ public class FindCertPage extends Page {
                     public void apply(Certificate t, Language l, Map<String, Object> vars) {
                         vars.put("id", t.getId());
                         vars.put("serial", t.getSerial());
+
+                        if (t.getStatus() == CertificateStatus.REVOKED) {
+                            vars.put("revoked", t.getRevocationDate());
+                        } else {
+                            vars.put("revoked", l.getTranslation("N/A"));
+                        }
 
                         final List<SubjectAlternateName> san = t.getSANs();
                         vars.put("san", new IterableDataset() {
