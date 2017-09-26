@@ -117,7 +117,7 @@
 			<classpath refid="gigi.classpath" />
 		</javac>
 	</target>
-	<target depends="init, build-project" name="build-testing-l10n">
+	<target depends="init, build-project, reset-db" name="build-testing-l10n">
 		<javac encoding="UTF-8" debug="true" debuglevel="${debuglevel}" destdir="binutil-testing"
 			includeantruntime="false" source="${source}" target="${target}">
 			<compilerarg value="-XDignore.symbol.file"/>
