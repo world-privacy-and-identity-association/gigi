@@ -227,6 +227,7 @@ public class SQLTestingVisitor extends ASTVisitor {
                         }
                     }
                 } catch (SQLException e) {
+                    errMsg(stmt, "SQL exception occurred, probably a syntax error in the SQL statement. See exception for more details.");
                     throw new Error(e);
                 }
             } catch (InterruptedException e) {
