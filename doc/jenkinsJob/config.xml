@@ -40,7 +40,7 @@
   </properties>
   <scm class="org.jenkinsci.plugins.multiplescms.MultiSCM" plugin="multiple-scms@0.6">
     <scms>
-      <hudson.plugins.git.GitSCM plugin="git@3.1.0">
+      <hudson.plugins.git.GitSCM plugin="git@3.5.1">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
@@ -50,7 +50,7 @@
         </userRemoteConfigs>
         <branches>
           <hudson.plugins.git.BranchSpec>
-            <name>15a2e696752bba33decf70e4ac7eed5e36d8d93e</name>
+            <name>master</name>
           </hudson.plugins.git.BranchSpec>
         </branches>
         <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
@@ -61,7 +61,7 @@
           </hudson.plugins.git.extensions.impl.RelativeTargetDirectory>
         </extensions>
       </hudson.plugins.git.GitSCM>
-      <hudson.plugins.git.GitSCM plugin="git@3.1.0">
+      <hudson.plugins.git.GitSCM plugin="git@3.5.1">
         <configVersion>2</configVersion>
         <userRemoteConfigs>
           <hudson.plugins.git.UserRemoteConfig>
@@ -161,15 +161,15 @@ for i in ../nre/generated/gigi-*.tar.gz; do
   tar xf &quot;$i&quot;
 done
 
-cd config
-./generateTruststoreNRE.sh
-cd ..
-
 mkdir -p signer
 cd signer
 for i in ../../nre/generated/signer-server-*.tar.gz; do
   tar xf &quot;$i&quot;
 done
+cd ..
+
+cd config
+DOMAIN=$$$$YOUR_LOOKUP_DOMAIN$$$$ ./generateTruststoreNRE.sh
 cd ..
 
 # --- config gigi
@@ -183,6 +183,7 @@ sql.driver=org.postgresql.Driver
 sql.url=$$$$sql url$$$$
 sql.user=$$$$sql user$$$$
 sql.password=$$$$sql password$$$$
+name.suffix=$$$$YOUR_LOOKUP_DOMAIN$$$$
 name.static=static.$$$$YOUR_LOOKUP_DOMAIN$$$$
 name.secure=secure.$$$$YOUR_LOOKUP_DOMAIN$$$$
 name.www=www.$$$$YOUR_LOOKUP_DOMAIN$$$$
