@@ -8,6 +8,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 
@@ -29,6 +30,10 @@ public class CACertificate implements IdCachable {
     private final X509Certificate cert;
 
     private final String link;
+
+    private static final CACertificate[] instances;
+
+    private static ObjectCache<CACertificate> myCache = new ObjectCache<>();
 
     private CACertificate(int id) {
         this.id = id;
@@ -78,6 +83,17 @@ public class CACertificate implements IdCachable {
     static {
         try {
             update();
+            try (GigiPreparedStatement q = new GigiPreparedStatement("SELECT `id` FROM `cacerts`", true)) {
+                GigiResultSet res = q.executeQuery();
+                res.last();
+                CACertificate[] certs = new CACertificate[res.getRow()];
+                res.beforeFirst();
+                int i = 0;
+                while (res.next()) {
+                    certs[i++] = getById(res.getInt(1));
+                }
+                instances = certs;
+            }
         } catch (CertificateException e) {
             throw new Error(e);
         } catch (FileNotFoundException e) {
@@ -161,8 +177,6 @@ public class CACertificate implements IdCachable {
         return id;
     }
 
-    private static ObjectCache<CACertificate> myCache = new ObjectCache<>();
-
     public String getKeyname() {
         return keyname;
     }
@@ -181,6 +195,10 @@ public class CACertificate implements IdCachable {
 
     public boolean isSelfsigned() {
         return this == getParent();
+    }
+
+    public static synchronized CACertificate[] getAll() {
+        return Arrays.copyOf(instances, instances.length);
     }
 
 }
