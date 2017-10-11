@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import sun.security.x509.X509Key;
 import club.wpia.gigi.Gigi;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.crypto.SPKAC;
@@ -61,6 +60,7 @@ import club.wpia.gigi.util.DomainAssessment;
 import club.wpia.gigi.util.HTMLEncoder;
 import club.wpia.gigi.util.Notary;
 import club.wpia.gigi.util.TimeConditions;
+import sun.security.x509.X509Key;
 
 public class Manager extends Page {
 
@@ -420,7 +420,7 @@ public class Manager extends Page {
                 e.printStackTrace();
                 resp.getWriter().println("An internal error occured.");
             } catch (GigiApiException e) {
-                e.format(resp.getWriter(), Language.getInstance(Locale.ENGLISH));
+                e.format(resp.getWriter(), Language.getInstance(Locale.ENGLISH), getDefaultVars(req));
             }
         } else if (req.getParameter("addCert") != null) {
             User u = User.getByEmail(req.getParameter("addCertEmail"));
@@ -447,7 +447,7 @@ public class Manager extends Page {
                 e1.printStackTrace();
                 resp.getWriter().println("error");
             } catch (GigiApiException e) {
-                e.format(resp.getWriter(), Language.getInstance(Locale.ENGLISH));
+                e.format(resp.getWriter(), Language.getInstance(Locale.ENGLISH), getDefaultVars(req));
             }
 
         } else if (req.getParameter("addExDom") != null) {

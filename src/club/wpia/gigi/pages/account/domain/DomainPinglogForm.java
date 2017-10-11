@@ -51,7 +51,7 @@ public class DomainPinglogForm extends Form {
         try {
             pings = target.getPings();
         } catch (GigiApiException e) {
-            e.format(out, l);
+            e.format(out, l, vars);
             return;
         }
         vars.put("domainname", target.getSuffix());

@@ -176,7 +176,7 @@ public abstract class Page implements PermissionCheckable {
      *            the HTTP-request to derive the map from
      * @return the map
      */
-    protected Map<String, Object> getDefaultVars(HttpServletRequest req) {
+    public static Map<String, Object> getDefaultVars(HttpServletRequest req) {
         HashMap<String, Object> vars = new HashMap<String, Object>();
         vars.put(Gigi.LINK_HOST, req.getAttribute(Gigi.LINK_HOST));
         vars.put("appName", ServerConstants.getAppName());

@@ -35,7 +35,7 @@ public class OneFormPage extends Page {
         try {
             c.getConstructor(HttpServletRequest.class).newInstance(req).output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         } catch (ReflectiveOperationException e) {
-            new GigiApiException().format(resp.getWriter(), getLanguage(req));
+            new GigiApiException().format(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         }
     }
 

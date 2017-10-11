@@ -231,7 +231,7 @@ public class Certificates extends Page implements HandlesMixedRequest {
             } catch (GeneralSecurityException e) {
                 e.printStackTrace();
             } catch (GigiApiException e) {
-                e.format(out, l);
+                e.format(out, l, getDefaultVars(req));
             }
             certDisplay.output(out, getLanguage(req), vars);
 
