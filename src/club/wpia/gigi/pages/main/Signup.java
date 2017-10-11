@@ -139,7 +139,7 @@ public class Signup extends Form {
         }
         int pwpoints = PasswordStrengthChecker.checkpw(pw1, ni.getNamePartsPlain(), email);
         if (pwpoints < 3) {
-            ga.mergeInto(new GigiApiException("The Pass Phrase you submitted failed to contain enough" + " differing characters and/or contained words from" + " your name and/or email address."));
+            ga.mergeInto(new GigiApiException(new SprintfCommand("The Pass Phrase you submitted failed to contain enough differing characters and/or contained words from your name and/or email address. For the current requirements and to learn more, visit our {0}FAQ{1}.", Arrays.asList("!(/wiki/goodPassword", "!'</a>'"))));
         }
         if ( !ga.isEmpty()) {
             throw ga;
