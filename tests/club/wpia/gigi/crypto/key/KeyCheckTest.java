@@ -29,8 +29,11 @@ public class KeyCheckTest {
             KeyCheck.checkKey(null);
             fail("Providing a null key should fail!");
         } catch (GigiApiException gae) {
-            assertTrue(true);
+            // Expected failure
         }
+
+        // Check that at least one key check has been loaded
+        assertFalse(KeyCheck.getChecks().isEmpty());
     }
 
 }
