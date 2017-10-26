@@ -129,6 +129,7 @@ public class TestVerification extends ManagedTest {
         uc.getOutputStream().write(("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         assertEquals(500, uc.getResponseCode());
+        uc.getErrorStream().close();
     }
 
     @Test
@@ -138,6 +139,7 @@ public class TestVerification extends ManagedTest {
         uc.getOutputStream().write(("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10&csrf=aragc").getBytes("UTF-8"));
         uc.getOutputStream().flush();
         assertEquals(500, uc.getResponseCode());
+        uc.getErrorStream().close();
     }
 
     @Test

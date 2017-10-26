@@ -395,7 +395,12 @@ public final class Gigi extends HttpServlet {
                 resp.sendError(403);
                 return;
             }
-            if (p.beforeTemplate(req, resp)) {
+            try {
+                if (p.beforeTemplate(req, resp)) {
+                    return;
+                }
+            } catch (CSRFException e) {
+                resp.sendError(500, "CSRF invalid");
                 return;
             }
             HashMap<String, Object> vars = new HashMap<String, Object>();
