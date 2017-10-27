@@ -24,8 +24,9 @@ public abstract class KeyCheck {
 
     public static void checkKey(PublicKey key) throws GigiApiException {
 
-        if (checks.isEmpty() || checks.size() < 2) {
+        if (checks.isEmpty() || checks.size() < 3) {
             // Mandatory checks are registered here
+            register(new KeyCheckPublicKeyFormat());
             register(new KeyCheckSmallFactors());
             register(new KeyCheckROCA());
         }
