@@ -101,6 +101,7 @@ public class TestVerification extends ManagedTest {
         String body = executeSuccess("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
         assertThat(body, containsString("10"));
         assertThat(body, containsString(applicantM));
+        getMailReceiver().receive(applicantM);
     }
 
     @Test
@@ -165,6 +166,7 @@ public class TestVerification extends ManagedTest {
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
         if (succeed) {
             assertNull(error);
+            getMailReceiver().receive(applicantM);
         } else {
             assertTrue(error, !error.startsWith("</div>"));
             assertThat(error, containsString("changed his personal details"));
@@ -186,11 +188,13 @@ public class TestVerification extends ManagedTest {
         c.add(Calendar.HOUR_OF_DAY, 12);
 
         executeSuccess("date=" + sdf.format(new Date(c.getTimeInMillis())) + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
+        getMailReceiver().receive(applicantM);
     }
 
     @Test
     public void testVerifyFormPastInRange() throws IOException {
         executeSuccess("date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
+        getMailReceiver().receive(applicantM);
     }
 
     @Test
@@ -202,6 +206,7 @@ public class TestVerification extends ManagedTest {
         c.add(Calendar.DAY_OF_MONTH, 1);
 
         executeSuccess("date=" + sdf.format(new Date(c.getTimeInMillis())) + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
+        getMailReceiver().receive(applicantM);
     }
 
     @Test
@@ -236,7 +241,8 @@ public class TestVerification extends ManagedTest {
     @Test
     public void testVerifyListingValid() throws IOException, GigiApiException {
         String uniqueLoc = createUniqueName();
-        execute("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
+        executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
+        getMailReceiver().receive(applicantM);
 
         String cookie = login(applicantM, TEST_PASSWORD);
         URLConnection url = get(cookie, Points.PATH);
@@ -250,6 +256,8 @@ public class TestVerification extends ManagedTest {
     public void testAgentListingValid() throws IOException, GigiApiException {
         String uniqueLoc = createUniqueName();
         executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
+        getMailReceiver().receive(applicantM);
+
         String cookie = login(agentM, TEST_PASSWORD);
         URLConnection url = get(cookie, Points.PATH);
         String resp = IOUtils.readURL(url);
@@ -317,6 +325,7 @@ public class TestVerification extends ManagedTest {
         // enter second entry
         String uniqueLoc = createUniqueName();
         executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
+        getMailReceiver().receive(applicantM);
 
         // enter third entry on the same day
         URLConnection uc = get(cookie, VerifyPage.PATH);
@@ -333,7 +342,7 @@ public class TestVerification extends ManagedTest {
 
     @Test
     public void testRANotificationSet() throws IOException, GigiApiException {
-        getMailReceiver().clearMails();
+        getMailReceiver().assertEmpty();
 
         User users[] = User.findByEmail(agentM);
         assertTrue("user RA Agent not found", users != null && users.length > 0);
@@ -348,18 +357,15 @@ public class TestVerification extends ManagedTest {
         // enter verification
         String uniqueLoc = createUniqueName();
         executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
-        TestMail tm;
-
-        do {
-            tm = getMailReceiver().receive();
-        } while ( !tm.getTo().equals(targetMail));
+        getMailReceiver().receive(applicantM);
+        TestMail tm = getMailReceiver().receive(targetMail);
         assertThat(tm.getMessage(), containsString("You entered a verification for the account with email address " + applicantM));
 
     }
 
     @Test
     public void testRANotificationNotSet() throws IOException, GigiApiException {
-        getMailReceiver().clearMails();
+        getMailReceiver().assertEmpty();
 
         User users[] = User.findByEmail(agentM);
         assertTrue("user RA Agent not found", users != null && users.length > 0);
@@ -375,7 +381,7 @@ public class TestVerification extends ManagedTest {
 
         TestMail tm;
 
-        tm = getMailReceiver().receive();
+        tm = getMailReceiver().receive(applicantM);
         assertThat(tm.getMessage(), not(containsString("You entered a verification for the account with email address " + applicantM)));
 
     }

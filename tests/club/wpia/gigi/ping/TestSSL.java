@@ -45,11 +45,11 @@ import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.DatabaseConnection;
 import club.wpia.gigi.database.DatabaseConnection.Link;
 import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.CSRType;
 import club.wpia.gigi.dbObjects.CertificateProfile;
 import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.dbObjects.Job;
 import club.wpia.gigi.dbObjects.User;
-import club.wpia.gigi.dbObjects.Certificate.CSRType;
 import club.wpia.gigi.testUtils.IOUtils;
 import club.wpia.gigi.testUtils.PingTest;
 import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
@@ -206,7 +206,7 @@ public class TestSSL extends PingTest {
         boolean secondsSucceeds = sslVariant != 0;
         // assertTrue(secondsSucceeds ^ accept2);
 
-        TestMail mail = getMailReceiver().receive();
+        TestMail mail = getMailReceiver().receive("postmaster@" + test);
         if (emailVariant == 0) {
             mail.verify();
         }

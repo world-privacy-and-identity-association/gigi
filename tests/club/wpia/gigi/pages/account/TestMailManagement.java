@@ -47,6 +47,7 @@ public class TestMailManagement extends ClientTest {
         String newMail = createUniqueName() + "uni@example.org";
         assertNull(addMail(newMail));
         assertTrue(existsEmail(newMail));
+        getMailReceiver().receive(newMail);
     }
 
     @Test
@@ -62,6 +63,7 @@ public class TestMailManagement extends ClientTest {
         String newMail = u + "uni@eXample.org";
         assertNull(addMail(newMail));
         assertTrue(existsEmail(newMail.toLowerCase()));
+        getMailReceiver().receive(newMail.toLowerCase());
 
         String newMail2 = u + "uni@eXamPlE.org";
         assertNotNull(addMail(newMail2));
@@ -71,6 +73,7 @@ public class TestMailManagement extends ClientTest {
         assertNull(addMail(newMail3));
         assertTrue(existsEmail(newMail.toLowerCase()));
         assertTrue(existsEmail(newMail3.toLowerCase()));
+        getMailReceiver().receive(newMail3.toLowerCase());
     }
 
     private String addMail(String newMail) throws IOException, MalformedURLException, UnsupportedEncodingException {
@@ -100,7 +103,7 @@ public class TestMailManagement extends ClientTest {
         EmailAddress addr = new EmailAddress(u, createUniqueName() + "test@test.tld", Locale.ENGLISH);
         assertNotNull(executeBasicWebInteraction(cookie, path, "default=" + addr.getId()));
         assertNotEquals(User.getById(u.getId()).getEmail(), addr.getAddress());
-        getMailReceiver().clearMails();
+        getMailReceiver().receive(addr.getAddress());
     }
 
     @Test
@@ -116,7 +119,7 @@ public class TestMailManagement extends ClientTest {
         assertNotEquals(id, -1);
         assertNotNull(executeBasicWebInteraction(cookie, path, "default=" + id));
         assertNotEquals(User.getById(u.getId()).getEmail(), u2.getEmail());
-        getMailReceiver().clearMails();
+        getMailReceiver().assertEmpty();
     }
 
     @Test

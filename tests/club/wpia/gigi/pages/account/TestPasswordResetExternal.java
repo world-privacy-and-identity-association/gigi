@@ -35,10 +35,9 @@ public class TestPasswordResetExternal extends ClientTest {
         String error = fetchStartErrorMessage(IOUtils.readURL(uc));
         assertNull(error);
 
-        TestMail mail = getMailReceiver().receive();
+        TestMail mail = getMailReceiver().receive(this.u.getEmail());
         assertThat(mail.getSubject(), containsString("Verification"));
-        mail = getMailReceiver().receive();
-        assertEquals(mail.getTo(), this.u.getEmail());
+        mail = getMailReceiver().receive(this.u.getEmail());
         String link = mail.extractLink();
         String npw = TEST_PASSWORD + "'";
         System.out.println(link);

@@ -1,5 +1,7 @@
 package club.wpia.gigi.testUtils;
 
+import static org.junit.Assert.*;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -83,6 +85,10 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable, 
             uc.getInputStream().close();
         }
 
+        @Override
+        public String toString() {
+            return "TestMail: " + subject + " for " + to;
+        }
     }
 
     private Socket s;
@@ -130,7 +136,7 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable, 
      * @see #poll()
      */
     @Override
-    public TestMail receive() {
+    public TestMail receive(String to) {
         TestMail poll;
 
         try {
@@ -141,6 +147,9 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable, 
         }
         if (poll == null) {
             throw new AssertionError("Mail receiving timed out");
+        }
+        if (to != null) {
+            assertEquals(to, poll.getTo());
         }
 
         return poll;
@@ -154,8 +163,12 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable, 
      *         has been sent.
      * @see #receive()
      */
-    public TestMail poll() {
-        return mails.poll();
+    public TestMail poll(String to) {
+        TestMail tm = mails.poll();
+        if (tm != null && to != null) {
+            assertEquals(to, tm.getTo());
+        }
+        return tm;
     }
 
     @Override
@@ -226,19 +239,21 @@ public final class TestEmailReceiver extends EmailProvider implements Runnable, 
      * Removes all queued mails.
      */
     @Override
-    public void clearMails() {
+    public void assertEmpty() {
+        int originalSize = mails.size();
         mails.clear();
+        assertEquals("test case should consume all produced emails", 0, originalSize);
     }
 
     /**
      * Resets this class to its initial state
      * 
-     * @see #clearMails()
+     * @see #assertEmpty()
      * @see #setApproveRegex(Pattern)
      * @see #setEmailCheckError(String)
      */
     public void reset() {
-        clearMails();
+        assertEmpty();
         error = "FAIL";
         approveRegex = Pattern.compile(".*");
     }

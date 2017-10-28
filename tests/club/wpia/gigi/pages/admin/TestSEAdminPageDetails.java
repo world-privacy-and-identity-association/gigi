@@ -56,7 +56,7 @@ public class TestSEAdminPageDetails extends ClientTest {
         int id = createVerifiedUser(fname, lname, email, TEST_PASSWORD);
         String email2 = createUniqueName() + "@example.com";
         EmailAddress ea = new EmailAddress(User.getById(id), email2, Locale.ENGLISH);
-        getMailReceiver().receive().verify();
+        getMailReceiver().receive(email2).verify();
         // Refresh email Object
         ObjectCache.clearAllCaches();
         ea = EmailAddress.getById(ea.getId());
@@ -108,6 +108,10 @@ public class TestSEAdminPageDetails extends ClientTest {
         assertEquals(3, logCountAdmin(id));
         assertEquals(3, logCountUser(clientCookie));
 
+        // discarding all 6 mails
+        for (int i = 0; i < 6; i++) {
+            getMailReceiver().receive(null);
+        }
     }
 
     @Test

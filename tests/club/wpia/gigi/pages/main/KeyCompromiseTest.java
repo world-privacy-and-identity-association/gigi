@@ -187,6 +187,7 @@ public class KeyCompromiseTest extends ClientTest {
         if (error == null) {
             assertThat(result, hasNoError());
             assertRevoked(result);
+            getMailReceiver().receive(u.getEmail());
         } else if ("error".equals(error)) {
             assertThat(result, hasError());
             assertNotEquals(CertificateStatus.REVOKED, cert.getStatus());

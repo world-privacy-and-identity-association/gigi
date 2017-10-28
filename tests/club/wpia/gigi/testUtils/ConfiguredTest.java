@@ -249,7 +249,7 @@ public abstract class ConfiguredTest {
     public void verify(Domain d) {
         try {
             d.addPing(DomainPingType.EMAIL, "admin");
-            TestMail testMail = getMailReceiver().receive();
+            TestMail testMail = getMailReceiver().receive("admin@" + d.getSuffix());
             testMail.verify();
             assertTrue(d.isVerified());
         } catch (GigiApiException e) {

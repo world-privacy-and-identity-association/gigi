@@ -9,13 +9,9 @@ import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
-import club.wpia.gigi.dbObjects.Country;
-import club.wpia.gigi.dbObjects.Name;
-import club.wpia.gigi.dbObjects.NamePart;
-import club.wpia.gigi.dbObjects.User;
-import club.wpia.gigi.dbObjects.Verification.VerificationType;
 import club.wpia.gigi.dbObjects.Country.CountryCodeType;
 import club.wpia.gigi.dbObjects.NamePart.NamePartType;
+import club.wpia.gigi.dbObjects.Verification.VerificationType;
 import club.wpia.gigi.testUtils.BusinessTest;
 import club.wpia.gigi.util.DayDate;
 import club.wpia.gigi.util.Notary;
@@ -83,7 +79,7 @@ public class TestVerificationMail extends BusinessTest {
 
         // verify preferred name only
         enterVerification(firstName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 10 Verification Points." + "\n" + requiresMore(40)));
 
@@ -91,7 +87,7 @@ public class TestVerificationMail extends BusinessTest {
         newAgent();
 
         enterVerification(firstName, secondName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 20 Verification Points." + "\n" + requiresMore(30)));
         assertThat(message, containsString("James Doe: with 10 to total 10 Verification Points." + "\n" + requiresMore(40)));
@@ -100,7 +96,7 @@ public class TestVerificationMail extends BusinessTest {
         newAgent();
 
         enterVerification(firstName, secondName, thirdName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 30 Verification Points." + "\n" + requiresMore(20)));
         assertThat(message, containsString("James Doe: with 10 to total 20 Verification Points." + "\n" + requiresMore(30)));
@@ -110,7 +106,7 @@ public class TestVerificationMail extends BusinessTest {
         newAgent();
 
         enterVerification(firstName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 40 Verification Points." + "\n" + requiresMore(10)));
 
@@ -118,7 +114,7 @@ public class TestVerificationMail extends BusinessTest {
         newAgent();
 
         enterVerification(firstName, secondName, thirdName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 50 Verification Points." + "\n" + "You can now issue client certificates with this name."));
         assertThat(message, containsString("James Doe: with 10 to total 30 Verification Points." + "\n" + requiresMore(20)));
@@ -129,7 +125,7 @@ public class TestVerificationMail extends BusinessTest {
         newAgent();
 
         enterVerification(firstName, secondName, thirdName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 60 Verification Points."));
         assertThat(message, containsString("James Doe: with 10 to total 40 Verification Points." + "\n" + requiresMore(10)));
@@ -140,7 +136,7 @@ public class TestVerificationMail extends BusinessTest {
         newAgent();
 
         enterVerification(firstName, secondName, thirdName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 70 Verification Points."));
         assertThat(message, containsString("James Doe: with 10 to total 50 Verification Points." + "\n" + "You can now issue client certificates with this name."));
@@ -151,7 +147,7 @@ public class TestVerificationMail extends BusinessTest {
         newAgent();
 
         enterVerification(firstName, secondName, thirdName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 80 Verification Points."));
         assertThat(message, containsString("James Doe: with 10 to total 60 Verification Points."));
@@ -162,7 +158,7 @@ public class TestVerificationMail extends BusinessTest {
         newAgent();
 
         enterVerification(firstName, secondName, thirdName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 90 Verification Points."));
         assertThat(message, containsString("James Doe: with 10 to total 70 Verification Points."));
@@ -173,7 +169,7 @@ public class TestVerificationMail extends BusinessTest {
         newAgent();
 
         enterVerification(firstName, secondName, thirdName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 100 Verification Points."));
         assertThat(message, containsString("James Doe: with 10 to total 80 Verification Points."));
@@ -184,7 +180,7 @@ public class TestVerificationMail extends BusinessTest {
         newAgent();
 
         enterVerification(firstName, secondName, thirdName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 110 Verification Points."));
         assertThat(message, containsString("James Doe: with 10 to total 90 Verification Points."));
@@ -206,24 +202,24 @@ public class TestVerificationMail extends BusinessTest {
         // verify preferred name only 5 times
         newAgent();
         enterVerification(firstName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
 
         newAgent();
         enterVerification(firstName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
 
         newAgent();
         enterVerification(firstName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
 
         newAgent();
         enterVerification(firstName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
 
         newAgent();
         enterVerification(firstName);
 
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 10 to total 50 Verification Points." + "\n" + "You can now issue client certificates with this name."));
         assertThat(message, containsString(requiresMoreTotal(50)));
@@ -231,7 +227,7 @@ public class TestVerificationMail extends BusinessTest {
         // verify preferred name second name
         newAgent();
         enterVerification(secondName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("James Doe: with 10 to total 10 Verification Points." + "\n" + requiresMore(40)));
         assertThat(message, containsString(requiresMoreTotal(40)));
@@ -239,19 +235,19 @@ public class TestVerificationMail extends BusinessTest {
         // verify preferred name second name 4 more times
         newAgent();
         enterVerification(secondName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
 
         newAgent();
         enterVerification(secondName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
 
         newAgent();
         enterVerification(secondName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
 
         newAgent();
         enterVerification(secondName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("James Doe: with 10 to total 50 Verification Points." + "\n" + "You can now issue client certificates with this name."));
         assertThat(message, containsString("You can now apply for RA Agent status or code signing ability."));
@@ -259,14 +255,14 @@ public class TestVerificationMail extends BusinessTest {
         // get more than 100 VP in total
         newAgent();
         enterVerification(secondName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("James Doe: with 10 to total 60 Verification Points."));
 
         // verify third name
         newAgent();
         enterVerification(thirdName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("James John Doe: with 10 to total 10 Verification Points." + "\n" + requiresMore(40)));
 
@@ -300,7 +296,7 @@ public class TestVerificationMail extends BusinessTest {
 
         // add second Verification result first name 50 VP
         enterVerification(15, firstName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 15 to total 50 Verification Points." + "\n" + "You can now issue client certificates with this name."));
         assertThat(message, containsString(requiresMoreTotal(50)));
@@ -326,10 +322,14 @@ public class TestVerificationMail extends BusinessTest {
 
         // add second Verification result first name 100 VP, second name 50 VP
         enterVerification(15, firstName, secondName);
-        message = getMailReceiver().receive().getMessage();
+        message = applicantMail();
         assertThat(message, containsString("RA-Agent Marianne Mustermann verified your name(s):"));
         assertThat(message, containsString("John Doe: with 15 to total 100 Verification Points."));
         assertThat(message, containsString("James Doe: with 15 to total 50 Verification Points." + "\n" + "You can now issue client certificates with this name."));
         assertThat(message, containsString("You can now apply for RA Agent status or code signing ability."));
+    }
+
+    private String applicantMail() {
+        return getMailReceiver().receive(applicant.getEmail()).getMessage();
     }
 }

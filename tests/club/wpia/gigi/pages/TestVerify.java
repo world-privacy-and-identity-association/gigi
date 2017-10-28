@@ -19,7 +19,7 @@ public class TestVerify extends ClientBusinessTest {
     @Test
     public void testVerify() throws GigiApiException {
         EmailAddress ea = new EmailAddress(u, "test@example.com", Locale.ENGLISH);
-        TestMail tm = getMailReceiver().receive();
+        TestMail tm = getMailReceiver().receive(ea.getAddress());
         Pattern p = Pattern.compile(".*hash=(.*)");
         Matcher m = p.matcher(tm.extractLink());
         assertTrue(m.matches());

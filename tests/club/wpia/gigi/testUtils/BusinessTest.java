@@ -70,12 +70,12 @@ public abstract class BusinessTest extends ConfiguredTest {
         }
 
         @Override
-        public void clearMails() {
+        public void assertEmpty() {
             mails.clear();
         }
 
         @Override
-        public TestMail receive() {
+        public TestMail receive(String to) {
             TestMail poll;
             try {
                 poll = mails.poll(30, TimeUnit.SECONDS);
@@ -84,6 +84,9 @@ public abstract class BusinessTest extends ConfiguredTest {
             }
             if (poll == null) {
                 throw new AssertionError("Mail receiving timed out");
+            }
+            if (to != null) {
+                assertEquals(to, poll.getTo());
             }
             return poll;
         }
@@ -99,7 +102,7 @@ public abstract class BusinessTest extends ConfiguredTest {
         }
 
         @Override
-        public TestMail poll() {
+        public TestMail poll(String to) {
             throw new Error("Currently unimplemented");
         }
 

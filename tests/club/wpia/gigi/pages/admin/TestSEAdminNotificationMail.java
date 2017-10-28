@@ -27,15 +27,17 @@ public class TestSEAdminNotificationMail extends ClientTest {
 
     private int targetID;
 
+    private String targetEmail;
+
     public TestSEAdminNotificationMail() throws IOException, GigiApiException {
         grant(u, Group.SUPPORTER);
         cookie = login(email, TEST_PASSWORD);
         assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
 
-        String email = createUniqueName() + "@example.com";
+        targetEmail = createUniqueName() + "@example.com";
         String fname = "Först";
         String lname = "Secönd";
-        targetID = createVerifiedUser(fname, lname, email, TEST_PASSWORD);
+        targetID = createVerifiedUser(fname, lname, targetEmail, TEST_PASSWORD);
     }
 
     @Test
@@ -44,22 +46,19 @@ public class TestSEAdminNotificationMail extends ClientTest {
         executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "dobd=1&dobm=2&doby=2000&detailupdate", 0);
 
         // mail to support
-        String message = getMailReceiver().receive().getMessage();
+        String message = getMailReceiver().receive(ServerConstants.getSupportMailAddress()).getMessage();
         assertThat(message, containsString("The DoB was changed"));
         assertThat(message, containsString("supporter " + u.getPreferredName().toString() + " triggered:"));
         // mail to user
-        message = getMailReceiver().receive().getMessage();
+        message = getMailReceiver().receive(targetEmail).getMessage();
         assertThat(message, containsString("The DoB in your account was changed to 2000-02-01."));
     }
 
     @Test
     public void testPasswordReset() throws MalformedURLException, IOException {
         executeBasicWebInteraction(cookie, SupportUserDetailsPage.PATH + targetID + "/", "aword=SecretWord&resetPass", 0);
-        TestMail tm;
-        String targetMail = ServerConstants.getSupportMailAddress();
-        do {
-            tm = getMailReceiver().receive();
-        } while ( !tm.getTo().equals(targetMail));
+        getMailReceiver().receive(targetEmail);
+        TestMail tm = getMailReceiver().receive(ServerConstants.getSupportMailAddress());
         assertThat(tm.getMessage(), containsString("A password reset was triggered and an email was sent to user."));
     }
 
@@ -72,10 +71,10 @@ public class TestSEAdminNotificationMail extends ClientTest {
         Group.CODESIGNING.getName().output(pw, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
 
         // mail to support
-        String message = getMailReceiver().receive().getMessage();
+        String message = getMailReceiver().receive(ServerConstants.getSupportMailAddress()).getMessage();
         assertThat(message, containsString("The group permission '" + sw.toString() + "' was granted."));
         // mail to user
-        message = getMailReceiver().receive().getMessage();
+        message = getMailReceiver().receive(targetEmail).getMessage();
         assertThat(message, containsString("The group permission '" + sw.toString() + "' was granted to your account."));
     }
 
@@ -88,10 +87,10 @@ public class TestSEAdminNotificationMail extends ClientTest {
         Group.CODESIGNING.getName().output(pw, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
 
         // mail to support
-        String message = getMailReceiver().receive().getMessage();
+        String message = getMailReceiver().receive(ServerConstants.getSupportMailAddress()).getMessage();
         assertThat(message, containsString("The group permission '" + sw.toString() + "' was revoked."));
         // mail to user
-        message = getMailReceiver().receive().getMessage();
+        message = getMailReceiver().receive(targetEmail).getMessage();
         assertThat(message, containsString("The group permission '" + sw.toString() + "' was revoked from your account."));
     }
 
@@ -105,13 +104,13 @@ public class TestSEAdminNotificationMail extends ClientTest {
         User target = User.getById(targetID);
 
         // mail to support
-        String message = getMailReceiver().receive().getMessage();
+        String message = getMailReceiver().receive(ServerConstants.getSupportMailAddress()).getMessage();
         assertThat(message, containsString("The group permission '" + sw.toString() + "' was granted."));
         // mail to user
-        message = getMailReceiver().receive().getMessage();
+        message = getMailReceiver().receive(targetEmail).getMessage();
         assertThat(message, containsString("The group permission '" + sw.toString() + "' was granted to your account."));
         // mail to board
-        message = getMailReceiver().receive().getMessage();
+        message = getMailReceiver().receive(ServerConstants.getBoardMailAddress()).getMessage();
         assertThat(message, containsString("The group permission '" + sw.toString() + "' was granted for '" + target.getPreferredName().toString() + "'."));
     }
 
@@ -125,13 +124,13 @@ public class TestSEAdminNotificationMail extends ClientTest {
         User target = User.getById(targetID);
 
         // mail to support
-        String message = getMailReceiver().receive().getMessage();
+        String message = getMailReceiver().receive(ServerConstants.getSupportMailAddress()).getMessage();
         assertThat(message, containsString("The group permission '" + sw.toString() + "' was revoked."));
         // mail to user
-        message = getMailReceiver().receive().getMessage();
+        message = getMailReceiver().receive(targetEmail).getMessage();
         assertThat(message, containsString("The group permission '" + sw.toString() + "' was revoked from your account."));
         // mail to board
-        message = getMailReceiver().receive().getMessage();
+        message = getMailReceiver().receive(ServerConstants.getBoardMailAddress()).getMessage();
         assertThat(message, containsString("The group permission '" + sw.toString() + "' was revoked for '" + target.getPreferredName().toString() + "'."));
     }
 
@@ -141,10 +140,10 @@ public class TestSEAdminNotificationMail extends ClientTest {
         User user = User.getById(targetID);
 
         // mail to support
-        String message = getMailReceiver().receive().getMessage();
+        String message = getMailReceiver().receive(ServerConstants.getSupportMailAddress()).getMessage();
         assertThat(message, containsString("All certificates in the account " + user.getPreferredName().toString()));
         // mail to user
-        message = getMailReceiver().receive().getMessage();
+        message = getMailReceiver().receive(targetEmail).getMessage();
         assertThat(message, containsString("All certificates in your account have been revoked."));
     }
 }

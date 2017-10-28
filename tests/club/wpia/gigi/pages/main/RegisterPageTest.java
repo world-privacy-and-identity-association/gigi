@@ -45,14 +45,14 @@ public class RegisterPageTest extends ManagedTest {
     public void testSuccess() throws IOException, InterruptedException {
         long uniq = System.currentTimeMillis();
         registerUser("ab", "b", "correct" + uniq + "@email.de", TEST_PASSWORD);
-        assertSuccessfullRegMail();
+        assertSuccessfullRegMail("correct" + uniq + "@email.de");
 
         String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname=" + URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&day=1&month=1&year=1910&tos_agree=1&mname=mn&suffix=sf&email=";
 
         String query = defaultSignup + URLEncoder.encode("correct3_" + uniq + "@email.de", "UTF-8") + "&general=1&country=1&regional=1&radius=1&name-type=western";
         String data = fetchStartErrorMessage(runRegister(query));
         assertNull(data);
-        assertSuccessfullRegMail();
+        assertSuccessfullRegMail("correct3_" + uniq + "@email.de");
 
         getMailReceiver().setEmailCheckError("400 Greylisted");
         getMailReceiver().setApproveRegex(Pattern.compile("a"));
@@ -60,12 +60,12 @@ public class RegisterPageTest extends ManagedTest {
         data = fetchStartErrorMessage(runRegister(query));
         assertNotNull(data);
 
-        assertNull(getMailReceiver().poll());
+        assertNull(getMailReceiver().poll(null));
 
     }
 
-    private void assertSuccessfullRegMail() {
-        String link = getMailReceiver().receive().extractLink();
+    private void assertSuccessfullRegMail(String mail) {
+        String link = getMailReceiver().receive(mail).extractLink();
         assertTrue(link, link.startsWith("https://"));
     }
 
@@ -188,6 +188,7 @@ public class RegisterPageTest extends ManagedTest {
     public void testDoubleMail() throws IOException {
         long uniq = System.currentTimeMillis();
         registerUser("RegisterTest", "User", "testmail" + uniq + "@example.com", TEST_PASSWORD);
+        getMailReceiver().receive("testmail" + uniq + "@example.com");
         try {
             registerUser("RegisterTest", "User", "testmail" + uniq + "@example.com", TEST_PASSWORD);
             throw new Error("Registering a user with the same email needs to fail.");
@@ -225,6 +226,7 @@ public class RegisterPageTest extends ManagedTest {
         assertNull(data);
         User u = User.getByEmail(email);
         assertEquals("DE", u.getResidenceCountry().getCode());
+        getMailReceiver().receive(email);
     }
 
     @Test
@@ -239,5 +241,6 @@ public class RegisterPageTest extends ManagedTest {
         assertNull(data);
         User u = User.getByEmail(email);
         assertEquals(null, u.getResidenceCountry());
+        getMailReceiver().receive(email);
     }
 }

@@ -10,8 +10,6 @@ import java.util.Locale;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
-import club.wpia.gigi.dbObjects.Verification;
-import club.wpia.gigi.dbObjects.Verification.VerificationType;
 import club.wpia.gigi.dbObjects.Country;
 import club.wpia.gigi.dbObjects.Country.CountryCodeType;
 import club.wpia.gigi.dbObjects.Domain;
@@ -20,6 +18,8 @@ import club.wpia.gigi.dbObjects.Name;
 import club.wpia.gigi.dbObjects.NamePart;
 import club.wpia.gigi.dbObjects.NamePart.NamePartType;
 import club.wpia.gigi.dbObjects.User;
+import club.wpia.gigi.dbObjects.Verification;
+import club.wpia.gigi.dbObjects.Verification.VerificationType;
 import club.wpia.gigi.testUtils.BusinessTest;
 import club.wpia.gigi.util.DayDate;
 import club.wpia.gigi.util.Notary;
@@ -90,9 +90,9 @@ public class TestUser extends BusinessTest {
         User u = User.getById(id);
 
         new EmailAddress(u, uq + "b@email.org", Locale.ENGLISH);
-        getMailReceiver().receive().verify();
+        getMailReceiver().receive(uq + "b@email.org").verify();
         new EmailAddress(u, uq + "c@email.org", Locale.ENGLISH);
-        getMailReceiver().receive();// no-verify
+        getMailReceiver().receive(uq + "c@email.org");// no-verify
         assertEquals(3, u.getEmails().length);
 
         assertTrue(u.isValidEmail(uq + "a@email.org"));

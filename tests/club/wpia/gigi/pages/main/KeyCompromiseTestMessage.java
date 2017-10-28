@@ -92,7 +92,7 @@ public class KeyCompromiseTestMessage extends ClientTest {
         String data = IOUtils.readURL(rc);
         assertThat(data, hasError());
         assertThat(data, CoreMatchers.containsString(HTMLEncoder.encodeHTML("message may not contain '---'")));
-        assertNull(getMailReceiver().poll());
+        assertNull(getMailReceiver().poll(null));
         assertEquals(CertificateStatus.ISSUED, cert.getStatus());
     }
 
@@ -108,7 +108,7 @@ public class KeyCompromiseTestMessage extends ClientTest {
     private TestMail reportCompromiseAndCheck(String params) throws IOException, UnsupportedEncodingException, CertificateEncodingException, GeneralSecurityException {
         HttpURLConnection huc = reportCompromise(params);
         assertThat(IOUtils.readURL(huc), hasNoError());
-        TestMail rc = getMailReceiver().receive();
+        TestMail rc = getMailReceiver().receive(email);
         assertEquals(u.getEmail(), rc.getTo());
         assertThat(rc.getMessage(), CoreMatchers.containsString(cert.getSerial()));
         assertEquals(CertificateStatus.REVOKED, cert.getStatus());

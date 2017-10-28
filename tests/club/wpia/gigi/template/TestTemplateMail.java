@@ -30,7 +30,7 @@ public class TestTemplateMail extends BusinessTest {
     public void testSimple() throws IOException {
         vars.put("var", "val");
         testExecuteMail(vars, "Subject: subj\n\n<?=$var?>l");
-        TestMail tm = getMailReceiver().receive();
+        TestMail tm = getMailReceiver().receive(TEST_MAIL);
         assertEquals(MailTemplate.SUBJECT_TAG + "subj", tm.getSubject());
         assertThat(tm.getMessage(), startsWith("vall"));
     }
@@ -40,7 +40,7 @@ public class TestTemplateMail extends BusinessTest {
         vars.put("var", "val\">");
         vars.put("var2", "sl\">");
         testExecuteMail(vars, "Subject: a<?=$var?>b\n\n<?=$var2?>l");
-        TestMail tm = getMailReceiver().receive();
+        TestMail tm = getMailReceiver().receive(TEST_MAIL);
         assertEquals(MailTemplate.SUBJECT_TAG + "aval\">b", tm.getSubject());
         assertThat(tm.getMessage(), startsWith("sl\">l"));
 
@@ -49,7 +49,7 @@ public class TestTemplateMail extends BusinessTest {
     @Test
     public void testTranslate() throws IOException {
         testExecuteMail(vars, "Subject: a<?=_a<?>b\n\nc<?=_b\"?>l");
-        TestMail tm = getMailReceiver().receive();
+        TestMail tm = getMailReceiver().receive(TEST_MAIL);
         assertEquals(MailTemplate.SUBJECT_TAG + "aa<b", tm.getSubject());
         assertThat(tm.getMessage(), startsWith("cb\"l"));
 

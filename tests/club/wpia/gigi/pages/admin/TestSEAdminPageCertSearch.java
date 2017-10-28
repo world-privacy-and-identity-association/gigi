@@ -39,7 +39,7 @@ public class TestSEAdminPageCertSearch extends ClientTest {
         cookie = login(email, TEST_PASSWORD);
         assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
 
-        certMail = uniq + "_certOwner@example.com";
+        certMail = uniq + "_certowner@example.com";
         int id = createVerifiedUser("fn", "ln", certMail, TEST_PASSWORD);
         User u1 = User.getById(id);
         KeyPair kp = generateKeypair();
@@ -73,22 +73,11 @@ public class TestSEAdminPageCertSearch extends ClientTest {
     public void testRevoke() throws IOException {
         URLConnection conn = post(Certificates.SUPPORT_PATH + "/" + c.getSerial(), "action=revoke");
         assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + Certificates.SUPPORT_PATH + "/" + c.getSerial(), conn.getHeaderField("Location"));
-        boolean hadSupport = false;
-        boolean hadUser = false;
         for (int i = 0; i < 2; i++) {
-            TestMail tm = getMailReceiver().receive();
-            if (tm.getTo().equals(ServerConstants.getSupportMailAddress())) {
-                hadSupport = true;
-            } else if (tm.getTo().equals(certMail)) {
-                hadUser = true;
-            } else {
-                throw new Error("Unknown mail:" + tm.getTo());
-            }
+            TestMail tm = getMailReceiver().receive(i == 0 ? ServerConstants.getSupportMailAddress() : certMail);
             assertThat(tm.getMessage(), CoreMatchers.containsString(certMail));
             assertThat(tm.getMessage(), CoreMatchers.containsString(c.getSerial()));
         }
-        assertTrue(hadSupport);
-        assertTrue(hadUser);
         assertEquals(CertificateStatus.REVOKED, c.getStatus());
     }
 

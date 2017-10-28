@@ -15,14 +15,13 @@ import org.json.JSONTokener;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
-import club.wpia.gigi.api.FindAgent;
 import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.CSRType;
+import club.wpia.gigi.dbObjects.Certificate.SANType;
 import club.wpia.gigi.dbObjects.CertificateProfile;
 import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.User;
-import club.wpia.gigi.dbObjects.Certificate.CSRType;
-import club.wpia.gigi.dbObjects.Certificate.SANType;
 import club.wpia.gigi.pages.account.FindAgentAccess;
 import club.wpia.gigi.testUtils.IOUtils;
 import club.wpia.gigi.testUtils.RestrictedApiTest;
@@ -73,10 +72,9 @@ public class TestFindAgent extends RestrictedApiTest {
         grant((userUFirst ? us2 : u), Group.LOCATE_AGENT);
         v = doApi(FindAgent.PATH_MAIL, "from=" + id + "&to=" + u2 + "&subject=the-subject&body=body");
         assertEquals(v.getResponseMessage(), 200, v.getResponseCode());
-        TestMail mail = getMailReceiver().receive();
+        TestMail mail = getMailReceiver().receive(us2.getEmail());
         assertEquals("body", mail.getMessage());
         assertThat(mail.getSubject(), containsString("the-subject"));
-        assertEquals(us2.getEmail(), mail.getTo());
     }
 
     @Test

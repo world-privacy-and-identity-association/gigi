@@ -12,7 +12,6 @@ import club.wpia.gigi.database.GigiResultSet;
 import club.wpia.gigi.dbObjects.Domain;
 import club.wpia.gigi.dbObjects.DomainPingConfiguration;
 import club.wpia.gigi.dbObjects.DomainPingType;
-import club.wpia.gigi.util.RandomToken;
 
 public class PingerDaemon extends Thread {
 
@@ -91,11 +90,6 @@ public class PingerDaemon extends Thread {
         String config = conf.getInfo();
         DomainPinger dp = pingers.get(type);
         if (dp != null) {
-            if (dp instanceof EmailPinger) {
-                String token = null;
-                token = RandomToken.generateToken(16);
-                config = config + ":" + token;
-            }
             Domain target = conf.getTarget();
             System.err.println("Executing " + dp + " on " + target + " (" + System.currentTimeMillis() + ")");
             try {

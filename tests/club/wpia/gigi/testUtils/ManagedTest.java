@@ -291,7 +291,7 @@ public class ManagedTest extends ConfiguredTest {
     public static int createVerifiedUser(String firstName, String lastName, String email, String password) {
         registerUser(firstName, lastName, email, password);
         try {
-            ter.receive().verify();
+            ter.receive(email).verify();
 
             try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `id` FROM `users` WHERE `email`=?")) {
                 ps.setString(1, email);
@@ -496,11 +496,10 @@ public class ManagedTest extends ConfiguredTest {
 
     public EmailAddress createVerifiedEmail(User u, String email) throws InterruptedException, GigiApiException {
         EmailAddress addr = new EmailAddress(u, email, Locale.ENGLISH);
-        TestMail testMail = getMailReceiver().receive();
-        assertEquals(addr.getAddress(), testMail.getTo());
+        TestMail testMail = getMailReceiver().receive(addr.getAddress());
         String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);
         addr.verify(hash);
-        getMailReceiver().clearMails();
+        getMailReceiver().assertEmpty();
         return addr;
     }
 
