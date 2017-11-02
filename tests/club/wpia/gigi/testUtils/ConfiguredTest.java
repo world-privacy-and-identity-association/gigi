@@ -8,10 +8,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.Signature;
+import java.security.spec.RSAPrivateKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -172,6 +179,96 @@ public abstract class ConfiguredTest {
                 oos.close();
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+        return keyPair;
+    }
+
+    public static KeyPair generateBrokenKeypair() throws GeneralSecurityException {
+        KeyPair keyPair = null;
+        File f = new File("testBrokenKeypair");
+        if (f.exists()) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+                keyPair = (KeyPair) ois.readObject();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // -----BEGIN SHAMELESSLY ADAPTED BLOCK-----
+            /**
+             * Modified original RSA key generator to use three primes with one
+             * prime set to fixed value to allow simple checking for such faulty
+             * keys.
+             *
+             * @link sun.security.rsa.RSAKeyPairGenerator#generateKeyPair
+             */
+
+            KeyFactory factory = KeyFactory.getInstance("RSA");
+            Random random = new SecureRandom();
+            int keySize = 4096;
+            long r_lv = 7331;
+
+            int lp = (keySize + 1) >> 1;
+            int lr = BigInteger.valueOf(r_lv).bitLength();
+            int lq = keySize - lp - lr;
+
+            BigInteger e = BigInteger.valueOf(7331);
+
+            keyPair = null;
+            while (keyPair == null) {
+                // generate two random primes of size lp/lq
+                BigInteger p, q, r, n;
+
+                p = BigInteger.probablePrime(lp, random);
+                r = BigInteger.valueOf(r_lv);
+                do {
+                    q = BigInteger.probablePrime(lq, random);
+
+                    // convention is for p > q > r
+                    if (p.compareTo(q) < 0) {
+                        BigInteger tmp = p;
+                        p = q;
+                        q = tmp;
+                    }
+
+                    // modulus n = p * q * r
+                    n = p.multiply(q).multiply(r);
+
+                    // even with correctly sized p, q and r, there is a chance
+                    // that n will be one bit short. re-generate the smaller
+                    // prime if so.
+                } while (n.bitLength() < keySize);
+
+                // phi = (p - 1) * (q - 1) * (r - 1) must be relative prime to e
+                // otherwise RSA just won't work ;-)
+                BigInteger p1 = p.subtract(BigInteger.ONE);
+                BigInteger q1 = q.subtract(BigInteger.ONE);
+                BigInteger r1 = r.subtract(BigInteger.ONE);
+                BigInteger phi = p1.multiply(q1).multiply(r1);
+
+                // generate new p and q until they work. typically
+                if (e.gcd(phi).equals(BigInteger.ONE) == false) {
+                    continue;
+                }
+
+                // private exponent d is the inverse of e mod phi
+                BigInteger d = e.modInverse(phi);
+
+                RSAPublicKeySpec publicSpec = new RSAPublicKeySpec(n, e);
+                RSAPrivateKeySpec privateSpec = new RSAPrivateKeySpec(n, d);
+                PublicKey publicKey = factory.generatePublic(publicSpec);
+                PrivateKey privateKey = factory.generatePrivate(privateSpec);
+                keyPair = new KeyPair(publicKey, privateKey);
+            }
+            // -----END SHAMELESSLY ADAPTED BLOCK-----
+
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f))) {
+                oos.writeObject(keyPair);
+                oos.close();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
             }
         }
         return keyPair;

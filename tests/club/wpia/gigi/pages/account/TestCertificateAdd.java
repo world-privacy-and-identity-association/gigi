@@ -68,6 +68,12 @@ public class TestCertificateAdd extends ClientTest {
 
     KeyPair kp = generateKeypair();
 
+    /**
+     * This KeyPair is used for testing the KeyCheck for proper rejection of
+     * invalid keys. The generated keys suffers from small factors.
+     */
+    KeyPair kpBroken = generateBrokenKeypair();
+
     String csrf;
 
     public TestCertificateAdd() throws GeneralSecurityException, IOException {
@@ -383,4 +389,17 @@ public class TestCertificateAdd extends ClientTest {
         X509Certificate parsedLoginEnabled = createCertWithValidity("&validFrom=now&validity=1m", true);
         assertEquals(u, CertificateOwner.getByEnabledSerial(parsedLoginEnabled.getSerialNumber().toString(16).toLowerCase()));
     }
+
+    @Test
+    public void testInvalidKeyInCSR() throws IOException, GeneralSecurityException {
+        PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
+                CertificateRequest.OID_KEY_USAGE_SSL_SERVER
+        }, new DNSName(uniq + ".tld"));
+
+        String pem = generatePEMCSR(kpBroken, "CN=a." + uniq + ".tld", atts);
+
+        HttpURLConnection huc = post(CertificateAdd.PATH, "CSR=" + URLEncoder.encode(pem, "UTF-8"));
+        assertThat(IOUtils.readURL(huc), hasError());
+    }
+
 }
