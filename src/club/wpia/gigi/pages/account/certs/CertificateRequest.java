@@ -16,6 +16,7 @@ import java.util.TreeSet;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.crypto.SPKAC;
+import club.wpia.gigi.crypto.key.KeyCheck;
 import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.Certificate.CSRType;
 import club.wpia.gigi.dbObjects.Certificate.SANType;
@@ -108,7 +109,7 @@ public class CertificateRequest {
         this(c, csr, (CertificateProfile) null);
     }
 
-    public CertificateRequest(AuthorizationContext ctx, String csr, CertificateProfile cp) throws GeneralSecurityException, IOException, IOException {
+    public CertificateRequest(AuthorizationContext ctx, String csr, CertificateProfile cp) throws GeneralSecurityException, IOException, IOException, GigiApiException {
         this.ctx = ctx;
         if (cp != null) {
             profile = cp;
@@ -190,6 +191,8 @@ public class CertificateRequest {
         }
         this.SANs = SANs;
         pk = parsed.getSubjectPublicKeyInfo();
+        KeyCheck.checkKey(pk);
+
         String sign = getSignatureAlgorithm(data);
         guessDigest(sign);
 
@@ -206,12 +209,13 @@ public class CertificateRequest {
             throw new GigiApiException("Challenge mismatch");
         }
         pk = parsed.getPubkey();
+        KeyCheck.checkKey(pk);
+
         String sign = getSignatureAlgorithm(data);
         guessDigest(sign);
         this.SANs = new HashSet<>();
         this.csr = "SPKAC=" + cleanedSPKAC;
         this.csrType = CSRType.SPKAC;
-
     }
 
     private static String getSignatureAlgorithm(byte[] data) throws IOException {
