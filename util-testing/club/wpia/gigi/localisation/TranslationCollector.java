@@ -219,7 +219,10 @@ public class TranslationCollector {
                     throw new Error();
                 }
             }
-
+            // Skip Database connection as some statements need to be run on older DB scheme version.
+            if(new String(parsedUnit.getFileName()).endsWith("/src/club/wpia/gigi/database/DatabaseConnection.java")) {
+                continue;
+            }
             if (parsedUnit.types == null) {
                 System.err.println("No types");
 
