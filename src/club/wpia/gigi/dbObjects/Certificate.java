@@ -47,6 +47,15 @@ public class Certificate implements IdCachable {
         }
     }
 
+    public enum AttachmentType implements DBEnum {
+        CSR, CRT;
+
+        @Override
+        public String getDBName() {
+            return toString();
+        }
+    }
+
     public enum SANType implements DBEnum {
         EMAIL("email"), DNS("DNS");
 
@@ -552,5 +561,36 @@ public class Certificate implements IdCachable {
             certs[i] = Certificate.getById(res.getInt(1));
         }
         return certs;
+    }
+
+    public void addAttachment(AttachmentType tp, String data) throws GigiApiException {
+        if (getAttachment(tp) != null) {
+            throw new GigiApiException("Cannot override attachment");
+        }
+        if (data == null) {
+            throw new GigiApiException("Attachment must not be null");
+        }
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `certificateAttachment` SET `certid`=?, `type`=?::`certificateAttachmentType`, `content`=?")) {
+            ps.setInt(1, getId());
+            ps.setEnum(2, tp);
+            ps.setString(3, data);
+            ps.execute();
+        }
+    }
+
+    public String getAttachment(AttachmentType tp) throws GigiApiException {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `content` FROM `certificateAttachment` WHERE `certid`=? AND `type`=?::`certificateAttachmentType`")) {
+            ps.setInt(1, getId());
+            ps.setEnum(2, tp);
+            GigiResultSet rs = ps.executeQuery();
+            if ( !rs.next()) {
+                return null;
+            }
+            String s = rs.getString(1);
+            if (rs.next()) {
+                throw new GigiApiException("Invalid database state");
+            }
+            return s;
+        }
     }
 }

@@ -381,7 +381,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(30);
+INSERT INTO "schemeVersion" (version)  VALUES(31);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (
@@ -685,4 +685,16 @@ CREATE TABLE "nameParts" (
   "position" int NOT NULL,
   "type" "namePartType" NOT NULL,
   "value" varchar(255) NOT NULL
+);
+
+
+DROP TABLE IF EXISTS "certificateAttachment";
+DROP TYPE IF EXISTS "certificateAttachmentType";
+CREATE TYPE "certificateAttachmentType" AS ENUM ('CSR','CRT');
+
+CREATE TABLE "certificateAttachment" (
+  "certid" int NOT NULL,
+  "type" "certificateAttachmentType" NOT NULL,
+  "content" text NOT NULL,
+  PRIMARY KEY ("certid", "type")
 );
