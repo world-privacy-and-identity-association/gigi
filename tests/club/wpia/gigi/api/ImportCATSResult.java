@@ -14,15 +14,13 @@ import java.security.NoSuchAlgorithmException;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
-import club.wpia.gigi.api.CATSImport;
-import club.wpia.gigi.api.CATSResolve;
+import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.CSRType;
+import club.wpia.gigi.dbObjects.Certificate.SANType;
 import club.wpia.gigi.dbObjects.CertificateProfile;
 import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.dbObjects.User;
-import club.wpia.gigi.dbObjects.CATS.CATSType;
-import club.wpia.gigi.dbObjects.Certificate.CSRType;
-import club.wpia.gigi.dbObjects.Certificate.SANType;
 import club.wpia.gigi.testUtils.IOUtils;
 import club.wpia.gigi.testUtils.RestrictedApiTest;
 import club.wpia.gigi.util.ServerConstants;
@@ -89,7 +87,7 @@ public class ImportCATSResult extends RestrictedApiTest {
         return doApi(CATSImport.PATH, query);
     }
 
-    private String apiLookup(Certificate target) throws IOException, GeneralSecurityException {
+    private String apiLookup(Certificate target) throws IOException, GeneralSecurityException, GigiApiException {
         HttpURLConnection connection = doApi(CATSResolve.PATH, "serial=" + target.cert().getSerialNumber().toString(16).toLowerCase());
         if (connection.getResponseCode() != 200) {
             throw new Error(connection.getResponseMessage());

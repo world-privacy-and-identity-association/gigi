@@ -10,9 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.dbObjects.CertificateProfile;
 import club.wpia.gigi.dbObjects.SupportedUser;
-import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.Form;
 import club.wpia.gigi.output.template.IterableDataset;
@@ -71,7 +71,7 @@ public class SupportRevokeCertificatesForm extends Form {
                         certs[i].cert().checkValidity();
                         lastExpire = Math.max(lastExpire, certs[i].cert().getNotAfter().getTime());
                         valid++;
-                    } catch (GeneralSecurityException | IOException e) {
+                    } catch (GeneralSecurityException | IOException | GigiApiException e) {
                         continue;
                     }
                 }

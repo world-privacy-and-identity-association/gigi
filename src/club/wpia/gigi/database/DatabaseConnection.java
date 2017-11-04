@@ -1,8 +1,12 @@
 package club.wpia.gigi.database;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -19,8 +23,63 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import club.wpia.gigi.database.SQLFileManager.ImportType;
+import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.AttachmentType;
 
 public class DatabaseConnection {
+
+    public static final class Upgrade32 {
+
+        public static void execute() throws IOException {
+            // "csr_name" varchar(255) NOT NULL DEFAULT '',
+            // "csr_type" "csrType" NOT NULL,
+            // "crt_name" varchar(255) NOT NULL DEFAULT '',
+            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `id`, `csr_name`, `crt_name` FROM `certs`")) {
+                GigiResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    // Load CSR
+                    load(rs.getInt(1), rs.getString(2), Certificate.AttachmentType.CSR);
+                    load(rs.getInt(1), rs.getString(3), Certificate.AttachmentType.CRT);
+                }
+            }
+        }
+
+        private static void load(int id, String file, AttachmentType type) throws IOException {
+            if ("".equals(file) && type == AttachmentType.CRT) {
+                // this is ok, certificates might be in DRAFT state
+                return;
+            }
+            File f = new File(file);
+            System.out.println("Upgrade 32: loading " + f);
+            if (f.exists()) {
+                StringBuilder sb = new StringBuilder();
+                try (Reader r = new InputStreamReader(new FileInputStream(f), "UTF-8")) {
+                    int len;
+                    char[] buf = new char[4096];
+                    while ((len = r.read(buf)) > 0) {
+                        sb.append(buf, 0, len);
+                    }
+                }
+                String csrS = sb.toString();
+                try (GigiPreparedStatement ps1 = new GigiPreparedStatement("INSERT INTO `certificateAttachment` SET `certid`=?, `type`=?::`certificateAttachmentType`, `content`=?")) {
+                    ps1.setInt(1, id);
+                    ps1.setEnum(2, type);
+                    ps1.setString(3, csrS);
+                    ps1.execute();
+                }
+                f.delete();
+            } else {
+                try (GigiPreparedStatement ps1 = new GigiPreparedStatement("SELECT 1 FROM `certificateAttachment` WHERE `certid`=? AND `type`=?::`certificateAttachmentType`")) {
+                    ps1.setInt(1, id);
+                    ps1.setEnum(2, type);
+                    GigiResultSet rs1 = ps1.executeQuery();
+                    if ( !rs1.next()) {
+                        throw new Error("file " + f + " not found, and attachment is missing as well.");
+                    }
+                }
+            }
+        }
+    }
 
     public static class Link implements AutoCloseable {
 
@@ -122,7 +181,7 @@ public class DatabaseConnection {
 
     }
 
-    public static final int CURRENT_SCHEMA_VERSION = 31;
+    public static final int CURRENT_SCHEMA_VERSION = 32;
 
     public static final int CONNECTION_TIMEOUT = 24 * 60 * 60;
 
@@ -278,10 +337,10 @@ public class DatabaseConnection {
                 while (version < CURRENT_SCHEMA_VERSION) {
                     addUpgradeScript(Integer.toString(version), s);
                     version++;
+                    System.out.println("UPGRADING Database to version " + version);
+                    s.addBatch("UPDATE \"schemeVersion\" SET version='" + version + "'");
+                    s.executeBatch();
                 }
-                s.addBatch("UPDATE \"schemeVersion\" SET version='" + version + "'");
-                System.out.println("UPGRADING Database to version " + version);
-                s.executeBatch();
                 System.out.println("done.");
             }
         } catch (SQLException e) {
@@ -292,11 +351,15 @@ public class DatabaseConnection {
     }
 
     private static void addUpgradeScript(String version, Statement s) throws Error, IOException, SQLException {
-        try (InputStream resourceAsStream = DatabaseConnection.class.getResourceAsStream("upgrade/from_" + version + ".sql")) {
-            if (resourceAsStream == null) {
-                throw new Error("Upgrade script from version " + version + " was not found.");
+        if (version.equals("31")) {
+            Upgrade32.execute();
+        } else {
+            try (InputStream resourceAsStream = DatabaseConnection.class.getResourceAsStream("upgrade/from_" + version + ".sql")) {
+                if (resourceAsStream == null) {
+                    throw new Error("Upgrade script from version " + version + " was not found.");
+                }
+                SQLFileManager.addFile(s, resourceAsStream, ImportType.PRODUCTION);
             }
-            SQLFileManager.addFile(s, resourceAsStream, ImportType.PRODUCTION);
         }
     }
 

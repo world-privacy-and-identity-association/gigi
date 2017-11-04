@@ -13,6 +13,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.dbObjects.Certificate.SubjectAlternateName;
@@ -91,6 +92,9 @@ public class Certificates extends Page implements HandlesMixedRequest {
                 CertExporter.writeCertCer(c, out, doChain, includeAnchor);
             }
         } catch (IllegalArgumentException e) {
+            resp.sendError(404);
+            return true;
+        } catch (GigiApiException e) {
             resp.sendError(404);
             return true;
         } catch (GeneralSecurityException e) {
@@ -226,6 +230,8 @@ public class Certificates extends Page implements HandlesMixedRequest {
                 vars.put("login", c.isLoginEnabled());
             } catch (GeneralSecurityException e) {
                 e.printStackTrace();
+            } catch (GigiApiException e) {
+                e.format(out, l);
             }
             certDisplay.output(out, getLanguage(req), vars);
 

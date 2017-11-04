@@ -381,7 +381,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(31);
+INSERT INTO "schemeVersion" (version)  VALUES(32);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (

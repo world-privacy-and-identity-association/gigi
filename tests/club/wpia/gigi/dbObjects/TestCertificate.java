@@ -38,10 +38,7 @@ public class TestCertificate extends ClientBusinessTest {
         String key = generatePEMCSR(kp, "CN=testmail@example.com");
         Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "testmail@example.com"), Digest.SHA256, key, CSRType.CSR, getClientProfile());
         assertNull(c.getAttachment(AttachmentType.CRT));
-        assertNull(c.getAttachment(AttachmentType.CSR));
-        c.addAttachment(AttachmentType.CSR, "a");
-        assertNull(c.getAttachment(AttachmentType.CRT));
-        assertEquals("a", c.getAttachment(AttachmentType.CSR));
+        assertEquals(key, c.getAttachment(AttachmentType.CSR));
         try {
             c.addAttachment(AttachmentType.CSR, "different CSR");
             fail("double add attachment must fail");
@@ -49,7 +46,7 @@ public class TestCertificate extends ClientBusinessTest {
             // expected
         }
         assertNull(c.getAttachment(AttachmentType.CRT));
-        assertEquals("a", c.getAttachment(AttachmentType.CSR));
+        assertEquals(key, c.getAttachment(AttachmentType.CSR));
         try {
             c.addAttachment(AttachmentType.CRT, null);
             fail("attachment must not be null");
@@ -57,9 +54,9 @@ public class TestCertificate extends ClientBusinessTest {
             // expected
         }
         assertNull(c.getAttachment(AttachmentType.CRT));
-        assertEquals("a", c.getAttachment(AttachmentType.CSR));
+        assertEquals(key, c.getAttachment(AttachmentType.CSR));
         c.addAttachment(AttachmentType.CRT, "b");
-        assertEquals("a", c.getAttachment(AttachmentType.CSR));
+        assertEquals(key, c.getAttachment(AttachmentType.CSR));
         assertEquals("b", c.getAttachment(AttachmentType.CRT));
         try {
             c.addAttachment(AttachmentType.CRT, "different CRT");
@@ -67,7 +64,7 @@ public class TestCertificate extends ClientBusinessTest {
         } catch (GigiApiException e) {
             // expected
         }
-        assertEquals("a", c.getAttachment(AttachmentType.CSR));
+        assertEquals(key, c.getAttachment(AttachmentType.CSR));
         assertEquals("b", c.getAttachment(AttachmentType.CRT));
     }
 }

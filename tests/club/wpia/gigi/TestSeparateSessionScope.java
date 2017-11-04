@@ -6,9 +6,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-import java.security.KeyManagementException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
@@ -69,7 +67,7 @@ public class TestSeparateSessionScope extends ManagedTest {
 
     }
 
-    private void checkCertLogin(Certificate c2, final PrivateKey pk, String scookie, int expected) throws IOException, NoSuchAlgorithmException, KeyManagementException, GeneralSecurityException {
+    private void checkCertLogin(Certificate c2, final PrivateKey pk, String scookie, int expected) throws IOException, GeneralSecurityException, GigiApiException {
         URL u = new URL("https://" + getSecureServerName() + SECURE_REFERENCE);
         HttpURLConnection huc = (HttpURLConnection) u.openConnection();
         authenticateClientCert(pk, c2.cert(), huc);
