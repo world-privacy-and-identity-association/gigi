@@ -139,7 +139,7 @@ public class SimpleSigner {
                             "WHERE `certId`=?");
 
                     updateMail = new GigiPreparedStatement("UPDATE certs SET created=NOW(), serial=?, caid=?, expire=? WHERE id=?");
-                    warnMail = new GigiPreparedStatement("UPDATE jobs SET warning=warning+1, state=CASE WHEN warning<3 THEN 'open'::`jobState` ELSE 'error'::`jobState` END WHERE id=?");
+                    warnMail = new GigiPreparedStatement("UPDATE jobs SET attempt=attempt+1, state=CASE WHEN attempt<3 THEN 'open'::`jobState` ELSE 'error'::`jobState` END WHERE id=?");
 
                     revoke = new GigiPreparedStatement("SELECT certs.id, jobs.id FROM jobs INNER JOIN certs ON jobs.`targetId`=certs.id" + " WHERE jobs.state='open' AND task='revoke'");
                     revokeCompleted = new GigiPreparedStatement("UPDATE `certs` SET revoked=NOW() WHERE id=?");

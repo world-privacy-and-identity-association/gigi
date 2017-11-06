@@ -181,7 +181,7 @@ public class DatabaseConnection {
 
     }
 
-    public static final int CURRENT_SCHEMA_VERSION = 33;
+    public static final int CURRENT_SCHEMA_VERSION = 34;
 
     public static final int CONNECTION_TIMEOUT = 24 * 60 * 60;
 

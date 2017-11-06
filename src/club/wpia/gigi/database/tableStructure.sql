@@ -243,7 +243,7 @@ CREATE TABLE "jobs" (
   "targetId" int NOT NULL,
   "task" "jobType" NOT NULL,
   "state" "jobState" NOT NULL DEFAULT 'open',
-  "warning" smallint NOT NULL DEFAULT '0',
+  "attempt" smallint NOT NULL DEFAULT '0',
   "executeFrom" DATE,
   "executeTo" VARCHAR(11),
   PRIMARY KEY ("id")
@@ -378,7 +378,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(33);
+INSERT INTO "schemeVersion" (version)  VALUES(34);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (
@@ -695,3 +695,12 @@ CREATE TABLE "certificateAttachment" (
   "content" text NOT NULL,
   PRIMARY KEY ("certid", "type")
 );
+
+DROP TABLE IF EXISTS "jobLog";
+CREATE TABLE "jobLog" (
+  "jobid" int NOT NULL,
+  "attempt" smallint NOT NULL,
+  "content" text NOT NULL,
+  PRIMARY KEY ("jobid", "attempt")
+);
+CREATE INDEX ON "jobLog" ("jobid");
