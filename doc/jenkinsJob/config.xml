@@ -29,11 +29,13 @@
           <name>BRANCH</name>
           <description>The branch to build from.</description>
           <defaultValue>$GERRIT_PATCHSET_REVISION</defaultValue>
+          <trim>false</trim>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>JAVA_HOME</name>
           <description></description>
           <defaultValue>/usr/lib/jvm/openjdk-8-jdk-gigi</defaultValue>
+          <trim>false</trim>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -220,7 +222,9 @@ EOT
 localePath=$$$$LOCALE_FETCH_PATH$$$$</properties>
     </hudson.tasks.Ant>
     <hudson.tasks.Shell>
-      <command>cd gigi
+      <command>rm -v *.deb
+cd gigi
+[ -f doc/scripts/genchangelog ] &amp;&amp; doc/scripts/genchangelog
 dpkg-buildpackage -b -us -uc</command>
     </hudson.tasks.Shell>
   </builders>

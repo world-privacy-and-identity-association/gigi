@@ -1,0 +1,9 @@
+#!/bin/bash
+cd "$(git rev-parse --show-toplevel)"
+cat > debian/changelog <<EOF
+wpia-gigi ($(git describe HEAD --tags --match "v*" | sed "s/^v//")) unstable; urgency=low
+
+  * Initial release
+
+ -- WPIA Software Team <software@wpia.club>  $(git show HEAD --pretty=format:%aD --no-patch)
+EOF
