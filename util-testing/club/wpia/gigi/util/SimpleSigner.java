@@ -1,5 +1,6 @@
 package club.wpia.gigi.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,11 +40,14 @@ import java.util.TimeZone;
 
 import javax.security.auth.x500.X500Principal;
 
+import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.crypto.SPKAC;
 import club.wpia.gigi.database.DatabaseConnection;
 import club.wpia.gigi.database.DatabaseConnection.Link;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.GigiResultSet;
+import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.AttachmentType;
 import club.wpia.gigi.dbObjects.Certificate.CSRType;
 import club.wpia.gigi.dbObjects.Certificate.SANType;
 import club.wpia.gigi.dbObjects.Certificate.SubjectAlternateName;
@@ -125,7 +129,7 @@ public class SimpleSigner {
             @Override
             public void run() {
                 try (Link l = DatabaseConnection.newLink(false)) {
-                    readyCerts = new GigiPreparedStatement("SELECT certs.id AS id, certs.csr_name, jobs.id AS jobid, csr_type, md, `executeFrom`, `executeTo`, profile FROM jobs " + //
+                    readyCerts = new GigiPreparedStatement("SELECT certs.id AS id, jobs.id AS jobid, csr_type, md, `executeFrom`, `executeTo`, profile FROM jobs " + //
                             "INNER JOIN certs ON certs.id=jobs.`targetId` " + //
                             "INNER JOIN profiles ON profiles.id=certs.profile " + //
                             "WHERE jobs.state='open' " + //
@@ -134,10 +138,10 @@ public class SimpleSigner {
                     getSANSs = new GigiPreparedStatement("SELECT contents, type FROM `subjectAlternativeNames` " + //
                             "WHERE `certId`=?");
 
-                    updateMail = new GigiPreparedStatement("UPDATE certs SET crt_name=?," + " created=NOW(), serial=?, caid=?, expire=? WHERE id=?");
+                    updateMail = new GigiPreparedStatement("UPDATE certs SET created=NOW(), serial=?, caid=?, expire=? WHERE id=?");
                     warnMail = new GigiPreparedStatement("UPDATE jobs SET warning=warning+1, state=CASE WHEN warning<3 THEN 'open'::`jobState` ELSE 'error'::`jobState` END WHERE id=?");
 
-                    revoke = new GigiPreparedStatement("SELECT certs.id, certs.csr_name,jobs.id FROM jobs INNER JOIN certs ON jobs.`targetId`=certs.id" + " WHERE jobs.state='open' AND task='revoke'");
+                    revoke = new GigiPreparedStatement("SELECT certs.id, jobs.id FROM jobs INNER JOIN certs ON jobs.`targetId`=certs.id" + " WHERE jobs.state='open' AND task='revoke'");
                     revokeCompleted = new GigiPreparedStatement("UPDATE `certs` SET revoked=NOW() WHERE id=?");
 
                     finishJob = new GigiPreparedStatement("UPDATE jobs SET state='done' WHERE id=?");
@@ -200,7 +204,7 @@ public class SimpleSigner {
             System.out.println("Revoke faked: " + id);
             revokeCompleted.setInt(1, id);
             revokeCompleted.executeUpdate();
-            finishJob.setInt(1, rs.getInt(3));
+            finishJob.setInt(1, rs.getInt(2));
             finishJob.executeUpdate();
         }
         if (worked) {
@@ -240,13 +244,12 @@ public class SimpleSigner {
         Calendar c = Calendar.getInstance();
         c.setTimeZone(TimeZone.getTimeZone("UTC"));
         while (rs.next()) {
-            String csrname = rs.getString("csr_name");
             int id = rs.getInt("id");
-            System.out.println("sign: " + csrname);
+            System.out.println("sign: " + id);
             try {
+                Certificate crt = Certificate.getById(id);
                 String csrType = rs.getString("csr_type");
                 CSRType ct = CSRType.valueOf(csrType);
-                File crt = KeyStorage.locateCrt(id);
 
                 Timestamp from = rs.getTimestamp("executeFrom");
                 String length = rs.getString("executeTo");
@@ -315,7 +318,7 @@ public class SimpleSigner {
                 System.out.println(subj);
 
                 PublicKey pk;
-                byte[] data = IOUtils.readURL(new FileInputStream(csrname));
+                byte[] data = crt.getAttachment(AttachmentType.CSR).getBytes("UTF-8");
                 if (ct == CSRType.SPKAC) {
                     String dt = new String(data, "UTF-8");
                     if (dt.startsWith("SPKAC=")) {
@@ -350,13 +353,13 @@ public class SimpleSigner {
 
                 X509Certificate root = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new FileInputStream("signer/ca/" + ca + "/ca.crt"));
                 byte[] cert = generateCert(pk, i, subj, root.getSubjectX500Principal(), altnames, fromDate, toDate, Digest.valueOf(rs.getString("md").toUpperCase()), caP.getProperty("eku"));
-                PrintWriter out = new PrintWriter(crt);
-                out.println("-----BEGIN CERTIFICATE-----");
-                out.println(Base64.getMimeEncoder().encodeToString(cert));
-                out.println("-----END CERTIFICATE-----");
-                out.close();
+                StringBuilder b = new StringBuilder();
+                b.append("-----BEGIN CERTIFICATE-----\r\n");
+                b.append(Base64.getMimeEncoder().encodeToString(cert));
+                b.append("-----END CERTIFICATE-----\r\n");
+                crt.addAttachment(AttachmentType.CRT, b.toString());
 
-                try (InputStream is = new FileInputStream(crt)) {
+                try (InputStream is = new ByteArrayInputStream(cert)) {
                     locateCA.setString(1, ca);
                     GigiResultSet caRs = locateCA.executeQuery();
                     if ( !caRs.next()) {
@@ -366,11 +369,10 @@ public class SimpleSigner {
                     CertificateFactory cf = CertificateFactory.getInstance("X.509");
                     X509Certificate crtp = (X509Certificate) cf.generateCertificate(is);
                     BigInteger serial = crtp.getSerialNumber();
-                    updateMail.setString(1, crt.getPath());
-                    updateMail.setString(2, serial.toString(16));
-                    updateMail.setInt(3, caRs.getInt("id"));
-                    updateMail.setTimestamp(4, new Timestamp(toDate.getTime()));
-                    updateMail.setInt(5, id);
+                    updateMail.setString(1, serial.toString(16));
+                    updateMail.setInt(2, caRs.getInt("id"));
+                    updateMail.setTimestamp(3, new Timestamp(toDate.getTime()));
+                    updateMail.setInt(4, id);
                     updateMail.executeUpdate();
 
                     finishJob.setInt(1, rs.getInt("jobid"));
@@ -384,6 +386,8 @@ public class SimpleSigner {
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
+                e.printStackTrace();
+            } catch (GigiApiException e) {
                 e.printStackTrace();
             }
             System.out.println("Error with: " + id);

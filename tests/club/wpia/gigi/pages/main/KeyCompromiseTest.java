@@ -127,7 +127,7 @@ public class KeyCompromiseTest extends ClientTest {
         };
     }
 
-    private String getQuery(String data) {
+    private String getQuery(String data) throws GigiApiException {
         String cData = null;
         {
             Pattern challenge = Pattern.compile(" data-challenge=\"([a-zA-Z0-9]+)\"");

@@ -6,6 +6,7 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Map;
 
+import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.localisation.Language;
@@ -68,6 +69,8 @@ public class CertificateIterable implements IterableDataset {
             if (st == CertificateStatus.REVOKED) {
                 vars.put("revoked", c.getRevocationDate());
             }
+        } catch (GigiApiException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (GeneralSecurityException e) {

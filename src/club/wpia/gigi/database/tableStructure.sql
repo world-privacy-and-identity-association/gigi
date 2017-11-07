@@ -156,9 +156,7 @@ CREATE TABLE "certs" (
   "profile" int NOT NULL,
   "caid" int NULL DEFAULT NULL,
 
-  "csr_name" varchar(255) NOT NULL DEFAULT '',
   "csr_type" "csrType" NOT NULL,
-  "crt_name" varchar(255) NOT NULL DEFAULT '',
   "created" timestamp NULL DEFAULT NULL,
   "modified" timestamp NULL DEFAULT NULL,
 
@@ -181,7 +179,6 @@ CREATE INDEX ON "certs" ("created");
 CREATE INDEX ON "certs" ("memid");
 CREATE INDEX ON "certs" ("serial");
 CREATE INDEX ON "certs" ("expire");
-CREATE INDEX ON "certs" ("crt_name");
 
 DROP TABLE IF EXISTS "certAvas";
 CREATE TABLE "certAvas" (
@@ -381,7 +378,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(30);
+INSERT INTO "schemeVersion" (version)  VALUES(33);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (
@@ -685,4 +682,16 @@ CREATE TABLE "nameParts" (
   "position" int NOT NULL,
   "type" "namePartType" NOT NULL,
   "value" varchar(255) NOT NULL
+);
+
+
+DROP TABLE IF EXISTS "certificateAttachment";
+DROP TYPE IF EXISTS "certificateAttachmentType";
+CREATE TYPE "certificateAttachmentType" AS ENUM ('CSR','CRT');
+
+CREATE TABLE "certificateAttachment" (
+  "certid" int NOT NULL,
+  "type" "certificateAttachmentType" NOT NULL,
+  "content" text NOT NULL,
+  PRIMARY KEY ("certid", "type")
 );

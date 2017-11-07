@@ -1,10 +1,7 @@
 package club.wpia.gigi.dbObjects;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -24,7 +21,7 @@ import club.wpia.gigi.database.GigiResultSet;
 import club.wpia.gigi.output.template.Outputable;
 import club.wpia.gigi.output.template.TranslateCommand;
 import club.wpia.gigi.pages.account.certs.CertificateRequest;
-import club.wpia.gigi.util.KeyStorage;
+import club.wpia.gigi.util.PEM;
 
 public class Certificate implements IdCachable {
 
@@ -44,6 +41,15 @@ public class Certificate implements IdCachable {
 
         public static RevocationType fromString(String s) {
             return valueOf(s.toUpperCase(Locale.ENGLISH));
+        }
+    }
+
+    public enum AttachmentType implements DBEnum {
+        CSR, CRT;
+
+        @Override
+        public String getDBName() {
+            return toString();
         }
     }
 
@@ -142,10 +148,6 @@ public class Certificate implements IdCachable {
 
     private Digest md;
 
-    private String csrName;
-
-    private String crtName;
-
     private String csr = null;
 
     private CSRType csrType;
@@ -204,7 +206,7 @@ public class Certificate implements IdCachable {
         this.sans = Arrays.asList(sans);
         synchronized (Certificate.class) {
 
-            try (GigiPreparedStatement inserter = new GigiPreparedStatement("INSERT INTO certs SET md=?::`mdType`, csr_type=?::`csrType`, crt_name='', memid=?, profile=?")) {
+            try (GigiPreparedStatement inserter = new GigiPreparedStatement("INSERT INTO certs SET md=?::`mdType`, csr_type=?::`csrType`, memid=?, profile=?")) {
                 inserter.setString(1, md.toString().toLowerCase());
                 inserter.setString(2, this.csrType.toString());
                 inserter.setInt(3, owner.getId());
@@ -230,17 +232,7 @@ public class Certificate implements IdCachable {
                     insertAVA.execute();
                 }
             }
-            File csrFile = KeyStorage.locateCsr(id);
-            csrName = csrFile.getPath();
-            try (FileOutputStream fos = new FileOutputStream(csrFile)) {
-                fos.write(this.csr.getBytes("UTF-8"));
-            }
-            try (GigiPreparedStatement updater = new GigiPreparedStatement("UPDATE `certs` SET `csr_name`=? WHERE id=?")) {
-                updater.setString(1, csrName);
-                updater.setInt(2, id);
-                updater.execute();
-            }
-
+            addAttachment(AttachmentType.CSR, csr);
             cache.put(this);
         }
     }
@@ -249,8 +241,6 @@ public class Certificate implements IdCachable {
         this.id = rs.getInt("id");
         dnString = rs.getString("subject");
         md = Digest.valueOf(rs.getString("md").toUpperCase());
-        csrName = rs.getString("csr_name");
-        crtName = rs.getString("crt_name");
         owner = CertificateOwner.getById(rs.getInt("memid"));
         profile = CertificateProfile.getById(rs.getInt("profile"));
         this.serial = rs.getString("serial");
@@ -302,20 +292,19 @@ public class Certificate implements IdCachable {
     }
 
     public synchronized CertificateStatus getStatus() {
-        try (GigiPreparedStatement searcher = new GigiPreparedStatement("SELECT crt_name, created, revoked, serial, caid FROM certs WHERE id=?")) {
+        try (GigiPreparedStatement searcher = new GigiPreparedStatement("SELECT created, revoked, serial, caid FROM certs WHERE id=?")) {
             searcher.setInt(1, id);
             GigiResultSet rs = searcher.executeQuery();
             if ( !rs.next()) {
                 throw new IllegalStateException("Certificate not in Database");
             }
 
-            crtName = rs.getString(1);
-            serial = rs.getString(4);
-            if (rs.getTimestamp(2) == null) {
+            serial = rs.getString(3);
+            if (rs.getTimestamp(1) == null) {
                 return CertificateStatus.DRAFT;
             }
             ca = CACertificate.getById(rs.getInt("caid"));
-            if (rs.getTimestamp(2) != null && rs.getTimestamp(3) == null) {
+            if (rs.getTimestamp(1) != null && rs.getTimestamp(2) == null) {
                 return CertificateStatus.ISSUED;
             }
             return CertificateStatus.REVOKED;
@@ -367,23 +356,16 @@ public class Certificate implements IdCachable {
         return ca;
     }
 
-    public X509Certificate cert() throws IOException, GeneralSecurityException {
+    public X509Certificate cert() throws IOException, GeneralSecurityException, GigiApiException {
         CertificateStatus status = getStatus();
         if (status != CertificateStatus.REVOKED && status != CertificateStatus.ISSUED) {
             throw new IllegalStateException(status + " is not wanted here.");
         }
-        InputStream is = null;
-        X509Certificate crt = null;
-        try {
-            is = new FileInputStream(crtName);
+        String crtS = getAttachment(AttachmentType.CRT);
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(PEM.decode("CERTIFICATE", crtS))) {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            crt = (X509Certificate) cf.generateCertificate(is);
-        } finally {
-            if (is != null) {
-                is.close();
-            }
+            return (X509Certificate) cf.generateCertificate(bais);
         }
-        return crt;
     }
 
     public Certificate renew() {
@@ -426,7 +408,7 @@ public class Certificate implements IdCachable {
         if (serial == null || "".equals(serial)) {
             return null;
         }
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as `subject`, `md`, `csr_name`, `crt_name`,`memid`, `profile`, `certs`.`serial` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as `subject`, `md`,`memid`, `profile`, `certs`.`serial` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`")) {
             ps.setString(1, serial);
             GigiResultSet rs = ps.executeQuery();
             if ( !rs.next()) {
@@ -452,7 +434,7 @@ public class Certificate implements IdCachable {
         }
 
         try {
-            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as subject, md, csr_name, crt_name,memid, profile, certs.serial FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=certs.id WHERE certs.id=? GROUP BY certs.id")) {
+            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as subject, md, memid, profile, certs.serial FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=certs.id WHERE certs.id=? GROUP BY certs.id")) {
                 ps.setInt(1, id);
                 GigiResultSet rs = ps.executeQuery();
                 if ( !rs.next()) {
@@ -552,5 +534,36 @@ public class Certificate implements IdCachable {
             certs[i] = Certificate.getById(res.getInt(1));
         }
         return certs;
+    }
+
+    public void addAttachment(AttachmentType tp, String data) throws GigiApiException {
+        if (getAttachment(tp) != null) {
+            throw new GigiApiException("Cannot override attachment");
+        }
+        if (data == null) {
+            throw new GigiApiException("Attachment must not be null");
+        }
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `certificateAttachment` SET `certid`=?, `type`=?::`certificateAttachmentType`, `content`=?")) {
+            ps.setInt(1, getId());
+            ps.setEnum(2, tp);
+            ps.setString(3, data);
+            ps.execute();
+        }
+    }
+
+    public String getAttachment(AttachmentType tp) throws GigiApiException {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `content` FROM `certificateAttachment` WHERE `certid`=? AND `type`=?::`certificateAttachmentType`")) {
+            ps.setInt(1, getId());
+            ps.setEnum(2, tp);
+            GigiResultSet rs = ps.executeQuery();
+            if ( !rs.next()) {
+                return null;
+            }
+            String s = rs.getString(1);
+            if (rs.next()) {
+                throw new GigiApiException("Invalid database state");
+            }
+            return s;
+        }
     }
 }

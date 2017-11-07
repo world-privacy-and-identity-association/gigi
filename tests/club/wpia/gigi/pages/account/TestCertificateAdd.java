@@ -88,7 +88,6 @@ public class TestCertificateAdd extends ClientTest {
         }, new DNSName(uniq + ".tld"));
 
         String pem = generatePEMCSR(kp, "CN=a." + uniq + ".tld", atts);
-
         String[] res = fillOutForm("CSR=" + URLEncoder.encode(pem, "UTF-8"));
         assertArrayEquals(new String[] {
                 "server", CertificateRequest.DEFAULT_CN, "dns:a." + uniq + ".tld\ndns:" + uniq + ".tld\n", Digest.SHA512.toString()

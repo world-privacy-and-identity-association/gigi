@@ -105,7 +105,7 @@ public class KeyCompromiseTestMessage extends ClientTest {
         assertEquals(CertificateStatus.ISSUED, cert.getStatus());
     }
 
-    private TestMail reportCompromiseAndCheck(String params) throws IOException, UnsupportedEncodingException, CertificateEncodingException, GeneralSecurityException {
+    private TestMail reportCompromiseAndCheck(String params) throws IOException, UnsupportedEncodingException, CertificateEncodingException, GeneralSecurityException, GigiApiException {
         HttpURLConnection huc = reportCompromise(params);
         assertThat(IOUtils.readURL(huc), hasNoError());
         TestMail rc = getMailReceiver().receive(email);
@@ -115,7 +115,7 @@ public class KeyCompromiseTestMessage extends ClientTest {
         return rc;
     }
 
-    private HttpURLConnection reportCompromise(String params) throws IOException, UnsupportedEncodingException, CertificateEncodingException, GeneralSecurityException {
+    private HttpURLConnection reportCompromise(String params) throws IOException, UnsupportedEncodingException, CertificateEncodingException, GeneralSecurityException, GigiApiException {
         if ( !params.isEmpty() && !params.startsWith("&")) {
             params = "&" + params;
         }

@@ -14,6 +14,7 @@ import java.util.Set;
 
 import javax.servlet.ServletOutputStream;
 
+import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.CACertificate;
 import club.wpia.gigi.dbObjects.Certificate;
 import sun.security.pkcs.ContentInfo;
@@ -29,7 +30,7 @@ public class CertExporter {
 
     private CertExporter() {}
 
-    public static void writeCertCrt(Certificate c, ServletOutputStream out, boolean doChain, boolean includeAnchor, boolean includeLeaf) throws IOException, GeneralSecurityException {
+    public static void writeCertCrt(Certificate c, ServletOutputStream out, boolean doChain, boolean includeAnchor, boolean includeLeaf) throws IOException, GeneralSecurityException, GigiApiException {
         X509Certificate cert = c.cert();
         if (includeLeaf) {
             out.println(PEM.encode("CERTIFICATE", cert.getEncoded()));
@@ -46,7 +47,7 @@ public class CertExporter {
         }
     }
 
-    public static void writeCertCer(Certificate c, ServletOutputStream out, boolean doChain, boolean includeAnchor) throws IOException, GeneralSecurityException {
+    public static void writeCertCer(Certificate c, ServletOutputStream out, boolean doChain, boolean includeAnchor) throws IOException, GeneralSecurityException, GigiApiException {
         X509Certificate cert = c.cert();
         if (doChain) {
             PKCS7 p7 = toP7Chain(c);
@@ -56,7 +57,7 @@ public class CertExporter {
         }
     }
 
-    private static PKCS7 toP7Chain(Certificate c) throws IOException, GeneralSecurityException {
+    private static PKCS7 toP7Chain(Certificate c) throws IOException, GeneralSecurityException, GigiApiException {
         LinkedList<X509Certificate> ll = getChain(c);
         PKCS7 p7 = new PKCS7(new AlgorithmId[0], new ContentInfo(ContentInfo.DATA_OID, null), ll.toArray(new X509Certificate[ll.size()]), new SignerInfo[0]) {
 
@@ -151,7 +152,7 @@ public class CertExporter {
         return p7;
     }
 
-    private static LinkedList<X509Certificate> getChain(Certificate c) throws IOException, GeneralSecurityException {
+    private static LinkedList<X509Certificate> getChain(Certificate c) throws IOException, GeneralSecurityException, GigiApiException {
         LinkedList<X509Certificate> ll = new LinkedList<>();
         ll.add(c.cert());
         CACertificate ca = c.getParent();
