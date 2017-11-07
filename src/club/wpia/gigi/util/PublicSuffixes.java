@@ -26,7 +26,7 @@ public class PublicSuffixes {
             throw new Error("Public Suffix List could not be loaded.");
         }
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(res, "UTF-8"))) {
+        try (InputStreamReader isr = new InputStreamReader(res, "UTF-8"); BufferedReader br = new BufferedReader(isr)) {
             return new PublicSuffixes(br);
         }
     }
