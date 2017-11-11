@@ -84,7 +84,7 @@ public class VerifyPage extends Page {
                         try {
                             new VerificationForm(req, applicant).output(out, getLanguage(req), getDefaultVars(req));
                         } catch (GigiApiException e) {
-                            e.format(out, Page.getLanguage(req));
+                            e.format(out, Page.getLanguage(req), getDefaultVars(req));
                         }
                     }
                 }
@@ -94,7 +94,7 @@ public class VerifyPage extends Page {
             }
 
         } catch (GigiApiException e) {
-            e.format(out, getLanguage(req));
+            e.format(out, getLanguage(req), getDefaultVars(req));
         }
     }
 }

@@ -45,7 +45,7 @@ public class EditDomain extends ManagedMultiFormPage {
         try {
             new PingConfigForm(req, d).output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         } catch (GigiApiException e) {
-            e.format(resp.getWriter(), getLanguage(req));
+            e.format(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         }
 
     }

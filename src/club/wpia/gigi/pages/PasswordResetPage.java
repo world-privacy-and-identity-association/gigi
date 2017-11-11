@@ -104,7 +104,7 @@ public class PasswordResetPage extends Page {
         try {
             new PasswordResetForm(req).output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         } catch (GigiApiException e) {
-            e.format(resp.getWriter(), getLanguage(req));
+            e.format(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         }
     }
 

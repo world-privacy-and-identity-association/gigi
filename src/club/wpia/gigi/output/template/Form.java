@@ -168,11 +168,11 @@ public abstract class Form implements Outputable {
     public static boolean printFormErrors(HttpServletRequest req, PrintWriter out) {
         Object o = req.getAttribute(SUBMIT_RESULT);
         if (o != null && (o instanceof PermamentFormException)) {
-            ((PermamentFormException) o).getCause().format(out, Page.getLanguage(req));
+            ((PermamentFormException) o).getCause().format(out, Page.getLanguage(req), Page.getDefaultVars(req));
             return false;
         }
         if (o != null && (o instanceof GigiApiException)) {
-            ((GigiApiException) o).format(out, Page.getLanguage(req));
+            ((GigiApiException) o).format(out, Page.getLanguage(req), Page.getDefaultVars(req));
             return true;
         }
         if (o != null && (o instanceof FormContinue)) {

@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Map;
 
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.Outputable;
@@ -50,7 +51,7 @@ public class GigiApiException extends Exception {
         return e != null;
     }
 
-    public void format(PrintWriter out, Language language) {
+    public void format(PrintWriter out, Language language, Map<String, Object> vars) {
         out.println("<div class='alert alert-danger error-msgs'>");
         if (isInternalError()) {
             e.printStackTrace();
@@ -58,9 +59,8 @@ public class GigiApiException extends Exception {
             out.println(language.getTranslation("An internal error occurred."));
             out.println("</p>");
         }
-        HashMap<String, Object> map = new HashMap<>();
         for (Outputable message : messages) {
-            map.clear();
+            HashMap<String, Object> map = new HashMap<>(vars);
 
             out.print("<p>");
             message.output(out, language, map);

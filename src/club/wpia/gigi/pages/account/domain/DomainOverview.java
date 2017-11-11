@@ -35,7 +35,7 @@ public class DomainOverview extends ManagedMultiFormPage {
             }
             getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
         } catch (GigiApiException e) {
-            e.format(resp.getWriter(), getLanguage(req));
+            e.format(resp.getWriter(), getLanguage(req), getDefaultVars(req));
         }
     }
 
