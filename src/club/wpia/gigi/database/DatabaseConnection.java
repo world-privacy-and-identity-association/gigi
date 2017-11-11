@@ -53,7 +53,7 @@ public class DatabaseConnection {
             System.out.println("Upgrade 32: loading " + f);
             if (f.exists()) {
                 StringBuilder sb = new StringBuilder();
-                try (Reader r = new InputStreamReader(new FileInputStream(f), "UTF-8")) {
+                try (FileInputStream fis = new FileInputStream(f); Reader r = new InputStreamReader(fis, "UTF-8")) {
                     int len;
                     char[] buf = new char[4096];
                     while ((len = r.read(buf)) > 0) {
@@ -181,7 +181,7 @@ public class DatabaseConnection {
 
     }
 
-    public static final int CURRENT_SCHEMA_VERSION = 33;
+    public static final int CURRENT_SCHEMA_VERSION = 34;
 
     public static final int CONNECTION_TIMEOUT = 24 * 60 * 60;
 

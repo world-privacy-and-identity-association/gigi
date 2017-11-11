@@ -194,7 +194,7 @@ public class OCSPIssuerManager implements Runnable {
         ocspCsr.delete();
         ocspCrt.delete();
         String csr = PEM.encode("CERTIFICATE REQUEST", p10.getEncoded());
-        try (Writer w = new OutputStreamWriter(new FileOutputStream(ocspCsr), "UTF-8")) {
+        try (FileOutputStream fos = new FileOutputStream(ocspCsr); Writer w = new OutputStreamWriter(fos, "UTF-8")) {
             w.write(csr);
         }
     }
