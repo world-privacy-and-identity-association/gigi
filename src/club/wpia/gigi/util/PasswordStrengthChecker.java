@@ -80,7 +80,7 @@ public class PasswordStrengthChecker {
             }
         }
         if (checkpw(pw, parts.toArray(new String[parts.size()]), email) < 3) {
-            throw (new GigiApiException(new SprintfCommand("The Pass Phrase you submitted failed to contain enough differing characters and/or contained words from your name and/or email address. For the current requirements, visit our {0}FAQ{1}.", Arrays.asList("!(/wiki/goodPassword", "!'</a>'"))));
+            throw (new GigiApiException(new SprintfCommand("The Pass Phrase you submitted failed to contain enough differing characters and/or contained words from your name and/or email address. For the current requirements and to learn more, visit our {0}FAQ{1}.", Arrays.asList("!(/wiki/goodPassword", "!'</a>'"))));
         }
     }
 
