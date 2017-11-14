@@ -68,6 +68,14 @@ public class ServerConstants {
 
     private static String appIdentifier = null;
 
+    private static String mailSupport;
+
+    private static String mailBoard;
+
+    private static String mailQuiz;
+
+    private static String mailQuizAdmin;
+
     public static void init(Properties conf) {
         securePort = port = "";
         if ( !conf.getProperty("https.port").equals("443")) {
@@ -93,6 +101,10 @@ public class ServerConstants {
         if (appIdentifier == null) {
             throw new Error("App identifier missing");
         }
+        mailSupport = conf.getProperty("mail.support", "support@" + suffix);
+        mailBoard = conf.getProperty("mail.board", "board@" + suffix);
+        mailQuiz = conf.getProperty("mail.quiz", "quiz@" + suffix);
+        mailQuizAdmin = conf.getProperty("mail.quizAdmin", "quiz-admin@" + suffix);
     }
 
     public static String getHostName(Host h) {
@@ -140,19 +152,19 @@ public class ServerConstants {
     }
 
     public static String getSupportMailAddress() {
-        return "support@" + getSuffix();
+        return mailSupport;
     }
 
     public static String getBoardMailAddress() {
-        return "board@" + getSuffix();
+        return mailBoard;
     }
 
     public static String getQuizMailAddress() {
-        return "quiz@" + getSuffix();
+        return mailQuiz;
     }
 
     public static String getQuizAdminMailAddress() {
-        return "quiz-admin@" + getSuffix();
+        return mailQuizAdmin;
     }
 
     public static String getAppName() {

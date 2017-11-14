@@ -21,3 +21,8 @@ time.verificationMaxAgeMonths=24
 
 appName=SomeCA
 appIdentifier=someca
+
+#mail.support=support@wpia.local
+#mail.board=board@wpia.local
+#mail.quiz=quiz@wpia.local
+#mail.quizAdmin=quiz-admin@wpia.local
