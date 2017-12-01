@@ -30,6 +30,13 @@ cabasename=assured
 caname=${cabasename}_$(date +%Y)_1
 ca=../signer/ca/$caname/ca
 if [[ -f "$ca.key" ]] && ! [[ -f keystore.pkcs12 ]]; then
+    if [[ -f serial_base ]]; then
+        serial_base=$(< serial_base)
+    else
+        serial_base=100000
+    fi
+    serial_base=$((serial_base + 1))
+    printf "%d\n" "$serial_base" >| serial_base
     # when the domain is provided externally as environment variable, use it and do not prompt for it.
     [[ -z $DOMAIN ]] && read -rp "I need to generate gigi-certificates. I need your base domain: " DOMAIN
     # Assuming we have access to the CA-keys we generate two certificates and present them to gigi
@@ -39,9 +46,9 @@ if [[ -f "$ca.key" ]] && ! [[ -f keystore.pkcs12 ]]; then
     openssl req -newkey rsa:2048 -keyout www.key -out www.csr -nodes -subj "/CN=gigi server certificate"
     openssl req -newkey rsa:2048 -keyout mail.key -out mail.csr -nodes -subj "/CN=gigi system"
 
-    # Sign the two requests with the keys in the config of the simple signer. Use serials 1000001 and 1000002 to probably not collide with the "simple signer"
-    openssl x509 -req -in www.csr -out www.crt -CA $ca.crt -CAkey $ca.key -set_serial 1000001 -extfile <(printf "[ext]\nsubjectAltName=DNS:www.$DOMAIN,DNS:secure.$DOMAIN,DNS:static.$DOMAIN,DNS:api.$DOMAIN\nbasicConstraints=CA:FALSE\nextendedKeyUsage=serverAuth\nkeyUsage=digitalSignature,keyEncipherment\n") -extensions ext
-    openssl x509 -req -in mail.csr -out mail.crt -CA $ca.crt -CAkey $ca.key -set_serial 1000002 -extfile <(printf "[ext]\nsubjectAltName=email:support@$DOMAIN\nbasicConstraints=CA:FALSE\nextendedKeyUsage=emailProtection\nkeyUsage=digitalSignature,keyEncipherment\n") -extensions ext
+    # Sign the two requests with the keys in the config of the simple signer. Use the serial_base with extensions 1 and 2. These serials are long enough to probably not collide with the "simple signer"
+    openssl x509 -req -in www.csr -out www.crt -CA $ca.crt -CAkey $ca.key -set_serial ${serial_base}1 -extfile <(printf "[ext]\nsubjectAltName=DNS:www.$DOMAIN,DNS:secure.$DOMAIN,DNS:static.$DOMAIN,DNS:api.$DOMAIN\nbasicConstraints=CA:FALSE\nextendedKeyUsage=serverAuth\nkeyUsage=digitalSignature,keyEncipherment\n") -extensions ext
+    openssl x509 -req -in mail.csr -out mail.crt -CA $ca.crt -CAkey $ca.key -set_serial ${serial_base}2 -extfile <(printf "[ext]\nsubjectAltName=email:support@$DOMAIN\nbasicConstraints=CA:FALSE\nextendedKeyUsage=emailProtection\nkeyUsage=digitalSignature,keyEncipherment\n") -extensions ext
 
     # Store the webserver cert in 4 different pkcs12-keystores to have different "key aliases" and import them all into the "keystore.pkcs12" using the "importP"-method
     for t in www api secure static; do
