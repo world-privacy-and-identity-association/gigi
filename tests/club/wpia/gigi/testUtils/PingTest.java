@@ -21,7 +21,7 @@ import club.wpia.gigi.util.SystemKeywords;
 
 /**
  * Base class for test suites that check extensively if the domain-ping
- * functionality wroks as expected.
+ * functionality works as expected.
  */
 public abstract class PingTest extends ClientTest {
 
@@ -34,7 +34,7 @@ public abstract class PingTest extends ClientTest {
         assertEquals(200, ((HttpURLConnection) new URL(url).openConnection()).getResponseCode());
     }
 
-    protected void waitForPings(int count) throws SQLException, InterruptedException {
+    protected void waitForPings(int count) throws InterruptedException {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT COUNT(*) FROM `domainPinglog`")) {
             long start = System.currentTimeMillis();
             while (System.currentTimeMillis() - start < 10000) {
@@ -77,6 +77,12 @@ public abstract class PingTest extends ClientTest {
         return m;
     }
 
+    /**
+     * Needs to be @After class. In order to init {@link ClientTest#id}
+     * correctly, this needs to be after test. Before test this might be
+     * executed after the init of {@link ClientTest#id} and make that value
+     * invalid.
+     */
     @After
     public void purgeDbAfterTest() throws SQLException, IOException {
         purgeDatabase();

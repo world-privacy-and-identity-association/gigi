@@ -39,6 +39,8 @@ import club.wpia.gigi.dbObjects.CertificateOwner;
 import club.wpia.gigi.dbObjects.Country;
 import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.dbObjects.Domain;
+import club.wpia.gigi.dbObjects.DomainPingConfiguration;
+import club.wpia.gigi.dbObjects.DomainPingExecution;
 import club.wpia.gigi.dbObjects.DomainPingType;
 import club.wpia.gigi.dbObjects.EmailAddress;
 import club.wpia.gigi.dbObjects.Group;
@@ -233,14 +235,14 @@ public class Manager extends Page {
         }
 
         @Override
-        public void ping(Domain domain, String configuration, CertificateOwner target, int confId) {
+        public DomainPingExecution ping(Domain domain, String configuration, CertificateOwner target, DomainPingConfiguration conf) {
             System.err.println("TestManager: " + domain.getSuffix());
             if (pingExempt.contains(domain.getSuffix())) {
-                enterPingResult(confId, DomainPinger.PING_SUCCEDED, "Succeeded by TestManager pass-by", null);
+                return enterPingResult(conf, DomainPinger.PING_SUCCEDED, "Succeeded by TestManager pass-by", null);
             } else {
                 DomainPinger pinger = dps.get(dpt);
                 System.err.println("Forward to old pinger: " + pinger);
-                pinger.ping(domain, configuration, target, confId);
+                return pinger.ping(domain, configuration, target, conf);
             }
         }
 

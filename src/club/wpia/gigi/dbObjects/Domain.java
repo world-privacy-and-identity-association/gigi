@@ -90,7 +90,7 @@ public class Domain implements IdCachable, Verifyable {
 
     private LinkedList<DomainPingConfiguration> configs = null;
 
-    public List<DomainPingConfiguration> getConfiguredPings() throws GigiApiException {
+    public List<DomainPingConfiguration> getConfiguredPings() {
         LinkedList<DomainPingConfiguration> configs = this.configs;
         if (configs == null) {
             configs = new LinkedList<>();
@@ -143,12 +143,26 @@ public class Domain implements IdCachable, Verifyable {
         }
     }
 
+    /**
+     * Determines current domain validity. A domain is valid, iff at least two
+     * configured pings are currently successful.
+     * 
+     * @return true, iff domain is valid
+     * @throws GigiApiException
+     */
     public boolean isVerified() {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT 1 FROM `domainPinglog` INNER JOIN `pingconfig` ON `pingconfig`.`id`=`domainPinglog`.`configId` WHERE `domainid`=? AND `state`='success'")) {
-            ps.setInt(1, id);
-            GigiResultSet rs = ps.executeQuery();
-            return rs.next();
+        int count = 0;
+        boolean[] used = new boolean[DomainPingType.values().length];
+        for (DomainPingConfiguration config : getConfiguredPings()) {
+            if (config.isValid() && !used[config.getType().ordinal()]) {
+                count++;
+                used[config.getType().ordinal()] = true;
+            }
+            if (count >= 2) {
+                return true;
+            }
         }
+        return false;
     }
 
     public DomainPingExecution[] getPings() throws GigiApiException {
@@ -192,6 +206,24 @@ public class Domain implements IdCachable, Verifyable {
             } else {
                 return null;
             }
+        }
+    }
+
+    public Certificate[] fetchActiveCertificates() {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `certs`.`id` FROM `certs` INNER JOIN `subjectAlternativeNames` ON `subjectAlternativeNames`.`certId` = `certs`.`id` WHERE (`contents`=? OR RIGHT(`contents`,LENGTH(?)+1)=CONCAT('.',?::VARCHAR)) AND `type`='DNS' AND `revoked` IS NULL AND `expire` > CURRENT_TIMESTAMP AND `memid`=? GROUP BY `certs`.`id`", true)) {
+            ps.setString(1, suffix);
+            ps.setString(2, suffix);
+            ps.setString(3, suffix);
+            ps.setInt(4, owner.getId());
+            GigiResultSet rs = ps.executeQuery();
+            rs.last();
+            Certificate[] res = new Certificate[rs.getRow()];
+            rs.beforeFirst();
+            int i = 0;
+            while (rs.next()) {
+                res[i++] = Certificate.getById(rs.getInt(1));
+            }
+            return res;
         }
     }
 

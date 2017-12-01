@@ -1,0 +1,20 @@
+Subject: <?=_Ping for domain '${domain}' failed.?>
+
+<?=_Hi,?>
+
+<?=_A check of the ownership for your domain '${domain}' failed.?> \
+<?=_This check might either have been triggered manually or automatically for routine housekeeping.?> \
+<?=_Seeing a check fail we assume you might have lost ownership of this domain.?>
+
+<? if($valid) { ?>
+<?=_However there are currently enough succeeding proofs so the state of your domain is not endangered yet.?> \
+<?=_You might however want to correct (or remove) this ping to ensure that your domain stays valid.?>
+<? } else { ?>
+<?=_If you keep lacking sufficient proof of ownership for this domain after the grace period of two weeks expired we are going to revoke all affected certificates.?>
+
+<?=_Affected certificates:?>
+<? foreach($certs){ ?>- <?=_serial: ${serial} issued by ${ca} valid from ${from} to ${to}.?>
+<? } ?>
+<? } ?>
+
+<?=_Visit ${domainLink} to check the current state of pings of your domain and to find out more information about which ping failed.?>

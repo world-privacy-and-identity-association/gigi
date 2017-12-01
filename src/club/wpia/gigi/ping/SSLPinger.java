@@ -33,6 +33,8 @@ import club.wpia.gigi.dbObjects.CACertificate;
 import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.CertificateOwner;
 import club.wpia.gigi.dbObjects.Domain;
+import club.wpia.gigi.dbObjects.DomainPingConfiguration;
+import club.wpia.gigi.dbObjects.DomainPingExecution;
 import sun.security.x509.AVA;
 import sun.security.x509.X500Name;
 
@@ -51,7 +53,7 @@ public class SSLPinger extends DomainPinger {
     }
 
     @Override
-    public void ping(Domain domain, String configuration, CertificateOwner u, int confId) {
+    public DomainPingExecution ping(Domain domain, String configuration, CertificateOwner u, DomainPingConfiguration conf) {
         try (SocketChannel sch = SocketChannel.open()) {
             sch.socket().setSoTimeout(5000);
             String[] parts = configuration.split(":", 4);
@@ -76,11 +78,9 @@ public class SSLPinger extends DomainPinger {
             String key = parts[0];
             String value = parts[1];
             String res = test(sch, domain.getSuffix(), u, value);
-            enterPingResult(confId, res, res, null);
-            return;
+            return enterPingResult(conf, res, res, null);
         } catch (IOException e) {
-            enterPingResult(confId, "error", "connection Failed", null);
-            return;
+            return enterPingResult(conf, "error", "connection Failed", null);
         }
 
     }

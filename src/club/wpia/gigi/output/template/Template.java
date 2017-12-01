@@ -264,10 +264,14 @@ public class Template implements Outputable {
             out.print(((Boolean) s) ? l.getTranslation("yes") : l.getTranslation("no"));
         } else if (s instanceof Date) {
             SimpleDateFormat sdfUI = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-            out.print("<time datetime=\"" + sdf.format(s) + "\">");
-            out.print(sdfUI.format(s));
-            out.print(" UTC</time>");
+            if (vars.containsKey(Outputable.OUT_KEY_PLAIN)) {
+                out.print(sdfUI.format(s));
+            } else {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                out.print("<time datetime=\"" + sdf.format(s) + "\">");
+                out.print(sdfUI.format(s));
+                out.print(" UTC</time>");
+            }
         } else {
             out.print(s == null ? "null" : (unescaped ? s.toString() : HTMLEncoder.encodeHTML(s.toString())));
         }

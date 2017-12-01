@@ -351,6 +351,12 @@ public abstract class ConfiguredTest {
             d.addPing(DomainPingType.EMAIL, "admin");
             TestMail testMail = getMailReceiver().receive("admin@" + d.getSuffix());
             testMail.verify();
+            // Enforce successful ping :-)
+            d.addPing(DomainPingType.HTTP, "a:b");
+            try (GigiPreparedStatement gps = new GigiPreparedStatement("INSERT INTO `domainPinglog` SET `configId`=(SELECT `id` FROM `pingconfig` WHERE `domainid`=? AND `type`='http'), state='success', needsAction=false")) {
+                gps.setInt(1, d.getId());
+                gps.execute();
+            }
             assertTrue(d.isVerified());
         } catch (GigiApiException e) {
             throw new Error(e);
