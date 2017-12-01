@@ -234,11 +234,13 @@ public class Manager extends Page {
 
         @Override
         public void ping(Domain domain, String configuration, CertificateOwner target, int confId) {
-            System.out.println("Test: " + domain);
+            System.err.println("TestManager: " + domain.getSuffix());
             if (pingExempt.contains(domain.getSuffix())) {
                 enterPingResult(confId, DomainPinger.PING_SUCCEDED, "Succeeded by TestManager pass-by", null);
             } else {
-                dps.get(dpt).ping(domain, configuration, target, confId);
+                DomainPinger pinger = dps.get(dpt);
+                System.err.println("Forward to old pinger: " + pinger);
+                pinger.ping(domain, configuration, target, confId);
             }
         }
 
