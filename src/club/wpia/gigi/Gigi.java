@@ -47,7 +47,6 @@ import club.wpia.gigi.pages.Page;
 import club.wpia.gigi.pages.PasswordResetPage;
 import club.wpia.gigi.pages.RootCertPage;
 import club.wpia.gigi.pages.StaticPage;
-import club.wpia.gigi.pages.TestSecure;
 import club.wpia.gigi.pages.Verify;
 import club.wpia.gigi.pages.account.ChangePasswordPage;
 import club.wpia.gigi.pages.account.FindAgentAccess;
@@ -144,7 +143,6 @@ public final class Gigi extends HttpServlet {
             putPage(RegisterPage.PATH, new RegisterPage(), mainMenu);
             putPage(KeyCompromisePage.PATH, new KeyCompromisePage(), mainMenu);
 
-            putPage("/secure", new TestSecure(), null);
             putPage(Verify.PATH, new Verify(), null);
             Menu certificates = createMenu("Certificates");
             putPage(Certificates.PATH + "/*", new Certificates(false), certificates);
