@@ -115,16 +115,6 @@ CREATE TABLE "baddomains" (
 );
 
 
-DROP TABLE IF EXISTS "alerts";
-CREATE TABLE "alerts" (
-  "memid" int NOT NULL DEFAULT '0',
-  "general" boolean NOT NULL DEFAULT 'false',
-  "country" boolean NOT NULL DEFAULT 'false',
-  "regional" boolean NOT NULL DEFAULT 'false',
-  "radius" boolean NOT NULL DEFAULT 'false',
-  PRIMARY KEY ("memid")
-);
-
 DROP TABLE IF EXISTS "user_agreements";
 CREATE TABLE "user_agreements" (
   "id" serial NOT NULL,
@@ -380,7 +370,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(35);
+INSERT INTO "schemeVersion" (version)  VALUES(36);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (
