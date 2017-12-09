@@ -68,12 +68,7 @@ public class Organisation extends CertificateOwner {
     private String postalAddress;
 
     public Organisation(String name, Country country, String province, String city, String email, String optionalName, String postalAddress, User creator) throws GigiApiException {
-        if ( !creator.isInGroup(Group.ORG_AGENT)) {
-            throw new GigiApiException("Only Organisation RA Agents may create organisations.");
-        }
-        if (country == null) {
-            throw new GigiApiException("Got country code of illegal type.");
-        }
+        super(validate(creator, country));
         this.name = name;
         this.country = country;
         this.province = province;
@@ -96,6 +91,16 @@ public class Organisation extends CertificateOwner {
                 ps.execute();
             }
         }
+    }
+
+    private static Void validate(User creator, Country country) throws GigiApiException {
+        if ( !creator.isInGroup(Group.ORG_AGENT)) {
+            throw new GigiApiException("Only Organisation RA Agents may create organisations.");
+        }
+        if (country == null) {
+            throw new GigiApiException("Got country code of illegal type.");
+        }
+        return null;
     }
 
     protected Organisation(GigiResultSet rs) throws GigiApiException {

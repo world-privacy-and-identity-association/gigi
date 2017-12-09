@@ -105,10 +105,7 @@ public class User extends CertificateOwner {
     }
 
     public User(String email, String password, DayDate dob, Locale locale, Country residenceCountry, NamePart... preferred) throws GigiApiException {
-        // Avoid storing information that obviously won't get through
-        if ( !EmailProvider.isValidMailAddress(email)) {
-            throw new IllegalArgumentException("Invalid email.");
-        }
+        super(validate(email));
 
         this.email = email;
         this.dob = dob;
@@ -126,6 +123,14 @@ public class User extends CertificateOwner {
         }
 
         new EmailAddress(this, email, locale);
+    }
+
+    private static Void validate(String email) {
+        // Avoid storing information that obviously won't get through
+        if ( !EmailProvider.isValidMailAddress(email)) {
+            throw new IllegalArgumentException("Invalid email.");
+        }
+        return null;
     }
 
     public Name[] getNames() {

@@ -24,7 +24,15 @@ public abstract class CertificateOwner implements IdCachable, Serializable {
         this.id = id;
     }
 
-    protected CertificateOwner() {
+    /**
+     * This constructor has a dummy parameter to allow callers to do checks
+     * before invoking the super constructor.
+     * 
+     * @param dummy
+     *            a parameter that is not used to allow callers to do checks
+     *            before super constructor invocation.
+     */
+    protected CertificateOwner(Void dummy) {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `certOwners` DEFAULT VALUES")) {
             ps.execute();
             id = ps.lastInsertId();
