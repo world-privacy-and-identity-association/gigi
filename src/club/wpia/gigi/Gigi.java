@@ -147,11 +147,11 @@ public final class Gigi extends HttpServlet {
             Menu certificates = createMenu("Certificates");
             putPage(Certificates.PATH + "/*", new Certificates(false), certificates);
             putPage(CertificateAdd.PATH, new CertificateAdd(), certificates);
-            putPage(MailOverview.DEFAULT_PATH, new MailOverview(), certificates);
-            putPage(DomainOverview.PATH, new DomainOverview(), certificates);
-            putPage(EditDomain.PATH + "*", new EditDomain(), null);
 
             Menu wot = createMenu("Verification");
+            putPage(MailOverview.DEFAULT_PATH, new MailOverview(), wot);
+            putPage(DomainOverview.PATH, new DomainOverview(), wot);
+            putPage(EditDomain.PATH + "*", new EditDomain(), null);
             putPage(VerifyPage.PATH + "/*", new VerifyPage(), wot);
             putPage(Points.PATH, new Points(false), wot);
             putPage(RequestTTPPage.PATH, new RequestTTPPage(), wot);
