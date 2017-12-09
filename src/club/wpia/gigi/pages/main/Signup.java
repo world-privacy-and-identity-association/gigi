@@ -133,13 +133,13 @@ public class Signup extends Form {
         String pw1 = req.getParameter("pword1");
         String pw2 = req.getParameter("pword2");
         if (pw1 == null || pw1.equals("")) {
-            ga.mergeInto(new GigiApiException("Pass Phrases were blank"));
+            ga.mergeInto(new GigiApiException("Passwords were blank"));
         } else if ( !pw1.equals(pw2)) {
-            ga.mergeInto(new GigiApiException("Pass Phrases don't match"));
+            ga.mergeInto(new GigiApiException("Passwords don't match"));
         }
         int pwpoints = PasswordStrengthChecker.checkpw(pw1, ni.getNamePartsPlain(), email);
         if (pwpoints < 3) {
-            ga.mergeInto(new GigiApiException(new SprintfCommand("The Pass Phrase you submitted failed to contain enough differing characters and/or contained words from your name and/or email address. For the current requirements and to learn more, visit our {0}FAQ{1}.", Arrays.asList("!(/wiki/goodPassword", "!'</a>'"))));
+            ga.mergeInto(new GigiApiException(new SprintfCommand("The Password you submitted failed to contain enough differing characters and/or contained words from your name and/or email address. For the current requirements and to learn more, visit our {0}FAQ{1}.", Arrays.asList("!(/wiki/goodPassword", "!'</a>'"))));
         }
         if ( !ga.isEmpty()) {
             throw ga;
