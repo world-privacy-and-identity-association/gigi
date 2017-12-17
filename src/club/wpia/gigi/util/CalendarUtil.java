@@ -15,6 +15,17 @@ public class CalendarUtil {
 
     }
 
+    /**
+     * @param date
+     *            YYYYMMDD
+     */
+    public static boolean isDateValid(String date) {
+        int year = Integer.parseInt(date.substring(0, 4));
+        int month = Integer.parseInt(date.substring(4, 6));
+        int day = Integer.parseInt(date.substring(6, 8));
+        return isDateValid(year, month, day);
+    }
+
     public static boolean isOfAge(DayDate dob, int age) {
         return isYearsInFuture(dob.start(), age);
     }
