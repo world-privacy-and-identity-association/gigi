@@ -7,20 +7,21 @@ import javax.naming.NamingException;
 
 import club.wpia.gigi.dbObjects.CertificateOwner;
 import club.wpia.gigi.dbObjects.Domain;
+import club.wpia.gigi.dbObjects.DomainPingConfiguration;
+import club.wpia.gigi.dbObjects.DomainPingExecution;
 import club.wpia.gigi.util.DNSUtil;
 import club.wpia.gigi.util.SystemKeywords;
 
 public class DNSPinger extends DomainPinger {
 
     @Override
-    public void ping(Domain domain, String expToken, CertificateOwner u, int confId) {
+    public DomainPingExecution ping(Domain domain, String expToken, CertificateOwner u, DomainPingConfiguration conf) {
         String[] tokenParts = expToken.split(":", 2);
         List<String> nameservers;
         try {
             nameservers = Arrays.asList(DNSUtil.getNSNames(domain.getSuffix()));
         } catch (NamingException e) {
-            enterPingResult(confId, "error", "No authorative nameserver found.", null);
-            return;
+            return enterPingResult(conf, "error", "No authorative nameserver found.", null);
         }
         StringBuffer result = new StringBuffer();
         result.append("failed: ");
@@ -51,9 +52,9 @@ public class DNSPinger extends DomainPinger {
 
         }
         if ( !failed) {
-            enterPingResult(confId, PING_SUCCEDED, "", null);
+            return enterPingResult(conf, PING_SUCCEDED, "", null);
         } else {
-            enterPingResult(confId, "error", result.toString(), null);
+            return enterPingResult(conf, "error", result.toString(), null);
         }
     }
 }

@@ -210,6 +210,16 @@ public abstract class ConfiguredTest {
             int keySize = 4096;
             long r_lv = 7331;
 
+            // The generated numbers p q and r fall into the
+            // following ranges:
+            // - p: 2^(lp-1) < p < 2^lp
+            // - q: 2^(lq-1) < q < 2^lq
+            // - r: 2^12 < r < 2^13
+            // Thus the generated number has at least lp+lq+11 bit and
+            // can have at most lp+lq+13 bit.
+            // Thus for random selection of p and q the algorithm will
+            // at some point select a number of length n=n/2+lr+(n-n/2-lr)=>n
+            // bit.
             int lp = (keySize + 1) >> 1;
             int lr = BigInteger.valueOf(r_lv).bitLength();
             int lq = keySize - lp - lr;
@@ -221,24 +231,17 @@ public abstract class ConfiguredTest {
                 // generate two random primes of size lp/lq
                 BigInteger p, q, r, n;
 
-                p = BigInteger.probablePrime(lp, random);
                 r = BigInteger.valueOf(r_lv);
                 do {
+                    p = BigInteger.probablePrime(lp, random);
                     q = BigInteger.probablePrime(lq, random);
-
-                    // convention is for p > q > r
-                    if (p.compareTo(q) < 0) {
-                        BigInteger tmp = p;
-                        p = q;
-                        q = tmp;
-                    }
 
                     // modulus n = p * q * r
                     n = p.multiply(q).multiply(r);
 
                     // even with correctly sized p, q and r, there is a chance
-                    // that n will be one bit short. re-generate the smaller
-                    // prime if so.
+                    // that n will be one bit short. re-generate the
+                    // primes if so.
                 } while (n.bitLength() < keySize);
 
                 // phi = (p - 1) * (q - 1) * (r - 1) must be relative prime to e
@@ -348,6 +351,12 @@ public abstract class ConfiguredTest {
             d.addPing(DomainPingType.EMAIL, "admin");
             TestMail testMail = getMailReceiver().receive("admin@" + d.getSuffix());
             testMail.verify();
+            // Enforce successful ping :-)
+            d.addPing(DomainPingType.HTTP, "a:b");
+            try (GigiPreparedStatement gps = new GigiPreparedStatement("INSERT INTO `domainPinglog` SET `configId`=(SELECT `id` FROM `pingconfig` WHERE `domainid`=? AND `type`='http'), state='success', needsAction=false")) {
+                gps.setInt(1, d.getId());
+                gps.execute();
+            }
             assertTrue(d.isVerified());
         } catch (GigiApiException e) {
             throw new Error(e);

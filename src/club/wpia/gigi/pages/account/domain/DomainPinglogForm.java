@@ -64,7 +64,7 @@ public class DomainPinglogForm extends Form {
                 if (counter >= pings.length) {
                     return false;
                 }
-                vars.put("state", pings[counter].getState());
+                vars.put("state", pings[counter].getState().getDBName());
                 vars.put("type", pings[counter].getType());
                 vars.put("config", pings[counter].getInfo());
                 vars.put("date", pings[counter].getDate());
