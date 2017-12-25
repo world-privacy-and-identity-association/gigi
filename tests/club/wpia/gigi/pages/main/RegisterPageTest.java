@@ -49,14 +49,14 @@ public class RegisterPageTest extends ManagedTest {
 
         String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname=" + URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&day=1&month=1&year=1910&tos_agree=1&mname=mn&suffix=sf&email=";
 
-        String query = defaultSignup + URLEncoder.encode("correct3_" + uniq + "@email.de", "UTF-8") + "&general=1&country=1&regional=1&radius=1&name-type=western";
+        String query = defaultSignup + URLEncoder.encode("correct3_" + uniq + "@email.de", "UTF-8") + "&name-type=western";
         String data = fetchStartErrorMessage(runRegister(query));
         assertNull(data);
         assertSuccessfullRegMail("correct3_" + uniq + "@email.de");
 
         getMailReceiver().setEmailCheckError("400 Greylisted");
         getMailReceiver().setApproveRegex(Pattern.compile("a"));
-        query = defaultSignup + URLEncoder.encode("correct4_" + uniq + "@email.de", "UTF-8") + "&general=1&country=1&regional=1&radius=1";
+        query = defaultSignup + URLEncoder.encode("correct4_" + uniq + "@email.de", "UTF-8");
         data = fetchStartErrorMessage(runRegister(query));
         assertNotNull(data);
 
@@ -171,20 +171,6 @@ public class RegisterPageTest extends ManagedTest {
     }
 
     @Test
-    public void testCheckboxesStay() throws IOException {
-        String run2 = runRegister("general=1&country=a&regional=1&radius=0");
-        assertThat(run2, containsString("name=\"general\" value=\"1\" checked=\"checked\">"));
-        assertThat(run2, containsString("name=\"country\" value=\"1\">"));
-        assertThat(run2, containsString("name=\"regional\" value=\"1\" checked=\"checked\">"));
-        assertThat(run2, containsString("name=\"radius\" value=\"1\">"));
-        run2 = runRegister("general=0&country=1&radius=1");
-        assertThat(run2, containsString("name=\"general\" value=\"1\">"));
-        assertThat(run2, containsString("name=\"country\" value=\"1\" checked=\"checked\">"));
-        assertThat(run2, containsString("name=\"regional\" value=\"1\">"));
-        assertThat(run2, containsString("name=\"radius\" value=\"1\" checked=\"checked\">"));
-    }
-
-    @Test
     public void testDoubleMail() throws IOException {
         long uniq = System.currentTimeMillis();
         registerUser("RegisterTest", "User", "testmail" + uniq + "@example.com", TEST_PASSWORD);
@@ -221,7 +207,7 @@ public class RegisterPageTest extends ManagedTest {
 
         String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname=" + URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&day=1&month=1&year=1910&tos_agree=1&mname=mn&suffix=sf&email=";
 
-        String query = defaultSignup + URLEncoder.encode(email, "UTF-8") + "&general=1&country=1&regional=1&radius=1&name-type=western&residenceCountry=DE";
+        String query = defaultSignup + URLEncoder.encode(email, "UTF-8") + "&name-type=western&residenceCountry=DE";
         String data = fetchStartErrorMessage(runRegister(query));
         assertNull(data);
         User u = User.getByEmail(email);
@@ -236,7 +222,7 @@ public class RegisterPageTest extends ManagedTest {
 
         String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname=" + URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&day=1&month=1&year=1910&tos_agree=1&mname=mn&suffix=sf&email=";
 
-        String query = defaultSignup + URLEncoder.encode(email, "UTF-8") + "&general=1&country=1&regional=1&radius=1&name-type=western&residenceCountry=invalid";
+        String query = defaultSignup + URLEncoder.encode(email, "UTF-8") + "&name-type=western&residenceCountry=invalid";
         String data = fetchStartErrorMessage(runRegister(query));
         assertNull(data);
         User u = User.getByEmail(email);

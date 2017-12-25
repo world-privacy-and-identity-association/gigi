@@ -37,8 +37,6 @@ public class Signup extends Form {
 
     private static final Template t = new Template(Signup.class.getResource("Signup.templ"));
 
-    private boolean general = true, country = true, regional = true, radius = true;
-
     private CountrySelector cs;
 
     public Signup(HttpServletRequest hsr) {
@@ -55,10 +53,6 @@ public class Signup extends Form {
         vars.put("name", ni);
         vars.put("dob", myDoB);
         vars.put("email", HTMLEncoder.encodeHTML(email));
-        vars.put("general", general ? " checked=\"checked\"" : "");
-        vars.put("country", country ? " checked=\"checked\"" : "");
-        vars.put("regional", regional ? " checked=\"checked\"" : "");
-        vars.put("radius", radius ? " checked=\"checked\"" : "");
         vars.put("helpOnNames", new SprintfCommand("Help on Names {0}in the wiki{1}", Arrays.asList("!(/wiki/names", "!'</a>")));
         vars.put("csrf", getCSRFToken());
         vars.put("dobmin", User.MINIMUM_AGE + "");
@@ -70,10 +64,6 @@ public class Signup extends Form {
         if (r.getParameter("email") != null) {
             email = r.getParameter("email");
         }
-        general = "1".equals(r.getParameter("general"));
-        country = "1".equals(r.getParameter("country"));
-        regional = "1".equals(r.getParameter("regional"));
-        radius = "1".equals(r.getParameter("radius"));
         GigiApiException problems = new GigiApiException();
         try {
             ni.update(r);
@@ -190,15 +180,6 @@ public class Signup extends Form {
 
     private void run(HttpServletRequest req, String password) throws GigiApiException {
         User u = new User(email, password, myDoB.getDate(), Page.getLanguage(req).getLocale(), cs.getCountry(), ni.getNameParts());
-
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `alerts` SET `memid`=?," + " `general`=?, `country`=?, `regional`=?, `radius`=?")) {
-            ps.setInt(1, u.getId());
-            ps.setBoolean(2, general);
-            ps.setBoolean(3, country);
-            ps.setBoolean(4, regional);
-            ps.setBoolean(5, radius);
-            ps.execute();
-        }
         Notary.writeUserAgreement(u, "ToS", "account creation", "", true, 0);
     }
 
