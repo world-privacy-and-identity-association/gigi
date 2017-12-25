@@ -12,10 +12,13 @@ import club.wpia.gigi.output.template.Form;
 import club.wpia.gigi.output.template.Template;
 import club.wpia.gigi.pages.LoginPage;
 import club.wpia.gigi.util.AuthorizationContext;
+import club.wpia.gigi.util.CalendarUtil;
 
 public class SupportEnterTicketForm extends Form {
 
     private static final Template t = new Template(SupportEnterTicketForm.class.getResource("SupportEnterTicketForm.templ"));
+
+    public static final String TICKET_PREFIX = "acdhi";
 
     public SupportEnterTicketForm(HttpServletRequest hsr) {
         super(hsr);
@@ -24,9 +27,9 @@ public class SupportEnterTicketForm extends Form {
     @Override
     public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         if (req.getParameter("setTicket") != null) {
-            // [asdmASDM]\d{8}\.\d+
-            String ticket = req.getParameter("ticketno");
-            if (ticket.matches("[asdmASDM]\\d{8}\\.\\d+")) {
+            // [acdhi]\d{8}\.\d+ according to numbering scheme
+            String ticket = req.getParameter("ticketno").toLowerCase();
+            if (ticket.matches("[" + TICKET_PREFIX + "]\\d{8}\\.\\d+") && CalendarUtil.isDateValid(ticket.substring(1, 9))) {
                 AuthorizationContext ac = LoginPage.getAuthorizationContext(req);
                 req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(ac.getActor(), ticket));
                 return new RedirectResult(SupportEnterTicketPage.PATH);
