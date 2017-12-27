@@ -36,6 +36,7 @@ public class CertificateIterable implements IterableDataset {
         vars.put("serial", c.getSerial());
         vars.put("digest", c.getMessageDigest());
         vars.put("profile", c.getProfile().getVisibleName());
+        vars.put("description", c.getDescription());
         CertificateStatus st = c.getStatus();
         vars.put("revokable", st != CertificateStatus.REVOKED && st == CertificateStatus.ISSUED);
         String issuedWarning = "";

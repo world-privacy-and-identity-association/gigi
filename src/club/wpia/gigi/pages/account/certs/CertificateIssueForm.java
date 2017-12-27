@@ -99,6 +99,13 @@ public class CertificateIssueForm extends Form {
                 if (login) {
                     result.setLoginEnabled(true);
                 }
+                if (req.getParameter("description") != null) {
+                    String description = req.getParameter("description").trim();
+                    if (description.length() > 100) {
+                        throw new GigiApiException("Submitted description is longer than 100 characters.");
+                    }
+                    result.setDescription(description);
+                }
                 result.issue(issueDate.getFrom(), issueDate.getTo(), c.getActor()).waitFor(60000);
                 this.result = result;
                 Certificate c = result;

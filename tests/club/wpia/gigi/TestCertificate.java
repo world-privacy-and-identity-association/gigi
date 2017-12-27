@@ -25,6 +25,7 @@ import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.pages.account.certs.Certificates;
 import club.wpia.gigi.testUtils.IOUtils;
 import club.wpia.gigi.testUtils.ManagedTest;
+import club.wpia.gigi.util.RandomToken;
 import sun.security.x509.GeneralNameInterface;
 
 public class TestCertificate extends ManagedTest {
@@ -158,5 +159,23 @@ public class TestCertificate extends ManagedTest {
 
             }
         }
+    }
+
+    @Test
+    public void testClientCertDescription() throws IOException, GeneralSecurityException, SQLException, InterruptedException, GigiApiException {
+        KeyPair kp = generateKeypair();
+        String key1 = generatePEMCSR(kp, "CN=testmail@example.com");
+        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "testmail@example.com"), Digest.SHA256, key1, CSRType.CSR, getClientProfile());
+        await(c.issue(null, "2y", u));
+        String description = RandomToken.generateToken(95) + DIFFICULT_CHARS;
+        c.setDescription(description);
+        assertEquals(description, c.getDescription());
+
+        // test that description is entered to db
+        int cid = c.getId();
+        clearCaches();
+        Certificate cn = Certificate.getById(cid);
+        assertEquals(description, cn.getDescription());
+
     }
 }

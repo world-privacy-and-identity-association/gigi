@@ -10,6 +10,7 @@
 <th><?=_Revoked?></th>
 <th><?=_Expires?></th>
 <th><?=_Login?></th>
+<th><?=_Description?></th>
 </tr></thead>
 <tbody>
 <? foreach($certs) {?>
@@ -26,6 +27,7 @@
 	<td><?=$revoked?></td>
 	<td class="<?=$classExpired?>"><?=$expire?></td>
 	<td><?=$login?></td>
+	<td><?=$description?></td>
 </tr>
 <? } ?>
 </tbody>

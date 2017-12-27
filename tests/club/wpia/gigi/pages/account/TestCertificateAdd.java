@@ -1,6 +1,7 @@
 package club.wpia.gigi.pages.account;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
@@ -37,9 +38,11 @@ import club.wpia.gigi.dbObjects.CertificateOwner;
 import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.pages.account.certs.CertificateAdd;
 import club.wpia.gigi.pages.account.certs.CertificateRequest;
+import club.wpia.gigi.pages.account.certs.Certificates;
 import club.wpia.gigi.testUtils.ClientTest;
 import club.wpia.gigi.testUtils.IOUtils;
 import club.wpia.gigi.util.PEM;
+import club.wpia.gigi.util.RandomToken;
 import sun.security.pkcs.PKCS7;
 import sun.security.pkcs.PKCS9Attribute;
 import sun.security.pkcs10.PKCS10Attribute;
@@ -130,24 +133,7 @@ public class TestCertificateAdd extends ClientTest {
 
     @Test
     public void testIssue() throws IOException, GeneralSecurityException {
-        PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
-                CertificateRequest.OID_KEY_USAGE_SSL_CLIENT
-        }, new RFC822Name(email));
-
-        String pem = generatePEMCSR(kp, "CN=a b,email=" + email, atts, "SHA512WithRSA");
-
-        String[] res = fillOutForm("CSR=" + URLEncoder.encode(pem, "UTF-8"));
-        assertArrayEquals(new String[] {
-                "client", "a b", "email:" + email + "\n", Digest.SHA512.toString()
-        }, res);
-
-        HttpURLConnection huc = (HttpURLConnection) ncert.openConnection();
-        huc.setRequestProperty("Cookie", cookie);
-        huc.setDoOutput(true);
-        OutputStream out = huc.getOutputStream();
-        out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes("UTF-8"));
-        out.write(("&CN=" + URLEncoder.encode(CertificateRequest.DEFAULT_CN, "UTF-8") + "&profile=client&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes("UTF-8"));
-        out.write(("&hash_alg=SHA512").getBytes("UTF-8"));
+        HttpURLConnection huc = sendCertificateForm("description");
         URLConnection uc = authenticate(new URL(huc.getHeaderField("Location") + ".crt"));
         String crt = IOUtils.readURL(new InputStreamReader(uc.getInputStream(), "UTF-8"));
 
@@ -174,7 +160,48 @@ public class TestCertificateAdd extends ClientTest {
         assertThat(gui, containsString("CN=" + CertificateRequest.DEFAULT_CN));
         assertThat(gui, containsString("SHA512withRSA"));
         assertThat(gui, containsString("RFC822Name: " + email));
+    }
 
+    @Test
+    public void testIssueWithDescription() throws IOException, GeneralSecurityException {
+        String description = "Just a new comment." + RandomToken.generateToken(32);
+        HttpURLConnection huc = sendCertificateForm(description);
+        assertEquals(302, huc.getResponseCode());
+
+        URLConnection uc = get(Certificates.PATH);
+        assertThat(IOUtils.readURL(uc), containsString(description));
+
+        description = "Just a new comment." + RandomToken.generateToken(100);
+        huc = sendCertificateForm(description);
+        assertThat(fetchStartErrorMessage(IOUtils.readURL(huc)), containsString("Submitted description is longer than 100 characters."));
+    }
+
+    private HttpURLConnection sendCertificateForm(String description) throws IOException, GeneralSecurityException {
+        HttpURLConnection huc = openCertificateForm();
+        OutputStream out = huc.getOutputStream();
+        out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes("UTF-8"));
+        out.write(("&CN=" + URLEncoder.encode(CertificateRequest.DEFAULT_CN, "UTF-8") + "&profile=client&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes("UTF-8"));
+        out.write(("&hash_alg=SHA512").getBytes("UTF-8"));
+        out.write(("&description=" + URLEncoder.encode(description, "UTF-8")).getBytes("UTF-8"));
+        return huc;
+    }
+
+    private HttpURLConnection openCertificateForm() throws IOException, GeneralSecurityException, UnsupportedEncodingException {
+        PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
+                CertificateRequest.OID_KEY_USAGE_SSL_CLIENT
+        }, new RFC822Name(email));
+
+        String pem = generatePEMCSR(kp, "CN=a b,email=" + email, atts, "SHA512WithRSA");
+
+        String[] res = fillOutForm("CSR=" + URLEncoder.encode(pem, "UTF-8"));
+        assertArrayEquals(new String[] {
+                "client", "a b", "email:" + email + "\n", Digest.SHA512.toString()
+        }, res);
+
+        HttpURLConnection huc = (HttpURLConnection) ncert.openConnection();
+        huc.setRequestProperty("Cookie", cookie);
+        huc.setDoOutput(true);
+        return huc;
     }
 
     private byte[] verifyChain(X509Certificate[] x509Certificates) throws GeneralSecurityException {
@@ -257,16 +284,7 @@ public class TestCertificateAdd extends ClientTest {
     }
 
     private X509Certificate createCertWithValidity(String validity, boolean login) throws IOException, GeneralSecurityException, UnsupportedEncodingException, MalformedURLException, CertificateException {
-        PKCS10Attributes atts = buildAtts(new ObjectIdentifier[] {
-                CertificateRequest.OID_KEY_USAGE_SSL_CLIENT
-        }, new RFC822Name(email));
-
-        String pem = generatePEMCSR(kp, "CN=a b", atts, "SHA512WithRSA");
-        fillOutForm("CSR=" + URLEncoder.encode(pem, "UTF-8"));
-
-        HttpURLConnection huc = (HttpURLConnection) ncert.openConnection();
-        huc.setRequestProperty("Cookie", cookie);
-        huc.setDoOutput(true);
+        HttpURLConnection huc = openCertificateForm();
         OutputStream out = huc.getOutputStream();
         out.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8")).getBytes("UTF-8"));
         out.write(("&profile=client&CN=" + CertificateRequest.DEFAULT_CN + "&SANs=" + URLEncoder.encode("email:" + email + "\n", "UTF-8")).getBytes("UTF-8"));

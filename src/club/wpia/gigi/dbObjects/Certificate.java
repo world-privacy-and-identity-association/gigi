@@ -162,6 +162,8 @@ public class Certificate implements IdCachable {
 
     private CACertificate ca;
 
+    private String description = "";
+
     /**
      * Creates a new Certificate. WARNING: this is an internal API. Creating
      * certificates for users must be done using the {@link CertificateRequest}
@@ -244,6 +246,7 @@ public class Certificate implements IdCachable {
         owner = CertificateOwner.getById(rs.getInt("memid"));
         profile = CertificateProfile.getById(rs.getInt("profile"));
         this.serial = rs.getString("serial");
+        this.description = rs.getString("description");
 
         try (GigiPreparedStatement ps2 = new GigiPreparedStatement("SELECT `contents`, `type` FROM `subjectAlternativeNames` WHERE `certId`=?")) {
             ps2.setInt(1, id);
@@ -408,7 +411,7 @@ public class Certificate implements IdCachable {
         if (serial == null || "".equals(serial)) {
             return null;
         }
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as `subject`, `md`,`memid`, `profile`, `certs`.`serial` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as `subject`, `md`,`memid`, `profile`, `certs`.`serial`, `certs`.`description` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`")) {
             ps.setString(1, serial);
             GigiResultSet rs = ps.executeQuery();
             if ( !rs.next()) {
@@ -434,7 +437,7 @@ public class Certificate implements IdCachable {
         }
 
         try {
-            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as subject, md, memid, profile, certs.serial FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=certs.id WHERE certs.id=? GROUP BY certs.id")) {
+            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as subject, md, memid, profile, certs.serial, description FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=certs.id WHERE certs.id=? GROUP BY certs.id")) {
                 ps.setInt(1, id);
                 GigiResultSet rs = ps.executeQuery();
                 if ( !rs.next()) {
@@ -565,5 +568,18 @@ public class Certificate implements IdCachable {
             }
             return s;
         }
+    }
+
+    public void setDescription(String description) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `certs` SET `description`=? WHERE `id`=?")) {
+            ps.setString(1, description);
+            ps.setInt(2, id);
+            ps.execute();
+        }
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }
