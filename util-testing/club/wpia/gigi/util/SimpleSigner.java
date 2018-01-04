@@ -100,6 +100,7 @@ public class SimpleSigner {
             p.load(reader);
         }
         ServerConstants.init(p);
+        TimeConditions.init(p);
         DatabaseConnection.init(p);
 
         runSigner();
