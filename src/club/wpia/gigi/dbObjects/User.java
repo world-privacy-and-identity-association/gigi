@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TreeSet;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
@@ -21,11 +22,11 @@ import club.wpia.gigi.email.EmailProvider;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.DateSelector;
 import club.wpia.gigi.pages.PasswordResetPage;
+import club.wpia.gigi.passwords.PasswordStrengthChecker;
 import club.wpia.gigi.util.CalendarUtil;
 import club.wpia.gigi.util.DayDate;
 import club.wpia.gigi.util.Notary;
 import club.wpia.gigi.util.PasswordHash;
-import club.wpia.gigi.util.PasswordStrengthChecker;
 import club.wpia.gigi.util.TimeConditions;
 
 /**
@@ -209,7 +210,17 @@ public class User extends CertificateOwner {
     }
 
     private void setPassword(String newPass) throws GigiApiException {
-        PasswordStrengthChecker.assertStrongPassword(newPass, getNames(), getEmail());
+        Name[] names = getNames();
+        TreeSet<String> nameParts = new TreeSet<>();
+        for (int i = 0; i < names.length; i++) {
+            for (NamePart string : names[i].getParts()) {
+                nameParts.add(string.getValue());
+            }
+        }
+        GigiApiException gaPassword = new PasswordStrengthChecker().checkPassword(newPass, nameParts.toArray(new String[nameParts.size()]), getEmail());
+        if (gaPassword != null) {
+            throw gaPassword;
+        }
         try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE users SET `password`=? WHERE id=?")) {
             ps.setString(1, PasswordHash.hash(newPass));
             ps.setInt(2, getId());
