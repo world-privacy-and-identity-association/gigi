@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import club.wpia.gigi.Gigi;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.GigiResultSet;
@@ -130,7 +131,7 @@ public class Signup extends Form {
         if ( !ga.isEmpty()) {
             throw ga;
         }
-        GigiApiException gaPassword = new PasswordStrengthChecker().checkPassword(pw1, ni.getNamePartsPlain(), email);
+        GigiApiException gaPassword = Gigi.getPasswordChecker().checkPassword(pw1, ni.getNamePartsPlain(), email);
         if (gaPassword != null) {
             throw gaPassword;
         }

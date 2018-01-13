@@ -12,6 +12,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
+import club.wpia.gigi.Gigi;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.GigiResultSet;
@@ -217,7 +218,7 @@ public class User extends CertificateOwner {
                 nameParts.add(string.getValue());
             }
         }
-        GigiApiException gaPassword = new PasswordStrengthChecker().checkPassword(newPass, nameParts.toArray(new String[nameParts.size()]), getEmail());
+        GigiApiException gaPassword = Gigi.getPasswordChecker().checkPassword(newPass, nameParts.toArray(new String[nameParts.size()]), getEmail());
         if (gaPassword != null) {
             throw gaPassword;
         }

@@ -78,6 +78,8 @@ import club.wpia.gigi.pages.statistics.StatisticsRoles;
 import club.wpia.gigi.pages.wot.Points;
 import club.wpia.gigi.pages.wot.RequestTTPPage;
 import club.wpia.gigi.pages.wot.VerifyPage;
+import club.wpia.gigi.passwords.PasswordChecker;
+import club.wpia.gigi.passwords.PasswordStrengthChecker;
 import club.wpia.gigi.ping.PingerDaemon;
 import club.wpia.gigi.util.AuthorizationContext;
 import club.wpia.gigi.util.DomainAssessment;
@@ -245,6 +247,8 @@ public final class Gigi extends HttpServlet {
 
     private static Gigi instance;
 
+    private static PasswordChecker passwordChecker;
+
     private static final Template baseTemplate = new Template(Gigi.class.getResource("Gigi.templ"));
 
     private PingerDaemon pinger;
@@ -273,6 +277,7 @@ public final class Gigi extends HttpServlet {
             this.truststore = truststore;
             pinger = new PingerDaemon(truststore);
             pinger.start();
+            Gigi.passwordChecker = new PasswordStrengthChecker();
         }
     }
 
@@ -519,6 +524,17 @@ public final class Gigi extends HttpServlet {
             instance.pinger.queue(toReping);
         }
         instance.pinger.interrupt();
+    }
+
+    public static PasswordChecker getPasswordChecker() {
+        if (passwordChecker == null) {
+            throw new IllegalStateException("Not yet initialized!");
+        }
+        return passwordChecker;
+    }
+
+    public static void setPasswordChecker(PasswordChecker passwordChecker) {
+        Gigi.passwordChecker = passwordChecker;
     }
 
 }

@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import club.wpia.gigi.Gigi;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.DatabaseConnection;
 import club.wpia.gigi.database.DatabaseConnection.Link;
@@ -42,6 +43,7 @@ import club.wpia.gigi.dbObjects.CertificateProfile;
 import club.wpia.gigi.dbObjects.Domain;
 import club.wpia.gigi.dbObjects.DomainPingType;
 import club.wpia.gigi.dbObjects.User;
+import club.wpia.gigi.passwords.PasswordStrengthChecker;
 import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
 import club.wpia.gigi.util.DatabaseManager;
 import club.wpia.gigi.util.DomainAssessment;
@@ -105,6 +107,7 @@ public abstract class ConfiguredTest {
         TimeConditions.init(props);
         DomainAssessment.init(props);
         PasswordHash.init(props);
+        Gigi.setPasswordChecker(new PasswordStrengthChecker());
 
         if ( !DatabaseConnection.isInited()) {
             DatabaseConnection.init(testProps);
