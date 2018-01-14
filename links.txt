@@ -10,6 +10,7 @@
 /kb/names
 /kb/lostPassword
 /kb/goodPassword
+/kb/knownPasswordHash
 /kb/verificationHandbook
 /kb/truststores
 /ttp/user
