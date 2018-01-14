@@ -592,7 +592,7 @@ public class Certificate implements IdCachable {
         Certificate c = null;
 
         if (serial != null && !serial.isEmpty()) {
-            c = getBySerialFriendly(serial);
+            c = getBySerial(normalizeSerial(serial));
             if (c == null) {
                 return null;
             }
@@ -610,7 +610,7 @@ public class Certificate implements IdCachable {
                 throw new GigiApiException(NOT_PARSED);
             }
             try {
-                c = getBySerialFriendly(c0.getSerialNumber().toString(16));
+                c = getBySerial(c0.getSerialNumber().toString(16));
                 if (c == null) {
                     return null;
                 }
@@ -630,13 +630,20 @@ public class Certificate implements IdCachable {
         return c;
     }
 
-    private static Certificate getBySerialFriendly(String serial) throws GigiApiException {
-        serial = serial.trim().toLowerCase();
+    public static String normalizeSerial(String serial) throws GigiApiException {
+        serial = serial.replace(" ", "");
+        serial = serial.toLowerCase();
+        if (serial.matches("[0-9a-f]{2}(:[0-9a-f]{2})*")) {
+            serial = serial.replace(":", "");
+        }
         int idx = 0;
         while (idx < serial.length() && serial.charAt(idx) == '0') {
             idx++;
         }
         serial = serial.substring(idx);
-        return Certificate.getBySerial(serial);
+        if ( !serial.matches("[0-9a-f]+")) {
+            throw new GigiApiException("Malformed serial");
+        }
+        return serial;
     }
 }

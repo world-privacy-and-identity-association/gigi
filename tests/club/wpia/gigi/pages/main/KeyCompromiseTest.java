@@ -96,8 +96,8 @@ public class KeyCompromiseTest extends ClientTest {
                 params("cert=%cert&priv=%priv", null),// cert+key
                 params("serial=%serial&signature=%signature", null),
                 // Zero serial
-                params("serial=0000&priv=%priv", NOT_FOUND),
-                params("serial=0lkd&priv=%priv", NOT_FOUND),
+                params("serial=0000&priv=%priv", "Malformed serial"),
+                params("serial=0lkd&priv=%priv", "Malformed serial"),
                 // tampered cert
                 params("cert=%tamperedCert&priv=%priv", "not be parsed"),
                 params("cert=%cert&priv=%tamperedPriv", "Private Key is malformed"),
