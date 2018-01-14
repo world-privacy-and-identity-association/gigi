@@ -590,18 +590,13 @@ public class Certificate implements IdCachable {
     }
 
     public static Certificate locateCertificate(String serial, String certData) throws GigiApiException {
-        Certificate c = null;
-
         if (serial != null && !serial.isEmpty()) {
-            c = getBySerial(normalizeSerial(serial));
-            if (c == null) {
-                return null;
-            }
+            return getBySerial(normalizeSerial(serial));
         }
+
         if (certData != null && !certData.isEmpty()) {
-            X509Certificate c0;
-            X509Certificate cert = null;
             final byte[] supplied;
+            final X509Certificate c0;
             try {
                 supplied = PEM.decode("CERTIFICATE", certData);
                 c0 = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(supplied));
@@ -611,24 +606,22 @@ public class Certificate implements IdCachable {
                 throw new GigiApiException(NOT_PARSED);
             }
             try {
-                c = getBySerial(c0.getSerialNumber());
+                Certificate c = getBySerial(c0.getSerialNumber());
                 if (c == null) {
                     return null;
                 }
-                cert = c.cert();
+                X509Certificate cert = c.cert();
                 if ( !Arrays.equals(supplied, cert.getEncoded())) {
                     return null;
                 }
+                return c;
             } catch (IOException e) {
                 throw new GigiApiException(NOT_LOADED);
             } catch (GeneralSecurityException e) {
                 throw new GigiApiException(NOT_LOADED);
             }
         }
-        if (c == null) {
-            throw new GigiApiException("No information to identify the correct certificate was provided.");
-        }
-        return c;
+        throw new GigiApiException("No information to identify the correct certificate was provided.");
     }
 
     public static BigInteger normalizeSerial(String serial) throws GigiApiException {
