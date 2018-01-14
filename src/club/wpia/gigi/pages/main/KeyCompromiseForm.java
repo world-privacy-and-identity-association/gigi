@@ -1,6 +1,5 @@
 package club.wpia.gigi.pages.main;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -8,12 +7,9 @@ import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.Signature;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Locale;
@@ -52,8 +48,6 @@ public class KeyCompromiseForm extends Form {
 
     public static final String CHALLENGE_PREFIX = "This private key has been compromised. Challenge: ";
 
-    public static final TranslateCommand NOT_LOADED = new TranslateCommand("Certificate could not be loaded");
-
     public static final TranslateCommand NOT_FOUND = new TranslateCommand("Certificate to revoke not found");
 
     private static final MailTemplate revocationNotice = new MailTemplate(KeyCompromiseForm.class.getResource("RevocationNotice.templ"));
@@ -68,47 +62,23 @@ public class KeyCompromiseForm extends Form {
         if (RATE_LIMIT.isLimitExceeded(req.getRemoteAddr())) {
             throw new RateLimitException();
         }
-        Certificate c = null;
-        X509Certificate cert = null;
-        String serial = req.getParameter("serial");
-        String certData = req.getParameter("cert");
-        if (serial != null && !serial.isEmpty()) {
-            c = fetchCertificate(serial);
-            try {
-                cert = c.cert();
-            } catch (IOException e) {
-                throw new PermamentFormException(new GigiApiException(NOT_LOADED));
-            } catch (GeneralSecurityException e) {
-                throw new PermamentFormException(new GigiApiException(NOT_LOADED));
+        Certificate c;
+        try {
+            c = Certificate.locateCertificate(req.getParameter("serial"), req.getParameter("cert"));
+            if (c == null) {
+                throw new GigiApiException(NOT_FOUND);
             }
+        } catch (GigiApiException e) {
+            throw new PermamentFormException(e);
         }
-        if (certData != null && !certData.isEmpty()) {
-            X509Certificate c0;
-            byte[] supplied;
-            try {
-                supplied = PEM.decode("CERTIFICATE", certData);
-                c0 = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(supplied));
-            } catch (IllegalArgumentException e1) {
-                throw new PermamentFormException(new GigiApiException("Your certificate could not be parsed"));
-            } catch (CertificateException e1) {
-                throw new PermamentFormException(new GigiApiException("Your certificate could not be parsed"));
-            }
-            try {
-                String ser = c0.getSerialNumber().toString(16);
-                c = fetchCertificate(ser);
-                cert = c.cert();
-                if ( !Arrays.equals(supplied, cert.getEncoded())) {
-                    throw new PermamentFormException(new GigiApiException(NOT_FOUND));
-                }
-            } catch (IOException e) {
-                throw new PermamentFormException(new GigiApiException(NOT_LOADED));
-            } catch (GeneralSecurityException e) {
-                throw new PermamentFormException(new GigiApiException(NOT_LOADED));
-            }
+
+        X509Certificate cert;
+        try {
+            cert = c.cert();
+        } catch (IOException | GeneralSecurityException e) {
+            throw new PermamentFormException(new GigiApiException(Certificate.NOT_LOADED));
         }
-        if (c == null) {
-            throw new PermamentFormException(new GigiApiException("No certificate identification information provided"));
-        }
+
         if (c.getStatus() == CertificateStatus.REVOKED) {
             return new SuccessMessageResult(new TranslateCommand("Certificate had already been revoked"));
         }
@@ -217,21 +187,6 @@ public class KeyCompromiseForm extends Form {
         }
         signature = sig.sign();
         return signature;
-    }
-
-    private Certificate fetchCertificate(String serial) {
-        Certificate c;
-        serial = serial.trim().toLowerCase();
-        int idx = 0;
-        while (idx < serial.length() && serial.charAt(idx) == '0') {
-            idx++;
-        }
-        serial = serial.substring(idx);
-        c = Certificate.getBySerial(serial);
-        if (c == null) {
-            throw new PermamentFormException(new GigiApiException(NOT_FOUND));
-        }
-        return c;
     }
 
     @Override

@@ -3,6 +3,7 @@ package club.wpia.gigi.dbObjects;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.sql.Date;
@@ -163,6 +164,10 @@ public class Certificate implements IdCachable {
     private CACertificate ca;
 
     private String description = "";
+
+    public static final TranslateCommand NOT_LOADED = new TranslateCommand("Certificate could not be loaded");
+
+    public static final TranslateCommand NOT_PARSED = new TranslateCommand("Certificate could not be parsed");
 
     /**
      * Creates a new Certificate. WARNING: this is an internal API. Creating
@@ -581,5 +586,57 @@ public class Certificate implements IdCachable {
 
     public String getDescription() {
         return description;
+    }
+
+    public static Certificate locateCertificate(String serial, String certData) throws GigiApiException {
+        Certificate c = null;
+
+        if (serial != null && !serial.isEmpty()) {
+            c = getBySerialFriendly(serial);
+            if (c == null) {
+                return null;
+            }
+        }
+        if (certData != null && !certData.isEmpty()) {
+            X509Certificate c0;
+            X509Certificate cert = null;
+            final byte[] supplied;
+            try {
+                supplied = PEM.decode("CERTIFICATE", certData);
+                c0 = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(supplied));
+            } catch (IllegalArgumentException e1) {
+                throw new GigiApiException(NOT_PARSED);
+            } catch (CertificateException e1) {
+                throw new GigiApiException(NOT_PARSED);
+            }
+            try {
+                c = getBySerialFriendly(c0.getSerialNumber().toString(16));
+                if (c == null) {
+                    return null;
+                }
+                cert = c.cert();
+                if ( !Arrays.equals(supplied, cert.getEncoded())) {
+                    return null;
+                }
+            } catch (IOException e) {
+                throw new GigiApiException(NOT_LOADED);
+            } catch (GeneralSecurityException e) {
+                throw new GigiApiException(NOT_LOADED);
+            }
+        }
+        if (c == null) {
+            throw new GigiApiException("No information to identify the correct certificate was provided.");
+        }
+        return c;
+    }
+
+    private static Certificate getBySerialFriendly(String serial) throws GigiApiException {
+        serial = serial.trim().toLowerCase();
+        int idx = 0;
+        while (idx < serial.length() && serial.charAt(idx) == '0') {
+            idx++;
+        }
+        serial = serial.substring(idx);
+        return Certificate.getBySerial(serial);
     }
 }

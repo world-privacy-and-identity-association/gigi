@@ -104,10 +104,10 @@ public class KeyCompromiseTest extends ClientTest {
                 params("serial=1&priv=%priv", NOT_FOUND),
                 params("serial=1%serial&priv=%priv", NOT_FOUND),
                 // missing certificate identification
-                params("serial=&cert=&priv=%priv", "identification"),
-                params("cert=&priv=%priv", "identification"),
-                params("serial=&priv=%priv", "identification"),
-                params("priv=%priv", "identification"),
+                params("serial=&cert=&priv=%priv", "No information to identify"),
+                params("cert=&priv=%priv", "No information to identify"),
+                params("serial=&priv=%priv", "No information to identify"),
+                params("priv=%priv", "No information to identify"),
                 // sign missing
                 params("serial=%serial&priv=&signature=", "No verification"),
                 params("serial=%serial&signature=", "No verification"),
@@ -115,7 +115,7 @@ public class KeyCompromiseTest extends ClientTest {
                 params("serial=%serial", "No verification"),
                 params("cert=%cert&signature=%tamperedSignature", "Verification does not match"),
 
-                params("cert=-_&signature=%signature", "certificate could not be parsed"),
+                params("cert=-_&signature=%signature", "Certificate could not be parsed"),
                 params("cert=%cert&signature=-_", "Signature is malformed"),
                 params("cert=%cert&priv=-_", "Private Key is malformed"),
         };
