@@ -259,7 +259,7 @@ public class SSLPinger extends DomainPinger {
             }
 
             BigInteger serial = first.getSerialNumber();
-            Certificate c = Certificate.getBySerial(serial.toString(16));
+            Certificate c = Certificate.getBySerial(serial);
             if (c == null) {
                 return "Certificate not found: Serial " + serial.toString(16) + " missing.";
             }

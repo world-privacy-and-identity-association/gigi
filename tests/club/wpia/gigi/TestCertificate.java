@@ -3,6 +3,7 @@ package club.wpia.gigi;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -80,7 +81,7 @@ public class TestCertificate extends ManagedTest {
 
         testFails(CertificateStatus.ISSUED, c);
 
-        Certificate c2 = Certificate.getBySerial(c.getSerial());
+        Certificate c2 = Certificate.getBySerial(new BigInteger(c.getSerial(), 16));
         assertNotNull(c2);
         assertEquals(2, c2.getSANs().size());
         assertEquals(c.getSANs().get(0).getName(), c2.getSANs().get(0).getName());

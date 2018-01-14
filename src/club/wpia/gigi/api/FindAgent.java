@@ -2,6 +2,7 @@ package club.wpia.gigi.api;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,11 +50,11 @@ public class FindAgent extends APIPoint {
         String pi = req.getPathInfo();
         if (pi.equals(PATH_RESOLVE)) {
             String serial = req.getParameter("serial");
-            if (serial == null) {
+            if (serial == null || serial.isEmpty()) {
                 resp.sendError(500, "Error, requires serial");
                 return;
             }
-            Certificate c = Certificate.getBySerial(serial);
+            Certificate c = Certificate.getBySerial(new BigInteger(serial, 16));
             if (c == null) {
                 resp.sendError(500, "Error, requires serial");
                 return;

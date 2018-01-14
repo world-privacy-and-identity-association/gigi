@@ -1,6 +1,7 @@
 package club.wpia.gigi.api;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +20,7 @@ public abstract class APIPoint {
             resp.sendError(403, "Error, cert authing required. No cert found.");
             return;
         }
-        String serial = LoginPage.extractSerialFormCert(cert);
+        BigInteger serial = LoginPage.extractSerialFormCert(cert);
         Certificate clientCert = Certificate.getBySerial(serial);
         CertificateOwner u = CertificateOwner.getByEnabledSerial(serial);
         if (u == null || clientCert == null) {

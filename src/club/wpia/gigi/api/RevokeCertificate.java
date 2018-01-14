@@ -1,6 +1,7 @@
 package club.wpia.gigi.api;
 
 import java.io.IOException;
+import java.math.BigInteger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,12 +30,12 @@ public class RevokeCertificate extends APIPoint {
         }
 
         String tserial = req.getParameter("serial");
-        if (tserial == null) {
+        if (tserial == null || tserial.isEmpty()) {
             resp.sendError(500, "Error, no Serial found");
             return;
         }
 
-        Certificate c = Certificate.getBySerial(tserial);
+        Certificate c = Certificate.getBySerial(new BigInteger(tserial, 16));
         if (c == null || c.getOwner() != u) {
             resp.sendError(403, "Access Denied");
             return;

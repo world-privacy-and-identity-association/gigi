@@ -1,6 +1,7 @@
 package club.wpia.gigi.pages.account.certs;
 
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -45,7 +46,7 @@ public class CertificateModificationForm extends Form {
         }
         LinkedList<Job> revokes = new LinkedList<Job>();
         for (String serial : certs) {
-            Certificate c = Certificate.getBySerial(serial);
+            Certificate c = Certificate.getBySerial(new BigInteger(serial, 16));
             if (c == null || c.getOwner() != target) {
                 continue;
             }

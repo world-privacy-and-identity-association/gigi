@@ -71,6 +71,6 @@ public class TestSerialNormalization {
                 return;
             }
         }
-        assertEquals(normalized, Certificate.normalizeSerial(input));
+        assertEquals(normalized, Certificate.normalizeSerial(input).toString(16));
     }
 }

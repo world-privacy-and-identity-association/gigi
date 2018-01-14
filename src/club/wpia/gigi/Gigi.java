@@ -3,6 +3,7 @@ package club.wpia.gigi;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
@@ -357,11 +358,11 @@ public final class Gigi extends HttpServlet {
             return;
         }
         HttpSession hs = req.getSession();
-        String clientSerial = (String) hs.getAttribute(CERT_SERIAL);
+        BigInteger clientSerial = (BigInteger) hs.getAttribute(CERT_SERIAL);
         if (clientSerial != null) {
             X509Certificate[] cert = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
             if (cert == null || cert[0] == null//
-                    || !cert[0].getSerialNumber().toString(16).toLowerCase().equals(clientSerial) //
+                    || !cert[0].getSerialNumber().equals(clientSerial) //
                     || !cert[0].getIssuerDN().equals(hs.getAttribute(CERT_ISSUER))) {
                 hs.invalidate();
                 resp.sendError(403, "Certificate mismatch.");

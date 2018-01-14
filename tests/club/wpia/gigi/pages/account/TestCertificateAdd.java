@@ -401,10 +401,10 @@ public class TestCertificateAdd extends ClientTest {
     @Test
     public void testSetLoginEnabled() throws IOException, GeneralSecurityException {
         X509Certificate parsedLoginNotEnabled = createCertWithValidity("&validFrom=now&validity=1m", false);
-        assertNull(CertificateOwner.getByEnabledSerial(parsedLoginNotEnabled.getSerialNumber().toString(16).toLowerCase()));
+        assertNull(CertificateOwner.getByEnabledSerial(parsedLoginNotEnabled.getSerialNumber()));
 
         X509Certificate parsedLoginEnabled = createCertWithValidity("&validFrom=now&validity=1m", true);
-        assertEquals(u, CertificateOwner.getByEnabledSerial(parsedLoginEnabled.getSerialNumber().toString(16).toLowerCase()));
+        assertEquals(u, CertificateOwner.getByEnabledSerial(parsedLoginEnabled.getSerialNumber()));
     }
 
     @Test

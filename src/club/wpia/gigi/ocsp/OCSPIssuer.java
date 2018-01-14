@@ -80,7 +80,7 @@ public class OCSPIssuer {
      *             if encoding fails
      */
     public byte[] respondBytes(OCSPRequest req, CertId id) throws GeneralSecurityException, IOException {
-        Certificate tcert = Certificate.getBySerial(id.getSerialNumber().toString(16).toLowerCase());
+        Certificate tcert = Certificate.getBySerial(id.getSerialNumber());
         if (tcert == null) {
             return OCSPResponse.invalid();
         }

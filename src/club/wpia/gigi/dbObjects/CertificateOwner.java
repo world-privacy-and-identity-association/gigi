@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -139,9 +140,9 @@ public abstract class CertificateOwner implements IdCachable, Serializable {
         }
     }
 
-    public static CertificateOwner getByEnabledSerial(String serial) {
+    public static CertificateOwner getByEnabledSerial(BigInteger serial) {
         try (GigiPreparedStatement prep = new GigiPreparedStatement("SELECT `memid` FROM `certs` INNER JOIN `logincerts` ON `logincerts`.`id`=`certs`.`id` WHERE serial=? AND `revoked` is NULL")) {
-            prep.setString(1, serial);
+            prep.setString(1, serial.toString(16));
             GigiResultSet res = prep.executeQuery();
             if (res.next()) {
                 return getById(res.getInt(1));

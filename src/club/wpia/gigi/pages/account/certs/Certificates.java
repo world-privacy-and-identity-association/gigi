@@ -2,6 +2,7 @@ package club.wpia.gigi.pages.account.certs;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
@@ -72,7 +73,7 @@ public class Certificates extends Page implements HandlesMixedRequest {
             cer = true;
             pi = pi.substring(0, pi.length() - 4);
         }
-        String serial = pi;
+        BigInteger serial = new BigInteger(pi, 16);
         try {
             Certificate c = Certificate.getBySerial(serial);
             if (c == null || ( !support && LoginPage.getAuthorizationContext(req).getTarget().getId() != c.getOwner().getId())) {
@@ -144,7 +145,7 @@ public class Certificates extends Page implements HandlesMixedRequest {
             pi = pi.substring(1);
 
             String serial = pi;
-            Certificate c = Certificate.getBySerial(serial);
+            Certificate c = Certificate.getBySerial(new BigInteger(serial, 16));
             Language l = LoginPage.getLanguage(req);
 
             if (c == null || ( !support && LoginPage.getAuthorizationContext(req).getTarget().getId() != c.getOwner().getId())) {

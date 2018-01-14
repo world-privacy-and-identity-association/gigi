@@ -2,6 +2,7 @@ package club.wpia.gigi.dbObjects;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -412,12 +413,12 @@ public class Certificate implements IdCachable {
 
     private static final String CONCAT = "string_agg(concat('/', `name`, '=', REPLACE(REPLACE(value, '\\\\', '\\\\\\\\'), '/', '\\\\/')), '')";
 
-    public synchronized static Certificate getBySerial(String serial) {
-        if (serial == null || "".equals(serial)) {
+    public synchronized static Certificate getBySerial(BigInteger serial) {
+        if (serial == null) {
             return null;
         }
         try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as `subject`, `md`,`memid`, `profile`, `certs`.`serial`, `certs`.`description` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`")) {
-            ps.setString(1, serial);
+            ps.setString(1, serial.toString(16));
             GigiResultSet rs = ps.executeQuery();
             if ( !rs.next()) {
                 return null;
@@ -610,7 +611,7 @@ public class Certificate implements IdCachable {
                 throw new GigiApiException(NOT_PARSED);
             }
             try {
-                c = getBySerial(c0.getSerialNumber().toString(16));
+                c = getBySerial(c0.getSerialNumber());
                 if (c == null) {
                     return null;
                 }
@@ -630,7 +631,7 @@ public class Certificate implements IdCachable {
         return c;
     }
 
-    public static String normalizeSerial(String serial) throws GigiApiException {
+    public static BigInteger normalizeSerial(String serial) throws GigiApiException {
         serial = serial.replace(" ", "");
         serial = serial.toLowerCase();
         if (serial.matches("[0-9a-f]{2}(:[0-9a-f]{2})*")) {
@@ -644,6 +645,6 @@ public class Certificate implements IdCachable {
         if ( !serial.matches("[0-9a-f]+")) {
             throw new GigiApiException("Malformed serial");
         }
-        return serial;
+        return new BigInteger(serial, 16);
     }
 }

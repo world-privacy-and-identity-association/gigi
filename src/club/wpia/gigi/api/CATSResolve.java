@@ -1,10 +1,12 @@
 package club.wpia.gigi.api;
 
 import java.io.IOException;
+import java.math.BigInteger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.CertificateOwner;
 import club.wpia.gigi.dbObjects.Organisation;
@@ -22,13 +24,19 @@ public class CATSResolve extends CATSRestrictedApi {
             resp.sendError(500, "Error, requires a serial parameter");
             return;
         }
-        target = target.toLowerCase();
-        Certificate clientCert = Certificate.getBySerial(target);
+        BigInteger targetSerial;
+        try {
+            targetSerial = Certificate.normalizeSerial(target);
+        } catch (GigiApiException e) {
+            resp.sendError(500, "Error, requires valid serial");
+            return;
+        }
+        Certificate clientCert = Certificate.getBySerial(targetSerial);
         if (clientCert == null) {
             resp.sendError(500, "Error, requires valid serial");
             return;
         }
-        CertificateOwner o = CertificateOwner.getByEnabledSerial(target);
+        CertificateOwner o = CertificateOwner.getByEnabledSerial(targetSerial);
         if (o instanceof Organisation) {
             Organisation org = (Organisation) o;
             if (org.isSelfOrganisation()) {

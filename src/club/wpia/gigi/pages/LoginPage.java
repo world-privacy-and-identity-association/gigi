@@ -4,6 +4,7 @@ import static club.wpia.gigi.Gigi.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 
@@ -152,7 +153,7 @@ public class LoginPage extends Page {
     }
 
     private void tryAuthWithCertificate(HttpServletRequest req, X509Certificate x509Certificate) {
-        String serial = extractSerialFormCert(x509Certificate);
+        BigInteger serial = extractSerialFormCert(x509Certificate);
         User user = fetchUserBySerial(serial);
         if (user == null) {
             return;
@@ -163,15 +164,11 @@ public class LoginPage extends Page {
         req.getSession().setAttribute(LOGIN_METHOD, new TranslateCommand("Certificate"));
     }
 
-    public static String extractSerialFormCert(X509Certificate x509Certificate) {
-        return x509Certificate.getSerialNumber().toString(16).toLowerCase();
+    public static BigInteger extractSerialFormCert(X509Certificate x509Certificate) {
+        return x509Certificate.getSerialNumber();
     }
 
-    public static User fetchUserBySerial(String serial) {
-        if ( !serial.matches("[a-f0-9]+")) {
-            throw new Error("serial malformed.");
-        }
-
+    public static User fetchUserBySerial(BigInteger serial) {
         CertificateOwner o = CertificateOwner.getByEnabledSerial(serial);
         if (o == null || !(o instanceof User)) {
             return null;
