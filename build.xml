@@ -11,6 +11,7 @@
 	<property name="debuglevel" value="source,lines,vars" />
 	<property name="target" value="1.8" />
 	<property name="source" value="1.8" />
+	<property name="dnsjava" value="/usr/share/java/dnsjava.jar" />
 	<property name="sqlconnector" value="/usr/share/java/postgresql-jdbc4.jar" />
 	<property name="juintexec" value="/usr/share/java" />
 	<path id="JUnit 4.libraryclasspath">
@@ -21,6 +22,7 @@
 		<pathelement location="bin" />
 		<pathelement location="binutil" />
 		<pathelement location="${sqlconnector}" />
+		<pathelement location="${dnsjava}" />
 	</path>
 	<path id="gigi.test.classpath">
 		<pathelement location="bintest" />
@@ -29,6 +31,7 @@
 		<pathelement location="binutil-testing" />
 		<path refid="JUnit 4.libraryclasspath" />
 		<pathelement location="${sqlconnector}" />
+		<pathelement location="${dnsjava}" />
 	</path>
 	<path id="gigi.test.classpath.jdt">
 		<pathelement location="${jdt}" />

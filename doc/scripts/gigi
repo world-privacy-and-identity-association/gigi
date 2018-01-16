@@ -7,6 +7,7 @@
 # assign default values
 : \
     ${JDBC_DRIVER:=/usr/share/java/postgresql-jdbc4.jar} \
+    ${DNSJAVA:=/usr/share/java/dnsjava.jar} \
     ${GIGI_EXEC:=/usr/share/java/gigi.jar} \
     ${GIGI_DATA_DIR:=/var/lib/wpia-gigi}
 
@@ -26,7 +27,7 @@ runGigiClass() {
         java_opts="$1"
         shift
     fi
-    exec java $java_opts -cp "$JDBC_DRIVER:$GIGI_EXEC" club.wpia.gigi.$class "$@"
+    exec java $java_opts -cp "$JDBC_DRIVER:$DNSJAVA:$GIGI_EXEC" club.wpia.gigi.$class "$@"
 }
 
 command="$1"
