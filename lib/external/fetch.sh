@@ -1,5 +1,9 @@
 #!/bin/bash
-wget -N "http://www.dnsjava.org/download/dnsjava-2.1.8.zip" "http://www.dnsjava.org/download/dnsjava-2.1.8.jar"
+externals=(
+    'http://www.dnsjava.org/download/dnsjava-2.1.8.zip'
+    'http://www.dnsjava.org/download/dnsjava-2.1.8.jar'
+)
+wget -N "${externals[@]}"
 if ! sha256sum -c checksums.txt; then
-    rm -vf dnsjava-2.1.8.zip dnsjava-2.1.8.jar
+    rm -vf $(basename -a "${externals[@]}")
 fi
