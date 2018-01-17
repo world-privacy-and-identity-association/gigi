@@ -14,17 +14,15 @@ import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Domain;
-import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.pages.admin.support.FindUserByDomainPage;
-import club.wpia.gigi.pages.admin.support.SupportEnterTicketPage;
 import club.wpia.gigi.pages.admin.support.SupportUserDetailsPage;
-import club.wpia.gigi.testUtils.ClientTest;
 import club.wpia.gigi.testUtils.IOUtils;
+import club.wpia.gigi.testUtils.SEClientTest;
 import club.wpia.gigi.util.ServerConstants;
 import club.wpia.gigi.util.ServerConstants.Host;
 
-public class TestSEAdminPageUserDomainSearch extends ClientTest {
+public class TestSEAdminPageUserDomainSearch extends SEClientTest {
 
     private Domain d;
 
@@ -35,10 +33,6 @@ public class TestSEAdminPageUserDomainSearch extends ClientTest {
     private int tid;
 
     public TestSEAdminPageUserDomainSearch() throws IOException, GigiApiException {
-        grant(u, Group.SUPPORTER);
-        cookie = login(email, TEST_PASSWORD);
-        assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
-
         String mail = createUniqueName() + "@example.com";
         tid = createVerifiedUser("Först", "Secönd", mail, TEST_PASSWORD);
         User user = User.getById(tid);

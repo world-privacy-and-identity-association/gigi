@@ -12,23 +12,17 @@ import java.net.URLEncoder;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
-import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.pages.admin.support.FindUserByEmailPage;
-import club.wpia.gigi.pages.admin.support.SupportEnterTicketPage;
 import club.wpia.gigi.pages.admin.support.SupportUserDetailsPage;
-import club.wpia.gigi.testUtils.ClientTest;
 import club.wpia.gigi.testUtils.IOUtils;
+import club.wpia.gigi.testUtils.SEClientTest;
 import club.wpia.gigi.util.ServerConstants;
 import club.wpia.gigi.util.ServerConstants.Host;
 
-public class TestSEAdminPageUserMailSearch extends ClientTest {
+public class TestSEAdminPageUserMailSearch extends SEClientTest {
 
-    public TestSEAdminPageUserMailSearch() throws IOException, GigiApiException {
-        grant(u, Group.SUPPORTER);
-        cookie = login(email, TEST_PASSWORD);
-        assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
-    }
+    public TestSEAdminPageUserMailSearch() throws IOException, GigiApiException {}
 
     @Test
     public void testFulltextMailSearch() throws MalformedURLException, UnsupportedEncodingException, IOException {

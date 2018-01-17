@@ -17,23 +17,18 @@ import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.localisation.Language;
-import club.wpia.gigi.pages.admin.support.SupportEnterTicketPage;
 import club.wpia.gigi.pages.admin.support.SupportUserDetailsPage;
-import club.wpia.gigi.testUtils.ClientTest;
+import club.wpia.gigi.testUtils.SEClientTest;
 import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
 import club.wpia.gigi.util.ServerConstants;
 
-public class TestSEAdminNotificationMail extends ClientTest {
+public class TestSEAdminNotificationMail extends SEClientTest {
 
     private int targetID;
 
     private String targetEmail;
 
     public TestSEAdminNotificationMail() throws IOException, GigiApiException {
-        grant(u, Group.SUPPORTER);
-        cookie = login(email, TEST_PASSWORD);
-        assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
-
         targetEmail = createUniqueName() + "@example.com";
         String fname = "Först";
         String lname = "Secönd";

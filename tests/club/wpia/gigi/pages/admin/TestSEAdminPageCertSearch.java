@@ -19,19 +19,17 @@ import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.dbObjects.Certificate.RevocationType;
 import club.wpia.gigi.dbObjects.Certificate.SANType;
 import club.wpia.gigi.dbObjects.Digest;
-import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.output.template.Template;
 import club.wpia.gigi.pages.account.certs.Certificates;
 import club.wpia.gigi.pages.admin.support.FindCertPage;
-import club.wpia.gigi.pages.admin.support.SupportEnterTicketPage;
-import club.wpia.gigi.testUtils.ClientTest;
 import club.wpia.gigi.testUtils.IOUtils;
+import club.wpia.gigi.testUtils.SEClientTest;
 import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
 import club.wpia.gigi.util.ServerConstants;
 import club.wpia.gigi.util.ServerConstants.Host;
 
-public class TestSEAdminPageCertSearch extends ClientTest {
+public class TestSEAdminPageCertSearch extends SEClientTest {
 
     private Certificate c;
 
@@ -40,10 +38,6 @@ public class TestSEAdminPageCertSearch extends ClientTest {
     private int id;
 
     public TestSEAdminPageCertSearch() throws IOException, GigiApiException, GeneralSecurityException, InterruptedException {
-        grant(u, Group.SUPPORTER);
-        cookie = login(email, TEST_PASSWORD);
-        assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
-
         certMail = uniq + "_certowner@example.com";
         id = createVerifiedUser("fn", "ln", certMail, TEST_PASSWORD);
         c = createCertificate();
@@ -71,7 +65,7 @@ public class TestSEAdminPageCertSearch extends ClientTest {
     }
 
     @Test
-    public void testRevoke() throws IOException, GeneralSecurityException, GigiApiException, InterruptedException {
+    public void testRevoke() throws IOException {
         URLConnection conn = post(Certificates.SUPPORT_PATH + "/" + c.getSerial(), "action=revoke");
         assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + Certificates.SUPPORT_PATH + "/" + c.getSerial(), conn.getHeaderField("Location"));
         for (int i = 0; i < 2; i++) {
