@@ -1,0 +1,22 @@
+<p>
+<?=_This form allows you to check the status of a certificate.?>
+<?=_You may upload the certificate as PEM or may identify the certificate by its serial.?>
+</p>
+
+<table class="table">
+  <tbody>
+  <tr>
+    <td><?=_Certificate?>: </td>
+    <td>
+      <textarea class="form-control" name="cert" rows="3" cols="40" placeholder="<?=_Certificate?>"></textarea>
+    </td>
+    <td><?=_or serial number:?></td>
+    <td>
+      <input type="text" class="form-control" name="serial" placeholder="<?=_Certificate Serial Number (hexadecimal)?>">
+    </td>
+  </tr>
+  <tr>
+    <td colspan="4"><input class="btn btn-primary" type="submit" name="process" value="<?=_Next?>"></td>
+  </tr>
+  </tbody>
+</table>

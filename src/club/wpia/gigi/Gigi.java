@@ -67,6 +67,7 @@ import club.wpia.gigi.pages.admin.support.SupportEnterTicketPage;
 import club.wpia.gigi.pages.admin.support.SupportUserDetailsPage;
 import club.wpia.gigi.pages.error.AccessDenied;
 import club.wpia.gigi.pages.error.PageNotFound;
+import club.wpia.gigi.pages.main.CertStatusRequestPage;
 import club.wpia.gigi.pages.main.KeyCompromisePage;
 import club.wpia.gigi.pages.main.RegisterPage;
 import club.wpia.gigi.pages.orga.CreateOrgPage;
@@ -142,6 +143,7 @@ public final class Gigi extends HttpServlet {
             putPage(StatisticsRoles.PATH, new StatisticsRoles(), mainMenu);
             putPage("/about", new AboutPage(), mainMenu);
             putPage(RegisterPage.PATH, new RegisterPage(), mainMenu);
+            putPage(CertStatusRequestPage.PATH, new CertStatusRequestPage(), mainMenu);
             putPage(KeyCompromisePage.PATH, new KeyCompromisePage(), mainMenu);
 
             putPage(Verify.PATH, new Verify(), null);
