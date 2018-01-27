@@ -10,14 +10,14 @@ Homepage: https://wpia.club
 
 Package: wpia-gigi
 Architecture: all
-Depends: java7-runtime-headless, wpia-gigi-setuid, libpostgresql-jdbc-java, ${shlibs:Depends}, ${misc:Depends}
+Depends: java7-runtime-headless, wpia-gigi-setuid, libpostgresql-jdbc-java, libdnsjava-java, ${shlibs:Depends}, ${misc:Depends}
 Conflicts: wpia-gigi-testing
 Description: WPIA Web-DB software.
  This program is used to manage accounts and certificates.
 
 Package: wpia-gigi-testing
 Architecture: all
-Depends:  java7-runtime-headless, wpia-gigi-setuid, libpostgresql-jdbc-java, ${shlibs:Depends}, ${misc:Depends}
+Depends:  java7-runtime-headless, wpia-gigi-setuid, libpostgresql-jdbc-java, libdnsjava-java, ${shlibs:Depends}, ${misc:Depends}
 Conflicts: wpia-gigi
 Description: WPIA Web-DB software testing version.
  This program is the release to the testing server.

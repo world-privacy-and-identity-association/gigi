@@ -7,7 +7,7 @@ Conflicts=gigi-standalone.service
 PartOf=gigi-proxy.socket
 
 [Service]
-ExecStart=/usr/bin/java -cp /usr/share/java/postgresql-jdbc4.jar:/usr/share/java/gigi.jar club.wpia.gigi.Launcher /etc/wpia/gigi/conf.tar
+ExecStart=/usr/bin/java -cp /usr/share/java/postgresql-jdbc4.jar:/usr/share/java/dnsjava.jar:/usr/share/java/gigi.jar club.wpia.gigi.Launcher /etc/wpia/gigi/conf.tar
 StandardInput=socket
 StandardOutput=journal
 StandardError=journal
