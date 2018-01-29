@@ -558,7 +558,12 @@ public class SimpleSigner {
                 case "OCSPSigning":
                     oid = new ObjectIdentifier("1.3.6.1.5.5.7.3.9");
                     break;
-
+                case "msCodeInd":
+                    oid = new ObjectIdentifier("1.3.6.1.4.1.311.2.1.21");
+                    break;
+                case "msCodeCom":
+                    oid = new ObjectIdentifier("1.3.6.1.4.1.311.2.1.22");
+                    break;
                 default:
                     throw new Error(name);
                 }
