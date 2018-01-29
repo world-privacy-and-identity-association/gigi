@@ -53,7 +53,7 @@ public class Signup extends Form {
         vars.put("name", ni);
         vars.put("dob", myDoB);
         vars.put("email", HTMLEncoder.encodeHTML(email));
-        vars.put("helpOnNames", new SprintfCommand("Help on Names {0}in the wiki{1}", Arrays.asList("!(/wiki/names", "!'</a>")));
+        vars.put("helpOnNames", new SprintfCommand("Help on Names {0}in the knowledge base{1}", Arrays.asList("!(/kb/names", "!'</a>")));
         vars.put("csrf", getCSRFToken());
         vars.put("dobmin", User.MINIMUM_AGE + "");
         vars.put("countryCode", cs);
@@ -129,7 +129,7 @@ public class Signup extends Form {
         }
         int pwpoints = PasswordStrengthChecker.checkpw(pw1, ni.getNamePartsPlain(), email);
         if (pwpoints < 3) {
-            ga.mergeInto(new GigiApiException(new SprintfCommand("The Password you submitted failed to contain enough differing characters and/or contained words from your name and/or email address. For the current requirements and to learn more, visit our {0}FAQ{1}.", Arrays.asList("!(/wiki/goodPassword", "!'</a>'"))));
+            ga.mergeInto(new GigiApiException(new SprintfCommand("The Password you submitted failed to contain enough differing characters and/or contained words from your name and/or email address. For the current requirements and to learn more, visit our {0}FAQ{1}.", Arrays.asList("!(/kb/goodPassword", "!'</a>'"))));
         }
         if ( !ga.isEmpty()) {
             throw ga;
