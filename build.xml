@@ -84,9 +84,9 @@
 	<target depends="clean,clean-test" name="cleanall" />
 	<target depends="build-project, build-testing, native" name="build" />
 	<target depends="init" name="build-project">
-		<exec outputproperty="git-version" executable="git">
-			<arg line="rev-parse"/>
-			<arg line="HEAD"/>
+		<exec outputproperty="git-version" executable="sh">
+			<arg value="-c"/>
+			<arg value="git describe HEAD --tags --match &quot;v*&quot; | sed &quot;s/^v//&quot;"/>
 		</exec>
 		<manifest file="Gigi.MF">
 			<attribute name="Main-Class" value="club.wpia.gigi.Launcher" />
