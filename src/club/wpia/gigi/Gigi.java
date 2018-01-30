@@ -71,6 +71,7 @@ import club.wpia.gigi.pages.main.CertStatusRequestPage;
 import club.wpia.gigi.pages.main.KeyCompromisePage;
 import club.wpia.gigi.pages.main.RegisterPage;
 import club.wpia.gigi.pages.orga.CreateOrgPage;
+import club.wpia.gigi.pages.orga.SwitchOrganisation;
 import club.wpia.gigi.pages.orga.ViewOrgPage;
 import club.wpia.gigi.pages.statistics.StatisticsRoles;
 import club.wpia.gigi.pages.wot.Points;
@@ -164,6 +165,7 @@ public final class Gigi extends HttpServlet {
             putPage(TTPAdminPage.PATH + "/*", new TTPAdminPage(), admMenu);
             putPage(CreateOrgPage.DEFAULT_PATH, new CreateOrgPage(), orgAdm);
             putPage(ViewOrgPage.DEFAULT_PATH + "/*", new ViewOrgPage(), orgAdm);
+            putPage(SwitchOrganisation.PATH, new SwitchOrganisation(), orgAdm);
 
             Menu support = createMenu("Support Console");
             putPage(SupportEnterTicketPage.PATH, new SupportEnterTicketPage(), support);

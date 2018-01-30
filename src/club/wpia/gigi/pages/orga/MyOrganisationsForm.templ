@@ -1,0 +1,9 @@
+<h2><?=_My Organisations?></h2>
+<? if($personal) { ?>
+<button class="btn btn-primary" type='submit' value='personal' name='org-leave'/><?=_Switch back to personal context?></button>
+<? } ?>
+<table class="table">
+<? foreach($orgas) { ?>
+<tr><td><?=$orgName?></td><td><?=$orgID?></td><td><button class="btn btn-info" type='submit' value='y' name='org:<?=$orgID?>'/><?=_Switch to this organisation?></button></td></tr>
+<? } ?>
+</table>
