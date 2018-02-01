@@ -39,7 +39,7 @@ public class AffiliationForm extends Form {
         } else if (req.getParameter("do_affiliate") != null) {
             User byEmail = User.getByEmail(req.getParameter("email"));
             if (byEmail == null) {
-                throw new GigiApiException("To add an admin, the email address is required.");
+                throw new GigiApiException("To add an admin, the email address needs to be known to the system.");
             }
             if (byEmail.canVerify()) {
                 o.addAdmin(byEmail, LoginPage.getUser(req), req.getParameter("master") != null);
