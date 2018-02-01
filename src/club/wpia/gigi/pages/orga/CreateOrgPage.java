@@ -1,7 +1,6 @@
 package club.wpia.gigi.pages.orga;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +26,6 @@ public class CreateOrgPage extends ManagedFormPage {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        new CreateOrgForm(req).output(resp.getWriter(), getLanguage(req), new HashMap<String, Object>());
+        new CreateOrgForm(req).output(resp.getWriter(), getLanguage(req), getDefaultVars(req));
     }
 }
