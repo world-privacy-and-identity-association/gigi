@@ -21,6 +21,7 @@ import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.Outputable;
 import club.wpia.gigi.util.HTMLEncoder;
 import club.wpia.gigi.util.PEM;
+import club.wpia.gigi.util.ServerConstants;
 
 public class RootCertPage extends Page {
 
@@ -29,6 +30,8 @@ public class RootCertPage extends Page {
     private final CACertificate[] cs;
 
     private final OutputableCertificate rootP;
+
+    private final String appName = ServerConstants.getAppName().toLowerCase();
 
     private class OutputableCertificate implements Outputable {
 
@@ -97,6 +100,7 @@ public class RootCertPage extends Page {
     public boolean beforeTemplate(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         if (req.getParameter("pem") != null && root != null) {
             resp.setContentType("application/x-x509-ca-cert");
+            resp.setHeader("Content-Disposition", "attachment; filename=\"" + appName + "_roots.crt\"");
             ServletOutputStream out = resp.getOutputStream();
             try {
                 out.println(PEM.encode("CERTIFICATE", root.getEncoded()));
@@ -106,6 +110,7 @@ public class RootCertPage extends Page {
             return true;
         } else if (req.getParameter("cer") != null && root != null) {
             resp.setContentType("application/x-x509-ca-cert");
+            resp.setHeader("Content-Disposition", "attachment; filename=\"" + appName + "_roots.cer\"");
             ServletOutputStream out = resp.getOutputStream();
             try {
                 out.write(root.getEncoded());
