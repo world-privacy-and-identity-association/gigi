@@ -2,13 +2,13 @@ package club.wpia.gigi.pages;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -16,9 +16,11 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.CACertificate;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.Outputable;
+import club.wpia.gigi.util.CertExporter;
 import club.wpia.gigi.util.HTMLEncoder;
 import club.wpia.gigi.util.PEM;
 import club.wpia.gigi.util.ServerConstants;
@@ -108,6 +110,20 @@ public class RootCertPage extends Page {
                 e.printStackTrace();
             }
             return true;
+        } else if (req.getParameter("bundle") != null && root != null) {
+            resp.setContentType("application/x-x509-ca-cert");
+            resp.setHeader("Content-Disposition", "attachment; filename=\"" + appName + "_intermediate_bundle.p7b\"");
+            ServletOutputStream out = resp.getOutputStream();
+            try {
+                CertExporter.writeCertBundle(out);
+            } catch (CertificateEncodingException e) {
+                e.printStackTrace();
+            } catch (GeneralSecurityException e) {
+                e.printStackTrace();
+            } catch (GigiApiException e) {
+                e.printStackTrace();
+            }
+            return true;
         } else if (req.getParameter("cer") != null && root != null) {
             resp.setContentType("application/x-x509-ca-cert");
             resp.setHeader("Content-Disposition", "attachment; filename=\"" + appName + "_roots.cer\"");
@@ -124,8 +140,9 @@ public class RootCertPage extends Page {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        HashMap<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = Page.getDefaultVars(req);
         map.put("root", rootP);
+        map.put("bundle", appName + "_intermediate_bundle.p7b");
         getDefaultTemplate().output(resp.getWriter(), getLanguage(req), map);
 
     }

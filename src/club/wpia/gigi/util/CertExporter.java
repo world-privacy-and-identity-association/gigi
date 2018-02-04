@@ -1,6 +1,7 @@
 package club.wpia.gigi.util;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.cert.CRLException;
@@ -58,7 +59,12 @@ public class CertExporter {
     }
 
     private static PKCS7 toP7Chain(Certificate c) throws IOException, GeneralSecurityException, GigiApiException {
-        LinkedList<X509Certificate> ll = getChain(c);
+
+        return generateP7Bundle(getChain(c));
+
+    }
+
+    private static PKCS7 generateP7Bundle(LinkedList<X509Certificate> ll) {
         PKCS7 p7 = new PKCS7(new AlgorithmId[0], new ContentInfo(ContentInfo.DATA_OID, null), ll.toArray(new X509Certificate[ll.size()]), new SignerInfo[0]) {
 
             @Override
@@ -164,4 +170,17 @@ public class CertExporter {
         return ll;
     }
 
+    public static void writeCertBundle(OutputStream out) throws IOException, GeneralSecurityException, GigiApiException {
+
+        CACertificate[] cs = CACertificate.getAll();
+        LinkedList<X509Certificate> ll = new LinkedList<>();
+        for (CACertificate cb : cs) {
+            if ( !cb.isSelfsigned()) {
+                ll.add(cb.getCertificate());
+            }
+        }
+
+        PKCS7 p7 = generateP7Bundle(ll);
+        p7.encodeSignedData(out);
+    }
 }
