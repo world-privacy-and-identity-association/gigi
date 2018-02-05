@@ -35,6 +35,7 @@ import club.wpia.gigi.util.DomainAssessment;
 import club.wpia.gigi.util.PEM;
 import club.wpia.gigi.util.RateLimit;
 import club.wpia.gigi.util.ServerConstants;
+import club.wpia.gigi.util.TimeConditions;
 import sun.security.pkcs.PKCS9Attribute;
 import sun.security.pkcs10.PKCS10;
 import sun.security.pkcs10.PKCS10Attribute;
@@ -356,8 +357,8 @@ public class CertificateRequest {
                         valid = false;
                     }
                 }
-            } else if (san.getType() == SANType.EMAIL) {
-                if (emailTemp != null && owner.isValidEmail(san.getName())) {
+            } else if (san.getType() == SANType.EMAIL && emailTemp != null) {
+                if (owner.isValidEmail(san.getName())) {
                     if (pMail != null && !emailTemp.isMultiple()) {
                         // remove
                     } else {
@@ -367,6 +368,11 @@ public class CertificateRequest {
                         filteredSANs.add(san);
                         continue;
                     }
+                } else {
+                    // remove
+                    error.mergeInto(new GigiApiException(SprintfCommand.createSimple(//
+                            "The requested subject alternate name email address \"{0}\" needs an email ping within the past {1} months.", san.getType().toString().toLowerCase() + ":" + san.getName(), TimeConditions.getInstance().getEmailPingMonths())));
+                    break;
                 }
             }
             error.mergeInto(new GigiApiException(SprintfCommand.createSimple(//

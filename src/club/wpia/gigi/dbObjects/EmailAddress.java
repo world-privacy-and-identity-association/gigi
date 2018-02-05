@@ -13,6 +13,7 @@ import club.wpia.gigi.email.MailProbe;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.SprintfCommand;
 import club.wpia.gigi.util.RandomToken;
+import club.wpia.gigi.util.TimeConditions;
 
 public class EmailAddress implements IdCachable, Verifyable {
 
@@ -122,9 +123,10 @@ public class EmailAddress implements IdCachable, Verifyable {
     }
 
     public boolean isVerified() {
-        try (GigiPreparedStatement statmt = new GigiPreparedStatement("SELECT 1 FROM `emailPinglog` WHERE `email`=? AND `uid`=? AND `type`='active' AND `status`='success'")) {
+        try (GigiPreparedStatement statmt = new GigiPreparedStatement("SELECT 1 FROM `emailPinglog` WHERE `email`=? AND `uid`=? AND `type`='active' AND `status`='success' AND `when` > (now() - interval '1 months' * ?::INTEGER)")) {
             statmt.setString(1, address);
             statmt.setInt(2, owner.getId());
+            statmt.setInt(3, TimeConditions.getInstance().getEmailPingMonths());
             GigiResultSet e = statmt.executeQuery();
             return e.next();
         }

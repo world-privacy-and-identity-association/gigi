@@ -6,14 +6,19 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
+import java.util.Locale;
 
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.database.GigiPreparedStatement;
+import club.wpia.gigi.dbObjects.EmailAddress;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.pages.account.certs.CertificateRequest;
 import club.wpia.gigi.testUtils.ClientTest;
+import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
 import club.wpia.gigi.util.AuthorizationContext;
+import club.wpia.gigi.util.TimeConditions;
 
 public class TestCertificateRequest extends ClientTest {
 
@@ -82,6 +87,52 @@ public class TestCertificateRequest extends ClientTest {
             fail();
         } catch (GigiApiException e) {
             assertThat(e.getMessage(), containsString("Certificate Profile is invalid."));
+        }
+
+    }
+
+    @Test
+    public void testPingPeriodOneAddress() throws IOException, GeneralSecurityException, GigiApiException {
+        // get new email address with last ping in past
+        String furtherEmail = createUniqueName() + "@example.org";
+        EmailAddress ea = new EmailAddress(u, furtherEmail, Locale.ENGLISH);
+        TestMail mail = getMailReceiver().receive(furtherEmail);
+        try (GigiPreparedStatement stmt = new GigiPreparedStatement("UPDATE `emailPinglog` SET `status`='success'::`pingState`, `when` = (now() - interval '1 months' * ?::INTEGER) WHERE `email`=? ")) {
+            stmt.setInt(1, TimeConditions.getInstance().getEmailPingMonths());
+            stmt.setString(2, furtherEmail);
+            stmt.executeUpdate();
+        }
+
+        try {
+            CertificateRequest cr = new CertificateRequest(ac, generatePEMCSR(kp, "CN=a ab"));
+            cr.update("name", "SHA512", "mail", null, null, "email:" + furtherEmail);
+            cr.draft();
+            fail();
+        } catch (GigiApiException e) {
+            assertThat(e.getMessage(), containsString("needs an email ping within the past"));
+        }
+
+    }
+
+    @Test
+    public void testPingPeriodTwoAddresses() throws IOException, GeneralSecurityException, GigiApiException {
+        // get new email address with last ping in past
+        String furtherEmail = createUniqueName() + "@example.org";
+        EmailAddress ea = new EmailAddress(u, furtherEmail, Locale.ENGLISH);
+        TestMail mail = getMailReceiver().receive(furtherEmail);
+        try (GigiPreparedStatement stmt = new GigiPreparedStatement("UPDATE `emailPinglog` SET `status`='success'::`pingState`, `when` = (now() - interval '1 months' * ?::INTEGER) WHERE `email`=? ")) {
+            stmt.setInt(1, TimeConditions.getInstance().getEmailPingMonths());
+            stmt.setString(2, furtherEmail);
+            stmt.executeUpdate();
+        }
+
+        try {
+            CertificateRequest cr = new CertificateRequest(ac, generatePEMCSR(kp, "CN=a ab"));
+            cr.update("name", "SHA512", "mail", null, null, "email:" + furtherEmail + ",email:" + email);
+            cr.draft();
+            fail();
+        } catch (GigiApiException e) {
+            assertThat(e.getMessage(), containsString("needs an email ping within the past"));
         }
 
     }
