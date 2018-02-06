@@ -120,24 +120,31 @@ public class LoginPage extends Page {
         try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `password`, `id` FROM `users` WHERE `email`=? AND verified='1'")) {
             ps.setString(1, un);
             GigiResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                String dbHash = rs.getString(1);
-                String hash = PasswordHash.verifyHash(pw, dbHash);
-                if (hash != null) {
-                    if ( !hash.equals(dbHash)) {
-                        try (GigiPreparedStatement gps = new GigiPreparedStatement("UPDATE `users` SET `password`=? WHERE `email`=?")) {
-                            gps.setString(1, hash);
-                            gps.setString(2, un);
-                            gps.executeUpdate();
-                        }
+            if ( !rs.next()) {
+                throw new GigiApiException("Username and password didn't match.");
+            }
+
+            User user = User.getById(rs.getInt(2));
+            if (user == null) {
+                throw new GigiApiException("Username and password didn't match.");
+            }
+
+            String dbHash = rs.getString(1);
+            String hash = PasswordHash.verifyHash(pw, dbHash);
+            if (hash != null) {
+                if ( !hash.equals(dbHash)) {
+                    try (GigiPreparedStatement gps = new GigiPreparedStatement("UPDATE `users` SET `password`=? WHERE `email`=?")) {
+                        gps.setString(1, hash);
+                        gps.setString(2, un);
+                        gps.executeUpdate();
                     }
-                    loginSession(req, User.getById(rs.getInt(2)));
-                    req.getSession().setAttribute(LOGIN_METHOD, new TranslateCommand("Password"));
-                    return;
                 }
+
+                loginSession(req, user);
+                req.getSession().setAttribute(LOGIN_METHOD, new TranslateCommand("Password"));
+                return;
             }
         }
-        throw new GigiApiException("Username and password didn't match.");
     }
 
     public static User getUser(HttpServletRequest req) {

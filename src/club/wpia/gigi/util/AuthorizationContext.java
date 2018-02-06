@@ -18,24 +18,37 @@ public class AuthorizationContext implements Outputable, Serializable {
 
     private static final long serialVersionUID = -2596733469159940154L;
 
-    private CertificateOwner target;
+    private final CertificateOwner target;
 
-    private User actor;
+    private final User actor;
 
-    private String supporterTicketId;
+    private final String supporterTicketId;
 
     public AuthorizationContext(CertificateOwner target, User actor) {
+        if (actor == null) {
+            throw new Error("Internal Error: The actor of an AuthorizationContext must not be null!");
+        }
+        if (target == null) {
+            throw new Error("Internal Error: The target of an AuthorizationContext must not be null!");
+        }
         this.target = target;
         this.actor = actor;
+        this.supporterTicketId = null;
     }
 
     public AuthorizationContext(User actor, String supporterTicket) throws GigiApiException {
+        if (actor == null) {
+            throw new Error("Internal Error: The actor of an AuthorizationContext must not be null!");
+        }
+        if (supporterTicket == null) {
+            throw new Error("Internal Error: The AuthorizationContext for a Support Engineer requires a valid ticket!");
+        }
         this.target = actor;
         this.actor = actor;
         if ( !isInGroup(Group.SUPPORTER)) {
             throw new GigiApiException("requires a supporter");
         }
-        supporterTicketId = supporterTicket;
+        this.supporterTicketId = supporterTicket;
     }
 
     public CertificateOwner getTarget() {
@@ -50,7 +63,7 @@ public class AuthorizationContext implements Outputable, Serializable {
         return actor.isInGroup(g);
     }
 
-    public User getActor(AuthorizationContext ac) {
+    public static User getActor(AuthorizationContext ac) {
         if (ac == null) {
             return null;
         }
