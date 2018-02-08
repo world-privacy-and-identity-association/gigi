@@ -15,3 +15,4 @@
 /ttp/country
 /blog
 /imprint
+/isocode http://www.iso.org/iso/home/standards/country_codes/iso-3166-1_decoding_table.htm

@@ -13,11 +13,12 @@ import club.wpia.gigi.dbObjects.Organisation;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.Form;
+import club.wpia.gigi.output.template.Form.CSRFException;
 import club.wpia.gigi.output.template.IterableDataset;
 import club.wpia.gigi.output.template.Template;
-import club.wpia.gigi.output.template.Form.CSRFException;
 import club.wpia.gigi.pages.LoginPage;
 import club.wpia.gigi.pages.ManagedMultiFormPage;
+import club.wpia.gigi.pages.Page;
 import club.wpia.gigi.pages.account.domain.DomainManagementForm;
 import club.wpia.gigi.util.AuthorizationContext;
 
@@ -91,7 +92,7 @@ public class ViewOrgPage extends ManagedMultiFormPage {
             resp.sendError(404);
             return;
         }
-        HashMap<String, Object> vars = new HashMap<>();
+        Map<String, Object> vars = Page.getDefaultVars(req);
         if (orgAss) {
             vars.put("editForm", new CreateOrgForm(req, o));
             vars.put("affForm", new AffiliationForm(req, o));
