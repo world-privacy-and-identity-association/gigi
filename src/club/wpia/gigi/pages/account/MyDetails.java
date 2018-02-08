@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import club.wpia.gigi.output.template.Form;
 import club.wpia.gigi.pages.LoginPage;
 import club.wpia.gigi.pages.Page;
+import club.wpia.gigi.pages.orga.MyOrganisationsForm;
 
 public class MyDetails extends Page {
 

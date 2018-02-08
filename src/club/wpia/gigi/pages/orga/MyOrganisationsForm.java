@@ -1,4 +1,4 @@
-package club.wpia.gigi.pages.account;
+package club.wpia.gigi.pages.orga;
 
 import java.io.PrintWriter;
 import java.util.Enumeration;
@@ -33,7 +33,7 @@ public class MyOrganisationsForm extends Form {
     public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         if (req.getParameter("org-leave") != null) {
             req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(target.getActor(), target.getActor()));
-            return new RedirectResult(MyDetails.PATH);
+            return new RedirectResult(SwitchOrganisation.PATH);
         }
         Enumeration<String> i = req.getParameterNames();
         int orgId = -1;
@@ -52,7 +52,7 @@ public class MyOrganisationsForm extends Form {
             if (org.getId() == orgId) {
 
                 req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(org, target.getActor()));
-                return new RedirectResult(MyDetails.PATH);
+                return new RedirectResult(SwitchOrganisation.PATH);
             }
         }
         throw new PermamentFormException(new GigiApiException("Context switch failed."));
