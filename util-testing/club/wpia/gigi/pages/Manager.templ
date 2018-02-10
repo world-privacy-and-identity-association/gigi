@@ -1,10 +1,10 @@
 <form method='post'>
 <table class="table">
 <tr><td>
-Batch create users:
+Batch Create Users:
 </td><td></td><td>
 <div>
-  Email: 
+  Email:
   <input type="text" name="prefix"/> NNN@
   <input type="text" name="suffix"/>
 </div>
@@ -12,9 +12,9 @@ Amount:  <input type="slider" name="amount"/> <input type="submit" name="create"
 </td></tr>
 
 <tr><td>
-Add privilege:
+Add Privilege:
 </td><td>
-Email: <input type="text" name="email"/> 
+Email: <input type="text" name="email"/>
 </td><td>
 <select name="priv">
 <option>supporter</option>
@@ -27,8 +27,8 @@ Email: <input type="text" name="email"/>
 <option>codesigning</option>
 <option>org-agent</option>
 </select>
-<input type="submit" name="addpriv" value="Grant Privillege"/>
-<input type="submit" name="delpriv" value="Revoke Privillege"/>
+<input type="submit" name="addpriv" value="Grant Privilege"/>
+<input type="submit" name="delpriv" value="Revoke Privilege"/>
 </td><tr>
 
 <tr><td>
@@ -40,7 +40,7 @@ Email: <input type="text" name="femail"/>
 </td><tr>
 
 <tr><td>
-Add CATs entry:
+Add Qualifying Challenge Entry:
 </td><td>
 Email: <input type="text" name="catsEmail"/>
 </td><td>
@@ -49,7 +49,7 @@ Email: <input type="text" name="catsEmail"/>
 <option value="<?=$id?>"><?=$name?></option>
 <? } ?>
 </select>
-<input type="submit" value="Add CATs" name="cats"/>
+<input type="submit" value="Add Challenge" name="cats"/>
 </td></tr>
 <tr><td>
 Add 100 Verification Points:
@@ -62,7 +62,7 @@ Verification Points to issue to preferred name: </br>
 </td></tr>
 
 <tr><td>
-Verify 25 others (get 100 Experience Points)	:
+Verify 25 Others (get 100 Experience Points):
 </td><td>
 Email: <input type="text" name="letverifyEmail"/>
 </td><td>
@@ -70,12 +70,12 @@ Email: <input type="text" name="letverifyEmail"/>
 </td></tr>
 
 <tr><td>
-Add verified Email:
+Add Verified Email:
 </td><td>
 Email: <input type="text" name="addEmailEmail"/>
 </td><td>
-new Email: <input type="text" name="addEmailNew"/>
-<input type="submit" value="Add verified Email" name="addEmail"/>
+New Email: <input type="text" name="addEmailNew"/>
+<input type="submit" value="Add Verified Email" name="addEmail"/>
 </td></tr>
 
 <tr><td>
@@ -83,7 +83,7 @@ Add Client Cert:
 </td><td>
 Email: <input type="text" name="addCertEmail"/>
 </td><td>
-<input type="submit" value="Add an certificate" name="addCert"/>
+<input type="submit" value="Add a Certificate" name="addCert"/>
 </td></tr>
 
 <tr><td>
@@ -98,7 +98,7 @@ Domain: <input type="text" name="exemptDom"/>
 
 <table>
 <tr><th colspan="2">
-Test server settings
+Test Server Settings
 </th></tr>
 
 <tr><td>
