@@ -64,6 +64,7 @@ import club.wpia.gigi.pages.admin.support.FindCertPage;
 import club.wpia.gigi.pages.admin.support.FindUserByDomainPage;
 import club.wpia.gigi.pages.admin.support.FindUserByEmailPage;
 import club.wpia.gigi.pages.admin.support.SupportEnterTicketPage;
+import club.wpia.gigi.pages.admin.support.SupportOrgDomainPage;
 import club.wpia.gigi.pages.admin.support.SupportUserDetailsPage;
 import club.wpia.gigi.pages.error.AccessDenied;
 import club.wpia.gigi.pages.error.PageNotFound;
@@ -175,6 +176,7 @@ public final class Gigi extends HttpServlet {
 
             Menu account = createMenu("My Account");
             putPage(SupportUserDetailsPage.PATH + "*", new SupportUserDetailsPage(), null);
+            putPage(SupportOrgDomainPage.PATH + "*", new SupportOrgDomainPage(), null);
             putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), account);
             putPage(History.PATH, new History(false), account);
             putPage(FindAgentAccess.PATH, new OneFormPage("Access to Find Agent", FindAgentAccess.class), account);

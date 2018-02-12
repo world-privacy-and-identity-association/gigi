@@ -59,7 +59,7 @@ public class FindUserByDomainForm extends Form {
         if (res instanceof User) {
             return new RedirectResult(SupportUserDetailsPage.PATH + res.getId() + "/");
         } else if (res instanceof Organisation) {
-            return new RedirectResult("/support/domain/" + res.getId());
+            return new RedirectResult(SupportOrgDomainPage.PATH + d.getId());
         } else {
             throw new PermamentFormException(new GigiApiException("Unknown owner type."));
         }
