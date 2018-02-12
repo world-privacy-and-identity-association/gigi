@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import club.wpia.gigi.Gigi;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.Name;
@@ -20,6 +21,8 @@ import club.wpia.gigi.output.template.Form;
 import club.wpia.gigi.output.template.Template;
 import club.wpia.gigi.output.template.TranslateCommand;
 import club.wpia.gigi.pages.LoginPage;
+import club.wpia.gigi.pages.account.MyDetails;
+import club.wpia.gigi.util.AuthorizationContext;
 
 public class SupportUserDetailsForm extends Form {
 
@@ -42,12 +45,25 @@ public class SupportUserDetailsForm extends Form {
         if (user.getTicket() == null) {
             throw new GigiApiException("No ticket number set.");
         }
-        if (user.getTargetUser() == LoginPage.getUser(req)) {
-            throw new GigiApiException("Supporter may not modify himself.");
-        }
+
         if ((req.getParameter("detailupdate") != null ? 1 : 0) + (req.getParameter("addGroup") != null ? 1 : 0) + (req.getParameter("removeGroup") != null ? 1 : 0) + (req.getParameter("resetPass") != null ? 1 : 0) != 1) {
             throw new GigiApiException("More than one action requested!");
         }
+
+        if (user.getTargetUser() == LoginPage.getUser(req)) {
+            if (req.getParameter("removeGroup") != null) {
+                value.update(req);
+                Group toMod = value.getGroup();
+                if (toMod == Group.SUPPORTER) {
+                    user.revoke(toMod);
+                    AuthorizationContext ac = LoginPage.getAuthorizationContext(req);
+                    req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(ac.getActor(), ac.getActor()));
+                    return new RedirectResult(MyDetails.PATH);
+                }
+            }
+            throw new GigiApiException("Supporter may not modify himself.");
+        }
+
         if (req.getParameter("addGroup") != null || req.getParameter("removeGroup") != null) {
             value.update(req);
             Group toMod = value.getGroup();

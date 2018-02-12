@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Locale;
@@ -17,10 +18,13 @@ import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.localisation.Language;
+import club.wpia.gigi.pages.account.MyDetails;
 import club.wpia.gigi.pages.admin.support.SupportUserDetailsPage;
+import club.wpia.gigi.testUtils.IOUtils;
 import club.wpia.gigi.testUtils.SEClientTest;
 import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
 import club.wpia.gigi.util.ServerConstants;
+import club.wpia.gigi.util.ServerConstants.Host;
 
 public class TestSEAdminNotificationMail extends SEClientTest {
 
@@ -141,4 +145,34 @@ public class TestSEAdminNotificationMail extends SEClientTest {
         message = getMailReceiver().receive(targetEmail).getMessage();
         assertThat(message, containsString("All certificates in your account have been revoked."));
     }
+
+    @Test
+    public void testSupportSupporterGroup() throws MalformedURLException, IOException {
+        // supporter adds to his own groups
+        String s = IOUtils.readURL(post(SupportUserDetailsPage.PATH + u.getId() + "/", "addGroup&groupToModify=" + URLEncoder.encode(Group.ORG_AGENT.getDBName(), "UTF-8")));
+        assertThat(s, containsString("Supporter may not modify himself."));
+
+        // supporter removes from his own groups
+        s = IOUtils.readURL(post(SupportUserDetailsPage.PATH + u.getId() + "/", "removeGroup&groupToModify=" + URLEncoder.encode(Group.ORG_AGENT.getDBName(), "UTF-8")));
+        assertThat(s, containsString("Supporter may not modify himself."));
+
+        // supporter removes supporter flag
+        URLConnection uc = post(SupportUserDetailsPage.PATH + u.getId() + "/", "removeGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDBName(), "UTF-8"));
+        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + MyDetails.PATH, uc.getHeaderField("Location"));
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        Group.SUPPORTER.getName().output(pw, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
+        // mail to support
+        String message = getMailReceiver().receive(ServerConstants.getSupportMailAddress()).getMessage();
+        assertThat(message, containsString("The group permission '" + sw.toString() + "' was revoked."));
+        // mail to user
+        message = getMailReceiver().receive(u.getEmail()).getMessage();
+        assertThat(message, containsString("The group permission '" + sw.toString() + "' was revoked from your account."));
+        // mail to board
+        message = getMailReceiver().receive(ServerConstants.getBoardMailAddress()).getMessage();
+        assertThat(message, containsString("The group permission '" + sw.toString() + "' was revoked for '" + u.getPreferredName().toString() + "'."));
+        s = IOUtils.readURL(get(cookie, MyDetails.PATH));
+        assertThat(s, not(containsString("supporter")));
+    }
+
 }
