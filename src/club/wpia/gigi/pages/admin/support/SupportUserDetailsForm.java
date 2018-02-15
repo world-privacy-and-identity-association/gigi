@@ -46,7 +46,13 @@ public class SupportUserDetailsForm extends Form {
             throw new GigiApiException("No ticket number set.");
         }
 
-        if ((req.getParameter("detailupdate") != null ? 1 : 0) + (req.getParameter("addGroup") != null ? 1 : 0) + (req.getParameter("removeGroup") != null ? 1 : 0) + (req.getParameter("resetPass") != null ? 1 : 0) != 1) {
+        int numActions = 0;
+        numActions += req.getParameter("detailupdate") != null ? 1 : 0;
+        numActions += req.getParameter("addGroup") != null ? 1 : 0;
+        numActions += req.getParameter("removeGroup") != null ? 1 : 0;
+        numActions += req.getParameter("resetPass") != null ? 1 : 0;
+
+        if (numActions != 1) {
             throw new GigiApiException("More than one action requested!");
         }
 
