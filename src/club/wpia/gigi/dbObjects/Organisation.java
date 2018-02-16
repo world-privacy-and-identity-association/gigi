@@ -152,7 +152,7 @@ public class Organisation extends CertificateOwner {
 
     public synchronized void addAdmin(User admin, User actor, boolean master) throws GigiApiException {
         if (actor == admin) {
-            throw new GigiApiException("You may not add yourself as Organisation Admin. Ask another Organisation Agent to do so.");
+            throw new GigiApiException("You may not add yourself as Organisation Admin. Ask another Organisation Agent or Organisation Admin to do so.");
         }
         if ( !admin.canVerify()) {
             throw new GigiApiException("Cannot add person who is not RA Agent.");
