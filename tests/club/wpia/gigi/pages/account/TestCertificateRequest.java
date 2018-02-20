@@ -95,8 +95,8 @@ public class TestCertificateRequest extends ClientTest {
     public void testPingPeriodOneAddress() throws IOException, GeneralSecurityException, GigiApiException {
         // get new email address with last ping in past
         String furtherEmail = createUniqueName() + "@example.org";
-        EmailAddress ea = new EmailAddress(u, furtherEmail, Locale.ENGLISH);
-        TestMail mail = getMailReceiver().receive(furtherEmail);
+        new EmailAddress(u, furtherEmail, Locale.ENGLISH);
+        getMailReceiver().receive(furtherEmail);
         try (GigiPreparedStatement stmt = new GigiPreparedStatement("UPDATE `emailPinglog` SET `status`='success'::`pingState`, `when` = (now() - interval '1 months' * ?::INTEGER) WHERE `email`=? ")) {
             stmt.setInt(1, TimeConditions.getInstance().getEmailPingMonths());
             stmt.setString(2, furtherEmail);
@@ -118,8 +118,8 @@ public class TestCertificateRequest extends ClientTest {
     public void testPingPeriodTwoAddresses() throws IOException, GeneralSecurityException, GigiApiException {
         // get new email address with last ping in past
         String furtherEmail = createUniqueName() + "@example.org";
-        EmailAddress ea = new EmailAddress(u, furtherEmail, Locale.ENGLISH);
-        TestMail mail = getMailReceiver().receive(furtherEmail);
+        new EmailAddress(u, furtherEmail, Locale.ENGLISH);
+        getMailReceiver().receive(furtherEmail);
         try (GigiPreparedStatement stmt = new GigiPreparedStatement("UPDATE `emailPinglog` SET `status`='success'::`pingState`, `when` = (now() - interval '1 months' * ?::INTEGER) WHERE `email`=? ")) {
             stmt.setInt(1, TimeConditions.getInstance().getEmailPingMonths());
             stmt.setString(2, furtherEmail);

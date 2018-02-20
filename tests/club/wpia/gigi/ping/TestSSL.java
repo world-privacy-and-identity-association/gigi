@@ -200,8 +200,8 @@ public class TestSSL extends PingTest {
         ass.start();
         System.out.println(port + " and " + port2 + " ready");
         System.err.println(port + " and " + port2 + " ready");
-        boolean accept2 = acceptSSLServer(sss2);
-        boolean accept1 = ass.join();
+        acceptSSLServer(sss2);
+        ass.join();
         // assertTrue(firstSucceeds ^ accept1);
         boolean secondsSucceeds = sslVariant != 0;
         // assertTrue(secondsSucceeds ^ accept2);

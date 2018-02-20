@@ -21,15 +21,12 @@ import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.dbObjects.Verification;
 import club.wpia.gigi.dbObjects.Verification.VerificationType;
 import club.wpia.gigi.testUtils.BusinessTest;
-import club.wpia.gigi.util.DayDate;
 import club.wpia.gigi.util.Notary;
 
 public class TestUser extends BusinessTest {
 
     @Test
     public void testStoreAndLoad() throws SQLException, GigiApiException {
-        long dob = System.currentTimeMillis();
-        dob -= dob % (1000 * 60 * 60 * 24);
         User u = createUser("f", "l", createUniqueName() + "a@email.org", TEST_PASSWORD);
         int id = u.getId();
         User u2 = User.getById(id);
@@ -123,8 +120,6 @@ public class TestUser extends BusinessTest {
 
     @Test
     public void testDoubleInsert() throws GigiApiException {
-        long d = System.currentTimeMillis();
-        d -= d % DayDate.MILLI_DAY;
         User u = createUser("f", "l", createUniqueName() + "@example.org", TEST_PASSWORD);
         Verification[] ma = u.getMadeVerifications();
         Verification[] ma2 = u.getMadeVerifications();
