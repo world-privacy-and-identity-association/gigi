@@ -97,9 +97,15 @@ public class OCSPIssuerManager implements Runnable {
      */
     private void scanAndUpdateCAs(File f, KeyStore keys, Map<String, OCSPIssuer> toServe) {
         if (f.isDirectory()) {
-            for (File f1 : f.listFiles()) {
-                scanAndUpdateCAs(f1, keys, toServe);
+            File[] list = f.listFiles();
+            if (list == null) {
+                return;
             }
+
+            for (File file : list) {
+                scanAndUpdateCAs(file, keys, toServe);
+            }
+
             return;
         }
         if ( !f.getName().equals("ca.crt")) {

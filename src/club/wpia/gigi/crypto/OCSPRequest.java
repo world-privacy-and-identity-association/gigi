@@ -109,40 +109,52 @@ public class OCSPRequest {
 
     byte[] encodeBytes() throws IOException {
 
-        // encode tbsRequest
-        DerOutputStream tmp = new DerOutputStream();
-        DerOutputStream requestsOut = new DerOutputStream();
-        for (CertId certId : certIds) {
-            DerOutputStream certIdOut = new DerOutputStream();
-            certId.encode(certIdOut);
-            requestsOut.write(DerValue.tag_Sequence, certIdOut);
-        }
+        try (DerOutputStream ocspRequest = new DerOutputStream()) {
+            try (DerOutputStream tbsRequest = new DerOutputStream()) {
+                try (DerOutputStream tmp = new DerOutputStream()) {
 
-        tmp.write(DerValue.tag_Sequence, requestsOut);
-        if ( !extensions.isEmpty()) {
-            DerOutputStream extOut = new DerOutputStream();
-            for (Extension ext : extensions) {
-                ext.encode(extOut);
-                if (ext.getId().equals(NONCE_EXTENSION_OID.toString())) {
-                    nonce = ext.getValue();
-                    nonceExt = ext;
+                    // encode tbsRequest
+                    try (DerOutputStream requestsOut = new DerOutputStream()) {
+                        for (CertId certId : certIds) {
+                            try (DerOutputStream certIdOut = new DerOutputStream()) {
+                                certId.encode(certIdOut);
+                                requestsOut.write(DerValue.tag_Sequence, certIdOut);
+                            }
+                        }
+
+                        tmp.write(DerValue.tag_Sequence, requestsOut);
+                    }
+
+                    if ( !extensions.isEmpty()) {
+                        try (DerOutputStream extsOut = new DerOutputStream()) {
+                            try (DerOutputStream extOut = new DerOutputStream()) {
+                                for (Extension ext : extensions) {
+                                    ext.encode(extOut);
+
+                                    if (ext.getId().equals(NONCE_EXTENSION_OID.toString())) {
+                                        nonce = ext.getValue();
+                                        nonceExt = ext;
+                                    }
+                                }
+
+                                extsOut.write(DerValue.tag_Sequence, extOut);
+                            }
+
+                            tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 2), extsOut);
+                        }
+                    }
+
+                    tbsRequest.write(DerValue.tag_Sequence, tmp);
                 }
+
+                // OCSPRequest without the signature
+                ocspRequest.write(DerValue.tag_Sequence, tbsRequest);
             }
-            DerOutputStream extsOut = new DerOutputStream();
-            extsOut.write(DerValue.tag_Sequence, extOut);
-            tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 2), extsOut);
+
+            byte[] bytes = ocspRequest.toByteArray();
+
+            return bytes;
         }
-
-        DerOutputStream tbsRequest = new DerOutputStream();
-        tbsRequest.write(DerValue.tag_Sequence, tmp);
-
-        // OCSPRequest without the signature
-        DerOutputStream ocspRequest = new DerOutputStream();
-        ocspRequest.write(DerValue.tag_Sequence, tbsRequest);
-
-        byte[] bytes = ocspRequest.toByteArray();
-
-        return bytes;
     }
 
     public List<CertId> getCertIds() {
