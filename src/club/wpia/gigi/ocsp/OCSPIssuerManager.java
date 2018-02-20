@@ -225,7 +225,9 @@ public class OCSPIssuerManager implements Runnable {
                         if (ks.length() == 0) {
                             keys.load(null);
                         } else {
-                            keys.load(new FileInputStream(ks), "pass".toCharArray());
+                            try (FileInputStream ks_file = new FileInputStream(ks)) {
+                                keys.load(ks_file, "pass".toCharArray());
+                            }
                         }
                     } else {
                         // assuming ocsp is disabled
@@ -239,8 +241,8 @@ public class OCSPIssuerManager implements Runnable {
                 Map<String, OCSPIssuer> toServe = new HashMap<>();
 
                 scanAndUpdateCAs(f, keys, toServe);
-                try {
-                    keys.store(new FileOutputStream(ks), "pass".toCharArray());
+                try (FileOutputStream ks_file = new FileOutputStream(ks)) {
+                    keys.store(ks_file, "pass".toCharArray());
                 } catch (GeneralSecurityException e) {
                     throw new Error(e);
                 } catch (IOException e) {
