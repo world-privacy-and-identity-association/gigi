@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ "$1" = "final" ]; then
+    # disabled for now; the postinst scripts can’t run in the built image
+    #dpkg --install /*.deb
+    : # `if` bodies can’t be empty
+fi

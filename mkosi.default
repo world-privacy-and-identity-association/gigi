@@ -1,0 +1,11 @@
+[Distribution]
+Distribution=debian
+Release=stretch
+
+[Output]
+Format=directory
+
+[Packages]
+Packages=default-jre-headless libpostgresql-jdbc-java libdnsjava-java debconf init-system-helpers
+BuildPackages=debhelper dh-systemd default-jdk-headless build-essential ant wget
+Cache=/var/cache/apt/archives

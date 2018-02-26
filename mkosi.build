@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+cd -- "$SRCDIR"
+
+# doc/scripts/genchangelog # mkosi doesn’t copy .git
+
+dpkg-buildpackage -b -us -uc
+
+mkdir -- "$DESTDIR/srv/"
+cp -v ../*.deb -- "$DESTDIR/srv/"
