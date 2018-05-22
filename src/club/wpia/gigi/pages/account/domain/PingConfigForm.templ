@@ -33,7 +33,7 @@
 openssl req -newkey rsa:4096 -subj "/CN=<span class='exampleDomain'>example.org</span>/OU=<?=$tokenValue?>" -nodes -out myCSR -keyout myKey<br>
 openssl x509 -req -in myCSR -signkey myKey -out myCert -extfile &lt;(printf 'extendedKeyUsage = serverAuth\n')
     </code>
-    <table>
+    <table class="table">
     <? foreach($ssl-services){ ?>
     <tr><td><select name='ssl-type-<?=$i?>'>
       <?foreach($ssl-types){ ?>
