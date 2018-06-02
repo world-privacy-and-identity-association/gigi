@@ -124,6 +124,16 @@ Defaults to \fI25\fR.
 A path to a plain text file of Internet domain names, one per line,
 which Gigi should refuse to issue certificates to.
 .TP
+.B knownPasswordHashes
+A path to a file of SHA-1 hashes of known passwords.
+The file should contain the hashes in binary format, without any separators, and should be sorted.
+Gigi will refuse user passwords with hashes that are found in this file.
+If this option is specified, Gigi will refuse startup if the file cannot be opened,
+otherwise it will attempt to use the file
+.I /usr/share/pwned-passwords/pwned-passwords.bin
+(provided by the \fBpwned-passwords-bin\fR package)
+but continue startup if the file cannot be opened.
+.TP
 .B time.testValidMonths
 The maximum time, in months, for which a passed agent quiz is considered recent.
 Defaults to \fI12\fR.

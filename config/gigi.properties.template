@@ -13,6 +13,7 @@ sql.user=
 sql.password=
 
 highFinancialValue=/path/to/alexa/list
+#knownPasswordHashes = /usr/share/pwned-passwords/pwned-passwords.bin
 
 time.testValidMonths=12
 time.reverificationDays=90

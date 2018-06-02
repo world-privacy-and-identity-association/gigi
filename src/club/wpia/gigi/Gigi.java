@@ -4,7 +4,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.channels.FileChannel;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.security.KeyStore;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Collections;
@@ -78,7 +83,9 @@ import club.wpia.gigi.pages.statistics.StatisticsRoles;
 import club.wpia.gigi.pages.wot.Points;
 import club.wpia.gigi.pages.wot.RequestTTPPage;
 import club.wpia.gigi.pages.wot.VerifyPage;
+import club.wpia.gigi.passwords.DelegatingPasswordChecker;
 import club.wpia.gigi.passwords.PasswordChecker;
+import club.wpia.gigi.passwords.PasswordHashChecker;
 import club.wpia.gigi.passwords.PasswordStrengthChecker;
 import club.wpia.gigi.ping.PingerDaemon;
 import club.wpia.gigi.util.AuthorizationContext;
@@ -277,7 +284,44 @@ public final class Gigi extends HttpServlet {
             this.truststore = truststore;
             pinger = new PingerDaemon(truststore);
             pinger.start();
-            Gigi.passwordChecker = new PasswordStrengthChecker();
+            Gigi.passwordChecker = getPasswordChecker(conf);
+        }
+    }
+
+    private PasswordChecker getPasswordChecker(Properties conf) {
+        final String knownPasswordHashesPath;
+        final boolean knownPasswordHashesRequired;
+        String knownPasswordHashesConfig = conf.getProperty("knownPasswordHashes");
+        if (knownPasswordHashesConfig != null) {
+            knownPasswordHashesPath = knownPasswordHashesConfig;
+            knownPasswordHashesRequired = true;
+        } else {
+            knownPasswordHashesPath = "/usr/share/pwned-passwords/pwned-passwords.bin";
+            knownPasswordHashesRequired = false;
+        }
+
+        final MessageDigest sha1;
+        try {
+            sha1 = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            final FileChannel knownPasswordHashesFile = FileChannel.open(
+                FileSystems.getDefault().getPath(knownPasswordHashesPath));
+            return new DelegatingPasswordChecker(new PasswordChecker[] {
+                    new PasswordStrengthChecker(),
+                    new PasswordHashChecker(knownPasswordHashesFile, sha1)
+                });
+        } catch (IOException e) {
+            if (knownPasswordHashesRequired) {
+                throw new RuntimeException("Error while opening password hash database, refusing startup", e);
+            } else {
+                System.err.println("Error while opening password hash database, passwords will be checked only by strength");
+                e.printStackTrace();
+                return new PasswordStrengthChecker();
+            }
         }
     }
 
