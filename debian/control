@@ -11,6 +11,7 @@ Homepage: https://wpia.club
 Package: wpia-gigi
 Architecture: all
 Depends: java7-runtime-headless, wpia-gigi-setuid, libpostgresql-jdbc-java, libdnsjava-java, ${shlibs:Depends}, ${misc:Depends}
+Recommends: pwned-passwords-bin
 Conflicts: wpia-gigi-testing
 Description: WPIA Web-DB software.
  This program is used to manage accounts and certificates.

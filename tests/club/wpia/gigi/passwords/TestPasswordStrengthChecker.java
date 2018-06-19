@@ -1,11 +1,11 @@
-package club.wpia.gigi.util;
+package club.wpia.gigi.passwords;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import club.wpia.gigi.passwords.PasswordStrengthChecker;
 import club.wpia.gigi.testUtils.ClientBusinessTest;
-import club.wpia.gigi.util.PasswordStrengthChecker;
 
 public class TestPasswordStrengthChecker extends ClientBusinessTest {
 
@@ -14,7 +14,7 @@ public class TestPasswordStrengthChecker extends ClientBusinessTest {
     public TestPasswordStrengthChecker() {}
 
     private int check(String pw) {
-        return PasswordStrengthChecker.checkpw(pw, new String[] {
+        return new PasswordStrengthChecker().ratePassword(pw, new String[] {
                 "fname", "lname", "mname", "suffix"
         }, e);
     }

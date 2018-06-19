@@ -1,4 +1,4 @@
-package club.wpia.gigi.util;
+package club.wpia.gigi.passwords;
 
 import java.util.Arrays;
 import java.util.TreeSet;
@@ -9,7 +9,7 @@ import club.wpia.gigi.dbObjects.Name;
 import club.wpia.gigi.dbObjects.NamePart;
 import club.wpia.gigi.output.template.SprintfCommand;
 
-public class PasswordStrengthChecker {
+public class PasswordStrengthChecker implements PasswordChecker {
 
     private static Pattern digits = Pattern.compile("\\d");
 
@@ -21,9 +21,13 @@ public class PasswordStrengthChecker {
 
     private static Pattern special = Pattern.compile("(?!\\s)\\W");
 
-    private PasswordStrengthChecker() {}
+    public PasswordStrengthChecker() {}
 
-    private static int checkpwlight(String pw) {
+    /**
+     * @param pw The password.
+     * @return Estimate of the password’s strength (positive).
+     */
+    private int ratePasswordStrength(String pw) {
         int points = 0;
         if (pw.length() > 15) {
             points++;
@@ -55,32 +59,39 @@ public class PasswordStrengthChecker {
         return points;
     }
 
-    public static int checkpw(String pw, String[] nameParts, String email) {
-        if (pw == null) {
-            return 0;
-        }
-        int light = checkpwlight(pw);
+    /**
+     * @param pw The password.
+     * @param nameParts The name parts of the user.
+     * @param email The email address of the user.
+     * @return Estimate of the password’s weakness (negative).
+     */
+    private int ratePasswordWeakness(String pw, String[] nameParts, String email) {
+        int points = 0;
         if (contained(pw, email)) {
-            light -= 2;
+            points -= 2;
         }
         for (int i = 0; i < nameParts.length; i++) {
             if (contained(pw, nameParts[i])) {
-                light -= 2;
+                points -= 2;
             }
         }
-        // TODO dictionary check
-        return light;
+        return points;
     }
 
-    public static void assertStrongPassword(String pw, Name[] names, String email) throws GigiApiException {
-        TreeSet<String> parts = new TreeSet<>();
-        for (int i = 0; i < names.length; i++) {
-            for (NamePart string : names[i].getParts()) {
-                parts.add(string.getValue());
-            }
-        }
-        if (checkpw(pw, parts.toArray(new String[parts.size()]), email) < 3) {
-            throw (new GigiApiException(new SprintfCommand("The Password you submitted failed to contain enough differing characters and/or contained words from your name and/or email address. For the current requirements and to learn more, visit our {0}FAQ{1}.", Arrays.asList("!(/kb/goodPassword", "!'</a>'"))));
+    public int ratePassword(String pw, String[] nameParts, String email) {
+        return ratePasswordStrength(pw) + ratePasswordWeakness(pw, nameParts, email);
+    }
+
+    @Override
+    public GigiApiException checkPassword(String password, String[] nameParts, String email) {
+        int points = ratePassword(password, nameParts, email);
+        if (points < 3) {
+            return new GigiApiException(new SprintfCommand(
+                "The Password you submitted failed to contain enough differing characters and/or contained words from your name and/or email address. For the current requirements and to learn more, visit our {0}FAQ{1}.",
+                Arrays.asList("!(/kb/goodPassword", "!'</a>'")
+            ));
+        } else {
+            return null;
         }
     }
 

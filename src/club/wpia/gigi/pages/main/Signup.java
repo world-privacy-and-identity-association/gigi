@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import club.wpia.gigi.Gigi;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.GigiResultSet;
@@ -23,10 +24,10 @@ import club.wpia.gigi.output.template.SprintfCommand;
 import club.wpia.gigi.output.template.Template;
 import club.wpia.gigi.output.template.TranslateCommand;
 import club.wpia.gigi.pages.Page;
+import club.wpia.gigi.passwords.PasswordStrengthChecker;
 import club.wpia.gigi.util.CalendarUtil;
 import club.wpia.gigi.util.HTMLEncoder;
 import club.wpia.gigi.util.Notary;
-import club.wpia.gigi.util.PasswordStrengthChecker;
 import club.wpia.gigi.util.RateLimit.RateLimitException;
 
 public class Signup extends Form {
@@ -127,12 +128,12 @@ public class Signup extends Form {
         } else if ( !pw1.equals(pw2)) {
             ga.mergeInto(new GigiApiException("Passwords don't match"));
         }
-        int pwpoints = PasswordStrengthChecker.checkpw(pw1, ni.getNamePartsPlain(), email);
-        if (pwpoints < 3) {
-            ga.mergeInto(new GigiApiException(new SprintfCommand("The Password you submitted failed to contain enough differing characters and/or contained words from your name and/or email address. For the current requirements and to learn more, visit our {0}FAQ{1}.", Arrays.asList("!(/kb/goodPassword", "!'</a>'"))));
-        }
         if ( !ga.isEmpty()) {
             throw ga;
+        }
+        GigiApiException gaPassword = Gigi.getPasswordChecker().checkPassword(pw1, ni.getNamePartsPlain(), email);
+        if (gaPassword != null) {
+            throw gaPassword;
         }
         GigiApiException ga2 = new GigiApiException();
         try (GigiPreparedStatement q1 = new GigiPreparedStatement("SELECT * FROM `emails` WHERE `email`=? AND `deleted` IS NULL"); GigiPreparedStatement q2 = new GigiPreparedStatement("SELECT * FROM `certOwners` INNER JOIN `users` ON `users`.`id`=`certOwners`.`id` WHERE `email`=? AND `deleted` IS NULL")) {
