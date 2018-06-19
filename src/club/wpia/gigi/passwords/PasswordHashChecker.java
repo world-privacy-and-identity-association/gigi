@@ -76,6 +76,7 @@ public class PasswordHashChecker implements PasswordChecker {
     private boolean knownPasswordHash(byte[] passwordHash) throws IOException {
         long targetEstimate = estimateHashOffset(passwordHash);
         long bestGuess = targetEstimate;
+        bestGuess = clampOffset(bestGuess);
 
         hashBuffer.clear();
         database.read(hashBuffer, bestGuess);
@@ -86,6 +87,7 @@ public class PasswordHashChecker implements PasswordChecker {
                 break;
             }
             bestGuess = bestGuess + targetEstimate - bestGuessEstimate;
+            bestGuess = clampOffset(bestGuess);
             hashBuffer.clear();
             database.read(hashBuffer, bestGuess);
         }
@@ -97,6 +99,9 @@ public class PasswordHashChecker implements PasswordChecker {
         int newSearchDirection = searchDirection;
         while (searchDirection == newSearchDirection) {
             bestGuess += digestLength * searchDirection;
+            if (bestGuess < 0 || bestGuess >= database.size()) {
+                break;
+            }
             hashBuffer.clear();
             database.read(hashBuffer, bestGuess);
             newSearchDirection = compareHashes(passwordHash, hashBuffer.array());
@@ -126,5 +131,15 @@ public class PasswordHashChecker implements PasswordChecker {
                 * ((hash[2] & 0xFF) << 8 | (hash[3] & 0xFF)))
                 / (1L << 32);
         return (pos / digestLength) * digestLength;
+    }
+
+    private long clampOffset(long offset) throws IOException {
+        if (offset < 0) {
+            return 0;
+        }
+        if (offset >= database.size()) {
+            return database.size() - 1;
+        }
+        return offset;
     }
 }
