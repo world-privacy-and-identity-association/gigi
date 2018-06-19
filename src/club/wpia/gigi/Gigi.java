@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.MessageDigest;
@@ -319,7 +320,9 @@ public final class Gigi extends HttpServlet {
                 throw new RuntimeException("Error while opening password hash database, refusing startup", e);
             } else {
                 System.err.println("Error while opening password hash database, passwords will be checked only by strength");
-                e.printStackTrace();
+                if (!(e instanceof NoSuchFileException)) {
+                    e.printStackTrace();
+                }
                 return new PasswordStrengthChecker();
             }
         }
