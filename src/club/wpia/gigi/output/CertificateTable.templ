@@ -11,6 +11,7 @@
 <th><?=_Expires?></th>
 <th><?=_Login?></th>
 <th><?=_Description?></th>
+<th><?=_Issued by?></th>
 </tr></thead>
 <tbody>
 <? foreach($certs) {?>
@@ -28,6 +29,7 @@
 	<td class="<?=$classExpired?>"><?=$expire?></td>
 	<td><?=$login?></td>
 	<td><?=$description?></td>
+	<td><span title="<?=$actorname?>"><?=$actorinitials?></span></td>
 </tr>
 <? } ?>
 </tbody>

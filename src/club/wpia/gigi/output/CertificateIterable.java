@@ -46,6 +46,13 @@ public class CertificateIterable implements IterableDataset {
         vars.put("classIssued", "");
         vars.put("classExpired", "");
         vars.put("revoked", l.getTranslation("N/A"));
+        vars.put("actorinitials", l.getTranslation("N/A"));
+        vars.put("actorname", l.getTranslation("N/A"));
+
+        if (c.getActor() != null) {
+            vars.put("actorinitials", c.getActor().getInitials());
+            vars.put("actorname", c.getActor().getPreferredName().toString() + " <" + c.getActor().getEmail() + ">");
+        }
 
         try {
             if (st == CertificateStatus.ISSUED || st == CertificateStatus.REVOKED) {

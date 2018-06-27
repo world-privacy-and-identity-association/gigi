@@ -67,4 +67,14 @@ public class TestCertificate extends ClientBusinessTest {
         assertEquals(key, c.getAttachment(AttachmentType.CSR));
         assertEquals("b", c.getAttachment(AttachmentType.CRT));
     }
+
+    @Test
+    public void testActor() throws GeneralSecurityException, IOException, GigiApiException {
+        KeyPair kp = generateKeypair();
+        String key = generatePEMCSR(kp, "CN=testmail@example.com");
+        Certificate c = new Certificate(u, u, Certificate.buildDN("CN", "testmail@example.com"), Digest.SHA256, key, CSRType.CSR, getClientProfile());
+
+        assertEquals(u, c.getActor());
+        assertEquals("AB", c.getActor().getInitials());
+    }
 }

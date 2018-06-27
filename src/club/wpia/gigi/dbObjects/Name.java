@@ -45,6 +45,11 @@ public class Name implements Outputable, IdCachable {
          */
         public abstract void output(PrintWriter out);
 
+        /**
+         * @see Name#toInitialsString()
+         */
+        public abstract String toInitialsString();
+
     }
 
     private static class SingleName extends SchemedName {
@@ -68,6 +73,11 @@ public class Name implements Outputable, IdCachable {
         @Override
         public String toAbbreviatedString() {
             return singlePart.getValue();
+        }
+
+        @Override
+        public String toInitialsString() {
+            return singlePart.getValue().substring(0, 1);
         }
 
         @Override
@@ -222,6 +232,14 @@ public class Name implements Outputable, IdCachable {
         @Override
         public String toAbbreviatedString() {
             return firstNames[0].getValue() + " " + lastNames[0].getValue().charAt(0) + ".";
+        }
+
+        @Override
+        public String toInitialsString() {
+
+            String initals = getInitialByNamePart(firstNames, lastNames, suffixes);
+
+            return initals;
         }
     }
 
@@ -378,13 +396,24 @@ public class Name implements Outputable, IdCachable {
 
     /**
      * Transforms this String into a short form. This short form should not be
-     * unique. (For "western" names this would be
-     * "firstName firstCharOfLastName.".)
+     * unique. (For "western" names this would be "firstName
+     * firstCharOfLastName.".)
      * 
      * @return the short form of the name
      */
     public String toAbbreviatedString() {
         return scheme.toAbbreviatedString();
+    }
+
+    /**
+     * Transforms this Name object into a short form. This short form might not
+     * be unique. (For "western" names this would be all first letters of each
+     * name part)
+     * 
+     * @return the short form of the name
+     */
+    public String toInitialsString() {
+        return scheme.toInitialsString();
     }
 
     public int getVerificationPoints() {
@@ -459,5 +488,28 @@ public class Name implements Outputable, IdCachable {
             owner = User.getById(ownerId);
         }
         return owner;
+    }
+
+    private static String getInitialByNamePart(NamePart[]... npa) {
+        StringBuilder initals = new StringBuilder();
+        for (NamePart[] np : npa) {
+            initals.append(getInitialByNamePart(np));
+        }
+        return initals.toString();
+    }
+
+    private static String getInitialByNamePart(NamePart[] np) {
+        StringBuilder initals = new StringBuilder();
+        for (NamePart p : np) {
+            switch (p.getValue()) {
+            case "-":
+            case "/":
+                break;
+            default:
+                initals.append(p.getValue().substring(0, 1).toUpperCase());
+                break;
+            }
+        }
+        return initals.toString();
     }
 }
