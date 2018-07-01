@@ -319,8 +319,8 @@ public final class Gigi extends HttpServlet {
             if (knownPasswordHashesRequired) {
                 throw new RuntimeException("Error while opening password hash database, refusing startup", e);
             } else {
-                System.err.println("Error while opening password hash database, passwords will be checked only by strength");
-                if (!(e instanceof NoSuchFileException)) {
+                System.err.println("Warning: A problem was encountered while opening the password hash database, passwords will be checked only by strength.");
+                if ( !(e instanceof NoSuchFileException)) {
                     e.printStackTrace();
                 }
                 return new PasswordStrengthChecker();
