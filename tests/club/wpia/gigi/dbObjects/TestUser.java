@@ -108,6 +108,19 @@ public class TestUser extends ClientBusinessTest {
     }
 
     @Test
+    public void testHasContract() throws GigiApiException {
+        assertEquals(false, Contract.hasSignedContract(u, Contract.ContractType.RA_AGENT_CONTRACT));
+
+        Contract c = new Contract(u, Contract.ContractType.RA_AGENT_CONTRACT);
+        getMailReceiver().receive(u.getEmail());
+        assertEquals(true, Contract.hasSignedContract(u, Contract.ContractType.RA_AGENT_CONTRACT));
+
+        c.revokeContract();
+        getMailReceiver().receive(u.getEmail());
+        assertEquals(false, Contract.hasSignedContract(u, Contract.ContractType.RA_AGENT_CONTRACT));
+    }
+
+    @Test
     public void testWriteUserLog() throws GigiApiException {
         String type = "Log test";
         u.writeUserLog(u, type);

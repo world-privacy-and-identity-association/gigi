@@ -42,6 +42,7 @@ import club.wpia.gigi.database.SQLFileManager.ImportType;
 import club.wpia.gigi.dbObjects.CATS;
 import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.CertificateProfile;
+import club.wpia.gigi.dbObjects.Contract.ContractType;
 import club.wpia.gigi.dbObjects.Domain;
 import club.wpia.gigi.dbObjects.DomainPingType;
 import club.wpia.gigi.dbObjects.User;
@@ -52,6 +53,7 @@ import club.wpia.gigi.util.DomainAssessment;
 import club.wpia.gigi.util.Notary;
 import club.wpia.gigi.util.PEM;
 import club.wpia.gigi.util.PasswordHash;
+import club.wpia.gigi.util.RandomToken;
 import club.wpia.gigi.util.ServerConstants;
 import club.wpia.gigi.util.TimeConditions;
 import sun.security.pkcs10.PKCS10;
@@ -360,6 +362,15 @@ public abstract class ConfiguredTest {
             ps2.setInt(1, uid);
             ps2.setInt(2, User.getById(uid).getPreferredName().getId());
             ps2.execute();
+        }
+
+        // insert signed RA Contract
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `user_contracts` SET `memid`=?, `token`=?, `document`=?::`contractType`,`agentname`=?")) {
+            ps.setInt(1, uid);
+            ps.setString(2, RandomToken.generateToken(32));
+            ps.setEnum(3, ContractType.RA_AGENT_CONTRACT);
+            ps.setString(4, User.getById(uid).getPreferredName().toString());
+            ps.execute();
         }
     }
 

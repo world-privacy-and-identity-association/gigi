@@ -38,6 +38,8 @@ import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.dbObjects.CertificateOwner;
+import club.wpia.gigi.dbObjects.Contract;
+import club.wpia.gigi.dbObjects.Contract.ContractType;
 import club.wpia.gigi.dbObjects.Country;
 import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.dbObjects.Domain;
@@ -164,6 +166,7 @@ public class Manager extends Page {
                 ps.setString(6, getRandomCountry().getCode());
                 ps.execute();
             }
+            new Contract(u, ContractType.RA_AGENT_CONTRACT);
             return u;
         }
     }

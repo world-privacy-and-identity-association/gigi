@@ -242,6 +242,10 @@ public class User extends CertificateOwner {
             return false;
         }
 
+        if ( !Contract.hasSignedContract(this, Contract.ContractType.RA_AGENT_CONTRACT)) {
+            return false;
+        }
+
         return hasPassedCATS();
 
     }

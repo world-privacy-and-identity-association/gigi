@@ -57,6 +57,7 @@ import club.wpia.gigi.pages.Verify;
 import club.wpia.gigi.pages.account.ChangePasswordPage;
 import club.wpia.gigi.pages.account.FindAgentAccess;
 import club.wpia.gigi.pages.account.History;
+import club.wpia.gigi.pages.account.MyContracts;
 import club.wpia.gigi.pages.account.MyDetails;
 import club.wpia.gigi.pages.account.UserTrainings;
 import club.wpia.gigi.pages.account.certs.CertificateAdd;
@@ -195,6 +196,7 @@ public final class Gigi extends HttpServlet {
             putPage(UserTrainings.SUPPORT_PATH, new UserTrainings(true), null);
             putPage(Points.SUPPORT_PATH, new Points(true), null);
             putPage(Certificates.SUPPORT_PATH + "/*", new Certificates(true), null);
+            putPage(MyContracts.PATH, new MyContracts(), null);
 
             putPage(PasswordResetPage.PATH, new PasswordResetPage(), null);
             putPage(LogoutPage.PATH, new LogoutPage(), null);

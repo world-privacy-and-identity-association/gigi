@@ -12,6 +12,7 @@ import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.dbObjects.CATS;
 import club.wpia.gigi.dbObjects.CATS.CATSType;
+import club.wpia.gigi.dbObjects.Contract;
 import club.wpia.gigi.dbObjects.Country;
 import club.wpia.gigi.dbObjects.Country.CountryCodeType;
 import club.wpia.gigi.dbObjects.Group;
@@ -23,6 +24,7 @@ import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.dbObjects.Verification.VerificationType;
 import club.wpia.gigi.output.DateSelector;
 import club.wpia.gigi.testUtils.BusinessTest;
+import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
 
 public class TestNotary extends BusinessTest {
 
@@ -167,6 +169,8 @@ public class TestNotary extends BusinessTest {
         assertEquals(100, applicant.getVerificationPoints());
         assertFalse(applicant.canVerify());
         CATS.enterResult(applicant, CATSType.AGENT_CHALLENGE, new Date(), "de", "1");
+        new Contract(applicant, Contract.ContractType.RA_AGENT_CONTRACT);
+        TestMail rc = getMailReceiver().receive(applicant.getEmail());
         assertTrue(applicant.canVerify());
     }
 }

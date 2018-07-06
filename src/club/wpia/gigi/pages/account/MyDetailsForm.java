@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.Contract;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.Name;
 import club.wpia.gigi.dbObjects.User;
@@ -29,6 +30,8 @@ public class MyDetailsForm extends Form {
     private static final Template names = new Template(MyDetailsForm.class.getResource("NamesForm.templ"));
 
     private static final Template roles = new Template(MyDetailsForm.class.getResource("MyDetailsRoles.templ"));
+
+    private static final Template contracts = new Template(MyDetailsForm.class.getResource("MyDetailsContracts.templ"));
 
     private User target;
 
@@ -110,6 +113,17 @@ public class MyDetailsForm extends Form {
                     target.revokeGroup(target, toMod);
                 }
                 return new RedirectResult(MyDetails.PATH);
+            } else if ("viewContract".equals(action)) {
+                return new RedirectResult(MyContracts.PATH);
+            } else if ("signContract".equals(action)) {
+                new Contract(target, Contract.ContractType.RA_AGENT_CONTRACT);
+                return new RedirectResult(MyDetails.PATH);
+            } else if ("revokeContract".equals(action)) {
+                Contract c = Contract.getRAAgentContractByUser(target);
+                if (c != null) {
+                    c.revokeContract();
+                }
+                return new RedirectResult(MyDetails.PATH);
             } else {
                 throw new GigiApiException("Invalid action.");
             }
@@ -161,6 +175,11 @@ public class MyDetailsForm extends Form {
         vars.put("groups", new GroupList(gr, false));
         vars.put("groupSelector", selectedGroup);
         roles.output(out, l, vars);
+
+        boolean hasSignedContract = Contract.hasSignedContract(target, Contract.ContractType.RA_AGENT_CONTRACT);
+        vars.put("contractsign", hasSignedContract ? "disabled" : "");
+        vars.put("contractrevoke", hasSignedContract ? "" : "disabled");
+        contracts.output(out, l, vars);
     }
 
 }
