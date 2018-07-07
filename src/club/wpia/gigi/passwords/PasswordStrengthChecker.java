@@ -1,12 +1,9 @@
 package club.wpia.gigi.passwords;
 
 import java.util.Arrays;
-import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import club.wpia.gigi.GigiApiException;
-import club.wpia.gigi.dbObjects.Name;
-import club.wpia.gigi.dbObjects.NamePart;
 import club.wpia.gigi.output.template.SprintfCommand;
 
 public class PasswordStrengthChecker implements PasswordChecker {
@@ -87,7 +84,7 @@ public class PasswordStrengthChecker implements PasswordChecker {
         int points = ratePassword(password, nameParts, email);
         if (points < 3) {
             return new GigiApiException(new SprintfCommand(
-                "The Password you submitted failed to contain enough differing characters and/or contained words from your name and/or email address. For the current requirements and to learn more, visit our {0}FAQ{1}.",
+                "The password you submitted failed to contain enough differing characters and/or contained words from your name and/or email address. For the current requirements and to learn more, visit our {0}FAQ{1}.",
                 Arrays.asList("!(/kb/goodPassword", "!'</a>'")
             ));
         } else {
