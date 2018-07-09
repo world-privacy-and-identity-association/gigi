@@ -1,7 +1,7 @@
 <h3><?=_Verification mechanisms?></h3>
 
 <div class="panel panel-info panel-activatable">
-  <div class="panel-heading"><input type="checkbox" name="emailType" value="y"<?=$!mail?>> <?=_Verify by sending an email to authoritative email addresses?></div>
+  <div class="panel-heading"><input type="checkbox" name="emailType" id="emailType" value="y"<?=$!mail?>> <label for="emailType"><?=_Verify by sending an email to authoritative email addresses?></label></div>
   <div class="panel-body">
     <?=_Select the destination mail address:?><br/>
     <? foreach($authEmails) { ?>
@@ -11,21 +11,21 @@
   </div>
 </div>
 <div class="panel panel-info panel-activatable">
-  <div class="panel-heading"><input type="checkbox" name="DNSType" value="y"<?=$!dns?>> <?=_Verify by reading DNS-TXT entries?></div>
+  <div class="panel-heading"><input type="checkbox" name="DNSType" id="DNSType" value="y"<?=$!dns?>> <label for="DNSType"><?=_Verify by reading DNS-TXT entries?></label></div>
   <div class="panel-body">
     <?=_Please insert the following DNS TXT entry into the Zone-file of your domain:?><br/>
     <pre><?=$tokenName?>.<?=$dnsPrefix?>._auth IN TXT <?=$tokenValue?></pre>
   </div>
 </div>
 <div class="panel panel-info panel-activatable">
-  <div class="panel-heading"><input type="checkbox" name="HTTPType" value="y"<?=$!http?>> <?=_Verify by reading HTTP-content?></div>
+  <div class="panel-heading"><input type="checkbox" name="HTTPType" id="HTTPType" value="y"<?=$!http?>> <label for="HTTPType"><?=_Verify by reading HTTP-content?></label></div>
   <div class="panel-body">
     <?=_Please make the following content available at?> <pre class='string'>http://<span class='exampleDomain'>example.org</span>/<?=$httpPrefix?><?=$tokenName?>.txt</pre><br/>
     <pre><?=$tokenValue?></pre>
   </div>
 </div>
 <div class="panel panel-info panel-activatable">
-  <div class="panel-heading"><input type="checkbox" name="SSLType" value="y"<?=$!ssl?>> <?=_Verify by searching for installed certificate.?></div>
+  <div class="panel-heading"><input type="checkbox" name="SSLType" id="SSLType" value="y"<?=$!ssl?>> <label for="SSLType"><?=_Verify by searching for installed certificate.?></label></div>
   <div class="panel-body">
     <?=_Please list up to four services using your certificate. You need to have one of them up and using a valid ${appName} certificate or a specific self-signed certificate in order to pass this test?>:
     <?=_The self-signed certificate needs to contain your domain as CN and ${tokenValue} as organization unit.?> <?=_You can use these commands to create such a certificate:?>

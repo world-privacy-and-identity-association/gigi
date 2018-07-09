@@ -8,7 +8,7 @@
 <? foreach($names) { ?>
 	<tr>
 		<td><?=_Name?>: </td>
-		<td><input type="checkbox" name="verifiedName" value="<?=$nameId?>"<?=$checked?>><span class="accountdetail"><?=$nameExplicit?></span></td>
+		<td><label><input type="checkbox" name="verifiedName" value="<?=$nameId?>"<?=$checked?>><span class="accountdetail"><?=$nameExplicit?></span></label></td>
 	</tr>
 <? } ?>
 	<tr>
@@ -16,8 +16,8 @@
 		<td><span class="accountdetail dob"><?=$dob?> (<?=$dobFmt2?>)</span></td>
 	</tr>
 	<tr>
-		<td><input type="checkbox" name="certify" value="1" required></td>
-		<td><?=_I certify that ${name} has appeared in person.?></td>
+		<td><input type="checkbox" name="certify" id="certify" value="1" required></td>
+		<td><label for="certify"><?=_I certify that ${name} has appeared in person.?></label></td>
 	</tr>
 	<tr>
 		<td><?=_Location Country?></td>
@@ -34,12 +34,12 @@
 		<td><input class="form-control" type="text" name="date" value="<?=$date?>" required><br/><?=_The date when the verification took place. Please adjust the date if you verified the person on a different day (YYYY-MM-DD).?></td>
 	</tr>
 	<tr>
-		<td><input type="checkbox" name="assertion" value="1" required></td>
-		<td><?=_I believe that the assertion of identity I am making is correct, complete and verifiable. I have seen original documentation attesting to this identity. I accept that the ${appName} Arbitrator may call upon me to provide evidence in any dispute, and I may be held responsible.?></td>
+		<td><input type="checkbox" name="assertion" id="assertion" value="1" required></td>
+		<td><label for="assertion"><?=_I believe that the assertion of identity I am making is correct, complete and verifiable. I have seen original documentation attesting to this identity. I accept that the ${appName} Arbitrator may call upon me to provide evidence in any dispute, and I may be held responsible.?></label></td>
 	</tr>
 	<tr>
-		<td><input type="checkbox" name="rules" value="1" required></td>
-		<td><?=_I have read and understood the Terms of Service (!(/policy/ToS)ToS!'</a>'), Verification Policy and the Verification Handbook. I am making this verification subject to and in compliance with the ToS, Verification Policy and Handbook.?></td>
+		<td><input type="checkbox" name="rules" id="rules" value="1" required></td>
+		<td><label for="rules"><?=_I have read and understood the Terms of Service (!(/policy/ToS)ToS!'</a>'), Verification Policy and the Verification Handbook. I am making this verification subject to and in compliance with the ToS, Verification Policy and Handbook.?></label></td>
 	</tr>
 	<tr>
 		<td><?=_Policy?>: </td>
@@ -58,8 +58,8 @@
 		<td><select name="verificationType"><? foreach($ats) { ?><option value="<?=$id?>"<?=$sel?>><?=$type?></option><? } ?></select></td>
 	</tr>
 	<tr>
-		<td><input type="checkbox" name="passwordReset" value="1" <? if($aword) { ?>checked<? } ?>></td>
-		<td><?=_I have conducted a password reset with verification. The established "A-Word" is:?><input type="text" name="passwordResetValue" value="<? if($aword) { ?><?=$aword?><? } ?>"></td>
+		<td><input type="checkbox" name="passwordReset" id="passwordReset" value="1" <? if($aword) { ?>checked<? } ?>></td>
+		<td><label for="passwordReset"><?=_I have conducted a password reset with verification. The established "A-Word" is:?><input type="text" name="passwordResetValue" value="<? if($aword) { ?><?=$aword?><? } ?>"></label></td>
 	</tr>
 	<tr>
 		<td colspan="2">
