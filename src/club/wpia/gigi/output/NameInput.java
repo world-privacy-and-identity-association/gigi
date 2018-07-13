@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Name;
 import club.wpia.gigi.dbObjects.NamePart;
-import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.dbObjects.NamePart.NamePartType;
+import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.Outputable;
 import club.wpia.gigi.output.template.Template;
@@ -103,6 +103,9 @@ public class NameInput implements Outputable {
         if (toSplit == null || toSplit.trim().isEmpty()) {
             return new String[0];
         }
+        toSplit = toSplit.replaceAll("(?>[\\p{Z}\\s]*)([\u002d\u058a\u05be\u1806\u2010\u2011\u2012\u2013\u2014\u2015\u2e3a\u2e3b\ufe58\ufe63\uff0d])(?>[\\p{Z}\\s]*)", "-");
+        toSplit = toSplit.replaceAll("(?>[\\p{Z}\\s]+)", " ").trim();
+
         return toSplit.split(" ");
     }
 
