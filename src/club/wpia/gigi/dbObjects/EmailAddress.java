@@ -111,7 +111,7 @@ public class EmailAddress implements IdCachable, Verifyable {
             stmt.setInt(2, owner.getId());
             stmt.setString(3, hash);
             if ( !stmt.executeMaybeUpdate()) {
-                throw new IllegalArgumentException("Given token could not be found to complete the verification process (Domain Ping).");
+                throw new IllegalArgumentException("Given token could not be found to complete the verification process (Email Ping).");
             }
         }
         // Verify user with that primary email
