@@ -23,7 +23,6 @@ import club.wpia.gigi.email.EmailProvider;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.DateSelector;
 import club.wpia.gigi.pages.PasswordResetPage;
-import club.wpia.gigi.passwords.PasswordStrengthChecker;
 import club.wpia.gigi.util.CalendarUtil;
 import club.wpia.gigi.util.DayDate;
 import club.wpia.gigi.util.Notary;
@@ -452,6 +451,10 @@ public class User extends CertificateOwner {
             ps.executeUpdate();
         }
 
+    }
+
+    public synchronized String getInitials() {
+        return preferredName.toInitialsString();
     }
 
     public boolean isInGroup(Group g) {

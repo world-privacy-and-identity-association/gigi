@@ -163,6 +163,7 @@ CREATE TABLE "certs" (
   "pkhash" char(40) DEFAULT NULL,
   "certhash" char(40) DEFAULT NULL,
   "description" varchar(100) NOT NULL DEFAULT '',
+  "actorid" int NOT NULL,
   PRIMARY KEY ("id")
 );
 CREATE INDEX ON "certs" ("pkhash");
@@ -171,6 +172,7 @@ CREATE INDEX ON "certs" ("created");
 CREATE INDEX ON "certs" ("memid");
 CREATE INDEX ON "certs" ("serial");
 CREATE INDEX ON "certs" ("expire");
+CREATE INDEX ON "certs" ("actorid");
 
 DROP TABLE IF EXISTS "certAvas";
 CREATE TABLE "certAvas" (
@@ -370,7 +372,7 @@ CREATE TABLE "schemeVersion" (
   "version" smallint NOT NULL,
   PRIMARY KEY ("version")
 );
-INSERT INTO "schemeVersion" (version)  VALUES(36);
+INSERT INTO "schemeVersion" (version)  VALUES(37);
 
 DROP TABLE IF EXISTS `passwordResetTickets`;
 CREATE TABLE `passwordResetTickets` (

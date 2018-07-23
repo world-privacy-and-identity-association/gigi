@@ -166,6 +166,8 @@ public class Certificate implements IdCachable {
 
     private String description = "";
 
+    private User actor;
+
     public static final TranslateCommand NOT_LOADED = new TranslateCommand("Certificate could not be loaded");
 
     public static final TranslateCommand NOT_PARSED = new TranslateCommand("Certificate could not be parsed");
@@ -212,13 +214,15 @@ public class Certificate implements IdCachable {
         this.csrType = csrType;
         this.profile = profile;
         this.sans = Arrays.asList(sans);
+        this.actor = actor;
         synchronized (Certificate.class) {
 
-            try (GigiPreparedStatement inserter = new GigiPreparedStatement("INSERT INTO certs SET md=?::`mdType`, csr_type=?::`csrType`, memid=?, profile=?")) {
+            try (GigiPreparedStatement inserter = new GigiPreparedStatement("INSERT INTO certs SET md=?::`mdType`, csr_type=?::`csrType`, memid=?, profile=?, actorid=?")) {
                 inserter.setString(1, md.toString().toLowerCase());
                 inserter.setString(2, this.csrType.toString());
                 inserter.setInt(3, owner.getId());
                 inserter.setInt(4, profile.getId());
+                inserter.setInt(5, this.actor.getId());
                 inserter.execute();
                 id = inserter.lastInsertId();
             }
@@ -253,6 +257,7 @@ public class Certificate implements IdCachable {
         profile = CertificateProfile.getById(rs.getInt("profile"));
         this.serial = rs.getString("serial");
         this.description = rs.getString("description");
+        this.actor = User.getById(rs.getInt("actorid"));
 
         try (GigiPreparedStatement ps2 = new GigiPreparedStatement("SELECT `contents`, `type` FROM `subjectAlternativeNames` WHERE `certId`=?")) {
             ps2.setInt(1, id);
@@ -417,7 +422,7 @@ public class Certificate implements IdCachable {
         if (serial == null) {
             return null;
         }
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as `subject`, `md`,`memid`, `profile`, `certs`.`serial`, `certs`.`description` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`")) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as `subject`, `md`,`memid`, `profile`, `certs`.`serial`, `certs`.`description`, `certs`.`actorid` FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=`certs`.`id` WHERE `serial`=? GROUP BY `certs`.`id`")) {
             ps.setString(1, serial.toString(16));
             GigiResultSet rs = ps.executeQuery();
             if ( !rs.next()) {
@@ -443,7 +448,7 @@ public class Certificate implements IdCachable {
         }
 
         try {
-            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as subject, md, memid, profile, certs.serial, description FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=certs.id WHERE certs.id=? GROUP BY certs.id")) {
+            try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT certs.id, " + CONCAT + " as subject, md, memid, profile, certs.serial, description, actorid FROM `certs` LEFT JOIN `certAvas` ON `certAvas`.`certId`=certs.id WHERE certs.id=? GROUP BY certs.id")) {
                 ps.setInt(1, id);
                 GigiResultSet rs = ps.executeQuery();
                 if ( !rs.next()) {
@@ -587,6 +592,10 @@ public class Certificate implements IdCachable {
 
     public String getDescription() {
         return description;
+    }
+
+    public User getActor() {
+        return actor;
     }
 
     public static Certificate locateCertificate(String serial, String certData) throws GigiApiException {
