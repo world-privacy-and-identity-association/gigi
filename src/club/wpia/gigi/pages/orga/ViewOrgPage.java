@@ -93,7 +93,7 @@ public class ViewOrgPage extends ManagedMultiFormPage {
             return;
         }
         Map<String, Object> vars = Page.getDefaultVars(req);
-        if (orgAss) {
+        if (orgAss && !myOrgs.contains(o)) {
             vars.put("editForm", new CreateOrgForm(req, o));
             vars.put("affForm", new AffiliationForm(req, o));
             vars.put("mgmDom", new DomainManagementForm(req, o, true));
