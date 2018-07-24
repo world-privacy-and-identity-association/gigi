@@ -409,32 +409,15 @@ public class Manager extends Page {
             }
 
             int vp = 0;
-            int agentNumber = 0;
 
             try {
-                try {
-                    vp = Integer.parseInt(verificationPoints);
-                } catch (NumberFormatException e) {
-                    throw new GigiApiException("No valid Verification Points entered.");
-                }
-
-                if (vp > 100) { // only allow max 100 Verification points
-                    vp = 100;
-                }
-
-                while (vp > 0) {
-                    int currentVP = 10;
-                    if (vp < 10) {
-                        currentVP = vp;
-                    }
-                    Notary.verify(getAgent(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", validVerificationDateString(), VerificationType.FACE_TO_FACE, getRandomCountry());
-                    agentNumber += 1;
-                    vp -= currentVP;
-                }
-
-            } catch (GigiApiException e) {
-                throw new Error(e);
+                vp = Integer.parseInt(verificationPoints);
+            } catch (NumberFormatException e) {
+                resp.getWriter().println("No valid Verification Points entered.</br>");
+                vp = 0;
             }
+
+            int agentNumber = addVerificationPoints(vp, byEmail);
 
             resp.getWriter().println("User has been verified " + agentNumber + " times.");
 
@@ -503,8 +486,52 @@ public class Manager extends Page {
             pingExempt.remove(dom);
             resp.getWriter().println("Updated domains exempt from pings. Current set: <br/>");
             resp.getWriter().println(HTMLEncoder.encodeHTML(pingExempt.toString()));
+        } else if (req.getParameter("makeAgent") != null) {
+            User u = User.getByEmail(req.getParameter("agentEmail"));
+            if (u == null) {
+                resp.getWriter().println("User not found, or found user is not allowed to verify.");
+            } else {
+                if (u.getVerificationPoints() < 100) {
+                    addVerificationPoints(100, u);
+                }
+                if ( !u.hasPassedCATS()) {
+                    passCATS(u, CATSType.AGENT_CHALLENGE);
+                }
+                if ( !Contract.hasSignedContract(u, Contract.ContractType.RA_AGENT_CONTRACT)) {
+                    try {
+                        new Contract(u, Contract.ContractType.RA_AGENT_CONTRACT);
+                    } catch (GigiApiException e) {
+                        throw new Error(e);
+                    }
+                }
+                resp.getWriter().println("User has all requirements to be an RA Agent");
+            }
         }
         resp.getWriter().println("<br/><a href='" + PATH + "'>Go back</a>");
+    }
+
+    private int addVerificationPoints(int vp, User byEmail) throws Error {
+        int agentNumber = 0;
+
+        try {
+            if (vp > 100) { // only allow max 100 Verification points
+                vp = 100;
+            }
+
+            while (vp > 0) {
+                int currentVP = 10;
+                if (vp < 10) {
+                    currentVP = vp;
+                }
+                Notary.verify(getAgent(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", validVerificationDateString(), VerificationType.FACE_TO_FACE, getRandomCountry());
+                agentNumber += 1;
+                vp -= currentVP;
+            }
+
+        } catch (GigiApiException e) {
+            throw new Error(e);
+        }
+        return agentNumber;
     }
 
     private void fetchMails(HttpServletRequest req, HttpServletResponse resp, String mail) throws IOException {
