@@ -183,4 +183,28 @@ public class TestSEAdminPageDetails extends SEClientTest {
         return c;
     }
 
+    @Test
+    public void testUserDetailsRAAgent() throws IOException, GigiApiException {
+        User u0 = User.getById(createVerifiedUser("Kurti", "Hansel", createUniqueName() + "@email.com", TEST_PASSWORD));
+
+        HttpURLConnection uc = get(cookie, SupportUserDetailsPage.PATH + u0.getId() + "/");
+        String res = IOUtils.readURL(uc);
+        assertThat(res, containsString("No (RA Agent Contract signed: No)"));
+
+        signRAContract(u0);
+        uc = get(cookie, SupportUserDetailsPage.PATH + u0.getId() + "/");
+        res = IOUtils.readURL(uc);
+        assertThat(res, containsString("No (RA Agent Contract signed: Yes)"));
+
+        insertPassedTest(u0.getId());
+        uc = get(cookie, SupportUserDetailsPage.PATH + u0.getId() + "/");
+        res = IOUtils.readURL(uc);
+        assertThat(res, containsString("No (RA Agent Contract signed: Yes)"));
+
+        insertVerificationPoints(u0.getId());
+        uc = get(cookie, SupportUserDetailsPage.PATH + u0.getId() + "/");
+        res = IOUtils.readURL(uc);
+        assertThat(res, not(containsString("RA Agent Contract signed:")));
+
+    }
 }

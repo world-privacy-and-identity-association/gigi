@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import club.wpia.gigi.Gigi;
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.Contract;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.Name;
 import club.wpia.gigi.dbObjects.SupportedUser;
@@ -112,6 +113,7 @@ public class SupportUserDetailsForm extends Form {
 
         });
         vars.put("agent", user.canVerify());
+        vars.put("agentcontract", Contract.hasSignedContract(user, Contract.ContractType.RA_AGENT_CONTRACT));
         vars.put("dob", dobSelector);
         vars.put("verificationPoints", user.getVerificationPoints());
         vars.put("exppoints", user.getExperiencePoints());

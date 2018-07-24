@@ -399,6 +399,7 @@ public class TestVerification extends ManagedTest {
     public void testVerifyWithoutValidChallenge() throws IOException, GigiApiException {
         cookie = cookieWithCertificateLogin(User.getById(applicantId));
         add100Points(applicantId);
+        insertRAContract(applicantId);
         addChallengeInPast(applicantId, CATSType.AGENT_CHALLENGE);
         assertEquals(403, get(cookie, VerifyPage.PATH).getResponseCode());
         addChallenge(applicantId, CATSType.AGENT_CHALLENGE);

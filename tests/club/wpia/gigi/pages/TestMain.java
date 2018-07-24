@@ -97,9 +97,10 @@ public class TestMain extends ClientTest {
 
     @Test
     public void testValidChallenges() throws GeneralSecurityException, IOException, GigiApiException, InterruptedException {
-
+        insertRAContract(u.getId());
         // test RA Agent challenge
         cookie = cookieWithCertificateLogin(u);
+
         testChallengeText("you need to pass the RA Agent Challenge", false);
 
         add100Points(u.getId());

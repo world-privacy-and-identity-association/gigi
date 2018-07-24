@@ -42,6 +42,7 @@ import club.wpia.gigi.database.SQLFileManager.ImportType;
 import club.wpia.gigi.dbObjects.CATS;
 import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.CertificateProfile;
+import club.wpia.gigi.dbObjects.Contract;
 import club.wpia.gigi.dbObjects.Contract.ContractType;
 import club.wpia.gigi.dbObjects.Domain;
 import club.wpia.gigi.dbObjects.DomainPingType;
@@ -338,6 +339,7 @@ public abstract class ConfiguredTest {
     public static void makeAgent(int uid) {
         addChallenge(uid, CATSType.AGENT_CHALLENGE);
         add100Points(uid);
+        insertRAContract(uid);
     }
 
     public static void addChallenge(int uid, CATSType ct) {
@@ -363,7 +365,9 @@ public abstract class ConfiguredTest {
             ps2.setInt(2, User.getById(uid).getPreferredName().getId());
             ps2.execute();
         }
+    }
 
+    public static void insertRAContract(int uid) {
         // insert signed RA Contract
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `user_contracts` SET `memid`=?, `token`=?, `document`=?::`contractType`,`agentname`=?")) {
             ps.setInt(1, uid);
@@ -371,6 +375,24 @@ public abstract class ConfiguredTest {
             ps.setEnum(3, ContractType.RA_AGENT_CONTRACT);
             ps.setString(4, User.getById(uid).getPreferredName().toString());
             ps.execute();
+        }
+    }
+
+    public static void insertVerificationPoints(int uid) {
+        // insert Verification Points
+        try (GigiPreparedStatement ps2 = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, points='100'")) {
+            ps2.setInt(1, uid);
+            ps2.setInt(2, User.getById(uid).getPreferredName().getId());
+            ps2.execute();
+        }
+    }
+
+    public static void insertPassedTest(int uid) {
+        // insert passed test
+        try (GigiPreparedStatement ps1 = new GigiPreparedStatement("INSERT INTO cats_passed SET user_id=?, variant_id=?, language='en_EN', version='1'")) {
+            ps1.setInt(1, uid);
+            ps1.setInt(2, CATSType.AGENT_CHALLENGE.getId());
+            ps1.execute();
         }
     }
 
@@ -416,5 +438,10 @@ public abstract class ConfiguredTest {
         c.setTimeInMillis(System.currentTimeMillis());
         c.add(Calendar.MONTH, -Notary.LIMIT_MAX_MONTHS_VERIFICATION + 1);
         return sdf.format(new Date(c.getTimeInMillis()));
+    }
+
+    public void signRAContract(User u) throws GigiApiException {
+        new Contract(u, ContractType.RA_AGENT_CONTRACT);
+        getMailReceiver().receive(u.getEmail());
     }
 }
