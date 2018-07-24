@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Name;
 import club.wpia.gigi.dbObjects.NamePart;
-import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.dbObjects.NamePart.NamePartType;
+import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.Outputable;
 import club.wpia.gigi.output.template.Template;
@@ -74,8 +74,11 @@ public class NameInput implements Outputable {
 
     public NamePart[] getNameParts() throws GigiApiException {
         if ("single".equals(scheme)) {
+            if (name == null || name.trim().isEmpty()) {
+                throw new GigiApiException("requires at least one character in the single name");
+            }
             return new NamePart[] {
-                    new NamePart(NamePartType.SINGLE_NAME, name)
+                    new NamePart(NamePartType.SINGLE_NAME, name.trim())
             };
         }
         String[] fparts = split(fname);
