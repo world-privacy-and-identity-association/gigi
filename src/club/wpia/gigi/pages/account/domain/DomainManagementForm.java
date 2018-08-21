@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.CertificateOwner;
 import club.wpia.gigi.dbObjects.Domain;
+import club.wpia.gigi.dbObjects.Organisation;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.Form;
 import club.wpia.gigi.output.template.IterableDataset;
@@ -22,10 +23,13 @@ public class DomainManagementForm extends Form {
 
     private boolean foreign;
 
+    private boolean readOnly;
+
     public DomainManagementForm(HttpServletRequest hsr, CertificateOwner target, boolean foreign) {
         super(hsr);
         this.target = target;
         this.foreign = foreign;
+        readOnly = (target instanceof Organisation && !foreign);
     }
 
     @Override
@@ -35,6 +39,9 @@ public class DomainManagementForm extends Form {
         int delId = Integer.parseInt(dels);
         Domain d = Domain.getById(delId);
         if (d != null && d.getOwner() == target) {
+            if (readOnly) {
+                throw new GigiApiException("You are not allowed to delete a domain.");
+            }
             d.delete();
         } else {
             throw new GigiApiException("Domain was not found.");
@@ -70,6 +77,12 @@ public class DomainManagementForm extends Form {
             }
         };
         vars.put("domains", dts);
+        if (readOnly) {
+            vars.put("buttonvisible", null);
+        } else {
+            vars.put("buttonvisible", "buttonvisible");
+        }
+
         t.output(out, l, vars);
     }
 }

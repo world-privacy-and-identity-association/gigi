@@ -1,8 +1,10 @@
 package club.wpia.gigi.pages.orga;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 
 import org.junit.Test;
@@ -10,7 +12,9 @@ import org.junit.Test;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Domain;
 import club.wpia.gigi.dbObjects.Organisation;
-import club.wpia.gigi.pages.orga.ViewOrgPage;
+import club.wpia.gigi.dbObjects.User;
+import club.wpia.gigi.pages.account.domain.DomainOverview;
+import club.wpia.gigi.testUtils.IOUtils;
 import club.wpia.gigi.testUtils.OrgTest;
 
 public class TestOrgDomain extends OrgTest {
@@ -86,5 +90,32 @@ public class TestOrgDomain extends OrgTest {
         }
         assertEquals(0, o1.getDomains().length);
         assertEquals(0, u.getDomains().length);
+    }
+
+    @Test
+    public void testDelAsAdmin() throws IOException, GigiApiException {
+        Organisation o = createUniqueOrg();
+        String dom = createUniqueName() + ".de";
+        Domain d = new Domain(u, o, dom);
+        assertEquals(1, o.getDomains().length);
+        User admin = createOrgAdmin(o);
+        String adminCookie = login(admin.getEmail(), TEST_PASSWORD);
+        assertNull(executeBasicWebInteraction(adminCookie, SwitchOrganisation.PATH, "org:" + o.getId() + "=y", 0));
+
+        // test that delete button is not displayed
+        URLConnection uc = get(adminCookie, DomainOverview.PATH);
+        uc.setDoOutput(true);
+        String res = IOUtils.readURL(uc);
+        assertThat(res, not(containsString("Delete")));
+
+        // test that domain cannot be deleted by organisation administrator
+        assertNull(executeBasicWebInteraction(adminCookie, SwitchOrganisation.PATH, "org:" + o.getId() + "=y", 0));
+        uc = post(adminCookie, DomainOverview.PATH, "delete=" + d.getId(), 0);
+        res = IOUtils.readURL(uc);
+        assertThat(res, containsString("You are not allowed to delete a domain."));
+
+        // verify that domain still belongs to organisation
+        assertEquals(1, o.getDomains().length);
+
     }
 }
