@@ -500,6 +500,19 @@ public class Certificate implements IdCachable {
         return null;
     }
 
+    public java.util.Date getExpiryDate() {
+        if (getStatus() == CertificateStatus.ISSUED) {
+            try (GigiPreparedStatement prep = new GigiPreparedStatement("SELECT expire FROM certs WHERE id=?")) {
+                prep.setInt(1, getId());
+                GigiResultSet res = prep.executeQuery();
+                if (res.next()) {
+                    return res.getTimestamp("expire");
+                }
+            }
+        }
+        return null;
+    }
+
     public void setLoginEnabled(boolean activate) {
         if (activate) {
             if ( !isLoginEnabled()) {
