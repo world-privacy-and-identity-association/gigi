@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
-import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.testUtils.BusinessTest;
 import club.wpia.gigi.util.DayDate;
 import club.wpia.gigi.util.Notary;
@@ -22,13 +21,13 @@ public class TestVerification extends BusinessTest {
     private final Timestamp tomorrow = new Timestamp(System.currentTimeMillis() + DayDate.MILLI_DAY);
 
     /**
-     * at least 39 months ago, so is outside the window of
+     * at least 27 months ago, so is outside the window of
      * {@link User#VERIFICATION_MONTHS}
      */
-    private final Timestamp min39month = new Timestamp(System.currentTimeMillis() - DayDate.MILLI_DAY * 39 * 31);
+    private final Timestamp min27month = new Timestamp(System.currentTimeMillis() - DayDate.MILLI_DAY * 27 * 31);
 
     /**
-     * at least 24 months ago (but less than 39), so is inside the window of
+     * at least 24 months ago (but less than 27), so is inside the window of
      * {@link User#VERIFICATION_MONTHS}
      */
     private final Timestamp min24month = new Timestamp(System.currentTimeMillis() - DayDate.MILLI_DAY * 24 * 31);
@@ -134,7 +133,7 @@ public class TestVerification extends BusinessTest {
 
     @Test
     public void testApprox39MonthAgo() throws IOException {
-        enterVerificationWhen(agentID, applicantNameID, min39month);
+        enterVerificationWhen(agentID, applicantNameID, min27month);
         assertFalse(applicant.isInVerificationLimit());
     }
 
@@ -167,7 +166,7 @@ public class TestVerification extends BusinessTest {
         User agent = User.getById(agentID);
         User applicantMult = User.getById(applicantMultID);
 
-        enterVerificationWhen(agentID, applicantMult.getPreferredName().getId(), min39month);
+        enterVerificationWhen(agentID, applicantMult.getPreferredName().getId(), min27month);
 
         // test that new entry would be possible
         assertTrue(Notary.checkVerificationIsPossible(agent, applicantMult.getPreferredName()));
@@ -186,7 +185,7 @@ public class TestVerification extends BusinessTest {
         User agent = User.getById(agentID);
         User applicantMult = User.getById(applicantMultID);
 
-        enterVerificationWhen(agentID, applicantMult.getPreferredName().getId(), min39month);
+        enterVerificationWhen(agentID, applicantMult.getPreferredName().getId(), min27month);
         int xPoints = agent.getExperiencePoints();
 
         // test that VP after first entry

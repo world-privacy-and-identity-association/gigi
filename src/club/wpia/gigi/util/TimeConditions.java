@@ -21,7 +21,7 @@ public class TimeConditions {
     private TimeConditions(Properties ppts) {
         testValidMonths = Integer.parseInt(ppts.getProperty("time.testValidMonths", "12"));
         reverificationDays = Integer.parseInt(ppts.getProperty("time.reverificationDays", "90"));
-        verificationFreshMonths = Integer.parseInt(ppts.getProperty("time.verificationFreshMonths", "39"));
+        verificationFreshMonths = Integer.parseInt(ppts.getProperty("time.verificationFreshMonths", "27"));
         verificationMaxAgeMonths = Integer.parseInt(ppts.getProperty("time.verificationMaxAgeMonths", "24"));
         emailPingMonths = Integer.parseInt(ppts.getProperty("time.emailPingMonths", "6"));
     }
