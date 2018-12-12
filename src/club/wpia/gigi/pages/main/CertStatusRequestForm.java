@@ -47,7 +47,7 @@ public class CertStatusRequestForm extends Form {
         }
 
         if (c.getStatus() == CertificateStatus.REVOKED) {
-            java.util.Date revocationDate = c.getRevocationDate();
+            Date revocationDate = c.getRevocationDate();
             throw new PermamentFormException(new GigiApiException(SprintfCommand.createSimple("Certificate has been revoked on {0}.", revocationDate)));
         }
         if (c.getExpiryDate().before(new Date())) {
