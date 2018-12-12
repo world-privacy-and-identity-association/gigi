@@ -1,6 +1,7 @@
 package club.wpia.gigi.pages.main;
 
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,6 +49,9 @@ public class CertStatusRequestForm extends Form {
         if (c.getStatus() == CertificateStatus.REVOKED) {
             java.util.Date revocationDate = c.getRevocationDate();
             throw new PermamentFormException(new GigiApiException(SprintfCommand.createSimple("Certificate has been revoked on {0}.", revocationDate)));
+        }
+        if (c.getExpiryDate().before(new Date())) {
+            return new SuccessMessageResult((SprintfCommand.createSimple("Certificate is valid but has expired on {0}.", c.getExpiryDate())));
         }
 
         return new SuccessMessageResult(new TranslateCommand("Certificate is valid."));
