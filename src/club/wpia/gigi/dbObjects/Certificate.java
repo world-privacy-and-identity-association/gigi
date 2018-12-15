@@ -4,6 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -15,6 +18,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
+
+import javax.xml.bind.DatatypeConverter;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.DBEnum;
@@ -648,5 +653,19 @@ public class Certificate implements IdCachable {
             throw new GigiApiException("Malformed serial");
         }
         return new BigInteger(serial, 16);
+    }
+
+    public String getFingerprint(String algorithm) throws IOException, GeneralSecurityException, GigiApiException {
+        X509Certificate certx = cert();
+        return getFingerprint(certx, algorithm);
+    }
+
+    private static String getFingerprint(X509Certificate cert, String algorithm) throws NoSuchAlgorithmException, CertificateEncodingException {
+        MessageDigest md = MessageDigest.getInstance(algorithm);
+        byte[] der = cert.getEncoded();
+        md.update(der);
+        byte[] digest = md.digest();
+        String digestHex = DatatypeConverter.printHexBinary(digest);
+        return digestHex.toLowerCase();
     }
 }
