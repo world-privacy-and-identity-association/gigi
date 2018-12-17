@@ -80,7 +80,7 @@ public class AuthorizationContext implements Outputable, Serializable {
 
     private static final SprintfCommand sp = new SprintfCommand("Logged in as {0} via {1}.", Arrays.asList("${username", "${loginMethod"));
 
-    private static final SprintfCommand inner = new SprintfCommand("{0} (on behalf of {1})", Arrays.asList("${user", "${target"));
+    private static final SprintfCommand inner = new SprintfCommand("{0}, acting as {1},", Arrays.asList("${user", "${target"));
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
@@ -90,8 +90,8 @@ public class AuthorizationContext implements Outputable, Serializable {
             @Override
             public void output(PrintWriter out, Language l, Map<String, Object> vars) {
                 if (target != actor) {
-                    vars.put("user", ((Organisation) target).getName().toString());
-                    vars.put("target", actor.getPreferredName().toString());
+                    vars.put("target", ((Organisation) target).getName().toString());
+                    vars.put("user", actor.getPreferredName().toString());
                     inner.output(out, l, vars);
                 } else {
                     out.println(actor.getPreferredName().toString());

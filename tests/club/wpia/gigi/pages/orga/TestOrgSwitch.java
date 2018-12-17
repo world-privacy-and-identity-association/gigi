@@ -49,7 +49,7 @@ public class TestOrgSwitch extends OrgTest {
         assertNull(executeBasicWebInteraction(cookie, SwitchOrganisation.PATH, "org:" + org1.getId() + "=y", 0));
 
         String res = IOUtils.readURL(get(SwitchOrganisation.PATH));
-        assertThat(res, containsString("Logged in as " + org1.getName() + " (on behalf of " + u2.getPreferredName()));
+        assertThat(res, containsString("Logged in as " + u2.getPreferredName() + ", acting as " + org1.getName()));
 
     }
 
@@ -83,7 +83,7 @@ public class TestOrgSwitch extends OrgTest {
         assertNull(executeBasicWebInteraction(cookie, SwitchOrganisation.PATH, "org:" + org2.getId() + "=y", 0));
 
         String res = IOUtils.readURL(get(SwitchOrganisation.PATH));
-        assertThat(res, containsString("Logged in as " + org2.getName() + " (on behalf of " + u2.getPreferredName()));
+        assertThat(res, containsString("Logged in as " + u2.getPreferredName() + ", acting as " + org2.getName()));
 
     }
 
@@ -94,7 +94,7 @@ public class TestOrgSwitch extends OrgTest {
         assertNull(executeBasicWebInteraction(cookie, SwitchOrganisation.PATH, "org:" + org1.getId() + "=y", 0));
 
         String res = IOUtils.readURL(get(SwitchOrganisation.PATH));
-        assertThat(res, containsString("Logged in as " + org1.getName() + " (on behalf of " + u2.getPreferredName()));
+        assertThat(res, containsString("Logged in as " + u2.getPreferredName() + ", acting as " + org1.getName()));
 
     }
 
