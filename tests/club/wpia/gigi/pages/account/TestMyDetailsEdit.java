@@ -147,4 +147,78 @@ public class TestMyDetailsEdit extends ManagedTest {
         // test add invalid group
         assertNotNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "action=addGroup&groupToModify=non-existing", 0));
     }
+
+    @Test
+    public void testHyphen() throws IOException {
+
+        String fn = "Hans-Dieter";
+        String fnc = fn;
+        String ln = "Müller-Schmitz";
+        String lnc = ln;
+        testAddName(fn, ln, fnc, lnc);
+
+        fn = "Hans-   Dieter";
+        ln = "Müller-    Schmitz";
+        testAddName(fn, ln, fnc, lnc);
+
+        fn = "Hans    -Dieter";
+        ln = "Müller    -Schmitz";
+        testAddName(fn, ln, fnc, lnc);
+
+        fn = "Hans    -     Dieter";
+        ln = "Müller   -   Schmitz";
+        testAddName(fn, ln, fnc, lnc);
+
+        String[] hyphen = {
+                "\u002d", "\u058a", "\u05be", "\u1806", "\u2010", "\u2011", "\u2012", "\u2013", "\u2014", "\u2015", "\u2e3a", "\u2e3b", "\ufe58", "\ufe63", "\uff0d"
+        };
+
+        for (int i = 0; i < hyphen.length; i++) {
+            fn = "Hans    " + hyphen[i] + "     Dieter";
+            ln = "Müller   " + hyphen[i] + "   Schmitz";
+            testAddName(fn, ln, fnc, lnc);
+        }
+    }
+
+    @Test
+    public void testBlanks() throws IOException {
+
+        String fn = "Hans";
+        String fnc = fn;
+        String ln = "Müller";
+        String lnc = ln;
+        testAddName(fn, ln, fnc, lnc);
+
+        fn = "Hans  ";
+        ln = "Müller  ";
+        testAddName(fn, ln, fnc, lnc);
+
+        fn = "    Hans";
+        ln = "    Müller";
+        testAddName(fn, ln, fnc, lnc);
+
+        fn = "Hans    Dieter";
+        ln = "Müller    Schmitz";
+        testAddName(fn, ln, fnc, lnc, 4);
+
+        fn = "Hans    Dieter   ";
+        ln = "    Müller    Schmitz";
+        testAddName(fn, ln, fnc, lnc, 4);
+    }
+
+    public void testAddName(String fn, String ln, String fnc, String lnc) throws IOException {
+        testAddName(fn, ln, fnc, lnc, 2);
+    }
+
+    public void testAddName(String fn, String ln, String fnc, String lnc, int partLength) throws IOException {
+        int startn = User.getById(id).getNames().length;
+        assertNull(executeBasicWebInteraction(cookie, MyDetails.PATH, "action=addName&name-type=western&fname=" + fn + "&lname=" + ln, 0));
+        User u = User.getById(id);
+
+        NamePart[] parts = u.getNames()[startn].getParts();
+        assertThat(Arrays.asList(parts), CoreMatchers.hasItem(new NamePart(NamePartType.FIRST_NAME, fnc)));
+        assertThat(Arrays.asList(parts), CoreMatchers.hasItem(new NamePart(NamePartType.LAST_NAME, lnc)));
+        assertEquals(partLength, parts.length);
+        assertEquals(startn + 1, User.getById(id).getNames().length);
+    }
 }
