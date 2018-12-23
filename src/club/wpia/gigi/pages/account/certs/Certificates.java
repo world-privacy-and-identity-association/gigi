@@ -183,8 +183,15 @@ public class Certificates extends Page implements HandlesMixedRequest {
             vars.put("DN", c.getDistinguishedName());
             vars.put("digest", c.getMessageDigest());
             vars.put("profile", c.getProfile().getVisibleName());
-            vars.put("fingerprint", "TBD"); // TODO function needs to be
-                                            // implemented in Certificate.java
+            try {
+                vars.put("fingerprintSHA1", c.getFingerprint("sha-1"));
+                vars.put("fingerprintSHA256", c.getFingerprint("sha-256"));
+            } catch (GeneralSecurityException e) {
+                e.printStackTrace();
+            } catch (GigiApiException e) {
+                e.format(out, l, getDefaultVars(req));
+            }
+
             try {
 
                 if (st == CertificateStatus.ISSUED || st == CertificateStatus.REVOKED) {
