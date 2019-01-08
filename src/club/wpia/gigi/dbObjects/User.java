@@ -572,7 +572,7 @@ public class User extends CertificateOwner {
     }
 
     public String[] getTrainings() {
-        try (GigiPreparedStatement prep = new GigiPreparedStatement("SELECT `pass_date`, `type_text`, `language`, `version` FROM `cats_passed` LEFT JOIN `cats_type` ON `cats_type`.`id`=`cats_passed`.`variant_id`  WHERE `user_id`=? ORDER BY `pass_date` ASC")) {
+        try (GigiPreparedStatement prep = new GigiPreparedStatement("SELECT `pass_date`, `type_text`, `language`, `version` FROM `cats_passed` LEFT JOIN `cats_type` ON `cats_type`.`id`=`cats_passed`.`variant_id`  WHERE `user_id`=? ORDER BY `pass_date` DESC")) {
             prep.setInt(1, getId());
             GigiResultSet res = prep.executeQuery();
             List<String> entries = new LinkedList<String>();
