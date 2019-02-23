@@ -228,6 +228,7 @@ public class VerificationForm extends Form {
             String subject = langApplicant.getTranslation("Password reset by verification");
             PasswordResetPage.initPasswordResetProcess(applicant, req, aword, langApplicant, method, subject);
             result = new ConcatOutputable(result, new TranslateCommand("Password reset successful."));
+            agent.writeUserLog(applicant, "RA Agent triggered password reset");
         }
         return new SuccessMessageResult(result);
     }

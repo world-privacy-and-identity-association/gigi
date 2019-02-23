@@ -42,6 +42,7 @@ public class ChangeForm extends Form {
         }
         try {
             target.changePassword(oldpassword, p1);
+            target.writeUserLog(target, "User triggered password reset");
         } catch (GigiApiException e) {
             error.mergeInto(e);
         }
