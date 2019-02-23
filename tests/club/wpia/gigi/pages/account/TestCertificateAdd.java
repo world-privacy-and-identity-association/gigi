@@ -23,7 +23,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -33,7 +32,6 @@ import java.util.regex.Pattern;
 
 import org.junit.Test;
 
-import club.wpia.gigi.crypto.SPKAC;
 import club.wpia.gigi.dbObjects.CertificateOwner;
 import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.pages.account.certs.CertificateAdd;
@@ -56,7 +54,6 @@ import sun.security.x509.GeneralNameInterface;
 import sun.security.x509.GeneralNames;
 import sun.security.x509.RFC822Name;
 import sun.security.x509.SubjectAlternativeNameExtension;
-import sun.security.x509.X509Key;
 
 public class TestCertificateAdd extends ClientTest {
 
@@ -123,12 +120,6 @@ public class TestCertificateAdd extends ClientTest {
         assertArrayEquals(new String[] {
                 "client", "a b", "email:" + email + "\n", Digest.SHA256.toString()
         }, res);
-    }
-
-    @Test
-    public void testSPKAC() throws GeneralSecurityException, IOException {
-        testSPKAC(false);
-        testSPKAC(true);
     }
 
     @Test
@@ -310,32 +301,6 @@ public class TestCertificateAdd extends ClientTest {
         URLConnection uc = url.openConnection();
         uc.setRequestProperty("Cookie", cookie);
         return uc;
-    }
-
-    protected String testSPKAC(boolean correctChallenge) throws GeneralSecurityException, IOException {
-        HttpURLConnection uc = (HttpURLConnection) ncert.openConnection();
-        uc.setRequestProperty("Cookie", cookie);
-        String s = IOUtils.readURL(uc);
-
-        csrf = extractPattern(s, Pattern.compile("<input [^>]*name='csrf' [^>]*value='([^']*)'>"));
-        String challenge = extractPattern(s, Pattern.compile("<keygen [^>]*name=\"SPKAC\" [^>]*challenge=\"([^\"]*)\"/>"));
-
-        SPKAC spk = new SPKAC((X509Key) kp.getPublic(), challenge + (correctChallenge ? "" : "b"));
-        Signature sign = Signature.getInstance("SHA512WithRSA");
-        sign.initSign(kp.getPrivate());
-        try {
-            String[] res = fillOutFormDirect("SPKAC=" + URLEncoder.encode(Base64.getEncoder().encodeToString(spk.getEncoded(sign)), "UTF-8"));
-            if ( !correctChallenge) {
-                fail("Should not succeed with wrong challenge.");
-            }
-            assertArrayEquals(new String[] {
-                    "client", CertificateRequest.DEFAULT_CN, "", Digest.SHA512.toString()
-            }, res);
-        } catch (OnPageError e) {
-            String error = fetchStartErrorMessage(e.getMessage());
-            assertTrue(error, error.startsWith("<p>Challenge mismatch"));
-        }
-        return csrf;
     }
 
     private PKCS10Attributes buildAtts(ObjectIdentifier[] ekuOIDs, GeneralNameInterface... SANs) throws IOException {
