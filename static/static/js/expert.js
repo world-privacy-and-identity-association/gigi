@@ -141,15 +141,15 @@
 		if(expert !== null) {
 			expert.onchange = (function(expert){return function(){showExpert(expert.checked)}})(expert);
 		}
-		$(".panel-activatable").map(function() {
-			var panel = $(this);
+		$(".card-activatable").map(function() {
+			var card = $(this);
 			var refresh = function(){
 				var radio = this.type == "radio";
 				if(radio && this.form.currentRadios === undefined) {
 					this.form.currentRadios = {};
 				}
 				if(this.checked) {
-					panel.find(".panel-body").removeClass("hidden");
+					card.find(".card-body").removeClass("d-none");
 					if(radio) {
 						var rds = this.form.currentRadios;
 						if(rds[this.name] !== undefined){
@@ -158,13 +158,13 @@
 						rds[this.name] = this;
 					}
 				} else {
-					panel.find(".panel-body").addClass("hidden");
+					card.find(".card-body").addClass("d-none");
 				}
 			};
-			panel.find(".panel-heading [type=\"checkbox\"]").map(refresh);
-			panel.find(".panel-heading [type=\"checkbox\"]").change(refresh);
-			panel.find(".panel-heading [type=\"radio\"]").map(refresh);
-			panel.find(".panel-heading [type=\"radio\"]").change(refresh);
+			card.find(".card-heading [type=\"checkbox\"]").map(refresh);
+			card.find(".card-heading [type=\"checkbox\"]").change(refresh);
+			card.find(".card-heading [type=\"radio\"]").map(refresh);
+			card.find(".card-heading [type=\"radio\"]").change(refresh);
 			return this.id;
 		});
 		initConfirm();

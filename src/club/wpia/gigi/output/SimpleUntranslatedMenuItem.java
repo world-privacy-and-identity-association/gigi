@@ -23,7 +23,7 @@ public class SimpleUntranslatedMenuItem implements IMenuItem {
 
     @Override
     public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-        out.print("<li><a href=\"");
+        out.print("<li><a class=\"dropdown-item\" href=\"");
         out.print(href);
         out.print("\">");
         printContent(out, l);
