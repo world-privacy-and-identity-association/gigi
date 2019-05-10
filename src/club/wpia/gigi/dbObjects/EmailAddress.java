@@ -62,6 +62,11 @@ public class EmailAddress implements IdCachable, Verifyable {
                         throw new GigiApiException("The email address is already known to the system.");
                     }
                 }
+
+                if (isOrgMailAddress()) {
+                    throw new GigiApiException("The entered email address belongs to a registered organisation. Please contact the organisation to issue certificates for this email address.");
+                }
+
                 try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `emails` SET memid=?, email=?")) {
                     ps.setInt(1, owner.getId());
                     ps.setString(2, address);
@@ -179,6 +184,16 @@ public class EmailAddress implements IdCachable, Verifyable {
                 results.add(EmailAddress.getById(rs.getInt(1)));
             }
             return results.toArray(new EmailAddress[results.size()]);
+        }
+    }
+
+    public boolean isOrgMailAddress() {
+        String[] parts = address.split("@");
+
+        try (GigiPreparedStatement statmt = new GigiPreparedStatement("SELECT 1 FROM `domains` AS d, `organisations` AS o WHERE d.`domain` = ? AND d.`deleted` IS NULL AND d.`memid` = o.`id`")) {
+            statmt.setString(1, parts[parts.length - 1]);
+            GigiResultSet e = statmt.executeQuery();
+            return e.next();
         }
     }
 }
