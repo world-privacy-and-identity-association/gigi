@@ -183,4 +183,13 @@ public abstract class BusinessTest extends ConfiguredTest {
         supporter.refreshGroups();
         return supporter;
     }
+
+    public EmailAddress createVerifiedEmail(User u, String email) throws InterruptedException, GigiApiException {
+        EmailAddress addr = new EmailAddress(u, email, Locale.ENGLISH);
+        TestMail testMail = getMailReceiver().receive(addr.getAddress());
+        String hash = testMail.extractLink().substring(testMail.extractLink().lastIndexOf('=') + 1);
+        addr.verify(hash);
+        getMailReceiver().assertEmpty();
+        return addr;
+    }
 }

@@ -19,7 +19,7 @@
  		<td><?=$verification?></td>
  		<td><? if($last_verification) { ?><?=$last_verification?><? } else { ?><?=_N/A?><? } ?></td>
  		<td><?=$address?></td>
- 		<td><button class="btn btn-danger btn-confirm" data-confirm="<?=_Do you really want to delete this email address??>" data-reply="<?=_Cancel?>,<?=_Confirm?>" type="submit" name="delete" value="<?=$id?>"<?=$deletable?>><?=_Delete?></button></td>
+ 		<td><button class="btn btn-danger btn-confirm" data-confirm="<?=_Do you really want to delete this email address? ALL active certificates that reference the affected email address (including multiple emails, code signing, TLS and S/MIME) will be revoked.?>" data-reply="<?=_Cancel?>,<?=_Confirm?>" type="submit" name="delete" value="<?=$id?>"<?=$deletable?>><?=_Delete?></button></td>
  		<td><button class="btn btn-primary" type="submit" name="reping" value="<?=$id?>"><?=_Request reping?></button></td>
  	</tr>
  <? } ?>
