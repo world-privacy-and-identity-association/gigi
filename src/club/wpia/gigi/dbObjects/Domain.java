@@ -7,6 +7,7 @@ import java.util.List;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.GigiResultSet;
+import club.wpia.gigi.dbObjects.Certificate.RevocationType;
 import club.wpia.gigi.util.DomainAssessment;
 
 public class Domain implements IdCachable, Verifyable {
@@ -71,6 +72,19 @@ public class Domain implements IdCachable, Verifyable {
             try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `domains` SET `deleted`=CURRENT_TIMESTAMP WHERE `id`=?")) {
                 ps.setInt(1, id);
                 ps.execute();
+            }
+            LinkedList<Job> revokes = new LinkedList<Job>();
+            for (Certificate cert : fetchActiveCertificates()) {
+                revokes.add(cert.revoke(RevocationType.USER));
+            }
+            long start = System.currentTimeMillis();
+            for (Job job : revokes) {
+                int toWait = (int) (60000 + start - System.currentTimeMillis());
+                if (toWait > 0) {
+                    job.waitFor(toWait);
+                } else {
+                    break; // canceled... waited too log
+                }
             }
         }
     }

@@ -10,7 +10,7 @@
   </tr>
   <? foreach($domains) { ?>
   <tr>
-  	<td><? if($buttonvisible) { ?><button class="btn btn-danger btn-confirm" data-confirm="<?=_Do you really want to delete this domain??>" data-reply="<?=_Cancel?>,<?=_Confirm?>" type="submit" name="delete" value="<?=$id?>">Delete</button><? } ?></td>
+  	<td><? if($buttonvisible) { ?><button class="btn btn-danger btn-confirm" data-confirm="<?=_All certificates that reference the affected domain (including those where several different domains appear) will be revoked.?>" data-reply="<?=_Cancel?>,<?=_Confirm?>" type="submit" name="delete" value="<?=$id?>">Delete</button><? } ?></td>
   	<td><?=$status?></td>
   	<td><? if($domainhref) { ?><a href='<?=$domainhref?>'><?=$domain?><? } else { ?><?=$domain?><? } ?></a></td>
   </tr>
