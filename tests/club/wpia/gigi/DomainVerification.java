@@ -24,6 +24,9 @@ public class DomainVerification extends ConfiguredTest {
         assertTrue(DomainAssessment.isValidDomainPart("123"));
         assertTrue(DomainAssessment.isValidDomainPart("abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy1234567890123"));
         assertFalse(DomainAssessment.isValidDomainPart("abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy12345678901234"));
+        // test underscore in domain according to BR 7.1.4.2.1
+        assertFalse(DomainAssessment.isValidDomainPart("_"));
+        assertFalse(DomainAssessment.isValidDomainPart("a_b"));
     }
 
     @Test
