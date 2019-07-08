@@ -16,7 +16,6 @@ import club.wpia.gigi.dbObjects.EmailAddress;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.pages.account.certs.CertificateRequest;
 import club.wpia.gigi.testUtils.ClientTest;
-import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
 import club.wpia.gigi.util.AuthorizationContext;
 import club.wpia.gigi.util.TimeConditions;
 
@@ -27,7 +26,7 @@ public class TestCertificateRequest extends ClientTest {
     AuthorizationContext ac;
 
     public TestCertificateRequest() throws GeneralSecurityException, IOException, GigiApiException {
-        ac = new AuthorizationContext(u, u);
+        ac = new AuthorizationContext(u, u, false);
         makeAgent(u.getId());
     }
 

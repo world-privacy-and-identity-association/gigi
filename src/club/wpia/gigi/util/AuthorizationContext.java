@@ -24,7 +24,9 @@ public class AuthorizationContext implements Outputable, Serializable {
 
     private final String supporterTicketId;
 
-    public AuthorizationContext(CertificateOwner target, User actor) {
+    private final boolean isStronglyAuthenticated;
+
+    public AuthorizationContext(CertificateOwner target, User actor, boolean isStronglyAuthenticated) {
         if (actor == null) {
             throw new Error("Internal Error: The actor of an AuthorizationContext must not be null!");
         }
@@ -34,6 +36,7 @@ public class AuthorizationContext implements Outputable, Serializable {
         this.target = target;
         this.actor = actor;
         this.supporterTicketId = null;
+        this.isStronglyAuthenticated = isStronglyAuthenticated;
     }
 
     public AuthorizationContext(User actor, String supporterTicket) throws GigiApiException {
@@ -49,6 +52,7 @@ public class AuthorizationContext implements Outputable, Serializable {
             throw new GigiApiException("requires a supporter");
         }
         this.supporterTicketId = supporterTicket;
+        this.isStronglyAuthenticated = true;
     }
 
     public CertificateOwner getTarget() {
@@ -110,5 +114,9 @@ public class AuthorizationContext implements Outputable, Serializable {
 
     public boolean canVerify() {
         return target instanceof User && ((User) target).canVerify();
+    }
+
+    public boolean isStronglyAuthenticated() {
+        return isStronglyAuthenticated;
     }
 }

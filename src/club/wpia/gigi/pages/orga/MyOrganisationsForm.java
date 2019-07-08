@@ -31,8 +31,9 @@ public class MyOrganisationsForm extends Form {
 
     @Override
     public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
+        AuthorizationContext sessionAc = (AuthorizationContext) req.getSession().getAttribute(Gigi.AUTH_CONTEXT);
         if (req.getParameter("org-leave") != null) {
-            req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(target.getActor(), target.getActor()));
+            req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(target.getActor(), target.getActor(), sessionAc.isStronglyAuthenticated()));
             return new RedirectResult(SwitchOrganisation.PATH);
         }
         Enumeration<String> i = req.getParameterNames();
@@ -51,7 +52,7 @@ public class MyOrganisationsForm extends Form {
         for (Organisation org : target.getActor().getOrganisations()) {
             if (org.getId() == orgId) {
 
-                req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(org, target.getActor()));
+                req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(org, target.getActor(), sessionAc.isStronglyAuthenticated()));
                 return new RedirectResult(SwitchOrganisation.PATH);
             }
         }

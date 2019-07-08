@@ -63,7 +63,7 @@ public class TestCAAValidation extends ClientTest {
         Domain d = new Domain(u, u, PublicSuffixes.getInstance().getRegistrablePart(domain));
         verify(d);
         String csr = generatePEMCSR(generateKeypair(), "CN=test");
-        CertificateRequest cr = new CertificateRequest(new AuthorizationContext(u, u), csr);
+        CertificateRequest cr = new CertificateRequest(new AuthorizationContext(u, u, false), csr);
         try {
             cr.update("", Digest.SHA512.toString(), "server", null, null, "dns:" + domain + "\n");
         } catch (GigiApiException e) {

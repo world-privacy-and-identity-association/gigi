@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpSession;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.GigiResultSet;
+import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.CertificateOwner;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.User;
@@ -140,7 +142,7 @@ public class LoginPage extends Page {
                     }
                 }
 
-                loginSession(req, user);
+                loginSession(req, user, false);
                 req.getSession().setAttribute(LOGIN_METHOD, new TranslateCommand("Password"));
                 return;
             }
@@ -161,11 +163,15 @@ public class LoginPage extends Page {
 
     private void tryAuthWithCertificate(HttpServletRequest req, X509Certificate x509Certificate) {
         BigInteger serial = extractSerialFormCert(x509Certificate);
+        Certificate c = Certificate.getBySerial(serial);
         User user = fetchUserBySerial(serial);
         if (user == null) {
             return;
         }
-        loginSession(req, user);
+        if (c.getExpiryDate().before(new Date()) || c.getRevocationDate() != null || c.isLoginEnabled() == false) {
+            return;
+        }
+        loginSession(req, user, true);
         req.getSession().setAttribute(CERT_SERIAL, serial);
         req.getSession().setAttribute(CERT_ISSUER, x509Certificate.getIssuerDN());
         req.getSession().setAttribute(LOGIN_METHOD, new TranslateCommand("Certificate"));
@@ -194,7 +200,7 @@ public class LoginPage extends Page {
 
     private static final Group LOGIN_BLOCKED = Group.BLOCKED_LOGIN;
 
-    private void loginSession(HttpServletRequest req, User user) {
+    private void loginSession(HttpServletRequest req, User user, boolean isStronglyAuthenticated) {
         if (user.isInGroup(LOGIN_BLOCKED)) {
             return;
         }
@@ -203,7 +209,7 @@ public class LoginPage extends Page {
         HttpSession hs = req.getSession();
         hs.setAttribute(LOGGEDIN, true);
         hs.setAttribute(Language.SESSION_ATTRIB_NAME, user.getPreferredLocale());
-        hs.setAttribute(AUTH_CONTEXT, new AuthorizationContext(user, user));
+        hs.setAttribute(AUTH_CONTEXT, new AuthorizationContext(user, user, isStronglyAuthenticated));
     }
 
     @Override

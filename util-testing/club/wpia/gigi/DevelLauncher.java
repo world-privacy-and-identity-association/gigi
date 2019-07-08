@@ -212,7 +212,9 @@ public class DevelLauncher {
                     }
                     sess.setAttribute(LOGGEDIN, true);
                     sess.setAttribute(Language.SESSION_ATTRIB_NAME, user.getPreferredLocale());
-                    sess.setAttribute(AUTH_CONTEXT, new AuthorizationContext(user, user));
+                    // ac.isStronglyAuthenticated() set to true to bypass
+                    // certificate login for testing
+                    sess.setAttribute(AUTH_CONTEXT, new AuthorizationContext(user, user, true));
                     req.getSession().setAttribute(LOGIN_METHOD, new TranslateCommand("Ticket"));
                     resp.getWriter().println("ticket consumed");
                     ticketUsed = true;
