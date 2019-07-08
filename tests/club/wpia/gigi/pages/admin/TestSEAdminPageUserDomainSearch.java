@@ -52,13 +52,13 @@ public class TestSEAdminPageUserDomainSearch extends SEClientTest {
     public void testDomainSearch() throws MalformedURLException, UnsupportedEncodingException, IOException, GigiApiException {
         URLConnection uc = post(FindUserByDomainPage.PATH, "process&domain=" + URLEncoder.encode(domainName, "UTF-8"));
 
-        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + SupportUserDetailsPage.PATH + tid + "/", uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + SupportUserDetailsPage.PATH + tid + "/", uc.getHeaderField("Location"));
     }
 
     @Test
     public void testDomainSearchById() throws MalformedURLException, UnsupportedEncodingException, IOException, GigiApiException {
         URLConnection uc = post(FindUserByDomainPage.PATH, "process&domain=#" + d.getId());
-        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + SupportUserDetailsPage.PATH + tid + "/", uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + SupportUserDetailsPage.PATH + tid + "/", uc.getHeaderField("Location"));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class TestSEAdminPageUserDomainSearch extends SEClientTest {
         // test
         URLConnection uc = post(FindUserByDomainPage.PATH, "process&domain=" + URLEncoder.encode(dom, "UTF-8"));
 
-        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + SupportOrgDomainPage.PATH + d.getId(), uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + SupportOrgDomainPage.PATH + d.getId(), uc.getHeaderField("Location"));
 
         String s = IOUtils.readURL(get(cookie, SupportOrgDomainPage.PATH + d.getId()));
         assertThat(s, containsString(dom));

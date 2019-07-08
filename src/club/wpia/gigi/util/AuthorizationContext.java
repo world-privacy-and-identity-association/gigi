@@ -79,7 +79,7 @@ public class AuthorizationContext implements Outputable, Serializable {
     }
 
     public boolean canSupport() {
-        return getSupporterTicketId() != null && isInGroup(Group.SUPPORTER);
+        return getSupporterTicketId() != null && isInGroup(Group.SUPPORTER) && isStronglyAuthenticated();
     }
 
     private static final SprintfCommand sp = new SprintfCommand("Logged in as {0} via {1}.", Arrays.asList("${username", "${loginMethod"));

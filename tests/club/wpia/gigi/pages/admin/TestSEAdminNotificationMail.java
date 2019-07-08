@@ -158,7 +158,7 @@ public class TestSEAdminNotificationMail extends SEClientTest {
 
         // supporter removes supporter flag
         URLConnection uc = post(SupportUserDetailsPage.PATH + u.getId() + "/", "removeGroup&groupToModify=" + URLEncoder.encode(Group.SUPPORTER.getDBName(), "UTF-8"));
-        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + MyDetails.PATH, uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + MyDetails.PATH, uc.getHeaderField("Location"));
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         Group.SUPPORTER.getName().output(pw, Language.getInstance(Locale.ENGLISH), new HashMap<String, Object>());
