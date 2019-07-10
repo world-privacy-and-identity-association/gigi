@@ -113,7 +113,7 @@ public class AuthorizationContext implements Outputable, Serializable {
     }
 
     public boolean canVerify() {
-        return target instanceof User && ((User) target).canVerify();
+        return target instanceof User && ((User) target).canVerify() && isStronglyAuthenticated();
     }
 
     public boolean isStronglyAuthenticated() {
