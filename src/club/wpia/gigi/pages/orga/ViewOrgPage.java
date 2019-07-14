@@ -36,7 +36,7 @@ public class ViewOrgPage extends ManagedMultiFormPage {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && (ac.isInGroup(CreateOrgPage.ORG_AGENT) || ac.getActor().getOrganisations(true).size() != 0);
+        return ac != null && ((ac.isInGroup(CreateOrgPage.ORG_AGENT) && ac.isStronglyAuthenticated()) || ac.getActor().getOrganisations(true).size() != 0);
     }
 
     @Override

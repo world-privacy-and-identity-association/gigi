@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.security.PrivateKey;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.Country;
 import club.wpia.gigi.dbObjects.Country.CountryCodeType;
 import club.wpia.gigi.dbObjects.Organisation;
@@ -90,9 +92,14 @@ public class TestOrgManagement extends OrgTest {
         o1.addAdmin(u2, u, false);
         String session2 = login(u2.getEmail(), TEST_PASSWORD);
 
+        Certificate c1 = loginCertificate;
+        PrivateKey pk1 = loginPrivateKey;
+        loginCertificate = null;
+
         URLConnection uc = get(session2, ViewOrgPage.DEFAULT_PATH);
         assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
 
+        session2 = cookieWithCertificateLogin(u2);
         uc = get(session2, MyDetails.PATH);
         String content = IOUtils.readURL(uc);
         assertThat(content, containsString(o1.getName()));
@@ -101,6 +108,9 @@ public class TestOrgManagement extends OrgTest {
         assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
         uc = get(session2, ViewOrgPage.DEFAULT_PATH + "/" + o2.getId());
         assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
+
+        loginCertificate = c1;
+        loginPrivateKey = pk1;
 
         uc = get(ViewOrgPage.DEFAULT_PATH);
         content = IOUtils.readURL(uc);
@@ -267,4 +277,13 @@ public class TestOrgManagement extends OrgTest {
         return executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + o1.getId(), "action=updateCertificateData&O=" + o + "&C=" + c + "&ST=" + province + "&L=" + ct, 0);
     }
 
+    @Test
+    public void testAgentWithoutCertLogin() throws IOException, GigiApiException {
+        cookie = login(u.getEmail(), TEST_PASSWORD);
+        loginCertificate = null;
+        URLConnection uc = get(cookie, ViewOrgPage.DEFAULT_PATH);
+        assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
+        uc = get(cookie, CreateOrgPage.DEFAULT_PATH);
+        assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
+    }
 }

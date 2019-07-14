@@ -100,6 +100,7 @@ public class TestOrgDomain extends OrgTest {
         assertEquals(1, o.getDomains().length);
         User admin = createOrgAdmin(o);
         String adminCookie = login(admin.getEmail(), TEST_PASSWORD);
+        loginCertificate = null;
         assertNull(executeBasicWebInteraction(adminCookie, SwitchOrganisation.PATH, "org:" + o.getId() + "=y", 0));
 
         // test that delete button is not displayed

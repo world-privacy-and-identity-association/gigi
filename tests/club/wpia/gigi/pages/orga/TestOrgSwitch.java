@@ -35,7 +35,7 @@ public class TestOrgSwitch extends OrgTest {
         assertNull(executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + org2.getId(), "email=" + URLEncoder.encode(u2.getEmail(), "UTF-8") + "&do_affiliate=y&master=y", 1));
 
         // login with new user u2
-        cookie = login(email, TEST_PASSWORD);
+        cookie = cookieWithCertificateLogin(u2);
     }
 
     @After
