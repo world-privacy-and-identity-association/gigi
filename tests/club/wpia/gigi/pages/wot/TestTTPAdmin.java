@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.security.GeneralSecurityException;
 
 import org.junit.Test;
 
@@ -22,21 +23,21 @@ public class TestTTPAdmin extends ClientTest {
     }
 
     @Test
-    public void testHasRight() throws IOException, GigiApiException {
+    public void testHasRight() throws IOException, GigiApiException, GeneralSecurityException, InterruptedException {
         testTTPAdmin(true);
     }
 
     @Test
-    public void testHasNoRight() throws IOException, GigiApiException {
+    public void testHasNoRight() throws IOException, GigiApiException, GeneralSecurityException, InterruptedException {
         testTTPAdmin(false);
     }
 
-    public void testTTPAdmin(boolean hasRight) throws IOException, GigiApiException {
+    public void testTTPAdmin(boolean hasRight) throws IOException, GigiApiException, GeneralSecurityException, InterruptedException {
         if (hasRight) {
             grant(u, Group.TTP_AGENT);
         }
         grant(u, TTPAdminPage.TTP_APPLICANT);
-        cookie = login(u.getEmail(), TEST_PASSWORD);
+        cookie = cookieWithCertificateLogin(u);
 
         assertEquals( !hasRight ? 403 : 200, fetchStatusCode(TTPAdminPage.PATH));
         assertEquals( !hasRight ? 403 : 200, fetchStatusCode(TTPAdminPage.PATH + "/"));
@@ -47,5 +48,12 @@ public class TestTTPAdmin extends ClientTest {
 
     private int fetchStatusCode(String path) throws MalformedURLException, IOException {
         return get(path).getResponseCode();
+    }
+
+    @Test
+    public void testVerifyWithoutCertLogin() throws IOException {
+        cookie = login(u.getEmail(), TEST_PASSWORD);
+        loginCertificate = null;
+        assertEquals(403, get(cookie, TTPAdminPage.PATH).getResponseCode());
     }
 }
