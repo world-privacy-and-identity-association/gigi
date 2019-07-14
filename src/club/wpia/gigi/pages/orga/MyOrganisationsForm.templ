@@ -5,6 +5,6 @@
 <? } ?>
 <table class="table">
 <? foreach($orgas) { ?>
-<tr><td><?=$orgName?></td><td><?=$orgID?></td><td><button class="btn btn-info" type='submit' value='y' name='org:<?=$orgID?>'/><?=_Switch to this organisation?></button></td></tr>
+<tr><td><?=$orgName?></td><td><?=$orgID?></td><td><? if($certlogin) { ?><button class="btn btn-info" type='submit' value='y' name='org:<?=$orgID?>'/><?=_Switch to this organisation?></button><? } ?></td></tr>
 <? } ?>
 </table>
