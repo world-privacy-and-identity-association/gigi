@@ -12,7 +12,9 @@ import java.util.Random;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Group;
+import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.pages.admin.support.FindCertPage;
 import club.wpia.gigi.pages.admin.support.FindUserByDomainPage;
 import club.wpia.gigi.pages.admin.support.FindUserByEmailPage;
@@ -25,6 +27,7 @@ public class TestSEAdminTicketSetting extends ClientTest {
 
     public TestSEAdminTicketSetting() throws IOException, GigiApiException {
         grant(u, Group.SUPPORTER);
+        addChallenge(u.getId(), CATSType.SUPPORT_DP_CHALLENGE_NAME);
         cookie = cookieWithCertificateLogin(u);
     }
 
@@ -109,6 +112,19 @@ public class TestSEAdminTicketSetting extends ClientTest {
         assertEquals(403, get(cookiePW, FindUserByEmailPage.PATH).getResponseCode());
         assertEquals(403, get(cookiePW, FindUserByDomainPage.PATH).getResponseCode());
         assertEquals(403, get(cookiePW, FindCertPage.PATH).getResponseCode());
+    }
+
+    @Test
+    public void testNoSupportChallenge() throws MalformedURLException, UnsupportedEncodingException, IOException, GigiApiException {
+        User supporter1 = User.getById(createVerificationUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
+        grant(supporter1, Group.SUPPORTER);
+        loginCertificate = null;
+        cookie = cookieWithCertificateLogin(supporter1);
+
+        assertEquals(403, get(SupportEnterTicketPage.PATH).getResponseCode());
+        assertEquals(403, get(FindUserByEmailPage.PATH).getResponseCode());
+        assertEquals(403, get(FindUserByDomainPage.PATH).getResponseCode());
+        assertEquals(403, get(FindCertPage.PATH).getResponseCode());
     }
 
 }

@@ -117,5 +117,30 @@ public class TestMain extends ClientTest {
         authenticate((HttpURLConnection) uc);
         content = IOUtils.readURL(uc);
         assertThat(content, not(containsString("you need to pass the RA Agent Challenge")));
+
+        // test Support challenge
+        uc = new URL("https://" + getSecureServerName()).openConnection();
+        authenticate((HttpURLConnection) uc);
+        content = IOUtils.readURL(uc);
+        assertThat(content, not(containsString("you need to pass the Support Challenge")));
+
+        grant(u, Group.SUPPORTER);
+        cookie = login(loginPrivateKey, loginCertificate.cert());
+        uc = new URL("https://" + getSecureServerName()).openConnection();
+        authenticate((HttpURLConnection) uc);
+        content = IOUtils.readURL(uc);
+        assertThat(content, containsString("you need to pass the Support Challenge"));
+
+        addChallengeInPast(u.getId(), CATSType.SUPPORT_DP_CHALLENGE_NAME);
+        uc = new URL("https://" + getSecureServerName()).openConnection();
+        authenticate((HttpURLConnection) uc);
+        content = IOUtils.readURL(uc);
+        assertThat(content, containsString("you need to pass the Support Challenge"));
+
+        addChallenge(u.getId(), CATSType.SUPPORT_DP_CHALLENGE_NAME);
+        uc = new URL("https://" + getSecureServerName()).openConnection();
+        authenticate((HttpURLConnection) uc);
+        content = IOUtils.readURL(uc);
+        assertThat(content, not(containsString("you need to pass the Support Challenge")));
     }
 }

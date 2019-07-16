@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.pages.admin.support.SupportEnterTicketPage;
 
@@ -16,6 +17,7 @@ public abstract class SEClientTest extends ClientTest {
 
     public SEClientTest() throws IOException, GigiApiException {
         grant(u, Group.SUPPORTER);
+        addChallenge(u.getId(), CATSType.SUPPORT_DP_CHALLENGE_NAME);
         cookie = cookieWithCertificateLogin(u);
         assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
     }
