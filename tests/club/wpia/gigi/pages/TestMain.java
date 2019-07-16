@@ -13,6 +13,7 @@ import java.security.GeneralSecurityException;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Country;
 import club.wpia.gigi.dbObjects.Country.CountryCodeType;
 import club.wpia.gigi.dbObjects.Group;
@@ -92,5 +93,29 @@ public class TestMain extends ClientTest {
         orgAdmin = User.getById(createVerificationUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
         makeAgent(orgAdmin.getId());
         o.addAdmin(orgAdmin, u, true);
+    }
+
+    @Test
+    public void testValidChallenges() throws GeneralSecurityException, IOException, GigiApiException, InterruptedException {
+        cookie = cookieWithCertificateLogin(u);
+
+        // test RA Agent challenge
+        URLConnection uc = new URL("https://" + getSecureServerName()).openConnection();
+        authenticate((HttpURLConnection) uc);
+        String content = IOUtils.readURL(uc);
+        assertThat(content, not(containsString("you need to pass the RA Agent Challenge")));
+
+        add100Points(u.getId());
+        addChallengeInPast(u.getId(), CATSType.AGENT_CHALLENGE);
+        uc = new URL("https://" + getSecureServerName()).openConnection();
+        authenticate((HttpURLConnection) uc);
+        content = IOUtils.readURL(uc);
+        assertThat(content, containsString("you need to pass the RA Agent Challenge"));
+
+        addChallenge(u.getId(), CATSType.AGENT_CHALLENGE);
+        uc = new URL("https://" + getSecureServerName()).openConnection();
+        authenticate((HttpURLConnection) uc);
+        content = IOUtils.readURL(uc);
+        assertThat(content, not(containsString("you need to pass the RA Agent Challenge")));
     }
 }
