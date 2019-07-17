@@ -97,75 +97,66 @@ public class TestMain extends ClientTest {
 
     @Test
     public void testValidChallenges() throws GeneralSecurityException, IOException, GigiApiException, InterruptedException {
-        cookie = cookieWithCertificateLogin(u);
 
         // test RA Agent challenge
-        URLConnection uc = new URL("https://" + getSecureServerName()).openConnection();
-        authenticate((HttpURLConnection) uc);
-        String content = IOUtils.readURL(uc);
-        assertThat(content, not(containsString("you need to pass the RA Agent Challenge")));
+        cookie = cookieWithCertificateLogin(u);
+        testChallengeText("you need to pass the RA Agent Challenge", false);
 
         add100Points(u.getId());
         addChallengeInPast(u.getId(), CATSType.AGENT_CHALLENGE);
-        uc = new URL("https://" + getSecureServerName()).openConnection();
-        authenticate((HttpURLConnection) uc);
-        content = IOUtils.readURL(uc);
-        assertThat(content, containsString("you need to pass the RA Agent Challenge"));
+        testChallengeText("you need to pass the RA Agent Challenge", true);
 
         addChallenge(u.getId(), CATSType.AGENT_CHALLENGE);
-        uc = new URL("https://" + getSecureServerName()).openConnection();
-        authenticate((HttpURLConnection) uc);
-        content = IOUtils.readURL(uc);
-        assertThat(content, not(containsString("you need to pass the RA Agent Challenge")));
+        testChallengeText("you need to pass the RA Agent Challenge", false);
 
         // test Support challenge
-        uc = new URL("https://" + getSecureServerName()).openConnection();
-        authenticate((HttpURLConnection) uc);
-        content = IOUtils.readURL(uc);
-        assertThat(content, not(containsString("you need to pass the Support Challenge")));
+        testChallengeText("you need to pass the Support Challenge", false);
 
         grant(u, Group.SUPPORTER);
         cookie = login(loginPrivateKey, loginCertificate.cert());
-        uc = new URL("https://" + getSecureServerName()).openConnection();
-        authenticate((HttpURLConnection) uc);
-        content = IOUtils.readURL(uc);
-        assertThat(content, containsString("you need to pass the Support Challenge"));
+        testChallengeText("you need to pass the Support Challenge", true);
 
         addChallengeInPast(u.getId(), CATSType.SUPPORT_DP_CHALLENGE_NAME);
-        uc = new URL("https://" + getSecureServerName()).openConnection();
-        authenticate((HttpURLConnection) uc);
-        content = IOUtils.readURL(uc);
-        assertThat(content, containsString("you need to pass the Support Challenge"));
+        testChallengeText("you need to pass the Support Challenge", true);
 
         addChallenge(u.getId(), CATSType.SUPPORT_DP_CHALLENGE_NAME);
-        uc = new URL("https://" + getSecureServerName()).openConnection();
-        authenticate((HttpURLConnection) uc);
-        content = IOUtils.readURL(uc);
-        assertThat(content, not(containsString("you need to pass the Support Challenge")));
+        testChallengeText("you need to pass the Support Challenge", false);
 
         // test Org Agent challenge
-        uc = new URL("https://" + getSecureServerName()).openConnection();
-        authenticate((HttpURLConnection) uc);
-        content = IOUtils.readURL(uc);
-        assertThat(content, not(containsString("you need to pass the Organisation Agent Challenge")));
+        testChallengeText("you need to pass the Organisation Agent Challenge", false);
 
         grant(u, Group.ORG_AGENT);
         cookie = login(loginPrivateKey, loginCertificate.cert());
-        uc = new URL("https://" + getSecureServerName()).openConnection();
-        authenticate((HttpURLConnection) uc);
-        content = IOUtils.readURL(uc);
-        assertThat(content, containsString("you need to pass the Organisation Agent Challenge"));
+        testChallengeText("you need to pass the Organisation Agent Challenge", true);
 
         addChallengeInPast(u.getId(), CATSType.ORG_AGENT_CHALLENGE);
-        uc = new URL("https://" + getSecureServerName()).openConnection();
-        authenticate((HttpURLConnection) uc);
-        content = IOUtils.readURL(uc);
-        assertThat(content, containsString("you need to pass the Organisation Agent Challenge"));
+        testChallengeText("you need to pass the Organisation Agent Challenge", true);
 
         addChallenge(u.getId(), CATSType.ORG_AGENT_CHALLENGE);
-        uc = new URL("https://" + getSecureServerName()).openConnection();
+        testChallengeText("you need to pass the Organisation Agent Challenge", false);
+
+        // test TTP Agent challenge
+        testChallengeText("you need to pass the TTP RA Agent Challenge", false);
+
+        grant(u, Group.TTP_AGENT);
+        cookie = login(loginPrivateKey, loginCertificate.cert());
+        testChallengeText("you need to pass the TTP RA Agent Challenge", true);
+
+        addChallengeInPast(u.getId(), CATSType.TTP_AGENT_CHALLENGE);
+        testChallengeText("you need to pass the TTP RA Agent Challenge", true);
+
+        addChallenge(u.getId(), CATSType.TTP_AGENT_CHALLENGE);
+        testChallengeText("you need to pass the TTP RA Agent Challenge", false);
+    }
+
+    private void testChallengeText(String contentText, boolean contains) throws IOException, MalformedURLException {
+        URLConnection uc = new URL("https://" + getSecureServerName()).openConnection();
         authenticate((HttpURLConnection) uc);
-        content = IOUtils.readURL(uc);
-        assertThat(content, not(containsString("you need to pass the Organisation Agent Challenge")));
+        String content = IOUtils.readURL(uc);
+        if (contains) {
+            assertThat(content, containsString(contentText));
+        } else {
+            assertThat(content, not(containsString(contentText)));
+        }
     }
 }

@@ -55,7 +55,9 @@
 	</tr>
 	<tr>
 		<td><?=_Type?></td>
-		<td><select name="verificationType"><? foreach($ats) { ?><option value="<?=$id?>"<?=$sel?>><?=$type?></option><? } ?></select></td>
+		<td><select name="verificationType"><? foreach($ats) { ?><option value="<?=$id?>"<?=$sel?>><?=$type?></option><? } ?></select>
+			<? if($ttpinfo) { ?></br><?=_To act as TTP Agent you need to pass the TTP RA Agent Challenge.?><? } ?>
+		</td>
 	</tr>
 	<tr>
 		<td><input type="checkbox" name="passwordReset" id="passwordReset" value="1" <? if($aword) { ?>checked<? } ?>></td>

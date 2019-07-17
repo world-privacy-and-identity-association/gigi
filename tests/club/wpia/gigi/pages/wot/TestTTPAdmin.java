@@ -9,6 +9,7 @@ import java.security.GeneralSecurityException;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.pages.admin.TTPAdminPage;
@@ -35,6 +36,7 @@ public class TestTTPAdmin extends ClientTest {
     public void testTTPAdmin(boolean hasRight) throws IOException, GigiApiException, GeneralSecurityException, InterruptedException {
         if (hasRight) {
             grant(u, Group.TTP_AGENT);
+            addChallenge(u.getId(), CATSType.TTP_AGENT_CHALLENGE);
         }
         grant(u, TTPAdminPage.TTP_APPLICANT);
         cookie = cookieWithCertificateLogin(u);
@@ -54,6 +56,14 @@ public class TestTTPAdmin extends ClientTest {
     public void testVerifyWithoutCertLogin() throws IOException {
         cookie = login(u.getEmail(), TEST_PASSWORD);
         loginCertificate = null;
+        assertEquals(403, get(cookie, TTPAdminPage.PATH).getResponseCode());
+    }
+
+    @Test
+    public void testAccessTTPPageWithoutValidChallenge() throws IOException, GigiApiException {
+        grant(u, Group.TTP_AGENT);
+        loginCertificate = null;
+        cookie = cookieWithCertificateLogin(u);
         assertEquals(403, get(cookie, TTPAdminPage.PATH).getResponseCode());
     }
 }
