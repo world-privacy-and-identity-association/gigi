@@ -17,6 +17,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.Country;
 import club.wpia.gigi.dbObjects.Country.CountryCodeType;
@@ -281,6 +282,18 @@ public class TestOrgManagement extends OrgTest {
     public void testAgentWithoutCertLogin() throws IOException, GigiApiException {
         cookie = login(u.getEmail(), TEST_PASSWORD);
         loginCertificate = null;
+        URLConnection uc = get(cookie, ViewOrgPage.DEFAULT_PATH);
+        assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
+        uc = get(cookie, CreateOrgPage.DEFAULT_PATH);
+        assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
+    }
+
+    @Test
+    public void testAgentWithoutValidChallenge() throws IOException, GigiApiException {
+        User agent = User.getById(createVerificationUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
+        addChallenge(agent.getId(), CATSType.ORG_AGENT_CHALLENGE);
+        loginCertificate = null;
+        cookie = cookieWithCertificateLogin(agent);
         URLConnection uc = get(cookie, ViewOrgPage.DEFAULT_PATH);
         assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
         uc = get(cookie, CreateOrgPage.DEFAULT_PATH);
