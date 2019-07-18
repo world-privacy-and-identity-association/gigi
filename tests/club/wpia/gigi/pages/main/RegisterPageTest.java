@@ -47,7 +47,7 @@ public class RegisterPageTest extends ManagedTest {
         registerUser("ab", "b", "correct" + uniq + "@email.de", TEST_PASSWORD);
         assertSuccessfullRegMail("correct" + uniq + "@email.de");
 
-        String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname=" + URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&day=1&month=1&year=1910&tos_agree=1&mname=mn&suffix=sf&email=";
+        String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname=" + URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&day=1&month=1&year=1910&tos_agree=1&dp_agree=1&mname=mn&suffix=sf&email=";
 
         String query = defaultSignup + URLEncoder.encode("correct3_" + uniq + "@email.de", "UTF-8") + "&name-type=western";
         String data = fetchStartErrorMessage(runRegister(query));
@@ -71,78 +71,85 @@ public class RegisterPageTest extends ManagedTest {
 
     @Test
     public void testNoFname() throws IOException {
-        testFailedForm("lname=b" + createBase() + "&day=1&month=1&year=1910&tos_agree=1");
+        testFailedForm("lname=b" + createBase() + "&day=1&month=1&year=1910&tos_agree=1&dp_agree=1");
     }
 
     @Test
     public void testNoLname() throws IOException {
-        testFailedForm("fname=a" + createBase() + "&day=1&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a" + createBase() + "&day=1&month=1&year=1910&tos_agree=1&dp_agree=1");
     }
 
     @Test
     public void testNoEmail() throws IOException {
-        testFailedForm("fname=a&lname=b&pword1=ap&pword2=ap&day=1&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b&pword1=ap&pword2=ap&day=1&month=1&year=1910&tos_agree=1&dp_agree=1");
     }
 
     @Test
     public void testNoPword() throws IOException {
-        testFailedForm("fname=a&lname=b&email=e&pword2=ap&day=1&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword2=ap&day=1&month=1&year=1910&tos_agree=1&dp_agree=1");
     }
 
     @Test
     public void testDiffPword() throws IOException {
-        testFailedForm("fname=a&lname=b" + createBase() + "2&day=1&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "2&day=1&month=1&year=1910&tos_agree=1&dp_agree=1");
     }
 
     @Test
     public void testNoDay() throws IOException {
-        testFailedForm("fname=a&lname=b" + createBase() + "&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&month=1&year=1910&tos_agree=1&dp_agree=1");
     }
 
     @Test
     public void testNoMonth() throws IOException {
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&year=1910&tos_agree=1&dp_agree=1");
     }
 
     @Test
     public void testNoYear() throws IOException {
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&tos_agree=1&dp_agree=1");
     }
 
     @Test
     public void testInvDay() throws IOException {
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=40&month=1&year=1910&tos_agree=1");
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=0&month=1&year=1910&tos_agree=1");
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=-1&month=1&year=1910&tos_agree=1");
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=a&month=1&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=40&month=1&year=1910&tos_agree=1&dp_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=0&month=1&year=1910&tos_agree=1&dp_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=-1&month=1&year=1910&tos_agree=1&dp_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=a&month=1&year=1910&tos_agree=1&dp_agree=1");
     }
 
     @Test
     public void testInvMonth() throws IOException {
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=20&year=1910&tos_agree=1");
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=0&year=1910&tos_agree=1");
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=-1&year=1910&tos_agree=1");
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=a&year=1910&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=20&year=1910&tos_agree=1&dp_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=0&year=1910&tos_agree=1&dp_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=-1&year=1910&tos_agree=1&dp_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=a&year=1910&tos_agree=1&dp_agree=1");
     }
 
     @Test
     public void testInvYear() throws IOException {
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=0&tos_agree=1");
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=100&tos_agree=1");
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=a&tos_agree=1");
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=-1&tos_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=0&tos_agree=1&dp_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=100&tos_agree=1&dp_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=a&tos_agree=1&dp_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=-1&tos_agree=1&dp_agree=1");
     }
 
     @Test
-    public void testNoAgree() throws IOException {
-        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=1910&tos_agree=a");
+    public void testNoTosAgree() throws IOException {
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=1910&tos_agree=a&dp_agree=1");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=1910&dp_agree=1");
+    }
+
+    @Test
+    public void testNoDPAgree() throws IOException {
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=1910&tos_agree=1&dp_agree=a");
+        testFailedForm("fname=a&lname=b" + createBase() + "&day=1&month=1&year=1910&tos_agree=1");
     }
 
     @Test
     public void testTooYoung() throws IOException {
         Calendar c = GregorianCalendar.getInstance();
         c.add(Calendar.YEAR, -User.MINIMUM_AGE + 2);
-        testFailedForm("fname=a&lname=b&email=" + createUniqueName() + "@email.de" + p + "&day=" + c.get(Calendar.DAY_OF_MONTH) + "&month=" + (c.get(Calendar.MONTH) + 1) + "&year=" + c.get(Calendar.YEAR) + "&tos_agree=1");
+        testFailedForm("fname=a&lname=b&email=" + createUniqueName() + "@email.de" + p + "&day=" + c.get(Calendar.DAY_OF_MONTH) + "&month=" + (c.get(Calendar.MONTH) + 1) + "&year=" + c.get(Calendar.YEAR) + "&tos_agree=1&dp_agree=1");
     }
 
     @Test
@@ -150,7 +157,7 @@ public class RegisterPageTest extends ManagedTest {
         Calendar c = GregorianCalendar.getInstance();
         c.add(Calendar.YEAR, -User.MAXIMUM_PLAUSIBLE_AGE);
         c.add(Calendar.DAY_OF_MONTH, -1);
-        testFailedForm("fname=a&lname=b&email=" + createUniqueName() + "@email.de" + p + "&day=" + c.get(Calendar.DAY_OF_MONTH) + "&month=" + (c.get(Calendar.MONTH) + 1) + "&year=" + c.get(Calendar.YEAR) + "&tos_agree=1");
+        testFailedForm("fname=a&lname=b&email=" + createUniqueName() + "@email.de" + p + "&day=" + c.get(Calendar.DAY_OF_MONTH) + "&month=" + (c.get(Calendar.MONTH) + 1) + "&year=" + c.get(Calendar.YEAR) + "&tos_agree=1&dp_agree=1");
     }
 
     @Test
@@ -205,7 +212,7 @@ public class RegisterPageTest extends ManagedTest {
         long uniq = System.currentTimeMillis();
         String email = "country" + uniq + "@email.de";
 
-        String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname=" + URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&day=1&month=1&year=1910&tos_agree=1&mname=mn&suffix=sf&email=";
+        String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname=" + URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&day=1&month=1&year=1910&tos_agree=1&dp_agree=1&mname=mn&suffix=sf&email=";
 
         String query = defaultSignup + URLEncoder.encode(email, "UTF-8") + "&name-type=western&residenceCountry=DE";
         String data = fetchStartErrorMessage(runRegister(query));
@@ -220,7 +227,7 @@ public class RegisterPageTest extends ManagedTest {
         long uniq = System.currentTimeMillis();
         String email = "countryno" + uniq + "@email.de";
 
-        String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname=" + URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&day=1&month=1&year=1910&tos_agree=1&mname=mn&suffix=sf&email=";
+        String defaultSignup = "fname=" + URLEncoder.encode("ab", "UTF-8") + "&lname=" + URLEncoder.encode("b", "UTF-8") + "&pword1=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&pword2=" + URLEncoder.encode(TEST_PASSWORD, "UTF-8") + "&day=1&month=1&year=1910&tos_agree=1&dp_agree=1&mname=mn&suffix=sf&email=";
 
         String query = defaultSignup + URLEncoder.encode(email, "UTF-8") + "&name-type=western&residenceCountry=invalid";
         String data = fetchStartErrorMessage(runRegister(query));

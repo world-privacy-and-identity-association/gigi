@@ -24,7 +24,6 @@ import club.wpia.gigi.output.template.SprintfCommand;
 import club.wpia.gigi.output.template.Template;
 import club.wpia.gigi.output.template.TranslateCommand;
 import club.wpia.gigi.pages.Page;
-import club.wpia.gigi.passwords.PasswordStrengthChecker;
 import club.wpia.gigi.util.CalendarUtil;
 import club.wpia.gigi.util.HTMLEncoder;
 import club.wpia.gigi.util.Notary;
@@ -118,6 +117,11 @@ public class Signup extends Form {
         if ( !"1".equals(req.getParameter("tos_agree"))) {
             ga.mergeInto(new GigiApiException("Acceptance of the ToS is required to continue."));
         }
+
+        if ( !"1".equals(req.getParameter("dp_agree"))) {
+            ga.mergeInto(new GigiApiException("Acceptance of the Data Protection Policy is required to continue."));
+        }
+
         if (email.equals("")) {
             ga.mergeInto(new GigiApiException("Email Address was blank"));
         }
@@ -182,6 +186,7 @@ public class Signup extends Form {
     private void run(HttpServletRequest req, String password) throws GigiApiException {
         User u = new User(email, password, myDoB.getDate(), Page.getLanguage(req).getLocale(), cs.getCountry(), ni.getNameParts());
         Notary.writeUserAgreement(u, "ToS", "account creation", "", true, 0);
+        Notary.writeUserAgreement(u, "Data Protection Policy", "account creation", "", true, 0);
     }
 
 }
