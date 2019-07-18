@@ -114,14 +114,6 @@ public class Signup extends Form {
             ga.mergeInto(new GigiApiException("Entered date of birth exceeds the maximum age set in our policies. Please check your DoB is correct and contact support if the issue persists."));
         }
 
-        if ( !"1".equals(req.getParameter("tos_agree"))) {
-            ga.mergeInto(new GigiApiException("Acceptance of the ToS is required to continue."));
-        }
-
-        if ( !"1".equals(req.getParameter("dp_agree"))) {
-            ga.mergeInto(new GigiApiException("Acceptance of the Data Protection Policy is required to continue."));
-        }
-
         if (email.equals("")) {
             ga.mergeInto(new GigiApiException("Email Address was blank"));
         }
@@ -132,6 +124,15 @@ public class Signup extends Form {
         } else if ( !pw1.equals(pw2)) {
             ga.mergeInto(new GigiApiException("Passwords don't match"));
         }
+
+        if ( !"1".equals(req.getParameter("tos_agree"))) {
+            ga.mergeInto(new GigiApiException("Acceptance of the ToS is required to continue."));
+        }
+
+        if ( !"1".equals(req.getParameter("dp_agree"))) {
+            ga.mergeInto(new GigiApiException("Acceptance of the Data Protection Policy is required to continue."));
+        }
+
         if ( !ga.isEmpty()) {
             throw ga;
         }
