@@ -128,6 +128,11 @@ public class MainPage extends Page {
                 vars.put("certlogininfo", false);
             }
 
+            if ( !o.isEmpty() && !u.hasValidOrgAdminChallenge()) {
+                vars.put("catsinfo", true);
+                vars.put("catsorgadmin", true);
+            }
+
             getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
 
         } else {

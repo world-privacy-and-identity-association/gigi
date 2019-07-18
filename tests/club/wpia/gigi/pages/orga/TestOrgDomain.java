@@ -10,6 +10,7 @@ import java.net.URLEncoder;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Domain;
 import club.wpia.gigi.dbObjects.Organisation;
 import club.wpia.gigi.dbObjects.User;
@@ -99,6 +100,7 @@ public class TestOrgDomain extends OrgTest {
         Domain d = new Domain(u, o, dom);
         assertEquals(1, o.getDomains().length);
         User admin = createOrgAdmin(o);
+        addChallenge(admin.getId(), CATSType.ORG_ADMIN_DP_CHALLENGE_NAME);
         String adminCookie = cookieWithCertificateLogin(admin);
         assertNull(executeBasicWebInteraction(adminCookie, SwitchOrganisation.PATH, "org:" + o.getId() + "=y", 0));
 
