@@ -54,7 +54,7 @@ public class CertificateModificationForm extends Form {
         }
         long start = System.currentTimeMillis();
         for (Job job : revokes) {
-            int toWait = (int) (60000 + start - System.currentTimeMillis());
+            int toWait = (int) (Job.WAIT_MIN + start - System.currentTimeMillis());
             if (toWait > 0) {
                 job.waitFor(toWait);
             } else {

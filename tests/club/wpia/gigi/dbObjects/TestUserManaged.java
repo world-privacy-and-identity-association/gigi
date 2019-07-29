@@ -27,7 +27,7 @@ public class TestUserManaged extends ManagedTest {
         KeyPair kp = generateKeypair();
         String key = generatePEMCSR(kp, "CN=" + email);
         Certificate c = new Certificate(u, u, Certificate.buildDN("CN", email), Digest.SHA256, key, CSRType.CSR, getClientProfile(), new Certificate.SubjectAlternateName(SANType.EMAIL, email));
-        c.issue(null, "2y", u).waitFor(60000);
+        c.issue(null, "2y", u).waitFor(Job.WAIT_MIN);
 
         u.deleteEmail(testAddress);
 

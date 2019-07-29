@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.Certificate.RevocationType;
+import club.wpia.gigi.dbObjects.Job;
 import club.wpia.gigi.dbObjects.SupportedUser;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.Form;
@@ -32,7 +33,7 @@ public class RevokeSingleCertForm extends Form {
         if (target != null) {
             target.revokeCertificate(c);
         } else {
-            c.revoke(RevocationType.USER).waitFor(60000);
+            c.revoke(RevocationType.USER).waitFor(Job.WAIT_MIN);
         }
         return new RedirectResult(req.getPathInfo());
     }

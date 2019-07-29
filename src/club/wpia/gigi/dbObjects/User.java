@@ -373,7 +373,7 @@ public class User extends CertificateOwner {
                 }
                 LinkedList<Job> revokes = new LinkedList<Job>();
                 for (Certificate cert : fetchActiveEmailCertificates(delMail.getAddress())) {
-                    revokes.add(cert.revoke(RevocationType.USER));
+                    cert.revoke(RevocationType.USER).waitFor(Job.WAIT_MIN);
                 }
                 long start = System.currentTimeMillis();
                 for (Job job : revokes) {
