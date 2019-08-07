@@ -30,3 +30,6 @@ div.error-msgs p{
 .gigi-radio label {
     font-weight: normal;
 }
+.card {
+    margin-bottom: 10px;
+}

@@ -30,7 +30,7 @@ public class Menu implements IMenuItem {
             if (mi.isPermitted(u)) {
                 if ( !visible) {
                     visible = true;
-                    out.print("<li class=\"dropdown\"><a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\">");
+                    out.print("<li class=\"dropdown\"><a href=\"#\" class=\"nav-link dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\">");
                     menuName.output(out, l, vars);
                     out.print("<span class=\"caret\"></span></a><ul class=\"dropdown-menu\">");
                 }

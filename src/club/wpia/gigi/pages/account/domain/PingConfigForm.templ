@@ -1,8 +1,8 @@
 <h3><?=_Verification mechanisms?></h3>
 
-<div class="panel panel-info panel-activatable">
-  <div class="panel-heading"><input type="checkbox" name="emailType" id="emailType" value="y"<?=$!mail?>> <label for="emailType"><?=_Verify by sending an email to authoritative email addresses?></label></div>
-  <div class="panel-body">
+<div class="card card-activatable">
+  <div class="card-heading bg-info"><input type="checkbox" name="emailType" id="emailType" value="y"<?=$!mail?>> <label for="emailType"><?=_Verify by sending an email to authoritative email addresses?></label></div>
+  <div class="card-body">
     <?=_Select the destination mail address:?><br/>
     <? foreach($authEmails) { ?>
       <input type="radio" id="email_<?=$i?>" name="email" value="<?=$i?>"<?=$!checked?>/>
@@ -10,23 +10,23 @@
     <? } ?>
   </div>
 </div>
-<div class="panel panel-info panel-activatable">
-  <div class="panel-heading"><input type="checkbox" name="DNSType" id="DNSType" value="y"<?=$!dns?>> <label for="DNSType"><?=_Verify by reading DNS-TXT entries?></label></div>
-  <div class="panel-body">
+<div class="card card-activatable">
+  <div class="card-heading bg-info"><input type="checkbox" name="DNSType" id="DNSType" value="y"<?=$!dns?>> <label for="DNSType"><?=_Verify by reading DNS-TXT entries?></label></div>
+  <div class="card-body">
     <?=_Please insert the following DNS TXT entry into the Zone-file of your domain:?><br/>
     <pre><?=$tokenName?>.<?=$dnsPrefix?>._auth IN TXT <?=$tokenValue?></pre>
   </div>
 </div>
-<div class="panel panel-info panel-activatable">
-  <div class="panel-heading"><input type="checkbox" name="HTTPType" id="HTTPType" value="y"<?=$!http?>> <label for="HTTPType"><?=_Verify by reading HTTP-content?></label></div>
-  <div class="panel-body">
+<div class="card card-activatable">
+  <div class="card-heading bg-info"><input type="checkbox" name="HTTPType" id="HTTPType" value="y"<?=$!http?>> <label for="HTTPType"><?=_Verify by reading HTTP-content?></label></div>
+  <div class="card-body">
     <?=_Please make the following content available at?> <pre class='string'>http://<span class='exampleDomain'>example.org</span>/<?=$httpPrefix?><?=$tokenName?>.txt</pre><br/>
     <pre><?=$tokenValue?></pre>
   </div>
 </div>
-<div class="panel panel-info panel-activatable">
-  <div class="panel-heading"><input type="checkbox" name="SSLType" id="SSLType" value="y"<?=$!ssl?>> <label for="SSLType"><?=_Verify by searching for installed certificate.?></label></div>
-  <div class="panel-body">
+<div class="card card-activatable">
+  <div class="card-heading bg-info"><input type="checkbox" name="SSLType" id="SSLType" value="y"<?=$!ssl?>> <label for="SSLType"><?=_Verify by searching for installed certificate.?></label></div>
+  <div class="card-body">
     <?=_Please list up to four services using your certificate. You need to have one of them up and using a valid ${appName} certificate or a specific self-signed certificate in order to pass this test?>:
     <?=_The self-signed certificate needs to contain your domain as CN and ${tokenValue} as organization unit.?> <?=_You can use these commands to create such a certificate:?>
     <code>

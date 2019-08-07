@@ -1,6 +1,6 @@
-<div class="panel panel-info panel-activatable">
-  <div class="panel-heading"><h3><input id="western-name" type="radio" name="name-type" value="western"<? if($western) { ?>checked<? } ?>> <label for="western-name"><?=_First-Last-Suffix Name?></label></h3></div>
-  <div class="panel-body">
+<div class="card card-activatable">
+  <div class="card-heading bg-info"><h3><input id="western-name" type="radio" name="name-type" value="western"<? if($western) { ?>checked<? } ?>> <label for="western-name"><?=_First-Last-Suffix Name?></label></h3></div>
+  <div class="card-body">
     <h4><?=_Structure?></h4>
     <?=_Name consists of one or more first names, one or more last names and any amount of suffixes?>
     <h4><?=_Variant Generation?></h4>
@@ -23,9 +23,9 @@
 </div>
 
 
-<div class="panel panel-info panel-activatable">
-  <div class="panel-heading"><h3><input id="single-name" type="radio" name="name-type" value="single"<? if($single) { ?>checked<? } ?>> <label for="single-name"><?=_Single Name?></label></h3></div>
-  <div class="panel-body">
+<div class="card card-activatable">
+  <div class="card-heading bg-info"><h3><input id="single-name" type="radio" name="name-type" value="single"<? if($single) { ?>checked<? } ?>> <label for="single-name"><?=_Single Name?></label></h3></div>
+  <div class="card-body">
     <h4><?=_Structure?></h4>
 <?=_Name of one part?>
 <h4><?=_Variant Generation?></h4>
