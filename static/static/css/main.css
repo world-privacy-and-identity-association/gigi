@@ -33,3 +33,8 @@ div.error-msgs p{
 .card {
     margin-bottom: 10px;
 }
+
+input[type=radio],
+ input[type=checkbox]{
+    margin: .4rem;
+}
