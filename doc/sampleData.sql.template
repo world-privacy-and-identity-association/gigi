@@ -1,0 +1,63 @@
+--Version: 37
+
+ALTER SEQUENCE `certOwners_id_seq` RESTART WITH 6;
+ALTER SEQUENCE `names_id_seq` RESTART WITH 4;
+
+INSERT INTO `certOwners`(id) VALUES(1);
+INSERT INTO `certOwners`(id) VALUES(2);
+
+
+INSERT INTO users SET email='c@d.ef', password='86f7e437faa5a7fce15d1ddcb9eaeaea377667b8', verified='1', dob='1910-01-01', id=1, language='en', preferredName=1;
+INSERT INTO "names" SET "uid"=1, "id"=1, "type"='western';
+INSERT INTO "nameParts" SET "id"=1, position=0, "value"='Kürti', "type"='first-name';
+INSERT INTO "nameParts" SET "id"=1, position=1, "value"='Müddle', "type"='first-name';
+INSERT INTO "nameParts" SET "id"=1, position=2, "value"='Hänsel', "type"='last-name';
+INSERT INTO "nameParts" SET "id"=1, position=3, "value"='Baron', "type"='suffix';
+
+INSERT INTO emails SET email='c@d.ef', memid=1;
+INSERT INTO "emailPinglog" SET email='c@d.ef', uid=1, `when`=CURRENT_TIMESTAMP, type='active', status='success', result='', challenge=NULL;
+
+INSERT INTO notary SET `from`=1, `to`=1, points=100, location='initial', `when`=CURRENT_TIMESTAMP, `date`='1950-01-01';
+INSERT INTO `cats_passed` SET user_id=1, variant_id=1;
+
+INSERT INTO user_groups SET `user`=1, permission='codesigning', grantedby='1';
+
+INSERT INTO user_groups SET `user`=1, permission='ttp-agent', grantedby='1';
+INSERT INTO user_groups SET `user`=1, permission='supporter', grantedby='1';
+INSERT INTO `cats_passed` SET user_id=1, variant_id=3;
+INSERT INTO `cats_passed` SET user_id=1, variant_id=7;
+
+
+INSERT INTO users SET email='test1@d.ef', password='86f7e437faa5a7fce15d1ddcb9eaeaea377667b8', verified='1', dob='1910-01-01', id=2, preferredName=2;
+INSERT INTO "names" SET "uid"=2, "id"=2, "type"='western';
+INSERT INTO "nameParts" SET "id"=2, position=0, "value"='First', "type"='first-name';
+INSERT INTO "nameParts" SET "id"=2, position=1, "value"='Last', "type"='last-name';
+INSERT INTO "names" SET "uid"=2, "id"=3, "type"='western';
+INSERT INTO "nameParts" SET "id"=3, position=0, "value"='First2', "type"='first-name';
+INSERT INTO "nameParts" SET "id"=3, position=1, "value"='Lasteres', "type"='last-name';
+
+INSERT INTO `certOwners`(id) VALUES(3);
+INSERT INTO organisations SET `id`=3, `name`='Test Ltd.', country='DE', province='BW', city='Stuttgart', contactEmail='test@ltd.lt', creator='1';
+INSERT INTO org_admin SET `orgid`=3, `memid`=1, creator=1, master='y';
+
+INSERT INTO `certOwners`(id) VALUES(4);
+INSERT INTO organisations SET `id`=4, `name`='Test Ltd. of First Last', country='DE', province='BW', city='Stuttgart', contactEmail='test@ltd.lt', creator='1';
+INSERT INTO org_admin SET `orgid`=4, `memid`=2, creator=1, master='y';
+INSERT INTO org_admin SET `orgid`=4, `memid`=1, creator=1, master='n';
+
+INSERT INTO `cats_passed` SET user_id=1, variant_id=2;
+INSERT INTO `cats_passed` SET user_id=2, variant_id=2;
+
+--
+--
+--INSERT INTO `certOwners`(id) VALUES(5);
+--INSERT INTO organisations SET `id`=5, `name`='Test Server Management Ltd.', country='DE', province='BW', city='Stuttgart', contactEmail='test@ltd.lt', creator='1';
+--INSERT INTO org_admin SET `orgid`=5, `memid`=1, creator=1, master='y';
+
+--INSERT INTO domains (id, memid, domain, created, modified, deleted) VALUES (1, 5, 'local.test.benny-baumann.de', '2016-08-26 12:38:50.19', NULL, NULL);
+--ALTER SEQUENCE `domains_id_seq` RESTART WITH 2;
+--INSERT INTO pingconfig (id, domainid, type, info, deleted) VALUES (1, 1, 'dns', 'qmOhuUmv:KZkT4tbkztfpUsfv', NULL);
+--INSERT INTO pingconfig (id, domainid, type, info, deleted) VALUES (2, 1, 'http', 'qmOhuUmv:KZkT4tbkztfpUsfv', NULL);
+--ALTER SEQUENCE `pingconfig_id_seq` RESTART WITH 3;
+--INSERT INTO "domainPinglog" ("configId", state, challenge, result) VALUES (1, 'success', NULL, 'Succeeded by TestManager pass-by');
+--INSERT INTO "domainPinglog" ("configId", state, challenge, result) VALUES (2, 'success', NULL, 'Succeeded by TestManager pass-by');

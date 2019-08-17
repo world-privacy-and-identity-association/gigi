@@ -15,3 +15,8 @@ Before you start using you might want to:
 - on unix-like systems: to securely run on privileged ports <= 1024 build the native setuid library (run the makefile in natives/).
   This expects JAVA_HOME to be set.
 
+For local testing you should:
+- start util-testing/club/wpia/gigi/DevelLauncher.java and util-testing/club/wpia/gigi/util/SimpleSigner.java
+- use the doc/sampleData.sql.template to create a doc/sampleData.sql file with a testing user.
+  If you start the local test environment with util-testing/club/wpia/gigi/DevelLauncher.java, this user is automatically logged into the system via ticket bypass.
+- in the case while starting the application a database error occurs use util-testing/club/wpia/gigi/util/DatabaseManager.java to adjust the database to the current requirements
