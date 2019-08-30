@@ -23,10 +23,13 @@ import club.wpia.gigi.dbObjects.Domain;
 import club.wpia.gigi.dbObjects.DomainPingConfiguration;
 import club.wpia.gigi.dbObjects.DomainPingExecution;
 import club.wpia.gigi.dbObjects.DomainPingType;
+import club.wpia.gigi.pages.account.domain.EditDomain;
 import club.wpia.gigi.ping.DomainPinger.PingState;
 import club.wpia.gigi.testUtils.PingTest;
 import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
 import club.wpia.gigi.util.RandomToken;
+import club.wpia.gigi.util.ServerConstants;
+import club.wpia.gigi.util.ServerConstants.Host;
 import club.wpia.gigi.util.SimpleSigner;
 
 public class TestTiming extends PingTest {
@@ -109,6 +112,7 @@ public class TestTiming extends PingTest {
                 pd.executeNeededPings(new Date(System.currentTimeMillis() + 15 * 24 * 60 * 60L * 1000));
                 // The user receives another warning mail.
                 mail = getMailReceiver().receive(u.getEmail());
+                assertThat(mail.getMessage(), CoreMatchers.containsString("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + EditDomain.PATH + d.getId()));
                 assertThat(mail.getMessage(), CoreMatchers.containsString(d.getSuffix()));
                 assertThat(mail.getMessage(), CoreMatchers.containsString(c.getSerial()));
                 // And when the revocation is carried out

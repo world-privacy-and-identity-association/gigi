@@ -201,7 +201,7 @@ public class PingerDaemon extends Thread {
                         HashMap<String, Object> vars = new HashMap<>();
                         vars.put("valid", target.isVerified());
                         vars.put("domain", target.getSuffix());
-                        vars.put("domainLink", "https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + "/" + EditDomain.PATH + target.getId());
+                        vars.put("domainLink", "https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + EditDomain.PATH + target.getId());
                         vars.put("certs", new ArrayIterable<Certificate>(cs) {
 
                             @Override
