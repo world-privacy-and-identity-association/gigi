@@ -673,7 +673,7 @@ public class Certificate implements IdCachable {
         return getFingerprint(certx, algorithm);
     }
 
-    private static String getFingerprint(X509Certificate cert, String algorithm) throws NoSuchAlgorithmException, CertificateEncodingException {
+    protected static String getFingerprint(X509Certificate cert, String algorithm) throws NoSuchAlgorithmException, CertificateEncodingException {
         MessageDigest md = MessageDigest.getInstance(algorithm);
         byte[] der = cert.getEncoded();
         md.update(der);

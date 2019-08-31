@@ -143,13 +143,19 @@ public class RootCertPage extends Page {
         Map<String, Object> map = Page.getDefaultVars(req);
         map.put("root", rootP);
         map.put("bundle", appName + "_intermediate_bundle.p7b");
-        getDefaultTemplate().output(resp.getWriter(), getLanguage(req), map);
 
+        try {
+            map.put("fingerprintSHA1", rootP.target.getFingerprint("sha-1"));
+            map.put("fingerprintSHA256", rootP.target.getFingerprint("sha-256"));
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
+
+        getDefaultTemplate().output(resp.getWriter(), getLanguage(req), map);
     }
 
     @Override
     public boolean needsLogin() {
         return false;
     }
-
 }

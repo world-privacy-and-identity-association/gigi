@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -197,8 +199,11 @@ public class CACertificate implements IdCachable {
         return this == getParent();
     }
 
+    public String getFingerprint(String algorithm) throws CertificateEncodingException, NoSuchAlgorithmException {
+        return Certificate.getFingerprint(cert, algorithm);
+    }
+    
     public static synchronized CACertificate[] getAll() {
         return Arrays.copyOf(instances, instances.length);
     }
-
 }
