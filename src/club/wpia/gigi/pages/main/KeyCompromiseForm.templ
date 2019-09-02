@@ -1,14 +1,9 @@
 <p>
-<?=_This form allows you to report a certificate whose private key has been compromised.?>
-<?=_You require to identify the certificate you need to report.?>
-<?=_You may upload the certificate (as PEM or DER) or may identify the certificate by serial.?>
+<?=_This form allows you to report a certificate whose private key has been compromised. You require to identify the certificate you need to report. You may upload the certificate (as PEM or DER) or may identify the certificate by serial.?>
 </p>
 
 <p>
-<?=_Additionally you need to prove that you have access to the private key.?>
-<?=_There are also two possibilities available here:?>
-<?=_Either you may upload the plain private key (as PEM or DER) or you may only sign a given message with the according private key.?>
-<?=_You may create a fitting signature with this command:?>
+<?=_Additionally you need to prove that you have access to the private key. There are also two possibilities available here: Either you may upload the plain private key (as PEM or DER) or you may only sign a given message with the according private key. You may create a fitting signature with this command:?>
 </p>
 <p>
 <code data-challenge="<?=$challenge?>">
@@ -40,8 +35,7 @@ printf '%s' '<?=$challengePrefix?><?=$challenge?>' | openssl dgst -sha256 -sign 
   </tr>
   <tr>
     <td colspan="4">
-      <?=_You may provide information on how the private key was compromised to help the certificate owner prevent further key compromises.?>
-      <?=_You can indicate that this information should not be sent to the certificate owner, but only be visible to ${appName} staff, by checking the checkbox below.?>
+      <?=_You may provide information on how the private key was compromised to help the certificate owner prevent further key compromises. You can indicate that this information should not be sent to the certificate owner, but only be visible to ${appName} staff, by checking the checkbox below.?>
       <p>
       <label for="confidential"><?=_Don't send the message to the certificate owner?></label>
       <input type='checkbox' name='confidential' id='confidential'>

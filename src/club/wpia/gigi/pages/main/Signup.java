@@ -53,7 +53,7 @@ public class Signup extends Form {
         vars.put("name", ni);
         vars.put("dob", myDoB);
         vars.put("email", HTMLEncoder.encodeHTML(email));
-        vars.put("helpOnNames", new SprintfCommand("Help on Names {0}in the knowledge base{1}", Arrays.asList("!(/kb/names", "!'</a>")));
+        vars.put("helpOnNames", new SprintfCommand("Help on Names in our {0}FAQ{1}", Arrays.asList("!(/kb/names", "!'</a>")));
         vars.put("csrf", getCSRFToken());
         vars.put("dobmin", User.MINIMUM_AGE + "");
         vars.put("countryCode", cs);
