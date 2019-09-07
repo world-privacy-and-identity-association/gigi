@@ -42,7 +42,7 @@ public class SQLFileManager {
                 }
             }
         }
-        sql = sql.replaceAll("--[^\n]*\n", "\n");
+        sql = sql.replaceAll("(^|\n)--[^\n]*\n", "\n");
         sql = sql.replaceAll("#[^\n]*\n", "\n");
         String[] stmts = sql.split(";");
         Pattern p = Pattern.compile("\\s*DROP TABLE IF EXISTS \"([^\"]+)\"");
