@@ -79,7 +79,7 @@ public class KeyCompromiseTest extends ClientTest {
         KeyPair kp = generateKeypair();
         priv = kp.getPrivate();
         String csr = generatePEMCSR(kp, "CN=test");
-        CertificateRequest cr = new CertificateRequest(new AuthorizationContext(u, u), csr);
+        CertificateRequest cr = new CertificateRequest(new AuthorizationContext(u, u, false), csr);
         cr.update(CertificateRequest.DEFAULT_CN, Digest.SHA512.toString(), "client", null, null, "email:" + email + "\n");
         cert = cr.draft();
         Job j = cert.issue(null, "2y", u);

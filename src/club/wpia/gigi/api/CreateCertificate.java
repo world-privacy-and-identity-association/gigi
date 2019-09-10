@@ -9,11 +9,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.dbObjects.CertificateProfile;
 import club.wpia.gigi.dbObjects.Job;
 import club.wpia.gigi.dbObjects.Organisation;
 import club.wpia.gigi.dbObjects.User;
-import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.pages.account.certs.CertificateRequest;
 import club.wpia.gigi.util.AuthorizationContext;
 import club.wpia.gigi.util.CertExporter;
@@ -38,7 +38,7 @@ public class CreateCertificate extends APIPoint {
                 return;
             }
         }
-        AuthorizationContext ctx = new AuthorizationContext(u, u);
+        AuthorizationContext ctx = new AuthorizationContext(u, u, true);
         String asOrg = req.getParameter("asOrg");
         if (asOrg != null) {
             try {
@@ -54,7 +54,7 @@ public class CreateCertificate extends APIPoint {
                     resp.sendError(500, "Error, Organisation with id " + i + " not found.");
                     return;
                 } else {
-                    ctx = new AuthorizationContext(o0, u);
+                    ctx = new AuthorizationContext(o0, u, true);
                 }
             } catch (NumberFormatException e) {
                 resp.sendError(500, "Error, as Org is not an integer");

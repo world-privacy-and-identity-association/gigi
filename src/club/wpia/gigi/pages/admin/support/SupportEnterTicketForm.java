@@ -37,7 +37,7 @@ public class SupportEnterTicketForm extends Form {
             throw new GigiApiException("Ticket format malformed");
         } else if (req.getParameter("deleteTicket") != null) {
             AuthorizationContext ac = LoginPage.getAuthorizationContext(req);
-            req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(ac.getActor(), ac.getActor()));
+            req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(ac.getActor(), ac.getActor(), ac.isStronglyAuthenticated()));
             return new RedirectResult(SupportEnterTicketPage.PATH);
         }
         throw new GigiApiException("No valid action given.");

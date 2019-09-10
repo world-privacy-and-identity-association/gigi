@@ -63,7 +63,7 @@ public class SupportUserDetailsForm extends Form {
                 if (toMod == Group.SUPPORTER) {
                     user.revoke(toMod);
                     AuthorizationContext ac = LoginPage.getAuthorizationContext(req);
-                    req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(ac.getActor(), ac.getActor()));
+                    req.getSession().setAttribute(Gigi.AUTH_CONTEXT, new AuthorizationContext(ac.getActor(), ac.getActor(), ac.isStronglyAuthenticated()));
                     return new RedirectResult(MyDetails.PATH);
                 }
             }
