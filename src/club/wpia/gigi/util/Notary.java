@@ -209,8 +209,8 @@ public class Notary {
             }
             return;
         } else if (t == VerificationType.TTP_ASSISTED) {
-            if ( !agent.isInGroup(Group.TTP_AGENT)) {
-                throw new GigiApiException("RA Agent needs to be TTP RA Agent.");
+            if ( !agent.isInGroup(Group.TTP_AGENT) || !agent.hasValidTTPAgentChallenge()) {
+                throw new GigiApiException("RA Agent needs to be TTP RA Agent and have a valid TTP RA Agent Challenge.");
             }
             if ( !applicant.isInGroup(Group.TTP_APPLICANT)) {
                 throw new GigiApiException("Applicant needs to be TTP Applicant.");

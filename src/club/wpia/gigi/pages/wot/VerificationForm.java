@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.Name;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.dbObjects.Verification.VerificationType;
@@ -152,6 +153,8 @@ public class VerificationForm extends Form {
                 return true;
             }
         });
+        res.put("ttpinfo", agent.isInGroup(Group.TTP_AGENT) && !agent.hasValidTTPAgentChallenge() && applicant.isInGroup(Group.TTP_APPLICANT));
+
         templ.output(out, l, res);
     }
 

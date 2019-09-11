@@ -404,4 +404,21 @@ public class TestVerification extends ManagedTest {
         addChallenge(applicantId, CATSType.AGENT_CHALLENGE);
         assertEquals(200, get(cookie, VerifyPage.PATH).getResponseCode());
     }
+
+    @Test
+    public void testVerifyValidTTPChallenge() throws IOException, GigiApiException {
+        grant(User.getByEmail(agentM), Group.TTP_AGENT);
+        grant(User.getById(applicantId), Group.TTP_APPLICANT);
+        cookie = cookieWithCertificateLogin(User.getById(applicantId));
+        cookie = cookieWithCertificateLogin(User.getByEmail(agentM));
+
+        // test without valid challenge
+        String content = search("email=" + URLEncoder.encode(applicantM, "UTF-8") + "&day=1&month=1&year=1910");
+        assertThat(content, containsString("you need to pass the TTP RA Agent Challenge"));
+
+        // test with valid challenge
+        addChallenge(User.getByEmail(agentM).getId(), CATSType.TTP_AGENT_CHALLENGE);
+        content = search("email=" + URLEncoder.encode(applicantM, "UTF-8") + "&day=1&month=1&year=1910");
+        assertThat(content, not(containsString("you need to pass the TTP RA Agent Challenge")));
+    }
 }
