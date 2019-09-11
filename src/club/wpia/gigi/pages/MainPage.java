@@ -51,6 +51,11 @@ public class MainPage extends Page {
                 vars.put("catsinfo", true);
                 vars.put("catssupport", true);
             }
+            if (u.isInGroup(Group.ORG_AGENT) && !u.hasValidOrgAgentChallenge()) {
+                vars.put("catsinfo", true);
+                vars.put("catsorgagent", true);
+            }
+
             Certificate[] c = u.getCertificates(false);
             vars.put("c-no", c.length);
 

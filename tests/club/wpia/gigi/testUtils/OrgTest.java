@@ -3,6 +3,7 @@ package club.wpia.gigi.testUtils;
 import java.io.IOException;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Country;
 import club.wpia.gigi.dbObjects.Country.CountryCodeType;
 import club.wpia.gigi.dbObjects.Group;
@@ -14,6 +15,7 @@ public class OrgTest extends ClientTest {
     public OrgTest() throws IOException, GigiApiException {
         makeAgent(u.getId());
         u.grantGroup(getSupporter(), Group.ORG_AGENT);
+        addChallenge(u.getId(), CATSType.ORG_AGENT_CHALLENGE);
         clearCaches();
         cookie = cookieWithCertificateLogin(u);
     }

@@ -21,7 +21,7 @@ public class CreateOrgPage extends ManagedFormPage {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && ac.isInGroup(ORG_AGENT) && ac.isStronglyAuthenticated();
+        return ac != null && ac.isInGroup(ORG_AGENT) && ac.isStronglyAuthenticated() && ac.getActor().hasValidOrgAgentChallenge();
     }
 
     @Override
