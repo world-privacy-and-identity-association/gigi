@@ -147,9 +147,26 @@ public class TestMain extends ClientTest {
 
         addChallenge(u.getId(), CATSType.TTP_AGENT_CHALLENGE);
         testChallengeText("you need to pass the TTP RA Agent Challenge", false);
+
+        // test Org Admin Challenge
+        Organisation o = new Organisation(createUniqueName(), Country.getCountryByCode("DE", CountryCodeType.CODE_2_CHARS), "pr", "city", "test@example.com", "", "", u);
+        User admin = User.getById(createVerificationUser("testworker", "testname", createUniqueName() + "@testdom.com", TEST_PASSWORD));
+
+        loginCertificate = null;
+        cookie = cookieWithCertificateLogin(admin);
+        testChallengeText("you need to pass the Organisation Administrator Challenge", false);
+
+        o.addAdmin(admin, u, true);
+        testChallengeText("you need to pass the Organisation Administrator Challenge", true);
+
+        addChallengeInPast(admin.getId(), CATSType.ORG_ADMIN_DP_CHALLENGE_NAME);
+        testChallengeText("you need to pass the Organisation Administrator Challenge", true);
+
+        addChallenge(admin.getId(), CATSType.ORG_ADMIN_DP_CHALLENGE_NAME);
+        testChallengeText("you need to pass the Organisation Administrator Challenge", false);
     }
 
-    private void testChallengeText(String contentText, boolean contains) throws IOException, MalformedURLException {
+    private void testChallengeText(String contentText, boolean contains) throws IOException, MalformedURLException, GigiApiException {
         URLConnection uc = new URL("https://" + getSecureServerName()).openConnection();
         authenticate((HttpURLConnection) uc);
         String content = IOUtils.readURL(uc);

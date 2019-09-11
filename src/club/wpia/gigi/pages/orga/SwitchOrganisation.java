@@ -19,7 +19,7 @@ public class SwitchOrganisation extends ManagedFormPage {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && ac.getActor().getOrganisations().size() != 0 && ac.isStronglyAuthenticated();
+        return ac != null && ac.getActor().getOrganisations().size() != 0 && ac.isStronglyAuthenticated() && ac.getActor().hasValidOrgAdminChallenge();
     }
 
     @Override

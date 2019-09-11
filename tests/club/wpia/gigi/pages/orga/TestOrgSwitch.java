@@ -8,12 +8,18 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.security.GeneralSecurityException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.sql.SQLException;
 
 import org.junit.After;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.CATS.CATSType;
+import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.Organisation;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.testUtils.IOUtils;
@@ -27,6 +33,10 @@ public class TestOrgSwitch extends OrgTest {
 
     private Organisation org2 = createUniqueOrg();
 
+    private Certificate cagent;
+
+    private PrivateKey pkagent;
+
     public TestOrgSwitch() throws IOException, GigiApiException {
 
         assertEquals(403, get(SwitchOrganisation.PATH).getResponseCode());
@@ -35,6 +45,9 @@ public class TestOrgSwitch extends OrgTest {
         u2 = User.getById(createVerificationUser("testworker", "testname", email, TEST_PASSWORD));
         assertNull(executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + org1.getId(), "email=" + URLEncoder.encode(u2.getEmail(), "UTF-8") + "&do_affiliate=y&master=y", 1));
         assertNull(executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + org2.getId(), "email=" + URLEncoder.encode(u2.getEmail(), "UTF-8") + "&do_affiliate=y&master=y", 1));
+        addChallenge(u2.getId(), CATSType.ORG_ADMIN_DP_CHALLENGE_NAME);
+        cagent = loginCertificate;
+        pkagent = loginPrivateKey;
 
         // login with new user u2
         cookie = cookieWithCertificateLogin(u2);
@@ -126,5 +139,25 @@ public class TestOrgSwitch extends OrgTest {
         loginCertificate = null;
         URLConnection uc = get(cookie, SwitchOrganisation.PATH);
         assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
+    }
+
+    @Test
+    public void testSwitchOrgLoginChallenge() throws IOException, GigiApiException, KeyManagementException, NoSuchAlgorithmException, GeneralSecurityException {
+        loginCertificate = cagent;
+        loginPrivateKey = pkagent;
+        cookie = login(pkagent, cagent.cert());
+        String email = createUniqueName() + "@testdom.com";
+        User u3 = User.getById(createVerificationUser("testworker", "testname", email, TEST_PASSWORD));
+        assertNull(executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + org1.getId(), "email=" + URLEncoder.encode(u3.getEmail(), "UTF-8") + "&do_affiliate=y&master=y", 1));
+        assertNull(executeBasicWebInteraction(cookie, ViewOrgPage.DEFAULT_PATH + "/" + org2.getId(), "email=" + URLEncoder.encode(u3.getEmail(), "UTF-8") + "&do_affiliate=y&master=y", 1));
+
+        cookie = cookieWithCertificateLogin(u3);
+        URLConnection uc = get(cookie, SwitchOrganisation.PATH);
+        assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
+
+        addChallenge(u3.getId(), CATSType.ORG_ADMIN_DP_CHALLENGE_NAME);
+        clearCaches();
+        uc = get(cookie, SwitchOrganisation.PATH);
+        assertEquals(200, ((HttpURLConnection) uc).getResponseCode());
     }
 }
