@@ -20,6 +20,7 @@ import java.security.Signature;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -38,6 +39,7 @@ import club.wpia.gigi.database.DatabaseConnection;
 import club.wpia.gigi.database.DatabaseConnection.Link;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.SQLFileManager.ImportType;
+import club.wpia.gigi.dbObjects.CATS;
 import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.CertificateProfile;
 import club.wpia.gigi.dbObjects.Domain;
@@ -332,12 +334,28 @@ public abstract class ConfiguredTest {
     }
 
     public static void makeAgent(int uid) {
+        addChallenge(uid, CATSType.AGENT_CHALLENGE);
+        add100Points(uid);
+    }
+
+    public static void addChallenge(int uid, CATSType ct) {
         try (GigiPreparedStatement ps1 = new GigiPreparedStatement("INSERT INTO cats_passed SET user_id=?, variant_id=?, language='en_EN', version='1'")) {
             ps1.setInt(1, uid);
-            ps1.setInt(2, CATSType.AGENT_CHALLENGE.getId());
+            ps1.setInt(2, ct.getId());
             ps1.execute();
         }
+    }
 
+    public static void addChallengeInPast(int uid, CATSType ct) {
+        try (GigiPreparedStatement ps1 = new GigiPreparedStatement("INSERT INTO cats_passed SET user_id=?, variant_id=?, pass_date=?, language='en_EN', version='1'")) {
+            ps1.setInt(1, uid);
+            ps1.setInt(2, ct.getId());
+            ps1.setTimestamp(3, new Timestamp(new Date(System.currentTimeMillis() - 24L * 60 * 60 * (CATS.TEST_MONTHS + 1) * 31 * 1000L).getTime()));
+            ps1.execute();
+        }
+    }
+
+    public static void add100Points(int uid) {
         try (GigiPreparedStatement ps2 = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, points='100'")) {
             ps2.setInt(1, uid);
             ps2.setInt(2, User.getById(uid).getPreferredName().getId());

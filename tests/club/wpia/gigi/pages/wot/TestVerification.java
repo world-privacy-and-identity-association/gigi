@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
+import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Country;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.User;
@@ -41,6 +42,8 @@ public class TestVerification extends ManagedTest {
 
     private int applicantName;
 
+    private int applicantId;
+
     private String cookie;
 
     @Before
@@ -50,7 +53,7 @@ public class TestVerification extends ManagedTest {
         applicantM = createUniqueName() + "@example.org";
 
         createVerificationUser("a", "b", agentM, TEST_PASSWORD);
-        int applicantId = createVerifiedUser("a", "c", applicantM, TEST_PASSWORD);
+        applicantId = createVerifiedUser("a", "c", applicantM, TEST_PASSWORD);
         applicantName = User.getById(applicantId).getPreferredName().getId();
 
         User users[] = User.findByEmail(agentM);
@@ -390,5 +393,15 @@ public class TestVerification extends ManagedTest {
         cookie = login(agentM, TEST_PASSWORD);
         loginCertificate = null;
         assertEquals(403, get(cookie, VerifyPage.PATH).getResponseCode());
+    }
+
+    @Test
+    public void testVerifyWithoutValidChallenge() throws IOException, GigiApiException {
+        cookie = cookieWithCertificateLogin(User.getById(applicantId));
+        add100Points(applicantId);
+        addChallengeInPast(applicantId, CATSType.AGENT_CHALLENGE);
+        assertEquals(403, get(cookie, VerifyPage.PATH).getResponseCode());
+        addChallenge(applicantId, CATSType.AGENT_CHALLENGE);
+        assertEquals(200, get(cookie, VerifyPage.PATH).getResponseCode());
     }
 }

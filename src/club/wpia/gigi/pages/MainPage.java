@@ -41,6 +41,12 @@ public class MainPage extends Page {
             vars.put("vp", u.getVerificationPoints());
             vars.put("xp", u.getExperiencePoints());
 
+
+            vars.put("catsinfo", false);
+            if (u.canVerify() && !u.hasValidRAChallenge()) {
+                vars.put("catsinfo", true);
+                vars.put("catsra", true);
+            }
             Certificate[] c = u.getCertificates(false);
             vars.put("c-no", c.length);
 
