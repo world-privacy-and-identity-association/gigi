@@ -46,13 +46,13 @@ public class TestSEAdminPageCertSearch extends SEClientTest {
     @Test
     public void testSerialSearch() throws IOException {
         URLConnection uc = post(cookie, FindCertPage.PATH, "certType=serial&process=Next&cert=" + c.getSerial(), 0);
-        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + Certificates.SUPPORT_PATH + "/" + c.getSerial(), uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + Certificates.SUPPORT_PATH + "/" + c.getSerial(), uc.getHeaderField("Location"));
     }
 
     @Test
     public void testEmailSearch() throws IOException {
         URLConnection uc = post(cookie, FindCertPage.PATH, "certType=email&process=Next&cert=" + URLEncoder.encode(certMail, "UTF-8"), 0);
-        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + Certificates.SUPPORT_PATH + "/" + c.getSerial(), uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + Certificates.SUPPORT_PATH + "/" + c.getSerial(), uc.getHeaderField("Location"));
     }
 
     @Test
@@ -67,7 +67,7 @@ public class TestSEAdminPageCertSearch extends SEClientTest {
     @Test
     public void testRevoke() throws IOException {
         URLConnection conn = post(Certificates.SUPPORT_PATH + "/" + c.getSerial(), "action=revoke");
-        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + Certificates.SUPPORT_PATH + "/" + c.getSerial(), conn.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + Certificates.SUPPORT_PATH + "/" + c.getSerial(), conn.getHeaderField("Location"));
         for (int i = 0; i < 2; i++) {
             TestMail tm = getMailReceiver().receive(i == 0 ? ServerConstants.getSupportMailAddress() : certMail);
             assertThat(tm.getMessage(), CoreMatchers.containsString(certMail));

@@ -1,5 +1,18 @@
 <h3><?=_Welcome back, ${username}!?></h3>
 <h4><?=_Subscriber information?></h4>
+
+<? if($certlogininfo) { ?>
+  <? if($certlogin) { ?>
+    <div class="card card-body bg-light">
+      <p><?=_You are authenticated via certificate, so you will be able to perform all actions.?></p>
+    </div>
+  <? } else { ?>
+    <div class="alert alert-warning" role="alert">
+      <p><?=_For some actions, e.g. add verification, support, you need to be authenticated via certificate.?></p>
+    </div>
+  <? } ?>
+<? } ?>
+
 <div class="card card-body bg-light">
 <? if($ra-agent) { ?><p><?=_You are an RA Agent.?></p><? } ?>
 <p><?=_Assigned support permissions?>: <?=$support-groups?></p>

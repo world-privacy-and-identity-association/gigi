@@ -17,6 +17,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
@@ -42,6 +43,7 @@ import club.wpia.gigi.DevelLauncher;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.GigiResultSet;
+import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.EmailAddress;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.dbObjects.Job;
@@ -69,6 +71,10 @@ public class ManagedTest extends ConfiguredTest {
     private static String url = "localhost:4443";
 
     private static String acceptLanguage = null;
+
+    protected static Certificate loginCertificate;
+
+    protected static PrivateKey loginPrivateKey;
 
     public static void setAcceptLanguage(String acceptLanguage) {
         ManagedTest.acceptLanguage = acceptLanguage;
@@ -469,12 +475,16 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     public static HttpURLConnection post(String cookie, String path, String query, int formIndex) throws IOException, MalformedURLException, UnsupportedEncodingException {
-        URLConnection uc = new URL("https://" + getServerName() + path).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
+        String server = getServerName();
+        if (loginCertificate != null) {
+            server = getSecureServerName();
+        }
+        URLConnection uc = new URL("https://" + server + path).openConnection();
+        authenticate((HttpURLConnection) uc, cookie);
         String csrf = getCSRF(uc, formIndex);
 
-        uc = new URL("https://" + getServerName() + path).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
+        uc = new URL("https://" + server + path).openConnection();
+        authenticate((HttpURLConnection) uc, cookie);
         uc.setDoOutput(true);
         OutputStream os = uc.getOutputStream();
         os.write(("csrf=" + URLEncoder.encode(csrf, "UTF-8") + "&" //
@@ -485,8 +495,12 @@ public class ManagedTest extends ConfiguredTest {
     }
 
     public static HttpURLConnection get(String cookie, String path) throws IOException {
-        URLConnection uc = new URL("https://" + getServerName() + path).openConnection();
-        uc.addRequestProperty("Cookie", cookie);
+        String server = getServerName();
+        if (loginCertificate != null) {
+            server = getSecureServerName();
+        }
+        URLConnection uc = new URL("https://" + server + path).openConnection();
+        authenticate((HttpURLConnection) uc, cookie);
         return (HttpURLConnection) uc;
     }
 
@@ -524,5 +538,16 @@ public class ManagedTest extends ConfiguredTest {
         clearCaches();
         supporter = User.getById(i);
         return supporter;
+    }
+
+    protected static void authenticate(HttpURLConnection uc, String cookie) throws IOException {
+        uc.addRequestProperty("Cookie", cookie);
+        if (loginCertificate != null) {
+            try {
+                authenticateClientCert(loginPrivateKey, loginCertificate.cert(), uc);
+            } catch (GeneralSecurityException | GigiApiException e) {
+                throw new IOException(e);
+            }
+        }
     }
 }

@@ -40,7 +40,12 @@ public class MainPage extends Page {
             vars.put("ra-agent", u.canVerify());
             vars.put("vp", u.getVerificationPoints());
             vars.put("xp", u.getExperiencePoints());
-
+            if (u.isInGroup(Group.SUPPORTER) || u.isInGroup(Group.ORG_AGENT) || u.isInGroup(Group.TTP_AGENT) || u.canVerify()) {
+                vars.put("certlogin", LoginPage.getAuthorizationContext(req).isStronglyAuthenticated());
+                vars.put("certlogininfo", true);
+            } else {
+                vars.put("certlogininfo", false);
+            }
             Certificate[] c = u.getCertificates(false);
             vars.put("c-no", c.length);
 

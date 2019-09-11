@@ -7,12 +7,20 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.Random;
 
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.Certificate;
+import club.wpia.gigi.dbObjects.Certificate.CSRType;
+import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.dbObjects.Group;
+import club.wpia.gigi.pages.admin.support.FindCertPage;
 import club.wpia.gigi.pages.admin.support.FindUserByDomainPage;
 import club.wpia.gigi.pages.admin.support.FindUserByEmailPage;
 import club.wpia.gigi.pages.admin.support.SupportEnterTicketForm;
@@ -24,16 +32,31 @@ public class TestSEAdminTicketSetting extends ClientTest {
 
     public TestSEAdminTicketSetting() throws IOException, GigiApiException {
         grant(u, Group.SUPPORTER);
-        cookie = login(email, TEST_PASSWORD);
+        try {
+            KeyPair kp = generateKeypair();
+            String csr = generatePEMCSR(kp, "CN=" + u.getPreferredName().toString());
+            Certificate c = new Certificate(u, u, Certificate.buildDN("CN", u.getPreferredName().toString()), Digest.SHA256, csr, CSRType.CSR, getClientProfile());
+            final PrivateKey pk = kp.getPrivate();
+            await(c.issue(null, "2y", u));
+            final X509Certificate ce = c.cert();
+            c.setLoginEnabled(true);
+            cookie = login(pk, ce);
+            loginCertificate = c;
+            loginPrivateKey = pk;
+        } catch (InterruptedException e) {
+            throw new GigiApiException(e.toString());
+        } catch (GeneralSecurityException e) {
+            throw new GigiApiException(e.toString());
+        }
     }
 
     @Test
     public void testFulltextMailSearch() throws MalformedURLException, UnsupportedEncodingException, IOException {
         assertEquals(403, get(FindUserByEmailPage.PATH).getResponseCode());
-        assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
+        assertEquals(302, post(SupportEnterTicketPage.PATH, "ticketno=a20140808.8&setTicket=action", 0).getResponseCode());
         assertEquals(200, get(FindUserByEmailPage.PATH).getResponseCode());
         assertEquals(200, get(FindUserByDomainPage.PATH).getResponseCode());
-        assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=a20140808.8&deleteTicket=action", 0).getResponseCode());
+        assertEquals(302, post(SupportEnterTicketPage.PATH, "ticketno=a20140808.8&deleteTicket=action", 0).getResponseCode());
         assertEquals(403, get(FindUserByEmailPage.PATH).getResponseCode());
     }
 
@@ -45,9 +68,9 @@ public class TestSEAdminTicketSetting extends ClientTest {
         // test allowed character
         for (char ch : SupportEnterTicketForm.TICKET_PREFIX.toCharArray()) {
             ticket = ch + "20171212.1";
-            assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=" + ticket + "&setTicket=action", 0).getResponseCode());
+            assertEquals(302, post(SupportEnterTicketPage.PATH, "ticketno=" + ticket + "&setTicket=action", 0).getResponseCode());
             ticket = Character.toUpperCase(ch) + "20171212.1";
-            assertEquals(302, post(cookie, SupportEnterTicketPage.PATH, "ticketno=" + ticket + "&setTicket=action", 0).getResponseCode());
+            assertEquals(302, post(SupportEnterTicketPage.PATH, "ticketno=" + ticket + "&setTicket=action", 0).getResponseCode());
             alphabet = alphabet.replaceAll(Character.toString(ch), "");
         }
 
@@ -99,4 +122,15 @@ public class TestSEAdminTicketSetting extends ClientTest {
         String res = IOUtils.readURL(post(SupportEnterTicketPage.PATH, "ticketno=" + ticket + "&setTicket=action"));
         assertThat(res, containsString("Ticket format malformed"));
     }
+
+    @Test
+    public void testPWLogin() throws MalformedURLException, UnsupportedEncodingException, IOException {
+        String cookiePW = login(email, TEST_PASSWORD);
+        loginCertificate = null;
+        assertEquals(403, get(cookiePW, SupportEnterTicketPage.PATH).getResponseCode());
+        assertEquals(403, get(cookiePW, FindUserByEmailPage.PATH).getResponseCode());
+        assertEquals(403, get(cookiePW, FindUserByDomainPage.PATH).getResponseCode());
+        assertEquals(403, get(cookiePW, FindCertPage.PATH).getResponseCode());
+    }
+
 }

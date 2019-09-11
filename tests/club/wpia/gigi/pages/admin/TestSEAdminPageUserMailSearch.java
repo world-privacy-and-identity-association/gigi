@@ -30,7 +30,7 @@ public class TestSEAdminPageUserMailSearch extends SEClientTest {
         int id = createVerifiedUser("Först", "Secönd", mail, TEST_PASSWORD);
 
         URLConnection uc = post(cookie, FindUserByEmailPage.PATH, "process&email=" + URLEncoder.encode(mail, "UTF-8"), 0);
-        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + SupportUserDetailsPage.PATH + id + "/", uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + SupportUserDetailsPage.PATH + id + "/", uc.getHeaderField("Location"));
     }
 
     @Test
@@ -39,7 +39,7 @@ public class TestSEAdminPageUserMailSearch extends SEClientTest {
         int id = createVerifiedUser("Först", "Secönd", mail, TEST_PASSWORD);
 
         URLConnection uc = post(cookie, FindUserByEmailPage.PATH, "process&email=" + URLEncoder.encode("%@example.tld", "UTF-8"), 0);
-        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + SupportUserDetailsPage.PATH + id + "/", uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + SupportUserDetailsPage.PATH + id + "/", uc.getHeaderField("Location"));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class TestSEAdminPageUserMailSearch extends SEClientTest {
         createVerifiedEmail(testuser, mail2);
 
         URLConnection uc = post(cookie, FindUserByEmailPage.PATH, "process&email=" + URLEncoder.encode(mail2, "UTF-8"), 0);
-        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + SupportUserDetailsPage.PATH + id + "/", uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + SupportUserDetailsPage.PATH + id + "/", uc.getHeaderField("Location"));
     }
 
     @Test
@@ -122,7 +122,7 @@ public class TestSEAdminPageUserMailSearch extends SEClientTest {
         createVerifiedEmail(testuser, mail3);
 
         URLConnection uc = post(cookie, FindUserByEmailPage.PATH, "process&email=" + URLEncoder.encode("%@example3.org", "UTF-8"), 0);
-        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.WWW) + SupportUserDetailsPage.PATH + id + "/", uc.getHeaderField("Location"));
+        assertEquals("https://" + ServerConstants.getHostNamePortSecure(Host.SECURE) + SupportUserDetailsPage.PATH + id + "/", uc.getHeaderField("Location"));
 
         uc = post(cookie, FindUserByEmailPage.PATH, "process&email=" + URLEncoder.encode("%@test3.org", "UTF-8"), 0);
 

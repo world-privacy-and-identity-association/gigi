@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
+import club.wpia.gigi.dbObjects.Certificate;
 import club.wpia.gigi.dbObjects.EmailAddress;
 import club.wpia.gigi.dbObjects.ObjectCache;
 import club.wpia.gigi.dbObjects.User;
@@ -27,7 +28,11 @@ import club.wpia.gigi.util.DayDate;
 
 public class TestSEAdminPageDetails extends SEClientTest {
 
-    public TestSEAdminPageDetails() throws IOException, GigiApiException {}
+    private Certificate cs;
+
+    public TestSEAdminPageDetails() throws IOException, GigiApiException {
+        cs = loginCertificate;
+    }
 
     @Test
     public void testUserDetailsDisplay() throws MalformedURLException, IOException {
@@ -118,12 +123,13 @@ public class TestSEAdminPageDetails extends SEClientTest {
         String clientCookie = login(email, TEST_PASSWORD);
 
         // try to open mypoints as user
+        loginCertificate = null;
         HttpURLConnection uc = get(clientCookie, SupportUserDetailsPage.PATH + id + "/points");
 
         assertEquals(403, uc.getResponseCode());
 
         // enter verification and open mypoints as supporter
-
+        loginCertificate = cs;
         makeAgent(this.id);
         String location = createUniqueName();
         try (GigiPreparedStatement ps = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, `points`=?, `location`=?, `date`=?, `when`=? ")) {
@@ -157,7 +163,10 @@ public class TestSEAdminPageDetails extends SEClientTest {
     }
 
     private int logCountUser(String cookie) throws IOException {
-        return getLogEntryCount(IOUtils.readURL(get(cookie, History.PATH)));
+        loginCertificate = null;
+        int count = getLogEntryCount(IOUtils.readURL(get(cookie, History.PATH)));
+        loginCertificate = cs;
+        return count;
     }
 
     private int getLogEntryCount(String readURL) {

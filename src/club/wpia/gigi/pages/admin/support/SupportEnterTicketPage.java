@@ -47,7 +47,7 @@ public class SupportEnterTicketPage extends Page {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && ac.isInGroup(Group.SUPPORTER);
+        return ac != null && ac.isInGroup(Group.SUPPORTER) && ac.isStronglyAuthenticated();
     }
 
 }
