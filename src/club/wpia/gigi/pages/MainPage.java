@@ -40,12 +40,7 @@ public class MainPage extends Page {
             vars.put("ra-agent", u.canVerify());
             vars.put("vp", u.getVerificationPoints());
             vars.put("xp", u.getExperiencePoints());
-            if (u.isInGroup(Group.SUPPORTER) || u.isInGroup(Group.ORG_AGENT) || u.isInGroup(Group.TTP_AGENT) || u.canVerify()) {
-                vars.put("certlogin", LoginPage.getAuthorizationContext(req).isStronglyAuthenticated());
-                vars.put("certlogininfo", true);
-            } else {
-                vars.put("certlogininfo", false);
-            }
+
             Certificate[] c = u.getCertificates(false);
             vars.put("c-no", c.length);
 
@@ -106,6 +101,14 @@ public class MainPage extends Page {
                 }
             });
             vars.put("hasorgs", !o.isEmpty());
+
+            if (u.isInGroup(Group.SUPPORTER) || u.isInGroup(Group.ORG_AGENT) || u.isInGroup(Group.TTP_AGENT) || u.canVerify() || !o.isEmpty()) {
+                vars.put("certlogin", LoginPage.getAuthorizationContext(req).isStronglyAuthenticated());
+                vars.put("certlogininfo", true);
+            } else {
+                vars.put("certlogininfo", false);
+            }
+
             getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
 
         } else {

@@ -62,6 +62,7 @@ public class MyOrganisationsForm extends Form {
     @Override
     protected void outputContent(PrintWriter out, Language l, Map<String, Object> vars) {
         final List<Organisation> o = target.getActor().getOrganisations();
+        vars.put("certlogin", target.isStronglyAuthenticated());
         if (target.getTarget() != target.getActor()) {
             vars.put("personal", target.getTarget() != target.getActor());
         }

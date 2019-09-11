@@ -5,6 +5,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 
@@ -118,4 +120,11 @@ public class TestOrgSwitch extends OrgTest {
 
     }
 
+    @Test
+    public void testSwitchOrgPasswordLogin() throws IOException, GigiApiException {
+        cookie = login(email, TEST_PASSWORD);
+        loginCertificate = null;
+        URLConnection uc = get(cookie, SwitchOrganisation.PATH);
+        assertEquals(403, ((HttpURLConnection) uc).getResponseCode());
+    }
 }
