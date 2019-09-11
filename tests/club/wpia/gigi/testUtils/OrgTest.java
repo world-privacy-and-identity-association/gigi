@@ -15,7 +15,7 @@ public class OrgTest extends ClientTest {
         makeAgent(u.getId());
         u.grantGroup(getSupporter(), Group.ORG_AGENT);
         clearCaches();
-        cookie = login(email, TEST_PASSWORD);
+        cookie = cookieWithCertificateLogin(u);
     }
 
     public Organisation createUniqueOrg() throws GigiApiException {
