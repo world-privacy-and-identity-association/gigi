@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -43,7 +44,7 @@ public class TestVerification extends ManagedTest {
     private String cookie;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws IOException, GeneralSecurityException, GigiApiException, InterruptedException {
         clearCaches();
         agentM = createUniqueName() + "@example.org";
         applicantM = createUniqueName() + "@example.org";
@@ -52,7 +53,8 @@ public class TestVerification extends ManagedTest {
         int applicantId = createVerifiedUser("a", "c", applicantM, TEST_PASSWORD);
         applicantName = User.getById(applicantId).getPreferredName().getId();
 
-        cookie = login(agentM, TEST_PASSWORD);
+        User users[] = User.findByEmail(agentM);
+        cookie = cookieWithCertificateLogin(users[0]);
     }
 
     private Matcher<String> isVerificationForm() {
@@ -158,7 +160,7 @@ public class TestVerification extends ManagedTest {
 
         String applicantCookie = login(applicantM, TEST_PASSWORD);
         String newDob = "day=1&month=1&year=" + ( !succeed ? 1911 : 1910);
-
+        loginCertificate = null;
         assertNull(executeBasicWebInteraction(applicantCookie, MyDetails.PATH, newDob + "&action=updateDoB", 0));
 
         uc.getOutputStream().write(("verifiedName=" + applicantName + "&date=" + validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10").getBytes("UTF-8"));
@@ -245,6 +247,7 @@ public class TestVerification extends ManagedTest {
         getMailReceiver().receive(applicantM);
 
         String cookie = login(applicantM, TEST_PASSWORD);
+        loginCertificate = null;
         URLConnection url = get(cookie, Points.PATH);
         String resp = IOUtils.readURL(url);
         resp = resp.split(Pattern.quote("</table>"))[1];
@@ -259,6 +262,7 @@ public class TestVerification extends ManagedTest {
         getMailReceiver().receive(applicantM);
 
         String cookie = login(agentM, TEST_PASSWORD);
+        loginCertificate = null;
         URLConnection url = get(cookie, Points.PATH);
         String resp = IOUtils.readURL(url);
         resp = resp.split(Pattern.quote("</table>"))[2];
@@ -303,8 +307,7 @@ public class TestVerification extends ManagedTest {
     }
 
     @Test
-    public void testMultipleVerification() throws IOException {
-
+    public void testMultipleVerification() throws IOException, GeneralSecurityException, GigiApiException, InterruptedException {
         User users[] = User.findByEmail(agentM);
         int agentID = users[0].getId();
 
@@ -341,7 +344,7 @@ public class TestVerification extends ManagedTest {
     }
 
     @Test
-    public void testRANotificationSet() throws IOException, GigiApiException {
+    public void testRANotificationSet() throws IOException, GigiApiException, GeneralSecurityException, InterruptedException {
         getMailReceiver().assertEmpty();
 
         User users[] = User.findByEmail(agentM);
@@ -350,15 +353,14 @@ public class TestVerification extends ManagedTest {
         User u = users[0];
         u.grantGroup(u, Group.VERIFY_NOTIFICATION);
         clearCaches();
-        cookie = login(agentM, TEST_PASSWORD);
-
-        String targetMail = u.getEmail();
+        cookie = cookieWithCertificateLogin(users[0]);
 
         // enter verification
         String uniqueLoc = createUniqueName();
         executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
         getMailReceiver().receive(applicantM);
-        TestMail tm = getMailReceiver().receive(targetMail);
+
+        TestMail tm = getMailReceiver().receive(agentM);
         assertThat(tm.getMessage(), containsString("You entered a verification for the account with email address " + applicantM));
 
     }
@@ -373,16 +375,20 @@ public class TestVerification extends ManagedTest {
         User u = users[0];
         u.revokeGroup(u, Group.VERIFY_NOTIFICATION);
         clearCaches();
-        cookie = login(agentM, TEST_PASSWORD);
 
         // enter verification
         String uniqueLoc = createUniqueName();
         executeSuccess("date=" + validVerificationDateString() + "&location=" + uniqueLoc + "&countryCode=DE&certify=1&rules=1&assertion=1&points=10");
 
-        TestMail tm;
-
-        tm = getMailReceiver().receive(applicantM);
+        TestMail tm = getMailReceiver().receive(applicantM);
         assertThat(tm.getMessage(), not(containsString("You entered a verification for the account with email address " + applicantM)));
 
+    }
+
+    @Test
+    public void testVerifyWithoutCertLogin() throws IOException {
+        cookie = login(agentM, TEST_PASSWORD);
+        loginCertificate = null;
+        assertEquals(403, get(cookie, VerifyPage.PATH).getResponseCode());
     }
 }

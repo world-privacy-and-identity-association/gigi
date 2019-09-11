@@ -6,14 +6,15 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.security.GeneralSecurityException;
 
 import org.junit.Test;
 
+import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.pages.PasswordResetPage;
 import club.wpia.gigi.pages.wot.TestVerification;
@@ -25,9 +26,9 @@ import club.wpia.gigi.util.RandomToken;
 public class TestPasswordResetExternal extends ClientTest {
 
     @Test
-    public void testByVerification() throws IOException {
+    public void testByVerification() throws IOException, GeneralSecurityException, GigiApiException, InterruptedException {
         User u = User.getById(createVerificationUser("fn", "ln", createUniqueName() + "@example.com", TEST_PASSWORD));
-        String cookie2 = login(u.getEmail(), TEST_PASSWORD);
+        String cookie2 = cookieWithCertificateLogin(u);
         URLConnection uc = TestVerification.buildupVerifyFormConnection(cookie2, email, true);
         String avalue = RandomToken.generateToken(32);
         uc.getOutputStream().write(("verifiedName=" + this.u.getPreferredName().getId() + "&date=" + TestVerification.validVerificationDateString() + "&location=testcase&countryCode=DE&certify=1&rules=1&assertion=1&points=10&passwordReset=1&passwordResetValue=" + URLEncoder.encode(avalue, "UTF-8")).getBytes("UTF-8"));
@@ -40,7 +41,6 @@ public class TestPasswordResetExternal extends ClientTest {
         mail = getMailReceiver().receive(this.u.getEmail());
         String link = mail.extractLink();
         String npw = TEST_PASSWORD + "'";
-        System.out.println(link);
         assertNotNull(toPasswordReset(avalue, link, npw, npw + "'"));
         assertNotNull(toPasswordReset(avalue + "'", link, npw, npw));
         assertNotNull(toPasswordReset(avalue, link, "a", "a"));
@@ -59,7 +59,6 @@ public class TestPasswordResetExternal extends ClientTest {
         uc2.setDoOutput(true);
         OutputStream o = uc2.getOutputStream();
         o.write(("csrf=" + csrf + "&pword1=" + URLEncoder.encode(npw, "UTF-8") + "&pword2=" + URLEncoder.encode(npw2, "UTF-8") + "&private_token=" + URLEncoder.encode(avalue, "UTF-8")).getBytes("UTF-8"));
-        System.out.println(((HttpURLConnection) uc2).getResponseCode());
         String readURL = IOUtils.readURL(uc2);
         return fetchStartErrorMessage(readURL);
     }

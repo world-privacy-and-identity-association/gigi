@@ -7,18 +7,11 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
 import java.util.Random;
 
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
-import club.wpia.gigi.dbObjects.Certificate;
-import club.wpia.gigi.dbObjects.Certificate.CSRType;
-import club.wpia.gigi.dbObjects.Digest;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.pages.admin.support.FindCertPage;
 import club.wpia.gigi.pages.admin.support.FindUserByDomainPage;
@@ -32,22 +25,7 @@ public class TestSEAdminTicketSetting extends ClientTest {
 
     public TestSEAdminTicketSetting() throws IOException, GigiApiException {
         grant(u, Group.SUPPORTER);
-        try {
-            KeyPair kp = generateKeypair();
-            String csr = generatePEMCSR(kp, "CN=" + u.getPreferredName().toString());
-            Certificate c = new Certificate(u, u, Certificate.buildDN("CN", u.getPreferredName().toString()), Digest.SHA256, csr, CSRType.CSR, getClientProfile());
-            final PrivateKey pk = kp.getPrivate();
-            await(c.issue(null, "2y", u));
-            final X509Certificate ce = c.cert();
-            c.setLoginEnabled(true);
-            cookie = login(pk, ce);
-            loginCertificate = c;
-            loginPrivateKey = pk;
-        } catch (InterruptedException e) {
-            throw new GigiApiException(e.toString());
-        } catch (GeneralSecurityException e) {
-            throw new GigiApiException(e.toString());
-        }
+        cookie = cookieWithCertificateLogin(u);
     }
 
     @Test
