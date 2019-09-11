@@ -680,4 +680,24 @@ public class User extends CertificateOwner {
             update.executeUpdate();
         }
     }
+
+    public boolean hasValidRAChallenge() {
+        return CATS.isInCatsLimit(getId(), CATSType.AGENT_CHALLENGE.getId());
+    }
+
+    public boolean hasValidSupportChallenge() {
+        return CATS.isInCatsLimit(getId(), CATSType.SUPPORT_DP_CHALLENGE_NAME.getId());
+    }
+
+    public boolean hasValidOrgAdminChallenge() {
+        return CATS.isInCatsLimit(getId(), CATSType.ORG_ADMIN_DP_CHALLENGE_NAME.getId());
+    }
+
+    public boolean hasValidOrgAgentChallenge() {
+        return CATS.isInCatsLimit(getId(), CATSType.ORG_AGENT_CHALLENGE.getId());
+    }
+
+    public boolean hasValidTTPAgentChallenge() {
+        return CATS.isInCatsLimit(getId(), CATSType.TTP_AGENT_CHALLENGE.getId());
+    }
 }
