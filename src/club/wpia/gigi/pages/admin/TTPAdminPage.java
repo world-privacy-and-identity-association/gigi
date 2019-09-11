@@ -90,6 +90,6 @@ public class TTPAdminPage extends Page {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && ac.isInGroup(Group.TTP_AGENT);
+        return ac != null && ac.isInGroup(Group.TTP_AGENT) && ac.isStronglyAuthenticated();
     }
 }
