@@ -12,12 +12,14 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.security.GeneralSecurityException;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.pages.PasswordResetPage;
 import club.wpia.gigi.pages.wot.TestVerification;
+import club.wpia.gigi.testUtils.ArrayContains;
 import club.wpia.gigi.testUtils.ClientTest;
 import club.wpia.gigi.testUtils.IOUtils;
 import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
@@ -46,6 +48,10 @@ public class TestPasswordResetExternal extends ClientTest {
         assertNotNull(toPasswordReset(avalue, link, "a", "a"));
         assertNull(toPasswordReset(avalue, link, npw, npw));
         assertNotNull(login(email, npw));
+
+        String[] result = this.u.getAdminLog();
+        assertThat(result, ArrayContains.contains(CoreMatchers.equalTo("RA Agent triggered password reset")));
+        assertThat(result, ArrayContains.contains(CoreMatchers.equalTo("User token based password reset")));
     }
 
     private String toPasswordReset(String avalue, String link, String npw, String npw2) throws IOException, MalformedURLException, UnsupportedEncodingException {

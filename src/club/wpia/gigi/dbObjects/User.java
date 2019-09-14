@@ -700,4 +700,13 @@ public class User extends CertificateOwner {
     public boolean hasValidTTPAgentChallenge() {
         return CATS.isInCatsLimit(getId(), CATSType.TTP_AGENT_CHALLENGE.getId());
     }
+
+    public void writeUserLog(User actor, String type) throws GigiApiException {
+        try (GigiPreparedStatement prep = new GigiPreparedStatement("INSERT INTO `adminLog` SET uid=?, admin=?, type=?")) {
+            prep.setInt(1, actor.getId());
+            prep.setInt(2, getId());
+            prep.setString(3, type);
+            prep.executeUpdate();
+        }
+    }
 }

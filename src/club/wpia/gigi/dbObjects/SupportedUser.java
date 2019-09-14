@@ -175,13 +175,14 @@ public class SupportedUser {
         }
     }
 
-    public void triggerPasswordReset(String aword, HttpServletRequest req) {
+    public void triggerPasswordReset(String aword, HttpServletRequest req) throws GigiApiException {
         Language l = Language.getInstance(target.getPreferredLocale());
         String method = l.getTranslation("A password reset was triggered. Please enter the required text sent to you by support on this page:");
         String subject = l.getTranslation("Password reset by support.");
         PasswordResetPage.initPasswordResetProcess(target, req, aword, l, method, subject);
         Outputable message = new TranslateCommand("A password reset was triggered and an email was sent to user.");
         sendSupportNotification(subject, message);
+        writeSELog("SE triggered password reset");
     }
 
     private void sendBoardNotification(String subject, Outputable message) {

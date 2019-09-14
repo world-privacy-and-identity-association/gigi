@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.sql.Date;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.NamePart.NamePartType;
+import club.wpia.gigi.testUtils.ArrayContains;
 import club.wpia.gigi.testUtils.ClientBusinessTest;
 
 public class TestUser extends ClientBusinessTest {
@@ -103,6 +105,20 @@ public class TestUser extends ClientBusinessTest {
         assertFalse(u.hasValidTTPAgentChallenge());
         CATS.enterResult(u, CATSType.TTP_AGENT_CHALLENGE, min11month, "en_US", "1");
         assertTrue(u.hasValidTTPAgentChallenge());
+    }
+
+    @Test
+    public void testWriteUserLog() throws GigiApiException {
+        String type = "Log test";
+        u.writeUserLog(u, type);
+        String[] result = u.getAdminLog();
+        assertThat(result, ArrayContains.contains(CoreMatchers.equalTo(type)));
+
+        String type1 = "Log test1";
+        u.writeUserLog(u, type1);
+        result = u.getAdminLog();
+        assertThat(result, ArrayContains.contains(CoreMatchers.equalTo(type1)));
+        assertThat(result, ArrayContains.contains(CoreMatchers.equalTo(type)));
     }
 
 }

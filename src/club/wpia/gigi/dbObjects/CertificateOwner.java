@@ -134,7 +134,11 @@ public abstract class CertificateOwner implements IdCachable, Serializable {
             List<String> entries = new LinkedList<String>();
 
             while (res.next()) {
-                entries.add(res.getString(2) + " (" + res.getString(3) + ")");
+                String info = res.getString(3);
+                if ( !info.isEmpty()) {
+                    info = " (" + info + ")";
+                }
+                entries.add(res.getString(2) + info);
             }
             return entries.toArray(new String[0]);
         }

@@ -5,10 +5,11 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.net.URLEncoder;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
-import club.wpia.gigi.pages.account.ChangePasswordPage;
+import club.wpia.gigi.testUtils.ArrayContains;
 import club.wpia.gigi.testUtils.ClientTest;
 
 public class TestChangePassword extends ClientTest {
@@ -43,6 +44,9 @@ public class TestChangePassword extends ClientTest {
         assertNull(error);
         assertTrue(isLoggedin(login(u.getEmail(), TEST_PASSWORD + "v2")));
         assertFalse(isLoggedin(login(u.getEmail(), TEST_PASSWORD)));
+
+        String[] result = u.getAdminLog();
+        assertThat(result, ArrayContains.contains(CoreMatchers.equalTo("User triggered password reset")));
 
     }
 

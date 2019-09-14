@@ -76,6 +76,7 @@ public class PasswordResetPage extends Page {
                 throw new GigiApiException("New passwords differ.");
             }
             u.consumePasswordResetTicket(id, tok, p1);
+            u.writeUserLog(u, "User token based password reset");
             return new SuccessMessageResult(new TranslateCommand("Password reset successful."));
         }
 

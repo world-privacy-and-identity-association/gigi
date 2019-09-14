@@ -12,6 +12,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Locale;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import club.wpia.gigi.GigiApiException;
@@ -20,6 +21,7 @@ import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.pages.account.MyDetails;
 import club.wpia.gigi.pages.admin.support.SupportUserDetailsPage;
+import club.wpia.gigi.testUtils.ArrayContains;
 import club.wpia.gigi.testUtils.IOUtils;
 import club.wpia.gigi.testUtils.SEClientTest;
 import club.wpia.gigi.testUtils.TestEmailReceiver.TestMail;
@@ -59,6 +61,10 @@ public class TestSEAdminNotificationMail extends SEClientTest {
         getMailReceiver().receive(targetEmail);
         TestMail tm = getMailReceiver().receive(ServerConstants.getSupportMailAddress());
         assertThat(tm.getMessage(), containsString("A password reset was triggered and an email was sent to user."));
+
+        User test = User.getById(targetID);
+        String[] result = test.getAdminLog();
+        assertThat(result, ArrayContains.contains(CoreMatchers.equalTo("SE triggered password reset (a20140808.8)")));
     }
 
     @Test
