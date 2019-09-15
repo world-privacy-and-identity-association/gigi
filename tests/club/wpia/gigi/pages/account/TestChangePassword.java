@@ -107,4 +107,19 @@ public class TestChangePassword extends ClientTest {
 
     }
 
+    @Test
+    public void testChangePasswordCertLogin() throws IOException, GigiApiException {
+        // no cert login
+        String np = URLEncoder.encode(TEST_PASSWORD + "v1", "UTF-8");
+        String error = executeBasicWebInteraction(cookie, path, "pword1=" + np + "&pword2=" + np);
+        assertNotNull(error);
+
+        // cert login
+        cookie = cookieWithCertificateLogin(u);
+        error = executeBasicWebInteraction(cookie, path, "pword1=" + np + "&pword2=" + np);
+        assertNull(error);
+
+        cookie = login(u.getEmail(), TEST_PASSWORD);
+        loginCertificate = null;
+    }
 }
