@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import club.wpia.gigi.GigiApiException;
+import club.wpia.gigi.dbObjects.Name;
 import club.wpia.gigi.dbObjects.Organisation;
 import club.wpia.gigi.dbObjects.Organisation.Affiliation;
 import club.wpia.gigi.dbObjects.User;
@@ -64,7 +65,9 @@ public class AffiliationForm extends Form {
                     return false;
                 }
                 Affiliation aff = iter.next();
-                vars.put("name", aff.getTarget().getPreferredName());
+                Name n = aff.getTarget().getPreferredName();
+                vars.put("name", n);
+                vars.put("nameString", n.toString());
                 vars.put("master", aff.isMaster() ? l.getTranslation("Master") : "");
                 vars.put("e-mail", aff.getTarget().getEmail());
                 return true;
