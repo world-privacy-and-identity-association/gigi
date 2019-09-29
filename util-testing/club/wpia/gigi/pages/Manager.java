@@ -48,6 +48,7 @@ import club.wpia.gigi.dbObjects.DomainPingExecution;
 import club.wpia.gigi.dbObjects.DomainPingType;
 import club.wpia.gigi.dbObjects.EmailAddress;
 import club.wpia.gigi.dbObjects.Group;
+import club.wpia.gigi.dbObjects.Name;
 import club.wpia.gigi.dbObjects.NamePart;
 import club.wpia.gigi.dbObjects.NamePart.NamePartType;
 import club.wpia.gigi.dbObjects.User;
@@ -447,6 +448,17 @@ public class Manager extends Page {
 
             resp.getWriter().println("User has been verified " + verifications + " times." + info);
 
+        } else if (req.getParameter("verifyexpire") != null) {
+            String mail = req.getParameter("verifyEmail");
+            User byEmail = User.getByEmail(mail);
+            if (byEmail == null) {
+                resp.getWriter().println("User not found.");
+                return;
+            } else {
+                setVerificationDateToPast(byEmail.getPreferredName());
+            }
+
+            resp.getWriter().println("Verification set to time past the limit.");
         } else if (req.getParameter("letverify") != null) {
             String mail = req.getParameter("letverifyEmail");
             User byEmail = User.getByEmail(mail);
@@ -627,5 +639,19 @@ public class Manager extends Page {
         vars.put("emailPingMonths", TimeConditions.getInstance().getEmailPingMonths());
 
         form.output(resp.getWriter(), getLanguage(req), vars);
+    }
+
+    private static void setVerificationDateToPast(Name name) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        c.add(Calendar.MONTH, -TimeConditions.getInstance().getVerificationMonths());
+        String date = sdf.format(new Date(c.getTimeInMillis()));
+        GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `notary` SET `date`=? WHERE `to`=? AND `date`>?");
+        ps.setString(1, date);
+        ps.setInt(2, name.getId());
+        ps.setString(3, date);
+        ps.execute();
+        ps.close();
     }
 }

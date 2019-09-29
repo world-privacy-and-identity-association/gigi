@@ -360,9 +360,11 @@ public abstract class ConfiguredTest {
     }
 
     public static void add100Points(int uid) {
-        try (GigiPreparedStatement ps2 = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, points='100'")) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try (GigiPreparedStatement ps2 = new GigiPreparedStatement("INSERT INTO `notary` SET `from`=?, `to`=?, points='100', `date`=?")) {
             ps2.setInt(1, uid);
             ps2.setInt(2, User.getById(uid).getPreferredName().getId());
+            ps2.setString(3, sdf.format(new Date(System.currentTimeMillis())));
             ps2.execute();
         }
     }
