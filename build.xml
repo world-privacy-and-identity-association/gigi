@@ -355,10 +355,6 @@
 	</target>
 	<target name="update-effective-tlds">
 		<mkdir dir="bin/club/wpia/gigi/util"/>
-		<exec executable="wget" dir="bin/club/wpia/gigi/util">
-			<arg value="-N"/>
-			<arg value="-q"/>
-			<arg value="https://publicsuffix.org/list/effective_tld_names.dat"/>
-		</exec>
+		<copy file="/usr/share/publicsuffix/effective_tld_names.dat" tofile="bin/club/wpia/gigi/util/effective_tld_names.dat"/>
 	</target>
 </project>
