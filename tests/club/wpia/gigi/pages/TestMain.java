@@ -81,7 +81,7 @@ public class TestMain extends ClientTest {
         authenticate((HttpURLConnection) uc);
         String content = IOUtils.readURL(uc);
 
-        assertThat(content, containsString("change to organisation administrator context"));
+        assertThat(content, containsString("Change to organisation administrator context"));
         assertThat(content, containsString("You are authenticated via certificate, so you will be able to perform all actions."));
     }
 

@@ -104,7 +104,7 @@
   <li><?=$orgName?></li>
  <? } ?>
  </ul>
- <? if($certlogin) { ?><p><?=_!'<a href="/account/details">'change to organisation administrator context.'</a>'?><? } else { ?><p class="alert alert-warning"><?=_You need to be logged in via certificate to get access to the organisations.?><? } ?></p>
+ <? if($certlogin) { ?><p><a href="/account/details"><?=_Change to organisation administrator context.?></a><? } else { ?><p class="alert alert-warning"><?=_You need to be logged in via certificate to get access to the organisations.?><? } ?></p>
 </div>
 <? } ?>
 
