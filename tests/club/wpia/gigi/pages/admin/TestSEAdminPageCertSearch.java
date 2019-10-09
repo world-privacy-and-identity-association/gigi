@@ -1,5 +1,6 @@
 package club.wpia.gigi.pages.admin;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -87,6 +88,24 @@ public class TestSEAdminPageCertSearch extends SEClientTest {
         String result = IOUtils.readURL(uc);
         assertThat(result, CoreMatchers.containsString(revokeDate));
         assertThat(result, CoreMatchers.containsString("N/A"));
+    }
+
+    @Test
+    public void testShowDraft() throws GeneralSecurityException, IOException, GigiApiException, InterruptedException {
+        KeyPair kp = generateKeypair();
+        String key = generatePEMCSR(kp, "CN=" + certMail);
+        Certificate c1 = new Certificate(u, u, Certificate.buildDN("CN", certMail), Digest.SHA512, key, CSRType.CSR, getClientProfile(), new Certificate.SubjectAlternateName(SANType.EMAIL, certMail));
+        URLConnection uc = post(cookie, FindCertPage.PATH, "certType=email&process=Next&cert=" + URLEncoder.encode(certMail, "UTF-8"), 0);
+        String result = IOUtils.readURL(uc);
+        assertThat(result, CoreMatchers.containsString(c.getSerial()));
+        assertThat(result, CoreMatchers.containsString("Draft"));
+
+        await(c1.issue(null, "2y", u));
+        uc = post(cookie, FindCertPage.PATH, "certType=email&process=Next&cert=" + URLEncoder.encode(certMail, "UTF-8"), 0);
+        result = IOUtils.readURL(uc);
+        assertThat(result, CoreMatchers.containsString(c.getSerial()));
+        assertThat(result, CoreMatchers.containsString(c1.getSerial()));
+        assertThat(result, not(CoreMatchers.containsString("Draft")));
     }
 
     private Certificate createCertificate() throws GeneralSecurityException, IOException, GigiApiException, InterruptedException {
