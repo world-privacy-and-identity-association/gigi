@@ -209,7 +209,7 @@ public class User extends CertificateOwner {
         setPassword(newPass);
     }
 
-    private void setPassword(String newPass) throws GigiApiException {
+    public void setPassword(String newPass) throws GigiApiException {
         Name[] names = getNames();
         TreeSet<String> nameParts = new TreeSet<>();
         for (int i = 0; i < names.length; i++) {
