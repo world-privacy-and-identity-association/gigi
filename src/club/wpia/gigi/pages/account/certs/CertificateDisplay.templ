@@ -37,19 +37,20 @@
   </tr>
 <? } else { ?>
   <tr>
-    <td valign="top"><?=_Certificate and Chain?>:</td>
+    <td valign="top"><?=_Certificate and Chain?>*:</td>
     <td>
-        <a href='<?=$serial?>.crt'><?=_PEM encoded Certificate?></a>
+        <?=_PEM encoded Certificate?> (<a href='<?=$serial?>.crt'>CRT</a>/<a href='<?=$serial?>.pem'>PEM</a>)
         <? foreach($trustchain) { ?>
             <?=_issued by?> <a href='<?=$link?>'><?=$name?></a>
-        <? } ?>*<br/>
-        <a href='<?=$serial?>.crt?chain'><?=_PEM encoded Certificate Chain?></a><br/>
-        <a href='<?=$serial?>.crt?chain&noAnchor'><?=_PEM encoded Certificate Chain (Excluding Anchor)?></a><br/>
-        <a href='<?=$serial?>.crt?chain&noLeaf'><?=_PEM encoded Certificate Chain (Excluding Leaf)?></a><br/>
-        <a href='<?=$serial?>.cer'><?=_DER encoded Certificate?></a><br/>
+        <? } ?><br/>
+        <?=_PEM encoded Certificate Chain?> (<a href='<?=$serial?>.crt?chain'>CRT</a>/<a href='<?=$serial?>.pem?chain'>PEM</a>)<br/>
+        <?=_PEM encoded Certificate Chain (Excluding Anchor)?> (<a href='<?=$serial?>.crt?chain&noAnchor'>CRT</a>/<a href='<?=$serial?>.pem?chain&noAnchor'>PEM</a>)<br/>
+        <?=_PEM encoded Certificate Chain (Excluding Leaf)?> (<a href='<?=$serial?>.crt?chain&noLeaf'>CRT</a>/<a href='<?=$serial?>.pem?chain&noLeaf'>PEM</a>)<br/>
+        <?=_DER encoded Certificate?> (<a href='<?=$serial?>.cer'>CER</a>)<br/>
         <a href='<?=$serial?>.cer?install&chain'><?=_Install into browser.?></a><br/>
-        <a href='<?=$serial?>.cer?install'><?=_Install into browser (Chrome)?></a>. <?=_Please ensure that the intermediate certificates listed above are installed prior to installing the certificate.?>*<br/><br/>
-        * <?=_For information on how to install the root certificates into the truststore of your browser take a look at the !(/kb/CSR)FAQ!'</a>'!?>
+        <a href='<?=$serial?>.cer?install'><?=_Install into browser (Chrome)?></a>. <?=_Please ensure that the intermediate certificates listed above are installed prior to installing the certificate.?><br/><br/>
+        * <?=_For information on how to install the root certificates into the truststore of your browser take a look at the !(/kb/rootcert)root certificate page in the FAQ!'</a>'!?>.</br>
+        <?=_For the different variants of the certificate and chain take a look at the !(/kb/certs)certificate page in the FAQ!'</a>'!?>.
     </td>
   </tr>
 <? } ?>
