@@ -7,6 +7,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.Signature;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Calendar;
@@ -31,6 +32,7 @@ import club.wpia.gigi.Gigi;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.crypto.SPKAC;
 import club.wpia.gigi.database.GigiPreparedStatement;
+import club.wpia.gigi.database.GigiResultSet;
 import club.wpia.gigi.dbObjects.CATS;
 import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Certificate;
@@ -168,6 +170,24 @@ public class Manager extends Page {
 
     private void passCATS(User u, CATSType t) {
         CATS.enterResult(u, t, new Date(System.currentTimeMillis()), "en_EN", "1");
+    }
+
+    private void expireCATS(User u, CATSType t) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `id` FROM `cats_passed` WHERE `user_id`=? AND `variant_id`=? AND `pass_date`>?")) {
+            ps.setInt(1, u.getId());
+            ps.setInt(2, t.getId());
+            ps.setTimestamp(3, new Timestamp(System.currentTimeMillis() - DayDate.MILLI_DAY * 366));
+            ps.execute();
+            GigiResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                GigiPreparedStatement ps1 = new GigiPreparedStatement("UPDATE `cats_passed` SET `pass_date`=? WHERE `id`=?");
+                ps1.setTimestamp(1, new Timestamp(System.currentTimeMillis() - DayDate.MILLI_DAY * 367));
+                ps1.setInt(2, rs.getInt(1));
+                ps1.execute();
+                ps1.close();
+            }
+        }
+
     }
 
     private static Manager instance;
@@ -360,6 +380,21 @@ public class Manager extends Page {
             CATSType test = CATSType.values()[Integer.parseInt(testId)];
             passCATS(byEmail, test);
             resp.getWriter().println("Test '" + test.getDisplayName() + "' was added to user account.");
+        } else if (req.getParameter("catsexpire") != null) {
+            String mail = req.getParameter("catsEmail");
+            String testId = req.getParameter("catsType");
+            User byEmail = User.getByEmail(mail);
+            if (byEmail == null) {
+                resp.getWriter().println("User not found.");
+                return;
+            }
+            if (testId == null) {
+                resp.getWriter().println("No test given.");
+                return;
+            }
+            CATSType test = CATSType.values()[Integer.parseInt(testId)];
+            expireCATS(byEmail, test);
+            resp.getWriter().println("Test '" + test.getDisplayName() + "' is set expired for user account.");
         } else if (req.getParameter("verify") != null) {
             String mail = req.getParameter("verifyEmail");
             String verificationPoints = req.getParameter("verificationPoints");
