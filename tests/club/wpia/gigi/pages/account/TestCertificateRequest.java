@@ -108,7 +108,7 @@ public class TestCertificateRequest extends ClientTest {
             cr.draft();
             fail();
         } catch (GigiApiException e) {
-            assertThat(e.getMessage(), containsString("needs an email ping within the past"));
+            assertThat(e.getMessage(), containsString("needs a verification via email ping within the past"));
         }
 
     }
@@ -131,7 +131,7 @@ public class TestCertificateRequest extends ClientTest {
             cr.draft();
             fail();
         } catch (GigiApiException e) {
-            assertThat(e.getMessage(), containsString("needs an email ping within the past"));
+            assertThat(e.getMessage(), containsString("needs a verification via email ping within the past"));
         }
 
     }

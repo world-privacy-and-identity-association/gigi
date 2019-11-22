@@ -371,7 +371,7 @@ public class CertificateRequest {
                 } else {
                     // remove
                     error.mergeInto(new GigiApiException(SprintfCommand.createSimple(//
-                            "The requested subject alternate name email address \"{0}\" needs an email ping within the past {1} months.", san.getType().toString().toLowerCase() + ":" + san.getName(), TimeConditions.getInstance().getEmailPingMonths())));
+                            "The requested subject alternate name email address \"{0}\" needs a verification via email ping within the past {1} months.", san.getType().toString().toLowerCase() + ":" + san.getName(), TimeConditions.getInstance().getEmailPingMonths())));
                     break;
                 }
             }
