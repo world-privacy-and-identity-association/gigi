@@ -47,8 +47,8 @@ if [[ -f "$ca.key" ]] && ! [[ -f keystore.pkcs12 ]]; then
     openssl req -newkey rsa:2048 -keyout mail.key -out mail.csr -nodes -subj "/CN=gigi system"
 
     # Sign the two requests with the keys in the config of the simple signer. Use the serial_base with extensions 1 and 2. These serials are long enough to probably not collide with the "simple signer"
-    openssl x509 -req -days 356 -in www.csr -out www.crt -CA $ca.crt -CAkey $ca.key -set_serial ${serial_base}1 -extfile <(printf '[ext]\nsubjectAltName=DNS:www.%s,DNS:secure.%s,DNS:static.%s,DNS:api.%s\nbasicConstraints=CA:FALSE\nextendedKeyUsage=serverAuth\nkeyUsage=digitalSignature,keyEncipherment\n' "$DOMAIN" "$DOMAIN" "$DOMAIN" "$DOMAIN") -extensions ext
-    openssl x509 -req -days 356 -in mail.csr -out mail.crt -CA $ca.crt -CAkey $ca.key -set_serial ${serial_base}2 -extfile <(printf '[ext]\nsubjectAltName=email:support@%s\nbasicConstraints=CA:FALSE\nextendedKeyUsage=emailProtection\nkeyUsage=digitalSignature,keyEncipherment\n' "$DOMAIN") -extensions ext
+    openssl x509 -req -days 365 -in www.csr -out www.crt -CA $ca.crt -CAkey $ca.key -set_serial ${serial_base}1 -extfile <(printf '[ext]\nsubjectAltName=DNS:www.%s,DNS:secure.%s,DNS:static.%s,DNS:api.%s\nbasicConstraints=CA:FALSE\nextendedKeyUsage=serverAuth\nkeyUsage=digitalSignature,keyEncipherment\n' "$DOMAIN" "$DOMAIN" "$DOMAIN" "$DOMAIN") -extensions ext
+    openssl x509 -req -days 365 -in mail.csr -out mail.crt -CA $ca.crt -CAkey $ca.key -set_serial ${serial_base}2 -extfile <(printf '[ext]\nsubjectAltName=email:support@%s\nbasicConstraints=CA:FALSE\nextendedKeyUsage=emailProtection\nkeyUsage=digitalSignature,keyEncipherment\n' "$DOMAIN") -extensions ext
 
     # Store the webserver cert in 4 different pkcs12-keystores to have different "key aliases" and import them all into the "keystore.pkcs12" using the "importP"-method
     for t in www api secure static; do
