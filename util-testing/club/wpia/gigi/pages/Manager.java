@@ -32,7 +32,6 @@ import club.wpia.gigi.Gigi;
 import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.crypto.SPKAC;
 import club.wpia.gigi.database.GigiPreparedStatement;
-import club.wpia.gigi.database.GigiResultSet;
 import club.wpia.gigi.dbObjects.CATS;
 import club.wpia.gigi.dbObjects.CATS.CATSType;
 import club.wpia.gigi.dbObjects.Certificate;
@@ -176,21 +175,14 @@ public class Manager extends Page {
     }
 
     private void expireCATS(User u, CATSType t) {
-        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT `id` FROM `cats_passed` WHERE `user_id`=? AND `variant_id`=? AND `pass_date`>?")) {
-            ps.setInt(1, u.getId());
-            ps.setInt(2, t.getId());
-            ps.setTimestamp(3, new Timestamp(System.currentTimeMillis() - DayDate.MILLI_DAY * 366));
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `cats_passed` SET `pass_date`=? WHERE `user_id`=? AND `variant_id`=? AND `pass_date`>?")) {
+            ps.setTimestamp(1, new Timestamp(System.currentTimeMillis() - DayDate.MILLI_DAY * 367));
+            ps.setInt(2, u.getId());
+            ps.setInt(3, t.getId());
+            ps.setTimestamp(4, new Timestamp(System.currentTimeMillis() - DayDate.MILLI_DAY * 366));
             ps.execute();
-            GigiResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                GigiPreparedStatement ps1 = new GigiPreparedStatement("UPDATE `cats_passed` SET `pass_date`=? WHERE `id`=?");
-                ps1.setTimestamp(1, new Timestamp(System.currentTimeMillis() - DayDate.MILLI_DAY * 367));
-                ps1.setInt(2, rs.getInt(1));
-                ps1.execute();
-                ps1.close();
-            }
+            ps.close();
         }
-
     }
 
     private static Manager instance;
@@ -349,17 +341,17 @@ public class Manager extends Page {
                 throw new Error(e);
             }
         } else if (req.getParameter("addpriv") != null || req.getParameter("delpriv") != null) {
-            User u = User.getByEmail(req.getParameter("email"));
-            if (u == null) {
+            User userByEmail = User.getByEmail(req.getParameter("email"));
+            if (userByEmail == null) {
                 resp.getWriter().println("User not found.");
                 return;
             }
             try {
                 if (req.getParameter("addpriv") != null) {
-                    u.grantGroup(getSupporter(), Group.getByString(req.getParameter("priv")));
+                    userByEmail.grantGroup(getSupporter(), Group.getByString(req.getParameter("priv")));
                     resp.getWriter().println("Privilege granted");
                 } else {
-                    u.revokeGroup(getSupporter(), Group.getByString(req.getParameter("priv")));
+                    userByEmail.revokeGroup(getSupporter(), Group.getByString(req.getParameter("priv")));
                     resp.getWriter().println("Privilege revoked");
                 }
             } catch (GigiApiException e) {
@@ -370,40 +362,40 @@ public class Manager extends Page {
             fetchMails(req, resp, mail);
         } else if (req.getParameter("cats") != null) {
             String mail = req.getParameter("catsEmail");
-            String testId = req.getParameter("catsType");
+            String catsTypeId = req.getParameter("catsType");
             User byEmail = User.getByEmail(mail);
             if (byEmail == null) {
                 resp.getWriter().println("User not found.");
                 return;
             }
-            if (testId == null) {
+            if (catsTypeId == null) {
                 resp.getWriter().println("No test given.");
                 return;
             }
-            CATSType test = CATSType.values()[Integer.parseInt(testId)];
+            CATSType test = CATSType.values()[Integer.parseInt(catsTypeId)];
             passCATS(byEmail, test);
             resp.getWriter().println("Test '" + test.getDisplayName() + "' was added to user account.");
         } else if (req.getParameter("catsexpire") != null) {
             String mail = req.getParameter("catsEmail");
-            String testId = req.getParameter("catsType");
-            User byEmail = User.getByEmail(mail);
-            if (byEmail == null) {
+            String catsTypeId = req.getParameter("catsType");
+            User userByEmail = User.getByEmail(mail);
+            if (userByEmail == null) {
                 resp.getWriter().println("User not found.");
                 return;
             }
-            if (testId == null) {
+            if (catsTypeId == null) {
                 resp.getWriter().println("No test given.");
                 return;
             }
-            CATSType test = CATSType.values()[Integer.parseInt(testId)];
-            expireCATS(byEmail, test);
+            CATSType test = CATSType.values()[Integer.parseInt(catsTypeId)];
+            expireCATS(userByEmail, test);
             resp.getWriter().println("Test '" + test.getDisplayName() + "' is set expired for user account.");
         } else if (req.getParameter("verify") != null) {
             String mail = req.getParameter("verifyEmail");
             String verificationPoints = req.getParameter("verificationPoints");
-            User byEmail = User.getByEmail(mail);
+            User userByEmail = User.getByEmail(mail);
 
-            if (byEmail == null) {
+            if (userByEmail == null) {
                 resp.getWriter().println("User not found.");
                 return;
             }
@@ -420,16 +412,16 @@ public class Manager extends Page {
                     vp = 0;
                 }
 
-                int agentNumber = addVerificationPoints(vp, byEmail);
+                int agentNumber = addVerificationPoints(vp, userByEmail);
 
                 while (vp > 0) {
                     int currentVP = 10;
                     if (vp < 10) {
                         currentVP = vp;
                     }
-                    if (Notary.checkVerificationIsPossible(getAgent(agentNumber), byEmail.getPreferredName())) {
+                    if (Notary.checkVerificationIsPossible(getAgent(agentNumber), userByEmail.getPreferredName())) {
 
-                        Notary.verify(getAgent(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", validVerificationDateString(), VerificationType.FACE_TO_FACE, getRandomCountry());
+                        Notary.verify(getAgent(agentNumber), userByEmail, userByEmail.getPreferredName(), userByEmail.getDoB(), currentVP, "Testmanager Verify up code", validVerificationDateString(), VerificationType.FACE_TO_FACE, getRandomCountry());
                         vp -= currentVP;
                         verifications += 1;
 
@@ -449,14 +441,14 @@ public class Manager extends Page {
 
         } else if (req.getParameter("letverify") != null) {
             String mail = req.getParameter("letverifyEmail");
-            User byEmail = User.getByEmail(mail);
-            if (byEmail == null || !byEmail.canVerify()) {
+            User userByEmail = User.getByEmail(mail);
+            if (userByEmail == null || !userByEmail.canVerify()) {
                 resp.getWriter().println("User not found, or found user is not allowed to verify.");
             } else {
                 try {
                     for (int i = 0; i < 25; i++) {
                         User a = getAgent(i);
-                        Notary.verify(byEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", validVerificationDateString(), VerificationType.FACE_TO_FACE, getRandomCountry());
+                        Notary.verify(userByEmail, a, a.getNames()[0], a.getDoB(), 10, "Testmanager exp up code", validVerificationDateString(), VerificationType.FACE_TO_FACE, getRandomCountry());
                     }
                     resp.getWriter().println("Successfully added experience points.");
                 } catch (GigiApiException e) {
@@ -464,9 +456,9 @@ public class Manager extends Page {
                 }
             }
         } else if (req.getParameter("addEmail") != null) {
-            User u = User.getByEmail(req.getParameter("addEmailEmail"));
+            User userByEmail = User.getByEmail(req.getParameter("addEmailEmail"));
             try {
-                EmailAddress ea = new EmailAddress(u, req.getParameter("addEmailNew"), Locale.ENGLISH);
+                EmailAddress ea = new EmailAddress(userByEmail, req.getParameter("addEmailNew"), Locale.ENGLISH);
                 verify(ea.getAddress(), ea);
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
@@ -475,7 +467,7 @@ public class Manager extends Page {
                 e.format(resp.getWriter(), Language.getInstance(Locale.ENGLISH), getDefaultVars(req));
             }
         } else if (req.getParameter("addCert") != null) {
-            User u = User.getByEmail(req.getParameter("addCertEmail"));
+            User userByEmail = User.getByEmail(req.getParameter("addCertEmail"));
             try {
                 KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
                 kpg.initialize(4096);
@@ -486,10 +478,10 @@ public class Manager extends Page {
 
                 byte[] res = s.getEncoded(sign);
 
-                CertificateRequest cr = new CertificateRequest(new AuthorizationContext(u, u, sessionAc.isStronglyAuthenticated()), Base64.getEncoder().encodeToString(res), "challenge");
-                cr.update(CertificateRequest.DEFAULT_CN, Digest.SHA512.toString(), "client", null, "", "email:" + u.getEmail());
+                CertificateRequest cr = new CertificateRequest(new AuthorizationContext(userByEmail, userByEmail, sessionAc.isStronglyAuthenticated()), Base64.getEncoder().encodeToString(res), "challenge");
+                cr.update(CertificateRequest.DEFAULT_CN, Digest.SHA512.toString(), "client", null, "", "email:" + userByEmail.getEmail());
                 Certificate draft = cr.draft();
-                draft.issue(null, "2y", u).waitFor(10000);
+                draft.issue(null, "2y", userByEmail).waitFor(10000);
                 if (draft.getStatus() == CertificateStatus.ISSUED) {
                     resp.getWriter().println("added certificate");
                 } else {
@@ -513,19 +505,19 @@ public class Manager extends Page {
             resp.getWriter().println("Updated domains exempt from pings. Current set: <br/>");
             resp.getWriter().println(HTMLEncoder.encodeHTML(pingExempt.toString()));
         } else if (req.getParameter("makeAgent") != null) {
-            User u = User.getByEmail(req.getParameter("agentEmail"));
-            if (u == null) {
+            User userByEmail = User.getByEmail(req.getParameter("agentEmail"));
+            if (userByEmail == null) {
                 resp.getWriter().println("User not found, or found user is not allowed to verify.");
             } else {
-                if (u.getVerificationPoints() < 100) {
-                    addVerificationPoints(100, u);
+                if (userByEmail.getVerificationPoints() < 100) {
+                    addVerificationPoints(100, userByEmail);
                 }
-                if ( !u.hasPassedCATS()) {
-                    passCATS(u, CATSType.AGENT_CHALLENGE);
+                if ( !userByEmail.hasPassedCATS()) {
+                    passCATS(userByEmail, CATSType.AGENT_CHALLENGE);
                 }
-                if ( !Contract.hasSignedContract(u, Contract.ContractType.RA_AGENT_CONTRACT)) {
+                if ( !Contract.hasSignedContract(userByEmail, Contract.ContractType.RA_AGENT_CONTRACT)) {
                     try {
-                        new Contract(u, Contract.ContractType.RA_AGENT_CONTRACT);
+                        new Contract(userByEmail, Contract.ContractType.RA_AGENT_CONTRACT);
                     } catch (GigiApiException e) {
                         throw new Error(e);
                     }
