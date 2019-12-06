@@ -372,7 +372,13 @@ public class Manager extends Page {
                 resp.getWriter().println("No test given.");
                 return;
             }
-            CATSType test = CATSType.values()[Integer.parseInt(catsTypeId)];
+            CATSType test = null;
+            try {
+                test = CATSType.values()[Integer.parseInt(catsTypeId)];
+            } catch (NumberFormatException e) {
+                resp.getWriter().println("No valid integer given.");
+                return;
+            }
             passCATS(byEmail, test);
             resp.getWriter().println("Test '" + test.getDisplayName() + "' was added to user account.");
         } else if (req.getParameter("catsexpire") != null) {
@@ -387,7 +393,13 @@ public class Manager extends Page {
                 resp.getWriter().println("No test given.");
                 return;
             }
-            CATSType test = CATSType.values()[Integer.parseInt(catsTypeId)];
+            CATSType test = null;
+            try {
+                test = CATSType.values()[Integer.parseInt(catsTypeId)];
+            } catch (NumberFormatException e) {
+                resp.getWriter().println("No valid integer given.");
+                return;
+            }
             expireCATS(userByEmail, test);
             resp.getWriter().println("Test '" + test.getDisplayName() + "' is set expired for user account.");
         } else if (req.getParameter("verify") != null) {
