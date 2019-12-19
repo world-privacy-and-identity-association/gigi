@@ -26,7 +26,6 @@ import club.wpia.gigi.output.template.Template;
 import club.wpia.gigi.pages.LoginPage;
 import club.wpia.gigi.util.AuthorizationContext;
 import club.wpia.gigi.util.HTMLEncoder;
-import club.wpia.gigi.util.RandomToken;
 import club.wpia.gigi.util.ServerConstants;
 import club.wpia.gigi.util.ServerConstants.Host;
 
@@ -42,14 +41,11 @@ public class CertificateIssueForm extends Form {
 
     private AuthorizationContext c;
 
-    private String spkacChallenge;
-
     private boolean login;
 
     public CertificateIssueForm(HttpServletRequest hsr) {
         super(hsr);
         c = LoginPage.getAuthorizationContext(hsr);
-        spkacChallenge = RandomToken.generateToken(16);
     }
 
     private Certificate result;
@@ -65,14 +61,9 @@ public class CertificateIssueForm extends Form {
     @Override
     public SubmissionResult submit(HttpServletRequest req) throws GigiApiException {
         String csr = req.getParameter("CSR");
-        String spkac = req.getParameter("SPKAC");
         try {
             if (csr != null) {
                 cr = new CertificateRequest(c, csr);
-                // TODO cr.checkKeyStrength(out);
-                return new FormContinue();
-            } else if (spkac != null) {
-                cr = new CertificateRequest(c, spkac, spkacChallenge);
                 // TODO cr.checkKeyStrength(out);
                 return new FormContinue();
             } else if (cr != null) {
@@ -138,7 +129,6 @@ public class CertificateIssueForm extends Form {
             HashMap<String, Object> vars2 = new HashMap<String, Object>(vars);
             vars2.put("csrf", getCSRFToken());
             vars2.put("csrf_name", getCsrfFieldName());
-            vars2.put("spkacChallenge", spkacChallenge);
             tIni.output(out, l, vars2);
             return;
         } else {

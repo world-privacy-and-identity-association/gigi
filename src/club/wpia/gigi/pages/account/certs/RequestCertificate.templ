@@ -1,6 +1,6 @@
 <p><?=_${appName} offers two ways to create a certificate.?>
-<?=_One is to paste a certificate signing request (CSR) created from an existing or newly created private key.?> <?=_If you do not know what a CSR is or how to create one take a look at the !(/kb/CSR)FAQ!'</a>'.?>
-<?=_As an alternative you can generate the private key inside your browser and export it once the certificate has been issued.?></p>
+<?=_One is to paste a certificate signing request (CSR) created from an existing or newly created private key.?> <?=_If you do not know what a CSR is or how to create one take a look at the !(/kb/CSR)FAQ!'</a>'.?></p>
+<p><?=_For inexperienced users the usage of !(/kb/XCA)XCA!'</a>' is recommended and described in !(/kb/XCADocu)XCA usage documentation!'</a>'?></p>
 <form method="post">
 <table class="table">
   <thead>
@@ -24,26 +24,4 @@
   </tbody>
 </table>
 </form>
-<form method="post">
-<table class="table">
-  <thead>
-  <tr>
-    <th colspan="2" class="title"><?=_Create a fresh key in the browser (SPKAC)?></th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr>
-    <td><?=_I do not have a CSR.?></td>
-    <td align="left">
-      <?=_key size (2048 recommended)?>: <keygen name="SPKAC" challenge="<?=$spkacChallenge?>"/>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2">
-     <input class="btn btn-primary" type="submit" name="process" value="<?=_Next?>" />
-     <input type='hidden' name='<?=$csrf_name?>' value='<?=$csrf?>'>
-    </td>
-  </tr>
-  </tbody>
-</table>
-</form>
+
