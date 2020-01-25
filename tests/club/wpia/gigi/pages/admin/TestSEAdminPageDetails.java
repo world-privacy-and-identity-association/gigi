@@ -170,7 +170,7 @@ public class TestSEAdminPageDetails extends SEClientTest {
     }
 
     private int getLogEntryCount(String readURL) {
-        String s = "<tr><th>Support actions";
+        String s = "<tr><th>Actions in user account";
         int start = readURL.indexOf(s);
         int end = readURL.indexOf("</table>", start);
         String logs = readURL.substring(start + s.length(), end);
