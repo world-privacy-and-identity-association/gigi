@@ -409,17 +409,43 @@ public class Manager extends Page {
             }
 
             int vp = 0;
+            int verifications = 0;
+            String info = "";
 
             try {
-                vp = Integer.parseInt(verificationPoints);
-            } catch (NumberFormatException e) {
-                resp.getWriter().println("No valid Verification Points entered.</br>");
-                vp = 0;
+                try {
+                    vp = Integer.parseInt(verificationPoints);
+                } catch (NumberFormatException e) {
+                    resp.getWriter().println("The value for Verification Points must be an integer.</br>");
+                    vp = 0;
+                }
+
+                int agentNumber = addVerificationPoints(vp, byEmail);
+
+                while (vp > 0) {
+                    int currentVP = 10;
+                    if (vp < 10) {
+                        currentVP = vp;
+                    }
+                    if (Notary.checkVerificationIsPossible(getAgent(agentNumber), byEmail.getPreferredName())) {
+
+                        Notary.verify(getAgent(agentNumber), byEmail, byEmail.getPreferredName(), byEmail.getDoB(), currentVP, "Testmanager Verify up code", validVerificationDateString(), VerificationType.FACE_TO_FACE, getRandomCountry());
+                        vp -= currentVP;
+                        verifications += 1;
+
+                    }
+                    agentNumber += 1;
+                    if (agentNumber >= agents.length) {
+                        info = "<br/>The limit of agents is reached. You cannot add any more Verification Points to the preferred name of this user using this method.";
+                        break;
+                    }
+                }
+
+            } catch (GigiApiException e) {
+                throw new Error(e);
             }
 
-            int agentNumber = addVerificationPoints(vp, byEmail);
-
-            resp.getWriter().println("User has been verified " + agentNumber + " times.");
+            resp.getWriter().println("User has been verified " + verifications + " times." + info);
 
         } else if (req.getParameter("letverify") != null) {
             String mail = req.getParameter("letverifyEmail");
