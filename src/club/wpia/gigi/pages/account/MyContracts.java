@@ -11,12 +11,15 @@ import javax.servlet.http.HttpServletResponse;
 import club.wpia.gigi.dbObjects.Contract;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.localisation.Language;
+import club.wpia.gigi.output.template.Template;
 import club.wpia.gigi.pages.LoginPage;
 import club.wpia.gigi.pages.Page;
 
 public class MyContracts extends Page {
 
     public static final String PATH = "/account/contracts";
+
+    private static final Template contractDE = new Template(MyDetailsForm.class.getResource("MyContractsDE.templ"));
 
     public MyContracts() {
         super("My Contracts");
@@ -37,6 +40,12 @@ public class MyContracts extends Page {
             vars.put("csdate", sdf.format(c.getDateSigned()));
         }
 
-        getDefaultTemplate().output(out, getLanguage(req), vars);
+        switch (l.getLocale().toString()) {
+        case "de":
+            contractDE.output(out, getLanguage(req), vars);
+            break;
+        default:
+            getDefaultTemplate().output(out, getLanguage(req), vars);
+        }
     }
 }
