@@ -15,6 +15,7 @@ import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.dbObjects.EmailAddress;
 import club.wpia.gigi.dbObjects.Group;
 import club.wpia.gigi.pages.account.certs.CertificateRequest;
+import club.wpia.gigi.testUtils.ClientBusinessTest;
 import club.wpia.gigi.testUtils.ClientTest;
 import club.wpia.gigi.util.AuthorizationContext;
 import club.wpia.gigi.util.TimeConditions;
@@ -132,6 +133,21 @@ public class TestCertificateRequest extends ClientTest {
             fail();
         } catch (GigiApiException e) {
             assertThat(e.getMessage(), containsString("needs a verification via email ping within the past"));
+        }
+
+    }
+
+    @Test
+    public void testVerificationInPast() throws IOException, GeneralSecurityException, GigiApiException {
+
+        ClientBusinessTest.setVerificationDateToPast(u.getPreferredName());
+        try {
+            CertificateRequest cr = new CertificateRequest(ac, generatePEMCSR(kp, "CN=a ab"));
+            cr.update(u.getPreferredName().toString(), "SHA512", "client-a", null, null, "email:" + email);
+            cr.draft();
+            fail();
+        } catch (GigiApiException e) {
+            assertThat(e.getMessage(), containsString("The entered name needs a valid verification within the last"));
         }
 
     }

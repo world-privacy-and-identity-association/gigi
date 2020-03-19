@@ -1,6 +1,9 @@
 package club.wpia.gigi.dbObjects;
 
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 
 import club.wpia.gigi.GigiApiException;
@@ -11,6 +14,7 @@ import club.wpia.gigi.dbObjects.NamePart.NamePartType;
 import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.template.Outputable;
 import club.wpia.gigi.util.HTMLEncoder;
+import club.wpia.gigi.util.TimeConditions;
 
 public class Name implements Outputable, IdCachable {
 
@@ -512,4 +516,26 @@ public class Name implements Outputable, IdCachable {
         }
         return initals.toString();
     }
+
+    public boolean isValidVerification() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        c.add(Calendar.MONTH, -TimeConditions.getInstance().getVerificationMonths());
+        String date = sdf.format(new Date(c.getTimeInMillis()));
+        try (GigiPreparedStatement query = new GigiPreparedStatement("SELECT COUNT(id) FROM `notary` WHERE `to` = ? AND `deleted` IS NULL AND (`expire` IS NULL OR `expire` > CURRENT_TIMESTAMP) AND `date` > ?")) {
+            query.setInt(1, getId());
+            query.setString(2, date);
+            GigiResultSet rs = query.executeQuery();
+
+            if (rs.next()) {
+                if (rs.getInt(1) > 0) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
 }

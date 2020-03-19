@@ -338,6 +338,15 @@ public class User extends CertificateOwner {
         return false;
     }
 
+    public boolean isValidNameVerification(String name) {
+        for (Name n : getNames()) {
+            if (n.matches(name) && n.isValidVerification()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void updateDefaultEmail(EmailAddress newMail) throws GigiApiException {
         for (EmailAddress email : getEmails()) {
             if (email.getAddress().equals(newMail.getAddress())) {

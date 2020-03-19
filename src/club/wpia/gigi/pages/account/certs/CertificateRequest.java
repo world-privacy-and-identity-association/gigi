@@ -443,7 +443,7 @@ public class CertificateRequest {
                 subject.put("OU", ou);
             }
         }
-        System.out.println(subject);
+
         if ( !error.isEmpty()) {
             throw error;
         }
@@ -493,7 +493,11 @@ public class CertificateRequest {
             User u = (User) ctx.getTarget();
             if (name != null && u.isValidName(name)) {
                 if (realIsOK) {
-                    verifiedCN = name;
+                    if (u.isValidNameVerification(name)) {
+                        verifiedCN = name;
+                    } else {
+                        error.mergeInto(new GigiApiException(SprintfCommand.createSimple("The entered name needs a valid verification within the last {0} months.", TimeConditions.getInstance().getVerificationMonths())));
+                    }
                 } else {
                     error.mergeInto(new GigiApiException("Your real name is not allowed in this certificate."));
                     if (defaultIsOK) {

@@ -134,4 +134,19 @@ public class TestUser extends ClientBusinessTest {
         assertThat(result, ArrayContains.contains(CoreMatchers.equalTo(type)));
     }
 
+    @Test
+    public void testValidVerification() throws GigiApiException {
+        User u0 = User.getById(createVerifiedUser("f", "l", createUniqueName() + "@email.com", TEST_PASSWORD));
+        assertFalse(u0.isValidNameVerification(u0.getPreferredName().toString()));
+
+        add100Points(u0.getId());
+        assertTrue(u0.isValidNameVerification(u0.getPreferredName().toString()));
+
+        setVerificationDateToPast(u0.getPreferredName());
+        assertFalse(u0.isValidNameVerification(u0.getPreferredName().toString()));
+
+        add100Points(u0.getId());
+        assertTrue(u0.isValidNameVerification(u0.getPreferredName().toString()));
+    }
+
 }
