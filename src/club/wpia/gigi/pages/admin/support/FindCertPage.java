@@ -57,8 +57,8 @@ public class FindCertPage extends Page {
 
                     @Override
                     public void apply(Certificate t, Language l, Map<String, Object> vars) {
-                        vars.put("id", t.getId());
                         vars.put("serial", t.getSerial());
+                        vars.put("draftinfo", t.getStatus() == CertificateStatus.DRAFT ? l.getTranslation("Draft") : "");
 
                         if (t.getStatus() == CertificateStatus.REVOKED) {
                             vars.put("revoked", t.getRevocationDate());
