@@ -14,6 +14,7 @@ import club.wpia.gigi.dbObjects.Certificate.CertificateStatus;
 import club.wpia.gigi.dbObjects.Certificate.SubjectAlternateName;
 import club.wpia.gigi.dbObjects.CertificateProfile;
 import club.wpia.gigi.dbObjects.Domain;
+import club.wpia.gigi.dbObjects.Job;
 import club.wpia.gigi.dbObjects.Organisation;
 import club.wpia.gigi.dbObjects.User;
 import club.wpia.gigi.localisation.Language;
@@ -97,7 +98,7 @@ public class CertificateIssueForm extends Form {
                     }
                     result.setDescription(description);
                 }
-                result.issue(issueDate.getFrom(), issueDate.getTo(), c.getActor()).waitFor(60000);
+                result.issue(issueDate.getFrom(), issueDate.getTo(), c.getActor()).waitFor(Job.WAIT_MIN);
                 this.result = result;
                 Certificate c = result;
                 if (c.getStatus() != CertificateStatus.ISSUED) {

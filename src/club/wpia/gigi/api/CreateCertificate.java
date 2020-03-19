@@ -65,7 +65,7 @@ public class CreateCertificate extends APIPoint {
             CertificateRequest cr = new CertificateRequest(ctx, csr, cp);
             Certificate result = cr.draft();
             Job job = result.issue(null, "2y", u);
-            job.waitFor(60000);
+            job.waitFor(Job.WAIT_MIN);
             if (result.getStatus() != CertificateStatus.ISSUED) {
                 resp.sendError(510, "Error, issuing timed out");
                 return;

@@ -70,7 +70,7 @@ public class SupportedUser {
         // TODO Check for open jobs!
         if (cert.getStatus() == CertificateStatus.ISSUED) {
             writeSELog("SE Revoke certificate");
-            cert.revoke(RevocationType.SUPPORT).waitFor(60000);
+            cert.revoke(RevocationType.SUPPORT).waitFor(Job.WAIT_MIN);
             // send notification to support
             String subject = "Revoke certificate";
             Outputable message = SprintfCommand.createSimple("Certificate with serial number {0} for {1} <{2}> has been revoked.", cert.getSerial(), target.getPreferredName().toString(), target.getEmail());

@@ -17,6 +17,7 @@ import club.wpia.gigi.GigiApiException;
 import club.wpia.gigi.database.GigiPreparedStatement;
 import club.wpia.gigi.database.GigiResultSet;
 import club.wpia.gigi.dbObjects.CATS.CATSType;
+import club.wpia.gigi.dbObjects.Certificate.RevocationType;
 import club.wpia.gigi.dbObjects.Country.CountryCodeType;
 import club.wpia.gigi.dbObjects.Verification.VerificationType;
 import club.wpia.gigi.email.EmailProvider;
@@ -373,16 +374,51 @@ public class User extends CertificateOwner {
             throw new GigiApiException("Can't delete user's default e-mail.");
         }
 
+        deleteEmailCerts(delMail, RevocationType.USER);
+    }
+
+    private void deleteEmailCerts(EmailAddress delMail, RevocationType rt) throws GigiApiException {
         for (EmailAddress email : getEmails()) {
             if (email.getId() == delMail.getId()) {
                 try (GigiPreparedStatement ps = new GigiPreparedStatement("UPDATE `emails` SET `deleted`=CURRENT_TIMESTAMP WHERE `id`=?")) {
                     ps.setInt(1, delMail.getId());
                     ps.execute();
                 }
+                LinkedList<Job> revokes = new LinkedList<Job>();
+                for (Certificate cert : fetchActiveEmailCertificates(delMail.getAddress())) {
+                    cert.revoke(RevocationType.USER).waitFor(Job.WAIT_MIN);
+                }
+                long start = System.currentTimeMillis();
+                for (Job job : revokes) {
+                    int toWait = (int) (60000 + start - System.currentTimeMillis());
+                    if (toWait > 0) {
+                        job.waitFor(toWait);
+                    } else {
+                        break; // canceled... waited too log
+                    }
+                }
                 return;
             }
+
         }
         throw new GigiApiException("Email not one of user's email addresses.");
+
+    }
+
+    public Certificate[] fetchActiveEmailCertificates(String email) {
+        try (GigiPreparedStatement ps = new GigiPreparedStatement("SELECT DISTINCT `certs`.`id` FROM `certs` INNER JOIN `subjectAlternativeNames` ON `subjectAlternativeNames`.`certId` = `certs`.`id` WHERE `contents`=?  AND `type`='email' AND `revoked` IS NULL AND `expire` > CURRENT_TIMESTAMP AND `memid`=?", true)) {
+            ps.setString(1, email);
+            ps.setInt(2, getId());
+            GigiResultSet rs = ps.executeQuery();
+            rs.last();
+            Certificate[] res = new Certificate[rs.getRow()];
+            rs.beforeFirst();
+            int i = 0;
+            while (rs.next()) {
+                res[i++] = Certificate.getById(rs.getInt(1));
+            }
+            return res;
+        }
     }
 
     public synchronized Verification[] getReceivedVerifications() {

@@ -11,6 +11,8 @@ import club.wpia.gigi.output.CertificateValiditySelector;
 
 public class Job implements IdCachable {
 
+    public static int WAIT_MIN = 60000;
+
     private int id;
 
     private Job(int id) {

@@ -42,7 +42,7 @@ public class RevokeCertificate extends APIPoint {
         }
 
         Job job = c.revoke(RevocationType.USER);
-        job.waitFor(60000);
+        job.waitFor(Job.WAIT_MIN);
         if (c.getStatus() != CertificateStatus.REVOKED) {
             resp.sendError(510, "Error, issuing timed out");
             return;

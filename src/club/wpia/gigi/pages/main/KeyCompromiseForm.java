@@ -166,7 +166,7 @@ public class KeyCompromiseForm extends Form {
             throw new GigiApiException("Sending the notification mail failed.");
         }
         Job j = c.revoke(challenge, Base64.getEncoder().encodeToString(signature), message);
-        if ( !j.waitFor(60000)) {
+        if ( !j.waitFor(Job.WAIT_MIN)) {
             throw new PermamentFormException(new GigiApiException("Revocation timed out."));
         }
         if (c.getStatus() != CertificateStatus.REVOKED) {
