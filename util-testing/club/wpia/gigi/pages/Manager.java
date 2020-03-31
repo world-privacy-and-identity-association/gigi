@@ -167,7 +167,9 @@ public class Manager extends Page {
                 ps.setString(6, getRandomCountry().getCode());
                 ps.execute();
             }
-            new Contract(u, ContractType.RA_AGENT_CONTRACT);
+            if ( !Contract.hasSignedContract(u, ContractType.RA_AGENT_CONTRACT)) {
+                new Contract(u, ContractType.RA_AGENT_CONTRACT);
+            }
             return u;
         }
     }
