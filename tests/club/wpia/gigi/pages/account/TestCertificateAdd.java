@@ -132,12 +132,12 @@ public class TestCertificateAdd extends ClientTest {
         byte[] cer = IOUtils.readURL(uc.getInputStream());
         assertArrayEquals(cer, PEM.decode("CERTIFICATE", crt));
 
-        uc = authenticate(new URL(huc.getHeaderField("Location") + ".cer?install&chain"));
+        uc = authenticate(new URL(huc.getHeaderField("Location") + ".cer?chain"));
         byte[] pkcs7 = IOUtils.readURL(uc.getInputStream());
         PKCS7 p7 = new PKCS7(pkcs7);
         byte[] sub = verifyChain(p7.getCertificates());
         assertArrayEquals(cer, sub);
-        assertEquals("application/x-x509-user-cert", uc.getHeaderField("Content-type"));
+        assertEquals("application/pkix-cert", uc.getHeaderField("Content-type"));
 
         uc = authenticate(new URL(huc.getHeaderField("Location")));
         String gui = IOUtils.readURL(uc);
