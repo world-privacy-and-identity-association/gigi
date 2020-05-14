@@ -3,6 +3,10 @@
 /policy/ToS
 /policy/CPS
 /policy/verification
+/policy/raagent
+/policy/organisation
+/policy/ttp
+/policy/nucleus
 /kb/acceptableDocuments
 /kb/agentQualifyingChallenge
 /kb/gigi

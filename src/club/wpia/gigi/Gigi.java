@@ -51,6 +51,7 @@ import club.wpia.gigi.pages.MainPage;
 import club.wpia.gigi.pages.OneFormPage;
 import club.wpia.gigi.pages.Page;
 import club.wpia.gigi.pages.PasswordResetPage;
+import club.wpia.gigi.pages.PolicyPage;
 import club.wpia.gigi.pages.RootCertPage;
 import club.wpia.gigi.pages.StaticPage;
 import club.wpia.gigi.pages.Verify;
@@ -154,6 +155,7 @@ public final class Gigi extends HttpServlet {
             putPage("/roots", new RootCertPage(truststore), mainMenu);
             putPage(StatisticsRoles.PATH, new StatisticsRoles(), mainMenu);
             putPage("/about", new AboutPage(), mainMenu);
+            putPage("/policy", new PolicyPage(), mainMenu);
             putPage(RegisterPage.PATH, new RegisterPage(), mainMenu);
             putPage(CertStatusRequestPage.PATH, new CertStatusRequestPage(), mainMenu);
             putPage(KeyCompromisePage.PATH, new KeyCompromisePage(), mainMenu);

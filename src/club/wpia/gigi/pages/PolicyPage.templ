@@ -1,0 +1,65 @@
+<p><?=_This page gives information on the most important policies for issuing and using certificates from ${appName} and the time restrictions defined in these policies.?></p>
+
+<table class="table">
+<tr><th>
+Policies
+</th></tr>
+<tr><td>
+<?=_!(/policy/CPS)CP!'</a>'?>
+</td></tr>
+<tr><td>
+<?=_!(/policy/verification)Verification Policy!'</a>' and the related sub policies?>
+</td></tr>
+<tr><td>
+<?=_!(/policy/raagent)Policy On Verification By RA Agent!'</a>'?>
+</td></tr>
+<tr><td>
+<?=_!(/policy/organisation)Organisation Verification Policy!'</a>'?>
+</td></tr>
+<tr><td>
+<?=_!(/policy/ttp)TTP Policy!'</a>'?>
+</td></tr>
+<tr><td>
+<?=_!(/policy/nucleus)Nucleus Policy!'</a>'?>
+</td></tr>
+<tr><td>
+<?=_All other policies can be viewed !(/policy)here!'</a>'?>
+</td></tr>
+</table>
+
+
+<table class="table">
+<tr><th colspan="2">
+Time settings on this server
+</th></tr>
+
+<tr><td>
+Time for valid knowledge challenge
+</td><td>
+<?=$testValidMonths?> months
+</td></tr>
+
+<tr><td>
+Minimum time between two verifications done by the same RA Agent for the same fellow
+</td><td>
+<?=$reverificationDays?> days
+</td></tr>
+
+<tr><td>
+Time that a verification is considered recent
+</td><td>
+<?=$verificationFreshMonths?> months
+</td></tr>
+
+<tr><td>
+Maximum time that a verification is accepted
+</td><td>
+<?=$verificationMaxAgeMonths?> months
+</td></tr>
+
+<tr><td>
+Maximum time before reping of email address needed
+</td><td>
+<?=$emailPingMonths?> months
+</td></tr>
+</table>
