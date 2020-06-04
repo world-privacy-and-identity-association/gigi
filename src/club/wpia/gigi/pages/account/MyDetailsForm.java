@@ -20,6 +20,7 @@ import club.wpia.gigi.output.GroupSelector;
 import club.wpia.gigi.output.NameInput;
 import club.wpia.gigi.output.template.Form;
 import club.wpia.gigi.output.template.Template;
+import club.wpia.gigi.util.ServerConstants;
 
 public class MyDetailsForm extends Form {
 
@@ -176,10 +177,12 @@ public class MyDetailsForm extends Form {
         vars.put("groupSelector", selectedGroup);
         roles.output(out, l, vars);
 
-        boolean hasSignedContract = Contract.hasSignedContract(target, Contract.ContractType.RA_AGENT_CONTRACT);
-        vars.put("contractsign", hasSignedContract ? "disabled" : "");
-        vars.put("contractrevoke", hasSignedContract ? "" : "disabled");
-        contracts.output(out, l, vars);
+        if ( !ServerConstants.isCommunityCA()) {
+            boolean hasSignedContract = Contract.hasSignedContract(target, Contract.ContractType.RA_AGENT_CONTRACT);
+            vars.put("contractsign", hasSignedContract ? "disabled" : "");
+            vars.put("contractrevoke", hasSignedContract ? "" : "disabled");
+            contracts.output(out, l, vars);
+        }
     }
 
 }

@@ -76,6 +76,8 @@ public class ServerConstants {
 
     private static String mailQuizAdmin;
 
+    private static boolean communityCA;
+
     public static void init(Properties conf) {
         securePort = port = "";
         if ( !conf.getProperty("https.port").equals("443")) {
@@ -105,6 +107,7 @@ public class ServerConstants {
         mailBoard = conf.getProperty("mail.board", "board@" + suffix);
         mailQuiz = conf.getProperty("mail.quiz", "quiz@" + suffix);
         mailQuizAdmin = conf.getProperty("mail.quizAdmin", "quiz-admin@" + suffix);
+        communityCA = conf.getProperty("communityCA", "false").equalsIgnoreCase("true");
     }
 
     public static String getHostName(Host h) {
@@ -179,6 +182,10 @@ public class ServerConstants {
             throw new Error("AppIdentifier not initialized.");
         }
         return appIdentifier;
+    }
+
+    public static boolean isCommunityCA() {
+        return communityCA;
     }
 
 }

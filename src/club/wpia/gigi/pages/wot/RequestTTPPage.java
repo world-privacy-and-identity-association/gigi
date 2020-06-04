@@ -12,6 +12,7 @@ import club.wpia.gigi.output.template.Form;
 import club.wpia.gigi.pages.LoginPage;
 import club.wpia.gigi.pages.Page;
 import club.wpia.gigi.util.AuthorizationContext;
+import club.wpia.gigi.util.ServerConstants;
 
 public class RequestTTPPage extends Page {
 
@@ -63,7 +64,7 @@ public class RequestTTPPage extends Page {
 
     @Override
     public boolean isPermitted(AuthorizationContext ac) {
-        return ac != null && ac.getTarget() instanceof User;
+        return ac != null && ac.getTarget() instanceof User && !ServerConstants.isCommunityCA();
     }
 
 }

@@ -189,7 +189,15 @@ public final class Gigi extends HttpServlet {
             putPage(SupportOrgDomainPage.PATH + "*", new SupportOrgDomainPage(), null);
             putPage(ChangePasswordPage.PATH, new ChangePasswordPage(), account);
             putPage(History.PATH, new History(false), account);
-            putPage(FindAgentAccess.PATH, new OneFormPage("Access to Find Agent", FindAgentAccess.class), account);
+
+            putPage(FindAgentAccess.PATH, new OneFormPage("Access to Find Agent", FindAgentAccess.class) {
+
+                @Override
+                public boolean isPermitted(AuthorizationContext ac) {
+                    return super.isPermitted(ac) && !ServerConstants.isCommunityCA();
+                }
+            }, account);
+
             putPage(History.SUPPORT_PATH, new History(true), null);
             putPage(UserTrainings.PATH, new UserTrainings(false), account);
             putPage(MyDetails.PATH, new MyDetails(), account);
@@ -214,7 +222,13 @@ public final class Gigi extends HttpServlet {
             }
 
             try {
-                putPage("/wot/rules", new StaticPage("Verification Rules", VerifyPage.class.getResourceAsStream("Rules.templ")), wot);
+                putPage("/wot/rules", new StaticPage("Verification Rules", VerifyPage.class.getResourceAsStream("Rules.templ")) {
+
+                    @Override
+                    public boolean isPermitted(AuthorizationContext ac) {
+                        return super.isPermitted(ac) && !ServerConstants.isCommunityCA();
+                    }
+                }, wot);
             } catch (UnsupportedEncodingException e) {
                 throw new ServletException(e);
             }
@@ -310,12 +324,10 @@ public final class Gigi extends HttpServlet {
         }
 
         try {
-            final FileChannel knownPasswordHashesFile = FileChannel.open(
-                FileSystems.getDefault().getPath(knownPasswordHashesPath));
+            final FileChannel knownPasswordHashesFile = FileChannel.open(FileSystems.getDefault().getPath(knownPasswordHashesPath));
             return new DelegatingPasswordChecker(new PasswordChecker[] {
-                    new PasswordStrengthChecker(),
-                    new PasswordHashChecker(knownPasswordHashesFile, sha1)
-                });
+                    new PasswordStrengthChecker(), new PasswordHashChecker(knownPasswordHashesFile, sha1)
+            });
         } catch (IOException e) {
             if (knownPasswordHashesRequired) {
                 throw new RuntimeException("Error while opening password hash database, refusing startup", e);

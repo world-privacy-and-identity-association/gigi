@@ -19,10 +19,13 @@ import club.wpia.gigi.localisation.Language;
 import club.wpia.gigi.output.GroupList;
 import club.wpia.gigi.output.template.IterableDataset;
 import club.wpia.gigi.output.template.Template;
+import club.wpia.gigi.util.ServerConstants;
 
 public class MainPage extends Page {
 
     private static final Template notLog = new Template(MainPage.class.getResource("MainPageNotLogin.templ"));
+
+    private static final Template notLogCommunity = new Template(MainPage.class.getResource("MainPageNotLoginCommunity.templ"));
 
     public MainPage() {
         super("Home");
@@ -40,7 +43,6 @@ public class MainPage extends Page {
             vars.put("ra-agent", u.canVerify());
             vars.put("vp", u.getVerificationPoints());
             vars.put("xp", u.getExperiencePoints());
-
 
             vars.put("catsinfo", false);
             if (u.canVerify() && !u.hasValidRAChallenge()) {
@@ -136,7 +138,11 @@ public class MainPage extends Page {
             getDefaultTemplate().output(resp.getWriter(), getLanguage(req), vars);
 
         } else {
-            notLog.output(resp.getWriter(), getLanguage(req), vars);
+            if (ServerConstants.isCommunityCA()) {
+                notLogCommunity.output(resp.getWriter(), getLanguage(req), vars);
+            } else {
+                notLog.output(resp.getWriter(), getLanguage(req), vars);
+            }
         }
     }
 

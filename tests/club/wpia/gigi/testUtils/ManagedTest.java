@@ -26,6 +26,7 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -104,8 +105,17 @@ public class ManagedTest extends ConfiguredTest {
     private static boolean inited = false;
 
     public static Properties initEnvironment() {
+        return initEnvironment(new Properties());
+    }
+
+    public static Properties initEnvironment(Properties additionalConfig) {
         try {
             Properties mainProps = ConfiguredTest.initEnvironment();
+            for (Entry<Object, Object> i : additionalConfig.entrySet()) {
+                if (i.getKey() instanceof String && i.getValue() instanceof String) {
+                    mainProps.setProperty((String) i.getKey(), (String) i.getValue());
+                }
+            }
             if (inited) {
                 return mainProps;
             }

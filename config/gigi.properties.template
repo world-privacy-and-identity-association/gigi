@@ -23,6 +23,9 @@ time.verificationMaxAgeMonths=24
 appName=SomeCA
 appIdentifier=someca
 
+#to use Gigi without public RA Agent functionality remove # from next line
+#communityCA=true
+
 #mail.support=support@wpia.local
 #mail.board=board@wpia.local
 #mail.quiz=quiz@wpia.local
