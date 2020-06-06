@@ -59,7 +59,6 @@ import club.wpia.gigi.api.GigiAPI;
 import club.wpia.gigi.email.EmailProvider;
 import club.wpia.gigi.natives.SetUID;
 import club.wpia.gigi.ocsp.OCSPResponder;
-import club.wpia.gigi.util.CipherInfo;
 import club.wpia.gigi.util.PEM;
 import club.wpia.gigi.util.ServerConstants;
 import club.wpia.gigi.util.ServerConstants.Host;
@@ -273,19 +272,12 @@ public class Launcher {
         private static SslContextFactory generateSSLContextFactory(GigiConfig conf, String alias) throws GeneralSecurityException, IOException {
             SslContextFactory scf = new SslContextFactory() {
 
-                String[] ciphers = null;
-
                 @Override
                 public void customize(SSLEngine sslEngine) {
                     super.customize(sslEngine);
 
                     SSLParameters ssl = sslEngine.getSSLParameters();
                     ssl.setUseCipherSuitesOrder(true);
-                    if (ciphers == null) {
-                        ciphers = CipherInfo.filter(sslEngine.getSupportedCipherSuites());
-                    }
-
-                    ssl.setCipherSuites(ciphers);
                     sslEngine.setSSLParameters(ssl);
 
                 }
