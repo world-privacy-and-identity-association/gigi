@@ -82,6 +82,9 @@ public class RegisterPageTest extends ManagedTest {
     @Test
     public void testNoEmail() throws IOException {
         testFailedForm("fname=a&lname=b&pword1=ap&pword2=ap&day=1&month=1&year=1910&tos_agree=1&dp_agree=1");
+        testFailedForm("fname=a&lname=b&email=e&pword1=ap&pword2=ap&day=1&month=1&year=1910&tos_agree=1&dp_agree=1");
+        testFailedForm("fname=a&lname=b&email=e@&pword1=ap&pword2=ap&day=1&month=1&year=1910&tos_agree=1&dp_agree=1");
+        testFailedForm("fname=a&lname=b&email=@d.ef&pword1=ap&pword2=ap&day=1&month=1&year=1910&tos_agree=1&dp_agree=1");
     }
 
     @Test

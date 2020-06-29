@@ -141,6 +141,11 @@ public class Signup extends Form {
             throw gaPassword;
         }
         GigiApiException ga2 = new GigiApiException();
+
+        if ( !EmailProvider.isValidMailAddress(email)) {
+            ga2.mergeInto(new GigiApiException("This email address seems not to be valid."));
+        }
+
         try (GigiPreparedStatement q1 = new GigiPreparedStatement("SELECT * FROM `emails` WHERE `email`=? AND `deleted` IS NULL"); GigiPreparedStatement q2 = new GigiPreparedStatement("SELECT * FROM `certOwners` INNER JOIN `users` ON `users`.`id`=`certOwners`.`id` WHERE `email`=? AND `deleted` IS NULL")) {
             q1.setString(1, email);
             q2.setString(1, email);
