@@ -116,7 +116,7 @@ public final class SprintfCommand implements Translatable {
                     throw new Error("Need an absolute link for the link service.");
                 }
                 String link = "//" + host + replacement.substring(2);
-                out.print("<a href='" + HTMLEncoder.encodeHTML(link) + "'>");
+                out.print("<a href='" + HTMLEncoder.encodeHTML(link) + "' target='_blank' rel='noreferrer'>");
             } else if (replacement.startsWith("$")) {
                 Template.outputVar(out, l, externalVariables, replacement.substring(2), false);
             } else {

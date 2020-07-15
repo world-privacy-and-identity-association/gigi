@@ -1,12 +1,12 @@
 <p><?=_The Root certificate is available for download here. Choose your preferred format:?><br/>
-<a href="?pem">PEM</a> <a href="?cer">DER</a></p>
+<a href="?pem" download>PEM</a> <a href="?cer" download>DER</a></p>
 <p><?=_Root certificate fingerprints:?><br/>
 <?=_Fingerprint SHA-1?>:
 <?=$fingerprintSHA1?><br/>
 <?=_Fingerprint SHA-256?>:
 <?=$fingerprintSHA256?><br/></p>
 <p><?=_A p7b file with all intermediate certificates is available for download here:?><br/>
-<a href="?bundle"><?=$bundle?></a></p>
+<a href="?bundle" download><?=$bundle?></a></p>
 <p><?=_Find information how to add the root and intermediate certificates to the truststore of your browser or operating system in our !(/kb/truststores)FAQ!'</a>'.?></p>
 <p>
 <?=_A full list of all DER-encoded intermediate certificates is provided below:?>

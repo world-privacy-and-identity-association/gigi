@@ -62,7 +62,7 @@ public class RootCertPage extends Page {
 
         @Override
         public void output(PrintWriter out, Language l, Map<String, Object> vars) {
-            out.println("<a href='" + HTMLEncoder.encodeHTML(target.getLink()) + "'>");
+            out.println("<a href='" + HTMLEncoder.encodeHTML(target.getLink()) + "' download='" + HTMLEncoder.encodeHTML(target.getKeyname()) + "'>");
             out.println(HTMLEncoder.encodeHTML(target.getKeyname()));
             out.println("</a>");
             out.println(HTMLEncoder.encodeHTML(target.getCertificate().getSubjectX500Principal().toString()));
