@@ -7,7 +7,7 @@ rm -f cacerts.jks
 
 function import(){
   name=$1
-  keytool -importcert -keystore ../config/cacerts.jks -file "$1.crt" -alias own -storepass "changeit" -alias "$(basename $name)" $2
+  keytool -importcert -keystore ../config/cacerts.jks -file "$1.crt" -storepass "changeit" -alias "$(basename $name)" $2
 }
 
 function importP(){
