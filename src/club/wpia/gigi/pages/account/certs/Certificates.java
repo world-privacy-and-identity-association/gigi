@@ -63,9 +63,6 @@ public class Certificates extends Page implements HandlesMixedRequest {
         boolean crt = false;
         boolean cer = false;
         resp.setContentType("application/pkix-cert");
-        if (req.getParameter("install") != null) {
-            resp.setContentType("application/x-x509-user-cert");
-        }
         if (pi.endsWith(".crt") || pi.endsWith(".pem")) {
             crt = true;
             pi = pi.substring(0, pi.length() - 4);
